@@ -1,0 +1,31 @@
+[MASTER]
+init-hook='import sys; sys.path.append(".")'
+disable=
+    C0103, # Variable name doesn't conform to snake_case naming style
+    C0111, # Missing docstring
+    C0330, # Wrong hanging indentation
+    C0326, # Bad whitespace
+    W0511, # TODO / FIXME
+    R0903, # Too few public methods
+    R0913, # Too many arguments
+    R0914, # Too many local variables
+
+[FORMAT]
+max-line-length=100
+
+[SIMILARITIES]
+min-similarity-lines=7
+ignore-comments=yes
+ignore-docstrings=yes
+
+[TYPECHECK]
+ignored-modules=numpy,torch,tensorflow
+
+[DESIGN]
+max-args=10
+max-attributes=15
+max-branches=15
+max-locals=25
+max-returns=10
+max-statements=50
+max-parents=10
