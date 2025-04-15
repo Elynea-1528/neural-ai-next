@@ -19,7 +19,7 @@ Utoljára frissítve: 2025. április 15.
   - [ ] Alapimplementáció
   - [ ] Factory osztály
   - [ ] Tesztek
-  
+
 - [ ] Storage komponens
   - [ ] Interfészek definiálása
   - [ ] Alapimplementáció
@@ -35,10 +35,9 @@ Utoljára frissítve: 2025. április 15.
 - [x] VS Code tesztelés konfigurálása (2025. április 15.)
 
 ## Ismert problémák
-- [ ] Pre-commit hook hiba Python 3.12 környezetben (setuptools/pkg_resources kompatibilitási probléma)
+- [x] Pre-commit hook hiba Python 3.12 környezetben (megoldva: hook-ok frissítve 2025.04.15)
 
 ## Következő lépések
-- Pre-commit hook probléma javítása
 - Fejlesztői branch létrehozása
 - Logger komponens teljes implementálása
 - Config komponens teljes implementálása
