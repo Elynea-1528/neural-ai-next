@@ -43,28 +43,29 @@ class LoggerFactory(LoggerFactoryInterface):
         Args:
             config: A logger rendszer konfigurációja
         """
-        level = config.get("default_level", "INFO")
-        format_str = config.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        date_format = config.get("date_format", "%Y-%m-%d %H:%M:%S")
+        level: str = config.get("default_level", "INFO")
+        default_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format_str: str = config.get("format", default_format)
+        date_format: str = config.get("date_format", "%Y-%m-%d %H:%M:%S")
 
         # Alap konfiguráció beállítása
         logging.basicConfig(level=getattr(logging, level), format=format_str, datefmt=date_format)
 
         # Handler-ek konfigurálása
-        handlers_config = config.get("handlers", {})
+        handlers_config: Dict[str, Any] = config.get("handlers", {})
 
         # Konzol handler
-        console_config = handlers_config.get("console", {})
+        console_config: Dict[str, Any] = handlers_config.get("console", {})
         if console_config.get("enabled", True):
-            console_handler = logging.StreamHandler()
+            console_handler: logging.StreamHandler = logging.StreamHandler()
             console_handler.setLevel(getattr(logging, console_config.get("level", "INFO")))
             console_handler.setFormatter(logging.Formatter(format_str, date_format))
             logging.getLogger().addHandler(console_handler)
 
         # Fájl handler
-        file_config = handlers_config.get("file", {})
+        file_config: Dict[str, Any] = handlers_config.get("file", {})
         if file_config.get("enabled", False):
-            file_handler = logging.FileHandler(
+            file_handler: logging.FileHandler = logging.FileHandler(
                 filename=file_config.get("filename", "logs/app.log"), encoding="utf-8"
             )
             file_handler.setLevel(getattr(logging, file_config.get("level", "DEBUG")))

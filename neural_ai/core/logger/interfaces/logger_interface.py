@@ -5,6 +5,7 @@ meghatározza a különböző szintű naplózási műveleteket.
 """
 
 from abc import ABC, abstractmethod
+from typing import Any
 
 
 class LoggerInterface(ABC):
@@ -15,7 +16,7 @@ class LoggerInterface(ABC):
     """
 
     @abstractmethod
-    def debug(self, message: str, **kwargs) -> None:
+    def debug(self, message: str, **kwargs: Any) -> None:
         """Debug szintű üzenet logolása.
 
         Args:
@@ -25,7 +26,7 @@ class LoggerInterface(ABC):
         pass
 
     @abstractmethod
-    def info(self, message: str, **kwargs) -> None:
+    def info(self, message: str, **kwargs: Any) -> None:
         """Információs szintű üzenet logolása.
 
         Args:
@@ -35,7 +36,7 @@ class LoggerInterface(ABC):
         pass
 
     @abstractmethod
-    def warning(self, message: str, **kwargs) -> None:
+    def warning(self, message: str, **kwargs: Any) -> None:
         """Figyelmeztetés szintű üzenet logolása.
 
         Args:
@@ -45,7 +46,7 @@ class LoggerInterface(ABC):
         pass
 
     @abstractmethod
-    def error(self, message: str, **kwargs) -> None:
+    def error(self, message: str, **kwargs: Any) -> None:
         """Hiba szintű üzenet logolása.
 
         Args:
@@ -55,7 +56,7 @@ class LoggerInterface(ABC):
         pass
 
     @abstractmethod
-    def critical(self, message: str, **kwargs) -> None:
+    def critical(self, message: str, **kwargs: Any) -> None:
         """Kritikus hiba szintű üzenet logolása.
 
         Args:

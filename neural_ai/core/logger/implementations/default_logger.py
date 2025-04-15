@@ -5,6 +5,7 @@ ami a Python standard library logging moduljára épül.
 """
 
 import logging
+from typing import Any
 
 from neural_ai.core.logger.interfaces import LoggerInterface
 
@@ -16,15 +17,15 @@ class DefaultLogger(LoggerInterface):
     a naplózási műveletek megvalósításához.
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         """Logger inicializálása.
 
         Args:
             name: A logger neve
         """
-        self._logger = logging.getLogger(name)
+        self._logger: logging.Logger = logging.getLogger(name)
 
-    def debug(self, message: str, **kwargs) -> None:
+    def debug(self, message: str, **kwargs: Any) -> None:
         """Debug szintű üzenet logolása.
 
         Args:
@@ -33,7 +34,7 @@ class DefaultLogger(LoggerInterface):
         """
         self._logger.debug(message, extra=kwargs)
 
-    def info(self, message: str, **kwargs) -> None:
+    def info(self, message: str, **kwargs: Any) -> None:
         """Információs szintű üzenet logolása.
 
         Args:
@@ -42,7 +43,7 @@ class DefaultLogger(LoggerInterface):
         """
         self._logger.info(message, extra=kwargs)
 
-    def warning(self, message: str, **kwargs) -> None:
+    def warning(self, message: str, **kwargs: Any) -> None:
         """Figyelmeztetés szintű üzenet logolása.
 
         Args:
@@ -51,7 +52,7 @@ class DefaultLogger(LoggerInterface):
         """
         self._logger.warning(message, extra=kwargs)
 
-    def error(self, message: str, **kwargs) -> None:
+    def error(self, message: str, **kwargs: Any) -> None:
         """Hiba szintű üzenet logolása.
 
         Args:
@@ -60,7 +61,7 @@ class DefaultLogger(LoggerInterface):
         """
         self._logger.error(message, extra=kwargs)
 
-    def critical(self, message: str, **kwargs) -> None:
+    def critical(self, message: str, **kwargs: Any) -> None:
         """Kritikus hiba szintű üzenet logolása.
 
         Args:
