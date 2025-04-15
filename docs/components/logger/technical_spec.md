@@ -48,25 +48,25 @@ classDiagram
         +error(message: str, **kwargs)
         +critical(message: str, **kwargs)
     }
-    
+
     class DefaultLogger {
         -_logger: Logger
         +__init__(name: str)
     }
-    
+
     class ColoredLogger {
         -_logger: Logger
         -_formatter: ColoredFormatter
         +__init__(name: str, format_str: str)
     }
-    
+
     class RotatingFileLogger {
         -_logger: Logger
         -_handler: RotatingFileHandler
         +__init__(name: str, filename: str)
         +compress_old_logs()
     }
-    
+
     LoggerInterface <|-- DefaultLogger
     LoggerInterface <|-- ColoredLogger
     LoggerInterface <|-- RotatingFileLogger
