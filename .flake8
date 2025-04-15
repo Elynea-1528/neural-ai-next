@@ -1,6 +1,26 @@
 [flake8]
 max-line-length = 100
-exclude = .git,__pycache__,build,dist
-ignore = E203,W503,D100,D101,D102,D103
+exclude = .git,__pycache__,build,dist,*.egg-info,.venv,venv
+ignore =
+    # Whitespace before ':' (black formatter konfliktus)
+    E203,
+    # Line break before binary operator (black formatter konfliktus)
+    W503,
+    # Missing docstring in public module
+    D100,
+    # Missing docstring in public class
+    D101,
+    # Missing docstring in public method
+    D102,
+    # Missing docstring in public function
+    D103,
+    # Missing docstring in magic method
+    D105
 docstring-convention = google
 max-complexity = 10
+per-file-ignores =
+    # Ignore unused imports in __init__.py files
+    __init__.py:F401
+# Import order settings
+import-order-style = google
+application-import-names = neural_ai,tests

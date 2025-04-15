@@ -1,31 +1,56 @@
 [MASTER]
-init-hook='import sys; sys.path.append(".")'
-disable=
-    C0103, # Variable name doesn't conform to snake_case naming style
-    C0111, # Missing docstring
-    C0330, # Wrong hanging indentation
-    C0326, # Bad whitespace
-    W0511, # TODO / FIXME
-    R0903, # Too few public methods
-    R0913, # Too many arguments
-    R0914, # Too many local variables
+# Python verzió
+py-version = 3.12
+
+# Rekurzívan vizsgált könyvtárak
+recursive = yes
+
+# Figyelmen kívül hagyott minták
+ignore = CVS, .git, __pycache__, build, dist
+
+[MESSAGES CONTROL]
+# Kikapcsolt üzenetek
+disable = C0111,  # missing-docstring
+         C0103,  # invalid-name
+         W0511,  # fixme
+         R0903,  # too-few-public-methods
+         R0913,  # too-many-arguments
+         R0914   # too-many-locals
 
 [FORMAT]
-max-line-length=100
+# Maximum sorhossz
+max-line-length = 100
+
+# Expected format of line ending
+expected-line-ending-format = LF
+
+[BASIC]
+# Jó változónevek mintái
+good-names = i, j, k, ex, Run, _, fp, id, T
 
 [SIMILARITIES]
-min-similarity-lines=7
-ignore-comments=yes
-ignore-docstrings=yes
+# Minimum sorok száma a duplikációk kereséséhez
+min-similarity-lines = 4
+
+# Figyelmen kívül hagyott import sorok
+ignore-imports = yes
 
 [TYPECHECK]
-ignored-modules=numpy,torch,tensorflow
+# Sémák, amiket a pylint nem tud interpretálni
+ignored-classes = numpy, torch
 
-[DESIGN]
-max-args=10
-max-attributes=15
-max-branches=15
-max-locals=25
-max-returns=10
-max-statements=50
-max-parents=10
+[MISCELLANEOUS]
+# Lista a kívánt megjegyzésekről (TODO, FIXME, stb.)
+notes = TODO, FIXME, XXX, HACK
+
+[VARIABLES]
+# Figyelmen kívül hagyott argumentum nevek
+ignored-argument-names = arg|args|kwargs
+
+[STRING]
+# Idézőjelek használata
+check-quote-consistency = yes
+
+[IMPORTS]
+# Külön sorba kell tenni az importokat
+separate-import-blocks = yes
