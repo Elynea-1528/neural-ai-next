@@ -1,28 +1,24 @@
 {
-    // Python környezet és formázás
     "python.defaultInterpreterPath": "/home/elynea/miniconda3/envs/neural-ai-next/bin/python",
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.autoImportCompletions": true,
 
-    // Formázók beállítása
     "python.formatting.provider": "black",
     "python.formatting.blackArgs": ["--line-length", "100"],
     "[python]": {
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-            "source.organizeImports": true
+            "source.organizeImports": "explicit"
         },
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
 
-    // Linting beállítások
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": true,
     "python.linting.flake8Enabled": true,
     "python.linting.mypyEnabled": true,
     "python.linting.flake8Args": ["--max-line-length=100"],
 
-    // Testing beállítások
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
@@ -34,6 +30,5 @@
     ],
     "python.testing.autoTestDiscoverOnSaveEnabled": true,
 
-    // Sort imports
     "isort.args": ["--profile", "black", "--line-length", "100"]
 }
