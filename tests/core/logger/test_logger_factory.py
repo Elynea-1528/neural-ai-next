@@ -53,9 +53,11 @@ class TestLoggerFactory:
 
     def test_configure_handlers(self, config):
         """Teszteli a handler-ek konfigurálását."""
-        with patch("logging.StreamHandler") as mock_stream_handler, patch(
-            "logging.FileHandler"
-        ) as mock_file_handler, patch("logging.getLogger") as mock_get_logger:
+        with (
+            patch("logging.StreamHandler") as mock_stream_handler,
+            patch("logging.FileHandler") as mock_file_handler,
+            patch("logging.getLogger") as mock_get_logger,
+        ):
 
             # Mock handler példányok
             mock_console = Mock()

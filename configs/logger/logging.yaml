@@ -1,31 +1,62 @@
-# Logger komponens alapértelmezett konfigurációja
+# Logger rendszer konfigurációja
+default_level: "INFO"
+format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+date_format: "%Y-%m-%d %H:%M:%S"
 
-logger:
-  # Alapértelmezett log szint
-  default_level: INFO
+handlers:
+  console:
+    enabled: true
+    level: "INFO"
+    colored: true  # Színes kimenet engedélyezése
 
-  # Log üzenetek formátuma
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  date_format: "%Y-%m-%d %H:%M:%S"
+  file:
+    enabled: true
+    level: "DEBUG"
+    filename: "logs/app.log"
+    rotating: true  # Log rotáció engedélyezése
+    max_bytes: 1048576  # 1MB
+    backup_count: 5
 
-  # Handler konfigurációk
-  handlers:
-    # Konzol kimenet beállításai
-    console:
-      enabled: true
-      level: INFO
+loggers:
+  # Alapértelmezett logger konfiguráció
+  default:
+    type: "default"
+    level: "INFO"
 
-    # Fájl kimenet beállításai
-    file:
-      enabled: true
-      level: DEBUG
-      filename: "logs/app.log"
-      max_size: 10485760  # 10MB
-      backup_count: 5
+  # Színes konzol logger
+  app.console:
+    type: "colored"
+    level: "INFO"
+    format: "%(asctime)s - [%(levelname)s] %(name)s: %(message)s"
 
-    # Hálózati kimenet beállításai (opcionális)
-    network:
-      enabled: false
-      level: WARNING
-      host: "logserver.example.com"
-      port: 9999
+  # Rotáló fájl logger
+  app.file:
+    type: "rotating"
+    level: "DEBUG"
+    filename: "logs/app.log"
+    rotation_type: "size"  # "size" vagy "time"
+    max_bytes: 1048576  # 1MB
+    backup_count: 5
+    when: "midnight"  # időalapú rotációnál használt
+    format: "%(asctime)s - %(name)s - [%(levelname)s] %(message)s"
+
+  # Specifikus modulok loggerei
+  neural_ai.core:
+    type: "colored"
+    level: "DEBUG"
+
+  neural_ai.models:
+    type: "rotating"
+    level: "INFO"
+    filename: "logs/models.log"
+    rotation_type: "time"
+    when: "midnight"
+    backup_count: 7
+
+  neural_ai.data:
+    type: "rotating"
+    level: "INFO"
+    filename: "logs/data.log"
+    rotation_type: "size"
+    max_bytes: 5242880  # 5MB
+    backup_count: 3
