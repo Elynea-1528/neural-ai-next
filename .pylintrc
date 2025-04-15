@@ -52,5 +52,5 @@ ignored-argument-names = arg|args|kwargs
 check-quote-consistency = yes
 
 [IMPORTS]
-# Külön sorba kell tenni az importokat
-separate-import-blocks = yes
+# Import rendezési beállítások
+ignored-modules = numpy,pandas,torch,pytest
