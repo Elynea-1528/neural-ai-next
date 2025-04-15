@@ -33,7 +33,6 @@ class LoggerFactory(LoggerFactoryInterface):
         """
         if name not in LoggerFactory._loggers:
             LoggerFactory._loggers[name] = DefaultLogger(name)
-
         return LoggerFactory._loggers[name]
 
     @staticmethod

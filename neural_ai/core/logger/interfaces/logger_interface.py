@@ -1,6 +1,6 @@
 """Logger interfész definíció.
 
-Ez a modul definiálja a naplózási funkcionalitás interfészét, amely
+Ez a modul definiálja a naplózási funkcionalitást definiáló interfészt, amely
 meghatározza a különböző szintű naplózási műveleteket.
 """
 
@@ -23,7 +23,6 @@ class LoggerInterface(ABC):
             message: A naplózandó üzenet
             **kwargs: További kontextus információk
         """
-        pass
 
     @abstractmethod
     def info(self, message: str, **kwargs: Any) -> None:
@@ -33,7 +32,6 @@ class LoggerInterface(ABC):
             message: A naplózandó üzenet
             **kwargs: További kontextus információk
         """
-        pass
 
     @abstractmethod
     def warning(self, message: str, **kwargs: Any) -> None:
@@ -43,7 +41,6 @@ class LoggerInterface(ABC):
             message: A naplózandó üzenet
             **kwargs: További kontextus információk
         """
-        pass
 
     @abstractmethod
     def error(self, message: str, **kwargs: Any) -> None:
@@ -53,7 +50,6 @@ class LoggerInterface(ABC):
             message: A naplózandó üzenet
             **kwargs: További kontextus információk
         """
-        pass
 
     @abstractmethod
     def critical(self, message: str, **kwargs: Any) -> None:
@@ -63,4 +59,3 @@ class LoggerInterface(ABC):
             message: A naplózandó üzenet
             **kwargs: További kontextus információk
         """
-        pass

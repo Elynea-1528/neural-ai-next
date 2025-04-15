@@ -29,7 +29,6 @@ class LoggerFactoryInterface(ABC):
         Returns:
             LoggerInterface: Új vagy meglévő logger példány
         """
-        pass
 
     @staticmethod
     @abstractmethod
@@ -39,4 +38,3 @@ class LoggerFactoryInterface(ABC):
         Args:
             config: A logger rendszer konfigurációja
         """
-        pass
