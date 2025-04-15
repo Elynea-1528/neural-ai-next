@@ -55,12 +55,36 @@ pip install -e .
 
 ## Használat VS Code-ban
 
-A Visual Studio Code-hoz néhány beállítást javaslunk a jobb fejlesztői élmény érdekében:
+A Visual Studio Code-hoz az alábbi beállításokat és bővítményeket javasoljuk a jobb fejlesztői élmény érdekében:
 
-1. Telepítsd a [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) és [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) bővítményeket
-2. Nyisd meg a projekt mappáját VS Code-ban
-3. Válaszd ki a Python interpretert (F1 -> "Python: Select Interpreter" -> válaszd a neural-ai-next környezetet)
-4. A terminálban aktiváld a környezetet: `conda activate neural-ai-next`
+### Kötelező bővítmények
+
+1. Alap Python fejlesztés:
+   - [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+   - [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
+   - [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)
+
+2. Kód minőség és dokumentáció:
+   - [Python Docstring Generator](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring)
+   - [Python Type Hint](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring)
+
+3. Kód formázás és linting:
+   - [Black Formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
+   - [isort](https://marketplace.visualstudio.com/items?itemName=ms-python.isort)
+   - [Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
+
+### Ajánlott bővítmények
+
+4. Git és verziókezelés:
+   - [GitLens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens)
+   - [Git Graph](https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph)
+
+### VS Code beállítása
+
+1. Nyisd meg a projekt mappáját VS Code-ban
+2. Válaszd ki a Python interpretert (F1 -> "Python: Select Interpreter" -> válaszd a neural-ai-next környezetet)
+3. A terminálban aktiváld a környezetet: `conda activate neural-ai-next`
+4. Telepítsd a felsorolt bővítményeket a VS Code piactérről
 
 ## Tesztelés
 
