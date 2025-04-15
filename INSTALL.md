@@ -67,11 +67,13 @@ A Visual Studio Code-hoz az alábbi beállításokat és bővítményeket javaso
 2. Kód minőség és dokumentáció:
    - [Python Docstring Generator](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring)
    - [Python Type Hint](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring)
+   - [Mypy Type Checker](https://marketplace.visualstudio.com/items?itemName=matangover.mypy)
 
 3. Kód formázás és linting:
    - [Black Formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
    - [isort](https://marketplace.visualstudio.com/items?itemName=ms-python.isort)
    - [Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
+   - [Pylint](https://marketplace.visualstudio.com/items?itemName=ms-python.pylint)
 
 ### Ajánlott bővítmények
 
@@ -85,6 +87,11 @@ A Visual Studio Code-hoz az alábbi beállításokat és bővítményeket javaso
 2. Válaszd ki a Python interpretert (F1 -> "Python: Select Interpreter" -> válaszd a neural-ai-next környezetet)
 3. A terminálban aktiváld a környezetet: `conda activate neural-ai-next`
 4. Telepítsd a felsorolt bővítményeket a VS Code piactérről
+5. A `.vscode/settings.json` fájl automatikusan konfigurálja:
+   - Python környezet beállításait
+   - Formázók (black, isort) beállításait
+   - Linterek (flake8, pylint, mypy) beállításait
+   - Tesztelési (pytest) beállításokat
 
 ## Tesztelés
 
