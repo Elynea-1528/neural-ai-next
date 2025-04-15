@@ -1,44 +1,45 @@
-# Neural-AI-Next Fejlesztési Állapot
+# Fejlesztési Állapot
 
-Utoljára frissítve: 2025. április 15.
+Ez a dokumentum tartalmazza a Neural AI Next projekt komponenseinek fejlesztési állapotát.
 
-## Jelenlegi fókusz
-- Logger komponens implementálása
-- Config komponens implementálása
-- Storage komponens implementálása
+## Core Komponensek
 
-## Előkészítés alatt
-- [ ] Logger komponens
-  - [ ] Interfészek definiálása
-  - [ ] Alapimplementáció
-  - [ ] Factory osztály
-  - [ ] Tesztek
+### Logger ✅
+- [x] Alap interfészek
+- [x] Default logger implementáció
+- [x] Színes konzol logger
+- [x] Rotáló fájl logger
+- [x] Logger factory
+- [x] Teljes dokumentáció
+- [x] Unit tesztek
+- [x] Példa implementációk
+- [x] Tesztlefedettség > 90%
+Status: **Kész** (2025-04-15)
 
-- [ ] Config komponens
-  - [ ] Interfészek definiálása
-  - [ ] Alapimplementáció
-  - [ ] Factory osztály
-  - [ ] Tesztek
+### Config
+- [ ] Interfészek
+- [ ] Alap implementáció
+- [ ] Tesztek
+Status: Tervezés alatt
 
-- [ ] Storage komponens
-  - [ ] Interfészek definiálása
-  - [ ] Alapimplementáció
-  - [ ] Factory osztály
-  - [ ] Tesztek
+### Storage
+- [ ] Interfészek
+- [ ] Alap implementáció
+- [ ] Tesztek
+Status: Tervezés alatt
 
-## Befejezett komponensek
-- [x] Projekt struktúra inicializálása (2025. április 13.)
-- [x] Git repository beállítása (2025. április 13.)
-- [x] Pre-commit hook-ok beállítása (2025. április 13.)
-- [x] Conda környezet beállítása és függőségek telepítése (2025. április 15.)
-- [x] CUDA támogatás ellenőrzése és beállítása (2025. április 15.)
-- [x] VS Code tesztelés konfigurálása (2025. április 15.)
+## Collectors
 
-## Ismert problémák
-- [x] Pre-commit hook hiba Python 3.12 környezetben (megoldva: hook-ok frissítve 2025.04.15)
+### MT5 Collector
+- [ ] Interfészek
+- [ ] Alap implementáció
+- [ ] Tesztek
+Status: Tervezés alatt
 
-## Következő lépések
-- Fejlesztői branch létrehozása
-- Logger komponens teljes implementálása
-- Config komponens teljes implementálása
-- Storage komponens teljes implementálása
+## Processors
+
+### Dimension Processor
+- [ ] Interfészek
+- [ ] Alap implementáció
+- [ ] Tesztek
+Status: Tervezés alatt
