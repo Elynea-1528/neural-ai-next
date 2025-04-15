@@ -16,11 +16,15 @@ Ez a dokumentum tartalmazza a Neural AI Next projekt komponenseinek fejlesztési
 - [x] Tesztlefedettség > 90%
 Status: **Kész** (2025-04-15)
 
-### Config
-- [ ] Interfészek
-- [ ] Alap implementáció
-- [ ] Tesztek
-Status: Tervezés alatt
+### Config ✅
+- [x] Interfészek
+- [x] YAML konfig manager implementáció
+- [x] Config manager factory
+- [x] Séma validáció
+- [x] Teljes dokumentáció
+- [x] Unit tesztek
+- [x] Tesztlefedettség > 90%
+Status: **Kész** (2025-04-15)
 
 ### Storage
 - [ ] Interfészek
