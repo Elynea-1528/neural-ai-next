@@ -4,12 +4,16 @@ Ez a modul a logger komponens fájl alapú, rotációs implementációját tarta
 A log fájlok automatikusan rotálódnak méret vagy idő alapján.
 """
 
+import glob
+import gzip
 import logging
 import os
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
-from typing import Any, Optional, Union
+from typing import Any, Optional, Type, Union
 
 from neural_ai.core.logger.interfaces import LoggerInterface
+
+HandlerType = Union[Type[RotatingFileHandler], Type[TimedRotatingFileHandler]]
 
 
 class RotatingFileLogger(LoggerInterface):
@@ -24,11 +28,12 @@ class RotatingFileLogger(LoggerInterface):
         name: str,
         filename: str,
         rotation_type: str = "size",
-        max_bytes: int = 1024 * 1024,
+        max_bytes: int = 1024 * 1024,  # 1MB
         backup_count: int = 5,
         when: str = "midnight",
         encoding: str = "utf-8",
         format_str: Optional[str] = None,
+        level: str = "DEBUG"
     ) -> None:
         """Logger inicializálása.
 
@@ -41,25 +46,35 @@ class RotatingFileLogger(LoggerInterface):
             when: Rotáció időpontja (csak time típusnál)
             encoding: Fájl kódolás
             format_str: Opcionális formátum string
+            level: Log szint (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         """
-        self._logger: logging.Logger = logging.getLogger(name)
+        # Logger létrehozása
+        self._logger = logging.Logger(name)  # Új logger példány létrehozása
+        self._logger.setLevel(getattr(logging, level))
 
-        # Log könyvtár létrehozása, ha nem létezik
+        # Log könyvtár létrehozása
         log_dir = os.path.dirname(filename)
         if log_dir and not os.path.exists(log_dir):
             os.makedirs(log_dir)
 
-        # Handler létrehozása a rotáció típusa alapján
-        if rotation_type == "size":
-            handler: Union[RotatingFileHandler, TimedRotatingFileHandler] = RotatingFileHandler(
-                filename=filename, maxBytes=max_bytes, backupCount=backup_count, encoding=encoding
+        # Handler létrehozása
+        if rotation_type == "time":
+            handler_class: HandlerType = TimedRotatingFileHandler
+            handler = handler_class(
+                filename=filename,
+                when=when,
+                backupCount=backup_count,
+                encoding=encoding,
             )
-        else:  # time alapú rotáció
-            handler = TimedRotatingFileHandler(
-                filename=filename, when=when, backupCount=backup_count, encoding=encoding
+        else:
+            handler = RotatingFileHandler(
+                filename=filename,
+                maxBytes=max_bytes,
+                backupCount=backup_count,
+                encoding=encoding,
             )
 
-        # Formátum beállítása
+        # Formátum string beállítása
         if format_str is None:
             format_str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         formatter = logging.Formatter(format_str)
@@ -121,9 +136,6 @@ class RotatingFileLogger(LoggerInterface):
             directory: A log fájlokat tartalmazó könyvtár
             pattern: Log fájl minta
         """
-        import glob
-        import gzip
-
         # Log fájlok keresése
         for log_file in glob.glob(os.path.join(directory, pattern)):
             if not log_file.endswith(".gz"):

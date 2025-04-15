@@ -32,7 +32,10 @@ class TestRotatingFileLogger:
         """Létrehoz egy logger objektumot."""
         log_file = test_dir / "test.log"
         return RotatingFileLogger(
-            name="test_logger", filename=str(log_file), max_bytes=1024, backup_count=3  # 1KB
+            name="test_logger",
+            filename=str(log_file),
+            max_bytes=1024,  # 1KB
+            backup_count=3
         )
 
     def test_initialization(self, test_dir: Path) -> None:
@@ -40,6 +43,7 @@ class TestRotatingFileLogger:
         log_file = test_dir / "init_test.log"
         logger = RotatingFileLogger("test_init", str(log_file))
 
+        # pylint: disable=protected-access
         assert isinstance(logger._logger, logging.Logger)
         assert logger._logger.name == "test_init"
         assert log_file.parent.exists()
@@ -72,7 +76,7 @@ class TestRotatingFileLogger:
             filename=str(log_file),
             rotation_type="time",
             when="S",  # Másodpercenkénti rotáció a teszthez
-            backup_count=2,
+            backup_count=2
         )
 
         # Logolás különböző időpontokban
@@ -97,7 +101,7 @@ class TestRotatingFileLogger:
         """Teszteli a log fájlok tömörítését."""
         # Log fájlok létrehozása
         for i in range(3):
-            with open(test_dir / f"test.log.{i}", "w") as f:
+            with open(test_dir / f"test.log.{i}", "w", encoding="utf-8") as f:
                 f.write(f"Test log content {i}")
 
         # Tömörítés
@@ -121,7 +125,7 @@ class TestRotatingFileLogger:
         test_message = "Test message"
         logger.info(test_message)
 
-        with open(log_file) as f:
+        with open(log_file, encoding="utf-8") as f:
             content = f.read()
             assert "INFO - Test message" in content
 
@@ -135,7 +139,7 @@ class TestRotatingFileLogger:
         logger.error("Error message")
         logger.critical("Critical message")
 
-        with open(log_file) as f:
+        with open(log_file, encoding="utf-8") as f:
             content = f.read()
             assert "Debug message" in content
             assert "Info message" in content
