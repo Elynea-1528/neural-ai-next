@@ -34,7 +34,11 @@ Utoljára frissítve: 2025. április 15.
 - [x] CUDA támogatás ellenőrzése és beállítása (2025. április 15.)
 - [x] VS Code tesztelés konfigurálása (2025. április 15.)
 
+## Ismert problémák
+- [ ] Pre-commit hook hiba Python 3.12 környezetben (setuptools/pkg_resources kompatibilitási probléma)
+
 ## Következő lépések
+- Pre-commit hook probléma javítása
 - Fejlesztői branch létrehozása
 - Logger komponens teljes implementálása
 - Config komponens teljes implementálása
