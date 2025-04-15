@@ -1,0 +1,15 @@
+{
+    "project": {
+        "name": "neural-ai-next",
+        "description": "Neural AI Next Generation Project",
+        "version": "1.0.0"
+    },
+    "prompts": {
+        "main": "prompts/main.md",
+        "conventions": "prompts/conventions.md"
+    },
+    "language": "hu",
+    "mode": {
+        "default": "code"
+    }
+}
