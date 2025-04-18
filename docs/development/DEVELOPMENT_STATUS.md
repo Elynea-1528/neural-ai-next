@@ -26,11 +26,26 @@ Status: **Kész** (2025-04-15)
 - [x] Tesztlefedettség > 90%
 Status: **Kész** (2025-04-15)
 
-### Storage
-- [ ] Interfészek
-- [ ] Alap implementáció
-- [ ] Tesztek
-Status: Tervezés alatt
+### Storage ✅
+- [x] Interfészek
+- [x] FileStorage implementáció
+- [x] DataFrame és objektum kezelés
+- [x] CSV és JSON formátumok
+- [x] Hierarchikus fájlrendszer kezelés
+- [x] Teljes dokumentáció
+- [x] Unit tesztek
+- [x] Tesztlefedettség > 75%
+Status: **Kész** (2025-04-18)
+
+### Base ✅
+- [x] DI konténer implementáció
+- [x] Core komponensek gyűjtemény
+- [x] Factory osztály
+- [x] Komponensek közötti függőségek kezelése
+- [x] Teljes dokumentáció
+- [x] Unit tesztek
+- [x] Tesztlefedettség 100%
+Status: **Kész** (2025-04-18)
 
 ## Collectors
 
