@@ -1,69 +1,52 @@
-"""Konfiguráció menedzser factory interfész.
-
-Ez a modul tartalmazza a konfigurációkezelő factory interfész definícióját.
-"""
+"""Konfiguráció kezelő factory interfész."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Type
+from typing import Any, Optional, Type
 
-from .config_interface import ConfigManagerInterface
+from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 
 
 class ConfigManagerFactoryInterface(ABC):
-    """Interfész a konfigurációkezelő factory osztályokhoz.
+    """Konfiguráció kezelő factory interfész."""
 
-    Ez az interfész felelős a megfelelő ConfigManager implementáció
-    létrehozásáért a fájl típusa alapján.
-    """
-
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def get_manager(filename: str, **kwargs: Any) -> ConfigManagerInterface:
-        """Megfelelő ConfigManager példány létrehozása.
+    def register_manager(cls, extension: str, manager_class: Type[ConfigManagerInterface]) -> None:
+        """Új konfiguráció kezelő típus regisztrálása.
 
         Args:
-            filename: A konfigurációs fájl neve
-            **kwargs: További paraméterek a manager létrehozásához
+            extension: A kezelt fájl kiterjesztése (pl: ".yml")
+            manager_class: A kezelő osztály
+        """
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    def get_manager(
+        cls, filename: str, manager_type: Optional[str] = None
+    ) -> ConfigManagerInterface:
+        """Megfelelő konfiguráció kezelő létrehozása.
+
+        Args:
+            filename: Konfigurációs fájl neve
+            manager_type: Kért kezelő típus (opcionális)
 
         Returns:
-            ConfigManagerInterface: A létrehozott manager példány
-
-        Raises:
-            ValueError: Ha a fájl típusa nem támogatott
+            ConfigManagerInterface: A létrehozott kezelő
         """
-        pass
+        raise NotImplementedError
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def register_manager(extension: str, manager_class: Type[ConfigManagerInterface]) -> None:
-        """Új manager típus regisztrálása.
+    def create_manager(cls, manager_type: str, *args: Any, **kwargs: Any) -> ConfigManagerInterface:
+        """Konfiguráció kezelő létrehozása típus alapján.
 
         Args:
-            extension: Fájl kiterjesztés (pl. ".yaml", ".json")
-            manager_class: A manager osztály
-
-        Raises:
-            ValueError: Ha a kiterjesztés már regisztrálva van
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def get_supported_extensions() -> Dict[str, Type[ConfigManagerInterface]]:
-        """Támogatott fájl kiterjesztések lekérése.
+            manager_type: A kért kezelő típus
+            *args: Pozícionális paraméterek
+            **kwargs: Kulcsszavas paraméterek
 
         Returns:
-            Dict[str, Type[ConfigManagerInterface]]: A támogatott kiterjesztések
-                és a hozzájuk tartozó manager osztályok
+            ConfigManagerInterface: A létrehozott kezelő
         """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def configure(config: Optional[Dict[str, Any]] = None) -> None:
-        """Factory globális konfigurálása.
-
-        Args:
-            config: Opcionális konfigurációs beállítások
-        """
-        pass
+        raise NotImplementedError
