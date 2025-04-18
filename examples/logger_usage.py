@@ -40,7 +40,7 @@ def main() -> None:
         name="example.size_rotation",
         filename=str(log_dir / "size_rotation.log"),
         max_bytes=1024,  # 1KB
-        backup_count=3
+        backup_count=3,
     )
     print("Méret alapú rotáció teszt...")
     for i in range(50):
@@ -52,7 +52,7 @@ def main() -> None:
         filename=str(log_dir / "time_rotation.log"),
         rotation_type="time",
         when="S",  # Másodpercenkénti rotáció a demonstrációhoz
-        backup_count=3
+        backup_count=3,
     )
     print("Idő alapú rotáció teszt...")
     for i in range(3):

@@ -32,10 +32,7 @@ class TestRotatingFileLogger:
         """Létrehoz egy logger objektumot."""
         log_file = test_dir / "test.log"
         return RotatingFileLogger(
-            name="test_logger",
-            filename=str(log_file),
-            max_bytes=1024,  # 1KB
-            backup_count=3
+            name="test_logger", filename=str(log_file), max_bytes=1024, backup_count=3  # 1KB
         )
 
     def test_initialization(self, test_dir: Path) -> None:
@@ -76,7 +73,7 @@ class TestRotatingFileLogger:
             filename=str(log_file),
             rotation_type="time",
             when="S",  # Másodpercenkénti rotáció a teszthez
-            backup_count=2
+            backup_count=2,
         )
 
         # Logolás különböző időpontokban

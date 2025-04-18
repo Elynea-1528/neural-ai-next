@@ -33,7 +33,7 @@ class RotatingFileLogger(LoggerInterface):
         when: str = "midnight",
         encoding: str = "utf-8",
         format_str: Optional[str] = None,
-        level: str = "DEBUG"
+        level: str = "DEBUG",
     ) -> None:
         """Logger inicializálása.
 
