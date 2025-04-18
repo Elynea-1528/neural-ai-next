@@ -11,6 +11,14 @@ class ConfigManagerInterface(ABC):
     """
 
     @abstractmethod
+    def __init__(self, filename: Optional[str] = None) -> None:
+        """Inicializálja a konfigurációkezelőt.
+
+        Args:
+            filename: Konfigurációs fájl útvonala (opcionális)
+        """
+
+    @abstractmethod
     def get(self, *keys: str, default: Any = None) -> Any:
         """Érték lekérése a konfigurációból."""
 
