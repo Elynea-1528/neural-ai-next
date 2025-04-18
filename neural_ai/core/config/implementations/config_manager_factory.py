@@ -1,88 +1,82 @@
-"""Konfigurációkezelő factory implementáció.
+"""Konfigurációkezelő factory implementáció."""
 
-Ez a modul tartalmazza a konfigurációkezelő factory implementációját,
-amely a megfelelő konfigurációkezelő példányt hozza létre.
-"""
+from typing import Any, Dict, Type
 
-import os
-from typing import Any, Dict, Optional, Type
-
-from neural_ai.core.config.interfaces import (
-    ConfigManagerInterface,
-    ConfigManagerFactoryInterface,
-)
+from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager
+from neural_ai.core.config.interfaces import ConfigManagerFactoryInterface, ConfigManagerInterface
 
 
 class ConfigManagerFactory(ConfigManagerFactoryInterface):
-    """Konfigurációkezelő factory implementáció.
+    """Konfigurációkezelő factory implementáció."""
 
-    Ez az osztály felelős a megfelelő ConfigManager implementáció
-    létrehozásáért a fájl típusa alapján.
-    """
+    _MANAGERS: Dict[str, Type[ConfigManagerInterface]] = {}
 
-    _managers: Dict[str, Type[ConfigManagerInterface]] = {}
+    @classmethod
+    def initialize(cls) -> None:
+        """Factory inicializálása alapértelmezett kezelőkkel."""
+        cls.register_manager("yaml", YAMLConfigManager)
+        cls.register_manager("yml", YAMLConfigManager)
 
-    @staticmethod
-    def get_manager(filename: str, **kwargs: Any) -> ConfigManagerInterface:
-        """Megfelelő ConfigManager példány létrehozása.
-
-        Args:
-            filename: A konfigurációs fájl neve
-            **kwargs: További paraméterek a manager létrehozásához
-
-        Returns:
-            ConfigManagerInterface: A létrehozott manager példány
-
-        Raises:
-            ValueError: Ha a fájl típusa nem támogatott
-        """
-        _, ext = os.path.splitext(filename)
-        if ext not in ConfigManagerFactory._managers:
-            supported = ", ".join(ConfigManagerFactory._managers.keys())
-            raise ValueError(
-                f"Unsupported configuration file type: {ext}. "
-                f"Supported types are: {supported}"
-            )
-
-        manager_class = ConfigManagerFactory._managers[ext]
-        kwargs["filename"] = filename
-        return manager_class(**kwargs)
-
-    @staticmethod
-    def register_manager(extension: str, manager_class: Type[ConfigManagerInterface]) -> None:
-        """Manager típus regisztrálása.
+    @classmethod
+    def register_manager(cls, extension: str, manager_class: Type[ConfigManagerInterface]) -> None:
+        """Új konfigurációkezelő regisztrálása.
 
         Args:
-            extension: Fájl kiterjesztés (pl. ".yaml", ".json")
-            manager_class: A manager osztály
-
-        Raises:
-            ValueError: Ha a kiterjesztés már regisztrálva van
+            extension: Fájl kiterjesztés
+            manager_class: Kezelő osztály
         """
         if not extension.startswith("."):
             extension = f".{extension}"
+        cls._MANAGERS[extension] = manager_class
 
-        if extension in ConfigManagerFactory._managers:
-            raise ValueError(f"Manager already registered for extension: {extension}")
-
-        ConfigManagerFactory._managers[extension] = manager_class
-
-    @staticmethod
-    def get_supported_extensions() -> Dict[str, Type[ConfigManagerInterface]]:
-        """Támogatott fájl kiterjesztések lekérése.
-
-        Returns:
-            Dict[str, Type[ConfigManagerInterface]]: A támogatott kiterjesztések
-                és a hozzájuk tartozó manager osztályok
-        """
-        return ConfigManagerFactory._managers.copy()
-
-    @staticmethod
-    def configure(config: Optional[Dict[str, Any]] = None) -> None:
-        """Factory globális konfigurálása.
+    @classmethod
+    def get_manager(cls, filename: str, **kwargs: Any) -> ConfigManagerInterface:
+        """Megfelelő konfigurációkezelő példány létrehozása.
 
         Args:
-            config: Opcionális konfigurációs beállítások
+            filename: Konfigurációs fájl neve
+            **kwargs: További paraméterek a kezelő számára
+
+        Returns:
+            ConfigManagerInterface: Konfigurációkezelő példány
+
+        Raises:
+            ValueError: Ha nem található megfelelő kezelő
         """
-        # Jelenleg nincs szükség globális konfigurációra
-        pass
+        if not cls._MANAGERS:
+            cls.initialize()
+
+        extension = cls._get_extension(filename)
+        manager_class = cls._MANAGERS.get(extension)
+
+        if not manager_class:
+            raise ValueError(f"No configuration manager found for extension: {extension}")
+
+        init_args = {"filename": filename}
+        if kwargs:
+            init_args.update(kwargs)
+
+        return manager_class(**init_args)
+
+    @classmethod
+    def get_supported_extensions(cls) -> Dict[str, Type[ConfigManagerInterface]]:
+        """Támogatott kiterjesztések lekérése.
+
+        Returns:
+            Dict[str, Type[ConfigManagerInterface]]: Kiterjesztések és kezelők
+        """
+        if not cls._MANAGERS:
+            cls.initialize()
+        return cls._MANAGERS.copy()
+
+    @staticmethod
+    def _get_extension(filename: str) -> str:
+        """Fájl kiterjesztés kinyerése.
+
+        Args:
+            filename: A fájl neve
+
+        Returns:
+            str: A kiterjesztés ponttal kezdve
+        """
+        return "." + filename.split(".")[-1].lower()

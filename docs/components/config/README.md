@@ -1,149 +1,160 @@
-# Konfiguráció Kezelő Komponens
+# Neural AI - Konfigurációs Komponens
 
 ## Áttekintés
 
-A Konfiguráció Kezelő komponens a Neural AI Next rendszer központi konfigurációkezelő rendszere. Lehetővé teszi a különböző konfigurációs fájlok betöltését, validálását és kezelését egységes interfészen keresztül.
+A konfigurációs komponens felelős a rendszer különböző beállításainak kezeléséért. Támogatja a YAML formátumú konfigurációs fájlok betöltését, validálását és módosítását.
 
 ## Főbb funkciók
 
-- YAML formátumú konfigurációs fájlok kezelése
-- Hierarchikus konfiguráció támogatás
-- Típus-biztos konfigurációs értékek
+- YAML konfigurációs fájlok kezelése
+- Hierarchikus konfigurációs struktúra
 - Séma alapú validáció
-- Alapértelmezett értékek kezelése
-- Konfigurációk mentése és betöltése
+- Típus biztonságos hozzáférés
+- Dinamikus konfiguráció módosítás
 
-## Telepítés és beállítás
+## Telepítés
 
-A komponens a Neural AI Next rendszer része, külön telepítést nem igényel. A PyYAML függőség szükséges:
-
-```bash
-pip install pyyaml
-```
+A komponens a Neural AI keretrendszer részeként települ. Külön telepítést nem igényel.
 
 ## Használat
 
-### 1. Alap használat
+### Alap használat
 
 ```python
 from neural_ai.core.config.implementations import ConfigManagerFactory
 
-# YAML konfiguráció betöltése
-config = ConfigManagerFactory.get_manager("configs/app.yaml")
+# Konfiguráció betöltése
+config = ConfigManagerFactory.get_manager("config.yaml")
 
 # Érték lekérése
 host = config.get("database", "host", default="localhost")
 port = config.get("database", "port", default=5432)
 
-# Teljes szekció lekérése
-db_config = config.get_section("database")
-
 # Érték beállítása
-config.set("logging", "level", "DEBUG")
+config.set("logging", "level", value="DEBUG")
+
+# Konfiguráció mentése
 config.save()
 ```
 
-### 2. Validáció
+### Séma validáció
 
 ```python
 # Validációs séma definiálása
 schema = {
     "database": {
-        "host": {"type": "str"},
-        "port": {
-            "type": "int",
-            "min": 1,
-            "max": 65535
-        },
-        "timeout": {
-            "type": "int",
-            "min": 0,
-            "optional": True
-        }
-    },
-    "logging": {
-        "level": {
-            "type": "str",
-            "choices": ["DEBUG", "INFO", "WARNING", "ERROR"]
+        "type": "dict",
+        "schema": {
+            "host": {"type": "str"},
+            "port": {"type": "int", "min": 1024, "max": 65535},
+            "credentials": {
+                "type": "dict",
+                "schema": {
+                    "username": {"type": "str"},
+                    "password": {"type": "str"}
+                }
+            }
         }
     }
 }
 
 # Konfiguráció validálása
-is_valid, errors = config.validate(schema)
-if not is_valid:
-    print("Konfigurációs hibák:", errors)
+valid, errors = config.validate(schema)
+if not valid:
+    print("Validation errors:", errors)
 ```
 
-### 3. Hierarchikus konfiguráció
+## API Dokumentáció
 
-```yaml
-# configs/app.yaml
-database:
-  primary:
-    host: localhost
-    port: 5432
-    credentials:
-      username: admin
-      password: secret
-  replica:
-    host: replica.db
-    port: 5432
-    credentials:
-      username: reader
-      password: readonly
+### ConfigManagerFactory
 
-logging:
-  level: INFO
-  handlers:
-    console:
-      enabled: true
-      colored: true
-    file:
-      enabled: true
-      path: logs/app.log
-```
+Factory osztály a konfigurációkezelők létrehozásához.
 
 ```python
-# Beágyazott értékek elérése
-primary_host = config.get("database", "primary", "host")
-replica_creds = config.get("database", "replica", "credentials")
+@classmethod
+def get_manager(cls, filename: str, **kwargs: Any) -> ConfigManagerInterface:
+    """Megfelelő konfigurációkezelő példány létrehozása.
+
+    Args:
+        filename: Konfigurációs fájl neve
+        **kwargs: További paraméterek a kezelő számára
+
+    Returns:
+        ConfigManagerInterface: Konfigurációkezelő példány
+
+    Raises:
+        ValueError: Ha nem található megfelelő kezelő
+    """
 ```
 
-## Példák
+### YAMLConfigManager
 
-További példák az `examples/config_usage.py` fájlban találhatók.
+YAML fájlok kezelésére szolgáló implementáció.
 
-## Hibaelhárítás
+```python
+def get(self, *keys: str, default: Any = None) -> Any:
+    """Érték lekérése a konfigurációból.
 
-### Gyakori problémák és megoldások
+    Args:
+        *keys: Kulcsok útvonala
+        default: Alapértelmezett érték ha nem található
 
-1. YAML szintaxis hiba
-   ```python
-   try:
-       config = ConfigManagerFactory.get_manager("config.yaml")
-   except ValueError as e:
-       print(f"YAML hiba: {e}")
-   ```
+    Returns:
+        Any: A konfigurációs érték vagy az alapértelmezett érték
+    """
 
-2. Hiányzó kötelező mező
-   ```python
-   schema = {"required_field": {"type": "str"}}
-   is_valid, errors = config.validate(schema)
-   # errors: {"required_field": "Required field is missing"}
-   ```
+def set(self, *keys: str, value: Any) -> None:
+    """Érték beállítása a konfigurációban.
 
-3. Érvénytelen érték
-   ```python
-   schema = {"port": {"type": "int", "min": 1, "max": 65535}}
-   config.set("port", -1)
-   is_valid, errors = config.validate(schema)
-   # errors: {"port": "Value must be >= 1"}
-   ```
+    Args:
+        *keys: Kulcsok útvonala
+        value: Az új érték
 
-## További információk
+    Raises:
+        ValueError: Ha érvénytelen az útvonal
+    """
+```
 
-- [API Dokumentáció](api_reference.md)
-- [Technikai specifikáció](technical_spec.md)
-- [Fejlesztői útmutató](CONTRIBUTING.md)
-- [Változási napló](CHANGELOG.md)
+## Fejlesztői információk
+
+### Új konfigurációkezelő hozzáadása
+
+1. Implementáld a `ConfigManagerInterface`-t
+2. Regisztráld a kezelőt a `ConfigManagerFactory`-ban:
+
+```python
+ConfigManagerFactory.register_manager(".ext", MyConfigManager)
+```
+
+### Validációs séma formátum
+
+```python
+{
+    "key": {
+        "type": str,       # Kötelező: str, int, float, bool, list, dict
+        "optional": bool,  # Opcionális: True/False
+        "choices": list,   # Opcionális: választható értékek
+        "min": number,     # Opcionális: minimum érték (szám esetén)
+        "max": number,     # Opcionális: maximum érték (szám esetén)
+        "schema": dict     # Opcionális: beágyazott séma dict típus esetén
+    }
+}
+```
+
+## Tesztelés
+
+```bash
+pytest tests/core/config/
+```
+
+## Közreműködés
+
+1. Fork létrehozása
+2. Feature branch létrehozása (`git checkout -b feature/új_funkcio`)
+3. Változtatások commit-olása (`git commit -am 'Új funkció: xyz'`)
+4. Branch feltöltése (`git push origin feature/új_funkcio`)
+5. Pull Request nyitása
+
+## Licensz
+
+MIT License - lásd a LICENSE fájlt a részletekért.

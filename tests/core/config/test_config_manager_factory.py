@@ -1,124 +1,116 @@
-"""Konfigurációkezelő factory tesztek.
+"""Konfigurációkezelő factory tesztek."""
 
-Ez a modul tartalmazza a konfigurációkezelő factory osztály tesztjeit.
-"""
-
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from neural_ai.core.config.implementations import (
-    ConfigManagerFactory,
-    YAMLConfigManager,
-)
+from neural_ai.core.config.implementations import ConfigManagerFactory, YAMLConfigManager
 from neural_ai.core.config.interfaces import ConfigManagerInterface
 
 
 class DummyConfigManager(ConfigManagerInterface):
-    """Dummy manager implementáció teszteléshez."""
+    """Dummy konfiguráció kezelő a tesztekhez."""
 
-    def __init__(self, filename: Optional[str] = None, **_kwargs: Any) -> None:
-        """Inicializálja a dummy managert.
-
-        Args:
-            filename: Opcionális konfigurációs fájl neve
-            **_kwargs: További paraméterek (ignorálva)
-        """
+    def __init__(self, filename: Optional[str] = None, **kwargs: Any) -> None:
+        """Inicializálja a dummy kezelőt."""
         self._filename = filename
+        self._config: Dict[str, Any] = {}
 
     def get(self, *keys: str, default: Any = None) -> Any:
-        """Dummy get implementáció."""
+        """Dummy get metódus."""
         return default
 
     def get_section(self, section: str) -> Dict[str, Any]:
-        """Dummy get_section implementáció."""
+        """Dummy get_section metódus."""
         return {}
 
     def set(self, *keys: str, value: Any) -> None:
-        """Dummy set implementáció."""
-        pass
+        """Dummy set metódus."""
 
     def save(self, filename: Optional[str] = None) -> None:
-        """Dummy save implementáció."""
-        pass
+        """Dummy save metódus."""
 
     def load(self, filename: str) -> None:
-        """Dummy load implementáció."""
-        pass
+        """Dummy load metódus."""
 
-    def validate(self, schema: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, str]]]:
-        """Dummy validate implementáció."""
+    def validate(self, schema: Dict[str, Any]) -> tuple[bool, Optional[Dict[str, str]]]:
+        """Dummy validate metódus."""
         return True, None
 
 
 class TestConfigManagerFactory:
-    """ConfigManagerFactory tesztek."""
+    """Factory osztály tesztek."""
 
     def setup_method(self) -> None:
-        """Teszt környezet előkészítése."""
-        # Töröljük a regisztrált managereket
-        ConfigManagerFactory._managers.clear()
+        """Teszt setup."""
+        ConfigManagerFactory._MANAGERS.clear()  # pylint: disable=protected-access
+
+    @patch("os.path.exists", return_value=True)
+    @patch("builtins.open", create=True)
+    def test_get_manager_with_yaml_extension(
+        self, patched_open: MagicMock, mock_exists: MagicMock
+    ) -> None:
+        """YAML kiterjesztés esetén YAMLConfigManager-t ad vissza."""
+        yaml_content = "key: value\n"
+        patched_open.return_value.__enter__.return_value.read.return_value = yaml_content
+        patched_open.return_value.__enter__.return_value.name = "config.yaml"
+        manager = ConfigManagerFactory.get_manager("config.yaml")
+        assert isinstance(manager, YAMLConfigManager)
+        mock_exists.assert_called_once_with("config.yaml")
+
+    @patch("os.path.exists", return_value=True)
+    @patch("builtins.open", create=True)
+    def test_get_manager_with_yml_extension(
+        self, patched_open: MagicMock, mock_exists: MagicMock
+    ) -> None:
+        """YML kiterjesztés esetén YAMLConfigManager-t ad vissza."""
+        yaml_content = "key: value\n"
+        patched_open.return_value.__enter__.return_value.read.return_value = yaml_content
+        patched_open.return_value.__enter__.return_value.name = "config.yml"
+        manager = ConfigManagerFactory.get_manager("config.yml")
+        assert isinstance(manager, YAMLConfigManager)
+        mock_exists.assert_called_once_with("config.yml")
+
+    def test_get_manager_with_invalid_extension(self) -> None:
+        """Érvénytelen kiterjesztés esetén hibát dob."""
+        with pytest.raises(ValueError) as exc_info:
+            ConfigManagerFactory.get_manager("config.invalid")
+        assert "No configuration manager found for extension" in str(exc_info.value)
 
     def test_register_manager(self) -> None:
-        """Teszteli az új manager típus regisztrálását."""
+        """Új kezelő regisztrálása."""
         ConfigManagerFactory.register_manager(".test", DummyConfigManager)
-        assert ".test" in ConfigManagerFactory.get_supported_extensions()
+        manager = ConfigManagerFactory.get_manager("config.test")
+        assert isinstance(manager, DummyConfigManager)
 
-    def test_register_duplicate_extension(self) -> None:
-        """Teszteli a duplikált kiterjesztés kezelését."""
-        ConfigManagerFactory.register_manager(".test", DummyConfigManager)
-        with pytest.raises(ValueError):
-            ConfigManagerFactory.register_manager(".test", DummyConfigManager)
-
-    def test_register_without_dot(self) -> None:
-        """Teszteli a pont nélküli kiterjesztés kezelését."""
+    def test_register_manager_without_dot(self) -> None:
+        """Pont nélküli kiterjesztés regisztrálása."""
         ConfigManagerFactory.register_manager("test", DummyConfigManager)
-        assert ".test" in ConfigManagerFactory.get_supported_extensions()
-
-    def test_get_manager_unsupported_type(self) -> None:
-        """Teszteli a nem támogatott fájltípus kezelését."""
-        with pytest.raises(ValueError) as exc_info:
-            ConfigManagerFactory.get_manager("config.unsupported")
-        assert "Unsupported configuration file type" in str(exc_info.value)
-
-    def test_get_manager_yaml(self, tmp_path) -> None:
-        """Teszteli a YAML manager létrehozását."""
-        config_file = tmp_path / "config.yaml"
-        config_file.write_text("")  # Üres fájl létrehozása
-
-        ConfigManagerFactory.register_manager(".yaml", YAMLConfigManager)
-        manager = ConfigManagerFactory.get_manager(str(config_file))
-        assert isinstance(manager, YAMLConfigManager)
+        manager = ConfigManagerFactory.get_manager("config.test")
+        assert isinstance(manager, DummyConfigManager)
 
     def test_get_manager_with_kwargs(self) -> None:
-        """Teszteli a paraméterek átadását a managernek."""
+        """Extra paraméterek átadása a kezelőnek."""
         ConfigManagerFactory.register_manager(".test", DummyConfigManager)
-        manager = ConfigManagerFactory.get_manager(
-            "config.test",
-            custom_param="value"
-        )
+        kwargs = {"encoding": "utf-8", "mode": "r"}
+        manager = ConfigManagerFactory.get_manager("config.test", **kwargs)
         assert isinstance(manager, DummyConfigManager)
 
     def test_get_supported_extensions(self) -> None:
-        """Teszteli a támogatott kiterjesztések lekérését."""
-        ConfigManagerFactory.register_manager(".yaml", YAMLConfigManager)
+        """Támogatott kiterjesztések lekérése."""
+        ConfigManagerFactory._MANAGERS.clear()  # pylint: disable=protected-access
         ConfigManagerFactory.register_manager(".test", DummyConfigManager)
-
         extensions = ConfigManagerFactory.get_supported_extensions()
-        assert len(extensions) == 2
-        assert ".yaml" in extensions
+
+        assert isinstance(extensions, dict)
         assert ".test" in extensions
-        assert extensions[".yaml"] == YAMLConfigManager
-        assert extensions[".test"] == DummyConfigManager
+        assert extensions[".test"] is DummyConfigManager
 
-    def test_extension_case_sensitivity(self) -> None:
-        """Teszteli a kiterjesztések kis- és nagybetű érzékenységét."""
-        ConfigManagerFactory.register_manager(".YAML", YAMLConfigManager)
-        with pytest.raises(ValueError):
-            ConfigManagerFactory.get_manager("config.yaml")
-
-    def test_configure_method(self) -> None:
-        """Teszteli a konfigurációs metódust."""
-        # Jelenleg a configure metódus üres implementáció
-        ConfigManagerFactory.configure({"some": "config"})
-        # Nem dobhat kivételt
+    def test_default_extensions(self) -> None:
+        """Alapértelmezett kiterjesztések ellenőrzése."""
+        extensions = ConfigManagerFactory.get_supported_extensions()
+        assert ".yaml" in extensions
+        assert ".yml" in extensions
+        assert extensions[".yaml"] is YAMLConfigManager
+        assert extensions[".yml"] is YAMLConfigManager

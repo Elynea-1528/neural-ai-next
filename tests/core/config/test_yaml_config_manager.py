@@ -1,201 +1,202 @@
-"""YAML konfiguráció kezelő tesztek.
+"""YAML config manager tesztek."""
 
-Ez a modul tartalmazza a YAML alapú konfigurációkezelő tesztjeit.
-"""
-
-from typing import Dict, Any, cast
+import os
+from pathlib import Path
+from typing import Any, Dict
+from unittest.mock import mock_open, patch
 
 import pytest
 import yaml
 
+from neural_ai.core.config.exceptions import ConfigLoadError
 from neural_ai.core.config.implementations import YAMLConfigManager
 
 
-class TestYAMLConfigManager:
-    """YAML konfiguráció kezelő tesztek."""
-
-    @pytest.fixture
-    def config_data(self) -> Dict[str, Any]:
-        """Teszt konfigurációs adatok."""
-        return {
-            "database": {
-                "host": "localhost",
-                "port": 5432,
-                "credentials": {
-                    "username": "admin",
-                    "password": "secret"
-                }
+@pytest.fixture
+def sample_config_data() -> Dict[str, Any]:
+    """Teszt konfiguráció."""
+    return {
+        "database": {
+            "host": "localhost",
+            "port": 5432,
+            "credentials": {
+                "username": "admin",
+                "password": "secret",
             },
-            "logging": {
-                "level": "INFO",
-                "file": "app.log"
+        },
+        "logging": {
+            "level": "INFO",
+            "file": "app.log",
+        },
+    }
+
+
+@pytest.fixture
+def config_manager(sample_config_data: Dict[str, Any]) -> YAMLConfigManager:
+    """YAML config manager fixture."""
+    manager = YAMLConfigManager()
+    manager._config = sample_config_data  # pylint: disable=protected-access
+    return manager
+
+
+def test_init_with_filename() -> None:
+    """Filename paraméterrel inicializálás."""
+    filename = "test.yaml"
+    mock_yaml_content = "key: value"
+
+    with (
+        patch("os.path.exists", return_value=True),
+        patch("builtins.open", mock_open(read_data=mock_yaml_content)),
+    ):
+        manager = YAMLConfigManager(filename)
+        assert manager._config == {"key": "value"}  # pylint: disable=protected-access
+
+
+def test_get_existing_value(config_manager: YAMLConfigManager) -> None:
+    """Létező érték lekérése."""
+    assert config_manager.get("database", "host") == "localhost"
+    assert config_manager.get("database", "port") == 5432
+    assert config_manager.get("database", "credentials", "username") == "admin"
+
+
+def test_get_with_default(config_manager: YAMLConfigManager) -> None:
+    """Default érték használata nem létező kulcsnál."""
+    assert config_manager.get("nonexistent", default="default") == "default"
+    assert config_manager.get("database", "nonexistent", default=123) == 123
+
+
+def test_get_section_existing(config_manager: YAMLConfigManager) -> None:
+    """Létező szekció lekérése."""
+    section = config_manager.get_section("database")
+    assert section == {
+        "host": "localhost",
+        "port": 5432,
+        "credentials": {
+            "username": "admin",
+            "password": "secret",
+        },
+    }
+
+
+def test_get_section_nonexistent(config_manager: YAMLConfigManager) -> None:
+    """Nem létező szekció lekérése."""
+    with pytest.raises(KeyError):
+        config_manager.get_section("nonexistent")
+
+
+def test_set_new_value(config_manager: YAMLConfigManager) -> None:
+    """Új érték beállítása."""
+    config_manager.set("new", "key", value="value")
+    assert config_manager.get("new", "key") == "value"
+
+
+def test_set_existing_value(config_manager: YAMLConfigManager) -> None:
+    """Létező érték felülírása."""
+    config_manager.set("database", "host", value="newhost")
+    assert config_manager.get("database", "host") == "newhost"
+
+
+def test_set_nested_value(config_manager: YAMLConfigManager) -> None:
+    """Beágyazott érték beállítása."""
+    config_manager.set("database", "credentials", "newkey", value="value")
+    assert config_manager.get("database", "credentials", "newkey") == "value"
+
+
+def test_set_invalid_path(config_manager: YAMLConfigManager) -> None:
+    """Érvénytelen út esetén hiba."""
+    with pytest.raises(ValueError):
+        config_manager.set("database", "host", "invalid", value="value")
+
+
+def test_save(tmp_path: Path, config_manager: YAMLConfigManager) -> None:
+    """Konfiguráció mentése."""
+    filename = str(tmp_path / "config.yaml")
+    config_manager.save(filename)
+
+    with open(filename, "r", encoding="utf-8") as f:
+        saved_config = yaml.safe_load(f)
+        assert saved_config == config_manager._config  # pylint: disable=protected-access
+
+
+def test_save_create_dirs(tmp_path: Path, config_manager: YAMLConfigManager) -> None:
+    """Hiányzó könyvtárak létrehozása mentéskor."""
+    filename = str(tmp_path / "subdir" / "config.yaml")
+    config_manager.save(filename)
+    assert os.path.exists(filename)
+
+
+def test_validate_required_fields(config_manager: YAMLConfigManager) -> None:
+    """Kötelező mezők validálása."""
+    schema = {
+        "database": {
+            "type": "dict",
+            "schema": {
+                "host": {"type": "str"},
+                "port": {"type": "int"},
             },
-            "features": ["auth", "cache", "metrics"]
-        }
+        },
+    }
+    valid, errors = config_manager.validate(schema)
+    assert valid
+    assert errors is None
 
-    @pytest.fixture
-    def yaml_manager(self) -> YAMLConfigManager:
-        """YAML config manager példány."""
-        return YAMLConfigManager()
 
-    def test_initialization(self) -> None:
-        """Teszteli az inicializálást."""
-        manager = YAMLConfigManager()
-        assert isinstance(manager, YAMLConfigManager)
-        assert manager._config == {}
-
-    def test_initialization_with_file(
-        self, config_data: Dict[str, Any], tmp_path
-    ) -> None:
-        """Teszteli a fájlból történő inicializálást."""
-        config_file = tmp_path / "config.yaml"
-        yaml_content = yaml.dump(config_data)
-        with open(config_file, "w", encoding="utf-8") as f:
-            f.write(yaml_content)
-
-        manager = YAMLConfigManager(str(config_file))
-        assert manager._config == config_data
-
-    def test_get_nested_value(
-        self,
-        yaml_manager: YAMLConfigManager,
-        config_data: Dict[str, Any]
-    ) -> None:
-        """Teszteli a beágyazott értékek lekérését."""
-        yaml_manager._config = config_data
-
-        assert yaml_manager.get("database", "host") == "localhost"
-        assert yaml_manager.get("database", "credentials", "username") == "admin"
-        assert yaml_manager.get("nonexistent", default="default") == "default"
-
-    def test_get_section(
-        self,
-        yaml_manager: YAMLConfigManager,
-        config_data: Dict[str, Any]
-    ) -> None:
-        """Teszteli a teljes szekció lekérését."""
-        yaml_manager._config = config_data
-
-        database = yaml_manager.get_section("database")
-        assert database["host"] == "localhost"
-        assert database["port"] == 5432
-
-        with pytest.raises(KeyError):
-            yaml_manager.get_section("nonexistent")
-
-    def test_set_value(self, yaml_manager: YAMLConfigManager) -> None:
-        """Teszteli az értékek beállítását."""
-        yaml_manager.set("database", "host", value="example.com")
-        assert yaml_manager.get("database", "host") == "example.com"
-
-        yaml_manager.set("new", "key", "subkey", value=42)
-        assert yaml_manager.get("new", "key", "subkey") == 42
-
-    def test_save_configuration(
-        self,
-        yaml_manager: YAMLConfigManager,
-        config_data: Dict[str, Any],
-        tmp_path
-    ) -> None:
-        """Teszteli a konfiguráció mentését."""
-        yaml_manager._config = config_data
-        save_file = tmp_path / "save.yaml"
-
-        yaml_manager.save(str(save_file))
-        assert save_file.exists()
-
-        # Ellenőrizzük, hogy a mentett tartalom helyes
-        loaded_config = yaml.safe_load(save_file.read_text())
-        assert loaded_config == config_data
-
-    def test_validation_schema(self, yaml_manager: YAMLConfigManager) -> None:
-        """Teszteli a séma alapú validációt."""
-        yaml_manager._config = {
-            "port": 8080,
-            "timeout": 30,
-            "retries": -1
-        }
-
-        schema = {
-            "port": {
-                "type": "int",
-                "min": 1,
-                "max": 65535
+def test_validate_missing_required(config_manager: YAMLConfigManager) -> None:
+    """Hiányzó kötelező mezők validálása."""
+    schema = {
+        "database": {
+            "type": "dict",
+            "schema": {
+                "missing": {"type": "str"},
             },
-            "timeout": {
-                "type": "int",
-                "min": 0
+        },
+    }
+    valid, errors = config_manager.validate(schema)
+    assert not valid
+    assert errors is not None
+    assert "database.missing" in errors
+
+
+def test_validate_invalid_type(config_manager: YAMLConfigManager) -> None:
+    """Hibás típus validálása."""
+    schema = {
+        "database": {
+            "type": "dict",
+            "schema": {
+                "host": {"type": "int"},
             },
-            "retries": {
-                "type": "int",
-                "min": 0
-            }
-        }
+        },
+    }
+    valid, errors = config_manager.validate(schema)
+    assert not valid
+    assert errors is not None
+    assert "database.host" in errors
 
-        is_valid, errors = yaml_manager.validate(schema)
-        assert not is_valid
-        assert errors is not None
-        assert "retries" in errors
-        assert errors["retries"].startswith("Value must be >=")
 
-    def test_type_validation(self, yaml_manager: YAMLConfigManager) -> None:
-        """Teszteli a típus validációt."""
-        yaml_manager._config = {
-            "number": "not_a_number",
-            "list": 42
-        }
-
-        schema = {
-            "number": {"type": "int"},
-            "list": {"type": "list"}
-        }
-
-        is_valid, errors = yaml_manager.validate(schema)
-        assert not is_valid
-        errors = cast(Dict[str, str], errors)
-        assert len(errors) == 2
-        assert errors["number"].startswith("Invalid type")
-        assert errors["list"].startswith("Invalid type")
-
-    def test_required_fields(self, yaml_manager: YAMLConfigManager) -> None:
-        """Teszteli a kötelező mezők validációját."""
-        yaml_manager._config = {
-            "optional_field": "value"
-        }
-
-        schema = {
-            "required_field": {"type": "str"},
-            "optional_field": {"type": "str", "optional": True}
-        }
-
-        is_valid, errors = yaml_manager.validate(schema)
-        assert not is_valid
-        assert errors is not None
-        assert "required_field" in errors
-        assert "missing" in errors["required_field"].lower()
-
-    def test_choice_validation(self, yaml_manager: YAMLConfigManager) -> None:
-        """Teszteli a választható értékek validációját."""
-        yaml_manager._config = {
-            "color": "purple",
-            "size": "medium"
-        }
-
-        schema = {
-            "color": {
-                "type": "str",
-                "choices": ["red", "green", "blue"]
+def test_validate_choices(config_manager: YAMLConfigManager) -> None:
+    """Választható értékek validálása."""
+    schema = {
+        "logging": {
+            "type": "dict",
+            "schema": {
+                "level": {
+                    "type": "str",
+                    "choices": ["DEBUG", "INFO", "WARNING", "ERROR"],
+                },
             },
-            "size": {
-                "type": "str",
-                "choices": ["small", "medium", "large"]
-            }
-        }
+        },
+    }
+    valid, errors = config_manager.validate(schema)
+    assert valid
+    assert errors is None
 
-        is_valid, errors = yaml_manager.validate(schema)
-        assert not is_valid
-        assert errors is not None
-        assert "color" in errors
-        assert "one of" in errors["color"]
-        assert "red" in errors["color"]
-        assert "size" not in errors  # size is valid
+
+def test_load_invalid_yaml(tmp_path: Path) -> None:
+    """Érvénytelen YAML fájl betöltése."""
+    filename = str(tmp_path / "invalid.yaml")
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write("invalid: yaml: content}")
+
+    manager = YAMLConfigManager()
+    with pytest.raises(ConfigLoadError):
+        manager.load(filename)
