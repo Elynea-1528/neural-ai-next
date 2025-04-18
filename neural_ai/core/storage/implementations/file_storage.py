@@ -23,6 +23,10 @@ class FileStorage(StorageInterface):
 
     A komponens fájlrendszer alapú tárolást biztosít DataFrame-ek és Python
     objektumok számára különböző formátumokban.
+
+    Args:
+        base_path: Alap könyvtár útvonal (None esetén az aktuális könyvtár)
+        **kwargs: További paraméterek (jövőbeli használatra)
     """
 
     _DATAFRAME_FORMATS = {
@@ -33,12 +37,8 @@ class FileStorage(StorageInterface):
 
     _OBJECT_FORMATS = {"json"}
 
-    def __init__(self, base_path: Optional[Union[str, Path]] = None) -> None:
-        """Storage inicializálása.
-
-        Args:
-            base_path: Alap könyvtár útvonal (None esetén az aktuális könyvtár)
-        """
+    def __init__(self, base_path: Optional[Union[str, Path]] = None, **kwargs: Any) -> None:
+        """Storage inicializálása."""
         self._base_path = Path(base_path) if base_path else Path.cwd()
 
     def _get_full_path(self, path: Union[str, Path]) -> Path:
