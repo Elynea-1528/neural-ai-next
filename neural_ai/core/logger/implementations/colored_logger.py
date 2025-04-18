@@ -1,99 +1,94 @@
-"""Színes logger implementáció.
-
-Ez a modul a logger komponens színes megjelenítést biztosító implementációját tartalmazza.
-"""
+"""Színes konzol logger implementáció."""
 
 import logging
 import sys
-from typing import Any, Optional, TextIO
+from typing import Any
 
 from neural_ai.core.logger.formatters.logger_formatters import ColoredFormatter
-from neural_ai.core.logger.interfaces import LoggerInterface
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class ColoredLogger(LoggerInterface):
-    """Színes megjelenítést biztosító logger implementáció.
-
-    Ez az osztály a standard logging modult használja színes konzol kimenettel.
-    A különböző log szintek különböző színekkel jelennek meg.
-    """
+    """Színes konzol kimenettel rendelkező logger."""
 
     def __init__(
         self,
         name: str,
-        format_str: Optional[str] = None,
-        stream: Optional[TextIO] = None,
+        level: int = logging.INFO,
+        format_str: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     ) -> None:
         """Logger inicializálása.
 
         Args:
-            name: A logger neve
-            format_str: Opcionális formátum string
-            stream: Opcionális kimenet stream
+            name: Logger neve
+            level: Log szint
+            format_str: Log formátum string
         """
-        # Logger létrehozása
-        self._logger = logging.Logger(name)  # Új logger példány létrehozása
-        self._logger.setLevel(logging.DEBUG)
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(level)
 
-        # Konzol handler létrehozása
-        console_handler = logging.StreamHandler(stream or sys.stdout)
-        console_handler.setLevel(logging.DEBUG)
-
-        # Formátum string beállítása
-        if format_str is None:
-            format_str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
-        # Színes formatter beállítása
-        formatter = ColoredFormatter(format_str)
-        console_handler.setFormatter(formatter)
-
-        # Handler hozzáadása a loggerhez
-        self._logger.addHandler(console_handler)
-
-        # Propagáció kikapcsolása a duplikált üzenetek elkerülésére
-        self._logger.propagate = False
+        # Handler beállítása
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(ColoredFormatter(format_str))
+        self.logger.addHandler(handler)
 
     def debug(self, message: str, **kwargs: Any) -> None:
         """Debug szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.debug(message, extra=kwargs)
+        self.logger.debug(message, **kwargs)
 
     def info(self, message: str, **kwargs: Any) -> None:
-        """Információs szintű üzenet logolása.
+        """Info szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.info(message, extra=kwargs)
+        self.logger.info(message, **kwargs)
 
     def warning(self, message: str, **kwargs: Any) -> None:
-        """Figyelmeztetés szintű üzenet logolása.
+        """Warning szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.warning(message, extra=kwargs)
+        self.logger.warning(message, **kwargs)
 
     def error(self, message: str, **kwargs: Any) -> None:
-        """Hiba szintű üzenet logolása.
+        """Error szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.error(message, extra=kwargs)
+        self.logger.error(message, **kwargs)
 
     def critical(self, message: str, **kwargs: Any) -> None:
-        """Kritikus hiba szintű üzenet logolása.
+        """Critical szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.critical(message, extra=kwargs)
+        self.logger.critical(message, **kwargs)
+
+    def set_level(self, level: int) -> None:
+        """Logger log szintjének beállítása.
+
+        Args:
+            level: Az új log szint
+        """
+        self.logger.setLevel(level)
+
+    def get_level(self) -> int:
+        """Aktuális log szint lekérése.
+
+        Returns:
+            int: Az aktuális log szint
+        """
+        return self.logger.level

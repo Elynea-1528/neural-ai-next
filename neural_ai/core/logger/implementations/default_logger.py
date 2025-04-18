@@ -1,71 +1,93 @@
-"""Alapértelmezett logger implementáció.
-
-Ez a modul tartalmazza a logger komponens alapértelmezett implementációját,
-ami a Python standard library logging moduljára épül.
-"""
+"""Alapértelmezett logger implementáció."""
 
 import logging
+import sys
 from typing import Any
 
-from neural_ai.core.logger.interfaces import LoggerInterface
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class DefaultLogger(LoggerInterface):
-    """Standard library alapú logger implementáció.
+    """Alapértelmezett logger implementáció."""
 
-    Ez az osztály a Python beépített logging modulját használja
-    a naplózási műveletek megvalósításához.
-    """
-
-    def __init__(self, name: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        level: int = logging.INFO,
+        format_str: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    ) -> None:
         """Logger inicializálása.
 
         Args:
-            name: A logger neve
+            name: Logger neve
+            level: Log szint
+            format_str: Log formátum string
         """
-        self._logger: logging.Logger = logging.getLogger(name)
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(level)
+
+        # Handler beállítása
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(format_str))
+        self.logger.addHandler(handler)
 
     def debug(self, message: str, **kwargs: Any) -> None:
         """Debug szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.debug(message, extra=kwargs)
+        self.logger.debug(message, **kwargs)
 
     def info(self, message: str, **kwargs: Any) -> None:
-        """Információs szintű üzenet logolása.
+        """Info szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.info(message, extra=kwargs)
+        self.logger.info(message, **kwargs)
 
     def warning(self, message: str, **kwargs: Any) -> None:
-        """Figyelmeztetés szintű üzenet logolása.
+        """Warning szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.warning(message, extra=kwargs)
+        self.logger.warning(message, **kwargs)
 
     def error(self, message: str, **kwargs: Any) -> None:
-        """Hiba szintű üzenet logolása.
+        """Error szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.error(message, extra=kwargs)
+        self.logger.error(message, **kwargs)
 
     def critical(self, message: str, **kwargs: Any) -> None:
-        """Kritikus hiba szintű üzenet logolása.
+        """Critical szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.critical(message, extra=kwargs)
+        self.logger.critical(message, **kwargs)
+
+    def set_level(self, level: int) -> None:
+        """Logger log szintjének beállítása.
+
+        Args:
+            level: Az új log szint
+        """
+        self.logger.setLevel(level)
+
+    def get_level(self) -> int:
+        """Aktuális log szint lekérése.
+
+        Returns:
+            int: Az aktuális log szint
+        """
+        return self.logger.level

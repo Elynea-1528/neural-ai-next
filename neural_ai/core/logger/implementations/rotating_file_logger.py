@@ -1,147 +1,112 @@
-"""Rotáló fájl logger implementáció.
+"""Rotáló fájl logger implementáció."""
 
-Ez a modul a logger komponens fájl alapú, rotációs implementációját tartalmazza.
-A log fájlok automatikusan rotálódnak méret vagy idő alapján.
-"""
-
-import glob
-import gzip
 import logging
 import os
-from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
-from typing import Any, Optional, Type, Union
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
+from typing import Any, Union
 
-from neural_ai.core.logger.interfaces import LoggerInterface
-
-HandlerType = Union[Type[RotatingFileHandler], Type[TimedRotatingFileHandler]]
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class RotatingFileLogger(LoggerInterface):
-    """Rotáló fájl alapú logger implementáció.
-
-    Ez az osztály támogatja mind a méret alapú, mind az idő alapú log rotációt.
-    A régi log fájlok automatikusan archiválásra kerülnek.
-    """
+    """File alapú logger, ami automatikusan rotálja a log fájlokat."""
 
     def __init__(
         self,
         name: str,
-        filename: str,
-        rotation_type: str = "size",
+        log_file: Union[str, Path],
+        level: int = logging.INFO,
         max_bytes: int = 1024 * 1024,  # 1MB
         backup_count: int = 5,
-        when: str = "midnight",
-        encoding: str = "utf-8",
-        format_str: Optional[str] = None,
-        level: str = "DEBUG",
+        format_str: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     ) -> None:
         """Logger inicializálása.
 
         Args:
-            name: A logger neve
-            filename: A log fájl útvonala
-            rotation_type: Rotáció típusa ("size" vagy "time")
-            max_bytes: Maximális fájlméret byte-okban (csak size típusnál)
-            backup_count: Megtartandó régi log fájlok száma
-            when: Rotáció időpontja (csak time típusnál)
-            encoding: Fájl kódolás
-            format_str: Opcionális formátum string
-            level: Log szint (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+            name: Logger neve
+            log_file: Log fájl útvonala
+            level: Log szint
+            max_bytes: Maximum fájlméret rotálás előtt
+            backup_count: Megtartott backup fájlok száma
+            format_str: Log formátum string
         """
-        # Logger létrehozása
-        self._logger = logging.Logger(name)  # Új logger példány létrehozása
-        self._logger.setLevel(getattr(logging, level))
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(level)
 
-        # Log könyvtár létrehozása
-        log_dir = os.path.dirname(filename)
-        if log_dir and not os.path.exists(log_dir):
+        # Könyvtár létrehozása ha nem létezik
+        log_path = Path(log_file)
+        log_dir = log_path.parent
+        if not log_dir.exists():
             os.makedirs(log_dir)
 
-        # Handler létrehozása
-        if rotation_type == "time":
-            handler_class: HandlerType = TimedRotatingFileHandler
-            handler = handler_class(
-                filename=filename,
-                when=when,
-                backupCount=backup_count,
-                encoding=encoding,
-            )
-        else:
-            handler = RotatingFileHandler(
-                filename=filename,
-                maxBytes=max_bytes,
-                backupCount=backup_count,
-                encoding=encoding,
-            )
-
-        # Formátum string beállítása
-        if format_str is None:
-            format_str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        formatter = logging.Formatter(format_str)
-        handler.setFormatter(formatter)
-
-        # Handler hozzáadása a loggerhez
-        self._logger.addHandler(handler)
+        # Handler beállítása
+        handler = RotatingFileHandler(
+            str(log_file),
+            maxBytes=max_bytes,
+            backupCount=backup_count,
+            encoding="utf-8",
+        )
+        handler.setFormatter(logging.Formatter(format_str))
+        self.logger.addHandler(handler)
 
     def debug(self, message: str, **kwargs: Any) -> None:
         """Debug szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.debug(message, extra=kwargs)
+        self.logger.debug(message, **kwargs)
 
     def info(self, message: str, **kwargs: Any) -> None:
-        """Információs szintű üzenet logolása.
+        """Info szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.info(message, extra=kwargs)
+        self.logger.info(message, **kwargs)
 
     def warning(self, message: str, **kwargs: Any) -> None:
-        """Figyelmeztetés szintű üzenet logolása.
+        """Warning szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.warning(message, extra=kwargs)
+        self.logger.warning(message, **kwargs)
 
     def error(self, message: str, **kwargs: Any) -> None:
-        """Hiba szintű üzenet logolása.
+        """Error szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.error(message, extra=kwargs)
+        self.logger.error(message, **kwargs)
 
     def critical(self, message: str, **kwargs: Any) -> None:
-        """Kritikus hiba szintű üzenet logolása.
+        """Critical szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
-        self._logger.critical(message, extra=kwargs)
+        self.logger.critical(message, **kwargs)
 
-    @staticmethod
-    def compress_old_logs(directory: str, pattern: str = "*.log.*") -> None:
-        """Régi log fájlok tömörítése.
+    def set_level(self, level: int) -> None:
+        """Logger log szintjének beállítása.
 
         Args:
-            directory: A log fájlokat tartalmazó könyvtár
-            pattern: Log fájl minta
+            level: Az új log szint
         """
-        # Log fájlok keresése
-        for log_file in glob.glob(os.path.join(directory, pattern)):
-            if not log_file.endswith(".gz"):
-                # Tömörítés
-                with open(log_file, "rb") as f_in:
-                    with gzip.open(f"{log_file}.gz", "wb") as f_out:
-                        f_out.writelines(f_in)
-                # Eredeti fájl törlése
-                os.remove(log_file)
+        self.logger.setLevel(level)
+
+    def get_level(self) -> int:
+        """Aktuális log szint lekérése.
+
+        Returns:
+            int: Az aktuális log szint
+        """
+        return self.logger.level

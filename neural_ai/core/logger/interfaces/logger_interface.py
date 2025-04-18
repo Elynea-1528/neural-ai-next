@@ -1,61 +1,76 @@
-"""Logger interfész definíció.
-
-Ez a modul definiálja a naplózási funkcionalitást definiáló interfészt, amely
-meghatározza a különböző szintű naplózási műveleteket.
-"""
+"""Logger interfész definíció."""
 
 from abc import ABC, abstractmethod
 from typing import Any
 
 
 class LoggerInterface(ABC):
-    """Logger interfész a naplózási funkcionalitás definiálásához.
-
-    Az interfész definiálja az alapvető naplózási műveleteket különböző
-    részletességi szinteken (debug, info, warning, error, critical).
-    """
+    """Logger interfész."""
 
     @abstractmethod
     def debug(self, message: str, **kwargs: Any) -> None:
         """Debug szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
+        pass
 
     @abstractmethod
     def info(self, message: str, **kwargs: Any) -> None:
-        """Információs szintű üzenet logolása.
+        """Info szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
+        pass
 
     @abstractmethod
     def warning(self, message: str, **kwargs: Any) -> None:
-        """Figyelmeztetés szintű üzenet logolása.
+        """Warning szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
+        pass
 
     @abstractmethod
     def error(self, message: str, **kwargs: Any) -> None:
-        """Hiba szintű üzenet logolása.
+        """Error szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
+        pass
 
     @abstractmethod
     def critical(self, message: str, **kwargs: Any) -> None:
-        """Kritikus hiba szintű üzenet logolása.
+        """Critical szintű üzenet logolása.
 
         Args:
-            message: A naplózandó üzenet
-            **kwargs: További kontextus információk
+            message: A log üzenet
+            **kwargs: További paraméterek
         """
+        pass
+
+    @abstractmethod
+    def set_level(self, level: int) -> None:
+        """Logger log szintjének beállítása.
+
+        Args:
+            level: Az új log szint
+        """
+        pass
+
+    @abstractmethod
+    def get_level(self) -> int:
+        """Aktuális log szint lekérése.
+
+        Returns:
+            int: Az aktuális log szint
+        """
+        pass
