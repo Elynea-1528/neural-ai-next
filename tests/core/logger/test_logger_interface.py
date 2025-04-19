@@ -1,99 +1,90 @@
-"""Logger interfész tesztek.
+"""Logger interfész tesztek."""
 
-Ez a modul tartalmazza a logger interfészek tesztjeit.
-"""
+import logging
+from typing import Any, Iterator, cast
 
 import pytest
 
-from neural_ai.core.logger.interfaces import LoggerInterface
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class MockLogger(LoggerInterface):
-    """Mock logger a LoggerInterface teszteléséhez."""
+    """Mock logger implementáció teszteléshez."""
 
-    def __init__(self):
+    def __init__(self, name: str, **kwargs: Any) -> None:
         """Mock logger inicializálása."""
-        self.debug_calls = []
-        self.info_calls = []
-        self.warning_calls = []
-        self.error_calls = []
-        self.critical_calls = []
+        self.logger = logging.getLogger(name)
+        self.msg_history: list[tuple[str, str]] = []
 
-    def debug(self, message: str, **kwargs) -> None:
-        """Debug üzenet rögzítése."""
-        self.debug_calls.append((message, kwargs))
+    def debug(self, message: str, **kwargs: Any) -> None:
+        """Debug üzenet."""
+        self.msg_history.append(("debug", message))
 
-    def info(self, message: str, **kwargs) -> None:
-        """Info üzenet rögzítése."""
-        self.info_calls.append((message, kwargs))
+    def info(self, message: str, **kwargs: Any) -> None:
+        """Info üzenet."""
+        self.msg_history.append(("info", message))
 
-    def warning(self, message: str, **kwargs) -> None:
-        """Warning üzenet rögzítése."""
-        self.warning_calls.append((message, kwargs))
+    def warning(self, message: str, **kwargs: Any) -> None:
+        """Warning üzenet."""
+        self.msg_history.append(("warning", message))
 
-    def error(self, message: str, **kwargs) -> None:
-        """Error üzenet rögzítése."""
-        self.error_calls.append((message, kwargs))
+    def error(self, message: str, **kwargs: Any) -> None:
+        """Error üzenet."""
+        self.msg_history.append(("error", message))
 
-    def critical(self, message: str, **kwargs) -> None:
-        """Critical üzenet rögzítése."""
-        self.critical_calls.append((message, kwargs))
+    def critical(self, message: str, **kwargs: Any) -> None:
+        """Critical üzenet."""
+        self.msg_history.append(("critical", message))
+
+    def get_level(self) -> int:
+        """Log szint lekérése."""
+        return self.logger.level
+
+    def set_level(self, level: int) -> None:
+        """Log szint beállítása."""
+        self.logger.setLevel(level)
 
 
 class TestLoggerInterface:
-    """LoggerInterface tesztek."""
+    """Logger interfész tesztosztály."""
 
     @pytest.fixture
-    def mock_logger(self):
+    def mock_logger(self) -> Iterator[LoggerInterface]:
         """Mock logger fixture."""
-        return MockLogger()
+        logger = MockLogger("test_logger")
+        yield logger
 
-    def test_debug_logging(self, mock_logger):
-        """Debug metódus tesztelése."""
-        message = "Debug üzenet"
-        extra = {"key": "value"}
+    def test_debug_logging(self, mock_logger: LoggerInterface) -> None:
+        """Debug logolás tesztelése."""
+        message = "Test debug message"
+        mock_logger.debug(message)
+        mock = cast(MockLogger, mock_logger)
+        assert ("debug", message) in mock.msg_history
 
-        mock_logger.debug(message, **extra)
+    def test_info_logging(self, mock_logger: LoggerInterface) -> None:
+        """Info logolás tesztelése."""
+        message = "Test info message"
+        mock_logger.info(message)
+        mock = cast(MockLogger, mock_logger)
+        assert ("info", message) in mock.msg_history
 
-        assert len(mock_logger.debug_calls) == 1
-        assert mock_logger.debug_calls[0] == (message, extra)
+    def test_warning_logging(self, mock_logger: LoggerInterface) -> None:
+        """Warning logolás tesztelése."""
+        message = "Test warning message"
+        mock_logger.warning(message)
+        mock = cast(MockLogger, mock_logger)
+        assert ("warning", message) in mock.msg_history
 
-    def test_info_logging(self, mock_logger):
-        """Info metódus tesztelése."""
-        message = "Info üzenet"
-        extra = {"key": "value"}
+    def test_error_logging(self, mock_logger: LoggerInterface) -> None:
+        """Error logolás tesztelése."""
+        message = "Test error message"
+        mock_logger.error(message)
+        mock = cast(MockLogger, mock_logger)
+        assert ("error", message) in mock.msg_history
 
-        mock_logger.info(message, **extra)
-
-        assert len(mock_logger.info_calls) == 1
-        assert mock_logger.info_calls[0] == (message, extra)
-
-    def test_warning_logging(self, mock_logger):
-        """Warning metódus tesztelése."""
-        message = "Warning üzenet"
-        extra = {"key": "value"}
-
-        mock_logger.warning(message, **extra)
-
-        assert len(mock_logger.warning_calls) == 1
-        assert mock_logger.warning_calls[0] == (message, extra)
-
-    def test_error_logging(self, mock_logger):
-        """Error metódus tesztelése."""
-        message = "Error üzenet"
-        extra = {"key": "value"}
-
-        mock_logger.error(message, **extra)
-
-        assert len(mock_logger.error_calls) == 1
-        assert mock_logger.error_calls[0] == (message, extra)
-
-    def test_critical_logging(self, mock_logger):
-        """Critical metódus tesztelése."""
-        message = "Critical üzenet"
-        extra = {"key": "value"}
-
-        mock_logger.critical(message, **extra)
-
-        assert len(mock_logger.critical_calls) == 1
-        assert mock_logger.critical_calls[0] == (message, extra)
+    def test_critical_logging(self, mock_logger: LoggerInterface) -> None:
+        """Critical logolás tesztelése."""
+        message = "Test critical message"
+        mock_logger.critical(message)
+        mock = cast(MockLogger, mock_logger)
+        assert ("critical", message) in mock.msg_history

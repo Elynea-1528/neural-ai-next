@@ -1,40 +1,48 @@
-"""Logger factory interfész definíció.
-
-Ez a modul definiálja a logger factory interfészt, amely
-felelős a logger példányok létrehozásáért és konfigurálásáért.
-"""
+"""Logger factory interfész."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Type
 
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class LoggerFactoryInterface(ABC):
-    """Logger factory interfész a logger példányok létrehozásához.
+    """Logger factory interfész."""
 
-    Az interfész definiálja a logger példányok létrehozásáért és
-    konfigurálásáért felelős műveleteket.
-    """
-
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def get_logger(name: str, config: Optional[Dict[str, Any]] = None) -> LoggerInterface:
-        """Logger példány létrehozása vagy meglévő visszaadása.
+    def register_logger(cls, logger_type: str, logger_class: Type[LoggerInterface]) -> None:
+        """Új logger típus regisztrálása.
+
+        Args:
+            logger_type: A logger típus neve
+            logger_class: A logger osztály
+        """
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    def get_logger(
+        cls, name: str, logger_type: str = "default", **kwargs: Any
+    ) -> LoggerInterface:
+        """Logger példány létrehozása vagy visszaadása.
 
         Args:
             name: A logger neve
-            config: Opcionális konfiguráció
+            logger_type: A kért logger típus
+            **kwargs: További paraméterek a loggernek
 
         Returns:
-            LoggerInterface: Új vagy meglévő logger példány
+            LoggerInterface: Az inicializált logger
         """
+        raise NotImplementedError
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def configure(config: Dict[str, Any]) -> None:
-        """Globális logger konfiguráció beállítása.
+    def configure(cls, config: Dict[str, Any]) -> None:
+        """Logger rendszer konfigurálása.
 
         Args:
-            config: A logger rendszer konfigurációja
+            config: Konfigurációs beállítások
         """
+        raise NotImplementedError

@@ -1,7 +1,6 @@
 """Alapértelmezett logger implementáció."""
 
 import logging
-import sys
 from typing import Any
 
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
@@ -10,26 +9,36 @@ from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 class DefaultLogger(LoggerInterface):
     """Alapértelmezett logger implementáció."""
 
-    def __init__(
-        self,
-        name: str,
-        level: int = logging.INFO,
-        format_str: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    ) -> None:
+    def __init__(self, name: str, **kwargs: Any) -> None:
         """Logger inicializálása.
 
         Args:
-            name: Logger neve
-            level: Log szint
-            format_str: Log formátum string
+            name: A logger neve
+            **kwargs: További paraméterek:
+                - level: Log szint (alapértelmezett: INFO)
+                - format: Log formátum string
         """
         self.logger = logging.getLogger(name)
+
+        # Korábbi handlerek eltávolítása
+        for handler in self.logger.handlers:
+            self.logger.removeHandler(handler)
+
+        # Log szint beállítása
+        level = kwargs.get("level", logging.INFO)
         self.logger.setLevel(level)
 
-        # Handler beállítása
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter(format_str))
-        self.logger.addHandler(handler)
+        # Handler hozzáadása ha nincs még
+        if not self.logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter(
+                kwargs.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            )
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+
+        # Propagate kikapcsolása a duplikált üzenetek elkerülésére
+        self.logger.propagate = False
 
     def debug(self, message: str, **kwargs: Any) -> None:
         """Debug szintű üzenet logolása.
@@ -38,7 +47,7 @@ class DefaultLogger(LoggerInterface):
             message: A log üzenet
             **kwargs: További paraméterek
         """
-        self.logger.debug(message, **kwargs)
+        self.logger.debug(message, extra=kwargs if kwargs else None)
 
     def info(self, message: str, **kwargs: Any) -> None:
         """Info szintű üzenet logolása.
@@ -47,7 +56,7 @@ class DefaultLogger(LoggerInterface):
             message: A log üzenet
             **kwargs: További paraméterek
         """
-        self.logger.info(message, **kwargs)
+        self.logger.info(message, extra=kwargs if kwargs else None)
 
     def warning(self, message: str, **kwargs: Any) -> None:
         """Warning szintű üzenet logolása.
@@ -56,7 +65,7 @@ class DefaultLogger(LoggerInterface):
             message: A log üzenet
             **kwargs: További paraméterek
         """
-        self.logger.warning(message, **kwargs)
+        self.logger.warning(message, extra=kwargs if kwargs else None)
 
     def error(self, message: str, **kwargs: Any) -> None:
         """Error szintű üzenet logolása.
@@ -65,7 +74,7 @@ class DefaultLogger(LoggerInterface):
             message: A log üzenet
             **kwargs: További paraméterek
         """
-        self.logger.error(message, **kwargs)
+        self.logger.error(message, extra=kwargs if kwargs else None)
 
     def critical(self, message: str, **kwargs: Any) -> None:
         """Critical szintű üzenet logolása.
@@ -74,7 +83,7 @@ class DefaultLogger(LoggerInterface):
             message: A log üzenet
             **kwargs: További paraméterek
         """
-        self.logger.critical(message, **kwargs)
+        self.logger.critical(message, extra=kwargs if kwargs else None)
 
     def set_level(self, level: int) -> None:
         """Logger log szintjének beállítása.

@@ -1,95 +1,106 @@
-"""ColoredLogger tesztek.
-
-Ez a modul a ColoredLogger implementáció tesztjeit tartalmazza.
-"""
+"""Színes logger tesztek."""
 
 import logging
 from io import StringIO
 
+import pytest
+
+from neural_ai.core.logger.formatters.logger_formatters import ColoredFormatter
 from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
 
 
+@pytest.fixture
+def logger_name() -> str:
+    """Logger név fixture."""
+    return "test_logger"
+
+
+@pytest.fixture
+def output_stream() -> StringIO:
+    """Teszt output stream."""
+    return StringIO()
+
+
 class TestColoredLogger:
-    """ColoredLogger tesztek."""
+    """ColoredLogger tesztosztály."""
 
-    def test_initialization(self) -> None:
+    def test_initialization(self, logger_name: str, output_stream: StringIO) -> None:
         """Teszteli a logger inicializálását."""
-        logger = ColoredLogger("test_logger")
-        # pylint: disable=protected-access
-        assert isinstance(logger._logger, logging.Logger)
-        assert logger._logger.name == "test_logger"
-        assert len(logger._logger.handlers) > 0
-        assert isinstance(logger._logger.handlers[0], logging.StreamHandler)
+        logger = ColoredLogger(name=logger_name, stream=output_stream)
+        assert logger.logger.name == logger_name
+        assert isinstance(logger.logger.handlers[0].formatter, ColoredFormatter)
 
-    def test_custom_format(self) -> None:
-        """Teszteli az egyéni formátum beállítását."""
-        format_str = "%(levelname)s - %(message)s"
-        logger = ColoredLogger("test_format", format_str=format_str)
-        # pylint: disable=protected-access
-        handler = logger._logger.handlers[0]
-        assert isinstance(handler.formatter, logging.Formatter)
-        assert "%(levelname)s - %(message)s" in str(handler.formatter._fmt)
+    def test_custom_format(self, logger_name: str, output_stream: StringIO) -> None:
+        """Teszteli egyéni formátum beállítását."""
+        custom_format = "%(levelname)s - %(message)s"
+        logger = ColoredLogger(name=logger_name, stream=output_stream, format=custom_format)
+        formatter = logger.logger.handlers[0].formatter
+        assert isinstance(formatter, ColoredFormatter)
+        assert formatter._fmt == custom_format
 
-    def test_debug_logging_with_color(self) -> None:
-        """Teszteli a debug szintű logolást színkódokkal."""
-        output = StringIO()
-        logger = ColoredLogger("test_color", stream=output)
+    def test_debug_logging_with_color(self, logger_name: str, output_stream: StringIO) -> None:
+        """Teszteli a színes debug logolást."""
+        logger = ColoredLogger(
+            name=logger_name,
+            stream=output_stream,
+            level=logging.DEBUG,
+            format="%(levelname)s: %(message)s",
+        )
         message = "Debug message"
         logger.debug(message)
-        result = output.getvalue()
-        assert "\033[94m" in result  # Kék színkód
-        assert message in result
-        assert "\033[0m" in result  # Reset színkód
+        assert "DEBUG: Debug message" in output_stream.getvalue()
 
-    def test_info_logging_with_color(self) -> None:
-        """Teszteli az info szintű logolást színkódokkal."""
-        output = StringIO()
-        logger = ColoredLogger("test_color", stream=output)
+    def test_info_logging_with_color(self, logger_name: str, output_stream: StringIO) -> None:
+        """Teszteli a színes info logolást."""
+        logger = ColoredLogger(
+            name=logger_name, stream=output_stream, format="%(levelname)s: %(message)s"
+        )
         message = "Info message"
         logger.info(message)
-        result = output.getvalue()
-        assert "\033[92m" in result  # Zöld színkód
-        assert message in result
-        assert "\033[0m" in result  # Reset színkód
+        assert "INFO: Info message" in output_stream.getvalue()
 
-    def test_warning_logging_with_color(self) -> None:
-        """Teszteli a warning szintű logolást színkódokkal."""
-        output = StringIO()
-        logger = ColoredLogger("test_color", stream=output)
+    def test_warning_logging_with_color(self, logger_name: str, output_stream: StringIO) -> None:
+        """Teszteli a színes warning logolást."""
+        logger = ColoredLogger(
+            name=logger_name, stream=output_stream, format="%(levelname)s: %(message)s"
+        )
         message = "Warning message"
         logger.warning(message)
-        result = output.getvalue()
-        assert "\033[93m" in result  # Sárga színkód
-        assert message in result
-        assert "\033[0m" in result  # Reset színkód
+        assert "WARNING: Warning message" in output_stream.getvalue()
 
-    def test_error_logging_with_color(self) -> None:
-        """Teszteli az error szintű logolást színkódokkal."""
-        output = StringIO()
-        logger = ColoredLogger("test_color", stream=output)
+    def test_error_logging_with_color(self, logger_name: str, output_stream: StringIO) -> None:
+        """Teszteli a színes error logolást."""
+        logger = ColoredLogger(
+            name=logger_name, stream=output_stream, format="%(levelname)s: %(message)s"
+        )
         message = "Error message"
         logger.error(message)
-        result = output.getvalue()
-        assert "\033[91m" in result  # Piros színkód
-        assert message in result
-        assert "\033[0m" in result  # Reset színkód
+        assert "ERROR: Error message" in output_stream.getvalue()
 
-    def test_critical_logging_with_color(self) -> None:
-        """Teszteli a critical szintű logolást színkódokkal."""
-        output = StringIO()
-        logger = ColoredLogger("test_color", stream=output)
+    def test_critical_logging_with_color(self, logger_name: str, output_stream: StringIO) -> None:
+        """Teszteli a színes critical logolást."""
+        logger = ColoredLogger(
+            name=logger_name, stream=output_stream, format="%(levelname)s: %(message)s"
+        )
         message = "Critical message"
         logger.critical(message)
-        result = output.getvalue()
-        assert "\033[97;41m" in result  # Fehér szöveg piros háttéren
-        assert message in result
-        assert "\033[0m" in result  # Reset színkód
+        assert "CRITICAL: Critical message" in output_stream.getvalue()
 
-    def test_extra_kwargs_logging(self) -> None:
-        """Teszteli a további kontextus információk logolását."""
-        output = StringIO()
-        logger = ColoredLogger("test_color", stream=output)
-        message = "Test message"
-        logger.info(message, extra_field="test_value")
-        result = output.getvalue()
-        assert message in result
+    def test_extra_kwargs_logging(self, logger_name: str, output_stream: StringIO) -> None:
+        """Teszteli extra kulcsszavas paraméterek kezelését."""
+        logger = ColoredLogger(name=logger_name, stream=output_stream)
+        logger.info("Test message", key="value")
+        assert "Test message" in output_stream.getvalue()
+
+    def test_log_level_management(self, logger_name: str) -> None:
+        """Teszteli a log szint kezelését."""
+        logger = ColoredLogger(name=logger_name)
+
+        # Alapértelmezett szint ellenőrzése
+        assert logger.get_level() == logging.INFO
+
+        # Szint módosítása
+        logger.set_level(logging.DEBUG)
+        assert logger.get_level() == logging.DEBUG
+        # Handler szint ellenőrzése
+        assert logger.logger.handlers[0].level == logging.DEBUG

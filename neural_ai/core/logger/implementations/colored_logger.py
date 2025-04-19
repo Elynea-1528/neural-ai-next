@@ -11,26 +11,44 @@ from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 class ColoredLogger(LoggerInterface):
     """Színes konzol kimenettel rendelkező logger."""
 
-    def __init__(
-        self,
-        name: str,
-        level: int = logging.INFO,
-        format_str: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    ) -> None:
+    def __init__(self, name: str, **kwargs: Any) -> None:
         """Logger inicializálása.
 
         Args:
-            name: Logger neve
-            level: Log szint
-            format_str: Log formátum string
+            name: A logger neve
+            **kwargs: További paraméterek:
+                - level: Log szint (alapértelmezett: INFO)
+                - format: Log formátum string
+                - stream: Kimeneti stream (alapértelmezett: sys.stdout)
         """
         self.logger = logging.getLogger(name)
+
+        # Korábbi handlerek eltávolítása
+        for handler in self.logger.handlers:
+            self.logger.removeHandler(handler)
+
+        # Log szint beállítása
+        level = kwargs.get("level", logging.INFO)
         self.logger.setLevel(level)
 
         # Handler beállítása
-        handler = logging.StreamHandler(sys.stdout)
+        stream = kwargs.get("stream", sys.stdout)
+        handler = logging.StreamHandler(stream)
+
+        # Formázó beállítása
+        format_str = kwargs.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         handler.setFormatter(ColoredFormatter(format_str))
+
+        # Handler hozzáadása és propagálás kikapcsolása
         self.logger.addHandler(handler)
+        self.logger.propagate = False
+
+        # Debug mód bekapcsolása ha szükséges
+        if level <= logging.DEBUG:
+            # Root logger és handler szintjének beállítása
+            root = logging.getLogger()
+            root.setLevel(logging.DEBUG)
+            handler.setLevel(logging.DEBUG)
 
     def debug(self, message: str, **kwargs: Any) -> None:
         """Debug szintű üzenet logolása.
@@ -39,7 +57,7 @@ class ColoredLogger(LoggerInterface):
             message: A log üzenet
             **kwargs: További paraméterek
         """
-        self.logger.debug(message, **kwargs)
+        self.logger.debug(message, extra=kwargs if kwargs else None)
 
     def info(self, message: str, **kwargs: Any) -> None:
         """Info szintű üzenet logolása.
@@ -48,7 +66,7 @@ class ColoredLogger(LoggerInterface):
             message: A log üzenet
             **kwargs: További paraméterek
         """
-        self.logger.info(message, **kwargs)
+        self.logger.info(message, extra=kwargs if kwargs else None)
 
     def warning(self, message: str, **kwargs: Any) -> None:
         """Warning szintű üzenet logolása.
@@ -57,7 +75,7 @@ class ColoredLogger(LoggerInterface):
             message: A log üzenet
             **kwargs: További paraméterek
         """
-        self.logger.warning(message, **kwargs)
+        self.logger.warning(message, extra=kwargs if kwargs else None)
 
     def error(self, message: str, **kwargs: Any) -> None:
         """Error szintű üzenet logolása.
@@ -66,7 +84,7 @@ class ColoredLogger(LoggerInterface):
             message: A log üzenet
             **kwargs: További paraméterek
         """
-        self.logger.error(message, **kwargs)
+        self.logger.error(message, extra=kwargs if kwargs else None)
 
     def critical(self, message: str, **kwargs: Any) -> None:
         """Critical szintű üzenet logolása.
@@ -75,7 +93,7 @@ class ColoredLogger(LoggerInterface):
             message: A log üzenet
             **kwargs: További paraméterek
         """
-        self.logger.critical(message, **kwargs)
+        self.logger.critical(message, extra=kwargs if kwargs else None)
 
     def set_level(self, level: int) -> None:
         """Logger log szintjének beállítása.
@@ -84,6 +102,9 @@ class ColoredLogger(LoggerInterface):
             level: Az új log szint
         """
         self.logger.setLevel(level)
+        # Handler-ek szintjének frissítése
+        for handler in self.logger.handlers:
+            handler.setLevel(level)
 
     def get_level(self) -> int:
         """Aktuális log szint lekérése.
