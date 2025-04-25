@@ -7,9 +7,33 @@
 - [Dimenzió Processzorok](../../docs/processors/dimensions/overview.md)
 
 ## 2. Core Komponensek
-- [Logger Dokumentáció](../../docs/components/logger/design_spec.md)
-- [Konfiguráció Dokumentáció](../../docs/components/config/design_spec.md)
-- [Storage Dokumentáció](../../docs/components/storage/design_spec.md)
+
+### 2.1 Base Komponens
+- [Áttekintés és API](../../docs/components/base/api.md)
+- [Architektúra](../../docs/components/base/architecture.md)
+- [Fejlesztési checklist](../../docs/components/base/development_checklist.md)
+
+### 2.2 Config Komponens
+- [Áttekintés](../../docs/components/config/README.md)
+- [API Dokumentáció](../../docs/components/config/api.md)
+- [Architektúra](../../docs/components/config/architecture.md)
+- [Tervezési Specifikáció](../../docs/components/config/design_spec.md)
+- [Közreműködési Útmutató](../../docs/components/config/CONTRIBUTING.md)
+
+### 2.3 Logger Komponens
+- [Áttekintés](../../docs/components/logger/README.md)
+- [API Dokumentáció](../../docs/components/logger/api.md)
+- [Architektúra](../../docs/components/logger/architecture.md)
+- [Tervezési Specifikáció](../../docs/components/logger/design_spec.md)
+- [Közreműködési Útmutató](../../docs/components/logger/CONTRIBUTING.md)
+
+### 2.4 Storage Komponens
+- [Áttekintés](../../docs/components/storage/README.md)
+- [API Dokumentáció](../../docs/components/storage/api.md)
+- [Architektúra](../../docs/components/storage/architecture.md)
+- [Tervezési Specifikáció](../../docs/components/storage/design_spec.md)
+- [Példák](../../docs/components/storage/examples.md)
+- [Fejlesztési Checklist](../../docs/components/storage/development_checklist.md)
 
 ## 3. Collector Komponensek
 - [MT5 Collector Dokumentáció](../../docs/components/collectors/mt5/design_spec.md)
@@ -39,70 +63,30 @@
 - [Storage Template](../../docs/templates/storage_template.py)
 - [Model Template](../../docs/templates/model_template.py)
 
-## 7. Projekt Hierarchia
+## 7. Dokumentációs Standardok
+- [Dokumentációs Struktúra](../../docs/issues/documentation_standardization.md)
+- [Template Fixes](../../docs/issues/template_fixes.md)
+
+## 8. Projekt Hierarchia
 
 /neural-ai-next
 ├── neural_ai/                       # Fő kódkönyvtár
-│   ├── __init__.py
+│   ├── core/                        # Core komponensek
+│   │   ├── base/                   # Alap infrastruktúra
+│   │   ├── config/                 # Konfigurációkezelés
+│   │   ├── logger/                 # Naplózás
+│   │   └── storage/                # Adattárolás
 │   ├── collectors/                  # Adatgyűjtők
-│   │   ├── __init__.py
-│   │   ├── interfaces/
-│   │   ├── mt5_collector.py
-│   │   └── utils/
-│   ├── processors/                  # Adatfeldolgozók dimenziónként csoportosítva
-│   │   ├── __init__.py
-│   │   ├── base_processor.py
-│   │   ├── d1_price_action/
-│   │   ├── d2_support_resistance/
-│   │   ├── d3_trend/
-│   │   └── ...                      # Többi dimenzió processzor
+│   ├── processors/                  # Adatfeldolgozók
 │   ├── models/                      # Modell definíciók
-│   │   ├── __init__.py
-│   │   ├── base_model.py
-│   │   ├── hierarchical/            # Hierarchikus modellek
-│   │   ├── specialists/             # Specializált elemzők
-│   │   └── meta_analyzers/          # Meta-elemzők
 │   ├── trainers/                    # Modell tanítók
-│   │   ├── __init__.py
-│   │   ├── base_trainer.py
-│   │   └── lightning_trainers/
 │   ├── evaluators/                  # Kiértékelők
-│   │   ├── __init__.py
-│   │   └── metrics/
-│   ├── core/                        # Alapvető komponensek
-│   │   ├── __init__.py
-│   │   ├── logger/                  # Logger rendszer
-│   │   ├── config/                  # Konfigurációkezelés
-│   │   └── storage/                 # Adattárolás
 │   └── utils/                       # Segédeszközök
-│       ├── __init__.py
-│       └── visualization/
-├── mql5/                            # MetaTrader kliens kód
-│   ├── Experts/
-│   └── Include/
 ├── tests/                           # Tesztek
-│   ├── collectors/
-│   ├── processors/
-│   ├── models/
-│   └── core/
 ├── docs/                            # Dokumentáció
-│   ├── README.md
-│   ├── architecture/
-│   ├── components/
-│   └── api/
 ├── configs/                         # Konfigurációs fájlok
-│   ├── app/                         # Alkalmazás konfigurációk
-│   ├── collectors/
-│   └── processors/
 ├── data/                            # Adatok
-│   ├── raw/                         # Nyers adatok
-│   ├── processed/                   # Feldolgozott adatok
-│   └── features/                    # Feature adatok
 ├── logs/                            # Logfájlok
-│   ├── app/
-│   └── training/
 ├── models/                          # Modellek mentései
-│   ├── checkpoints/
-│   └── exported/
 ├── examples/                        # Példakódok
 └── notebooks/                       # Jupyter notebookok
