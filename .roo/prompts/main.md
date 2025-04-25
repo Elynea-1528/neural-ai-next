@@ -68,16 +68,29 @@
 
 ## 5. Aktuális Feladatok
 
-### 5.1 Dokumentációs Standardizálás
+### 5.1 Dokumentációs Standardizálás ✓
 - [Standardizálási Terv](../../docs/issues/documentation_standardization.md)
-- CI/CD pipeline bővítés dokumentáció ellenőrzéssel
-- Automatikus dokumentáció generálás bevezetése
+- ✓ Egységes dokumentációs struktúra kialakítva
+- ✓ CI/CD pipeline bővítve dokumentáció ellenőrzéssel
+- ✓ Formázási szabályok implementálva
 
-### 5.2 Template Fájlok Javítása
-- [Javítási Feladatok](../../docs/issues/template_fixes.md)
-- Docstring és formázási hibák javítása
-- Típusannotációk és importok tisztítása
-- Biztonsági problémák kezelése
+### 5.2 Template Kód Fejlesztés
+- [Részletes terv](../../docs/issues/template_code_fixes.md)
+
+#### 5.2.1 Magas prioritású feladatok
+- [ ] Undefined nevek javítása
+- [ ] Hiányzó típusannotációk pótlása
+- [ ] Kritikus docstring hibák javítása
+
+#### 5.2.2 Közepes prioritású feladatok
+- [ ] Import tisztítás
+- [ ] Kivétel osztályok implementálása
+- [ ] Docstring formázási hibák javítása
+
+#### 5.2.3 Alacsony prioritású feladatok
+- [ ] Biztonsági fejlesztések
+- [ ] Type stub fájlok létrehozása
+- [ ] Dokumentáció frissítése
 
 ## 6. Könyvtár Struktúra
 
@@ -101,3 +114,17 @@ docs/                        # Dokumentáció
 ├── components/            # Komponens dokumentáció
 ├── development/          # Fejlesztői útmutatók
 └── templates/            # Kód sablonok
+```
+
+## 7. Következő lépések
+
+1. Template kód javítások:
+   - Undefined nevek javítása
+   - Típusannotációk pótlása
+   - Import optimalizálás
+   - Docstring formázás
+
+2. CI/CD pipeline bővítés:
+   - Típusellenőrzés bevezetése
+   - Biztonsági scan konfigurálása
+   - Teljes körű tesztelés automatizálása
