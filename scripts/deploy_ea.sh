@@ -8,9 +8,11 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # Konstansok
-MT5_PREFIX="$HOME/.wine"  # Használjuk az eredeti wine prefix-et
-MT5_PATH="$MT5_PREFIX/drive_c/Program Files/XM MT5"
-MQL5_PATH="$MT5_PATH/MQL5"
+WINE_PREFIX="$HOME/.wine"
+MT5_PATHS=(
+    "$WINE_PREFIX/drive_c/Program Files/MetaTrader 5"  # Standard MT5
+    "$WINE_PREFIX/drive_c/Program Files/XM MT5"        # XM MT5
+)
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 EA_NAME="NeuralAICollector"
 
@@ -19,66 +21,73 @@ EA_SOURCE="$PROJECT_ROOT/experts/mt5_collector_ea.mq5"
 INCLUDE_SOURCE="$PROJECT_ROOT/experts/include"
 LIBRARIES_SOURCE="$PROJECT_ROOT/experts/libraries"
 
-# Célkönyvtárak az MT5-ben
-EA_TARGET="$MQL5_PATH/Experts/NeuralAI"
-INCLUDE_TARGET="$MQL5_PATH/Include/NeuralAI"
-LIBRARIES_TARGET="$MQL5_PATH/Libraries/NeuralAI"
-
 # Függvények
-create_directories() {
-    echo -e "${YELLOW}Könyvtárak létrehozása...${NC}"
-    mkdir -p "$EA_TARGET"
-    mkdir -p "$INCLUDE_TARGET"
-    mkdir -p "$LIBRARIES_TARGET"
-    mkdir -p "$MQL5_PATH/Files/NeuralAI"
-    mkdir -p "$MQL5_PATH/Logs/NeuralAI"
-}
+deploy_to_mt5() {
+    local mt5_path="$1"
+    local platform_name="$2"
 
-copy_files() {
+    echo -e "${YELLOW}Telepítés: $platform_name${NC}"
+
+    if [ ! -d "$mt5_path" ]; then
+        echo -e "${RED}$platform_name nem található: $mt5_path${NC}"
+        return
+    }
+
+    # MQL5 könyvtár
+    local mql5_path="$mt5_path/MQL5"
+
+    # Célkönyvtárak
+    local ea_target="$mql5_path/Experts/NeuralAI"
+    local include_target="$mql5_path/Include/NeuralAI"
+    local libraries_target="$mql5_path/Libraries/NeuralAI"
+
+    # Könyvtárak létrehozása
+    mkdir -p "$ea_target"
+    mkdir -p "$include_target"
+    mkdir -p "$libraries_target"
+    mkdir -p "$mql5_path/Files/NeuralAI"
+    mkdir -p "$mql5_path/Logs/NeuralAI"
+
+    # Fájlok másolása
     echo -e "${YELLOW}Fájlok másolása...${NC}"
 
     # EA másolása
-    cp "$EA_SOURCE" "$EA_TARGET/"
+    cp "$EA_SOURCE" "$ea_target/"
 
     # Include fájlok másolása
     if [ -d "$INCLUDE_SOURCE" ]; then
-        cp -r "$INCLUDE_SOURCE/"* "$INCLUDE_TARGET/"
+        cp -r "$INCLUDE_SOURCE/"* "$include_target/"
     fi
 
     # Library fájlok másolása
     if [ -d "$LIBRARIES_SOURCE" ]; then
-        cp -r "$LIBRARIES_SOURCE/"* "$LIBRARIES_TARGET/"
+        cp -r "$LIBRARIES_SOURCE/"* "$libraries_target/"
     fi
-}
 
-setup_file_watcher() {
-    echo -e "${YELLOW}Fájl figyelő beállítása...${NC}"
-
-    while inotifywait -e modify -r "$PROJECT_ROOT/experts/"; do
-        echo -e "${GREEN}Változás észlelve, fájlok frissítése...${NC}"
-        copy_files
-    done
+    echo -e "${GREEN}Telepítés kész: $platform_name${NC}"
 }
 
 # Ellenőrzések
-if [ ! -d "$MT5_PATH" ]; then
-    echo -e "${RED}MT5 nem található: $MT5_PATH${NC}"
-    exit 1
-fi
-
 if [ ! -f "$EA_SOURCE" ]; then
     echo -e "${RED}EA forrásfájl nem található: $EA_SOURCE${NC}"
     exit 1
 fi
 
 # Fő folyamat
-echo -e "${GREEN}EA telepítése...${NC}"
+echo -e "${GREEN}EA telepítése mindkét platformra...${NC}"
 
-create_directories
-copy_files
+# Standard MT5
+deploy_to_mt5 "${MT5_PATHS[0]}" "MetaTrader 5 (Demo)"
 
-echo -e "${GREEN}Telepítés kész!${NC}"
+# XM MT5
+deploy_to_mt5 "${MT5_PATHS[1]}" "XM MT5 (Live)"
+
+echo -e "${GREEN}Telepítés befejeződött!${NC}"
 echo -e "${YELLOW}Fájlok figyelése...${NC}"
 
-# Fájl figyelő indítása
-setup_file_watcher
+# File watch és automatikus másolás
+while inotifywait -e modify -r "$PROJECT_ROOT/experts/"; do
+    echo -e "${GREEN}Változás észlelve, fájlok frissítése...${NC}"
+    deploy_to_mt5 "${MT5_PATHS[0]}" "MetaTrader 5 (Demo)"
+    deploy_to_mt5 "${MT5_PATHS[1]}" "XM MT5 (Live)"
+done
