@@ -17,7 +17,7 @@ def example_function():
 ```
 
 ````markdown
-<!-- Markdown vagy file tartalom esetén (4 backtick) -->
+# Markdown vagy file tartalom esetén (4 backtick)
 ```python
 def example_function():
     return "Hello World"
@@ -50,75 +50,105 @@ def new_function():
 
 ## 3. Kódolási konvenciók
 
-- **Fájl/modul elnevezés**: snake_case (pl. data_processor.py)
-- **Osztályok**: PascalCase (pl. DataProcessor)
-- **Függvények/változók**: snake_case (pl. process_data)
-- **Konstansok**: UPPERCASE_WITH_UNDERSCORES (pl. MAX_RETRY_COUNT)
-- **Max sorhossz**: 100 karakter
-- **Behúzás**: 4 szóköz (ne tab)
-- **Import sorrend**: standard lib → third-party → project
-- **Docstring stílus**: Google style
+### 3.1 Fájl és osztály elnevezések
+- Fájl/modul: snake_case (pl. data_processor.py)
+- Osztályok: PascalCase (pl. DataProcessor)
+- Függvények/változók: snake_case (pl. process_data)
+- Konstansok: UPPERCASE_WITH_UNDERSCORES (pl. MAX_RETRY_COUNT)
 
-### 3.1 Docstring példa
+### 3.2 Kód formázás
+- Maximum sorhossz: 100 karakter
+- Indentáció: 4 szóköz (ne tab)
+- Sorvégi whitespace: nem megengedett
+- Üres sorok: nem tartalmazhatnak whitespace karaktereket
+- Fájl vége: egy üres sorral kell végződnie
 
+### 3.3 Import sorrend
+1. Standard library importok
+2. Third-party library importok
+3. Helyi/projekt importok
+
+Példa:
 ```python
-def calculate_trend_strength(price_data: pd.DataFrame, window: int = 20, threshold: float = 0.01) -> Dict[str, Any]:
-    """
-    Kiszámítja a piaci trend erősségét és irányát az adott árfolyamadatok alapján.
+import os
+import sys
+from typing import Dict, List
 
-    A függvény mozgóátlagok és a korreláció kombinációjával határozza meg a trend
-    jelenlétét és erősségét. Az eredmények normalizálva vannak 0-1 közötti értékre.
+import numpy as np
+import pandas as pd
+
+from neural_ai.core.base import BaseComponent
+from neural_ai.utils import helpers
+```
+
+### 3.4 Docstring formátum (Google style)
+```python
+def calculate_metric(data: pd.DataFrame, window: int = 20) -> float:
+    """Rövid egysoros leírás.
+
+    Részletes többsoros leírás, ha szükséges.
+    A leírás lehet több bekezdés is.
 
     Args:
-        price_data (pd.DataFrame): OHLCV árfolyamadatok DataFrame formában
-        window (int, optional): Időablak mérete. Alapértelmezett: 20
-        threshold (float, optional): Trend váltási küszöbérték. Alapértelmezett: 0.01
+        data: Az input adatok leírása
+        window: Az ablakméret leírása
 
     Returns:
-        Dict[str, Any]: Trend erősség mutatók szótára:
-            - 'strength': 0-1 közötti érték a trend erősségére
-            - 'direction': 1 (emelkedő), 0 (oldalazó), -1 (csökkenő)
+        A visszatérési érték leírása
 
     Raises:
-        ValueError: Ha az árfolyamadatok nem tartalmaznak elegendő sort
-        TypeError: Ha az árfolyamadatok nem DataFrame formátumúak
+        ValueError: Mikor és miért dobhat kivételt
     """
 ```
 
 ## 4. Dokumentációs szabályok
 
-A komponensek dokumentációja az alábbi struktúrát kövesse:
+### 4.1 Markdown formázás
+- H1 (#) csak dokumentum címhez
+- H2 (##) fő szekciókhoz
+- H3 (###) alszekciókhoz
+- Kódblokkok kötelező syntax highlighting
+- Lista behúzás: 2 szóköz
+- Táblázatok kötelező fejléccel
+- Sorvégi whitespace: nem megengedett
+- Üres sorok: nem tartalmazhatnak whitespace karaktereket
+- Fájl vége: egy üres sorral kell végződnie
 
+### 4.2 Dokumentáció struktúra
 ```
 /docs/components/[komponens_név]/
-  ├── README.md                 # Áttekintés és használati útmutató
-  ├── api.md                    # API dokumentáció
-  ├── architecture.md           # Architektúra leírás
-  ├── design_spec.md            # Tervezési specifikáció
-  ├── development_checklist.md  # Fejlesztési checklist
-  └── examples.md               # Használati példák
+├── README.md                 # Áttekintés
+├── api.md                    # API dokumentáció
+├── architecture.md           # Architektúra leírás
+├── design_spec.md           # Tervezési specifikáció
+├── development_checklist.md  # Fejlesztési checklist
+└── examples.md              # Használati példák
 ```
 
-## 5. Git és verziókezelési konvenciók
+## 5. Git konvenciók
 
 ### 5.1 Branch elnevezések
-- **feature/komponens_nev-funkcio_nev**: Új funkciók fejlesztése
-- **bugfix/komponens_nev-hiba_leiras**: Hibák javítása
-- **refactor/komponens_nev-refaktor_leiras**: Kód refaktorálás
-- **docs/komponens_nev-dokumentacio_leiras**: Dokumentáció frissítés
-- **test/komponens_nev-teszt_leiras**: Tesztekkel kapcsolatos változtatások
+- feature/[komponens]-[leírás]
+- bugfix/[komponens]-[leírás]
+- refactor/[komponens]-[leírás]
+- docs/[komponens]-[leírás]
+- test/[komponens]-[leírás]
 
-### 5.2 Branch létrehozása új komponens fejlesztéséhez
-```bash
-git checkout main
-git pull
-git checkout -b feature/processors-trend_analyzer
+### 5.2 Commit üzenetek
+```
+type(scope): rövid leírás
+
+- Részletes pont 1
+- Részletes pont 2
+
+Issue: #123
 ```
 
-### 5.3 Commit üzenetek formátuma
-- Használj szemantikus commit üzeneteket: `típus(hatókör): üzenet`
-   - Példák:
-     - `feat(processors): trend erősség számítás hozzáadása`
-     - `fix(storage): üres dataframe hiba kezelése`
-     - `docs(readme): telepítési útmutató frissítése`
-     - `test(collectors): unit tesztek hozzáadása az mt5 collectorhoz`
+Ahol type lehet:
+- feat: új funkció
+- fix: hibajavítás
+- docs: dokumentáció
+- style: formázás
+- refactor: kód átírás
+- test: tesztek
+- chore: karbantartás
