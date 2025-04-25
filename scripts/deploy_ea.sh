@@ -8,8 +8,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # Konstansok
-MT5_PREFIX="$HOME/.wine"  # Módosítva a megfelelő prefix-re
-MT5_PATH="$MT5_PREFIX/drive_c/Program Files/XM MT5"  # Az XM MT5 útvonala
+MT5_PREFIX="$HOME/.wine"  # Használjuk az eredeti wine prefix-et
+MT5_PATH="$MT5_PREFIX/drive_c/Program Files/XM MT5"
 MQL5_PATH="$MT5_PATH/MQL5"
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 EA_NAME="NeuralAICollector"
