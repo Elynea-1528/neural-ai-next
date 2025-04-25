@@ -1,10 +1,13 @@
-"""Fájl alapú storage implementáció."""
+"""FileStorage implementáció.
+
+A modulban található:
+    - FileStorage: Fájlrendszer alapú storage implementáció
+"""
 
 import json
-import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Sequence, Union
 
 import pandas as pd
 
@@ -19,27 +22,59 @@ from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 
 class FileStorage(StorageInterface):
-    """Fájl alapú storage implementáció.
+    """Fájlrendszer alapú storage implementáció."""
 
-    A komponens fájlrendszer alapú tárolást biztosít DataFrame-ek és Python
-    objektumok számára különböző formátumokban.
+    def __init__(self, base_path: Optional[Union[str, Path]] = None) -> None:
+        """Inicializálja a FileStorage példányt.
 
-    Args:
-        base_path: Alap könyvtár útvonal (None esetén az aktuális könyvtár)
-        **kwargs: További paraméterek (jövőbeli használatra)
-    """
-
-    _DATAFRAME_FORMATS = {
-        "csv": ("read_csv", "to_csv"),
-        "json": ("read_json", "to_json"),
-        "excel": ("read_excel", "to_excel"),
-    }
-
-    _OBJECT_FORMATS = {"json"}
-
-    def __init__(self, base_path: Optional[Union[str, Path]] = None, **kwargs: Any) -> None:
-        """Storage inicializálása."""
+        Args:
+            base_path: Alap könyvtár útvonala
+        """
         self._base_path = Path(base_path) if base_path else Path.cwd()
+        self._setup_format_handlers()
+
+    def _setup_format_handlers(self) -> None:
+        """Beállítja a formátum kezelőket."""
+
+        def save_csv(df: pd.DataFrame, path: str, **kwargs: Any) -> None:
+            kwargs.setdefault("index", False)  # Alapértelmezetten ne mentse az indexet
+            df.to_csv(path, **kwargs)
+
+        def load_csv(path: str, **kwargs: Any) -> pd.DataFrame:
+            return pd.read_csv(path, **kwargs)
+
+        def save_excel(df: pd.DataFrame, path: str, **kwargs: Any) -> None:
+            kwargs.setdefault("index", False)  # Alapértelmezetten ne mentse az indexet
+            df.to_excel(path, **kwargs)
+
+        def load_excel(path: str, **kwargs: Any) -> pd.DataFrame:
+            return pd.read_excel(path, **kwargs)
+
+        def save_json(obj: Any, path: str, **kwargs: Any) -> None:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(obj, f, **kwargs)
+
+        def load_json(path: str, **kwargs: Any) -> Any:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f, **kwargs)
+
+        self._DATAFRAME_FORMATS: Dict[str, Dict[str, Callable]] = {
+            "csv": {
+                "save": save_csv,
+                "load": load_csv,
+            },
+            "excel": {
+                "save": save_excel,
+                "load": load_excel,
+            },
+        }
+
+        self._OBJECT_FORMATS: Dict[str, Dict[str, Callable]] = {
+            "json": {
+                "save": save_json,
+                "load": load_json,
+            }
+        }
 
     def _get_full_path(self, path: Union[str, Path]) -> Path:
         """Teljes útvonal előállítása.
@@ -56,22 +91,29 @@ class FileStorage(StorageInterface):
     def save_dataframe(
         self,
         df: pd.DataFrame,
-        path: Union[str, Path],
-        fmt: str = "csv",
+        path: str,
+        fmt: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
-        """Menti a megadott DataFrame-et.
+        """Menti a DataFrame objektumot.
 
         Args:
-            df: Mentendő DataFrame
-            path: Mentési útvonal
-            fmt: Fájl formátum (csv, json, excel)
+            df: A mentendő DataFrame
+            path: A mentés útvonala
+            fmt: A mentés formátuma (ha None, akkor a kiterjesztésből)
             **kwargs: További formátum-specifikus paraméterek
 
         Raises:
             StorageFormatError: Ha a formátum nem támogatott
             StorageIOError: Ha a mentés sikertelen
         """
+        full_path = self._get_full_path(path)
+
+        if fmt is None:
+            fmt = full_path.suffix.lower().lstrip(".")
+            if not fmt:
+                raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
+
         if fmt not in self._DATAFRAME_FORMATS:
             raise StorageFormatError(
                 f"Nem támogatott DataFrame formátum: {fmt}. "
@@ -79,32 +121,24 @@ class FileStorage(StorageInterface):
             )
 
         try:
-            full_path = self._get_full_path(path)
             full_path.parent.mkdir(parents=True, exist_ok=True)
-
-            _, save_method = self._DATAFRAME_FORMATS[fmt]
-            save_func = getattr(df, save_method)
-
-            # CSV esetén mindig mentjük az indexet is
-            if fmt == "csv" and "index" not in kwargs:
-                kwargs["index"] = False
-
-            save_func(full_path, **kwargs)
-
+            self._DATAFRAME_FORMATS[fmt]["save"](df, str(full_path), **kwargs)
+        except StorageError:
+            raise
         except Exception as e:
-            raise StorageIOError(f"Hiba a DataFrame mentése során: {str(e)}", e) from e
+            raise StorageIOError(f"Hiba a DataFrame mentése során: {str(e)}") from e
 
     def load_dataframe(
         self,
-        path: Union[str, Path],
+        path: str,
         fmt: Optional[str] = None,
         **kwargs: Any,
     ) -> pd.DataFrame:
-        """Betölti a megadott DataFrame-et.
+        """Betölti a DataFrame objektumot.
 
         Args:
-            path: Betöltési útvonal
-            fmt: Fájl formátum (ha None, akkor a kiterjesztésből)
+            path: A betöltendő fájl útvonala
+            fmt: A fájl formátuma (ha None, akkor a kiterjesztésből)
             **kwargs: További formátum-specifikus paraméterek
 
         Returns:
@@ -119,7 +153,6 @@ class FileStorage(StorageInterface):
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
 
-        # Ha nincs megadva formátum, próbáljuk kitalálni a kiterjesztésből
         if fmt is None:
             fmt = full_path.suffix.lower().lstrip(".")
             if not fmt:
@@ -132,31 +165,25 @@ class FileStorage(StorageInterface):
             )
 
         try:
-            load_method, _ = self._DATAFRAME_FORMATS[fmt]
-            load_func = getattr(pd, load_method)
-
-            # CSV esetén mindig kezeljük az indexet
-            if fmt == "csv" and "index_col" not in kwargs:
-                kwargs["index_col"] = False
-
-            return load_func(full_path, **kwargs)
-
+            return self._DATAFRAME_FORMATS[fmt]["load"](str(full_path), **kwargs)
+        except StorageError:
+            raise
         except Exception as e:
-            raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}", e) from e
+            raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}") from e
 
     def save_object(
         self,
         obj: Any,
-        path: Union[str, Path],
-        fmt: str = "json",
+        path: str,
+        fmt: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
-        """Python objektum mentése.
+        """Menti a Python objektumot.
 
         Args:
-            obj: Mentendő objektum
-            path: Mentési útvonal
-            fmt: Fájl formátum (jelenleg csak json támogatott)
+            obj: A mentendő objektum
+            path: A mentés útvonala
+            fmt: A mentés formátuma (ha None, akkor a kiterjesztésből)
             **kwargs: További formátum-specifikus paraméterek
 
         Raises:
@@ -164,36 +191,40 @@ class FileStorage(StorageInterface):
             StorageSerializationError: Ha az objektum nem szerializálható
             StorageIOError: Ha a mentés sikertelen
         """
+        full_path = self._get_full_path(path)
+
+        if fmt is None:
+            fmt = full_path.suffix.lower().lstrip(".")
+            if not fmt:
+                raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
+
         if fmt not in self._OBJECT_FORMATS:
             raise StorageFormatError(
                 f"Nem támogatott objektum formátum: {fmt}. "
-                f"Támogatott formátumok: {self._OBJECT_FORMATS}"
+                f"Támogatott formátumok: {list(self._OBJECT_FORMATS.keys())}"
             )
 
         try:
-            full_path = self._get_full_path(path)
             full_path.parent.mkdir(parents=True, exist_ok=True)
-
-            if fmt == "json":
-                with open(full_path, "w", encoding="utf-8") as f:
-                    json.dump(obj, f, **kwargs)
-
+            self._OBJECT_FORMATS[fmt]["save"](obj, str(full_path), **kwargs)
         except (TypeError, ValueError) as e:
-            raise StorageSerializationError(f"Az objektum nem szerializálható: {str(e)}", e) from e
+            raise StorageSerializationError(f"Az objektum nem szerializálható: {str(e)}") from e
+        except StorageError:
+            raise
         except Exception as e:
-            raise StorageIOError(f"Hiba az objektum mentése során: {str(e)}", e) from e
+            raise StorageIOError(f"Hiba az objektum mentése során: {str(e)}") from e
 
     def load_object(
         self,
-        path: Union[str, Path],
+        path: str,
         fmt: Optional[str] = None,
         **kwargs: Any,
     ) -> Any:
-        """Python objektum betöltése.
+        """Betölti a Python objektumot.
 
         Args:
-            path: Betöltési útvonal
-            fmt: Fájl formátum (ha None, akkor a kiterjesztésből)
+            path: A betöltendő fájl útvonala
+            fmt: A fájl formátuma (ha None, akkor a kiterjesztésből)
             **kwargs: További formátum-specifikus paraméterek
 
         Returns:
@@ -209,7 +240,6 @@ class FileStorage(StorageInterface):
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
 
-        # Ha nincs megadva formátum, próbáljuk kitalálni a kiterjesztésből
         if fmt is None:
             fmt = full_path.suffix.lower().lstrip(".")
             if not fmt:
@@ -218,51 +248,50 @@ class FileStorage(StorageInterface):
         if fmt not in self._OBJECT_FORMATS:
             raise StorageFormatError(
                 f"Nem támogatott objektum formátum: {fmt}. "
-                f"Támogatott formátumok: {self._OBJECT_FORMATS}"
+                f"Támogatott formátumok: {list(self._OBJECT_FORMATS.keys())}"
             )
 
         try:
-            if fmt == "json":
-                with open(full_path, "r", encoding="utf-8") as f:
-                    return json.load(f, **kwargs)
-
-            raise StorageFormatError(f"Ismeretlen formátum: {fmt}")
-
+            return self._OBJECT_FORMATS[fmt]["load"](str(full_path), **kwargs)
+        except json.JSONDecodeError as e:
+            raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
+        except (TypeError, ValueError) as e:
+            raise StorageSerializationError(f"Az objektum nem deszerializálható: {str(e)}") from e
         except StorageError:
             raise
         except Exception as e:
-            raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}", e) from e
+            raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
 
-    def exists(self, path: Union[str, Path]) -> bool:
-        """Ellenőrzi, hogy létezik-e a megadott útvonal.
+    def exists(self, path: str) -> bool:
+        """Ellenőrzi az útvonal létezését.
 
         Args:
-            path: Ellenőrizendő útvonal
+            path: Az ellenőrizendő útvonal
 
         Returns:
-            bool: True ha létezik, False ha nem
+            bool: True, ha létezik, False ha nem
         """
         return self._get_full_path(path).exists()
 
-    def get_metadata(self, path: Union[str, Path]) -> Dict[str, Any]:
-        """Metaadatok lekérése.
+    def get_metadata(self, path: str) -> Dict[str, Any]:
+        """Lekéri a fájl vagy könyvtár metaadatait.
 
         Args:
-            path: Fájl útvonala
+            path: A fájl vagy könyvtár útvonala
 
         Returns:
-            Dict[str, Any]: Metaadatok (méret, módosítási idő, stb.)
+            Dict[str, Any]: A metaadatok
 
         Raises:
             StorageNotFoundError: Ha a fájl nem található
-            StorageIOError: Ha a metaadatok nem elérhetőek
+            StorageIOError: Ha a lekérés sikertelen
         """
-        try:
-            full_path = self._get_full_path(path)
-            if not full_path.exists():
-                raise StorageNotFoundError(f"Fájl nem található: {full_path}")
+        full_path = self._get_full_path(path)
+        if not full_path.exists():
+            raise StorageNotFoundError(f"Fájl nem található: {full_path}")
 
-            stat = os.stat(full_path)
+        try:
+            stat = full_path.stat()
             return {
                 "size": stat.st_size,
                 "created": datetime.fromtimestamp(stat.st_ctime),
@@ -271,17 +300,14 @@ class FileStorage(StorageInterface):
                 "is_file": full_path.is_file(),
                 "is_dir": full_path.is_dir(),
             }
-
-        except StorageError:
-            raise
         except Exception as e:
-            raise StorageIOError(f"Hiba a metaadatok lekérése során: {str(e)}", e) from e
+            raise StorageIOError(f"Hiba a metaadatok lekérése során: {str(e)}") from e
 
-    def delete(self, path: Union[str, Path]) -> None:
-        """Fájl vagy könyvtár törlése.
+    def delete(self, path: str) -> None:
+        """Törli a megadott fájlt vagy könyvtárat.
 
         Args:
-            path: Törlendő útvonal
+            path: A törlendő útvonal
 
         Raises:
             StorageNotFoundError: Ha a fájl nem található
@@ -300,34 +326,36 @@ class FileStorage(StorageInterface):
         except StorageError:
             raise
         except Exception as e:
-            raise StorageIOError(f"Hiba a törlés során: {str(e)}", e) from e
+            raise StorageIOError(f"Hiba a törlés során: {str(e)}") from e
 
-    def list_dir(self, path: Union[str, Path], pattern: Optional[str] = None) -> list[Path]:
-        """Könyvtár tartalmának listázása.
+    def list_dir(
+        self,
+        path: str,
+        pattern: Optional[str] = None,
+    ) -> Sequence[Path]:
+        """Listázza egy könyvtár tartalmát.
 
         Args:
-            path: Könyvtár útvonala
-            pattern: Opcionális glob minta a szűréshez
+            path: A könyvtár útvonala
+            pattern: Szűrő minta a fájlnevekre
 
         Returns:
-            list[Path]: A talált fájlok és könyvtárak listája
+            Sequence[Path]: A könyvtár tartalma Path objektumokként
 
         Raises:
             StorageNotFoundError: Ha a könyvtár nem található
             StorageIOError: Ha a listázás sikertelen
         """
+        full_path = self._get_full_path(path)
+        if not full_path.exists():
+            raise StorageNotFoundError(f"Könyvtár nem található: {full_path}")
+        if not full_path.is_dir():
+            raise StorageIOError(f"Az útvonal nem könyvtár: {full_path}")
+
         try:
-            full_path = self._get_full_path(path)
-            if not full_path.exists():
-                raise StorageNotFoundError(f"Könyvtár nem található: {full_path}")
-            if not full_path.is_dir():
-                raise StorageIOError(f"Nem könyvtár: {full_path}")
-
-            if pattern:
-                return list(full_path.glob(pattern))
-            return list(full_path.iterdir())
-
+            pattern = pattern or "*"
+            return list(full_path.glob(pattern))
         except StorageError:
             raise
         except Exception as e:
-            raise StorageIOError(f"Hiba a könyvtár listázása során: {str(e)}", e) from e
+            raise StorageIOError(f"Hiba a könyvtár listázása során: {str(e)}") from e
