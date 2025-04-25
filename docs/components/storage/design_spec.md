@@ -2,7 +2,7 @@
 
 ## 1. Áttekintés
 
-A storage komponens feladata az adatok perzisztens tárolásának és betöltésének biztosítása a Neural AI rendszer számára. A komponens támogatja különböző formátumú adatok kezelését és hierarchikus szervezését.
+A storage komponens feladata az adatok perzisztens tárolásának és betöltésének biztosítása a Neural AI rendszer számára. A komponens támogatja különböző formátumú adatok kezelését, automatikus formátum felismerést és hierarchikus szervezést.
 
 ## 2. Követelmények
 
@@ -12,143 +12,156 @@ A storage komponens feladata az adatok perzisztens tárolásának és betöltés
 - Python objektumok szerializációja és deszerializációja
 - Hierarchikus fájlrendszer kezelése
 - Metaadatok kezelése
-- Abszolút és relatív útvonalak támogatása
+- Könyvtár listázás szűrési lehetőséggel
+- Automatikus formátum felismerés
 
 ### 2.2 Nem-funkcionális követelmények
 
-- Típusbiztonság
-- Robosztus hibakezelés
+- Típusbiztonság és statikus típusellenőrzés
+- Robosztus hibakezelés részletes hibaüzenetekkel
 - Bővíthetőség új formátumok támogatásához
-- Megfelelő dokumentáció és példák
-- 80%+ tesztlefedettség
+- Részletes dokumentáció és példák
+- 90%+ tesztlefedettség
 
 ## 3. Architektúrális döntések
 
 ### 3.1 Interfész alapú tervezés
 
-A komponens interfész alapú tervezést használ a rugalmasság és a különböző implementációk támogatása érdekében.
+- Absztrakt StorageInterface definiálja a kötelező műveleteket
+- Különböző implementációk támogatása (pl. FileStorage)
+- Factory pattern használata az implementációk létrehozásához
 
 ### 3.2 Kivételkezelési hierarchia
 
-Specifikus kivételosztályok a különböző hibatípusok kezelésére:
-- StorageError: Alap kivétel osztály
-- StorageFormatError: Formátum hibák
-- StorageNotFoundError: Nem létező erőforrások
-- StorageSerializationError: Szerializációs hibák
-- StorageIOError: I/O műveletek hibái
+```
+StorageError
+├── StorageFormatError     # Formátum problémák
+├── StorageNotFoundError   # Nem létező erőforrások
+├── StorageSerializationError # Szerializációs hibák
+└── StorageIOError        # I/O műveletek hibái
+```
 
 ### 3.3 Formátumkezelés
 
 - Regisztrált formátumok és kezelőik központi tárolása
 - Automatikus formátum felismerés kiterjesztés alapján
-- Bővíthető formátum támogatás
+- Konfigurálható formátum-specifikus paraméterek
 
-## 4. Komponens struktúra
+### 3.4 Path kezelés
 
-```
-neural_ai/core/storage/
-├── __init__.py
-├── exceptions.py
-├── implementations/
-│   ├── __init__.py
-│   └── file_storage.py
-└── interfaces/
-    ├── __init__.py
-    └── storage_interface.py
-```
+- Egységes string alapú útvonal paraméterezés
+- Path objektumok használata a belső műveleteknél
+- Path objektumok visszaadása a könyvtár listázásnál
 
-## 5. API tervezés
+## 4. API tervezés
 
-### 5.1 Fő interfész
+### 4.1 Útvonalkezelés
+
+- Bemeneti paraméterek: str típusú útvonalak
+- Relatív útvonalak kezelése base_path-hoz képest
+- Path objektumok használata a belső logikában
+
+### 4.2 DataFrame műveletek
+
+- Automatikus formátum felismerés
+- Index kezelés testreszabhatósága
+- Formátum-specifikus paraméterek támogatása
+
+### 4.3 Objektum szerializáció
+
+- JSON alapértelmezett formátum
+- Típusbiztos deszerializáció
+- Kivételkezelés szerializációs hibáknál
+
+### 4.4 Könyvtár műveletek
+
+- Path objektumok visszaadása list_dir műveletben
+- Opcionális szűrési minták támogatása
+- Rekurzív műveletek biztonságos kezelése
+
+## 5. Implementációs részletek
+
+### 5.1 FileStorage
 
 ```python
-class StorageInterface(ABC):
-    def save_dataframe(...)
-    def load_dataframe(...)
-    def save_object(...)
-    def load_object(...)
-    def exists(...)
-    def get_metadata(...)
-    def delete(...)
-    def list_dir(...)
+class FileStorage:
+    _DATAFRAME_FORMATS = {
+        "csv": {
+            "save": lambda df, path, **kwargs: df.to_csv(path, **kwargs),
+            "load": lambda path, **kwargs: pd.read_csv(path, **kwargs),
+        },
+        "excel": {
+            "save": lambda df, path, **kwargs: df.to_excel(path, **kwargs),
+            "load": lambda path, **kwargs: pd.read_excel(path, **kwargs),
+        },
+    }
+
+    _OBJECT_FORMATS = {
+        "json": {
+            "save": json.dump,
+            "load": json.load,
+        }
+    }
 ```
 
-### 5.2 Implementációk
+### 5.2 Base Path kezelés
 
-#### FileStorage
+- Alapértelmezett: aktuális könyvtár
+- Abszolút útvonalak megtartása
+- Relatív útvonalak base_path-hoz képest
 
-- Alapértelmezett implementáció fájlrendszer alapú tároláshoz
-- Támogatott DataFrame formátumok: CSV, JSON, Excel
-- Támogatott objektum formátumok: JSON
+## 6. Hibakezelési stratégiák
 
-## 6. Adatformátumok
+### 6.1 Általános elvek
 
-### 6.1 DataFrame formátumok
+- Specifikus kivételek használata
+- Eredeti kivételek megőrzése
+- Részletes hibaüzenetek
+- Biztonságos erőforrás felszabadítás
 
-- CSV (.csv): Alapértelmezett, széles körben támogatott
-- JSON (.json): Komplex struktúrák megőrzésére
-- Excel (.xlsx): Opcionális, függ a pandas támogatástól
+### 6.2 Kivételek használata
 
-### 6.2 Objektum formátumok
-
-- JSON (.json): Alapértelmezett, széles körben támogatott
-
-## 7. Hibakezelés
-
-### 7.1 Kivételek hierarchiája
-
-```
-Exception
-└── StorageError
-    ├── StorageFormatError
-    ├── StorageNotFoundError
-    ├── StorageSerializationError
-    └── StorageIOError
+```python
+try:
+    # művelet végrehajtása
+except SpecificError as e:
+    raise StorageError("Részletes hibaüzenet", original_error=e)
 ```
 
-### 7.2 Hibakezelési stratégiák
+## 7. Teljesítmény optimalizáció
 
-- Explicit kivételtípusok a különböző hibák azonosításához
-- Eredeti kivételek megőrzése a hibakereséshez
-- Világos hibaüzenetek a felhasználók számára
+### 7.1 DataFrame műveletek
 
-## 8. Teljesítmény megfontolások
+- Chunked olvasás nagy fájloknál
+- Index optimalizáció
+- Formátum-specifikus optimalizációk
 
-### 8.1 Memóriahasználat
+### 7.2 I/O műveletek
 
-- Nagy fájlok kezelése chunkolással (DataFrame-ek esetén)
-- Metaadatok lusta betöltése
+- Könyvtár cache használata
+- Hatékony path művelet
+- Erőforrások megfelelő lezárása
 
-### 8.2 I/O műveletek
+## 8. Tesztelés
 
-- Könyvtárstruktúra cache-elése
-- Batch műveletek támogatása
+### 8.1 Unit tesztek
 
-## 9. Biztonsági megfontolások
-
-- Útvonal manipuláció elleni védelem
-- Jogosultságok ellenőrzése műveletek előtt
-- Biztonságos fájlkezelés (atomic műveletek)
-
-## 10. Tesztelési stratégia
-
-### 10.1 Unit tesztek
-
-- Mock fájlrendszer a tesztekhez
-- Minden API metódus tesztelése
-- Hibakezelés tesztelése
+- Minden publikus metódus tesztelése
 - Edge case-ek lefedése
+- Mock fájlrendszer használata
 
-### 10.2 Integrációs tesztek
+### 8.2 Integrációs tesztek
 
 - Valós fájlrendszer műveletek
-- Különböző formátumok együttműködése
-- Nagy adatmennyiségek kezelése
+- Különböző formátumok tesztelése
+- Nagy adathalmazok kezelése
 
-## 11. Továbbfejlesztési lehetőségek
+## 9. Továbbfejlesztési lehetőségek
 
 - Távoli storage támogatás (S3, GCS)
-- További formátumok (HDF5, Feather)
 - Aszinkron műveletek
+- Cache réteg bevezetése
 - Tömörítés támogatása
-- Verziókezelés
+- Új formátumok hozzáadása
+- Batch műveletek
+- Verziókezelés integrálása

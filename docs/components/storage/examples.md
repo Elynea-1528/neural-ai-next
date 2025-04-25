@@ -5,6 +5,7 @@
 ### 1.1 Storage inicializálása
 
 ```python
+from pathlib import Path
 from neural_ai.core.storage.implementations import FileStorage
 
 # Alap könyvtárral
@@ -15,6 +16,9 @@ storage = FileStorage("./data/processed")
 
 # Abszolút útvonallal
 storage = FileStorage("/path/to/data")
+
+# Path objektummal
+storage = FileStorage(Path("data/processed"))
 ```
 
 ### 1.2 DataFrame műveletek
@@ -29,11 +33,14 @@ df = pd.DataFrame({
     "value": [10.5, 20.0, 15.7]
 })
 
-# CSV formátumban mentés
-storage.save_dataframe(df, "users.csv")
+# Automatikus formátum felismerés kiterjesztés alapján
+storage.save_dataframe(df, "users.csv")  # CSV formátum
+storage.save_dataframe(df, "users.json")  # JSON formátum
+storage.save_dataframe(df, "users.xlsx")  # Excel formátum
 
-# JSON formátumban mentés
-storage.save_dataframe(df, "users.json", format="json")
+# Index kezelés
+storage.save_dataframe(df, "users_with_index.csv", index=True)
+storage.save_dataframe(df, "users_no_index.csv", index=False)  # Alapértelmezett
 
 # DataFrame betöltése
 users_df = storage.load_dataframe("users.csv")
@@ -56,6 +63,7 @@ config = {
     }
 }
 
+# JSON formátum automatikus felismerése
 storage.save_object(config, "model_config.json")
 
 # Konfiguráció betöltése
@@ -70,14 +78,18 @@ loaded_config = storage.load_object("model_config.json")
 # CSV mentés speciális elválasztóval
 storage.save_dataframe(df, "data.csv", sep=";")
 
-# Index nélküli mentés
-storage.save_dataframe(df, "data.csv", index=False)
+# Float formázás és idexelés
+storage.save_dataframe(df, "data.csv",
+    float_format="%.2f",
+    index=True,
+    index_label="row_id"
+)
 
 # Dátum formátum beállítása
-storage.save_dataframe(df, "data.csv", date_format="%Y-%m-%d")
-
-# Float formázás
-storage.save_dataframe(df, "data.csv", float_format="%.2f")
+storage.save_dataframe(df, "data.csv",
+    date_format="%Y-%m-%d",
+    encoding="utf-8"
+)
 ```
 
 ### 2.2 DataFrame betöltési opciók
@@ -87,10 +99,16 @@ storage.save_dataframe(df, "data.csv", float_format="%.2f")
 df = storage.load_dataframe("data.csv", usecols=["id", "name"])
 
 # Dátum parse-olás
-df = storage.load_dataframe("data.csv", parse_dates=["created_at"])
+df = storage.load_dataframe("data.csv",
+    parse_dates=["created_at"],
+    date_parser=lambda x: pd.to_datetime(x, utc=True)
+)
 
-# Egyéni NA értékek
-df = storage.load_dataframe("data.csv", na_values=["N/A", "missing"])
+# Egyéni NA értékek és típusok
+df = storage.load_dataframe("data.csv",
+    na_values=["N/A", "missing"],
+    dtype={"id": int, "value": float}
+)
 ```
 
 ### 2.3 JSON szerializáció testreszabása
@@ -106,10 +124,15 @@ data = {
 }
 
 # JSON mentés formázással
-storage.save_object(data, "data.json", indent=2)
+storage.save_object(data, "data.json",
+    indent=2,
+    default=str  # datetime szerializáció
+)
 
-# Egyéni dátum formátummal
-storage.save_object(data, "data.json", default=str)
+# JSON betöltés parse-olással
+loaded = storage.load_object("data.json",
+    parse_float=decimal.Decimal  # pontos lebegőpontos számok
+)
 ```
 
 ## 3. Fájlrendszer műveletek
@@ -122,9 +145,16 @@ storage.save_dataframe(train_df, "datasets/train/data.csv")
 storage.save_dataframe(test_df, "datasets/test/data.csv")
 storage.save_object(model_params, "models/baseline/params.json")
 
-# Könyvtár listázás
-all_files = storage.list_dir("datasets")
-csv_files = storage.list_dir("datasets", "*.csv")
+# Könyvtár listázás Path objektumokkal
+dataset_paths = storage.list_dir("datasets")
+for path in dataset_paths:
+    print(f"Found file: {path.name}")
+    if path.suffix == '.csv':
+        df = storage.load_dataframe(str(path))
+
+# Szűrés mintával
+csv_paths = storage.list_dir("datasets", pattern="*.csv")
+json_paths = storage.list_dir("models", pattern="*.json")
 ```
 
 ### 3.2 Metaadatok és ellenőrzések
@@ -137,7 +167,11 @@ if storage.exists("models/baseline/params.json"):
 # Metaadatok lekérése
 metadata = storage.get_metadata("datasets/train/data.csv")
 print(f"File size: {metadata['size']} bytes")
+print(f"Created: {metadata['created']}")
 print(f"Last modified: {metadata['modified']}")
+print(f"Last accessed: {metadata['accessed']}")
+print(f"Is file: {metadata['is_file']}")
+print(f"Is directory: {metadata['is_dir']}")
 
 # Fájl törlése
 storage.delete("old_data.csv")
@@ -151,49 +185,67 @@ storage.delete("old_data.csv")
 from neural_ai.core.storage.exceptions import (
     StorageError,
     StorageNotFoundError,
-    StorageFormatError
+    StorageFormatError,
+    StorageSerializationError,
+    StorageIOError
 )
 
 try:
     df = storage.load_dataframe("nonexistent.csv")
-except StorageNotFoundError:
-    print("File not found")
+except StorageNotFoundError as e:
+    print(f"File not found: {e}")
+except StorageFormatError as e:
+    print(f"Invalid format: {e}")
+except StorageSerializationError as e:
+    print(f"Data error: {e}")
+except StorageIOError as e:
+    print(f"I/O error: {e}")
 except StorageError as e:
-    print(f"Storage error: {e}")
+    print(f"General storage error: {e}")
 ```
 
-### 4.2 Formátum hibák kezelése
+### 4.2 Részletes hibakezelés
 
 ```python
 try:
-    # Nem támogatott formátum
-    storage.save_dataframe(df, "data.xyz", format="xyz")
-except StorageFormatError as e:
-    print(f"Format error: {e}")
-
-try:
-    # Hibás JSON
+    # Hibás JSON fájl betöltése
     storage.load_object("invalid.json")
-except StorageError as e:
-    print(f"Error loading JSON: {e}")
+except StorageSerializationError as e:
+    print(f"JSON parsing error: {e}")
+    if e.original_error:  # Az eredeti kivétel elérése
+        print(f"Original error: {e.original_error}")
+
+# Nem létező könyvtár listázása
+try:
+    paths = storage.list_dir("nonexistent_dir")
+except StorageNotFoundError as e:
+    print(f"Directory not found: {e}")
 ```
 
 ## 5. Legjobb gyakorlatok
 
-### 5.1 Kontextus menedzsment
+### 5.1 Típusbiztos használat
 
 ```python
+from typing import Dict, Any
+from pathlib import Path
+
 def process_data(storage: FileStorage, input_path: str, output_path: str) -> None:
+    """DataFrame feldolgozása hibakezeleléssel."""
     try:
-        # Adatok betöltése
         df = storage.load_dataframe(input_path)
 
         # Feldolgozás
         processed_df = df.copy()
         processed_df["value"] = processed_df["value"] * 2
 
-        # Eredmény mentése
-        storage.save_dataframe(processed_df, output_path)
+        # Eredmény mentése index nélkül
+        storage.save_dataframe(
+            processed_df,
+            output_path,
+            index=False,
+            float_format="%.3f"
+        )
 
     except StorageError as e:
         print(f"Error processing data: {e}")
@@ -203,17 +255,18 @@ def process_data(storage: FileStorage, input_path: str, output_path: str) -> Non
 ### 5.2 Konfigurációkezelés
 
 ```python
-def load_config(storage: FileStorage, config_path: str) -> dict:
+def load_config(
+    storage: FileStorage,
+    config_path: str,
+    defaults: Dict[str, Any]
+) -> Dict[str, Any]:
     """Konfiguráció betöltése alapértelmezett értékekkel."""
-    defaults = {
-        "batch_size": 32,
-        "learning_rate": 0.001,
-        "epochs": 100
-    }
-
     try:
         config = storage.load_object(config_path)
         return {**defaults, **config}
     except StorageNotFoundError:
         print(f"Config not found at {config_path}, using defaults")
-        return defaults
+        return defaults.copy()
+    except StorageError as e:
+        print(f"Error loading config: {e}")
+        return defaults.copy()

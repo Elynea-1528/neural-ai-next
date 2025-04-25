@@ -2,75 +2,131 @@
 
 ## Interfészek
 
-### ConfigManagerInterface
+### StorageInterface
 
 ```python
 class StorageInterface(ABC):
-    """Adattárolás kezelő interfész."""
+    """Storage interfész osztály."""
 
     @abstractmethod
-    def save_dataframe(
-        self,
-        df: pd.DataFrame,
-        path: Union[str, Path],
-        format: str = "csv",
-        **kwargs: Any,
-    ) -> None:
-        """DataFrame mentése."""
-        pass
+    def save_dataframe(self, df: pd.DataFrame, path: str, **kwargs: Any) -> None:
+        """Végrehajt egy DataFrame mentési műveletet.
+
+        Args:
+            df: A mentendő DataFrame
+            path: A mentés útvonala
+            **kwargs: További formátum-specifikus paraméterek
+
+        Raises:
+            StorageFormatError: Ha a formátum nem támogatott
+            StorageIOError: Ha a mentés sikertelen
+            StorageSerializationError: Ha az adatok nem szerializálhatók
+        """
 
     @abstractmethod
-    def load_dataframe(
-        self,
-        path: Union[str, Path],
-        format: Optional[str] = None,
-        **kwargs: Any,
-    ) -> pd.DataFrame:
-        """DataFrame betöltése."""
-        pass
+    def load_dataframe(self, path: str, **kwargs: Any) -> pd.DataFrame:
+        """Betölt egy DataFrame objektumot a megadott útvonalon.
+
+        Args:
+            path: A betöltendő fájl útvonala
+            **kwargs: További formátum-specifikus paraméterek
+
+        Returns:
+            pd.DataFrame: A betöltött DataFrame
+
+        Raises:
+            StorageNotFoundError: Ha a fájl nem található
+            StorageFormatError: Ha a formátum nem támogatott
+            StorageSerializationError: Ha az adatok nem deszerializálhatók
+            StorageIOError: Ha a betöltés sikertelen
+        """
 
     @abstractmethod
-    def save_object(
-        self,
-        obj: Any,
-        path: Union[str, Path],
-        format: str = "json",
-        **kwargs: Any,
-    ) -> None:
-        """Python objektum mentése."""
-        pass
+    def save_object(self, obj: Any, path: str, **kwargs: Any) -> None:
+        """Végrehajt egy objektum mentési műveletet.
+
+        Args:
+            obj: A mentendő objektum
+            path: A mentés útvonala
+            **kwargs: További formátum-specifikus paraméterek
+
+        Raises:
+            StorageFormatError: Ha a formátum nem támogatott
+            StorageSerializationError: Ha az objektum nem szerializálható
+            StorageIOError: Ha a mentés sikertelen
+        """
 
     @abstractmethod
-    def load_object(
-        self,
-        path: Union[str, Path],
-        format: Optional[str] = None,
-        **kwargs: Any,
-    ) -> Any:
-        """Python objektum betöltése."""
-        pass
+    def load_object(self, path: str, **kwargs: Any) -> Any:
+        """Betölt egy objektumot a megadott útvonalon.
+
+        Args:
+            path: A betöltendő fájl útvonala
+            **kwargs: További formátum-specifikus paraméterek
+
+        Returns:
+            Any: A betöltött objektum
+
+        Raises:
+            StorageNotFoundError: Ha a fájl nem található
+            StorageFormatError: Ha a formátum nem támogatott
+            StorageSerializationError: Ha az objektum nem deszerializálható
+            StorageIOError: Ha a betöltés sikertelen
+        """
 
     @abstractmethod
-    def exists(self, path: Union[str, Path]) -> bool:
-        """Ellenőrzi, hogy létezik-e a megadott útvonal."""
-        pass
+    def exists(self, path: str) -> bool:
+        """Ellenőrzi egy útvonal létezését.
+
+        Args:
+            path: Az ellenőrizendő útvonal
+
+        Returns:
+            bool: True, ha létezik, False ha nem
+        """
 
     @abstractmethod
-    def get_metadata(self, path: Union[str, Path]) -> Dict[str, Any]:
-        """Metaadatok lekérése."""
-        pass
+    def get_metadata(self, path: str) -> Dict[str, Any]:
+        """Lekéri egy fájl vagy könyvtár metaadatait.
+
+        Args:
+            path: A fájl vagy könyvtár útvonala
+
+        Returns:
+            Dict[str, Any]: A metaadatok
+
+        Raises:
+            StorageNotFoundError: Ha a fájl nem található
+            StorageIOError: Ha a lekérés sikertelen
+        """
 
     @abstractmethod
-    def delete(self, path: Union[str, Path]) -> None:
-        """Fájl vagy könyvtár törlése."""
-        pass
+    def delete(self, path: str) -> None:
+        """Törli a megadott fájlt vagy könyvtárat.
+
+        Args:
+            path: A törlendő útvonal
+
+        Raises:
+            StorageNotFoundError: Ha a fájl nem található
+            StorageIOError: Ha a törlés sikertelen
+        """
 
     @abstractmethod
-    def list_dir(
-        self, path: Union[str, Path], pattern: Optional[str] = None
-    ) -> list[Path]:
-        """Könyvtár tartalmának listázása."""
-        pass
+    def list_dir(self, path: str, pattern: Optional[str] = None) -> Sequence[Path]:
+        """Listázza egy könyvtár tartalmát.
+
+        Args:
+            path: A könyvtár útvonala
+            pattern: Szűrő minta a fájlnevekre
+
+        Returns:
+            Sequence[Path]: A könyvtár tartalma Path objektumokként
+
+        Raises:
+            StorageNotFoundError: Ha a könyvtár nem található
+            StorageIOError: Ha a listázás sikertelen
+        """
 ```
 
 ## Implementációk
@@ -81,66 +137,30 @@ A fájlrendszer alapú storage implementáció.
 
 ```python
 class FileStorage(StorageInterface):
-    """Fájl alapú storage implementáció."""
+    """Fájlrendszer alapú storage implementáció."""
 
     def __init__(self, base_path: Optional[Union[str, Path]] = None) -> None:
-        """Storage inicializálása.
+        """Inicializálja a FileStorage példányt.
 
         Args:
-            base_path: Alap könyvtár útvonal (None esetén az aktuális könyvtár)
+            base_path: Alap könyvtár útvonala (None esetén az aktuális könyvtár)
         """
-```
 
-#### Metódusok
+    def save_dataframe(self, df: pd.DataFrame, path: str, **kwargs: Any) -> None:
+        """DataFrame mentése.
 
-##### save_dataframe
+        A formátum automatikusan felismerésre kerül a fájl kiterjesztése alapján.
+        Az index alapértelmezetten nem kerül mentésre, de felülírható a kwargs-ban.
 
-```python
-def save_dataframe(
-    self,
-    df: pd.DataFrame,
-    path: Union[str, Path],
-    format: str = "csv",
-    **kwargs: Any,
-) -> None:
-    """DataFrame mentése.
+        Támogatott formátumok:
+        - .csv: CSV fájl (pandas to_csv)
+        - .xlsx: Excel fájl (pandas to_excel)
 
-    Args:
-        df: Mentendő DataFrame
-        path: Mentési útvonal
-        format: Fájl formátum (csv, json, excel)
-        **kwargs: További formátum-specifikus paraméterek
-
-    Raises:
-        StorageFormatError: Ha a formátum nem támogatott
-        StorageIOError: Ha a mentés sikertelen
-    """
-```
-
-##### load_dataframe
-
-```python
-def load_dataframe(
-    self,
-    path: Union[str, Path],
-    format: Optional[str] = None,
-    **kwargs: Any,
-) -> pd.DataFrame:
-    """DataFrame betöltése.
-
-    Args:
-        path: Betöltési útvonal
-        format: Fájl formátum (ha None, akkor a kiterjesztésből)
-        **kwargs: További formátum-specifikus paraméterek
-
-    Returns:
-        pd.DataFrame: A betöltött DataFrame
-
-    Raises:
-        StorageNotFoundError: Ha a fájl nem található
-        StorageFormatError: Ha a formátum nem támogatott
-        StorageIOError: Ha a betöltés sikertelen
-    """
+        Args:
+            df: A mentendő DataFrame
+            path: A mentés útvonala
+            **kwargs: További pandas mentési paraméterek (pl. index=True)
+        """
 ```
 
 ## Kivételek
@@ -149,7 +169,7 @@ def load_dataframe(
 
 ```python
 class StorageError(Exception):
-    """Alap kivétel a storage műveletekhez."""
+    """Alap kivétel osztály a storage műveletekhez."""
 
     def __init__(self, message: str, original_error: Optional[Exception] = None) -> None:
         super().__init__(message)
@@ -162,16 +182,3 @@ class StorageError(Exception):
 - `StorageNotFoundError`: Nem létező erőforrás esetén
 - `StorageSerializationError`: Szerializációs hibák esetén
 - `StorageIOError`: Egyéb I/O műveletek hibái esetén
-
-## Konstansok és konfigurációk
-
-### Támogatott formátumok
-
-```python
-_DATAFRAME_FORMATS = {
-    "csv": ("read_csv", "to_csv"),
-    "json": ("read_json", "to_json"),
-    "excel": ("read_excel", "to_excel"),
-}
-
-_OBJECT_FORMATS = {"json"}
