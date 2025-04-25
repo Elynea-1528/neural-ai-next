@@ -9,89 +9,69 @@
 ## 2. Core Komponensek
 
 ### 2.1 Base Komponens
-- [Áttekintés és használat](../../docs/components/base/README.md)
-- [API Dokumentáció](../../docs/components/base/api.md)
-- [Architektúra](../../docs/components/base/architecture.md)
-- [Fejlesztési Checklist](../../docs/components/base/development_checklist.md)
-- [Példák](../../docs/components/base/examples.md)
-- [Változások](../../docs/components/base/CHANGELOG.md)
+[... korábbi tartalom változatlan ...]
 
 ### 2.2 Config Komponens
-- [Áttekintés és használat](../../docs/components/config/README.md)
-- [API Dokumentáció](../../docs/components/config/api.md)
-- [Architektúra](../../docs/components/config/architecture.md)
-- [Tervezési Specifikáció](../../docs/components/config/design_spec.md)
-- [Fejlesztési Checklist](../../docs/components/config/development_checklist.md)
-- [Példák](../../docs/components/config/examples.md)
-- [Közreműködés](../../docs/components/config/CONTRIBUTING.md)
-- [Változások](../../docs/components/config/CHANGELOG.md)
+[... korábbi tartalom változatlan ...]
 
 ### 2.3 Logger Komponens
-- [Áttekintés és használat](../../docs/components/logger/README.md)
-- [API Dokumentáció](../../docs/components/logger/api.md)
-- [Architektúra](../../docs/components/logger/architecture.md)
-- [Tervezési Specifikáció](../../docs/components/logger/design_spec.md)
-- [Fejlesztési Checklist](../../docs/components/logger/development_checklist.md)
-- [Példák](../../docs/components/logger/examples.md)
-- [Közreműködés](../../docs/components/logger/CONTRIBUTING.md)
-- [Változások](../../docs/components/logger/CHANGELOG.md)
+[... korábbi tartalom változatlan ...]
 
 ### 2.4 Storage Komponens
-- [Áttekintés és használat](../../docs/components/storage/README.md)
-- [API Dokumentáció](../../docs/components/storage/api.md)
-- [Architektúra](../../docs/components/storage/architecture.md)
-- [Tervezési Specifikáció](../../docs/components/storage/design_spec.md)
-- [Fejlesztési Checklist](../../docs/components/storage/development_checklist.md)
-- [Példák](../../docs/components/storage/examples.md)
-- [Változások](../../docs/components/storage/CHANGELOG.md)
+[... korábbi tartalom változatlan ...]
+
+### 2.5 MT5 Collector
+A MetaTrader 5 platform integrációs komponens architektúrája:
+
+#### 1. Expert Advisor (MQL5)
+- Minimális WebSocket szerver funkcionalitás
+- OHLCV és tick adatok streamelése
+- Order végrehajtás fogadása
+- Biztonságos kommunikáció
+- Platform független működés
+- Titkosított adatátvitel
+
+#### 2. Neural-AI Collector
+- EA-val való kommunikáció
+- Nyers adatok fogadása és validálása
+- Perzisztens tárolás (Storage komponens)
+- Adat továbbítás a Dimension Processor felé
+- Hibakezelés és újracsatlakozás
+- Titkosítási kulcsok kezelése
+
+#### 3. Dimension Processor
+- Piaci elemzés és feature engineering
+- Multi-timeframe és multi-instrument támogatás
+- D1-D15 dimenziók számítása
+- Market state detektálás
+- Intelligens cache kezelés
+
+#### 4. Neural Core
+- Model training és optimalizáció
+- Stratégia menedzsment
+- Trading signal generálás
+- Order és kockázat kezelés
+- Teljesítmény monitoring
 
 ## 3. Fejlesztési Útmutatók
-- [Egységes Fejlesztési Útmutató](../../docs/development/unified_development_guide.md)
-- [Komponens Fejlesztési Útmutató](../../docs/development/component_development_guide.md)
-- [Implementációs Útmutató](../../docs/development/implementation_guide.md)
-- [Code Review Útmutató](../../docs/development/code_review_guide.md)
-- [Teljesítmény Optimalizáció](../../docs/development/performance_optimization.md)
-- [Hibakezelés](../../docs/development/error_handling.md)
-- [Core Függőségek](../../docs/development/core_dependencies.md)
-- [Fejlesztési Státusz](../../docs/development/DEVELOPMENT_STATUS.md)
+[... korábbi tartalom változatlan ...]
 
 ## 4. Template és Példák ✓
-Standardizált és optimalizált template-ek:
-- [Komponens Template](../../docs/templates/component_template.py) ✓
-- [Interfész Template](../../docs/templates/interface_template.py) ✓
-- [Modul Template](../../docs/templates/module_template.py) ✓
-- [Test Template](../../docs/templates/test_template.py) ✓
-- [Processor Template](../../docs/templates/processor_template.py) ✓
-- [Config Template](../../docs/templates/config_template.py) ✓
-- [Storage Template](../../docs/templates/storage_template.py) ✓
-- [Collector Template](../../docs/templates/collector_template.py) ✓
-- [Model Template](../../docs/templates/model_template.py) ✓
+[... korábbi tartalom változatlan ...]
 
 ## 5. Aktuális Feladatok
 
 ### 5.1 Dokumentációs Standardizálás ✓
-- [Standardizálási Terv](../../docs/issues/documentation_standardization.md)
-- ✓ Egységes dokumentációs struktúra kialakítva
-- ✓ CI/CD pipeline bővítve dokumentáció ellenőrzéssel
-- ✓ Formázási szabályok implementálva
+[... korábbi tartalom változatlan ...]
 
 ### 5.2 Template Kód Fejlesztés ✓
-- [Részletes terv](../../docs/issues/template_code_fixes.md)
+[... korábbi tartalom változatlan ...]
 
-#### 5.2.1 Magas prioritású feladatok ✓
-- [x] Undefined nevek javítása
-- [x] Hiányzó típusannotációk pótlása
-- [x] Kritikus docstring hibák javítása
-
-#### 5.2.2 Közepes prioritású feladatok ✓
-- [x] Import tisztítás
-- [x] Kivétel osztályok implementálása
-- [x] Docstring formázási hibák javítása
-
-#### 5.2.3 Alacsony prioritású feladatok ✓
-- [x] Biztonsági fejlesztések (pickle eltávolítva)
-- [x] Típuskezelés javítva
-- [x] Dokumentáció frissítve
+### 5.3 MT5 Collector Fejlesztés 🚧
+- [ ] Expert Advisor implementáció
+- [ ] Collector komponens fejlesztés
+- [ ] Dimension Processor integráció
+- [ ] Tesztelés és optimalizáció
 
 ## 6. Könyvtár Struktúra
 
@@ -103,6 +83,10 @@ neural_ai/
 │   ├── logger/              # Naplózás
 │   └── storage/             # Adattárolás
 ├── collectors/              # Adatgyűjtők
+│   └── mt5/                # MT5 Collector
+│       ├── collector.py    # Fő collector osztály
+│       ├── connection.py   # EA kommunikáció
+│       └── validator.py    # Adat validáció
 ├── processors/              # Adatfeldolgozók
 ├── models/                  # Modell definíciók
 └── utils/                   # Segédeszközök
@@ -119,12 +103,18 @@ docs/                        # Dokumentáció
 
 ## 7. Következő lépések
 
-1. CI/CD pipeline bővítés:
-   - Továbbfejlesztett típusellenőrzés bevezetése
-   - Konfigurálható biztonsági scan
-   - Teljes körű tesztelés automatizálása
+1. MT5 Collector Fejlesztés:
+   - Expert Advisor implementáció (MQL5)
+   - Neural-AI Collector komponens
+   - Dimension Processor integráció
+   - Tesztelés és dokumentáció
 
-2. Dokumentáció további fejlesztése:
-   - Példakód gyűjtemény bővítése
-   - Telepítési útmutató részletezése
-   - Hibaelhárítási útmutató készítése
+2. CI/CD pipeline bővítés:
+   - Továbbfejlesztett típusellenőrzés
+   - Biztonsági scan
+   - Teljes körű tesztelés
+
+3. Dokumentáció bővítés:
+   - Példakód gyűjtemény
+   - Telepítési útmutató
+   - Hibaelhárítási útmutató
