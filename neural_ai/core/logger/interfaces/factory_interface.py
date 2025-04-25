@@ -22,9 +22,7 @@ class LoggerFactoryInterface(ABC):
 
     @classmethod
     @abstractmethod
-    def get_logger(
-        cls, name: str, logger_type: str = "default", **kwargs: Any
-    ) -> LoggerInterface:
+    def get_logger(cls, name: str, logger_type: str = "default", **kwargs: Any) -> LoggerInterface:
         """Logger példány létrehozása vagy visszaadása.
 
         Args:
