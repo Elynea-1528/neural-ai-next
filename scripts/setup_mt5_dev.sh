@@ -22,14 +22,14 @@ check_wine() {
     fi
 }
 
-# Wine prefix létrehozása és konfigurálása
+# Wine prefix létrehozása és konfigurálása (csak 64 bit)
 setup_wine_prefix() {
     if [ ! -d "$MT5_PREFIX" ]; then
-        echo -e "${YELLOW}Wine prefix létrehozása...${NC}"
+        echo -e "${YELLOW}Wine prefix létrehozása (64-bit)...${NC}"
         export WINEPREFIX="$MT5_PREFIX"
         export WINEARCH=win64
         winecfg
-        winetricks corefonts vcrun2019 dotnet48
+        winetricks vcrun2019 dotnet48
     fi
 }
 
@@ -46,7 +46,6 @@ setup_directories() {
 # Szimbolikus linkek létrehozása a fejlesztéshez
 create_symlinks() {
     echo -e "${YELLOW}Szimbolikus linkek létrehozása...${NC}"
-    # EA fájlok
     ln -sf "$PROJECT_ROOT/experts/mt5_collector_ea.mq5" "$MQL5_PATH/Experts/NeuralAI/"
     ln -sf "$PROJECT_ROOT/experts/include/"* "$MQL5_PATH/Include/NeuralAI/"
     ln -sf "$PROJECT_ROOT/experts/libraries/"* "$MQL5_PATH/Libraries/NeuralAI/"
@@ -57,7 +56,11 @@ start_mt5() {
     echo -e "${YELLOW}MetaTrader 5 indítása...${NC}"
     export WINEPREFIX="$MT5_PREFIX"
     export WINEARCH=win64
-    wine "$MT5_PATH/terminal64.exe" &
+    export WINE_FULLSCREEN_FSR=1
+    export WINE_FULLSCREEN_INTEGER_SCALING=1
+    export WINEDEBUG="+all"
+    wine "$MT5_PATH/terminal64.exe" &> "$MT5_PREFIX/mt5_debug.log" &
+    echo -e "${GREEN}Debug log: $MT5_PREFIX/mt5_debug.log${NC}"
 }
 
 # Registry beállítások
@@ -68,6 +71,11 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CURRENT_USER\Software\Wine\Direct3D]
 "MaxVersionGL"="32768"
+
+[HKEY_CURRENT_USER\Software\Wine\X11 Driver]
+"GrabFullscreen"="Y"
+"Decorated"="Y"
+"DXGrab"="Y"
 EOF
     wine regedit /tmp/mt5_reg.reg
     rm /tmp/mt5_reg.reg
@@ -82,11 +90,41 @@ watch_files() {
     done
 }
 
+# Diagnosztika
+check_dependencies() {
+    echo -e "${YELLOW}Függőségek ellenőrzése...${NC}"
+    local deps=("wine" "winetricks" "inotifywait")
+    local missing=()
+    for dep in "${deps[@]}"; do
+        if ! command -v "$dep" &> /dev/null; then
+            missing+=("$dep")
+        fi
+    done
+    if [ ${#missing[@]} -ne 0 ]; then
+        echo -e "${RED}Hiányzó függőségek: ${missing[*]}${NC}"
+        echo -e "${YELLOW}Telepítse a következő paranccsal:${NC}"
+        echo "sudo apt install wine winetricks inotify-tools"
+        exit 1
+    fi
+}
+
+# Wine prefix ellenőrzése
+check_mt5_installation() {
+    if [ ! -f "$MT5_PATH/terminal64.exe" ]; then
+        echo -e "${RED}MT5 nincs telepítve a $MT5_PATH útvonalon${NC}"
+        echo -e "${YELLOW}Kérem telepítse az XM MT5-öt:${NC}"
+        echo "wine ~/Letöltések/xm.com5setup.exe"
+        exit 1
+    fi
+}
+
 # Fő függvény
 main() {
     echo -e "${GREEN}MT5 fejlesztői környezet beállítása...${NC}"
+    check_dependencies
     check_wine
     setup_wine_prefix
+    check_mt5_installation
     setup_directories
     create_symlinks
     setup_registry
