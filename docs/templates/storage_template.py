@@ -1,59 +1,115 @@
-"""
-Adattároló template a Neural-AI-Next projekthez.
+"""Template for Neural-AI-Next storage components.
 
-Ez a fájl egy adattároló komponens sablont tartalmaz,
-amely különböző adattípusok tárolását és kezelését végzi.
+This file contains a storage component template that handles
+storing and managing different types of data.
 """
 
 import datetime as dt
+import json
 import os
-import pickle
-from typing import Any, BinaryIO, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Protocol, Union, cast
 
 import pandas as pd
+from pandas import DataFrame
 
 from neural_ai.core.logger import LoggerInterface
-from neural_ai.core.storage.exceptions import (
-    DataNotFoundError,
-    InvalidFormatError,
-    StorageError,
-    StorageWriteError,
-)
-from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+from neural_ai.core.logger.implementations import LoggerFactory
 
 
-class StorageImplementation(StorageInterface):
-    """Storage template implementáció."""
+class StorageInterface(Protocol):
+    """Interface for storage implementations."""
 
-    def __init__(self, config: Dict[str, Any], logger: LoggerInterface = None):
-        """
-        Storage template inicializálása.
+    def save_raw_data(
+        self, data: DataFrame, symbol: str, timeframe: str, overwrite: bool = False
+    ) -> bool:
+        """Save raw data.
 
         Args:
-            config: Konfigurációs beállítások
-            logger: Logger példány
+            data: Data to save in DataFrame format
+            symbol: Symbol (e.g., 'EURUSD')
+            timeframe: Timeframe (e.g., 'M1', 'H1', 'D1')
+            overwrite: If True, overwrites existing data
+
+        Returns:
+            bool: True if save was successful
+
+        Raises:
+            StorageError: When storage operation fails
+        """
+        ...
+
+    def load_raw_data(
+        self,
+        symbol: str,
+        timeframe: str,
+        start_date: Optional[Union[str, dt.datetime]] = None,
+        end_date: Optional[Union[str, dt.datetime]] = None,
+        columns: Optional[List[str]] = None,
+    ) -> DataFrame:
+        """Load raw data.
+
+        Args:
+            symbol: Symbol (e.g., 'EURUSD')
+            timeframe: Timeframe (e.g., 'M1', 'H1', 'D1')
+            start_date: Start date for filtering
+            end_date: End date for filtering
+            columns: Columns to load
+
+        Returns:
+            pd.DataFrame: Loaded data
+
+        Raises:
+            DataNotFoundError: When data is not found
+            StorageError: When other storage error occurs
+        """
+        ...
+
+
+class StorageError(Exception):
+    """Base exception for storage operations."""
+
+
+class DataNotFoundError(StorageError):
+    """Exception raised when requested data is not found."""
+
+
+class InvalidFormatError(StorageError):
+    """Exception raised when format is not supported."""
+
+
+class StorageImplementation:
+    """Storage template implementation."""
+
+    def __init__(self, config: Dict[str, Any], logger: LoggerInterface | None = None) -> None:
+        """Initialize storage template.
+
+        Args:
+            config: Configuration settings
+            logger: Optional logger instance
         """
         self.config = config
-        self.logger = logger or logging.getLogger(__name__)
+        self.logger = logger or LoggerFactory.get_logger(__name__)
 
-        # Konfigurációs értékek beolvasása
+        # Read configuration values
         self.base_path = config.get("base_path", "data")
         self.format = config.get("format", "csv")
 
-        # Alapkönyvtár létrehozása
+        # Create base directory
         os.makedirs(self.base_path, exist_ok=True)
 
     def _get_path(self, symbol: str, timeframe: str, data_type: str = "raw") -> str:
-        """
-        Fájl útvonal generálása.
+        """Generate file path.
 
         Args:
-            symbol: Kereskedési szimbólum
-            timeframe: Időkeret
-            data_type: Adattípus (raw, processed)
+            symbol: Trading symbol
+            timeframe: Timeframe
+            data_type: Data type (raw, processed)
 
         Returns:
-            str: A fájl útvonala
+            str: File path
+
+        Raises:
+            InvalidFormatError: When format is not supported
         """
         if data_type == "raw":
             directory = os.path.join(self.base_path, "raw", symbol, timeframe)
@@ -66,30 +122,29 @@ class StorageImplementation(StorageInterface):
             filename = "data.csv"
         elif self.format == "hdf":
             filename = "data.h5"
-        elif self.format == "pickle":
-            filename = "data.pkl"
+        elif self.format == "json":
+            filename = "data.json"
         else:
-            raise InvalidFormatError(f"Nem támogatott formátum: {self.format}")
+            raise InvalidFormatError(f"Unsupported format: {self.format}")
 
         return os.path.join(directory, filename)
 
     def save_raw_data(
-        self, data: Any, symbol: str, timeframe: str, overwrite: bool = False
+        self, data: DataFrame, symbol: str, timeframe: str, overwrite: bool = False
     ) -> bool:
-        """
-        Nyers adatok mentése.
+        """Save raw data.
 
         Args:
-            data: Mentendő adatok DataFrame formájában
-            symbol: Szimbólum (pl. 'EURUSD')
-            timeframe: Időkeret (pl. 'M1', 'H1', 'D1')
-            overwrite: Ha True, felülírja a meglévő adatokat
+            data: Data to save in DataFrame format
+            symbol: Symbol (e.g., 'EURUSD')
+            timeframe: Timeframe (e.g., 'M1', 'H1', 'D1')
+            overwrite: If True, overwrites existing data
 
         Returns:
-            bool: Sikeres mentés esetén True
+            bool: True if save was successful
 
         Raises:
-            StorageError: Tárolási hiba esetén
+            StorageError: When storage operation fails
         """
         try:
             path = self._get_path(symbol, timeframe, "raw")
@@ -98,16 +153,15 @@ class StorageImplementation(StorageInterface):
                 data.to_csv(path)
             elif self.format == "hdf":
                 data.to_hdf(path, key="data", mode="w")
-            elif self.format == "pickle":
-                with open(path, "wb") as f:
-                    pickle.dump(data, f)
+            elif self.format == "json":
+                data.to_json(path, orient="records", date_format="iso")
 
-            self.logger.info(f"Nyers adatok mentve: {symbol} {timeframe}")
+            self.logger.info(f"Raw data saved: {symbol} {timeframe}")
             return True
 
         except Exception as e:
-            self.logger.error(f"Hiba a nyers adatok mentése közben: {str(e)}")
-            raise StorageError(f"Adatmentési hiba: {str(e)}")
+            self.logger.error(f"Error saving raw data: {str(e)}")
+            raise StorageError(f"Data save error: {str(e)}")
 
     def load_raw_data(
         self,
@@ -116,90 +170,81 @@ class StorageImplementation(StorageInterface):
         start_date: Optional[Union[str, dt.datetime]] = None,
         end_date: Optional[Union[str, dt.datetime]] = None,
         columns: Optional[List[str]] = None,
-    ) -> Any:
-        """
-        Nyers adatok betöltése.
+    ) -> DataFrame:
+        """Load raw data.
 
         Args:
-            symbol: Szimbólum (pl. 'EURUSD')
-            timeframe: Időkeret (pl. 'M1', 'H1', 'D1')
-            start_date: Kezdő dátum szűréshez
-            end_date: Záró dátum szűréshez
-            columns: Betöltendő oszlopok
+            symbol: Symbol (e.g., 'EURUSD')
+            timeframe: Timeframe (e.g., 'M1', 'H1', 'D1')
+            start_date: Start date for filtering
+            end_date: End date for filtering
+            columns: Columns to load
 
         Returns:
-            pd.DataFrame: A betöltött adatok
+            pd.DataFrame: Loaded data
 
         Raises:
-            DataNotFoundError: Ha az adatok nem találhatók
-            StorageError: Egyéb tárolási hiba esetén
+            DataNotFoundError: When data is not found
+            StorageError: When other storage error occurs
         """
         try:
             path = self._get_path(symbol, timeframe, "raw")
 
             if not os.path.exists(path):
-                raise DataNotFoundError(f"Nincs adat ehhez: {symbol} {timeframe}")
+                raise DataNotFoundError(f"No data found for: {symbol} {timeframe}")
 
-            # Adatok betöltése formátum alapján
             if self.format == "csv":
-                data = pd.read_csv(path, index_col=0, parse_dates=True)
+                data: DataFrame = pd.read_csv(path, index_col=0, parse_dates=True)
             elif self.format == "hdf":
-                data = pd.read_hdf(path, key="data")
-            elif self.format == "pickle":
-                with open(path, "rb") as f:
-                    data = pickle.load(f)
+                data = cast(DataFrame, pd.read_hdf(path, key="data"))
+            elif self.format == "json":
+                data = pd.read_json(path, orient="records", convert_dates=True)
 
-            # Dátumszűrés
             if start_date is not None or end_date is not None:
                 data = self._filter_by_date(data, start_date, end_date)
 
-            # Oszlopszűrés
             if columns is not None:
-                data = data[columns]
+                data = cast(DataFrame, data[columns])
 
-            self.logger.info(f"Nyers adatok betöltve: {symbol} {timeframe}")
+            self.logger.info(f"Raw data loaded: {symbol} {timeframe}")
             return data
 
         except DataNotFoundError:
             raise
         except Exception as e:
-            self.logger.error(f"Hiba a nyers adatok betöltése közben: {str(e)}")
-            raise StorageError(f"Adatbetöltési hiba: {str(e)}")
+            self.logger.error(f"Error loading raw data: {str(e)}")
+            raise StorageError(f"Data load error: {str(e)}")
 
     def _filter_by_date(
         self,
-        data: pd.DataFrame,
+        data: DataFrame,
         start_date: Optional[Union[str, dt.datetime]],
         end_date: Optional[Union[str, dt.datetime]],
-    ) -> pd.DataFrame:
-        """
-        DataFrame szűrése dátum alapján.
+    ) -> DataFrame:
+        """Filter DataFrame by date.
 
         Args:
-            data: Szűrendő DataFrame
-            start_date: Kezdő dátum
-            end_date: Záró dátum
+            data: DataFrame to filter
+            start_date: Start date
+            end_date: End date
 
         Returns:
-            pd.DataFrame: Szűrt DataFrame
+            pd.DataFrame: Filtered DataFrame
         """
         filtered_data = data
 
-        # Kezdő dátum szűrés
         if start_date is not None:
             if isinstance(start_date, str):
                 start_date = pd.to_datetime(start_date)
-            filtered_data = filtered_data[filtered_data.index >= start_date]
+            filtered_data = cast(DataFrame, filtered_data[filtered_data.index >= start_date])
 
-        # Záró dátum szűrés
         if end_date is not None:
             if isinstance(end_date, str):
                 end_date = pd.to_datetime(end_date)
-            filtered_data = filtered_data[filtered_data.index <= end_date]
+            filtered_data = cast(DataFrame, filtered_data[filtered_data.index <= end_date])
 
         return filtered_data
 
-    # Has_data implementáció refaktorálva a komplexitás csökkentése érdekében
     def has_data(
         self,
         symbol: str,
@@ -207,78 +252,67 @@ class StorageImplementation(StorageInterface):
         start_date: Optional[Union[str, dt.datetime]] = None,
         end_date: Optional[Union[str, dt.datetime]] = None,
     ) -> bool:
-        """
-        Ellenőrzi, hogy létezik-e adat a megadott szimbólumhoz és időkerethez.
+        """Check if data exists for given symbol and timeframe.
 
         Args:
-            symbol: Szimbólum (pl. 'EURUSD')
-            timeframe: Időkeret (pl. 'M1', 'H1', 'D1')
-            start_date: Kezdő dátum (opcionális)
-            end_date: Záró dátum (opcionális)
+            symbol: Symbol (e.g., 'EURUSD')
+            timeframe: Timeframe (e.g., 'M1', 'H1', 'D1')
+            start_date: Start date (optional)
+            end_date: End date (optional)
 
         Returns:
-            bool: True, ha létezik adat, False egyébként
+            bool: True if data exists, False otherwise
         """
-        # Ellenőrizzük, hogy létezik-e a fájl
         path = self._get_path(symbol, timeframe, "raw")
         if not os.path.exists(path):
             return False
 
-        # Ha nincs dátumszűrés, akkor csak a fájl létezését ellenőrizzük
         if start_date is None and end_date is None:
             return True
 
-        # Ha van dátumszűrés, ellenőrizzük, hogy a kért dátumtartomány elérhető-e
         return self._check_date_range_exists(path, start_date, end_date)
 
-    # A has_data metódus egy része külön metódusba kiemelve a komplexitás csökkentésére
     def _check_date_range_exists(
         self,
         path: str,
         start_date: Optional[Union[str, dt.datetime]],
         end_date: Optional[Union[str, dt.datetime]],
     ) -> bool:
-        """
-        Ellenőrzi, hogy a megadott dátumtartomány elérhető-e az adott fájlban.
+        """Check if given date range exists in file.
 
         Args:
-            path: Fájl útvonala
-            start_date: Kezdő dátum (opcionális)
-            end_date: Záró dátum (opcionális)
+            path: File path
+            start_date: Start date (optional)
+            end_date: End date (optional)
 
         Returns:
-            bool: True, ha a dátumtartomány elérhető, False egyébként
+            bool: True if date range exists, False otherwise
         """
         try:
-            # Dátumtartomány lekérése formátumtól függően
             if self.format == "csv":
-                # Csak az index oszlopot töltjük be (első oszlop)
-                df = pd.read_csv(path, index_col=0, parse_dates=True, usecols=[0])
+                df = cast(DataFrame, pd.read_csv(path, index_col=0, parse_dates=True, usecols=[0]))
                 min_date = df.index.min()
                 max_date = df.index.max()
             elif self.format == "hdf":
-                with pd.HDFStore(path, mode="r") as store:
-                    # Csak az index első és utolsó értékét olvassuk ki
+                store = pd.HDFStore(path, mode="r")
+                try:
                     min_date = store.select("data", start=0, stop=1).index.min()
-                    max_date = store.select(
-                        "data",
-                        start=store.get_storer("data").nrows - 1,
-                        stop=store.get_storer("data").nrows,
-                    ).index.max()
-            else:  # pickle
-                # Nincs optimalizált megoldás, betöltjük az egész adathalmazt
-                with open(path, "rb") as f:
-                    df = pickle.load(f)
+                    max_date = store.select("data", start=-1, stop=None).index.max()
+                finally:
+                    store.close()
+            else:  # json
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                df = pd.DataFrame(data)
+                df.index = pd.to_datetime(df.index)
                 min_date = df.index.min()
                 max_date = df.index.max()
 
-            # Dátumok konvertálása azonos formátumra
             if isinstance(start_date, str):
                 start_date = pd.Timestamp(start_date)
             if isinstance(end_date, str):
                 end_date = pd.Timestamp(end_date)
 
-            # Ellenőrzés, hogy átfed-e a kért dátumtartomány az adatok dátumtartományával
             if start_date is not None and max_date < start_date:
                 return False
             if end_date is not None and min_date > end_date:
@@ -287,6 +321,5 @@ class StorageImplementation(StorageInterface):
             return True
 
         except Exception as e:
-            self.logger.warning(f"Hiba a dátumtartomány ellenőrzésekor: {str(e)}")
-            # Hiba esetén a biztonság kedvéért False-t adunk vissza
+            self.logger.warning(f"Error checking date range: {str(e)}")
             return False

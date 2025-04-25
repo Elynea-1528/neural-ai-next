@@ -1,126 +1,117 @@
-"""
-Interfész sablon a Neural-AI-Next projekthez.
+"""Template for Neural-AI-Next interfaces.
 
-Ez a fájl egy általános interfész sablont tartalmaz,
-amelyet új komponens interfészek definiálásához lehet használni.
+This file contains a general interface template that can be used
+as a base for defining new component interfaces.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Union  # noqa: F401 - Sablon részeként szerepel
+from typing import Any, Dict
+
+from neural_ai.core.logger import LoggerInterface
 
 
 class ComponentInterface(ABC):
-    """
-    Komponens interfész leírása.
+    """Description of component interface.
 
-    Ez az interfész definiálja egy komponens által nyújtott
-    alapvető funkcionalitást és API-t.
+    This interface defines the basic functionality and API
+    provided by a component.
     """
 
     @abstractmethod
     def main_operation(self, input_data: Any) -> Any:
-        """
-        Fő művelet leírása.
+        """Execute main operation.
 
         Args:
-            input_data: Bemeneti adatok
+            input_data: Input data for processing
 
         Returns:
-            Kimeneti adatok
+            Processed output data
 
         Raises:
-            ComponentException: Feldolgozási hiba esetén
+            ComponentException: When processing fails
         """
         pass
 
     @abstractmethod
     def get_configuration(self) -> Dict[str, Any]:
-        """
-        Komponens konfigurációjának lekérése.
+        """Get component configuration.
 
         Returns:
-            A komponens aktuális konfigurációja
+            Current component configuration
         """
         pass
 
     @abstractmethod
     def get_status(self) -> Dict[str, Any]:
-        """
-        Komponens állapotának lekérése.
+        """Get component status.
 
         Returns:
-            A komponens aktuális állapota
+            Current component status
         """
         pass
 
 
 class ComponentFactoryInterface(ABC):
-    """
-    Komponens factory interfész.
+    """Component factory interface.
 
-    Ez az interfész definiálja a komponens példányokat létrehozó
-    factory objektumok közös API-ját.
+    This interface defines the common API for factory objects
+    that create component instances.
     """
 
     @staticmethod
     @abstractmethod
-    def create_component(config: Dict[str, Any], logger=None) -> ComponentInterface:
-        """
-        Komponens példány létrehozása.
+    def create_component(
+        config: Dict[str, Any],
+        logger: LoggerInterface | None = None,
+    ) -> "ComponentInterface":
+        """Create component instance.
 
         Args:
-            config: Komponens konfiguráció
-            logger: Opcionális logger példány
+            config: Component configuration
+            logger: Optional logger instance
 
         Returns:
-            ComponentInterface: Új komponens példány
+            ComponentInterface: New component instance
 
         Raises:
-            ValueError: Érvénytelen konfiguráció esetén
+            ValueError: If configuration is invalid
         """
         pass
 
     @staticmethod
     @abstractmethod
-    def get_component_types() -> List[str]:
-        """
-        Elérhető komponens típusok lekérése.
+    def get_component_types() -> list[str]:
+        """Get available component types.
 
         Returns:
-            A factory által támogatott komponens típusok listája
+            List of component types supported by the factory
         """
         pass
 
 
 class ComponentException(Exception):
-    """
-    Komponens specifikus kivétel.
+    """Component specific exception.
 
-    Az interfészt implementáló komponensek által dobott kivétel.
+    Exception raised by components implementing the interface.
     """
-
-    pass
 
 
 class InterfaceTemplate(ABC):
-    """Alap interfész template."""
+    """Base interface template."""
 
     @abstractmethod
     def method1(self) -> None:
-        """
-        Első absztrakt metódus.
-        """
+        """Execute first abstract method."""
         pass
 
     @abstractmethod
     def method2(self, param1: str) -> Dict[str, Any]:
-        """
-        Második absztrakt metódus.
+        """Execute second abstract method.
 
         Args:
-            param1: Első paraméter
+            param1: First parameter
 
         Returns:
-            Dict[str, Any]: Visszatérési érték
+            Dict[str, Any]: Return value
         """
         pass

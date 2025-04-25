@@ -1,74 +1,67 @@
-"""
-Komponens sablon a Neural-AI-Next projekthez.
+"""Template for components in the Neural-AI-Next project.
 
-Ez a fájl egy általános komponens implementációs sablont tartalmaz,
-amelyet új komponensek létrehozásakor lehet alapul venni.
+This file contains a general component implementation template
+that can be used as a base when creating new components.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Union  # noqa: F401 - Sablon részeként szerepel
+from typing import Any, Dict
 
-import numpy as np  # noqa: F401 - Sablon részeként szerepel
-
-from neural_ai.core.config import ConfigManagerFactory  # noqa: F401 - Sablon részeként szerepel
 from neural_ai.core.logger import LoggerInterface
+from neural_ai.core.logger.implementations import LoggerFactory
 
 
 class ComponentTemplate:
-    """Alap template komponens osztály."""
+    """Base template component class."""
 
-    def __init__(self, config: Dict[str, Any], logger: LoggerInterface = None):
-        """
-        ComponentTemplate inicializálása.
+    def __init__(self, config: Dict[str, Any], logger: LoggerInterface | None = None) -> None:
+        """Initialize ComponentTemplate.
 
         Args:
-            config: Komponens konfigurációja
-            logger: Logger példány
+            config: Component configuration
+            logger: Logger instance
         """
         self.config = config
         self.logger = logger or logging.getLogger(__name__)
-        self.logger.info("ComponentTemplate inicializálva")
+        self.logger.info("ComponentTemplate initialized")
 
     def run(self) -> Dict[str, Any]:
-        """
-        Komponens futtatása.
+        """Run the component.
 
         Returns:
-            Dict[str, Any]: Komponens kimenete
+            Dict[str, Any]: Component output
         """
-        self.logger.info("ComponentTemplate futtatása")
+        self.logger.info("Running ComponentTemplate")
         return {"status": "success"}
 
 
 class ComponentName:
-    """
-    Komponens leírása.
+    """Component description.
 
-    A komponens felelőssége részletesen kifejtve. Ide írd a komponens
-    funkcióinak, céljának és használati módjának általános leírását.
+    Detailed explanation of the component's responsibility. Write here the general
+    description of the component's functions, purpose and usage.
 
     Attributes:
-        config: A komponens konfigurációja
-        logger: Logger példány
-        dependencies: Egyéb függőségek leírása
+        config: The component's configuration
+        logger: Logger instance
+        dependencies: Description of other dependencies
     """
 
-    def __init__(self, config: Dict[str, Any], logger=None):
-        """
-        Inicializálja a komponenst.
+    def __init__(self, config: Dict[str, Any], logger: LoggerInterface | None = None) -> None:
+        """Initialize the component.
 
         Args:
-            config: Komponens konfigurációja
-            logger: Logger példány vagy None (ekkor alapértelmezett logger jön létre)
+            config: Component configuration
+            logger: Logger instance or None (default logger will be created)
         """
         self.config = config
         self.logger = logger or LoggerFactory.get_logger(__name__)
 
-        # Konfigurációs értékek kiolvasása
+        # Read configuration values
         self.parameter1 = config.get("parameter1", "default_value")
         self.parameter2 = config.get("parameter2", 100)
 
-        # Függőségek inicializálása
+        # Initialize dependencies
         self._init_dependencies()
 
         self.logger.info(
@@ -76,30 +69,29 @@ class ComponentName:
             f"parameter1={self.parameter1}, parameter2={self.parameter2}"
         )
 
-    def _init_dependencies(self):
-        """Belső függőségek inicializálása."""
-        # Példa: storage inicializálása
+    def _init_dependencies(self) -> None:
+        """Initialize internal dependencies."""
+        # Example: initialize storage
         # storage_config = self.config.get("storage", {})
         # self.storage = StorageFactory.get_storage(storage_config)
         pass
 
     def main_method(self, input_data: Any) -> Any:
-        """
-        Fő komponens metódus.
+        """Process the input data.
 
         Args:
-            input_data: Bemeneti adatok
+            input_data: Input data to process
 
         Returns:
-            Feldolgozott kimeneti adatok
+            Processed output data
 
         Raises:
-            ComponentException: Hiba esetén
+            ComponentException: When processing fails
         """
         self.logger.debug(f"Processing input data: {input_data}")
 
         try:
-            # Feldolgozás implementációja
+            # Implement processing
             result = self._process(input_data)
 
             self.logger.info(f"Successfully processed data, result shape: {len(result)}")
@@ -110,39 +102,37 @@ class ComponentName:
             raise ComponentException(f"Processing failed: {str(e)}") from e
 
     def _process(self, data: Any) -> Any:
-        """
-        Belső feldolgozó metódus.
+        """Process the data internally.
 
         Args:
-            data: Feldolgozandó adatok
+            data: Data to process
 
         Returns:
-            Feldolgozott adatok
+            Processed data
         """
-        # Implementáció...
+        # Implementation...
         return data
 
 
 class ComponentException(Exception):
-    """A komponens specifikus kivétele."""
-
-    pass
+    """Component specific exception."""
 
 
-# Factory példa
+# Factory example
 class ComponentNameFactory:
-    """Factory osztály a komponens létrehozásához."""
+    """Factory class for creating component instances."""
 
     @staticmethod
-    def create_component(config: Dict[str, Any], logger=None) -> ComponentName:
-        """
-        Létrehoz egy új komponens példányt.
+    def create_component(
+        config: Dict[str, Any], logger: LoggerInterface | None = None
+    ) -> "ComponentName":
+        """Create a new component instance.
 
         Args:
-            config: Komponens konfiguráció
-            logger: Opcionális logger példány
+            config: Component configuration
+            logger: Optional logger instance
 
         Returns:
-            ComponentName: Új komponens példány
+            ComponentName: New component instance
         """
         return ComponentName(config, logger)

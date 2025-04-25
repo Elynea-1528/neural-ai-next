@@ -1,46 +1,45 @@
-"""Template a Neural-AI-Next modellekhez."""
+"""Template for Neural-AI-Next models.
 
-import logging
-from typing import Any, Dict, List, Optional  # noqa: F401 - Sablon részeként szerepel
+This template provides a base PyTorch model implementation with logging support.
+"""
 
-import numpy as np  # noqa: F401 - Sablon részeként szerepel
+from typing import Any, Dict
+
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader  # noqa: F401 - Sablon részeként szerepel
 
 from neural_ai.core.logger import LoggerInterface
+from neural_ai.core.logger.implementations import LoggerFactory
 
 
 class ModelTemplate(nn.Module):
-    """Alap modell template."""
+    """Base model template with standard PyTorch architecture."""
 
-    def __init__(self, config: Dict[str, Any], logger: LoggerInterface = None):
-        """
-        ModelTemplate inicializálása.
+    def __init__(self, config: Dict[str, Any], logger: LoggerInterface | None = None) -> None:
+        """Initialize ModelTemplate.
 
         Args:
-            config: Modell konfiguráció
-            logger: Logger példány
+            config: Model configuration dictionary
+            logger: Optional logger instance
         """
         super().__init__()
         self.config = config
-        self.logger = logger or logging.getLogger(__name__)
-        self.logger.info("ModelTemplate inicializálva")
+        self.logger = logger or LoggerFactory.get_logger(__name__)
+        self.logger.info("ModelTemplate initialized")
 
-        # Modell rétegek definiálása
+        # Define model layers
         self.fc1 = nn.Linear(config.get("input_size", 10), config.get("hidden_size", 20))
         self.relu = nn.ReLU()
         self.fc2 = nn.Linear(config.get("hidden_size", 20), config.get("output_size", 1))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass.
+        """Execute forward pass.
 
         Args:
-            x: Bemeneti tenzor
+            x: Input tensor
 
         Returns:
-            torch.Tensor: Kimeneti tenzor
+            torch.Tensor: Output tensor
         """
         x = self.fc1(x)
         x = self.relu(x)
@@ -48,22 +47,41 @@ class ModelTemplate(nn.Module):
         return x
 
     def save(self, path: str) -> None:
-        """
-        Modell mentése.
+        """Save model to file.
 
         Args:
-            path: Mentési útvonal
+            path: Path to save the model
         """
-        self.logger.info(f"Modell mentése: {path}")
+        self.logger.info(f"Saving model to: {path}")
         torch.save({"state_dict": self.state_dict(), "config": self.config}, path)
 
     def load(self, path: str) -> None:
-        """
-        Modell betöltése.
+        """Load model from file.
 
         Args:
-            path: Betöltési útvonal
+            path: Path to load the model from
         """
-        self.logger.info(f"Modell betöltése: {path}")
+        self.logger.info(f"Loading model from: {path}")
         checkpoint = torch.load(path)
         self.load_state_dict(checkpoint["state_dict"])
+
+    def get_config(self) -> Dict[str, Any]:
+        """Get model configuration.
+
+        Returns:
+            Dict[str, Any]: Model configuration dictionary
+        """
+        return self.config
+
+    def get_parameters(self) -> Dict[str, Any]:
+        """Get model parameters.
+
+        Returns:
+            Dict[str, Any]: Dictionary containing model parameters info
+        """
+        return {
+            "input_size": self.fc1.in_features,
+            "hidden_size": self.fc1.out_features,
+            "output_size": self.fc2.out_features,
+            "total_params": sum(p.numel() for p in self.parameters()),
+        }

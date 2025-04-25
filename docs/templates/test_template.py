@@ -1,37 +1,39 @@
-"""
-Test sablon a Neural-AI-Next projekthez.
+"""Tests template for Neural-AI-Next project.
 
-Ez a fájl egy általános unit test sablont tartalmaz,
-amelyet új komponensek tesztjeinek írásához lehet használni.
+This file contains a general unit test template that can be used
+as a base for writing tests for new components.
 """
 
 import unittest
-from unittest.mock import Mock, patch
+from typing import Any, Dict
+from unittest.mock import Mock
 
-import numpy as np
-import pandas as pd
 import pytest
+from pandas import DataFrame
 
 from neural_ai.core.logger import LoggerInterface
 
 
 class TestComponentName:
-    """
-    ComponentName osztály unit tesztjei.
-
-    Pytest keretrendszert használó tesztek a komponens
-    funkcióinak ellenőrzésére.
-    """
+    """Tests for ComponentName class using pytest framework."""
 
     @pytest.fixture
-    def mock_logger(self):
-        """Mock logger objektum létrehozása."""
+    def mock_logger(self) -> Mock:
+        """Create and return a mock logger object.
+
+        Returns:
+            Mock: Logger mock with LoggerInterface spec
+        """
         logger = Mock(spec=LoggerInterface)
         return logger
 
     @pytest.fixture
-    def test_config(self):
-        """Teszt konfiguráció létrehozása."""
+    def test_config(self) -> Dict[str, Any]:
+        """Create and return a test configuration.
+
+        Returns:
+            Dict[str, Any]: Test configuration dictionary
+        """
         return {
             "parameter1": "test_value",
             "parameter2": 42,
@@ -39,92 +41,130 @@ class TestComponentName:
         }
 
     @pytest.fixture
-    def component(self, test_config, mock_logger):
-        """Teszt komponens példány létrehozása."""
-        from path.to.component import ComponentName
+    def component(self, test_config: Dict[str, Any], mock_logger: Mock) -> Mock:
+        """Create and return a test component instance.
 
-        return ComponentName(test_config, logger=mock_logger)
+        Args:
+            test_config: Configuration dictionary for the component
+            mock_logger: Mock logger instance for testing
 
-    def test_initialization(self, component, test_config, mock_logger):
-        """Teszteli a komponens helyes inicializálását."""
-        # Ellenőrizzük, hogy a konfigurációs értékek helyesen kerültek beállításra
+        Returns:
+            Mock: Mock component instance for testing
+        """
+        # In actual tests, replace with proper import
+        # from path.to.component import ComponentName
+        # return ComponentName(test_config, logger=mock_logger)
+        mock_component = Mock()
+        mock_component.parameter1 = test_config["parameter1"]
+        mock_component.parameter2 = test_config["parameter2"]
+        return mock_component
+
+    def test_initialization(
+        self, component: Mock, test_config: Dict[str, Any], mock_logger: Mock
+    ) -> None:
+        """Verify component initialization.
+
+        Args:
+            component: Component instance to test
+            test_config: Configuration used for initialization
+            mock_logger: Mock logger to verify logging calls
+        """
+        # Check if configuration values are set correctly
         assert component.parameter1 == test_config["parameter1"]
         assert component.parameter2 == test_config["parameter2"]
 
-        # Ellenőrizzük, hogy a logger info metódusa meghívásra került
+        # Verify logger info method was called
         mock_logger.info.assert_called_once()
 
-    def test_main_method_success(self, component, mock_logger):
-        """Teszteli a fő metódus sikeres végrehajtását."""
-        # Teszt bemeneti adat
-        input_data = pd.DataFrame({"column1": [1, 2, 3], "column2": ["a", "b", "c"]})
+    def test_main_method_success(self, component: Mock, mock_logger: Mock) -> None:
+        """Verify successful execution of main method.
 
-        # Metódus meghívása
+        Args:
+            component: Component instance to test
+            mock_logger: Mock logger to verify logging calls
+        """
+        # Test input data
+        input_data = DataFrame({"column1": [1, 2, 3], "column2": ["a", "b", "c"]})
+
+        # Set up mock return value
+        component.main_method.return_value = input_data
+
+        # Call method
         result = component.main_method(input_data)
 
-        # Eredmény ellenőrzése
+        # Verify result
         assert result is not None
         assert len(result) == len(input_data)
 
-        # Loggolás ellenőrzése
+        # Verify logging
         mock_logger.debug.assert_called_once()
         mock_logger.info.assert_called()
 
-    def test_main_method_error(self, component, mock_logger):
-        """Teszteli a fő metódus hibaviselkedését."""
-        # Teszteljük, hogy megfelelő kivétel dobódik hibás bemenet esetén
+    def test_main_method_error(self, component: Mock, mock_logger: Mock) -> None:
+        """Verify error handling in main method.
+
+        Args:
+            component: Component instance to test
+            mock_logger: Mock logger to verify error logging
+        """
+        # Configure mock to raise exception
+        component.main_method.side_effect = Exception("Test error")
+
+        # Test that appropriate exception is raised for invalid input
         with pytest.raises(Exception):
             component.main_method(None)
 
-        # Loggolás ellenőrzése
+        # Verify error logging
         mock_logger.error.assert_called_once()
 
     @pytest.mark.parametrize("input_value,expected", [(10, 20), (0, 0), (-5, -10)])
-    def test_parametrized_method(self, component, input_value, expected):
-        """
-        Paraméteres teszt a különböző bemeneti értékek tesztelésére.
+    def test_parametrized_method(self, component: Mock, input_value: int, expected: int) -> None:
+        """Test method with various input parameters.
 
         Args:
-            input_value: Tesztadatok
-            expected: Elvárt eredmény
+            component: Component instance to test
+            input_value: Input value for the test case
+            expected: Expected output for the input
         """
-        # Patch-eljük a belső _process metódust egy mock funkcióval
-        with patch.object(component, "_process", return_value=input_value * 2):
-            result = component.main_method(input_value)
-            assert result == expected
+        # Configure mock behavior
+        component._process.return_value = input_value * 2
+        component.main_method.return_value = expected
+
+        result = component.main_method(input_value)
+        assert result == expected
 
 
 class TestComponentNameClassic(unittest.TestCase):
-    """
-    ComponentName osztály unit tesztjei unittest használatával.
+    """Tests for ComponentName class using unittest framework."""
 
-    Klasszikus unittest megközelítés, alternatíva a pytest-hez.
-    """
-
-    def setUp(self):
-        """Teszt előkészítése."""
+    def setUp(self) -> None:
+        """Initialize test fixtures before each test."""
         self.mock_logger = Mock(spec=LoggerInterface)
-        self.test_config = {"parameter1": "test_value", "parameter2": 42}
+        self.test_config: Dict[str, Any] = {"parameter1": "test_value", "parameter2": 42}
 
-        # Import és komponens létrehozása
-        from path.to.component import ComponentName
+        # In actual tests, replace with proper import
+        # from path.to.component import ComponentName
+        # self.component = ComponentName(self.test_config, logger=self.mock_logger)
+        self.component = Mock()
+        self.component.parameter1 = self.test_config["parameter1"]
+        self.component.parameter2 = self.test_config["parameter2"]
 
-        self.component = ComponentName(self.test_config, logger=self.mock_logger)
-
-    def test_initialization(self):
-        """Teszteli a komponens helyes inicializálását."""
+    def test_initialization(self) -> None:
+        """Verify component initialization."""
         self.assertEqual(self.component.parameter1, self.test_config["parameter1"])
         self.assertEqual(self.component.parameter2, self.test_config["parameter2"])
         self.mock_logger.info.assert_called_once()
 
-    def test_main_method(self):
-        """Teszteli a fő metódus működését."""
-        # Teszt implementáció...
-        pass
+    def test_main_method(self) -> None:
+        """Verify main method functionality."""
+        # Configure mock behavior
+        self.component.main_method.return_value = "test_result"
 
-    def tearDown(self):
-        """Teszt utáni takarítás."""
-        pass
+        result = self.component.main_method()
+        self.assertEqual(result, "test_result")
+
+    def tearDown(self) -> None:
+        """Clean up test fixtures after each test."""
 
 
 if __name__ == "__main__":
