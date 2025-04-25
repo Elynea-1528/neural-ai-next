@@ -2,138 +2,163 @@
 
 ## Áttekintés
 
-A storage komponens felelős az adatok perzisztens tárolásáért és betöltéséért. Támogatja a DataFrame-ek és Python objektumok különböző formátumokban történő mentését és betöltését.
+A Storage komponens a Neural AI Next rendszer adattárolási rétege. Felelős a különböző típusú adatok perzisztens tárolásáért és betöltéséért, támogatva a DataFrame-ek és Python objektumok különböző formátumokban történő kezelését.
 
 ## Főbb funkciók
 
-- DataFrame-ek mentése és betöltése (CSV, JSON)
-- Python objektumok szerializálása (JSON)
+- DataFrame-ek mentése és betöltése (CSV, JSON, Excel)
+- Python objektumok szerializációja
 - Hierarchikus fájlrendszer kezelés
 - Metaadatok kezelése
-- Fájl és könyvtár műveletek
+- Automatikus formátum felismerés
+- Path objektum támogatás
+- Biztonságos fájlműveletek
+- Típusbiztos műveletek
 
-## Telepítés
+## Telepítés és függőségek
 
-A komponens a Neural AI keretrendszer részeként települ. Külön telepítést nem igényel.
+A komponens a Neural AI keretrendszer részeként települ.
+
+### Függőségek
+- pandas: DataFrame műveletek
+- pyyaml: YAML fájl támogatás (opcionális)
+- openpyxl: Excel támogatás (opcionális)
 
 ## Használat
 
-### Alap használat
+### 1. Alap használat
 
 ```python
 from neural_ai.core.storage.implementations import FileStorage
 
-# Storage példány létrehozása
+# Storage inicializálása
 storage = FileStorage("data")
 
-# DataFrame mentése és betöltése
+# DataFrame műveletek
 df = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"]})
 storage.save_dataframe(df, "data.csv")
 loaded_df = storage.load_dataframe("data.csv")
 
-# Python objektum mentése és betöltése
-obj = {"config": {"param1": 123, "param2": "value"}}
-storage.save_object(obj, "config.json")
-loaded_obj = storage.load_object("config.json")
-
-# Fájl műveletek
-storage.exists("data.csv")  # True
-metadata = storage.get_metadata("data.csv")
-storage.delete("old_data.csv")
-
-# Könyvtár listázás
-files = storage.list_dir(".")
-csv_files = storage.list_dir(".", "*.csv")
+# Objektum műveletek
+config = {"param1": 123, "param2": "value"}
+storage.save_object(config, "config.json")
+loaded_config = storage.load_object("config.json")
 ```
 
-### Támogatott formátumok
-
-#### DataFrame formátumok
-- CSV (.csv)
-- JSON (.json)
-- Excel (.xlsx) - opcionális, függ a pandas excel támogatástól
-
-#### Objektum formátumok
-- JSON (.json)
-
-### Hibakezelés
+### 2. Haladó DataFrame műveletek
 
 ```python
-from neural_ai.core.storage.exceptions import (
-    StorageError,
-    StorageFormatError,
-    StorageNotFoundError,
-    StorageSerializationError,
+# CSV mentés speciális beállításokkal
+storage.save_dataframe(df, "data.csv",
+    index=False,
+    sep=";",
+    date_format="%Y-%m-%d",
+    float_format="%.2f"
 )
 
-try:
-    storage.load_dataframe("nonexistent.csv")
-except StorageNotFoundError:
-    print("A fájl nem található")
-except StorageFormatError:
-    print("Nem támogatott formátum")
-except StorageError as e:
-    print(f"Egyéb storage hiba: {e}")
+# DataFrame betöltés szűréssel
+df = storage.load_dataframe("data.csv",
+    usecols=["id", "name"],
+    parse_dates=["created_at"],
+    dtype={"id": int}
+)
 ```
 
-## API Dokumentáció
-
-### FileStorage
+### 3. Fájlrendszer műveletek
 
 ```python
-class FileStorage:
-    """Fájl alapú storage implementáció."""
+# Fájl és könyvtár műveletek
+files = storage.list_dir("data")
+csv_files = storage.list_dir("data", "*.csv")
 
-    def __init__(self, base_path: Optional[str] = None) -> None:
-        """Storage inicializálása.
+if storage.exists("old_data.csv"):
+    storage.delete("old_data.csv")
 
-        Args:
-            base_path: Alap könyvtár útvonal (None esetén az aktuális könyvtár)
-        """
+metadata = storage.get_metadata("data.csv")
+```
 
-    def save_dataframe(self, df: pd.DataFrame, path: str, format: str = "csv", **kwargs) -> None:
-        """DataFrame mentése.
+## Architektúra
 
-        Args:
-            df: A mentendő DataFrame
-            path: Mentési útvonal
-            format: Fájl formátum (csv, json, excel)
-            **kwargs: További formátum-specifikus paraméterek
-        """
+A komponens felépítése:
 
-    def load_dataframe(self, path: str, format: Optional[str] = None, **kwargs) -> pd.DataFrame:
-        """DataFrame betöltése.
+```
+neural_ai/core/storage/
+├── interfaces/
+│   ├── storage_interface.py   # Alap storage interfész
+│   └── factory_interface.py   # Factory interfész
+├── implementations/
+│   ├── file_storage.py       # Fájl alapú implementáció
+│   └── storage_factory.py    # Storage factory
+└── exceptions.py            # Storage kivételek
+```
 
-        Args:
-            path: Betöltési útvonal
-            format: Fájl formátum (ha None, akkor a kiterjesztésből)
-            **kwargs: További formátum-specifikus paraméterek
+### Főbb osztályok
 
-        Returns:
-            pd.DataFrame: A betöltött DataFrame
-        """
+1. **StorageInterface**
+   - Adattárolási műveletek definiálása
+   - DataFrame és objektum műveletek
+   - Fájlrendszer műveletek
+
+2. **FileStorage**
+   - Fájl alapú implementáció
+   - Formátum kezelés
+   - Biztonságos fájlműveletek
+
+3. **StorageFactory**
+   - Storage példányok létrehozása
+   - Konfiguráció kezelés
+   - Alapértelmezett implementáció választás
+
+## API gyorsreferencia
+
+```python
+# Storage inicializálás
+storage = FileStorage("data")
+
+# DataFrame műveletek
+storage.save_dataframe(df, "path.csv", **kwargs)
+df = storage.load_dataframe("path.csv", **kwargs)
+
+# Objektum műveletek
+storage.save_object(obj, "path.json")
+obj = storage.load_object("path.json")
+
+# Fájlrendszer műveletek
+storage.exists("path")
+storage.delete("path")
+files = storage.list_dir("path", "*.csv")
+meta = storage.get_metadata("path")
 ```
 
 ## Fejlesztői információk
 
-### Új formátum hozzáadása
+### Új formátum támogatás hozzáadása
 
-1. Bővítse a `_DATAFRAME_FORMATS` vagy `_OBJECT_FORMATS` konstansokat.
-2. Implementálja a megfelelő mentési/betöltési logikát.
-3. Frissítse a dokumentációt.
-4. Írjon teszteket az új formátumhoz.
+1. Bővítse a támogatott formátumok listáját
+2. Implementálja a mentési és betöltési logikát
+3. Adjon hozzá formátum-specifikus validációt
+4. Írjon teszteket az új formátumhoz
 
 ### Hibakezelési konvenciók
 
-- `StorageFormatError`: Nem támogatott vagy érvénytelen formátum esetén
-- `StorageNotFoundError`: Nem létező erőforrás esetén
-- `StorageSerializationError`: Szerializációs hibák esetén
-- `StorageIOError`: Egyéb I/O műveletek hibái esetén
+```python
+from neural_ai.core.storage.exceptions import (
+    StorageError,             # Alap kivétel
+    StorageNotFoundError,     # Nem létező erőforrás
+    StorageFormatError,       # Formátum hiba
+    StorageIOError,          # I/O műveleti hiba
+    StorageValidationError   # Validációs hiba
+)
+```
 
 ## Tesztelés
 
 ```bash
+# Unit tesztek futtatása
 pytest tests/core/storage/
+
+# Lefedettség ellenőrzése
+pytest --cov=neural_ai.core.storage tests/core/storage/
 ```
 
 ## Közreműködés
@@ -147,3 +172,11 @@ pytest tests/core/storage/
 ## Licensz
 
 MIT License - lásd a LICENSE fájlt a részletekért.
+
+## További dokumentáció
+
+- [API Dokumentáció](api.md)
+- [Architektúra leírás](architecture.md)
+- [Tervezési specifikáció](design_spec.md)
+- [Példák](examples.md)
+- [Fejlesztési checklist](development_checklist.md)

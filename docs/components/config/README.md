@@ -1,24 +1,30 @@
-# Neural AI - Konfigurációs Komponens
+# Neural AI - Config Komponens
 
 ## Áttekintés
 
-A konfigurációs komponens felelős a rendszer különböző beállításainak kezeléséért. Támogatja a YAML formátumú konfigurációs fájlok betöltését, validálását és módosítását.
+A Config komponens felelős a Neural AI Next rendszer konfigurációs beállításainak kezeléséért. Biztosítja a különböző formátumú konfigurációs fájlok betöltését, validálását és a dinamikus konfiguráció kezelést.
 
 ## Főbb funkciók
 
-- YAML konfigurációs fájlok kezelése
+- YAML és JSON konfigurációs fájlok kezelése
 - Hierarchikus konfigurációs struktúra
 - Séma alapú validáció
-- Típus biztonságos hozzáférés
+- Típusbiztos hozzáférés
+- Környezeti változók integrációja
 - Dinamikus konfiguráció módosítás
+- Automatikus újratöltés támogatása
 
-## Telepítés
+## Telepítés és függőségek
 
-A komponens a Neural AI keretrendszer részeként települ. Külön telepítést nem igényel.
+A komponens a Neural AI keretrendszer részeként települ.
+
+### Függőségek
+- PyYAML: YAML fájlok kezelése
+- jsonschema: Séma validáció (opcionális)
 
 ## Használat
 
-### Alap használat
+### 1. Alap használat
 
 ```python
 from neural_ai.core.config.implementations import ConfigManagerFactory
@@ -26,18 +32,15 @@ from neural_ai.core.config.implementations import ConfigManagerFactory
 # Konfiguráció betöltése
 config = ConfigManagerFactory.get_manager("config.yaml")
 
-# Érték lekérése
-host = config.get("database", "host", default="localhost")
-port = config.get("database", "port", default=5432)
+# Értékek lekérése
+host = config.get("database.host", default="localhost")
+port = config.get("database.port", default=5432)
 
 # Érték beállítása
-config.set("logging", "level", value="DEBUG")
-
-# Konfiguráció mentése
-config.save()
+config.set("logging.level", "DEBUG")
 ```
 
-### Séma validáció
+### 2. Séma validáció
 
 ```python
 # Validációs séma definiálása
@@ -59,68 +62,77 @@ schema = {
 }
 
 # Konfiguráció validálása
-valid, errors = config.validate(schema)
-if not valid:
-    print("Validation errors:", errors)
+config = ConfigManagerFactory.get_manager("config.yaml", schema=schema)
 ```
 
-## API Dokumentáció
-
-### ConfigManagerFactory
-
-Factory osztály a konfigurációkezelők létrehozásához.
+### 3. Környezeti változók
 
 ```python
-@classmethod
-def get_manager(cls, filename: str, **kwargs: Any) -> ConfigManagerInterface:
-    """Megfelelő konfigurációkezelő példány létrehozása.
-
-    Args:
-        filename: Konfigurációs fájl neve
-        **kwargs: További paraméterek a kezelő számára
-
-    Returns:
-        ConfigManagerInterface: Konfigurációkezelő példány
-
-    Raises:
-        ValueError: Ha nem található megfelelő kezelő
-    """
+# Környezeti változók prioritással
+db_url = config.get(
+    "database.url",
+    env_key="DB_URL",
+    default="postgresql://localhost/db"
+)
 ```
 
-### YAMLConfigManager
+## Architektúra
 
-YAML fájlok kezelésére szolgáló implementáció.
+A komponens felépítése:
+
+```
+neural_ai/core/config/
+├── interfaces/
+│   ├── config_interface.py     # Alap interfész
+│   └── factory_interface.py    # Factory interfész
+├── implementations/
+│   ├── yaml_config_manager.py  # YAML implementáció
+│   └── config_manager_factory.py # Factory osztály
+└── exceptions.py              # Kivétel osztályok
+```
+
+### Főbb osztályok
+
+1. **ConfigManagerInterface**
+   - Konfiguráció lekérés és módosítás
+   - Séma validáció
+   - Környezeti változók kezelése
+
+2. **YAMLConfigManager**
+   - YAML fájlok kezelése
+   - Hierarchikus konfiguráció
+   - Automatikus újratöltés
+
+3. **ConfigManagerFactory**
+   - Megfelelő implementáció kiválasztása
+   - Konfiguráció inicializálás
+   - Validáció végrehajtás
+
+## API gyorsreferencia
 
 ```python
-def get(self, *keys: str, default: Any = None) -> Any:
-    """Érték lekérése a konfigurációból.
+# Factory használata
+config = ConfigManagerFactory.get_manager("config.yaml")
 
-    Args:
-        *keys: Kulcsok útvonala
-        default: Alapértelmezett érték ha nem található
+# Érték lekérése
+value = config.get("section.key", default="default")
 
-    Returns:
-        Any: A konfigurációs érték vagy az alapértelmezett érték
-    """
+# Szekció lekérése
+section = config.get_section("database")
 
-def set(self, *keys: str, value: Any) -> None:
-    """Érték beállítása a konfigurációban.
+# Érték beállítása
+config.set("section.key", "new_value")
 
-    Args:
-        *keys: Kulcsok útvonala
-        value: Az új érték
-
-    Raises:
-        ValueError: Ha érvénytelen az útvonal
-    """
+# Konfiguráció mentése
+config.save()
 ```
 
 ## Fejlesztői információk
 
-### Új konfigurációkezelő hozzáadása
+### Új formátum hozzáadása
 
-1. Implementáld a `ConfigManagerInterface`-t
-2. Regisztráld a kezelőt a `ConfigManagerFactory`-ban:
+1. Implementálja a `ConfigManagerInterface`-t
+2. Regisztrálja a formátumot a factory-ban:
 
 ```python
 ConfigManagerFactory.register_manager(".ext", MyConfigManager)
@@ -144,17 +156,29 @@ ConfigManagerFactory.register_manager(".ext", MyConfigManager)
 ## Tesztelés
 
 ```bash
+# Unit tesztek futtatása
 pytest tests/core/config/
+
+# Lefedettség ellenőrzése
+pytest --cov=neural_ai.core.config tests/core/config/
 ```
 
 ## Közreműködés
 
 1. Fork létrehozása
-2. Feature branch létrehozása (`git checkout -b feature/új_funkcio`)
-3. Változtatások commit-olása (`git commit -am 'Új funkció: xyz'`)
-4. Branch feltöltése (`git push origin feature/új_funkcio`)
+2. Feature branch létrehozása (`git checkout -b feature/új_formátum`)
+3. Változtatások commit-olása (`git commit -am 'Új formátum: xyz'`)
+4. Branch feltöltése (`git push origin feature/új_formátum`)
 5. Pull Request nyitása
 
 ## Licensz
 
 MIT License - lásd a LICENSE fájlt a részletekért.
+
+## További dokumentáció
+
+- [API Dokumentáció](api.md)
+- [Architektúra leírás](architecture.md)
+- [Tervezési specifikáció](design_spec.md)
+- [Példák](examples.md)
+- [Fejlesztési checklist](development_checklist.md)
