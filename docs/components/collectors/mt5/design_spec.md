@@ -2,388 +2,305 @@
 
 ## Áttekintés
 
-Az MT5 Collector komponens felelős a MetaTrader 5 platformról történő adatok gyűjtéséért és rendszerezéséért. A komponens aszinkron működéssel, hatékony kapcsolatkezeléssel és adatstruktúrákkal biztosítja a különböző pénzügyi instrumentumok és időkeretek adatainak megbízható gyűjtését.
+Az MT5 Collector komponens felelős a MetaTrader 5 platformról történő adatok gyűjtéséért és rendszerezéséért. A komponens server-client architektúrával, aszinkron működéssel és hatékony kapcsolatkezeléssel biztosítja a különböző pénzügyi instrumentumok és időkeretek adatainak megbízható gyűjtését.
+
+## Architektúra
+
+### Server-Client Modell
+
+```
+MT5 Collector/
+├── server/                # Windows Server komponensek
+│   ├── bridge/           # MT5 API híd
+│   │   ├── api.py       # MetaTrader5 API wrapper
+│   │   └── auth.py      # Hitelesítési kezelő
+│   ├── ws/              # WebSocket szerver
+│   │   ├── server.py    # Aszinkron WS szerver
+│   │   └── handlers.py  # Üzenet kezelők
+│   ├── cache/           # Szerver oldali cache
+│   │   ├── manager.py   # Cache menedzsment
+│   │   └── store.py     # Adat tárolás
+│   └── adapters/        # Adatformátum átalakítók
+├── client/              # Linux Client komponensek
+│   ├── collector/       # Collector implementáció
+│   │   ├── sync.py     # Szinkronizációs logika
+│   │   └── worker.py   # Adatgyűjtő worker
+│   ├── cache/          # Kliens oldali cache
+│   │   ├── local.py    # Helyi cache
+│   │   └── sync.py     # Cache szinkronizáció
+│   └── handlers/       # Eseménykezelők
+└── protocol/           # Közös protokoll definíciók
+    ├── messages/       # Üzenet definíciók
+    │   ├── common.py   # Alap üzenetek
+    │   └── data.py     # Adat üzenetek
+    ├── api.py         # API definíciók
+    └── errors.py      # Hibakezelés
+```
+
+### Komponens kommunikáció
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant MT5
+
+    Client->>Server: Kapcsolódási kérés
+    Server->>MT5: MT5 Platform kapcsolódás
+    MT5-->>Server: Kapcsolat létrejött
+    Server-->>Client: Kapcsolat visszaigazolás
+
+    Client->>Server: Adat lekérés (szimbólum, időkeret)
+    Server->>MT5: MT5 API hívás
+    MT5-->>Server: Nyers adatok
+    Server->>Server: Adat validáció és cache
+    Server-->>Client: Feldolgozott adatok
+
+    Client->>Client: Helyi cache mentés
+    Client->>Storage: Perzisztens tárolás
+```
 
 ## Fő funkciók
 
-- MetaTrader 5 platformhoz való kapcsolódás és hitelesítés
-- Valós idejű és történelmi áradatok gyűjtése
-- Különböző időkeretek (M1, M5, M15, H1, H4, D1, stb.) támogatása
-- Automatikus újrakapcsolódás és hibajavítás
-- Adatvalidáció és konzisztencia ellenőrzés
-- Hatékony adattárolás a Storage komponensen keresztül
-- Többszálú/aszinkron lekérdezések kezelése
+### Server Oldal
 
-## Architekturális felépítés
+1. **MT5 API Bridge**
+   - MetaTrader5 platformhoz való biztonságos kapcsolódás
+   - Több terminál párhuzamos kezelése
+   - Automatikus újrakapcsolódás
+   - API hívások rate limiting
 
-### Komponens struktúra
+2. **WebSocket Szerver**
+   - Aszinkron kommunikáció
+   - SSL/TLS titkosítás
+   - Kliens autentikáció
+   - Több kliens kezelése
 
-MT5Collector
-├── MT5Connection       # A kapcsolatot kezeli a MT5 platformmal
-│   ├── Authenticator  # Hitelesítés és session kezelés
-│   └── ConnectionPool # Kapcsolati pool a párhuzamos kérésekhez
-├── DataFetcher        # Adatok lekérdezése
-│   ├── HistoryFetcher # Történelmi adatok lekérdezése
-│   └── LiveFetcher    # Valós idejű adatok gyűjtése
-├── DataProcessor      # Nyers adatok feldolgozása
-│   ├── TimeFrameConverter # Időkeret konverziók
-│   └── DataValidator      # Adatok validálása
-└── DataPersistor      # Adatok tárolása
-    └── StorageAdapter      # Interfész a Storage komponenshez
+3. **Cache Menedzsment**
+   - Gyakori lekérések gyorsítótárazása
+   - Cache invalidáció
+   - Cache szinkronizáció
 
-### Működési diagram
+### Client Oldal
 
-  +-------------------+      +-------------------+      +-------------------+
-  |                   |      |                   |      |                   |
-  | Kapcsolódás MT5   +----->+ Adatok lekérése   +----->+ Adatok validálása |
-  |                   |      |                   |      |                   |
-  +-------------------+      +-------------------+      +--------+----------+
-                                                                |
-                                                                v
-  +-------------------+      +-------------------+      +-------+-----------+
-  |                   |      |                   |      |                   |
-  | Kész adatok       |<-----+ Adatok tárolása   |<-----+ Adatok formázása  |
-  |                   |      |                   |      |                   |
-  +-------------------+      +-------------------+      +-------------------+
+1. **Collector Implementáció**
+   - Adatgyűjtési logika
+   - Hibakezelés és újrapróbálkozás
+   - Adatvalidáció
+   - Storage integráció
+
+2. **Cache Kezelés**
+   - Helyi cache
+   - Cache szinkronizáció a szerverrel
+   - Automatikus invalidáció
+
+3. **Eseménykezelés**
+   - Kapcsolat monitoring
+   - Hibaállapotok kezelése
+   - Metrikák gyűjtése
+
+## Kommunikációs Protokoll
+
+### Üzenet Típusok
+
+```python
+# Kapcsolódási üzenetek
+ConnectRequest(client_id: str, auth_token: str)
+ConnectResponse(session_id: str, status: str)
+
+# Adat üzenetek
+DataRequest(
+    symbol: str,
+    timeframe: str,
+    start_date: datetime,
+    end_date: datetime
+)
+DataResponse(
+    data: DataFrame,
+    metadata: Dict[str, Any]
+)
+
+# Cache üzenetek
+CacheSync(
+    entries: List[CacheEntry],
+    timestamp: datetime
+)
+
+# Állapot üzenetek
+Status(
+    type: str,
+    code: int,
+    message: str
+)
+```
+
+### Hibaállapotok
+
+```python
+class MT5Error(Exception):
+    """Alap kivétel osztály"""
+    pass
+
+class ConnectionError(MT5Error):
+    """Kapcsolódási hibák"""
+    pass
+
+class DataError(MT5Error):
+    """Adat lekérési hibák"""
+    pass
+
+class CacheError(MT5Error):
+    """Cache kezelési hibák"""
+    pass
+```
 
 ## Konfiguráció
 
-Az MT5 Collector a `configs/collectors/mt5.yaml` fájlban konfigurálható. Példa konfiguráció:
-
 ```yaml
-# MT5 Collector konfiguráció
-mt5:
-  # Kapcsolódási beállítások
-  connection:
-    server: "MetaQuotes-Demo"   # Szerver neve
-    login: 12345678             # Felhasználói azonosító
-    password: "password123"     # Jelszó
-    timeout: 60                 # Kapcsolódási időtúllépés (másodperc)
-    max_retries: 3              # Újracsatlakozási próbálkozások
-    retry_delay: 5              # Újrapróbálkozási késleltetés (másodperc)
+# Server konfiguráció
+server:
+  host: "0.0.0.0"
+  port: 8765
+  ssl:
+    enabled: true
+    cert_file: "cert.pem"
+    key_file: "key.pem"
 
-  # Adatgyűjtési beállítások
-  data:
-    use_cache: true             # Cache engedélyezése
-    cache_expiry: 3600          # Cache lejárati ideje (másodperc)
-    validate_data: true         # Adatok validálása
-    chunk_size: 10000           # Adatok lekérése chunk-okban
-    max_candles: 50000          # Maximum lekérhető gyertyák száma
+  # MT5 beállítások
+  mt5:
+    terminals:
+      - name: "main"
+        server: "MetaQuotes-Demo"
+        login: 12345678
+        password: "password123"
+      - name: "backup"
+        server: "MetaQuotes-Demo2"
+        login: 87654321
+        password: "password456"
 
-  # Időkeret beállítások
-  timeframes:
-    M1: 1                       # 1 perc
-    M5: 5                       # 5 perc
-    M15: 15                     # 15 perc
-    M30: 30                     # 30 perc
-    H1: 60                      # 1 óra
-    H4: 240                     # 4 óra
-    D1: 1440                    # 1 nap
-    W1: 10080                   # 1 hét
+    connection:
+      timeout: 60
+      max_retries: 3
+      retry_delay: 5
 
-```
-## API Referencia
+  # Cache beállítások
+  cache:
+    enabled: true
+    max_size: 1000000
+    ttl: 3600
 
-### Nyilvános Metódusok
+# Client konfiguráció
+client:
+  server_url: "ws://localhost:8765"
+  auth_token: "secret_token"
 
-#### async connect() -> bool
+  # Helyi cache
+  cache:
+    enabled: true
+    path: "/tmp/mt5_cache"
+    max_size: 500000
+    sync_interval: 300
 
-Kapcsolódás a MetaTrader 5 platformhoz.
-- Visszatérés: True sikeres kapcsolódás esetén, egyébként False
-- Kivételek: MT5ConnectionError: Ha a kapcsolódás sikertelen
-
-#### async disconnect() -> bool
-
-Kapcsolat bontása a MetaTrader 5 platformmal.
-- Visszatérés: True sikeres kapcsolatbontás esetén, egyébként False
-
-#### is_connected() -> bool
-
-Ellenőrzi a kapcsolat állapotát.
-- Visszatérés: True ha kapcsolódva van, egyébként False
-
-#### async download_data(symbol: str, timeframe: str, start_date: Optional[Union[str, datetime]] = None, end_date: Optional[Union[str, datetime]] = None, max_candles: Optional[int] = None) -> pd.DataFrame
-
-Adatok letöltése a megadott szimbólumhoz és időkerethez.
-
-- Paraméterek:
-    - symbol: Kereskedési szimbólum (pl. "EURUSD")
-    - timeframe: Időkeret (pl. "M1", "H1", "D1")
-    - start_date: Kezdő dátum (opcionális)
-    - end_date: Záró dátum (opcionális)
-    - max_candles: Maximum letöltendő gyertyák száma (opcionális)
-- Visszatérés: DataFrame az OHLCV adatokkal
-- Kivételek:
-    - DataFetchError: Ha az adatok letöltése sikertelen
-    - ValidationError: Ha a letöltött adatok érvénytelenek
-
-#### async get_available_symbols() -> List[str]
-
-Elérhető szimbólumok listájának lekérése.
-
-- Visszatérés: A szimbólumok listája
-- Kivételek: MT5ConnectionError: Ha nincs aktív kapcsolat
-
-#### get_available_timeframes() -> Dict[str, int]
-
-Elérhető időkeretek listájának lekérése.
-
-- Visszatérés: Időkeretek szótára (név -> érték párok)
-
-#### check_data_quality(data: pd.DataFrame) -> Dict[str, Any]
-
-Adatok minőségének ellenőrzése.
-
-- Paraméterek:
-    - data: Ellenőrizendő adatok DataFrame-ben
-- Visszatérés: Minőségi metrikák szótára
-    - gaps: Hiányzó időszakok száma
-    - missing_values: Hiányzó értékek száma
-    - duplicates: Duplikált időpontok száma
-    - consistency: Konzisztencia pontszám (0-100)
-
-## Hibakezelés
-
-Az MT5 Collector a következő kivételosztályokat használja:
-
-- **MT5CollectorError**: Alap kivétel az MT5 Collector komponenshez
-- **MT5ConnectionError**: Kapcsolódási hibák
-- **DataFetchError**: Adatok lekérésével kapcsolatos hibák
-- **ValidationError**: Adat validációs hibák
-- **ConfigurationError**: Konfigurációs hibák
-
-Példa hibakezelésre:
-
-```python
-try:
-    collector = CollectorFactory.get_collector("mt5", config)
-    await collector.connect()
-    data = await collector.download_data("EURUSD", "H1", start_date="2023-01-01")
-except MT5ConnectionError as e:
-    logger.error(f"Kapcsolódási hiba: {e}")
-except DataFetchError as e:
-    logger.error(f"Adatlekérési hiba: {e}")
-finally:
-    if collector.is_connected():
-        await collector.disconnect()
+  # Collector beállítások
+  collector:
+    batch_size: 1000
+    max_retries: 3
+    validate_data: true
 ```
 
-## Használati példák
-
-### Alapvető használat
+## Teljesítmény és Skálázhatóság
 
-```python
-import asyncio
-from neural_ai.core.config import ConfigManagerFactory
-from neural_ai.collectors import CollectorFactory
+### Szerver oldal
 
-async def main():
-    # Konfiguráció betöltése
-    config = ConfigManagerFactory.get_manager("configs/collectors/mt5.yaml")
+1. **Kapcsolat pooling**
+   - MT5 kapcsolatok újrafelhasználása
+   - Kapcsolati erőforrások optimális használata
 
-    # MT5 Collector létrehozása
-    collector = CollectorFactory.get_collector("mt5", config)
+2. **Cache réteg**
+   - Gyakori lekérések gyorsítótárazása
+   - Cache invalidációs stratégia
+   - Memória használat optimalizálás
 
-    try:
-        # Kapcsolódás a platformhoz
-        connected = await collector.connect()
-        if not connected:
-            print("Nem sikerült kapcsolódni az MT5 platformhoz")
-            return
+3. **Terheléselosztás**
+   - Több MT5 terminál párhuzamos használata
+   - Kérések elosztása a terminálok között
+   - Automatikus failover
 
-        # Adatok letöltése
-        data = await collector.download_data(
-            symbol="EURUSD",
-            timeframe="H1",
-            start_date="2023-01-01",
-            end_date="2023-01-31"
-        )
+### Kliens oldal
 
-        print(f"Letöltött adatok: {len(data)} sor")
-        print(data.head())
+1. **Aszinkron műveletek**
+   - Non-blocking I/O műveletek
+   - Párhuzamos adatfeldolgozás
+   - Event loop optimalizáció
 
-        # Adatok minőségének ellenőrzése
-        quality = collector.check_data_quality(data)
-        print(f"Adatminőség: {quality}")
+2. **Batch feldolgozás**
+   - Nagy adatmennyiségek chunk-okban történő kezelése
+   - Memória használat optimalizálás
+   - Progresszív adatbetöltés
 
-    finally:
-        # Kapcsolat bontása
-        if collector.is_connected():
-            await collector.disconnect()
+3. **Helyi cache**
+   - Gyakran használt adatok helyi tárolása
+   - Cache szinkronizáció a szerverrel
+   - Intelligens cache invalidáció
 
-asyncio.run(main())
-```
+## Biztonság
 
-### Több időkeret párhuzamos letöltése
+### Hálózati biztonság
 
-```python
-import asyncio
-from neural_ai.collectors import CollectorFactory
+1. **SSL/TLS titkosítás**
+   - Minden kommunikáció titkosítva
+   - Tanúsítvány alapú autentikáció
+   - Perfect Forward Secrecy
 
-async def download_multiple_timeframes(symbol, timeframes):
-    config = ConfigManagerFactory.get_manager("configs/collectors/mt5.yaml")
-    collector = CollectorFactory.get_collector("mt5", config)
+2. **Kliens autentikáció**
+   - Token alapú autentikáció
+   - Session kezelés
+   - Rate limiting
 
-    await collector.connect()
+### Adat biztonság
 
-    try:
-        tasks = []
-        for timeframe in timeframes:
-            task = asyncio.create_task(
-                collector.download_data(symbol, timeframe)
-            )
-            tasks.append((timeframe, task))
+1. **Szenzitív adatok kezelése**
+   - MT5 hitelesítési adatok titkosítása
+   - Biztonságos konfiguráció tárolás
+   - Memória tisztítás érzékeny adatoknál
 
-        results = {}
-        for timeframe, task in tasks:
-            results[timeframe] = await task
-            print(f"{symbol} {timeframe}: {len(results[timeframe])} sor")
+2. **Adat validáció**
+   - Input validáció minden ponton
+   - Adatintegritás ellenőrzés
+   - Anomália detektálás
 
-        return results
+## Monitoring és Diagnosztika
 
-    finally:
-        await collector.disconnect()
+### Metrikák
 
-# Használat
-timeframes = ["M15", "H1", "H4", "D1"]
-data = asyncio.run(download_multiple_timeframes("EURUSD", timeframes))
-```
+- Kapcsolat állapot
+- Lekérési latency
+- Cache hit/miss arány
+- Memória használat
+- CPU használat
+- Hiba ráta
 
-## Teljesítmény optimalizációk
+### Naplózás
 
-Az MT5 Collector komponens a következő teljesítmény optimalizációkat alkalmazza:
+- Részletes műveleti logok
+- Hiba logok
+- Teljesítmény metrikák
+- Audit logok
 
-1. **Kapcsolat újrahasználata**: A komponens újrahasználja a meglévő kapcsolatokat több adatlekéréshez
-2. **Batch feldolgozás**: Nagy időszakok esetén az adatok kisebb részletekben kerülnek letöltésre
-3. **Adat gyorsítótárazás**: A gyakran használt adatok gyorsítótárban tárolódnak
-4. **Párhuzamos kérések**: Több szimbólum/időkeret párhuzamos lekérdezése
-5. **Optimalizált adatstruktúrák**: A lekért adatok hatékony tárolása és feldolgozása
+## Következő lépések
 
-## Biztonsági szempontok
+1. ### Server komponens implementáció
+   - WebSocket szerver felállítása
+   - MT5 API bridge implementáció
+   - Cache réteg kialakítása
 
-1. **Hitelesítési adatok védelme**: A kapcsolódási adatok biztonságos tárolása
-   - Jelszavak soha nem kerülnek naplózásra
-   - Jelszavak soha nem kerülnek plain text formában tárolásra
+2. ### Client komponens implementáció
+   - Collector logika implementáció
+   - Helyi cache megvalósítás
+   - Storage integráció
 
-2. **Hibaellenőrzés**: Minden bemeneti adat ellenőrzése
-   - Szimbólumok létezésének ellenőrzése
-   - Időkeretek validálása
-   - Dátum paraméterek formátumának ellenőrzése
-
-3. **Korlátozások**: Időbeli és erőforrásbeli korlátozások a túlzott használat elkerülésére
-   - Maximum lekérendő adatmennyiség limitálása
-   - Rate limiting a túl gyakori kérések elkerülésére
-   - Timeout beállítások a végtelen várakozások elkerülésére
-
-4. **Hibakezelés**: Robusztus hibakezelés az adatvesztés megelőzésére
-   - Automatikus újrapróbálkozás ideiglenes hibák esetén
-   - Graceful shutdown kapcsolatvesztés esetén
-
-## Fejlesztési útmutató
-
-### Új funkciók hozzáadása
-
-Az MT5 Collector bővítéséhez:
-
-1. Az `MT5Collector` osztály bővítése a szükséges metódusokkal:
-
-
-2. Egység tesztek írása az új funkciókhoz:
-
-3. Dokumentáció frissítése:
-   - API referencia kibővítése
-   - Használati példák hozzáadása
-   - Belső dokumentáció frissítése
-
-## Teljesítménymérés
-
-Az MT5 Collector teljesítménye mérhető a következő metrikákkal:
-
-1. **Letöltési sebesség**: másodperc/1000 gyertya
-2. **Sikeres/sikertelen kapcsolódások aránya**
-3. **Adatminőség konzisztencia pontszáma**
-4. **Memória- és CPU-használat** nagy adatmennyiségek esetén
-
-## Diagnosztika és hibaelhárítás
-
-### Gyakori problémák és megoldásaik
-
-#### Kapcsolódási hibák:
-
-- **Ellenőrizze a szervernevet és hitelesítési adatokat**
-  - Győződjön meg róla, hogy a szerver neve és a belépési adatok helyesek
-  - Ellenőrizze, hogy a fiók aktív és nem zárolt
-
-- **Ellenőrizze az internet kapcsolatot**
-  - Tesztelje a kapcsolatot a szerverhez más eszközökkel
-  - Ellenőrizze a tűzfal és proxy beállításokat
-
-- **Növelje a timeout értéket sűrűbb hálózati forgalom esetén**
-  - A config fájlban növelje meg a `timeout` értéket
-  - Próbálja meg növelni a `max_retries` értékét
-
-#### Adatletöltési hibák:
-
-- **Ellenőrizze a szimbólum nevét és elérhetőségét**
-  - Használja a `get_available_symbols()` metódust az elérhető szimbólumok listázásához
-  - Ellenőrizze, hogy a kereskedési idő megfelelő-e a kért szimbólumhoz
-
-- **Csökkentse a lekérendő adatmennyiséget**
-  - Használjon szűkebb időintervallumot
-  - Állítsa be a `max_candles` paramétert
-
-- **Használjon kisebb chunk-okat a letöltéshez**
-  - Nagy időszakok esetén használja a fent bemutatott chunk-olási módszert
-
-#### Adatminőségi problémák:
-
-- **Ellenőrizze az időzóna beállításait**
-  - Győződjön meg róla, hogy az időzóna beállítások konzisztensek
-
-- **Használja a `check_data_quality` metódust a problémák azonosítására**
-  - Az eredmények alapján szűrje vagy tisztítsa az adatokat
-
-- **Szűrje ki a duplikált vagy hiányos adatokat**
-  - Alkalmazza a pandas eszközeit a duplikált sorok eltávolítására:
-    ```python
-    data = data.drop_duplicates(subset=['time'])
-    ```
-
-## Tesztelés
-
-Az MT5 Collector komponens tesztelhető a következő módokon:
-
-### Unit tesztek
-
-A komponens funkcióinak izolált tesztelése:
-
-### Integrációs tesztek
-
-A Storage komponenssel együtt történő működés tesztelése:
-
-
-### Szimulált környezet
-
-Mock MT5 API válaszok használata a valós platformtól független teszteléshez:
-
-
-### Teljesítménytesztek
-
-Nagy mennyiségű adat letöltésének tesztelése:
-
-
-## Kapcsolódó komponensek
-
-Az MT5 Collector komponens a következő komponensekkel működik együtt:
-
-- **Storage**: Az MT5 Collector által gyűjtött adatok tárolása
-  - Az adatok a Storage komponensbe kerülnek mentésre cache és perzisztencia céljából
-
-- **Processors**: Az adatok feldolgozása és elemzése
-  - A letöltött nyers adatok a különböző processzorok inputjai lesznek
-
-- **Config Manager**: A komponens konfigurációjának kezelése
-  - A komponens működési paramétereit a Config Manager szolgáltatja
-
-- **Logger**: A komponens működésének naplózása
-  - Minden művelet és hiba naplózásra kerül a Logger komponensen keresztül
+3. ### Tesztelés és optimalizáció
+   - Unit tesztek írása
+   - Integrációs tesztek
+   - Teljesítmény tesztek
+   - Biztonsági audit
