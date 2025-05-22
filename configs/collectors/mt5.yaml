@@ -1,0 +1,29 @@
+# MT5 Collector konfiguráció
+mt5:
+  # Kapcsolódási beállítások
+  connection:
+    server: "MetaQuotes-Demo"   # Szerver neve
+    login: 12345678             # Felhasználói azonosító
+    password: "password123"     # Jelszó
+    timeout: 60                 # Kapcsolódási időtúllépés (másodperc)
+    max_retries: 3              # Újracsatlakozási próbálkozások
+    retry_delay: 5              # Újrapróbálkozási késleltetés (másodperc)
+
+  # Adatgyűjtési beállítások
+  data:
+    use_cache: true             # Cache engedélyezése
+    cache_expiry: 3600          # Cache lejárati ideje (másodperc)
+    validate_data: true         # Adatok validálása
+    chunk_size: 10000           # Adatok lekérése chunk-okban
+    max_candles: 50000          # Maximum lekérhető gyertyák száma
+
+  # Időkeret beállítások
+  timeframes:
+    M1: 1                       # 1 perc
+    M5: 5                       # 5 perc
+    M15: 15                     # 15 perc
+    M30: 30                     # 30 perc
+    H1: 60                      # 1 óra
+    H4: 240                     # 4 óra
+    D1: 1440                    # 1 nap
+    W1: 10080                   # 1 hét
