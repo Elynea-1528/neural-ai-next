@@ -46,10 +46,10 @@ Ez a dokumentum tartalmazza az MT5 adatgyűjtő egyszerűsített megvalósítás
 1. **Fájl alapú** (leg egyszerűbb):
    - EA írja az adatokat CSV fájlba
    - Python olvassa a fájlt
-   
+
 2. **Named Pipe** (közepes komplexitás):
    - Kétirányú kommunikáció
-   
+
 3. **Socket** (legbonyolultabb):
    - TCP/IP kommunikáció localhost-on
 
@@ -65,7 +65,7 @@ class MT5Collector:
     def __init__(self, config):
         self.communicator = EACommunicator(config)
         self.storage = StorageFactory.get_storage(config.get('storage', {}))
-    
+
     async def collect(self, symbol, timeframe, start_date=None, end_date=None):
         # 1. Adatkérés az EA-nak
         # 2. Várakozás a válaszra
@@ -161,14 +161,14 @@ mt5:
     response_file: "/tmp/mt5_response.json"
     timeout: 30
     max_retries: 3
-  
+
   # Adatgyűjtési beállítások
   data:
     use_cache: true
     cache_expiry: 3600
     validate_data: true
     max_candles: 50000
-  
+
   # Időkeret leképezés
   timeframes:
     M1: PERIOD_M1
@@ -210,13 +210,13 @@ void CheckForRequests() {
     if (FileExists(RequestFile)) {
         // Beolvassa a kérést
         string request = ReadFile(RequestFile);
-        
+
         // Feldolgozza a kérést
         string response = ProcessRequest(request);
-        
+
         // Írja a választ
         WriteFile(ResponseFile, response);
-        
+
         // Törli a kérés fájlt
         FileDelete(RequestFile);
     }
@@ -241,13 +241,13 @@ class MT5Collector:
         self.communicator = EACommunicator(config['communication'])
         self.storage = StorageFactory.get_storage(config.get('storage', {}))
         self.logger = LoggerFactory.get_logger(__name__)
-    
+
     async def collect(self, symbol, timeframe, start_date=None, end_date=None):
         try:
             # Ellenőrzi a cache-t
             if self._has_cached_data(symbol, timeframe, start_date, end_date):
                 return self.storage.load_raw_data(symbol, timeframe, start_date, end_date)
-            
+
             # Küldi a kérést az EA-nak
             request_id = await self.communicator.send_request({
                 'action': 'get_data',
@@ -256,18 +256,18 @@ class MT5Collector:
                 'start_date': start_date,
                 'end_date': end_date
             })
-            
+
             # Várakozik a válaszra
             response = await self.communicator.wait_for_response(request_id)
-            
+
             # Validálja az adatokat
             data = self._validate_data(response['data'])
-            
+
             # Elmenti a storage-ba
             await self.storage.save_raw_data(data, symbol, timeframe)
-            
+
             return data
-            
+
         except Exception as e:
             self.logger.error(f"Error collecting data: {e}")
             raise CollectorError(f"Data collection failed: {e}")
@@ -336,6 +336,6 @@ class MT5Collector:
 
 ---
 
-**Dokumentum verzió**: 1.0  
-**Utolsó frissítés**: 2025-12-15  
+**Dokumentum verzió**: 1.0
+**Utolsó frissítés**: 2025-12-15
 **Felelős**: Architect Mode

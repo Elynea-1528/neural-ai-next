@@ -53,9 +53,9 @@ compile_file() {
     local source_file="$1"
     local filename=$(basename "$source_file")
     local extension="${filename##*.}"
-    
+
     echo -e "\n${YELLOW}Compiling: $source_file${NC}"
-    
+
     # Determine output subdirectory based on file type
     case $extension in
         mq5)
@@ -83,18 +83,18 @@ compile_file() {
             return 1
             ;;
     esac
-    
+
     # Compile using MetaEditor through Wine
     wine "$METAEDITOR" /compile:"$source_file" /log > /tmp/mql_compile.log 2>&1
     local compile_result=$?
-    
+
     # Check if compilation was successful by looking for the .ex5 file
     # MT5 sometimes creates the .ex5 in the same directory as the source file
     local source_dir=$(dirname "$source_file")
     local basename_no_ext="${filename%.*}"
     local output_file="$OUTPUT_DIR/$OUTPUT_SUBDIR/$basename_no_ext.ex5"
     local source_dir_ex5="$source_dir/$basename_no_ext.ex5"
-    
+
     # Check multiple possible locations
     if [ -f "$source_dir_ex5" ]; then
         echo -e "${GREEN}  ✓ Compilation successful${NC}"
@@ -125,12 +125,12 @@ copy_to_mt5() {
     local mt5_ea_dir="$MQL_DIR/MQL5/Experts"
     local output_file="$OUTPUT_DIR/Experts/$basename_no_ext.ex5"
     local source_dir_ex5="$source_dir/$basename_no_ext.ex5"
-    
+
     echo -e "${YELLOW}Copying EA to MT5 folder...${NC}"
-    
+
     # Create Experts directory if it doesn't exist
     mkdir -p "$mt5_ea_dir"
-    
+
     # Copy source file (.mq5)
     if cp "$source_file" "$mt5_ea_dir/$filename"; then
         echo -e "${GREEN}✓ Source copied to: $mt5_ea_dir/$filename${NC}"
@@ -138,11 +138,11 @@ copy_to_mt5() {
         echo -e "${RED}✗ Failed to copy source${NC}"
         return 1
     fi
-    
+
     # Find and copy .ex5 file (check source directory first, then output directory)
     local ex5_found=false
     local ex5_source=""
-    
+
     if [ -f "$source_dir_ex5" ]; then
         ex5_source="$source_dir_ex5"
         ex5_found=true
@@ -150,7 +150,7 @@ copy_to_mt5() {
         ex5_source="$output_file"
         ex5_found=true
     fi
-    
+
     if [ "$ex5_found" = true ]; then
         if cp "$ex5_source" "$mt5_ea_dir/$basename_no_ext.ex5"; then
             echo -e "${GREEN}✓ .ex5 copied to: $mt5_ea_dir/$basename_no_ext.ex5${NC}"

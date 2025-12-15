@@ -91,7 +91,7 @@ class MT5Collector:
     def __init__(self, config):
         self.api_client = FastAPIClient(config['server_url'])
         self.storage = StorageFactory.get_storage(config.get('storage', {}))
-    
+
     async def collect(self, symbol, timeframe, start_date=None, end_date=None):
         # 1. Ellenőrzi a cache-t
         # 2. Lekéri az adatokat a FastAPI-tól
@@ -99,10 +99,10 @@ class MT5Collector:
         # 4. Elmenti a storage-ba
         # 5. Visszaadja az adatokat
         pass
-    
+
     async def get_available_symbols(self):
         pass
-    
+
     async def get_available_timeframes(self):
         pass
 ```
@@ -146,7 +146,7 @@ mt5:
     url: "http://localhost:8000"
     timeout: 30
     max_retries: 3
-  
+
   # Adatgyűjtési beállítások
   data:
     use_cache: true
@@ -154,7 +154,7 @@ mt5:
     validate_data: true
     chunk_size: 10000
     max_candles: 50000
-  
+
   # Időkeret leképezés
   timeframes:
     M1: 1
@@ -259,6 +259,6 @@ mt5:
 
 ---
 
-**Dokumentum verzió**: 1.0  
-**Utolsó frissítés**: 2025-12-15  
+**Dokumentum verzió**: 1.0
+**Utolsó frissítés**: 2025-12-15
 **Felelős**: Architect Mode

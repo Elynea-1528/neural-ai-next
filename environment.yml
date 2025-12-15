@@ -4,7 +4,6 @@ channels:
   - nvidia
   - conda-forge
 dependencies:
-  # Conda: kritikus ML csomagok CUDA támogatással
   - python=3.12
   - pytorch=2.5.1
   - pytorch-cuda=12.1
@@ -12,18 +11,17 @@ dependencies:
   - numpy
   - pandas
   - scikit-learn
-
-  # Pip: fejlesztői eszközök (mindig legújabb)
   - pip:
     - vectorbt
     - jupyterlab
-    - ipykernel
     - pytest
-    - pytest-cov
     - black
-    - isort
     - flake8
     - mypy
     - pre-commit
-    - pylint
-    - bandit
+    - fastapi
+    - uvicorn
+    - websockets
+    - httpx
+    - pydantic
+    - python-multipart
