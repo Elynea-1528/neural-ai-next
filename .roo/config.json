@@ -10,6 +10,13 @@
     },
     "language": "hu",
     "mode": {
-        "default": "code"
+        "default": "architect"
+    },
+    "context": {
+        "auto_load_prompts": true,
+        "system_prompts": [
+            ".roo/prompts/main.md",
+            ".roo/prompts/conventions.md"
+        ]
     }
 }

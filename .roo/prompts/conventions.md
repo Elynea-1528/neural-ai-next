@@ -1,4 +1,4 @@
-# GitHub Copilot Instructions
+# Konvenciós instrukciók
 
 ## 1. Válasz formátum
 

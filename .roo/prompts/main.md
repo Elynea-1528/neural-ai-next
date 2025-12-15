@@ -1,4 +1,4 @@
-# Neural AI Next - Core Komponensek Fejlesztési Kontextus
+# Neural AI Next - Core Komponensek Fejlesztési Kontextus   Fő Instrukciók
 
 ## 1. Rendszerszintű Dokumentáció
 - [Rendszer Architektúra](../../docs/architecture/overview.md)
