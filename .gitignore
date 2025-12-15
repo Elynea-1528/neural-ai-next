@@ -52,3 +52,12 @@ config.local.yaml
 # Temporary files
 .DS_Store
 Thumbs.db
+
+# MT5 installation files
+*.exe
+wget-log
+condaenv.*.txt
+
+# Wine/MT5 data (not needed in git)
+.mt5/
+mt5_data/
