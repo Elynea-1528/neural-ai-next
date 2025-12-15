@@ -84,8 +84,8 @@ wine ~/.mt5/drive_c/Program\ Files/MetaTrader\ 5/metaeditor.exe \
 ### 1. Fájl Szerkesztése
 
 ```bash
-# Navigálj az MT5 collector könyvtárba
-cd neural_ai/core/collectors/mt5
+# Navigálj az MT5 experts könyvtárba
+cd neural_ai/experts/mt5
 
 # Szerkeszd az Expert Advisor-t
 code Neural_AI_Next.mq5
@@ -95,7 +95,7 @@ code Neural_AI_Next.mq5
 
 ```bash
 # Projekt gyökérből
-./scripts/compile_mql.sh neural_ai/core/collectors/mt5/Neural_AI_Next.mq5
+./scripts/compile_mql.sh neural_ai/experts/mt5/Neural_AI_Next.mq5
 ```
 
 ### 3. Kimenet Ellenőrzése
@@ -121,7 +121,7 @@ ls -la ~/.mt5/drive_c/Users/Public/Documents/MetaTrader\ 5/MQL5/Experts/
 
 ```
 Projekt könyvtár:
-  neural_ai/core/collectors/mt5/Neural_AI_Next.mq5
+  neural_ai/experts/mt5/Neural_AI_Next.mq5
 
 MT5 könyvtár:
   ~/.mt5/drive_c/Program Files/MetaTrader 5/MQL5/Experts/Neural_AI_Next.mq5
@@ -260,12 +260,15 @@ Miután a fordítás működik:
 ## 🔍 Projektstruktúra
 
 ```
-neural_ai/core/collectors/
-├── mt5/                          # MT5 specifikus kollektor
-│   ├── Neural_AI_Next.mq5        # Expert Advisor forráskód
-│   ├── Neural_AI_Next.ex5        # Fordított EA (generálva)
-│   └── __init__.py              # Python csomag inicializálás
-└── __init__.py                   # Collector csomag inicializálás
+neural_ai/
+├── experts/                      # Expert Advisorok
+│   └── mt5/                     # MT5 specifikus EA-k
+│       ├── Neural_AI_Next.mq5   # Expert Advisor forráskód
+│       ├── Neural_AI_Next.ex5   # Fordított EA (generálva)
+│       └── README.md            # Dokumentáció
+└── collectors/                   # Adatgyűjtők (jövőbeli)
+    └── mt5/                     # MT5 kollektor komponens
+        └── __init__.py         # Python csomag inicializálás
 ```
 
 **Megjegyzés:** A projekt jelenleg csak MT5-öt használ, így nincs szükség külön metatrader almappára. Ha később más forrásokat (pl. MT4, TradingView) is hozzáadunk, akkor érdemes lehet átszervezni a struktúrát.
