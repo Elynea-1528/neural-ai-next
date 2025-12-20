@@ -1,24 +1,26 @@
 """Konfiguráció kezelő factory implementáció."""
 
 from pathlib import Path
-from typing import Dict, Optional, Type, Union
+from typing import Any
 
 from neural_ai.core.config.exceptions import ConfigLoadError
 from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-from neural_ai.core.config.interfaces.factory_interface import ConfigManagerFactoryInterface
+from neural_ai.core.config.interfaces.factory_interface import (
+    ConfigManagerFactoryInterface,
+)
 
 
 class ConfigManagerFactory(ConfigManagerFactoryInterface):
     """Factory osztály konfiguráció kezelők létrehozásához."""
 
-    _manager_types: Dict[str, Type[ConfigManagerInterface]] = {
+    _manager_types: dict[str, type[ConfigManagerInterface]] = {
         ".yml": YAMLConfigManager,
         ".yaml": YAMLConfigManager,
     }
 
     @classmethod
-    def register_manager(cls, extension: str, manager_class: Type[ConfigManagerInterface]) -> None:
+    def register_manager(cls, extension: str, manager_class: type[ConfigManagerInterface]) -> None:
         """Új konfiguráció kezelő típus regisztrálása.
 
         Args:
@@ -31,7 +33,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
 
     @classmethod
     def get_manager(
-        cls, filename: Union[str, Path], manager_type: Optional[str] = None
+        cls, filename: str | Path, manager_type: str | None = None
     ) -> ConfigManagerInterface:
         """Megfelelő konfiguráció kezelő létrehozása.
 
@@ -56,7 +58,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
             raise ConfigLoadError(f"Ismeretlen konfig kezelő típus: {manager_type}")
 
         # Fájl kiterjesztés alapján
-        _, ext = Path(filename_str).suffix.lower(), Path(filename_str).suffix
+        ext = Path(filename_str).suffix.lower()
         if ext in cls._manager_types:
             manager_class = cls._manager_types[ext]
             return manager_class(filename=filename_str)
@@ -78,3 +80,28 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
             list[str]: A támogatott kiterjesztések listája
         """
         return list(cls._manager_types.keys())
+
+    @classmethod
+    def create_manager(cls, manager_type: str, *args: Any, **kwargs: Any) -> ConfigManagerInterface:
+        """Konfiguráció kezelő létrehozása típus alapján.
+
+        Args:
+            manager_type: A kért kezelő típus
+            *args: Pozícionális paraméterek
+            **kwargs: Kulcsszavas paraméterek
+
+        Returns:
+            ConfigManagerInterface: A létrehozott kezelő
+
+        Raises:
+            ConfigLoadError: Ha nem található megfelelő kezelő
+        """
+        # Normalize the manager type
+        if not manager_type.startswith("."):
+            manager_type = f".{manager_type}"
+
+        if manager_type in cls._manager_types:
+            manager_class = cls._manager_types[manager_type]
+            return manager_class(*args, **kwargs)
+
+        raise ConfigLoadError(f"Ismeretlen konfig kezelő típus: {manager_type}")

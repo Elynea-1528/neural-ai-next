@@ -2,7 +2,7 @@
 
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 from neural_ai.core.base.container import DIContainer
 from neural_ai.core.base.exceptions import (
@@ -24,24 +24,22 @@ if TYPE_CHECKING:
 
 
 class CoreComponentFactory(metaclass=SingletonMeta):
-    """Factory for creating core components with lazy loading."""
+    """Core komponensek létrehozásáért felelős factory lazy loadinggel."""
 
     def __init__(self, container: DIContainer):
-        """Initialize the factory with lazy-loaded dependencies."""
+        """Inicializálja a factory-t lazy-loaded függőségekkel."""
         self._container = container
         self._logger_loader = LazyLoader(self._get_logger)
         self._config_loader = LazyLoader(self._get_config_manager)
         self._storage_loader = LazyLoader(self._get_storage)
 
     def _get_logger(self) -> LoggerInterface:
-        """Lazy load the logger."""
+        """Lazy loadinggel tölti be a logger komponenst."""
         logger = self._container.resolve(LoggerInterface)
         if logger is not None:
-            assert isinstance(logger, LoggerInterface), (
-                "Logger must implement LoggerInterface"
-            )
+            assert isinstance(logger, LoggerInterface), "Logger must implement LoggerInterface"
             return logger
-        
+
         # Fallback to default logger
         from neural_ai.core.logger.implementations.default_logger import (
             DefaultLogger,
@@ -50,45 +48,43 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         return DefaultLogger(name="CoreComponentFactory")
 
     def _get_config_manager(self) -> ConfigManagerInterface:
-        """Lazy load the config manager."""
+        """Lazy loadinggel tölti be a config manager komponenst."""
         config_manager = self._container.resolve(ConfigManagerInterface)
         if config_manager is not None:
             assert isinstance(config_manager, ConfigManagerInterface), (
                 "ConfigManager must implement ConfigManagerInterface"
             )
             return config_manager
-        
+
         raise DependencyError("ConfigManager not available")
 
     def _get_storage(self) -> StorageInterface:
-        """Lazy load the storage."""
+        """Lazy loadinggel tölti be a storage komponenst."""
         storage = self._container.resolve(StorageInterface)
         if storage is not None:
-            assert isinstance(storage, StorageInterface), (
-                "Storage must implement StorageInterface"
-            )
+            assert isinstance(storage, StorageInterface), "Storage must implement StorageInterface"
             return storage
-        
+
         raise DependencyError("Storage not available")
 
     @property
     def logger(self) -> LoggerInterface:
-        """Get the logger instance (lazy-loaded)."""
+        """Visszaadja a logger példányt (lazy-loaded)."""
         return self._logger_loader()
 
     @property
     def config_manager(self) -> ConfigManagerInterface:
-        """Get the config manager instance (lazy-loaded)."""
+        """Visszaadja a config manager példányt (lazy-loaded)."""
         return self._config_loader()
 
     @property
     def storage(self) -> StorageInterface:
-        """Get the storage instance (lazy-loaded)."""
+        """Visszaadja a storage példányt (lazy-loaded)."""
         return self._storage_loader()
 
     @lazy_property
-    def _expensive_config(self) -> Dict[str, Any]:
-        """Lazy load expensive configuration."""
+    def _expensive_config(self) -> dict[str, Any]:
+        """Lazy loadinggel tölti be a drága konfigurációt."""
         # This will only be computed once when first accessed
         config = self.config_manager.get()
         # Perform expensive processing
@@ -96,23 +92,23 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         return self._process_config(config)
 
     @lazy_property
-    def _component_cache(self) -> Dict[str, Any]:
-        """Lazy load component cache."""
+    def _component_cache(self) -> dict[str, Any]:
+        """Lazy loadinggel tölti be a komponens gyorsítótárát."""
         # This will only be computed once when first accessed
         return self._load_component_cache()
 
-    def _process_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
-        """Process configuration (simulated expensive operation)."""
+    def _process_config(self, config: dict[str, Any]) -> dict[str, Any]:
+        """Feldolgozza a konfigurációt (szimulált drága művelet)."""
         # Add processing logic here
         return config
 
-    def _load_component_cache(self) -> Dict[str, Any]:
-        """Load component cache (simulated expensive operation)."""
+    def _load_component_cache(self) -> dict[str, Any]:
+        """Betölti a komponens gyorsítótárát (szimulált drága művelet)."""
         # Add cache loading logic here
         return {}
 
     def reset_lazy_loaders(self) -> None:
-        """Reset all lazy loaders (useful for testing)."""
+        """Visszaállítja az összes lazy loadert (hasznos teszteléshez)."""
         self._logger_loader.reset()
         self._config_loader.reset()
         self._storage_loader.reset()
@@ -123,9 +119,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
                 delattr(self, attr_name)
 
     @staticmethod
-    def _validate_dependencies(
-        component_type: str, config: Optional[Dict[str, Any]] = None
-    ) -> None:
+    def _validate_dependencies(component_type: str, config: dict[str, Any] | None = None) -> None:
         """Validate that all required dependencies are available.
 
         Args:
@@ -154,7 +148,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         if config_manager is None:
             raise DependencyError(
                 f"ConfigManager not initialized. Required for {component_type}. "
-                "Call container.register_instance(ConfigManagerInterface, config_manager_instance) first."
+                "Call container.register_instance(ConfigManagerInterface, config_manager_instance) "
             )
 
         # Type-specific validations
@@ -184,7 +178,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             # Check if config file path is provided
             if not config.get("config_file_path"):
                 raise ConfigurationError(
-                    "Config file path not configured. Provide 'config_file_path' in config dictionary."
+                    "Config file path not configured. Provide 'config_file_path' in config dict."
                 )
 
             # Check if config file exists
@@ -194,24 +188,25 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
     @staticmethod
     def create_components(
-        config_path: Optional[Union[str, Path]] = None,
-        log_path: Optional[Union[str, Path]] = None,
-        storage_path: Optional[Union[str, Path]] = None,
+        config_path: str | Path | None = None,
+        log_path: str | Path | None = None,
+        storage_path: str | Path | None = None,
     ) -> "CoreComponents":
         """Core komponensek létrehozása és inicializálása."""
         from neural_ai.core.base.core_components import CoreComponents
+
         container = DIContainer()
 
         # 1. Config komponens létrehozása
-        config: Optional[ConfigManagerInterface] = None
+        config: ConfigManagerInterface | None = None
         if config_path:
             config = ConfigManagerFactory.get_manager(str(config_path))
             container.register_instance(ConfigManagerInterface, config)
 
         # 2. Logger komponens létrehozása
-        logger: Optional[LoggerInterface] = None
+        logger: LoggerInterface | None = None
         if config or log_path:
-            log_config: Dict[str, Any] = {}
+            log_config: dict[str, Any] = {}
             if log_path:
                 log_config["log_file"] = str(log_path)
             if config:
@@ -223,7 +218,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             container.register_instance(LoggerInterface, logger)
 
         # 3. Storage komponens létrehozása a konfiggal és loggerrel
-        storage: Optional[StorageInterface] = None
+        storage: StorageInterface | None = None
         if storage_path:
             from neural_ai.core.storage.implementations.file_storage import FileStorage
 
@@ -244,14 +239,16 @@ class CoreComponentFactory(metaclass=SingletonMeta):
     def create_with_container(container: DIContainer) -> "CoreComponents":
         """Core komponensek létrehozása meglévő konténerből."""
         from neural_ai.core.base.core_components import CoreComponents
+
         return CoreComponents(container=container)
 
     @staticmethod
     def create_minimal() -> "CoreComponents":
         """Minimális core komponens készlet létrehozása."""
         from neural_ai.core.base.core_components import CoreComponents
+
         config = None
-        log_config: Dict[str, Any] = {}
+        log_config: dict[str, Any] = {}
 
         try:
             config = ConfigManagerFactory.get_manager("config.yml")
@@ -282,21 +279,19 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         return CoreComponents(container=container)
 
     @staticmethod
-    def create_logger(
-        name: str, config: Optional[Dict[str, Any]] = None
-    ) -> LoggerInterface:
-        """Create a logger instance.
+    def create_logger(name: str, config: dict[str, Any] | None = None) -> LoggerInterface:
+        """Létrehoz egy logger példányt.
 
         Args:
-            name: The name of the logger
-            config: Configuration dictionary
+            name: A logger neve
+            config: Konfigurációs dictionary
 
         Returns:
-            LoggerInterface: The created logger instance
+            LoggerInterface: A létrehozott logger példány
 
         Raises:
-            ConfigurationError: If configuration is invalid
-            DependencyError: If required dependencies are missing
+            ConfigurationError: Ha a konfiguráció érvénytelen
+            DependencyError: Ha szükséges függőségek hiányoznak
         """
         config = config or {}
         config["name"] = name
@@ -309,20 +304,20 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
     @staticmethod
     def create_config_manager(
-        config_file_path: str, config: Optional[Dict[str, Any]] = None
+        config_file_path: str, config: dict[str, Any] | None = None
     ) -> ConfigManagerInterface:
-        """Create a config manager instance.
+        """Létrehoz egy config manager példányt.
 
         Args:
-            config_file_path: Path to the configuration file
-            config: Configuration dictionary
+            config_file_path: A konfigurációs fájl elérési útja
+            config: Konfigurációs dictionary
 
         Returns:
-            ConfigManagerInterface: The created config manager instance
+            ConfigManagerInterface: A létrehozott config manager példány
 
         Raises:
-            ConfigurationError: If configuration is invalid
-            DependencyError: If required dependencies are missing
+            ConfigurationError: Ha a konfiguráció érvénytelen
+            DependencyError: Ha szükséges függőségek hiányoznak
         """
         config = config or {}
         config["config_file_path"] = config_file_path
@@ -335,20 +330,20 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
     @staticmethod
     def create_storage(
-        base_directory: str, config: Optional[Dict[str, Any]] = None
+        base_directory: str, config: dict[str, Any] | None = None
     ) -> StorageInterface:
-        """Create a storage instance.
+        """Létrehoz egy storage példányt.
 
         Args:
-            base_directory: The base directory for storage
-            config: Configuration dictionary
+            base_directory: A tároló alapkönyvtára
+            config: Konfigurációs dictionary
 
         Returns:
-            StorageInterface: The created storage instance
+            StorageInterface: A létrehozott storage példány
 
         Raises:
-            ConfigurationError: If configuration is invalid
-            DependencyError: If required dependencies are missing
+            ConfigurationError: Ha a konfiguráció érvénytelen
+            DependencyError: Ha szükséges függőségek hiányoznak
         """
         config = config or {}
         config["base_directory"] = base_directory

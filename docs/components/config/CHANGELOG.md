@@ -5,6 +5,19 @@ Minden jelentős változás ebben a fájlban kerül dokumentálásra.
 A formátum a [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) alapján készült,
 és a projekt a [Semantic Versioning](https://semver.org/spec/v2.0.0.html) elveit követi.
 
+## [0.2.1] - 2025-12-20
+
+### Javítva
+- Kritikus logikai hiba a `get_manager` metódusban (61. sor)
+  - A `Path.suffix` metódus dupla hívása és hibás értékadás javítva
+  - A kiterjesztés helyes kisbetűsítése biztosítva
+- Dokumentáció frissítve a `get_manager` metódus aktuális szignatúrájához
+
+### Tesztelés
+- Minden teszt sikeresen lefut (8/8)
+- 100% tesztlefedettség biztosítva
+- Ruff és MyPy ellenőrzések sikeresek
+
 ## [0.2.0] - 2025-04-18
 
 ### Változások

@@ -157,16 +157,19 @@ Konfigurációkezelő példányok létrehozása és kezelése.
 
 ```python
 class ConfigManagerFactory(ConfigManagerFactoryInterface):
-    @staticmethod
-    def get_manager(filename: str, **kwargs: Any) -> ConfigManagerInterface:
+    @classmethod
+    def get_manager(cls, filename: str | Path, manager_type: str | None = None) -> ConfigManagerInterface:
         """Manager példány létrehozása fájl alapján.
 
         Args:
-            filename: Konfig fájl neve
-            **kwargs: Extra paraméterek a managernek
+            filename: Konfigurációs fájl neve vagy Path objektum
+            manager_type: Opcionális kezelő típus megadásához
 
         Returns:
             ConfigManagerInterface: A megfelelő manager példány
+
+        Raises:
+            ConfigLoadError: Ha nem található megfelelő kezelő
         """
         pass
 ```

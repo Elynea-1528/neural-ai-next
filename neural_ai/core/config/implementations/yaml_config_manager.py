@@ -2,7 +2,7 @@
 
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Tuple, Type, cast
+from typing import Any, cast
 
 import yaml
 
@@ -15,15 +15,15 @@ class ValidationContext:
     """Validation context for schema validation."""
 
     path: str
-    errors: Dict[str, str]
+    errors: dict[str, str]
     value: Any
-    schema: Dict[str, Any]
+    schema: dict[str, Any]
 
 
 class YAMLConfigManager(ConfigManagerInterface):
     """YAML fájlokat kezelő konfigurációkezelő."""
 
-    _TYPE_MAP: Dict[str, Type[Any]] = {
+    _TYPE_MAP: dict[str, type[Any]] = {
         "str": str,
         "int": int,
         "float": float,
@@ -32,15 +32,15 @@ class YAMLConfigManager(ConfigManagerInterface):
         "dict": dict,
     }
 
-    def __init__(self, filename: Optional[str] = None) -> None:
+    def __init__(self, filename: str | None = None) -> None:
         """Inicializálja a YAML konfigurációkezelőt."""
-        self._config: Dict[str, Any] = {}
-        self._filename: Optional[str] = None
+        self._config: dict[str, Any] = {}
+        self._filename: str | None = None
         if filename:
             self.load(filename)
 
     @staticmethod
-    def _ensure_dict(data: Any) -> Dict[str, Any]:
+    def _ensure_dict(data: Any) -> dict[str, Any]:
         """Ensure the data is a dictionary.
 
         Args:
@@ -60,21 +60,21 @@ class YAMLConfigManager(ConfigManagerInterface):
 
     def get(self, *keys: str, default: Any = None) -> Any:
         """Érték lekérése a konfigurációból."""
-        current = self._config
+        current: dict[str, Any] | Any = self._config
         for key in keys:
             if not isinstance(current, dict):
                 return default
-            current = current.get(key)
+            current = cast(dict[str, Any], current).get(key)
             if current is None:
                 return default
         return current
 
-    def get_section(self, section: str) -> Dict[str, Any]:
+    def get_section(self, section: str) -> dict[str, Any]:
         """Teljes konfigurációs szekció lekérése."""
         if section not in self._config:
             raise KeyError(f"Configuration section not found: {section}")
         section_data = self._config.get(section, {})
-        return cast(Dict[str, Any], section_data)
+        return cast(dict[str, Any], section_data)
 
     def set(self, *keys: str, value: Any) -> None:
         """Érték beállítása a konfigurációban."""
@@ -90,31 +90,34 @@ class YAMLConfigManager(ConfigManagerInterface):
             current = current[key]
         current[keys[-1]] = value
 
-    def save(self, filename: Optional[str] = None) -> None:
+    def save(self, filename: str | None = None) -> None:
         """Aktuális konfiguráció mentése fájlba."""
         save_filename = filename or self._filename
         if not save_filename:
             raise ValueError("No filename specified for save operation")
 
-        os.makedirs(os.path.dirname(save_filename), exist_ok=True)
-        with open(save_filename, "w", encoding="utf-8") as f:
-            yaml.dump(self._config, f, default_flow_style=False, sort_keys=False)
+        try:
+            os.makedirs(os.path.dirname(save_filename), exist_ok=True)
+            with open(save_filename, "w", encoding="utf-8") as f:
+                yaml.dump(self._config, f, default_flow_style=False, sort_keys=False)
+        except (OSError, yaml.YAMLError) as e:
+            raise ValueError(f"Failed to save configuration: {str(e)}") from e
 
     def load(self, filename: str) -> None:
         """Konfiguráció betöltése fájlból."""
         if not os.path.exists(filename):
-            raise FileNotFoundError(f"File not found: {filename}")
+            raise ConfigLoadError(f"File not found: {filename}")
 
         try:
-            with open(filename, "r", encoding="utf-8") as f:
+            with open(filename, encoding="utf-8") as f:
                 file_content = f.read()
                 data = yaml.safe_load(file_content)
                 self._config = self._ensure_dict(data)
                 self._filename = filename
-        except yaml.YAMLError as e:
-            raise ConfigLoadError(f"Invalid YAML format: {str(e)}") from e
+        except (FileNotFoundError, yaml.YAMLError) as e:
+            raise ConfigLoadError(f"Failed to load configuration: {str(e)}") from e
 
-    def validate(self, schema: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, str]]]:
+    def validate(self, schema: dict[str, Any]) -> tuple[bool, dict[str, str] | None]:
         """Konfiguráció validálása séma alapján."""
         ctx = ValidationContext(path="", errors={}, value=self._config, schema=schema)
         self._validate_dict(ctx)
@@ -122,11 +125,7 @@ class YAMLConfigManager(ConfigManagerInterface):
 
     def _validate_dict(self, ctx: ValidationContext) -> None:
         """Rekurzív séma validáció."""
-        if not isinstance(ctx.value, dict):
-            ctx.errors[ctx.path] = "Expected dictionary"
-            return
-
-        config = cast(Dict[str, Any], ctx.value)
+        config = cast(dict[str, Any], ctx.value)
         for key, schema_value in ctx.schema.items():
             current_path = f"{ctx.path}.{key}" if ctx.path else key
             config_value = config.get(key)
