@@ -3,12 +3,14 @@
 import logging
 import shutil
 import time
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 import pytest
 
-from neural_ai.core.logger.implementations.rotating_file_logger import RotatingFileLogger
+from neural_ai.core.logger.implementations.rotating_file_logger import (
+    RotatingFileLogger,
+)
 
 
 @pytest.fixture
@@ -94,7 +96,7 @@ class TestRotatingFileLogger:
         )
 
         # Több rotáció kiváltása
-        for i in range(5):
+        for _i in range(5):
             logger.info("x" * 100)
             # Kényszerített flush minden üzenet után
             for handler in logger.logger.handlers:
@@ -133,7 +135,7 @@ class TestRotatingFileLogger:
             handler.flush()
 
         # Ellenőrizzük a log fájl tartalmát
-        with open(log_file, "r", encoding="utf-8") as f:
+        with open(log_file, encoding="utf-8") as f:
             content = f.read()
             for message in test_messages.values():
                 assert message in content

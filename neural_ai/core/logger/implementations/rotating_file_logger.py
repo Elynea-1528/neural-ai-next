@@ -5,7 +5,7 @@ import os
 import shutil
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
@@ -137,7 +137,7 @@ class RotatingFileLogger(LoggerInterface):
         return self.logger.level
 
     @staticmethod
-    def clean_old_logs(log_dir: Union[str, Path]) -> None:
+    def clean_old_logs(log_dir: str | Path) -> None:
         """Régi log fájlok eltávolítása.
 
         Args:

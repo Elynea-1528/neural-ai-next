@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Historical Data Collection Script
+"""Historical Data Collection Script.
 ==================================
 
 Ez a script lehetővé teszi a historikus adatgyűjtés indítását

@@ -7,12 +7,12 @@ Ez jelentősen javítja az alkalmazás indítási idejét és a memóriahasznál
 
 import threading
 from collections.abc import Callable
-from typing import Generic, TypeVar, cast
+from typing import TypeVar, cast
 
 T = TypeVar("T")
 
 
-class LazyLoader(Generic[T]):
+class LazyLoader[T]:
     """Drága erőforrások lustatöltője.
 
     Ez az osztály lehetővé teszi, hogy a drága erőforrások (pl. konfigurációk,
@@ -83,7 +83,7 @@ class LazyLoader(Generic[T]):
             self._value = None
 
 
-def lazy_property(func: Callable[..., T]) -> property:
+def lazy_property[T](func: Callable[..., T]) -> property:
     """Dekorátor lustatöltésű property-k létrehozásához.
 
     Ez a dekorátor egy olyan property-t hoz létre, amelynek értéke csak

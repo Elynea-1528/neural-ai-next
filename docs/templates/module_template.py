@@ -3,14 +3,16 @@
 import logging
 import os  # noqa: F401 - Sablon részeként szerepel
 import sys  # noqa: F401 - Sablon részeként szerepel
-from typing import Any, Dict, List, Optional, Union  # noqa: F401 - Sablon részeként szerepel
+from typing import (
+    Any,
+)
 
 import numpy as np  # noqa: F401 - Sablon részeként szerepel
 import pandas as pd
 
 # Projekt modulok
 from neural_ai.core.config import ConfigManagerFactory
-from neural_ai.core.logger import LoggerInterface
+from neural_ai.core.logger import LoggerFactory, LoggerInterface
 
 # Konstansok
 DEFAULT_VALUE = 1000
@@ -20,9 +22,8 @@ CONFIG_PATH = "configs/default.yaml"
 logger = LoggerFactory.get_logger(__name__)
 
 
-def main_function(param1: str, param2: Optional[int] = None) -> Dict[str, Any]:
-    """
-    Modul fő funkcionalitása.
+def main_function(param1: str, param2: int | None = None) -> dict[str, Any]:
+    """Modul fő funkcionalitása.
 
     Részletes leírás a funkcióról és működéséről.
 
@@ -59,8 +60,7 @@ def main_function(param1: str, param2: Optional[int] = None) -> Dict[str, Any]:
 
 
 def process_parameter(param1: str, param2: int) -> Any:
-    """
-    Segédfüggvény a paraméterek feldolgozásához.
+    """Segédfüggvény a paraméterek feldolgozásához.
 
     Args:
         param1: Feldolgozandó első paraméter
@@ -74,15 +74,13 @@ def process_parameter(param1: str, param2: int) -> Any:
 
 
 class ModuleHelper:
-    """
-    Segédosztály a modul funkcionalitásához.
+    """Segédosztály a modul funkcionalitásához.
 
     Részletes leírás az osztály céljáról és használatáról.
     """
 
-    def __init__(self, config: Dict[str, Any]):
-        """
-        Inicializálja a segédosztályt.
+    def __init__(self, config: dict[str, Any]):
+        """Inicializálja a segédosztályt.
 
         Args:
             config: Konfiguráció
@@ -92,8 +90,7 @@ class ModuleHelper:
         self.logger.debug(f"ModuleHelper initialized with config: {config}")
 
     def helper_method(self, data: Any) -> Any:
-        """
-        Segédmetódus.
+        """Segédmetódus.
 
         Args:
             data: Bemeneti adatok
@@ -108,9 +105,8 @@ class ModuleHelper:
 class ModuleTemplate:
     """Template osztály modulokhoz."""
 
-    def __init__(self, config: Dict[str, Any], logger: LoggerInterface = None):
-        """
-        ModuleTemplate inicializálása.
+    def __init__(self, config: dict[str, Any], logger: LoggerInterface = None):
+        """ModuleTemplate inicializálása.
 
         Args:
             config: Modul konfigurációja
@@ -121,8 +117,7 @@ class ModuleTemplate:
         self.logger.info("ModuleTemplate inicializálva")
 
     def process(self, data: pd.DataFrame) -> pd.DataFrame:
-        """
-        Adatfeldolgozás.
+        """Adatfeldolgozás.
 
         Args:
             data: Bemeneti adatok

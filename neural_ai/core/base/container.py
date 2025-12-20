@@ -4,12 +4,10 @@ import logging
 import sys
 import threading
 import warnings
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
-from neural_ai.core.base.exceptions import (
-    ComponentNotFoundError,
-    SingletonViolationError,
-)
+from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
 
 T = TypeVar("T")
 InterfaceT = TypeVar("InterfaceT")
@@ -30,7 +28,7 @@ class LazyComponent:
             factory_func: A komponens létrehozásához használt factory függvény
         """
         self._factory_func = factory_func
-        self._instance: Optional[Any] = None
+        self._instance: Any | None = None
         self._loaded: bool = False
         self._lock = threading.RLock()
 
@@ -65,9 +63,9 @@ class DIContainer:
 
     def __init__(self) -> None:
         """Konténer inicializálása."""
-        self._instances: Dict[Any, Any] = {}
-        self._factories: Dict[Any, Any] = {}
-        self._lazy_components: Dict[str, LazyComponent] = {}
+        self._instances: dict[Any, Any] = {}
+        self._factories: dict[Any, Any] = {}
+        self._lazy_components: dict[str, LazyComponent] = {}
         self._logger = logging.getLogger(__name__)
 
     def register_instance(self, interface: Any, instance: Any) -> None:
@@ -88,7 +86,7 @@ class DIContainer:
         """
         self._factories[interface] = factory
 
-    def resolve(self, interface: Any) -> Optional[Any]:
+    def resolve(self, interface: Any) -> Any | None:
         """Resolve a dependency.
 
         Args:
@@ -112,9 +110,7 @@ class DIContainer:
 
         return None
 
-    def register_lazy(
-        self, component_name: str, factory_func: Callable[[], Any]
-    ) -> None:
+    def register_lazy(self, component_name: str, factory_func: Callable[[], Any]) -> None:
         """Register a lazy-loaded component.
 
         Args:
@@ -170,19 +166,16 @@ class DIContainer:
 
         raise ComponentNotFoundError(f"Component '{component_name}' not found")
 
-    def get_lazy_components(self) -> Dict[str, bool]:
+    def get_lazy_components(self) -> dict[str, bool]:
         """Get status of all lazy components.
 
         Returns:
             A dictionary where keys are component names and values
             indicate whether the component has been loaded
         """
-        return {
-            name: component.is_loaded
-            for name, component in self._lazy_components.items()
-        }
+        return {name: component.is_loaded for name, component in self._lazy_components.items()}
 
-    def preload_components(self, component_names: List[str]) -> None:
+    def preload_components(self, component_names: list[str]) -> None:
         """Preload specific components.
 
         Args:
@@ -280,9 +273,9 @@ class DIContainer:
         # Note: In a real implementation, you would log this action
         # For example: self._logger.info(f"Registered component: {component_name}")
 
-    def get_memory_usage(self) -> Dict[str, Any]:
+    def get_memory_usage(self) -> dict[str, Any]:
         """Get memory usage statistics."""
-        stats: Dict[str, Any] = {
+        stats: dict[str, Any] = {
             "total_instances": len(self._instances),
             "lazy_components": len(self._lazy_components),
             "loaded_lazy_components": sum(1 for c in self._lazy_components.values() if c.is_loaded),

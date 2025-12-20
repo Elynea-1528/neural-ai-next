@@ -5,7 +5,6 @@
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Dict
 
 import pandas as pd
 import pytest
@@ -63,7 +62,7 @@ def test_save_load_object_json_with_options(storage: FileStorage, test_dir: Path
     assert data == loaded_data
 
     # Ellenőrizzük a formázást
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         content = f.read()
     assert "  " in content  # Van behúzás
 
@@ -169,7 +168,7 @@ def test_get_metadata(storage: FileStorage, test_dir: Path) -> None:
         f.write(content)
 
     metadata = storage.get_metadata(str(path))
-    assert isinstance(metadata, Dict)
+    assert isinstance(metadata, dict)
     assert metadata["size"] == len(content)
     assert isinstance(metadata["created"], datetime)
     assert isinstance(metadata["modified"], datetime)
@@ -184,7 +183,7 @@ def test_get_dir_metadata(storage: FileStorage, test_dir: Path) -> None:
     subdir.mkdir()
 
     metadata = storage.get_metadata(str(subdir))
-    assert isinstance(metadata, Dict)
+    assert isinstance(metadata, dict)
     assert metadata["is_file"] is False
     assert metadata["is_dir"] is True
 
@@ -229,7 +228,7 @@ def test_list_dir(storage: FileStorage, test_dir: Path) -> None:
     files = ["file1.txt", "file2.txt"]
     _create_files(test_dir, files)
     listed_files = storage.list_dir(str(test_dir))
-    assert set(f.name for f in listed_files) == set(files)
+    assert {f.name for f in listed_files} == set(files)
 
 
 def test_list_dir_with_pattern(storage: FileStorage, test_dir: Path) -> None:
@@ -237,7 +236,7 @@ def test_list_dir_with_pattern(storage: FileStorage, test_dir: Path) -> None:
     files = ["test1.txt", "test2.txt", "other.txt"]
     _create_files(test_dir, files)
     listed_files = storage.list_dir(str(test_dir), pattern="test*.txt")
-    assert set(f.name for f in listed_files) == {"test1.txt", "test2.txt"}
+    assert {f.name for f in listed_files} == {"test1.txt", "test2.txt"}
 
 
 def test_list_dir_with_subdir(storage: FileStorage, test_dir: Path) -> None:
@@ -248,7 +247,7 @@ def test_list_dir_with_subdir(storage: FileStorage, test_dir: Path) -> None:
     (subdir / "file3.txt").touch()
     _create_files(test_dir, files)
     listed_files = storage.list_dir(str(test_dir))
-    assert set(f.name for f in listed_files) == set(files + ["subdir"])
+    assert {f.name for f in listed_files} == set(files + ["subdir"])
 
 
 def test_list_nonexistent_dir(storage: FileStorage, test_dir: Path) -> None:
@@ -312,7 +311,12 @@ def test_complex_dataframe_types(storage: FileStorage, test_dir: Path) -> None:
 
 def test_unicode_handling(storage: FileStorage, test_dir: Path) -> None:
     """Teszteli Unicode karakterek kezelését."""
-    text_data = {"english": "hello", "hungarian": "áéíóöőúüű", "chinese": "你好", "emoji": "👋🌍"}
+    text_data = {
+        "english": "hello",
+        "hungarian": "áéíóöőúüű",
+        "chinese": "你好",
+        "emoji": "👋🌍",
+    }
     path = test_dir / "unicode.json"
     storage.save_object(text_data, str(path))
     loaded_data = storage.load_object(str(path))

@@ -4,7 +4,7 @@ This file contains a data processing component template that can be used
 to create dimension-specific processors.
 """
 
-from typing import Any, Dict, Protocol
+from typing import Any, Protocol
 
 import pandas as pd
 
@@ -42,7 +42,7 @@ class DimensionProcessor:
         logger: Logger instance
     """
 
-    def __init__(self, config: Dict[str, Any], logger: LoggerInterface | None = None) -> None:
+    def __init__(self, config: dict[str, Any], logger: LoggerInterface | None = None) -> None:
         """Initialize the processor.
 
         Args:
@@ -62,7 +62,7 @@ class DimensionProcessor:
 
         self.logger.info(f"{self.__class__.__name__} initialized with window={self.window}")
 
-    def _init_feature_definitions(self) -> Dict[str, Dict[str, Any]]:
+    def _init_feature_definitions(self) -> dict[str, dict[str, Any]]:
         """Initialize feature definitions.
 
         Returns:
@@ -188,7 +188,7 @@ class DimensionProcessor:
         # Example: exponential moving average
         return data["close"].ewm(span=window, alpha=alpha).mean()
 
-    def get_feature_definitions(self) -> Dict[str, Dict[str, Any]]:
+    def get_feature_definitions(self) -> dict[str, dict[str, Any]]:
         """Get feature definitions.
 
         Returns:

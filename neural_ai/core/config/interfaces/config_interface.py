@@ -1,7 +1,7 @@
 """Konfiguráció kezelő interfész."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 
 class ConfigManagerInterface(ABC):
@@ -11,7 +11,7 @@ class ConfigManagerInterface(ABC):
     """
 
     @abstractmethod
-    def __init__(self, filename: Optional[str] = None) -> None:
+    def __init__(self, filename: str | None = None) -> None:
         """Inicializálja a konfigurációkezelőt.
 
         Args:
@@ -23,7 +23,7 @@ class ConfigManagerInterface(ABC):
         """Érték lekérése a konfigurációból."""
 
     @abstractmethod
-    def get_section(self, section: str) -> Dict[str, Any]:
+    def get_section(self, section: str) -> dict[str, Any]:
         """Teljes konfigurációs szekció lekérése."""
 
     @abstractmethod
@@ -31,7 +31,7 @@ class ConfigManagerInterface(ABC):
         """Érték beállítása a konfigurációban."""
 
     @abstractmethod
-    def save(self, filename: Optional[str] = None) -> None:
+    def save(self, filename: str | None = None) -> None:
         """Konfiguráció mentése fájlba."""
 
     @abstractmethod
@@ -39,7 +39,7 @@ class ConfigManagerInterface(ABC):
         """Konfiguráció betöltése fájlból."""
 
     @abstractmethod
-    def validate(self, schema: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, str]]]:
+    def validate(self, schema: dict[str, Any]) -> tuple[bool, dict[str, str] | None]:
         """Konfiguráció validálása séma alapján.
 
         Args:

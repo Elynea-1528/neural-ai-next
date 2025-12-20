@@ -5,7 +5,7 @@ as a base for writing tests for new components.
 """
 
 import unittest
-from typing import Any, Dict
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -28,7 +28,7 @@ class TestComponentName:
         return logger
 
     @pytest.fixture
-    def test_config(self) -> Dict[str, Any]:
+    def test_config(self) -> dict[str, Any]:
         """Create and return a test configuration.
 
         Returns:
@@ -41,7 +41,7 @@ class TestComponentName:
         }
 
     @pytest.fixture
-    def component(self, test_config: Dict[str, Any], mock_logger: Mock) -> Mock:
+    def component(self, test_config: dict[str, Any], mock_logger: Mock) -> Mock:
         """Create and return a test component instance.
 
         Args:
@@ -60,7 +60,7 @@ class TestComponentName:
         return mock_component
 
     def test_initialization(
-        self, component: Mock, test_config: Dict[str, Any], mock_logger: Mock
+        self, component: Mock, test_config: dict[str, Any], mock_logger: Mock
     ) -> None:
         """Verify component initialization.
 
@@ -140,7 +140,10 @@ class TestComponentNameClassic(unittest.TestCase):
     def setUp(self) -> None:
         """Initialize test fixtures before each test."""
         self.mock_logger = Mock(spec=LoggerInterface)
-        self.test_config: Dict[str, Any] = {"parameter1": "test_value", "parameter2": 42}
+        self.test_config: dict[str, Any] = {
+            "parameter1": "test_value",
+            "parameter2": 42,
+        }
 
         # In actual tests, replace with proper import
         # from path.to.component import ComponentName

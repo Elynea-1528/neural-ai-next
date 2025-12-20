@@ -5,7 +5,7 @@ that can be used as a base when creating new components.
 """
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from neural_ai.core.logger import LoggerInterface
 from neural_ai.core.logger.implementations import LoggerFactory
@@ -14,7 +14,7 @@ from neural_ai.core.logger.implementations import LoggerFactory
 class ComponentTemplate:
     """Base template component class."""
 
-    def __init__(self, config: Dict[str, Any], logger: LoggerInterface | None = None) -> None:
+    def __init__(self, config: dict[str, Any], logger: LoggerInterface | None = None) -> None:
         """Initialize ComponentTemplate.
 
         Args:
@@ -25,7 +25,7 @@ class ComponentTemplate:
         self.logger = logger or logging.getLogger(__name__)
         self.logger.info("ComponentTemplate initialized")
 
-    def run(self) -> Dict[str, Any]:
+    def run(self) -> dict[str, Any]:
         """Run the component.
 
         Returns:
@@ -38,8 +38,8 @@ class ComponentTemplate:
 class ComponentName:
     """Component description.
 
-    Detailed explanation of the component's responsibility. Write here the general
-    description of the component's functions, purpose and usage.
+    Detailed explanation of the component's responsibility. Write here the
+    general description of the component's functions, purpose and usage.
 
     Attributes:
         config: The component's configuration
@@ -47,7 +47,7 @@ class ComponentName:
         dependencies: Description of other dependencies
     """
 
-    def __init__(self, config: Dict[str, Any], logger: LoggerInterface | None = None) -> None:
+    def __init__(self, config: dict[str, Any], logger: LoggerInterface | None = None) -> None:
         """Initialize the component.
 
         Args:
@@ -124,7 +124,7 @@ class ComponentNameFactory:
 
     @staticmethod
     def create_component(
-        config: Dict[str, Any], logger: LoggerInterface | None = None
+        config: dict[str, Any], logger: LoggerInterface | None = None
     ) -> "ComponentName":
         """Create a new component instance.
 

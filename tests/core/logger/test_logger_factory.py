@@ -1,6 +1,6 @@
 """Logger factory tesztek."""
 
-from typing import Any, Dict
+from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
@@ -18,7 +18,7 @@ def logger_name() -> str:
 
 
 @pytest.fixture
-def config() -> Dict[str, Any]:
+def config() -> dict[str, Any]:
     """Teszt konfiguráció fixture."""
     return {
         "default_level": "INFO",
@@ -55,7 +55,7 @@ class TestLoggerFactory:
         logger2 = LoggerFactory.get_logger(logger_name)
         assert logger1 is logger2
 
-    def test_configure_basic_settings(self, config: Dict[str, Any]) -> None:
+    def test_configure_basic_settings(self, config: dict[str, Any]) -> None:
         """Teszteli az alap konfiguráció beállítását."""
         with patch("logging.basicConfig") as mock_basic_config:
             LoggerFactory.configure(config)
@@ -65,7 +65,7 @@ class TestLoggerFactory:
                 datefmt="%Y-%m-%d",
             )
 
-    def test_configure_handlers(self, config: Dict[str, Any]) -> None:
+    def test_configure_handlers(self, config: dict[str, Any]) -> None:
         """Teszteli a handler-ek konfigurálását."""
         with (
             patch("logging.StreamHandler") as mock_stream_handler,

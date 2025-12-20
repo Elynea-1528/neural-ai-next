@@ -1,12 +1,10 @@
 """Storage komponens kivételek."""
 
-from typing import Optional
-
 
 class StorageError(Exception):
     """Alap kivétel a storage műveletekhez."""
 
-    def __init__(self, message: str, original_error: Optional[Exception] = None) -> None:
+    def __init__(self, message: str, original_error: Exception | None = None) -> None:
         """Kivétel inicializálása.
 
         Args:
@@ -27,10 +25,6 @@ class StorageSerializationError(StorageError):
 
 class StorageIOError(StorageError):
     """I/O műveletek során fellépő hibák esetén."""
-
-
-class StoragePermissionError(StorageError):
-    """Jogosultsági hibák esetén."""
 
 
 class StorageNotFoundError(StorageError):

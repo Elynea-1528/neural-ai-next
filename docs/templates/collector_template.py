@@ -1,23 +1,21 @@
-"""
-Adatgyűjtő template a Neural-AI-Next projekthez.
+"""Adatgyűjtő template a Neural-AI-Next projekthez.
 
 Ez a fájl egy adatgyűjtő komponens sablont tartalmaz, amely különböző
 forrásokból (például MT5, API-k, fájlok) származó adatok beszerzésére szolgál.
 """
 
 import datetime as dt
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
-
 from neural_ai.collectors.interfaces import CollectorInterface
+
 from neural_ai.core.logger import LoggerFactory
 from neural_ai.core.storage import StorageFactory
 
 
 class DataCollector(CollectorInterface):
-    """
-    Adatgyűjtő komponens.
+    """Adatgyűjtő komponens.
 
     Ez a komponens adatokat gyűjt különböző forrásokból és egységes formátumra alakítja.
 
@@ -28,9 +26,8 @@ class DataCollector(CollectorInterface):
         storage: Tároló példány az adatok mentéséhez
     """
 
-    def __init__(self, config: Dict[str, Any], logger=None, storage=None):
-        """
-        Inicializálja az adatgyűjtőt.
+    def __init__(self, config: dict[str, Any], logger=None, storage=None):
+        """Inicializálja az adatgyűjtőt.
 
         Args:
             config: Adatgyűjtő konfigurációja
@@ -54,8 +51,7 @@ class DataCollector(CollectorInterface):
         self.logger.info(f"{self.__class__.__name__} initialized for source {self.source_type}")
 
     def _init_source(self):
-        """
-        Adatforrás specifikus inicializáció.
+        """Adatforrás specifikus inicializáció.
 
         Raises:
             ConnectionError: Ha a kapcsolat nem hozható létre
@@ -72,11 +68,10 @@ class DataCollector(CollectorInterface):
         self,
         symbol: str,
         timeframe: str,
-        start_date: Optional[Union[str, dt.datetime]] = None,
-        end_date: Optional[Union[str, dt.datetime]] = None,
+        start_date: str | dt.datetime | None = None,
+        end_date: str | dt.datetime | None = None,
     ) -> pd.DataFrame:
-        """
-        Adatok gyűjtése a megadott szimbólumhoz és időkerethez.
+        """Adatok gyűjtése a megadott szimbólumhoz és időkerethez.
 
         Args:
             symbol: Kereskedési szimbólum (pl. "EURUSD")
@@ -121,11 +116,10 @@ class DataCollector(CollectorInterface):
         self,
         symbol: str,
         timeframe: str,
-        start_date: Optional[Union[str, dt.datetime]],
-        end_date: Optional[Union[str, dt.datetime]],
+        start_date: str | dt.datetime | None,
+        end_date: str | dt.datetime | None,
     ) -> pd.DataFrame:
-        """
-        Adatok lekérése a forrásból.
+        """Adatok lekérése a forrásból.
 
         Args:
             symbol: Kereskedési szimbólum
@@ -142,8 +136,7 @@ class DataCollector(CollectorInterface):
         raise NotImplementedError("This method should be implemented by subclasses")
 
     def _format_data(self, data: pd.DataFrame) -> pd.DataFrame:
-        """
-        Adatok formázása egységes formátumra.
+        """Adatok formázása egységes formátumra.
 
         Args:
             data: Nyers adatok
@@ -170,9 +163,8 @@ class DataCollector(CollectorInterface):
 
         return data
 
-    def get_available_symbols(self) -> List[str]:
-        """
-        Elérhető szimbólumok lekérése.
+    def get_available_symbols(self) -> list[str]:
+        """Elérhető szimbólumok lekérése.
 
         Returns:
             Az adatforrásban elérhető szimbólumok listája
@@ -180,9 +172,8 @@ class DataCollector(CollectorInterface):
         # Implementáció...
         return []
 
-    def get_available_timeframes(self) -> List[str]:
-        """
-        Elérhető időkeretek lekérése.
+    def get_available_timeframes(self) -> list[str]:
+        """Elérhető időkeretek lekérése.
 
         Returns:
             Az adatforrásban elérhető időkeretek listája
@@ -191,9 +182,7 @@ class DataCollector(CollectorInterface):
         return []
 
     def close(self):
-        """
-        Adatforrás kapcsolat lezárása és erőforrások felszabadítása.
-        """
+        """Adatforrás kapcsolat lezárása és erőforrások felszabadítása."""
         # Implementáció...
         self.logger.info(f"Closed collector for source {self.source_type}")
 
@@ -209,10 +198,9 @@ class CollectorFactory:
 
     @staticmethod
     def get_collector(
-        source_type: str, config: Dict[str, Any], logger=None, storage=None
+        source_type: str, config: dict[str, Any], logger=None, storage=None
     ) -> CollectorInterface:
-        """
-        Adatgyűjtő példány létrehozása.
+        """Adatgyűjtő példány létrehozása.
 
         Args:
             source_type: Adatforrás típusa (pl. "mt5", "api", "csv")

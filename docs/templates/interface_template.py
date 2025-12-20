@@ -5,7 +5,7 @@ as a base for defining new component interfaces.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any
 
 from neural_ai.core.logger import LoggerInterface
 
@@ -33,7 +33,7 @@ class ComponentInterface(ABC):
         pass
 
     @abstractmethod
-    def get_configuration(self) -> Dict[str, Any]:
+    def get_configuration(self) -> dict[str, Any]:
         """Get component configuration.
 
         Returns:
@@ -42,7 +42,7 @@ class ComponentInterface(ABC):
         pass
 
     @abstractmethod
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Get component status.
 
         Returns:
@@ -61,7 +61,7 @@ class ComponentFactoryInterface(ABC):
     @staticmethod
     @abstractmethod
     def create_component(
-        config: Dict[str, Any],
+        config: dict[str, Any],
         logger: LoggerInterface | None = None,
     ) -> "ComponentInterface":
         """Create component instance.
@@ -105,7 +105,7 @@ class InterfaceTemplate(ABC):
         pass
 
     @abstractmethod
-    def method2(self, param1: str) -> Dict[str, Any]:
+    def method2(self, param1: str) -> dict[str, Any]:
         """Execute second abstract method.
 
         Args:

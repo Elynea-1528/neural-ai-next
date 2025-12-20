@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Jupyter kernel konfiguráció Neural AI Next-hez
+"""Jupyter kernel konfiguráció Neural AI Next-hez.
 
 Ez a script létrehozza a Jupyter kernel konfigurációt,
 ami Kaggle GPU használatához is alkalmas.

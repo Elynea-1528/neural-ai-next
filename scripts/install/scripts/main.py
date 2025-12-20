@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Neural AI Next - Egységesített Telepítő
+"""Neural AI Next - Egységesített Telepítő.
 
 Ez a script interaktív módon telepíti a fejlesztői környezetet,
 kihasználva az environment.yml-t és a pyproject.toml-t.
@@ -98,8 +98,7 @@ def run_command(command: str, check: bool = True, shell: bool = True) -> bool:
                 command,
                 shell=shell,
                 check=check,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                capture_output=True,
                 text=True,
             )
             return result.returncode == 0
@@ -215,7 +214,7 @@ dependencies:
   - numpy>=1.24.3,<3.0
   - pandas>=2.0.3,<3.0
   - scikit-learn>=1.3.0
-  
+
   # === PIP CSOMAGOK (PYPROJECT.TOML-BÓL) ===
   - pip:
       - -e .

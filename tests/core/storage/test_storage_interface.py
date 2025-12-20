@@ -1,8 +1,9 @@
 """Storage interfész tesztelése."""
 
 import inspect
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Dict, Sequence
+from typing import Any
 
 import pandas as pd
 
@@ -70,7 +71,7 @@ class TestStorageInterface:
         assert get_return_annotation(StorageInterface.save_object) is None
         assert get_return_annotation(StorageInterface.load_object) == Any
         assert get_return_annotation(StorageInterface.exists) == bool
-        assert get_return_annotation(StorageInterface.get_metadata) == Dict[str, Any]
+        assert get_return_annotation(StorageInterface.get_metadata) == dict[str, Any]
         assert get_return_annotation(StorageInterface.delete) is None
         assert get_return_annotation(StorageInterface.list_dir) == Sequence[Path]
 

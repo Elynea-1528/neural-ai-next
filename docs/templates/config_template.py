@@ -5,7 +5,7 @@ with YAML support and dependency injection.
 """
 
 import os
-from typing import Any, Dict, Protocol
+from typing import Any, Protocol
 
 import yaml
 
@@ -28,7 +28,7 @@ class ConfigManagerInterface(Protocol):
         """
         ...
 
-    def get_section(self, section: str, default: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    def get_section(self, section: str, default: dict[str, Any] | None = None) -> dict[str, Any]:
         """Get configuration section.
 
         Args:
@@ -43,7 +43,7 @@ class ConfigManagerInterface(Protocol):
         """
         ...
 
-    def get_all(self) -> Dict[str, Any]:
+    def get_all(self) -> dict[str, Any]:
         """Get complete configuration.
 
         Returns:
@@ -84,7 +84,7 @@ class YAMLConfigManager:
         """
         self.config_path = config_path
         self.logger = logger or LoggerFactory.get_logger(__name__)
-        self.config_data: Dict[str, Any] = {}
+        self.config_data: dict[str, Any] = {}
 
         # Load configuration file
         self._load_config()
@@ -100,12 +100,12 @@ class YAMLConfigManager:
             raise ConfigNotFoundException(f"Configuration not found: {self.config_path}")
 
         try:
-            with open(self.config_path, "r", encoding="utf-8") as f:
+            with open(self.config_path, encoding="utf-8") as f:
                 self.config_data = yaml.safe_load(f) or {}
         except yaml.YAMLError as e:
-            raise ConfigParseError(f"Error parsing configuration: {str(e)}")
+            raise ConfigParseError(f"Error parsing configuration: {str(e)}") from e
         except Exception as e:
-            raise ConfigParseError(f"Unexpected error loading configuration: {str(e)}")
+            raise ConfigParseError(f"Unexpected error loading configuration: {str(e)}") from e
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get configuration value.
@@ -133,7 +133,7 @@ class YAMLConfigManager:
         except (AttributeError, KeyError):
             return default
 
-    def get_section(self, section: str, default: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    def get_section(self, section: str, default: dict[str, Any] | None = None) -> dict[str, Any]:
         """Get configuration section.
 
         Args:
@@ -155,7 +155,7 @@ class YAMLConfigManager:
 
         return section_value
 
-    def get_all(self) -> Dict[str, Any]:
+    def get_all(self) -> dict[str, Any]:
         """Get complete configuration.
 
         Returns:
@@ -232,7 +232,11 @@ class ConfigManagerFactory:
 
         # Default configuration
         default_config = {
-            "app": {"name": "neural-ai-next", "version": "1.0.0", "environment": "development"},
+            "app": {
+                "name": "neural-ai-next",
+                "version": "1.0.0",
+                "environment": "development",
+            },
             "logging": {
                 "level": "INFO",
                 "file": "logs/app.log",

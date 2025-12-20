@@ -2,13 +2,16 @@
 
 import os
 import tempfile
-from typing import Any, Dict, Generator, Optional, Tuple
+from collections.abc import Generator
+from typing import Any
 
 import pytest
 import yaml
 
 from neural_ai.core.config.exceptions import ConfigLoadError
-from neural_ai.core.config.implementations.config_manager_factory import ConfigManagerFactory
+from neural_ai.core.config.implementations.config_manager_factory import (
+    ConfigManagerFactory,
+)
 from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 
@@ -16,7 +19,7 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 class MockConfigManager(ConfigManagerInterface):
     """Mock konfiguráció kezelő teszteléshez."""
 
-    def __init__(self, filename: Optional[str] = None) -> None:
+    def __init__(self, filename: str | None = None) -> None:
         """Mock inicializálás."""
         self.filename = filename
 
@@ -24,7 +27,7 @@ class MockConfigManager(ConfigManagerInterface):
         """Mock implementáció."""
         return None
 
-    def get_section(self, section: str) -> Dict[str, Any]:
+    def get_section(self, section: str) -> dict[str, Any]:
         """Mock implementáció."""
         return {}
 
@@ -32,7 +35,7 @@ class MockConfigManager(ConfigManagerInterface):
         """Mock implementáció."""
         pass
 
-    def save(self, filename: Optional[str] = None) -> None:
+    def save(self, filename: str | None = None) -> None:
         """Mock implementáció."""
         pass
 
@@ -40,7 +43,7 @@ class MockConfigManager(ConfigManagerInterface):
         """Mock implementáció."""
         pass
 
-    def validate(self, schema: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, str]]]:
+    def validate(self, schema: dict[str, Any]) -> tuple[bool, dict[str, str] | None]:
         """Mock implementáció."""
         return True, None
 

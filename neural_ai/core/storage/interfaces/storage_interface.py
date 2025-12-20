@@ -1,8 +1,9 @@
 """Storage interfész modul."""
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Dict, Optional, Sequence
+from typing import Any
 
 import pandas as pd
 
@@ -88,7 +89,7 @@ class StorageInterface(ABC):
         """
 
     @abstractmethod
-    def get_metadata(self, path: str) -> Dict[str, Any]:
+    def get_metadata(self, path: str) -> dict[str, Any]:
         """Lekéri egy fájl vagy könyvtár metaadatait.
 
         Args:
@@ -115,7 +116,7 @@ class StorageInterface(ABC):
         """
 
     @abstractmethod
-    def list_dir(self, path: str, pattern: Optional[str] = None) -> Sequence[Path]:
+    def list_dir(self, path: str, pattern: str | None = None) -> Sequence[Path]:
         """Listázza egy könyvtár tartalmát.
 
         Args:

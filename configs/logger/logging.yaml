@@ -1,21 +1,23 @@
 # Logger rendszer konfigurációja
+# Neural AI Next - Strukturált logolási konfiguráció
 default_level: "INFO"
 format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 date_format: "%Y-%m-%d %H:%M:%S"
+json_format: true # JSON formátum engedélyezése strukturált logoláshoz
 
 handlers:
   console:
     enabled: true
     level: "INFO"
-    colored: true  # Színes kimenet engedélyezése
+    colored: true # Színes kimenet engedélyezése
 
   file:
     enabled: true
     level: "DEBUG"
-    filename: "logs/app.log"
-    rotating: true  # Log rotáció engedélyezése
-    max_bytes: 1048576  # 1MB
-    backup_count: 5
+    filename: "logs/neural_ai.log"
+    rotating: true # Log rotáció engedélyezése
+    max_bytes: 10485760 # 10MB
+    backup_count: 10
 
 loggers:
   # Alapértelmezett logger konfiguráció
@@ -33,12 +35,13 @@ loggers:
   app.file:
     type: "rotating"
     level: "DEBUG"
-    filename: "logs/app.log"
-    rotation_type: "size"  # "size" vagy "time"
-    max_bytes: 1048576  # 1MB
-    backup_count: 5
-    when: "midnight"  # időalapú rotációnál használt
+    filename: "logs/neural_ai.log"
+    rotation_type: "size" # "size" vagy "time"
+    max_bytes: 10485760 # 10MB
+    backup_count: 10
+    when: "midnight" # időalapú rotációnál használt
     format: "%(asctime)s - %(name)s - [%(levelname)s] %(message)s"
+    json_format: true # JSON formátum a fájlba íráshoz
 
   # Specifikus modulok loggerei
   neural_ai.core:
@@ -58,5 +61,45 @@ loggers:
     level: "INFO"
     filename: "logs/data.log"
     rotation_type: "size"
-    max_bytes: 5242880  # 5MB
+    max_bytes: 5242880 # 5MB
     backup_count: 3
+
+  # MetaTrader 5 Collector specifikus logger
+  neural_ai.collectors.mt5:
+    type: "rotating"
+    level: "INFO"
+    filename: "logs/collectors/mt5/mt5_collector.log"
+    rotation_type: "size"
+    max_bytes: 10485760 # 10MB
+    backup_count: 5
+    format: "%(asctime)s - MT5Collector - [%(levelname)s] %(message)s"
+
+  # API request logger
+  neural_ai.api:
+    type: "rotating"
+    level: "INFO"
+    filename: "logs/api_requests.log"
+    rotation_type: "time"
+    when: "midnight"
+    backup_count: 7
+    format: "%(asctime)s - API - [%(levelname)s] %(message)s"
+
+  # Data quality logger
+  neural_ai.data.quality:
+    type: "rotating"
+    level: "WARNING"
+    filename: "logs/data_quality.log"
+    rotation_type: "size"
+    max_bytes: 5242880 # 5MB
+    backup_count: 3
+    format: "%(asctime)s - DataQuality - [%(levelname)s] %(message)s"
+
+  # Historical data collection logger
+  neural_ai.historical:
+    type: "rotating"
+    level: "INFO"
+    filename: "logs/historical_collection.log"
+    rotation_type: "time"
+    when: "midnight"
+    backup_count: 14 # 2 hetes logok
+    format: "%(asctime)s - Historical - [%(levelname)s] %(message)s"

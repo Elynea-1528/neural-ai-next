@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Neural AI Next - Telepítési ellenőrző script
+"""Neural AI Next - Telepítési ellenőrző script.
 
 Ellenőrzi, hogy minden szükséges csomag telepítve van-e és megfelelő verzióban.
 """

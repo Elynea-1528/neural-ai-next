@@ -7,7 +7,7 @@ storing and managing different types of data.
 import datetime as dt
 import json
 import os
-from typing import Any, Dict, List, Optional, Protocol, Union, cast
+from typing import Any, Protocol, cast
 
 import pandas as pd
 from pandas import DataFrame
@@ -42,9 +42,9 @@ class StorageInterface(Protocol):
         self,
         symbol: str,
         timeframe: str,
-        start_date: Optional[Union[str, dt.datetime]] = None,
-        end_date: Optional[Union[str, dt.datetime]] = None,
-        columns: Optional[List[str]] = None,
+        start_date: str | dt.datetime | None = None,
+        end_date: str | dt.datetime | None = None,
+        columns: list[str] | None = None,
     ) -> DataFrame:
         """Load raw data.
 
@@ -80,7 +80,7 @@ class InvalidFormatError(StorageError):
 class StorageImplementation:
     """Storage template implementation."""
 
-    def __init__(self, config: Dict[str, Any], logger: LoggerInterface | None = None) -> None:
+    def __init__(self, config: dict[str, Any], logger: LoggerInterface | None = None) -> None:
         """Initialize storage template.
 
         Args:
@@ -161,15 +161,15 @@ class StorageImplementation:
 
         except Exception as e:
             self.logger.error(f"Error saving raw data: {str(e)}")
-            raise StorageError(f"Data save error: {str(e)}")
+            raise StorageError(f"Data save error: {str(e)}") from e
 
     def load_raw_data(
         self,
         symbol: str,
         timeframe: str,
-        start_date: Optional[Union[str, dt.datetime]] = None,
-        end_date: Optional[Union[str, dt.datetime]] = None,
-        columns: Optional[List[str]] = None,
+        start_date: str | dt.datetime | None = None,
+        end_date: str | dt.datetime | None = None,
+        columns: list[str] | None = None,
     ) -> DataFrame:
         """Load raw data.
 
@@ -213,13 +213,13 @@ class StorageImplementation:
             raise
         except Exception as e:
             self.logger.error(f"Error loading raw data: {str(e)}")
-            raise StorageError(f"Data load error: {str(e)}")
+            raise StorageError(f"Data load error: {str(e)}") from e
 
     def _filter_by_date(
         self,
         data: DataFrame,
-        start_date: Optional[Union[str, dt.datetime]],
-        end_date: Optional[Union[str, dt.datetime]],
+        start_date: str | dt.datetime | None,
+        end_date: str | dt.datetime | None,
     ) -> DataFrame:
         """Filter DataFrame by date.
 
@@ -249,8 +249,8 @@ class StorageImplementation:
         self,
         symbol: str,
         timeframe: str,
-        start_date: Optional[Union[str, dt.datetime]] = None,
-        end_date: Optional[Union[str, dt.datetime]] = None,
+        start_date: str | dt.datetime | None = None,
+        end_date: str | dt.datetime | None = None,
     ) -> bool:
         """Check if data exists for given symbol and timeframe.
 
@@ -275,8 +275,8 @@ class StorageImplementation:
     def _check_date_range_exists(
         self,
         path: str,
-        start_date: Optional[Union[str, dt.datetime]],
-        end_date: Optional[Union[str, dt.datetime]],
+        start_date: str | dt.datetime | None,
+        end_date: str | dt.datetime | None,
     ) -> bool:
         """Check if given date range exists in file.
 
@@ -290,7 +290,10 @@ class StorageImplementation:
         """
         try:
             if self.format == "csv":
-                df = cast(DataFrame, pd.read_csv(path, index_col=0, parse_dates=True, usecols=[0]))
+                df = cast(
+                    DataFrame,
+                    pd.read_csv(path, index_col=0, parse_dates=True, usecols=[0]),
+                )
                 min_date = df.index.min()
                 max_date = df.index.max()
             elif self.format == "hdf":
@@ -301,7 +304,7 @@ class StorageImplementation:
                 finally:
                     store.close()
             else:  # json
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     data = json.load(f)
                 df = pd.DataFrame(data)
                 df.index = pd.to_datetime(df.index)

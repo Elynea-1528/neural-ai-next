@@ -2,7 +2,7 @@
 
 import threading
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Generic, Optional, TypeVar, cast
+from typing import TYPE_CHECKING, Optional, TypeVar, cast
 
 from neural_ai.core.base.factory import CoreComponentFactory
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
-class LazyLoader(Generic[T]):
+class LazyLoader[T]:
     """Drága erőforrások lusta betöltője."""
 
     def __init__(self, loader_func: Callable[[], T]) -> None:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Log Viewer - Valós idejű log megjelenítő"""
+"""Log Viewer - Valós idejű log megjelenítő."""
 
 import argparse
 import os
@@ -9,7 +9,7 @@ from datetime import datetime
 
 
 class LogViewer:
-    """Log megjelenítő osztály"""
+    """Log megjelenítő osztály."""
 
     def __init__(self, log_file: str = None):
         # Alapértelmezett log fájlok
@@ -38,11 +38,11 @@ class LogViewer:
             sys.exit(1)
 
     def clear_screen(self):
-        """Képernyő törlése"""
+        """Képernyő törlése."""
         os.system("cls" if os.name == "nt" else "clear")
 
     def print_header(self):
-        """Fejléc kiírása"""
+        """Fejléc kiírása."""
         print("=" * 80)
         print("NEURAL AI NEXT - LOG VIEWER")
         print("=" * 80)
@@ -52,7 +52,7 @@ class LogViewer:
         print()
 
     def tail_log(self, lines: int = 50):
-        """Log fájl utolsó N sorának olvasása"""
+        """Log fájl utolsó N sorának olvasása."""
         try:
             with open(self.log_file, encoding="utf-8", errors="ignore") as f:
                 # Ugrás a fájl végére
@@ -87,7 +87,7 @@ class LogViewer:
             print(f"❌ Hiba a log olvasásakor: {e}")
 
     def follow_log(self):
-        """Log fájl követése valós időben"""
+        """Log fájl követése valós időben."""
         try:
             with open(self.log_file, encoding="utf-8", errors="ignore") as f:
                 # Ugrás a fájl végére
@@ -111,7 +111,7 @@ class LogViewer:
             sys.exit(1)
 
     def run(self, follow: bool = False, lines: int = 50):
-        """Log viewer futtatása"""
+        """Log viewer futtatása."""
         if follow:
             # Valós idejű követés
             self.clear_screen()
@@ -134,7 +134,7 @@ class LogViewer:
 
 
 def main():
-    """Főprogram"""
+    """Főprogram."""
     parser = argparse.ArgumentParser(description="Log Viewer - Valós idejű log megjelenítő")
     parser.add_argument("--follow", "-f", action="store_true", help="Valós idejű log követés")
     parser.add_argument(

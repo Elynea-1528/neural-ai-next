@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Rendszer állapot ellenőrző script
-Ellenőrzi, hogy a kollektor és az MT5 EA megfelelően működik-e
+Ellenőrzi, hogy a kollektor és az MT5 EA megfelelően működik-e.
 """
 
 import subprocess
@@ -10,7 +10,7 @@ import requests
 
 
 def check_collector_status():
-    """Kollektor állapotának ellenőrzése"""
+    """Kollektor állapotának ellenőrzése."""
     print("=" * 80)
     print("KOLLEKTOR ÁLLAPOT ELLENŐRZÉSE")
     print("=" * 80)
@@ -48,7 +48,7 @@ def check_collector_status():
 
 
 def check_mt5_connection():
-    """MT5 kapcsolat ellenőrzése"""
+    """MT5 kapcsolat ellenőrzése."""
     print("\n" + "=" * 80)
     print("MT5 KAPCSOLAT ELLENŐRZÉSE")
     print("=" * 80)
@@ -68,7 +68,7 @@ def check_mt5_connection():
 
 
 def check_mt5_process():
-    """MT5 folyamat ellenőrzése"""
+    """MT5 folyamat ellenőrzése."""
     print("\n" + "=" * 80)
     print("MT5 FOLYAMAT ELLENŐRZÉSE")
     print("=" * 80)
@@ -95,7 +95,7 @@ def check_mt5_process():
 
 
 def main():
-    """Főprogram"""
+    """Főprogram."""
     print("\n" + "=" * 80)
     print("NEURAL AI NEXT - RENDSZER ÁLLAPOT ELLENŐRZŐ")
     print("=" * 80)

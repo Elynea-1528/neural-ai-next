@@ -1,7 +1,7 @@
 """Storage factory implementáció."""
 
 from pathlib import Path
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any
 
 from neural_ai.core.storage.exceptions import StorageError
 from neural_ai.core.storage.implementations.file_storage import FileStorage
@@ -17,12 +17,12 @@ class StorageFactory(StorageFactoryInterface):
     storage típusok is regisztrálhatók.
     """
 
-    _storage_types: Dict[str, Type[StorageInterface]] = {
+    _storage_types: dict[str, type[StorageInterface]] = {
         "file": FileStorage,
     }
 
     @classmethod
-    def register_storage(cls, storage_type: str, storage_class: Type[StorageInterface]) -> None:
+    def register_storage(cls, storage_type: str, storage_class: type[StorageInterface]) -> None:
         """Új storage típus regisztrálása.
 
         Args:
@@ -38,7 +38,7 @@ class StorageFactory(StorageFactoryInterface):
     def get_storage(
         cls,
         storage_type: str = "file",
-        base_path: Optional[Union[str, Path]] = None,
+        base_path: str | Path | None = None,
         **kwargs: Any,
     ) -> StorageInterface:
         """Storage példány létrehozása.

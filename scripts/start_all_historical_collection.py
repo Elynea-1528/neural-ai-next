@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Batch historikus adatgyűjtés indítása minden szimbólumra és időkeretre
-Ez a script kihasználja az MT5 által engedélyezett összes historikus adatot
+Ez a script kihasználja az MT5 által engedélyezett összes historikus adatot.
 """
 
 import argparse
@@ -17,14 +17,14 @@ COLLECTOR_API = "http://localhost:8000"
 
 
 class HistoricalDataCollector:
-    """Batch historikus adatgyűjtő"""
+    """Batch historikus adatgyűjtő."""
 
     def __init__(self, api_url: str = COLLECTOR_API):
         self.api_url = api_url
         self.logger = self._setup_logger()
 
     def _setup_logger(self):
-        """Logger beállítása"""
+        """Logger beállítása."""
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -32,7 +32,7 @@ class HistoricalDataCollector:
         return logging.getLogger(__name__)
 
     def get_max_available_dates(self, symbol: str, timeframe: str) -> dict[str, str]:
-        """Megpróbálja meghatározni az MT5 által engedélyezett maximális dátumtartományt
+        """Megpróbálja meghatározni az MT5 által engedélyezett maximális dátumtartományt.
 
         Stratégia:
         1. Először próbálkozzunk 2023.04.11-től (ez a felhasználó által megadott dátum)
@@ -92,7 +92,7 @@ class HistoricalDataCollector:
     def start_historical_job(
         self, symbol: str, timeframe: str, start_date: str, end_date: str
     ) -> str:
-        """Historikus adatgyűjtési job indítása"""
+        """Historikus adatgyűjtési job indítása."""
         try:
             response = requests.post(
                 f"{self.api_url}/api/v1/historical/request",
@@ -121,7 +121,7 @@ class HistoricalDataCollector:
             return None
 
     def start_all_collections(self, max_attempts: bool = True):
-        """Összes szimbólum és időkeret kombinációjának indítása"""
+        """Összes szimbólum és időkeret kombinációjának indítása."""
         jobs = []
         total_combinations = len(SYMBOLS) * len(TIMEFRAMES)
         current_combination = 0
@@ -206,7 +206,7 @@ class HistoricalDataCollector:
 
 
 def main():
-    """Főprogram"""
+    """Főprogram."""
     parser = argparse.ArgumentParser(description="Batch historikus adatgyűjtés indítása")
     parser.add_argument(
         "--no-max-attempts",

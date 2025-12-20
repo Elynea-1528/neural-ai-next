@@ -5,7 +5,6 @@ a log üzenetek megjelenítését vezérlik (pl. színes kimenet).
 """
 
 import logging
-from typing import Dict
 
 
 class ColoredFormatter(logging.Formatter):
@@ -20,7 +19,7 @@ class ColoredFormatter(logging.Formatter):
     """
 
     # ANSI színkódok
-    COLORS: Dict[int, str] = {
+    COLORS: dict[int, str] = {
         logging.DEBUG: "\033[94m",  # Kék
         logging.INFO: "\033[92m",  # Zöld
         logging.WARNING: "\033[93m",  # Sárga

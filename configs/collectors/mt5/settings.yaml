@@ -1,0 +1,50 @@
+# MT5 Collector - Általános Beállítások
+# Ez a fájl tartalmazza az összes általános beállítást, teljesítmény- és tárolási konfigurációkat
+
+data_collection:
+  # Valós idejű adatgyűjtés
+  realtime:
+    enabled: true
+    tick_interval: 1 # másodperc
+    ohlcv_interval: 60 # másodperc
+
+  # Történelmi adatgyűjtés
+  historical:
+    enabled: true
+    max_batch_days: 365
+    request_timeout: 300 # másodperc
+    retry_attempts: 3
+
+data_quality:
+  enabled: true
+  validation_level: 3 # 1-3 között
+  auto_correction: true
+  quality_threshold: 0.95
+
+storage:
+  base_path: "data/collectors/mt5"
+  formats:
+    - "parquet"
+    - "csv"
+  compression: "snappy"
+  retention_days: 90
+
+logging:
+  enabled: true
+  level: "INFO"
+  file_logging: true
+  console_logging: true
+  rotation: "daily"
+  backup_count: 7
+
+performance:
+  max_workers: 4
+  batch_size: 1000
+  use_multiprocessing: true
+  memory_limit_gb: 4
+
+monitoring:
+  enabled: true
+  metrics_enabled: true
+  health_check_enabled: true
+  alerting_enabled: false

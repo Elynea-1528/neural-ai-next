@@ -1,7 +1,7 @@
 """Konfiguráció kezelő factory interfész."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Type
+from typing import Any
 
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 
@@ -11,7 +11,7 @@ class ConfigManagerFactoryInterface(ABC):
 
     @classmethod
     @abstractmethod
-    def register_manager(cls, extension: str, manager_class: Type[ConfigManagerInterface]) -> None:
+    def register_manager(cls, extension: str, manager_class: type[ConfigManagerInterface]) -> None:
         """Új konfiguráció kezelő típus regisztrálása.
 
         Args:
@@ -22,9 +22,7 @@ class ConfigManagerFactoryInterface(ABC):
 
     @classmethod
     @abstractmethod
-    def get_manager(
-        cls, filename: str, manager_type: Optional[str] = None
-    ) -> ConfigManagerInterface:
+    def get_manager(cls, filename: str, manager_type: str | None = None) -> ConfigManagerInterface:
         """Megfelelő konfiguráció kezelő létrehozása.
 
         Args:

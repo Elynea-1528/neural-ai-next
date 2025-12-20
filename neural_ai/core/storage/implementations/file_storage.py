@@ -5,14 +5,20 @@ A modulban található:
 """
 
 import json
+import os
+from collections.abc import Callable, Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Sequence, Union
+from typing import Any, cast
 
 import pandas as pd
 
+from neural_ai.core.base.exceptions import (
+    InsufficientDiskSpaceError,
+    PermissionDeniedError,
+    StorageWriteError,
+)
 from neural_ai.core.storage.exceptions import (
-    StorageError,
     StorageFormatError,
     StorageIOError,
     StorageNotFoundError,
@@ -24,13 +30,15 @@ from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 class FileStorage(StorageInterface):
     """Fájlrendszer alapú storage implementáció."""
 
-    def __init__(self, base_path: Optional[Union[str, Path]] = None) -> None:
+    def __init__(self, base_path: str | Path | None = None, logger: Any | None = None) -> None:
         """Inicializálja a FileStorage példányt.
 
         Args:
             base_path: Alap könyvtár útvonala
+            logger: Logger példány (opcionális)
         """
         self._base_path = Path(base_path) if base_path else Path.cwd()
+        self.logger = logger
         self._setup_format_handlers()
 
     def _setup_format_handlers(self) -> None:
@@ -38,27 +46,30 @@ class FileStorage(StorageInterface):
 
         def save_csv(df: pd.DataFrame, path: str, **kwargs: Any) -> None:
             kwargs.setdefault("index", False)  # Alapértelmezetten ne mentse az indexet
+            # CSV esetén közvetlen mentés
             df.to_csv(path, **kwargs)
 
         def load_csv(path: str, **kwargs: Any) -> pd.DataFrame:
-            return pd.read_csv(path, **kwargs)
+            return cast(pd.DataFrame, pd.read_csv(path, **kwargs))
 
         def save_excel(df: pd.DataFrame, path: str, **kwargs: Any) -> None:
             kwargs.setdefault("index", False)  # Alapértelmezetten ne mentse az indexet
+            # Excel esetén közvetlen mentés
             df.to_excel(path, **kwargs)
 
         def load_excel(path: str, **kwargs: Any) -> pd.DataFrame:
-            return pd.read_excel(path, **kwargs)
+            return cast(pd.DataFrame, pd.read_excel(path, **kwargs))
 
         def save_json(obj: Any, path: str, **kwargs: Any) -> None:
+            # JSON esetén közvetlen mentés
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(obj, f, **kwargs)
 
         def load_json(path: str, **kwargs: Any) -> Any:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 return json.load(f, **kwargs)
 
-        self._DATAFRAME_FORMATS: Dict[str, Dict[str, Callable]] = {
+        self._DATAFRAME_FORMATS: dict[str, dict[str, Callable[..., Any]]] = {
             "csv": {
                 "save": save_csv,
                 "load": load_csv,
@@ -69,14 +80,88 @@ class FileStorage(StorageInterface):
             },
         }
 
-        self._OBJECT_FORMATS: Dict[str, Dict[str, Callable]] = {
+        self._OBJECT_FORMATS: dict[str, dict[str, Callable[..., Any]]] = {
             "json": {
                 "save": save_json,
                 "load": load_json,
             }
         }
 
-    def _get_full_path(self, path: Union[str, Path]) -> Path:
+    def _check_disk_space(self, file_path: Path, required_bytes: int) -> None:
+        """Check if there's enough disk space for the operation.
+
+        Args:
+            file_path: The target file path
+            required_bytes: Required bytes for the operation
+
+        Raises:
+            InsufficientDiskSpaceError: If there's not enough disk space
+        """
+        try:
+            stat = os.statvfs(file_path.parent)
+            free_bytes = stat.f_bavail * stat.f_frsize
+            if free_bytes < required_bytes:
+                raise InsufficientDiskSpaceError(
+                    f"Insufficient disk space: {free_bytes / 1024 / 1024:.2f} MB available, "
+                    f"{required_bytes / 1024 / 1024:.2f} MB required"
+                )
+        except OSError as e:
+            raise StorageIOError(f"Failed to check disk space: {e}") from e
+
+    def _check_permissions(self, file_path: Path, check_write: bool = True) -> None:
+        """Check file/directory permissions.
+
+        Args:
+            file_path: The target file path
+            check_write: Whether to check write permissions
+
+        Raises:
+            PermissionDeniedError: If permissions are insufficient
+            StorageIOError: If path check fails
+        """
+        try:
+            if not file_path.parent.exists():
+                raise PermissionDeniedError(f"Parent directory does not exist: {file_path.parent}")
+
+            if check_write and not os.access(file_path.parent, os.W_OK):
+                raise PermissionDeniedError(
+                    f"No write permission for directory: {file_path.parent}"
+                )
+
+            if file_path.exists() and not os.access(file_path, os.R_OK):
+                raise PermissionDeniedError(f"No read permission for file: {file_path}")
+        except OSError as e:
+            raise StorageIOError(f"Failed to check permissions: {e}") from e
+
+    def get_storage_info(self, directory: str | Path) -> dict[str, Any]:
+        """Get storage information for a directory.
+
+        Args:
+            directory: The directory path to check
+
+        Returns:
+            Dict[str, Any]: Storage information including total, used, and free space
+
+        Raises:
+            StorageIOError: If unable to get storage information
+        """
+        try:
+            directory = Path(directory)
+            stat = os.statvfs(directory)
+
+            return {
+                "total_space_gb": (stat.f_blocks * stat.f_frsize) / 1024 / 1024 / 1024,
+                "used_space_gb": ((stat.f_blocks - stat.f_bavail) * stat.f_frsize)
+                / 1024
+                / 1024
+                / 1024,
+                "free_space_gb": (stat.f_bavail * stat.f_frsize) / 1024 / 1024 / 1024,
+                "free_space_percent": (stat.f_bavail / stat.f_blocks) * 100,
+            }
+        except OSError as e:
+            raise StorageIOError(f"Failed to get storage info: {e}") from e
+
+    def _get_full_path(self, path: str | Path) -> Path:
         """Teljes útvonal előállítása.
 
         Args:
@@ -88,11 +173,80 @@ class FileStorage(StorageInterface):
         path = Path(path)
         return path if path.is_absolute() else self._base_path / path
 
+    def _atomic_write(
+        self,
+        file_path: Path,
+        content: str | bytes | Any,
+        mode: str = "w",
+        fmt: str = "json",
+        **kwargs: Any,
+    ) -> None:
+        """Atomi fájlírás temp fájllal és átnevezéssel.
+
+        Args:
+            file_path: A célfájl útvonala
+            content: Az írandó tartalom (str, bytes, DataFrame, vagy bármilyen objektum)
+            mode: Fájl mód ('w' vagy 'wb')
+            fmt: Formátum ('json', 'csv', 'excel', stb.)
+            **kwargs: További paraméterek a formátum-specifikus mentéshez
+
+        Raises:
+            StorageWriteError: Ha az írás sikertelen
+            StorageFormatError: Ha a formátum nem támogatott
+            InsufficientDiskSpaceError: Ha nincs elég lemezterület
+            PermissionDeniedError: Ha nincs megfelelő jogosultság
+        """
+        # Check permissions first
+        self._check_permissions(file_path, check_write=True)
+
+        # Calculate required space
+        if isinstance(content, str):
+            content_bytes = len(content.encode("utf-8"))
+        elif isinstance(content, bytes):
+            content_bytes = len(content)
+        else:
+            # For non-string, non-bytes content (like DataFrames), use default size
+            # since they are handled by format-specific savers
+            content_bytes = 1024 * 1024  # 1MB default
+
+        # Check disk space (add 10% buffer for filesystem overhead)
+        self._check_disk_space(file_path, int(content_bytes * 1.1))
+
+        temp_path = file_path.with_suffix(file_path.suffix + ".tmp")
+
+        try:
+            # DataFrame esetén
+            if fmt in self._DATAFRAME_FORMATS:
+                self._DATAFRAME_FORMATS[fmt]["save"](content, str(temp_path), **kwargs)
+            # Objektum esetén
+            elif fmt in self._OBJECT_FORMATS:
+                self._OBJECT_FORMATS[fmt]["save"](content, str(temp_path), **kwargs)
+            # Szöveg vagy bytes esetén
+            else:
+                with open(temp_path, mode, encoding="utf-8" if "b" not in mode else None) as f:
+                    if isinstance(content, (str, bytes)):
+                        f.write(content)
+                    else:
+                        json.dump(content, f, indent=2, ensure_ascii=False)
+                    f.flush()
+                    os.fsync(f.fileno())
+        except OSError as e:
+            if temp_path.exists():
+                temp_path.unlink()
+            raise StorageWriteError(f"Failed to write temporary file: {e}")
+
+        try:
+            os.replace(temp_path, file_path)
+        except OSError as e:
+            if temp_path.exists():
+                temp_path.unlink()
+            raise StorageWriteError(f"Failed to replace file: {e}")
+
     def save_dataframe(
         self,
         df: pd.DataFrame,
         path: str,
-        fmt: Optional[str] = None,
+        fmt: str | None = None,
         **kwargs: Any,
     ) -> None:
         """Menti a DataFrame objektumot.
@@ -123,15 +277,24 @@ class FileStorage(StorageInterface):
         try:
             full_path.parent.mkdir(parents=True, exist_ok=True)
             self._DATAFRAME_FORMATS[fmt]["save"](df, str(full_path), **kwargs)
-        except StorageError:
-            raise
+        except OSError as e:
+            if self.logger:
+                self.logger.exception(
+                    f"IO hiba a DataFrame mentése során: {full_path}", stack_info=True
+                )
+            raise StorageIOError(f"Hiba a DataFrame mentése során: {str(e)}") from e
         except Exception as e:
+            if self.logger:
+                self.logger.exception(
+                    f"Váratlan hiba a DataFrame mentése során: {full_path}",
+                    stack_info=True,
+                )
             raise StorageIOError(f"Hiba a DataFrame mentése során: {str(e)}") from e
 
     def load_dataframe(
         self,
         path: str,
-        fmt: Optional[str] = None,
+        fmt: str | None = None,
         **kwargs: Any,
     ) -> pd.DataFrame:
         """Betölti a DataFrame objektumot.
@@ -148,10 +311,14 @@ class FileStorage(StorageInterface):
             StorageNotFoundError: Ha a fájl nem található
             StorageFormatError: Ha a formátum nem támogatott
             StorageIOError: Ha a betöltés sikertelen
+            PermissionDeniedError: Ha nincs olvasási jogosultság
         """
         full_path = self._get_full_path(path)
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
+
+        # Check read permissions
+        self._check_permissions(full_path, check_write=False)
 
         if fmt is None:
             fmt = full_path.suffix.lower().lstrip(".")
@@ -165,17 +332,29 @@ class FileStorage(StorageInterface):
             )
 
         try:
-            return self._DATAFRAME_FORMATS[fmt]["load"](str(full_path), **kwargs)
-        except StorageError:
-            raise
+            return cast(
+                pd.DataFrame,
+                self._DATAFRAME_FORMATS[fmt]["load"](str(full_path), **kwargs),
+            )
+        except OSError as e:
+            if self.logger:
+                self.logger.exception(
+                    f"IO hiba a DataFrame betöltése során: {full_path}", stack_info=True
+                )
+            raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}") from e
         except Exception as e:
+            if self.logger:
+                self.logger.exception(
+                    f"Váratlan hiba a DataFrame betöltése során: {full_path}",
+                    stack_info=True,
+                )
             raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}") from e
 
     def save_object(
         self,
         obj: Any,
         path: str,
-        fmt: Optional[str] = None,
+        fmt: str | None = None,
         **kwargs: Any,
     ) -> None:
         """Menti a Python objektumot.
@@ -209,15 +388,13 @@ class FileStorage(StorageInterface):
             self._OBJECT_FORMATS[fmt]["save"](obj, str(full_path), **kwargs)
         except (TypeError, ValueError) as e:
             raise StorageSerializationError(f"Az objektum nem szerializálható: {str(e)}") from e
-        except StorageError:
-            raise
         except Exception as e:
             raise StorageIOError(f"Hiba az objektum mentése során: {str(e)}") from e
 
     def load_object(
         self,
         path: str,
-        fmt: Optional[str] = None,
+        fmt: str | None = None,
         **kwargs: Any,
     ) -> Any:
         """Betölti a Python objektumot.
@@ -235,10 +412,14 @@ class FileStorage(StorageInterface):
             StorageFormatError: Ha a formátum nem támogatott
             StorageSerializationError: Ha az objektum nem deszerializálható
             StorageIOError: Ha a betöltés sikertelen
+            PermissionDeniedError: Ha nincs olvasási jogosultság
         """
         full_path = self._get_full_path(path)
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
+
+        # Check read permissions
+        self._check_permissions(full_path, check_write=False)
 
         if fmt is None:
             fmt = full_path.suffix.lower().lstrip(".")
@@ -254,12 +435,31 @@ class FileStorage(StorageInterface):
         try:
             return self._OBJECT_FORMATS[fmt]["load"](str(full_path), **kwargs)
         except json.JSONDecodeError as e:
+            if self.logger:
+                self.logger.exception(
+                    f"JSON dekódolási hiba az objektum betöltése során: {full_path}",
+                    stack_info=True,
+                )
             raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
         except (TypeError, ValueError) as e:
+            if self.logger:
+                self.logger.exception(
+                    f"Szerializációs hiba az objektum betöltése során: {full_path}",
+                    stack_info=True,
+                )
             raise StorageSerializationError(f"Az objektum nem deszerializálható: {str(e)}") from e
-        except StorageError:
-            raise
+        except OSError as e:
+            if self.logger:
+                self.logger.exception(
+                    f"IO hiba az objektum betöltése során: {full_path}", stack_info=True
+                )
+            raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
         except Exception as e:
+            if self.logger:
+                self.logger.exception(
+                    f"Váratlan hiba az objektum betöltése során: {full_path}",
+                    stack_info=True,
+                )
             raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
 
     def exists(self, path: str) -> bool:
@@ -273,7 +473,7 @@ class FileStorage(StorageInterface):
         """
         return self._get_full_path(path).exists()
 
-    def get_metadata(self, path: str) -> Dict[str, Any]:
+    def get_metadata(self, path: str) -> dict[str, Any]:
         """Lekéri a fájl vagy könyvtár metaadatait.
 
         Args:
@@ -313,25 +513,23 @@ class FileStorage(StorageInterface):
             StorageNotFoundError: Ha a fájl nem található
             StorageIOError: Ha a törlés sikertelen
         """
-        try:
-            full_path = self._get_full_path(path)
-            if not full_path.exists():
-                raise StorageNotFoundError(f"Fájl nem található: {full_path}")
+        full_path = self._get_full_path(path)
+        if not full_path.exists():
+            raise StorageNotFoundError(f"Fájl nem található: {full_path}")
 
+        try:
             if full_path.is_file():
                 full_path.unlink()
             else:
                 full_path.rmdir()  # Csak üres könyvtárakat törlünk
 
-        except StorageError:
-            raise
         except Exception as e:
             raise StorageIOError(f"Hiba a törlés során: {str(e)}") from e
 
     def list_dir(
         self,
         path: str,
-        pattern: Optional[str] = None,
+        pattern: str | None = None,
     ) -> Sequence[Path]:
         """Listázza egy könyvtár tartalmát.
 
@@ -355,7 +553,5 @@ class FileStorage(StorageInterface):
         try:
             pattern = pattern or "*"
             return list(full_path.glob(pattern))
-        except StorageError:
-            raise
         except Exception as e:
             raise StorageIOError(f"Hiba a könyvtár listázása során: {str(e)}") from e

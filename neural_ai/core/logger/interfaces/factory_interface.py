@@ -1,7 +1,7 @@
 """Logger factory interfész."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Type
+from typing import Any
 
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
@@ -11,7 +11,7 @@ class LoggerFactoryInterface(ABC):
 
     @classmethod
     @abstractmethod
-    def register_logger(cls, logger_type: str, logger_class: Type[LoggerInterface]) -> None:
+    def register_logger(cls, logger_type: str, logger_class: type[LoggerInterface]) -> None:
         """Új logger típus regisztrálása.
 
         Args:
@@ -37,7 +37,7 @@ class LoggerFactoryInterface(ABC):
 
     @classmethod
     @abstractmethod
-    def configure(cls, config: Dict[str, Any]) -> None:
+    def configure(cls, config: dict[str, Any]) -> None:
         """Logger rendszer konfigurálása.
 
         Args:

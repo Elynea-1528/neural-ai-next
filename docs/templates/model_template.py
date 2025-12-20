@@ -3,7 +3,7 @@
 This template provides a base PyTorch model implementation with logging support.
 """
 
-from typing import Any, Dict
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -15,7 +15,7 @@ from neural_ai.core.logger.implementations import LoggerFactory
 class ModelTemplate(nn.Module):
     """Base model template with standard PyTorch architecture."""
 
-    def __init__(self, config: Dict[str, Any], logger: LoggerInterface | None = None) -> None:
+    def __init__(self, config: dict[str, Any], logger: LoggerInterface | None = None) -> None:
         """Initialize ModelTemplate.
 
         Args:
@@ -65,7 +65,7 @@ class ModelTemplate(nn.Module):
         checkpoint = torch.load(path)
         self.load_state_dict(checkpoint["state_dict"])
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """Get model configuration.
 
         Returns:
@@ -73,7 +73,7 @@ class ModelTemplate(nn.Module):
         """
         return self.config
 
-    def get_parameters(self) -> Dict[str, Any]:
+    def get_parameters(self) -> dict[str, Any]:
         """Get model parameters.
 
         Returns:

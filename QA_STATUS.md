@@ -161,35 +161,12 @@ A rendszer magja a `BaseFactory` és `Container` osztályokra épül.
 ## 📝 Napló
 
 ### 2025-12-20
-- ✅ **neural_ai/core/base/__init__.py** - Befejezve
-  - Körkörös import probléma megoldva
-  - Type safety javítva (TYPE_CHECKING blokk, cast)
-  - 0 Ruff hiba, 0 Pylance hiba
-  - Git commit: `refactor(base): __init__.py clean up & type fixes`
-
-- ✅ **neural_ai/core/base/container.py** - Befejezve
-  - Import higiénia javítva
-  - Type safety javítva (angol docstring-ekkel)
-  - Tesztlefedettség 52%-ról 100%-ra emelve
-  - 13 új teszt hozzáadva
-  - 0 Ruff hiba, 0 Pylance hiba
-  - Git commit: `refactor(base): container.py clean up & type fixes`
-
-- ✅ **neural_ai/core/base/core_components.py** - Befejezve (1. alkalom)
-  - Import higiénia javítva (TYPE_CHECKING blokk)
-  - Type safety javítva (cast, pontos típusok)
-  - Docstring-ek magyarra javítva
-  - Flake8 hiba javítva
-  - 0 Ruff hiba, 0 Flake8 hiba
-  - 100% tesztlefedettség (6/6 teszt sikeres)
-  - Git commit: `refactor(base): core_components.py tisztítás és típusjavítások`
-  - ⚠️ Commit blokkolva: MyPy hibák más fájlokban (pre-commit hook konfiguráció)
-
-- ✅ **neural_ai/core/base/core_components.py** - Befejezve (2. alkalom - Strict Mode)
-  - Típusok javítva (Pylance/MyPy strict mode)
-  - TYPE_CHECKING importok pótolva
-  - Nincs bare except blokk
-  - 100% magyar docstring
-  - 0 Ruff hiba, 0 MyPy hiba
-  - 100% tesztlefedettség (6/6 teszt sikeres)
-  - Git commit: `refactor(base): core_components.py típusbiztonság és magyarítás`
+- `neural_ai/core/base/__init__.py` refaktorálva és ellenőrizve.
+- `neural_ai/core/base/container.py` refaktorálva és ellenőrizve.
+- `neural_ai/core/base/core_components.py` refaktorálva és ellenőrizve.
+- `neural_ai/core/base/exceptions.py` refaktorálva és ellenőrizve.
+- `neural_ai/core/base/factory.py` refaktorálva és ellenőrizve.
+- `neural_ai/core/base/lazy_loading.py` refaktorálva és ellenőrizve.
+- `neural_ai/core/base/singleton.py` refaktorálva és ellenőrizve.
+    - Új tesztfájl: `tests/core/base/test_singleton.py` létrehozva (6 teszteset, 100% coverage).
+    - Commit pre-commit hibák miatt blokkolva (nem a `singleton.py` fájlban).

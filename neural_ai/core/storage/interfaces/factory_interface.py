@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional, Type, Union
+from typing import Any
 
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
@@ -12,7 +12,7 @@ class StorageFactoryInterface(ABC):
 
     @classmethod
     @abstractmethod
-    def register_storage(cls, storage_type: str, storage_class: Type[StorageInterface]) -> None:
+    def register_storage(cls, storage_type: str, storage_class: type[StorageInterface]) -> None:
         """Új storage típus regisztrálása.
 
         Args:
@@ -26,7 +26,7 @@ class StorageFactoryInterface(ABC):
     def get_storage(
         cls,
         storage_type: str = "file",
-        base_path: Optional[Union[str, Path]] = None,
+        base_path: str | Path | None = None,
         **kwargs: Any,
     ) -> StorageInterface:
         """Storage példány létrehozása.

@@ -2,11 +2,13 @@
 
 import logging
 import sys
-from typing import Any, Dict, Type
+from typing import Any
 
 from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
 from neural_ai.core.logger.implementations.default_logger import DefaultLogger
-from neural_ai.core.logger.implementations.rotating_file_logger import RotatingFileLogger
+from neural_ai.core.logger.implementations.rotating_file_logger import (
+    RotatingFileLogger,
+)
 from neural_ai.core.logger.interfaces.factory_interface import LoggerFactoryInterface
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
@@ -14,16 +16,16 @@ from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 class LoggerFactory(LoggerFactoryInterface):
     """Factory osztály loggerek létrehozásához."""
 
-    _logger_types: Dict[str, Type[LoggerInterface]] = {
+    _logger_types: dict[str, type[LoggerInterface]] = {
         "default": DefaultLogger,
         "colored": ColoredLogger,
         "rotating": RotatingFileLogger,
     }
 
-    _instances: Dict[str, LoggerInterface] = {}
+    _instances: dict[str, LoggerInterface] = {}
 
     @classmethod
-    def register_logger(cls, logger_type: str, logger_class: Type[LoggerInterface]) -> None:
+    def register_logger(cls, logger_type: str, logger_class: type[LoggerInterface]) -> None:
         """Új logger típus regisztrálása.
 
         Args:
@@ -63,7 +65,7 @@ class LoggerFactory(LoggerFactoryInterface):
         return logger
 
     @classmethod
-    def configure(cls, config: Dict[str, Any]) -> None:
+    def configure(cls, config: dict[str, Any]) -> None:
         """Logger rendszer konfigurálása.
 
         Args:

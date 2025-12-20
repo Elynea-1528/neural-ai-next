@@ -1,0 +1,164 @@
+# MT5 Collector - Instrumentumok és Időkeretek Konfigurációja
+# Ez a fájl tartalmazza az összes támogatott instrumentumot, időkeretet és azok kombinációit
+
+instruments:
+  # Támogatott instrumentumok listája
+  - name: EURUSD
+    enabled: true
+    description: "Euro / US Dollar"
+    digits: 5
+
+  - name: GBPUSD
+    enabled: true
+    description: "British Pound / US Dollar"
+    digits: 5
+
+  - name: USDJPY
+    enabled: true
+    description: "US Dollar / Japanese Yen"
+    digits: 3
+
+  - name: XAUUSD
+    enabled: true
+    description: "Gold / US Dollar"
+    digits: 2
+
+timeframes:
+  # Támogatott időkeretek
+  - name: M1
+    value: 1
+    enabled: true
+    description: "1 perces gyertyák"
+    max_bars: 100000
+
+  - name: M5
+    value: 5
+    enabled: true
+    description: "5 perces gyertyák"
+    max_bars: 100000
+
+  - name: M15
+    value: 15
+    enabled: true
+    description: "15 perces gyertyák"
+    max_bars: 100000
+
+  - name: H1
+    value: 60
+    enabled: true
+    description: "1 órás gyertyák"
+    max_bars: 100000
+
+  - name: H4
+    value: 240
+    enabled: true
+    description: "4 órás gyertyák"
+    max_bars: 100000
+
+  - name: D1
+    value: 1440
+    enabled: true
+    description: "Napi gyertyák"
+    max_bars: 100000
+
+combinations:
+  # Alapértelmezett kombinációk (4 instrumentum × 6 timeframe = 24 kombináció)
+  # EURUSD kombinációk
+  - instrument: EURUSD
+    timeframe: M1
+    enabled: true
+
+  - instrument: EURUSD
+    timeframe: M5
+    enabled: true
+
+  - instrument: EURUSD
+    timeframe: M15
+    enabled: true
+
+  - instrument: EURUSD
+    timeframe: H1
+    enabled: true
+
+  - instrument: EURUSD
+    timeframe: H4
+    enabled: true
+
+  - instrument: EURUSD
+    timeframe: D1
+    enabled: true
+
+  # GBPUSD kombinációk
+  - instrument: GBPUSD
+    timeframe: M1
+    enabled: true
+
+  - instrument: GBPUSD
+    timeframe: M5
+    enabled: true
+
+  - instrument: GBPUSD
+    timeframe: M15
+    enabled: true
+
+  - instrument: GBPUSD
+    timeframe: H1
+    enabled: true
+
+  - instrument: GBPUSD
+    timeframe: H4
+    enabled: true
+
+  - instrument: GBPUSD
+    timeframe: D1
+    enabled: true
+
+  # USDJPY kombinációk
+  - instrument: USDJPY
+    timeframe: M1
+    enabled: true
+
+  - instrument: USDJPY
+    timeframe: M5
+    enabled: true
+
+  - instrument: USDJPY
+    timeframe: M15
+    enabled: true
+
+  - instrument: USDJPY
+    timeframe: H1
+    enabled: true
+
+  - instrument: USDJPY
+    timeframe: H4
+    enabled: true
+
+  - instrument: USDJPY
+    timeframe: D1
+    enabled: true
+
+  # XAUUSD kombinációk
+  - instrument: XAUUSD
+    timeframe: M1
+    enabled: true
+
+  - instrument: XAUUSD
+    timeframe: M5
+    enabled: true
+
+  - instrument: XAUUSD
+    timeframe: M15
+    enabled: true
+
+  - instrument: XAUUSD
+    timeframe: H1
+    enabled: true
+
+  - instrument: XAUUSD
+    timeframe: H4
+    enabled: true
+
+  - instrument: XAUUSD
+    timeframe: D1
+    enabled: true

@@ -8,7 +8,12 @@ from neural_ai.core.logger.exceptions import (
     LoggerError,
     LoggerInitializationError,
 )
-from neural_ai.core.logger.implementations import DefaultLogger, LoggerFactory
+from neural_ai.core.logger.implementations import (
+    ColoredLogger,
+    DefaultLogger,
+    LoggerFactory,
+    RotatingFileLogger,
+)
 from neural_ai.core.logger.interfaces import LoggerFactoryInterface, LoggerInterface
 
 __all__ = [
@@ -16,8 +21,10 @@ __all__ = [
     "LoggerInterface",
     "LoggerFactoryInterface",
     # Implementations
+    "ColoredLogger",
     "DefaultLogger",
     "LoggerFactory",
+    "RotatingFileLogger",
     # Exceptions
     "LoggerError",
     "LoggerConfigurationError",
