@@ -6,6 +6,10 @@ from unittest.mock import Mock
 import pytest
 
 from neural_ai.core.base.container import DIContainer
+from neural_ai.core.base.exceptions import (
+    ComponentNotFoundError,
+    SingletonViolationError,
+)
 
 
 class DummyInterface(ABC):
@@ -114,3 +118,141 @@ def test_type_safety(container: DIContainer) -> None:
     container.register_instance(DummyInterface, wrong_instance)
     resolved = container.resolve(DummyInterface)
     assert isinstance(resolved, WrongImplementation)
+
+
+def test_register_lazy_component(container: DIContainer) -> None:
+    """Teszteli a lusta komponens regisztrálását."""
+    instance = DummyImplementation()
+    factory_func = Mock(return_value=instance)
+
+    container.register_lazy("test_component", factory_func)
+
+    # A komponens még nem töltődött be
+    status = container.get_lazy_components()
+    assert "test_component" in status
+    assert not status["test_component"]
+
+
+def test_get_lazy_component(container: DIContainer) -> None:
+    """Teszteli a lusta komponens lekérdezését."""
+    instance = DummyImplementation()
+    factory_func = Mock(return_value=instance)
+
+    container.register_lazy("test_component", factory_func)
+
+    # A komponens most töltődik be
+    resolved = container.get("test_component")
+    assert resolved == instance
+    factory_func.assert_called_once()
+
+
+def test_get_lazy_component_not_found(container: DIContainer) -> None:
+    """Teszteli a nem létező komponens lekérdezését."""
+    with pytest.raises(ComponentNotFoundError):
+        container.get("nonexistent_component")
+
+
+def test_get_lazy_components_empty(container: DIContainer) -> None:
+    """Teszteli az üres lusta komponens listát."""
+    status = container.get_lazy_components()
+    assert status == {}
+
+
+def test_preload_components(container: DIContainer) -> None:
+    """Teszteli a komponensek előre betöltését."""
+    instance = DummyImplementation()
+    factory_func = Mock(return_value=instance)
+
+    container.register_lazy("test_component", factory_func)
+
+    # Előre betöltés
+    container.preload_components(["test_component"])
+
+    # A komponens már betöltődött
+    status = container.get_lazy_components()
+    assert "test_component" not in status  # Már nincs a lusta komponensek között
+
+
+def test_register_lazy_invalid_name(container: DIContainer) -> None:
+    """Teszteli az érvénytelen névvel történő regisztrációt."""
+    factory_func = Mock()
+
+    with pytest.raises(ValueError, match="Component name must be a non-empty string"):
+        container.register_lazy("", factory_func)
+
+
+def test_register_lazy_invalid_factory(container: DIContainer) -> None:
+    """Teszteli az érvénytelen factory függvénnyel történő regisztrációt."""
+    with pytest.raises(ValueError, match="Factory function must be callable"):
+        container.register_lazy("test_component", 123)  # type: ignore
+
+
+def test_register_component(container: DIContainer) -> None:
+    """Teszteli a komponens regisztrációt."""
+    instance = DummyImplementation()
+
+    container.register("test_component", instance)
+
+    resolved = container.get("test_component")
+    assert resolved == instance
+
+
+def test_register_component_invalid_name(container: DIContainer) -> None:
+    """Teszteli az érvénytelen névvel történő regisztrációt."""
+    instance = DummyImplementation()
+
+    with pytest.raises(ValueError, match="Component name must be a non-empty string"):
+        container.register("", instance)
+
+
+def test_register_component_none_instance(container: DIContainer) -> None:
+    """Teszteli a None példánnyal történő regisztrációt."""
+    with pytest.raises(ValueError, match="Instance cannot be None"):
+        container.register("test_component", None)
+
+
+def test_register_component_singleton_violation(container: DIContainer) -> None:
+    """Teszteli a singleton szabály megsértését."""
+    instance1 = DummyImplementation()
+    instance2 = DummyImplementation()
+
+    container.register("test_component", instance1)
+
+    with pytest.raises(SingletonViolationError):
+        container.register("test_component", instance2)
+
+
+def test_get_memory_usage(container: DIContainer) -> None:
+    """Teszteli a memóriahasználat lekérdezését."""
+    instance = DummyImplementation()
+    container.register_instance(DummyInterface, instance)
+
+    stats = container.get_memory_usage()
+
+    assert "total_instances" in stats
+    assert "lazy_components" in stats
+    assert "loaded_lazy_components" in stats
+    assert "instance_sizes" in stats
+    assert stats["total_instances"] == 1
+    assert stats["lazy_components"] == 0
+    assert stats["loaded_lazy_components"] == 0
+
+
+def test_get_memory_usage_with_lazy(container: DIContainer) -> None:
+    """Teszteli a memóriahasználat lekérdezését lusta komponensekkel."""
+    instance = DummyImplementation()
+    factory_func = Mock(return_value=instance)
+
+    container.register_lazy("test_component", factory_func)
+
+    stats = container.get_memory_usage()
+
+    assert stats["lazy_components"] == 1
+    assert stats["loaded_lazy_components"] == 0
+
+    # Betöltjük a komponenst
+    container.get("test_component")
+
+    stats = container.get_memory_usage()
+    assert stats["loaded_lazy_components"] == 0  # Már nincs lusta komponens
+    assert stats["total_instances"] == 1
