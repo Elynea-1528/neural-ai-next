@@ -8,14 +8,14 @@ A `CoreComponents` osztály a Neural AI Next projekt core komponenseinek egység
 
 ```python
 class CoreComponents:
-    """Core components with lazy loading support."""
+    """Alap komponensek lusta betöltéssel."""
 ```
 
 ### Konstruktor
 
 ```python
 def __init__(self, container: Optional[DIContainer] = None):
-    """Initialize core components."""
+    """Alap komponensek inicializálása."""
 ```
 
 **Leírás:** Létrehoz egy új CoreComponents példányt a megadott konténerrel vagy egy új konténerrel.
@@ -42,7 +42,7 @@ components = CoreComponents(container=container)
 ```python
 @property
 def config(self) -> Optional[ConfigManagerInterface]:
-    """Get config manager (lazy-loaded)."""
+    """Konfiguráció kezelő komponens lekérése."""
 ```
 
 **Leírás:** Visszaadja a konfiguráció kezelő komponenst. A komponens lazy-loaded, azaz csak akkor töltődik be, amikor először használják.
@@ -71,7 +71,7 @@ if components.has_config():
 ```python
 @property
 def logger(self) -> Optional[LoggerInterface]:
-    """Get logger (lazy-loaded)."""
+    """Naplózó komponens lekérése."""
 ```
 
 **Leírás:** Visszaadja a naplózó komponenst. A komponens lazy-loaded, azaz csak akkor töltődik be, amikor először használják.
@@ -100,7 +100,7 @@ if components.has_logger():
 ```python
 @property
 def storage(self) -> Optional[StorageInterface]:
-    """Get storage (lazy-loaded)."""
+    """Tároló komponens lekérése."""
 ```
 
 **Leírás:** Visszaadja a tároló komponenst. A komponens lazy-loaded, azaz csak akkor töltődik be, amikor először használják.
@@ -711,6 +711,6 @@ for t in threads:
 
 ---
 
-**Dokumentum verzió:** 1.0
-**Utolsó frissítés:** 2025-12-19
+**Dokumentum verzió:** 1.1
+**Utolsó frissítés:** 2025-12-20
 **Osztály:** CoreComponents

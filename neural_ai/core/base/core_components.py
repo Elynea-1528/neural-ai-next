@@ -25,7 +25,7 @@ class LazyLoader[T]:
         """Lustabetöltő inicializálása.
 
         Args:
-            loader_func: A függvény, amit az erőforrás betöltéséhez hívunk
+            loader_func: A függvény, amely az erőforrás betöltését végzi.
         """
         self._loader_func = loader_func
         self._loaded: bool = False
@@ -33,7 +33,11 @@ class LazyLoader[T]:
         self._lock = threading.RLock()
 
     def _load(self) -> T:
-        """Betölti az erőforrást, ha még nincs betöltve."""
+        """Betölti az erőforrást, ha még nincs betöltve.
+
+        Returns:
+            A betöltött erőforrás.
+        """
         with self._lock:
             if not self._loaded:
                 self._value = self._loader_func()
@@ -42,16 +46,28 @@ class LazyLoader[T]:
         return cast(T, self._value)
 
     def __call__(self) -> T:
-        """Visszaadja a betöltött erőforrást."""
+        """Visszaadja a betöltött erőforrást.
+
+        Returns:
+            A betöltött erőforrás.
+        """
         return self._load()
 
     @property
     def is_loaded(self) -> bool:
-        """Ellenőrzi, hogy az erőforrás betöltődött-e."""
+        """Ellenőrzi, hogy az erőforrás betöltődött-e.
+
+        Returns:
+            True, ha az erőforrás betöltve van, különben False.
+        """
         return self._loaded
 
     def reset(self) -> None:
-        """Visszaállítja a betöltőt, hogy kirakja az erőforrást."""
+        """Visszaállítja a betöltőt, hogy kirakja az erőforrást.
+
+        Ez a metódus visszaállítja a betöltő állapotát, lehetővé téve
+        az erőforrás újbóli betöltését.
+        """
         with self._lock:
             self._loaded = False
             self._value = None
@@ -64,7 +80,8 @@ class CoreComponents:
         """Alap komponensek inicializálása.
 
         Args:
-            container: Egy függőséginjektáló konténer (opcionális)
+            container: Egy függőséginjektáló konténer példány.
+                       Ha nincs megadva, új konténert hoz létre.
         """
         # Körkörös import elkerüléséhez
         from neural_ai.core.base.container import DIContainer
@@ -74,52 +91,52 @@ class CoreComponents:
 
     @property
     def config(self) -> Optional["ConfigManagerInterface"]:
-        """Config manager lekérése.
+        """Konfiguráció kezelő komponens lekérése.
 
         Returns:
-            ConfigManagerInterface vagy None, ha nincs regisztrálva
+            A konfiguráció kezelő példánya, vagy None ha nincs regisztrálva.
         """
         return self._container.resolve(ConfigManagerInterface)
 
     @property
     def logger(self) -> Optional["LoggerInterface"]:
-        """Logger lekérése.
+        """Naplózó komponens lekérése.
 
         Returns:
-            LoggerInterface vagy None, ha nincs regisztrálva
+            A naplózó példánya, vagy None ha nincs regisztrálva.
         """
         return self._container.resolve(LoggerInterface)
 
     @property
     def storage(self) -> Optional["StorageInterface"]:
-        """Storage lekérése.
+        """Tároló komponens lekérése.
 
         Returns:
-            StorageInterface vagy None, ha nincs regisztrálva
+            A tároló példánya, vagy None ha nincs regisztrálva.
         """
         return self._container.resolve(StorageInterface)
 
     def set_config(self, config: "ConfigManagerInterface") -> None:
-        """Beállítja a config komponenst (csak teszteléshez).
+        """Beállítja a konfiguráció komponenst (csak teszteléshez).
 
         Args:
-            config: A config manager implementáció
+            config: A konfiguráció kezelő implementáció példánya.
         """
         self._container.register_instance(ConfigManagerInterface, config)
 
     def set_logger(self, logger: "LoggerInterface") -> None:
-        """Beállítja a logger komponenst (csak teszteléshez).
+        """Beállítja a naplózó komponenst (csak teszteléshez).
 
         Args:
-            logger: A logger implementáció
+            logger: A naplózó implementáció példánya.
         """
         self._container.register_instance(LoggerInterface, logger)
 
     def set_storage(self, storage: "StorageInterface") -> None:
-        """Beállítja a storage komponenst (csak teszteléshez).
+        """Beállítja a tároló komponenst (csak teszteléshez).
 
         Args:
-            storage: A storage implementáció
+            storage: A tároló implementáció példánya.
         """
         self._container.register_instance(StorageInterface, storage)
 
