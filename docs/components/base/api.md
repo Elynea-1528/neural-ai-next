@@ -57,18 +57,17 @@ A core komponensek gyűjteményét kezelő osztály.
 ### Konstruktor
 
 ```python
-CoreComponents(
-    config: Optional[ConfigManagerInterface] = None,
-    logger: Optional[LoggerInterface] = None,
-    storage: Optional[StorageInterface] = None
-)
+CoreComponents(container: Optional[DIContainer] = None)
 ```
+
+**Paraméterek:**
+- `container`: A dependency injection konténer (opcionális)
 
 ### Tulajdonságok
 
-- `config`: A konfiguráció kezelő komponens
-- `logger`: A logger komponens
-- `storage`: A storage komponens
+- `config`: A konfiguráció kezelő komponens (read-only)
+- `logger`: A logger komponens (read-only)
+- `storage`: A storage komponens (read-only)
 
 ### Metódusok
 
@@ -89,6 +88,24 @@ Ellenőrzi, hogy van-e logger komponens.
 def has_storage(self) -> bool
 ```
 Ellenőrzi, hogy van-e storage komponens.
+
+#### set_config
+```python
+def set_config(self, config: ConfigManagerInterface) -> None
+```
+Beállítja a config komponenst (csak teszteléshez).
+
+#### set_logger
+```python
+def set_logger(self, logger: LoggerInterface) -> None
+```
+Beállítja a logger komponenst (csak teszteléshez).
+
+#### set_storage
+```python
+def set_storage(self, storage: StorageInterface) -> None
+```
+Beállítja a storage komponenst (csak teszteléshez).
 
 #### validate
 ```python
@@ -146,11 +163,39 @@ Minimális core komponens készlet létrehozása alapértelmezett beállítások
 
 ## Kivételek
 
-A base modul nem dob saját kivételeket, de továbbengedi az egyes komponensek által dobott kivételeket:
+A base modul definiálja az összes alap kivétel osztályt a Neural AI Next projektben:
 
-- `ConfigError`: Konfigurációs hibák
-- `LoggerError`: Logger hibák
-- `StorageError`: Storage hibák
+### Alap kivételek
+
+- `NeuralAIException`: Az összes Neural AI Next kivétel alaposztálya
+
+### Tárolási kivételek
+
+- `StorageException`: Alap kivétel a tárolással kapcsolatos hibákhoz
+- `StorageWriteError`: Fájlírási művelet sikertelensége
+- `StorageReadError`: Fájlolvasási művelet sikertelensége
+- `StoragePermissionError`: Jogosultsági problémák
+- `InsufficientDiskSpaceError`: Nincs elég lemezterület
+- `PermissionDeniedError`: Jogosultság megtagadva
+
+### Konfigurációs kivételek
+
+- `ConfigurationError`: Érvénytelen vagy hiányos konfiguráció
+
+### Függőségi kivételek
+
+- `DependencyError`: Szükséges függőségek nem elérhetőek
+
+### Komponens kivételek
+
+- `SingletonViolationError`: Singleton minta megsértése
+- `ComponentNotFoundError`: Komponens nem található a konténerben
+
+### Hálózati kivételek
+
+- `NetworkException`: Alap kivétel a hálózati hibákhoz
+- `TimeoutError`: Művelet időtúllépése
+- `ConnectionError`: Kapcsolódás sikertelensége
 
 ## Típusok
 

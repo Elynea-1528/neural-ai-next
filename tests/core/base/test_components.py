@@ -45,21 +45,21 @@ def test_empty_components(components: CoreComponents) -> None:
 def test_has_config(components: CoreComponents, mock_config: Mock) -> None:
     """Teszteli a config komponens meglétének ellenőrzését."""
     assert not components.has_config()
-    components.config = mock_config
+    components.set_config(mock_config)
     assert components.has_config()
 
 
 def test_has_logger(components: CoreComponents, mock_logger: Mock) -> None:
     """Teszteli a logger komponens meglétének ellenőrzését."""
     assert not components.has_logger()
-    components.logger = mock_logger
+    components.set_logger(mock_logger)
     assert components.has_logger()
 
 
 def test_has_storage(components: CoreComponents, mock_storage: Mock) -> None:
     """Teszteli a storage komponens meglétének ellenőrzését."""
     assert not components.has_storage()
-    components.storage = mock_storage
+    components.set_storage(mock_storage)
     assert components.has_storage()
 
 
@@ -72,13 +72,13 @@ def test_validate_all_components(
     """Teszteli az összes komponens validálását."""
     assert not components.validate()
 
-    components.config = mock_config
+    components.set_config(mock_config)
     assert not components.validate()
 
-    components.logger = mock_logger
+    components.set_logger(mock_logger)
     assert not components.validate()
 
-    components.storage = mock_storage
+    components.set_storage(mock_storage)
     assert components.validate()
 
 
@@ -90,25 +90,33 @@ def test_validate_missing_components(
 ) -> None:
     """Teszteli a komponensek validálását hiányzó komponensekkel."""
     # Csak config
-    components.config = mock_config
+    components.set_config(mock_config)
     assert not components.validate()
 
     # Csak logger
-    components = CoreComponents(logger=mock_logger)
+    components = CoreComponents()
+    components.set_logger(mock_logger)
     assert not components.validate()
 
     # Csak storage
-    components = CoreComponents(storage=mock_storage)
+    components = CoreComponents()
+    components.set_storage(mock_storage)
     assert not components.validate()
 
     # Config és logger
-    components = CoreComponents(config=mock_config, logger=mock_logger)
+    components = CoreComponents()
+    components.set_config(mock_config)
+    components.set_logger(mock_logger)
     assert not components.validate()
 
     # Config és storage
-    components = CoreComponents(config=mock_config, storage=mock_storage)
+    components = CoreComponents()
+    components.set_config(mock_config)
+    components.set_storage(mock_storage)
     assert not components.validate()
 
     # Logger és storage
-    components = CoreComponents(logger=mock_logger, storage=mock_storage)
+    components = CoreComponents()
+    components.set_logger(mock_logger)
+    components.set_storage(mock_storage)
     assert not components.validate()

@@ -1,35 +1,39 @@
 """Core komponensek gyűjtemény."""
 
 import threading
-from functools import wraps
-from typing import Callable, Generic, Optional, TypeVar, cast
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Generic, Optional, TypeVar, cast
 
-from neural_ai.core.base.container import DIContainer
 from neural_ai.core.base.factory import CoreComponentFactory
+
+# Runtime importok a resolve() metódushoz
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+# Körkörös importok elkerüléséhez
+if TYPE_CHECKING:
+    from neural_ai.core.base.container import DIContainer
 
 T = TypeVar("T")
 
 
 class LazyLoader(Generic[T]):
-    """Lazy loader for expensive resources."""
+    """Drága erőforrások lusta betöltője."""
 
     def __init__(self, loader_func: Callable[[], T]) -> None:
-        """
-        Initialize lazy loader.
+        """Lustabetöltő inicializálása.
 
         Args:
-            loader_func: Function to call when loading the resource
+            loader_func: A függvény, amit az erőforrás betöltéséhez hívunk
         """
         self._loader_func = loader_func
         self._loaded: bool = False
-        self._value: Optional[T] = None
+        self._value: T | None = None
         self._lock = threading.RLock()
 
     def _load(self) -> T:
-        """Load the resource if not already loaded."""
+        """Betölti az erőforrást, ha még nincs betöltve."""
         with self._lock:
             if not self._loaded:
                 self._value = self._loader_func()
@@ -38,62 +42,86 @@ class LazyLoader(Generic[T]):
         return cast(T, self._value)
 
     def __call__(self) -> T:
-        """Get the loaded resource."""
+        """Visszaadja a betöltött erőforrást."""
         return self._load()
 
     @property
     def is_loaded(self) -> bool:
-        """Check if the resource is loaded."""
+        """Ellenőrzi, hogy az erőforrás betöltődött-e."""
         return self._loaded
 
     def reset(self) -> None:
-        """Reset the loader to unload the resource."""
+        """Visszaállítja a betöltőt, hogy kirakja az erőforrást."""
         with self._lock:
             self._loaded = False
             self._value = None
 
 
-def lazy_property(func: Callable[..., T]) -> property:
-    """Create lazy-loaded property decorator."""
-    attr_name = f"_lazy_{func.__name__}"
-
-    @property
-    @wraps(func)
-    def wrapper(instance: object) -> T:
-        if not hasattr(instance, attr_name):
-            value = func(instance)
-            setattr(instance, attr_name, value)
-        return getattr(instance, attr_name)
-
-    return wrapper
-
-
 class CoreComponents:
-    """Core components with lazy loading support."""
+    """Alap komponensek lusta betöltéssel."""
 
-    def __init__(self, container: Optional[DIContainer] = None):
-        """Initialize core components."""
+    def __init__(self, container: Optional["DIContainer"] = None):
+        """Alap komponensek inicializálása.
+
+        Args:
+            container: Egy függőséginjektáló konténer (opcionális)
+        """
+        # Körkörös import elkerüléséhez
         from neural_ai.core.base.container import DIContainer
 
         self._container = container or DIContainer()
         self._factory = CoreComponentFactory(self._container)
 
-
     @property
-    def config(self) -> Optional[ConfigManagerInterface]:
-        """Get config manager."""
+    def config(self) -> Optional["ConfigManagerInterface"]:
+        """Config manager lekérése.
+
+        Returns:
+            ConfigManagerInterface vagy None, ha nincs regisztrálva
+        """
         return self._container.resolve(ConfigManagerInterface)
 
     @property
-    def logger(self) -> Optional[LoggerInterface]:
-        """Get logger."""
+    def logger(self) -> Optional["LoggerInterface"]:
+        """Logger lekérése.
+
+        Returns:
+            LoggerInterface vagy None, ha nincs regisztrálva
+        """
         return self._container.resolve(LoggerInterface)
 
     @property
-    def storage(self) -> Optional[StorageInterface]:
-        """Get storage."""
+    def storage(self) -> Optional["StorageInterface"]:
+        """Storage lekérése.
+
+        Returns:
+            StorageInterface vagy None, ha nincs regisztrálva
+        """
         return self._container.resolve(StorageInterface)
 
+    def set_config(self, config: "ConfigManagerInterface") -> None:
+        """Beállítja a config komponenst (csak teszteléshez).
+
+        Args:
+            config: A config manager implementáció
+        """
+        self._container.register_instance(ConfigManagerInterface, config)
+
+    def set_logger(self, logger: "LoggerInterface") -> None:
+        """Beállítja a logger komponenst (csak teszteléshez).
+
+        Args:
+            logger: A logger implementáció
+        """
+        self._container.register_instance(LoggerInterface, logger)
+
+    def set_storage(self, storage: "StorageInterface") -> None:
+        """Beállítja a storage komponenst (csak teszteléshez).
+
+        Args:
+            storage: A storage implementáció
+        """
+        self._container.register_instance(StorageInterface, storage)
 
     def has_config(self) -> bool:
         """Ellenőrzi, hogy van-e config komponens.
