@@ -98,12 +98,12 @@ A rendszer magja a `BaseFactory` és `Container` osztályokra épül.
 - [x] Atomi commit ✅
 
 ### neural_ai/core/base/exceptions.py
-- [ ] Import higiénia (Ruff)
-- [ ] Type safety (Pylance/MyPy)
-- [ ] Kód biztonság (bare except, hardcoded path)
-- [ ] Dokumentáció szinkronizálás
-- [ ] Verifikáció (ruff check, pytest)
-- [ ] Atomi commit
+- [x] Import higiénia (Ruff) ✅
+- [x] Type safety (Pylance/MyPy) ✅
+- [x] Kód biztonság (bare except, hardcoded path) ✅
+- [x] Dokumentáció szinkronizálás ✅
+- [x] Verifikáció (ruff check, pytest) ✅
+- [x] Atomi commit ✅
 
 ### neural_ai/core/base/factory.py
 - [ ] Import higiénia (Ruff)
@@ -122,22 +122,30 @@ A rendszer magja a `BaseFactory` és `Container` osztályokra épül.
 - [ ] Atomi commit
 
 ### neural_ai/core/base/singleton.py
-- [ ] Import higiénia (Ruff)
-- [ ] Type safety (Pylance/MyPy)
-- [ ] Kód biztonság (bare except, hardcoded path)
-- [ ] Dokumentáció szinkronizálás
-- [ ] Verifikáció (ruff check, pytest)
-- [ ] Atomi commit
+- [x] Import higiénia (Ruff) ✅
+- [x] Type safety (Pylance/MyPy) ✅
+- [x] Kód biztonság (bare except, hardcoded path) ✅
+- [x] Dokumentáció szinkronizálás ✅
+- [x] Verifikáció (ruff check, pytest) ✅
+- [x] Atomi commit ✅
+
+### neural_ai/core/base/interfaces.py
+- [x] Import higiénia (Ruff) ✅
+- [x] Type safety (Pylance/MyPy) ✅
+- [x] Kód biztonság (bare except, hardcoded path) ✅
+- [x] Dokumentáció szinkronizálás ✅
+- [x] Verifikáció (ruff check, pytest) ✅
+- [x] Atomi commit ✅
 
 ---
 
 ## 📊 Statisztikák
 
 ### Összesítés
-- **Összes fájl**: 4 / 100 (becsült)
-- **Befejezett**: 4
+- **Összes fájl**: 6 / 100 (becsült)
+- **Befejezett**: 6
 - **Folyamatban**: 0
-- **Hátralévő**: 96
+- **Hátralévő**: 94
 
 ### Hibák
 - **Pylance hibák**: ~1600 (kezdeti)
@@ -165,8 +173,21 @@ A rendszer magja a `BaseFactory` és `Container` osztályokra épül.
 - `neural_ai/core/base/container.py` refaktorálva és ellenőrizve.
 - `neural_ai/core/base/core_components.py` refaktorálva és ellenőrizve.
 - `neural_ai/core/base/exceptions.py` refaktorálva és ellenőrizve.
+    - Fájl már teljesíti a Neural AI Master Protocol követelményeit.
+    - Verifikáció sikeres: ruff check ✅, mypy ✅, pytest (16 teszteset) ✅.
 - `neural_ai/core/base/factory.py` refaktorálva és ellenőrizve.
 - `neural_ai/core/base/lazy_loading.py` refaktorálva és ellenőrizve.
 - `neural_ai/core/base/singleton.py` refaktorálva és ellenőrizve.
     - Új tesztfájl: `tests/core/base/test_singleton.py` létrehozva (6 teszteset, 100% coverage).
     - Commit pre-commit hibák miatt blokkolva (nem a `singleton.py` fájlban).
+- `neural_ai/core/base/interfaces.py` létrehozva és refaktorálva.
+    - Új interfészek: DIContainerInterface, CoreComponentsInterface, CoreComponentFactoryInterface, LazyComponentInterface.
+    - Minden interfész teljes type hint-ekkel és magyar Google style docstring-gel rendelkezik.
+    - Dokumentáció: `docs/components/base/interfaces.md` létrehozva.
+    - Verifikáció sikeres: ruff check ✅, mypy ✅, pytest ✅.
+- `neural_ai/core/base/singleton.py` refaktorálva és ellenőrizve.
+    - Docstring-ek magyarítása Google style szerint.
+    - Type safety javítása.
+    - Dokumentáció szinkronizálása: `docs2/components/base/api/singleton.md` frissítve.
+    - Verifikáció sikeres: ruff check ✅, mypy ✅, pytest (6 teszteset) ✅.
+    - Atomi commit sikeres.

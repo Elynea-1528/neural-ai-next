@@ -88,4 +88,3 @@ Minden interfész teljes típusannotációval rendelkezik, biztosítva a fordít
 - [API Referencia](api.md)
 - [Architektúra](architecture.md)
 - [Fejlesztési Útmutató](development_checklist.md)
-

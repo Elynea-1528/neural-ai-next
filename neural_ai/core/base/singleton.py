@@ -1,18 +1,18 @@
-"""Singleton metaclass implementation."""
+"""Singleton metaclass megvalósítása."""
 
 from typing import Any
 
 
 class SingletonMeta(type):
-    """Metaclass for implementing singleton pattern.
+    """Singleton minta megvalósítására szolgáló metaclass.
 
-    This metaclass ensures that only one instance of a class exists.
+    Ez a metaclass biztosítja, hogy egy osztályból csak egy példány létezzen.
     """
 
     _instances: dict[type[Any], Any] = {}
 
     def __call__(cls, *args: Any, **kwargs: Any) -> Any:
-        """Create or return the singleton instance."""
+        """Singleton példány létrehozása vagy visszaadása."""
         if cls not in cls._instances:
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance

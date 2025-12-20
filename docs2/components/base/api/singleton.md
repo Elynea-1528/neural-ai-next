@@ -8,9 +8,9 @@ Ez a dokumentum a Base komponens singleton mintájának API-ját dokumentálja. 
 
 ```python
 class SingletonMeta(type):
-    """Metaclass for implementing singleton pattern.
+    """Singleton minta megvalósítására szolgáló metaclass.
 
-    This metaclass ensures that only one instance of a class exists.
+    Ez a metaclass biztosítja, hogy egy osztályból csak egy példány létezzen.
     """
 ```
 
@@ -26,7 +26,7 @@ _instances: Dict[type, Any] = {}
 
 ```python
 def __call__(cls, *args, **kwargs) -> Any:
-    """Create or return the singleton instance."""
+    """Singleton példány létrehozása vagy visszaadása."""
 ```
 
 **Leírás:** Felülírja az osztály meghívását. Amikor egy singleton osztályt példányosítanak, ez a metódus ellenőrzi, hogy már létezik-e példány. Ha igen, visszaadja a meglévőt, ha nem, létrehozza az újat.

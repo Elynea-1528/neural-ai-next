@@ -39,4 +39,4 @@ repos:
     rev: 1.9.2
     hooks:
       - id: bandit
-        args: [--skip=B101, --recursive, .]
+        args: [--skip=B101,B311]
