@@ -8,7 +8,21 @@ A `CoreComponentFactory` osztály a Neural AI Next projekt core komponenseinek l
 
 ```python
 class CoreComponentFactory(metaclass=SingletonMeta):
-    """Factory for creating core components with lazy loading."""
+    """Core komponensek létrehozásáért felelős factory lazy loadinggel.
+
+    Ez az osztály biztosítja a core komponensek (config, logger, storage) egységes
+    létrehozását és kezelését. Singleton minta használatával biztosítja, hogy csak
+    egy példány létezik, és lazy loading technikával optimalizálja a teljesítményt.
+
+    A factory támogatja a komponensek validációját, függőségi injektálást és
+    automatikus inicializálást különböző konfigurációs forgatókönyvekben.
+
+    Attributes:
+        _container: A dependency injection konténer
+        _logger_loader: Lazy loader a logger komponenshez
+        _config_loader: Lazy loader a config manager komponenshez
+        _storage_loader: Lazy loader a storage komponenshez
+    """
 ```
 
 ### Konstruktor
@@ -51,7 +65,23 @@ def create_components(
     log_path: Optional[Union[str, Path]] = None,
     storage_path: Optional[Union[str, Path]] = None,
 ) -> CoreComponents:
-    """Core komponensek létrehozása és inicializálása."""
+    """Core komponensek létrehozása és inicializálása.
+
+    Létrehozza és inicializálja az összes core komponenst (config, logger, storage)
+    a megadott elérési utak alapján. A komponensek lazy loadinggel kerülnek betöltésre.
+
+    Args:
+        config_path: A konfigurációs fájl elérési útja (opcionális)
+        log_path: A log fájl elérési útja (opcionális)
+        storage_path: A tároló alapkönyvtára (opcionális)
+
+    Returns:
+        CoreComponents: Az inicializált core komponensek gyűjteménye
+
+    Raises:
+        ConfigurationError: Ha a konfiguráció érvénytelen
+        DependencyError: Ha szükséges függőségek hiányoznak
+    """
 ```
 
 **Leírás:** Létrehozza és inicializálja a core komponenseket a megadott konfigurációval. Ez az elsődleges metódus a komponensek létrehozásához.
@@ -302,7 +332,12 @@ print(data)  # {'key': 'value'}
 
 ```python
 def reset_lazy_loaders(self) -> None:
-    """Reset all lazy loaders (useful for testing)."""
+    """Visszaállítja az összes lazy loadert.
+
+    Ez a metódus visszaállítja az összes lazy loader állapotát, amely
+    hasznos lehet tesztelés során vagy újrainicializáláskor.
+    A lazy property-ket is törli.
+    """
 ```
 
 **Leírás:** Visszaállítja az összes lazy loadert az alaphelyzetbe. Ez különösen hasznos tesztelés során.
@@ -332,7 +367,7 @@ logger2 = factory.logger
 ```python
 @property
 def logger(self) -> LoggerInterface:
-    """Get the logger instance (lazy-loaded)."""
+    """Visszaadja a logger példányt (lazy-loaded)."""
 ```
 
 **Leírás:** Visszaadja a logger példányt. Lazy-loaded, azaz csak akkor töltődik be, amikor először használják.
@@ -342,7 +377,7 @@ def logger(self) -> LoggerInterface:
 ```python
 @property
 def config_manager(self) -> ConfigManagerInterface:
-    """Get the config manager instance (lazy-loaded)."""
+    """Visszaadja a config manager példányt (lazy-loaded)."""
 ```
 
 **Leírás:** Visszaadja a konfiguráció kezelő példányt. Lazy-loaded, azaz csak akkor töltődik be, amikor először használják.
@@ -352,7 +387,7 @@ def config_manager(self) -> ConfigManagerInterface:
 ```python
 @property
 def storage(self) -> StorageInterface:
-    """Get the storage instance (lazy-loaded)."""
+    """Visszaadja a storage példányt (lazy-loaded)."""
 ```
 
 **Leírás:** Visszaadja a tároló példányt. Lazy-loaded, azaz csak akkor töltődik be, amikor először használják.
@@ -363,7 +398,7 @@ def storage(self) -> StorageInterface:
 
 ```python
 def _get_logger(self) -> LoggerInterface:
-    """Lazy load the logger."""
+    """Lazy loadinggel tölti be a logger komponenst."""
 ```
 
 **Leírás:** Belső metódus a logger lazy loadingjéhez.
@@ -372,7 +407,7 @@ def _get_logger(self) -> LoggerInterface:
 
 ```python
 def _get_config_manager(self) -> ConfigManagerInterface:
-    """Lazy load the config manager."""
+    """Lazy loadinggel tölti be a config manager komponenst."""
 ```
 
 **Leírás:** Belső metódus a konfiguráció kezelő lazy loadingjéhez.
@@ -381,7 +416,7 @@ def _get_config_manager(self) -> ConfigManagerInterface:
 
 ```python
 def _get_storage(self) -> StorageInterface:
-    """Lazy load the storage."""
+    """Lazy loadinggel tölti be a storage komponenst."""
 ```
 
 **Leírás:** Belső metódus a tároló lazy loadingjéhez.
@@ -602,6 +637,6 @@ expensive_config = factory._expensive_config  # Most töltődik be
 
 ---
 
-**Dokumentum verzió:** 1.0
-**Utolsó frissítés:** 2025-12-19
+**Dokumentum verzió:** 1.1
+**Utolsó frissítés:** 2025-12-20
 **Osztály:** CoreComponentFactory

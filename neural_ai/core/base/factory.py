@@ -24,7 +24,21 @@ if TYPE_CHECKING:
 
 
 class CoreComponentFactory(metaclass=SingletonMeta):
-    """Core komponensek létrehozásáért felelős factory lazy loadinggel."""
+    """Core komponensek létrehozásáért felelős factory lazy loadinggel.
+
+    Ez az osztály biztosítja a core komponensek (config, logger, storage) egységes
+    létrehozását és kezelését. Singleton minta használatával biztosítja, hogy csak
+    egy példány létezik, és lazy loading technikával optimalizálja a teljesítményt.
+
+    A factory támogatja a komponensek validációját, függőségi injektálást és
+    automatikus inicializálást különböző konfigurációs forgatókönyvekben.
+
+    Attributes:
+        _container: A dependency injection konténer
+        _logger_loader: Lazy loader a logger komponenshez
+        _config_loader: Lazy loader a config manager komponenshez
+        _storage_loader: Lazy loader a storage komponenshez
+    """
 
     def __init__(self, container: DIContainer):
         """Inicializálja a factory-t lazy-loaded függőségekkel."""
@@ -108,7 +122,12 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         return {}
 
     def reset_lazy_loaders(self) -> None:
-        """Visszaállítja az összes lazy loadert (hasznos teszteléshez)."""
+        """Visszaállítja az összes lazy loadert.
+
+        Ez a metódus visszaállítja az összes lazy loader állapotát, amely
+        hasznos lehet tesztelés során vagy újrainicializáláskor.
+        A lazy property-ket is törli.
+        """
         self._logger_loader.reset()
         self._config_loader.reset()
         self._storage_loader.reset()
@@ -120,15 +139,15 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
     @staticmethod
     def _validate_dependencies(component_type: str, config: dict[str, Any] | None = None) -> None:
-        """Validate that all required dependencies are available.
+        """Ellenőrzi, hogy minden szükséges függőség elérhető-e.
 
         Args:
-            component_type: The type of component being created
-            config: Configuration dictionary
+            component_type: A létrehozandó komponens típusa
+            config: Konfigurációs dictionary
 
         Raises:
-            ConfigurationError: If configuration is invalid or missing
-            DependencyError: If required dependencies are not available
+            ConfigurationError: Ha a konfiguráció érvénytelen vagy hiányzik
+            DependencyError: Ha szükséges függőségek nem érhetők el
         """
         config = config or {}
 
@@ -192,7 +211,23 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         log_path: str | Path | None = None,
         storage_path: str | Path | None = None,
     ) -> "CoreComponents":
-        """Core komponensek létrehozása és inicializálása."""
+        """Core komponensek létrehozása és inicializálása.
+
+        Létrehozza és inicializálja az összes core komponenst (config, logger, storage)
+        a megadott elérési utak alapján. A komponensek lazy loadinggel kerülnek betöltésre.
+
+        Args:
+            config_path: A konfigurációs fájl elérési útja (opcionális)
+            log_path: A log fájl elérési útja (opcionális)
+            storage_path: A tároló alapkönyvtára (opcionális)
+
+        Returns:
+            CoreComponents: Az inicializált core komponensek gyűjteménye
+
+        Raises:
+            ConfigurationError: Ha a konfiguráció érvénytelen
+            DependencyError: Ha szükséges függőségek hiányoznak
+        """
         from neural_ai.core.base.core_components import CoreComponents
 
         container = DIContainer()
@@ -220,8 +255,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         # 3. Storage komponens létrehozása a konfiggal és loggerrel
         storage: StorageInterface | None = None
         if storage_path:
-            from neural_ai.core.storage.implementations.file_storage import FileStorage
-
             storage = FileStorage(base_path=storage_path)
             container.register_instance(StorageInterface, storage)
 
@@ -237,14 +270,29 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
     @staticmethod
     def create_with_container(container: DIContainer) -> "CoreComponents":
-        """Core komponensek létrehozása meglévő konténerből."""
+        """Core komponensek létrehozása meglévő konténerből.
+
+        Args:
+            container: A DI konténer, amely tartalmazza a komponenseket
+
+        Returns:
+            CoreComponents: Az inicializált core komponensek
+        """
         from neural_ai.core.base.core_components import CoreComponents
 
         return CoreComponents(container=container)
 
     @staticmethod
     def create_minimal() -> "CoreComponents":
-        """Minimális core komponens készlet létrehozása."""
+        """Minimális core komponens készlet létrehozása.
+
+        Létrehoz egy alapvető komponens készletet alapértelmezett beállításokkal.
+        Megpróbálja betölteni a config.yml fájlt, ha létezik, különben alapértelmezett
+        konfigurációt használ.
+
+        Returns:
+            CoreComponents: Az inicializált minimális komponensek
+        """
         from neural_ai.core.base.core_components import CoreComponents
 
         config = None
@@ -284,7 +332,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         Args:
             name: A logger neve
-            config: Konfigurációs dictionary
+            config: Konfigurációs dictionary (opcionális)
 
         Returns:
             LoggerInterface: A létrehozott logger példány
