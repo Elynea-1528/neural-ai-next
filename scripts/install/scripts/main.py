@@ -46,22 +46,22 @@ class Colors:
     RESET = "\033[0m"
 
 
-def print_error(message: str):
+def print_error(message: str) -> None:
     """Hibaüzenet kiírása."""
     print(f"{Colors.RED}✗ {message}{Colors.RESET}")
 
 
-def print_success(message: str):
+def print_success(message: str) -> None:
     """Sikerüzenet kiírása."""
     print(f"{Colors.GREEN}✓ {message}{Colors.RESET}")
 
 
-def print_warning(message: str):
+def print_warning(message: str) -> None:
     """Figyelmeztető üzenet kiírása."""
     print(f"{Colors.YELLOW}⚠️  {message}{Colors.RESET}")
 
 
-def print_info(message: str):
+def print_info(message: str) -> None:
     """Információs üzenet kiírása."""
     print(f"{Colors.BLUE}ℹ️  {message}{Colors.RESET}")
 
@@ -165,7 +165,7 @@ def check_environment() -> bool:
     try:
         result = subprocess.run("conda env list", shell=True, capture_output=True, text=True)
         return "neural-ai-next" in result.stdout
-    except:
+    except Exception:
         return False
 
 
@@ -191,8 +191,12 @@ def update_environment_yml(pytorch_mode: PyTorchMode) -> str:
     env_content = """name: neural-ai-next
 channels:
   - pytorch
-  - nvidia
-  - conda-forge
+"""
+
+    if pytorch_mode == PyTorchMode.CUDA_12_1:
+        env_content += " - nvidia\n"
+
+    env_content += """  - conda-forge
   - defaults
 dependencies:
   # === CRITIKUS CONDÁS CSOMAGOK ===
@@ -425,7 +429,7 @@ def interactive_setup() -> dict[str, Any] | None:
     return {"install_mode": install_mode, "pytorch_mode": pytorch_mode}
 
 
-def main():
+def main() -> None:
     """Fő belépési pont."""
     parser = argparse.ArgumentParser(description="Neural AI Next egységesített telepítő")
     parser.add_argument("--interactive", action="store_true", help="Interaktív mód")
