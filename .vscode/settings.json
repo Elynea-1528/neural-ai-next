@@ -53,75 +53,19 @@
     "editor.rulers": [
         100
     ],
-    "editor.tabSize": 4,
-    "editor.insertSpaces": true,
-    "editor.detectIndentation": false,
-    /* Files Configuration */
+    // File beállítások
     "files.exclude": {
         "**/__pycache__": true,
         "**/*.pyc": true,
         "**/.pytest_cache": true,
         "**/.coverage": true,
         "**/.mypy_cache": true,
-        "**/.ruff_cache": true,
-        "**/node_modules": true,
-        "**/.git": true,
-        "**/.conda": true,
-        "**/MT5_Data": true
+        "**/.ruff_cache": true
     },
-    "files.watcherExclude": {
-        "**/__pycache__/**": true,
-        "**/*.pyc": true,
-        "**/.pytest_cache/**": true,
-        "**/.mypy_cache/**": true,
-        "**/.ruff_cache/**": true,
-        "**/.conda/**": true,
-        "**/MT5_Data/**": true
-    },
-    /* Terminal Configuration */
-    "terminal.integrated.defaultProfile.linux": "bash",
-    "terminal.integrated.env.linux": {
-        "CONDA_DEFAULT_ENV": "neural-ai-next"
-    },
-    /* Jupyter Configuration */
-    "jupyter.interactiveWindow.cellMarker.code": "# %%",
-    "jupyter.notebookFileRoot": "${workspaceFolder}",
-    /* Git Configuration */
+    // Git beállítások
     "git.enableSmartCommit": true,
     "git.autofetch": true,
     "git.confirmSync": false,
-    /* Copilot Configuration */
-    "github.copilot.enable": {
-        "*": true
-    },
-    /* Search Configuration */
-    "search.exclude": {
-        "**/__pycache__": true,
-        "**/*.pyc": true,
-        "**/.pytest_cache": true,
-        "**/.mypy_cache": true,
-        "**/.ruff_cache": true,
-        "**/.conda": true,
-        "**/MT5_Data": true,
-        "**/.git": true
-    },
-    /* JSON Configuration */
-    "json.schemas": [
-        {
-            "fileMatch": [
-                "pyproject.toml"
-            ],
-            "url": "https://raw.githubusercontent.com/python-poetry/poetry/master/poetry/json-schemas/pyproject.json"
-        }
-    ],
-    /* YAML Configuration */
-    "yaml.schemas": {
-        "https://json.schemastore.org/github-workflow.json": [
-            ".github/workflows/*.yml",
-            ".github/workflows/*.yaml"
-        ]
-    },
-    /* Testing Configuration */
-    "testing.automaticallyOpenPeekView": "never",
-    "testing.openTesting": "openOnTestStart"
+    // Terminal beállítások
+    "terminal.integrated.defaultProfile.linux": "bash"
 }
