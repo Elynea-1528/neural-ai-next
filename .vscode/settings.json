@@ -1,43 +1,47 @@
 {
-    /* Python Configuration */
-    "python.defaultInterpreterPath": "${workspaceFolder}/.conda/envs/neural-ai-next/bin/python",
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.linting.flake8Enabled": true,
-    "python.linting.mypyEnabled": true,
-    "python.formatting.provider": "black",
-    "python.formatting.blackArgs": [
-        "--line-length=100"
-    ],
-    "python.linting.pylintArgs": [
-        "--max-line-length=100"
-    ],
-    "python.linting.flake8Args": [
-        "--max-line-length=100",
-        "--ignore=E203,W503"
-    ],
+    "python.defaultInterpreterPath": "${workspaceFolder}/../../miniconda3/envs/neural-ai-next/bin/python",
+    "python.languageServer": "Pylance",
+    /* Testing Configuration */
     "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
     "python.testing.pytestArgs": [
         "tests",
         "-v",
-        "--tb=short"
+        "--tb=short",
+        "--strict-markers"
     ],
-    /* Pylance Configuration */
+    /* Pylance / Type Checking Configuration (Strict Mode) */
     "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.useLibraryCodeForTypes": true,
     "python.analysis.autoImportCompletions": true,
     "python.analysis.completeFunctionParens": true,
     "python.analysis.inlayHints.functionReturnTypes": true,
     "python.analysis.inlayHints.variableTypes": true,
-    /* MQL5 Configuration - Using MQL Extension Pack (nicholishen) for syntax highlighting
-     * Compilation: Use standalone script: ./scripts/compile_mql.sh <file.mq5>
-     * Recommended extensions:
-     * - MQL Extension Pack (nicholishen) - Syntax highlighting
-     * - C/C++ Extension Pack (Microsoft) - For C++ language support
-     */
-    /* FastAPI Configuration */
-    "fastapi.startServer": false,
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/neural_ai",
+        "${workspaceFolder}/tests"
+    ],
+    /* FORMATTER & LINTER CONFIGURATION (Fixes "Multiple formatters" error) */
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        }
+    },
+    /* Ruff specific settings */
+    "ruff.organizeImports": true,
+    "ruff.fixAll": true,
+    /* Editor Visuals */
+    "editor.rulers": [
+        100
+    ],
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
     /* File Associations */
-    "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "*.mq5": "cpp",
         "*.mqh": "cpp",
@@ -45,27 +49,87 @@
         "*.yml": "yaml",
         "*.yaml": "yaml"
     },
-    /* Editor Configuration */
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": "explicit"
-    },
-    "editor.rulers": [
-        100
-    ],
-    // File beállítások
+    "C_Cpp.errorSquiggles": "disabled",
+    /* Excludes (Performance Optimization) */
     "files.exclude": {
         "**/__pycache__": true,
         "**/*.pyc": true,
         "**/.pytest_cache": true,
         "**/.coverage": true,
         "**/.mypy_cache": true,
-        "**/.ruff_cache": true
+        "**/.ruff_cache": true,
+        "**/node_modules": true,
+        "**/.git": true,
+        "**/.conda": true,
+        "**/MT5_Data": true
     },
-    // Git beállítások
+    "files.watcherExclude": {
+        "**/__pycache__/**": true,
+        "**/*.pyc": true,
+        "**/.pytest_cache/**": true,
+        "**/.mypy_cache/**": true,
+        "**/.ruff_cache/**": true,
+        "**/.conda/**": true,
+        "**/MT5_Data/**": true
+    },
+    "search.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        "**/.pytest_cache": true,
+        "**/.mypy_cache": true,
+        "**/.ruff_cache": true,
+        "**/.conda": true,
+        "**/MT5_Data": true,
+        "**/.git": true
+    },
+    /* Terminal & Jupyter */
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.env.linux": {
+        "CONDA_DEFAULT_ENV": "neural-ai-next"
+    },
+    "jupyter.interactiveWindow.cellMarker.code": "# %%",
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+    /* Git & Copilot */
     "git.enableSmartCommit": true,
     "git.autofetch": true,
     "git.confirmSync": false,
-    // Terminal beállítások
-    "terminal.integrated.defaultProfile.linux": "bash"
+    "github.copilot.enable": {
+        "*": true
+    },
+    /* FastAPI */
+    "fastapi.startServer": false,
+    /* Schemas */
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "pyproject.toml"
+            ],
+            "url": "https://raw.githubusercontent.com/python-poetry/poetry/master/poetry/json-schemas/pyproject.json"
+        }
+    ],
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": [
+            ".github/workflows/*.yml",
+            ".github/workflows/*.yaml"
+        ]
+    },
+    /* Extensions Configuration */
+    "roo-code.enableCodebaseIndexing": true,
+    "roo-code.indexing.includePatterns": [
+        "**/*.py",
+        "**/*.mq5",
+        "**/*.mqh"
+    ],
+    "roo-code.indexing.excludePatterns": [
+        "**/__pycache__/**",
+        "**/.git/**",
+        "**/node_modules/**",
+        "**/.mypy_cache/**",
+        "**/.pytest_cache/**"
+    ],
+    "rainbow_csv.color_scheme": "gradient_fast",
+    "rainbow_csv.delimiter_hints": true,
+    "parquetViewer.maxFileSizeMB": 100,
+    "material-icon-theme.activeIconPack": "material",
+    "material-icon-theme.folders.theme": "specific"
 }

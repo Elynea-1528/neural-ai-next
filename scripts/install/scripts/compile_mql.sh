@@ -10,6 +10,7 @@ MQL_DIR="$WINEPREFIX/drive_c/Program Files/MetaTrader 5"
 METAEDITOR="$MQL_DIR/MetaEditor64.exe"  # MT5 uses MetaEditor64.exe, not metaeditor.exe
 SOURCE_DIR="${1:-$(pwd)}"
 OUTPUT_DIR="$MQL_DIR/MQL5"
+COMPILED_DIR="neural_ai/experts/mt5/compiled"
 
 # Colors for output
 RED='\033[0;31m'
@@ -94,15 +95,28 @@ compile_file() {
     local basename_no_ext="${filename%.*}"
     local output_file="$OUTPUT_DIR/$OUTPUT_SUBDIR/$basename_no_ext.ex5"
     local source_dir_ex5="$source_dir/$basename_no_ext.ex5"
+    local compiled_dir_ex5="$COMPILED_DIR/$basename_no_ext.ex5"
 
     # Check multiple possible locations
     if [ -f "$source_dir_ex5" ]; then
         echo -e "${GREEN}  ✓ Compilation successful${NC}"
         echo -e "${GREEN}  ✓ Output file created: $source_dir_ex5${NC}"
+
+        # Move compiled file to compiled directory
+        mkdir -p "$COMPILED_DIR"
+        mv "$source_dir_ex5" "$compiled_dir_ex5"
+        echo -e "${GREEN}  ✓ Moved to: $compiled_dir_ex5${NC}"
+
         return 0
     elif [ -f "$output_file" ]; then
         echo -e "${GREEN}  ✓ Compilation successful${NC}"
         echo -e "${GREEN}  ✓ Output file created: $output_file${NC}"
+
+        # Copy compiled file to compiled directory
+        mkdir -p "$COMPILED_DIR"
+        cp "$output_file" "$compiled_dir_ex5"
+        echo -e "${GREEN}  ✓ Copied to: $compiled_dir_ex5${NC}"
+
         return 0
     else
         echo -e "${RED}  ✗ Compilation FAILED - No .ex5 file created!${NC}"
@@ -125,6 +139,7 @@ copy_to_mt5() {
     local mt5_ea_dir="$MQL_DIR/MQL5/Experts"
     local output_file="$OUTPUT_DIR/Experts/$basename_no_ext.ex5"
     local source_dir_ex5="$source_dir/$basename_no_ext.ex5"
+    local compiled_dir_ex5="$COMPILED_DIR/$basename_no_ext.ex5"
 
     echo -e "${YELLOW}Copying EA to MT5 folder...${NC}"
 
@@ -139,11 +154,14 @@ copy_to_mt5() {
         return 1
     fi
 
-    # Find and copy .ex5 file (check source directory first, then output directory)
+    # Find and copy .ex5 file (check compiled directory first, then source directory, then output directory)
     local ex5_found=false
     local ex5_source=""
 
-    if [ -f "$source_dir_ex5" ]; then
+    if [ -f "$compiled_dir_ex5" ]; then
+        ex5_source="$compiled_dir_ex5"
+        ex5_found=true
+    elif [ -f "$source_dir_ex5" ]; then
         ex5_source="$source_dir_ex5"
         ex5_found=true
     elif [ -f "$output_file" ]; then
@@ -152,7 +170,8 @@ copy_to_mt5() {
     fi
 
     if [ "$ex5_found" = true ]; then
-        if cp "$ex5_source" "$mt5_ea_dir/$basename_no_ext.ex5"; then
+        # Always copy (overwrite if exists)
+        if cp -f "$ex5_source" "$mt5_ea_dir/$basename_no_ext.ex5"; then
             echo -e "${GREEN}✓ .ex5 copied to: $mt5_ea_dir/$basename_no_ext.ex5${NC}"
             return 0
         else
@@ -162,6 +181,7 @@ copy_to_mt5() {
     else
         echo -e "${RED}✗ ERROR: .ex5 file not found for copying!${NC}"
         echo "  Searched locations:"
+        echo "    $compiled_dir_ex5"
         echo "    $source_dir_ex5"
         echo "    $output_file"
         return 1
@@ -194,8 +214,9 @@ if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ Compilation and copy successful${NC}"
     echo "=========================================="
     echo ""
-    echo "Your EA is ready in MT5 at:"
-    echo "  $MQL_DIR/MQL5/Experts/"
+    echo "Your EA is ready in:"
+    echo "  Project: $COMPILED_DIR/"
+    echo "  MT5: $MQL_DIR/MQL5/Experts/"
     echo ""
     echo "To use in MT5:"
     echo "  1. Open MT5"

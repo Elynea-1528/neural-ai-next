@@ -3,25 +3,19 @@ channels:
   - pytorch
   - nvidia
   - conda-forge
+  - defaults
 dependencies:
-  - python=3.12
+  # === CRITIKUS CONDÁS CSOMAGOK ===
+  - python=3.12.*
   - pytorch=2.5.1
+  - torchvision=0.20.1
+  - torchaudio=2.5.1
   - pytorch-cuda=12.1
   - lightning=2.5.5
-  - numpy
-  - pandas
-  - scikit-learn
+  - numpy>=1.24.3,<3.0
+  - pandas>=2.0.3,<3.0
+  - scikit-learn>=1.3.0
+  
+  # === PIP CSOMAGOK (PYPROJECT.TOML-BÓL) ===
   - pip:
-    - vectorbt
-    - jupyterlab
-    - pytest
-    - black
-    - flake8
-    - mypy
-    - pre-commit
-    - fastapi
-    - uvicorn
-    - websockets
-    - httpx
-    - pydantic
-    - python-multipart
+      - -e .
