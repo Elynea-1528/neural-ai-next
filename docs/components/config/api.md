@@ -157,16 +157,60 @@ Konfigurációkezelő példányok létrehozása és kezelése.
 
 ```python
 class ConfigManagerFactory(ConfigManagerFactoryInterface):
+    _manager_types: dict[str, type[ConfigManagerInterface]] = {
+        ".yml": YAMLConfigManager,
+        ".yaml": YAMLConfigManager,
+    }
+
+    @classmethod
+    def register_manager(cls, extension: str, manager_class: type[ConfigManagerInterface]) -> None:
+        """Új konfiguráció kezelő típus regisztrálása.
+
+        Args:
+            extension: A kezelt fájl kiterjesztése (pl: ".yml")
+            manager_class: A kezelő osztály
+
+        Raises:
+            ValueError: Ha a kiterjesztés már regisztrálva van
+        """
+        pass
+
     @classmethod
     def get_manager(cls, filename: str | Path, manager_type: str | None = None) -> ConfigManagerInterface:
-        """Manager példány létrehozása fájl alapján.
+        """Megfelelő konfiguráció kezelő létrehozása.
 
         Args:
             filename: Konfigurációs fájl neve vagy Path objektum
-            manager_type: Opcionális kezelő típus megadásához
+            manager_type: Kért kezelő típus (opcionális)
 
         Returns:
-            ConfigManagerInterface: A megfelelő manager példány
+            ConfigManagerInterface: A létrehozott kezelő
+
+        Raises:
+            ConfigLoadError: Ha nem található megfelelő kezelő
+        """
+        pass
+
+    @classmethod
+    def get_supported_extensions(cls) -> list[str]:
+        """Támogatott fájl kiterjesztések lekérése.
+
+        Returns:
+            list[str]: A támogatott kiterjesztések listája
+        """
+        pass
+
+    @classmethod
+    def create_manager(cls, manager_type: str, *args: Any, **kwargs: Any) -> ConfigManagerInterface:
+        """Konfiguráció kezelő létrehozása típus alapján.
+
+        Args:
+            manager_type: A kért kezelő típus
+            *args: Pozícionális paraméterek
+            **kwargs: Kulcsszavas paraméterek
+
+        Returns:
+            ConfigManagerInterface: A létrehozott kezelő
 
         Raises:
             ConfigLoadError: Ha nem található megfelelő kezelő
@@ -245,8 +289,15 @@ is_valid, errors = config.validate(schema)
 # Új formátum regisztrálása
 ConfigManagerFactory.register_manager(".custom", CustomConfigManager)
 
-# Manager lekérése
+# Manager lekérése fájl alapján
 config = ConfigManagerFactory.get_manager("config.custom")
+
+# Manager lekérése típus alapján
+config = ConfigManagerFactory.create_manager("yaml", filename="config.yaml")
+
+# Támogatott kiterjesztések lekérése
+extensions = ConfigManagerFactory.get_supported_extensions()
+# ['.yml', '.yaml', '.custom']
 ```
 
 ## Hibaüzenetek

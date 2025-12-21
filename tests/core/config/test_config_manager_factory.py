@@ -126,3 +126,40 @@ class TestConfigManagerFactory:
         """Teszteli az alapértelmezett támogatott kiterjesztéseket."""
         extensions = set(ConfigManagerFactory.get_supported_extensions())
         assert extensions == {".yml", ".yaml"}
+
+    def test_create_manager(self, temp_config_dir: str) -> None:
+        """Teszteli a create_manager metódust."""
+        config_path = os.path.join(temp_config_dir, "test.yaml")
+        with open(config_path, "w", encoding="utf-8") as f:
+            yaml.dump({"test": True}, f)
+
+        manager = ConfigManagerFactory.create_manager("yaml", filename=config_path)
+        assert isinstance(manager, YAMLConfigManager)
+
+    def test_create_manager_invalid_type(self) -> None:
+        """Teszteli a create_manager metódust érvénytelen típussal."""
+        with pytest.raises(ConfigLoadError):
+            ConfigManagerFactory.create_manager("invalid")
+
+    def test_get_manager_with_manager_type(self, temp_config_dir: str) -> None:
+        """Teszteli a get_manager metódust manager_type paraméterrel."""
+        config_path = os.path.join(temp_config_dir, "config.txt")
+        with open(config_path, "w", encoding="utf-8") as f:
+            yaml.dump({"test": True}, f)
+
+        manager = ConfigManagerFactory.get_manager(config_path, manager_type="yaml")
+        assert isinstance(manager, YAMLConfigManager)
+
+    def test_get_manager_with_invalid_manager_type(self) -> None:
+        """Teszteli a get_manager metódust érvénytelen manager_type paraméterrel."""
+        with pytest.raises(ConfigLoadError):
+            ConfigManagerFactory.get_manager("config.yaml", manager_type="invalid")
+
+    def test_get_manager_default_yaml_no_extension(self, temp_config_dir: str) -> None:
+        """Teszteli alapértelmezett YAML kezelőt kiterjesztés nélküli fájlhoz."""
+        config_path = os.path.join(temp_config_dir, "config")
+        with open(config_path, "w", encoding="utf-8") as f:
+            yaml.dump({"test": True}, f)
+
+        manager = ConfigManagerFactory.get_manager(config_path)
+        assert isinstance(manager, YAMLConfigManager)
