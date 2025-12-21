@@ -12,7 +12,10 @@ from neural_ai.core.config.interfaces import ConfigManagerInterface
 
 @dataclass
 class ValidationContext:
-    """Validation context for schema validation."""
+    """Séma validációs kontextus.
+
+    Ez az osztály tartalmazza a validációs folyamat során szükséges adatokat.
+    """
 
     path: str
     errors: dict[str, str]
@@ -41,25 +44,33 @@ class YAMLConfigManager(ConfigManagerInterface):
 
     @staticmethod
     def _ensure_dict(data: Any) -> dict[str, Any]:
-        """Ensure the data is a dictionary.
+        """Adatok dictionary típusának biztosítása.
 
         Args:
-            data: Any data to check
+            data: Ellenőrizendő adatok
 
         Returns:
-            Dict[str, Any]: The data as a dictionary
+            Dict[str, Any]: Az adatok dictionary formátumban
 
         Raises:
-            ConfigLoadError: If the data is not None and not a dictionary
+            ConfigLoadError: Ha az adatok nem None és nem dictionary
         """
         if data is None:
             return {}
         if not isinstance(data, dict):
-            raise ConfigLoadError("YAML content must be a dictionary")
-        return data
+            raise ConfigLoadError("YAML tartalom dictionary típusúnak kell lennie")
+        return cast(dict[str, Any], data)
 
     def get(self, *keys: str, default: Any = None) -> Any:
-        """Érték lekérése a konfigurációból."""
+        """Érték lekérése a konfigurációból.
+
+        Args:
+            *keys: A konfigurációs kulcsok hierarchiája
+            default: Alapértelmezett érték, ha a kulcs nem található
+
+        Returns:
+            A konfigurációs érték vagy az alapértelmezett érték
+        """
         current: dict[str, Any] | Any = self._config
         for key in keys:
             if not isinstance(current, dict):
@@ -70,43 +81,77 @@ class YAMLConfigManager(ConfigManagerInterface):
         return current
 
     def get_section(self, section: str) -> dict[str, Any]:
-        """Teljes konfigurációs szekció lekérése."""
+        """Teljes konfigurációs szekció lekérése.
+
+        Args:
+            section: A szekció neve
+
+        Returns:
+            A szekció konfigurációs adatai
+
+        Raises:
+            KeyError: Ha a szekció nem található
+        """
         if section not in self._config:
-            raise KeyError(f"Configuration section not found: {section}")
+            raise KeyError(f"Konfigurációs szekció nem található: {section}")
         section_data = self._config.get(section, {})
         return cast(dict[str, Any], section_data)
 
     def set(self, *keys: str, value: Any) -> None:
-        """Érték beállítása a konfigurációban."""
+        """Érték beállítása a konfigurációban.
+
+        Args:
+            *keys: A konfigurációs kulcsok hierarchiája
+            value: A beállítandó érték
+
+        Raises:
+            ValueError: Ha nincs kulcs megadva vagy érvénytelen hierarchia
+        """
         if not keys:
-            raise ValueError("At least one key must be provided")
+            raise ValueError("Legalább egy kulcsot meg kell adni")
 
         current = self._config
         for key in keys[:-1]:
             if key not in current:
                 current[key] = {}
             elif not isinstance(current[key], dict):
-                raise ValueError(f"Cannot set nested key in non-dict value: {key}")
+                raise ValueError(
+                    f"Nem lehet beágyazott kulcsot beállítani nem dictionary értékben: {key}"
+                )
             current = current[key]
         current[keys[-1]] = value
 
     def save(self, filename: str | None = None) -> None:
-        """Aktuális konfiguráció mentése fájlba."""
+        """Aktuális konfiguráció mentése fájlba.
+
+        Args:
+            filename: A mentési fájl neve (opcionális, alapértelmezett az eredeti fájlnév)
+
+        Raises:
+            ValueError: Ha nincs fájlnév megadva vagy mentési hiba történik
+        """
         save_filename = filename or self._filename
         if not save_filename:
-            raise ValueError("No filename specified for save operation")
+            raise ValueError("Nincs fájlnév megadva a mentési művelethez")
 
         try:
             os.makedirs(os.path.dirname(save_filename), exist_ok=True)
             with open(save_filename, "w", encoding="utf-8") as f:
                 yaml.dump(self._config, f, default_flow_style=False, sort_keys=False)
         except (OSError, yaml.YAMLError) as e:
-            raise ValueError(f"Failed to save configuration: {str(e)}") from e
+            raise ValueError(f"Konfiguráció mentése sikertelen: {str(e)}") from e
 
     def load(self, filename: str) -> None:
-        """Konfiguráció betöltése fájlból."""
+        """Konfiguráció betöltése fájlból.
+
+        Args:
+            filename: A betöltendő fájl neve
+
+        Raises:
+            ConfigLoadError: Ha a fájl nem található vagy betöltési hiba történik
+        """
         if not os.path.exists(filename):
-            raise ConfigLoadError(f"File not found: {filename}")
+            raise ConfigLoadError(f"Fájl nem található: {filename}")
 
         try:
             with open(filename, encoding="utf-8") as f:
@@ -115,10 +160,17 @@ class YAMLConfigManager(ConfigManagerInterface):
                 self._config = self._ensure_dict(data)
                 self._filename = filename
         except (FileNotFoundError, yaml.YAMLError) as e:
-            raise ConfigLoadError(f"Failed to load configuration: {str(e)}") from e
+            raise ConfigLoadError(f"Konfiguráció betöltése sikertelen: {str(e)}") from e
 
     def validate(self, schema: dict[str, Any]) -> tuple[bool, dict[str, str] | None]:
-        """Konfiguráció validálása séma alapján."""
+        """Konfiguráció validálása séma alapján.
+
+        Args:
+            schema: A validációs séma definíció
+
+        Returns:
+            Tuple[bool, dict[str, str] | None]: (sikeres-e a validáció, hibák dictionary vagy None)
+        """
         ctx = ValidationContext(path="", errors={}, value=self._config, schema=schema)
         self._validate_dict(ctx)
         return not bool(ctx.errors), ctx.errors if ctx.errors else None
@@ -147,14 +199,28 @@ class YAMLConfigManager(ConfigManagerInterface):
             self._validate_constraints(sub_ctx)
 
     def _validate_required(self, ctx: ValidationContext) -> bool:
-        """Kötelező mező ellenőrzése."""
+        """Kötelező mező ellenőrzése.
+
+        Args:
+            ctx: Validációs kontextus
+
+        Returns:
+            bool: True ha a mező érvényes, False ha hiányzik
+        """
         if ctx.value is None and not ctx.schema.get("optional", False):
-            ctx.errors[ctx.path] = "Required field is missing"
+            ctx.errors[ctx.path] = "Kötelező mező hiányzik"
             return False
         return True
 
     def _validate_type(self, ctx: ValidationContext) -> bool:
-        """Típus ellenőrzése."""
+        """Típus ellenőrzése.
+
+        Args:
+            ctx: Validációs kontextus
+
+        Returns:
+            bool: True ha a típus érvényes, False ha nem
+        """
         if ctx.value is None:
             return True
 
@@ -164,11 +230,11 @@ class YAMLConfigManager(ConfigManagerInterface):
 
         expected_type_class = self._TYPE_MAP.get(expected_type)
         if not expected_type_class:
-            ctx.errors[ctx.path] = f"Unsupported type: {expected_type}"
+            ctx.errors[ctx.path] = f"Nem támogatott típus: {expected_type}"
             return False
 
         if not isinstance(ctx.value, expected_type_class):
-            ctx.errors[ctx.path] = f"Invalid type, expected {expected_type}"
+            ctx.errors[ctx.path] = f"Érvénytelen típus, várt: {expected_type}"
             return False
 
         return True
@@ -177,29 +243,41 @@ class YAMLConfigManager(ConfigManagerInterface):
         """Beágyazott értékek validálása."""
         if ctx.schema.get("type") == "dict" and "schema" in ctx.schema:
             if not isinstance(ctx.value, dict):
-                ctx.errors[ctx.path] = "Expected dictionary"
+                ctx.errors[ctx.path] = "Dictionary típusú érték szükséges"
                 return
             nested_ctx = ValidationContext(
                 path=ctx.path,
                 errors=ctx.errors,
-                value=ctx.value,
+                value=cast(dict[str, Any], ctx.value),
                 schema=ctx.schema["schema"],
             )
             self._validate_dict(nested_ctx)
 
     def _validate_constraints(self, ctx: ValidationContext) -> None:
-        """Érték korlátok validálása."""
+        """Érték korlátok validálása.
+
+        Args:
+            ctx: Validációs kontextus
+        """
         self._validate_choices(ctx)
         self._validate_range(ctx)
 
     def _validate_choices(self, ctx: ValidationContext) -> None:
-        """Választható értékek validálása."""
+        """Választható értékek validálása.
+
+        Args:
+            ctx: Validációs kontextus
+        """
         choices = ctx.schema.get("choices")
         if choices is not None and ctx.value not in choices:
-            ctx.errors[ctx.path] = f"Value must be one of: {choices}"
+            ctx.errors[ctx.path] = f"Értéknek a következőek egyikének kell lennie: {choices}"
 
     def _validate_range(self, ctx: ValidationContext) -> None:
-        """Érték tartományának validálása."""
+        """Érték tartományának validálása.
+
+        Args:
+            ctx: Validációs kontextus
+        """
         if not isinstance(ctx.value, (int, float)):
             return
 
@@ -207,6 +285,6 @@ class YAMLConfigManager(ConfigManagerInterface):
         max_value = ctx.schema.get("max")
 
         if min_value is not None and ctx.value < min_value:
-            ctx.errors[ctx.path] = f"Value must be >= {min_value}"
+            ctx.errors[ctx.path] = f"Értéknek >= {min_value} kell lennie"
         if max_value is not None and ctx.value > max_value:
-            ctx.errors[ctx.path] = f"Value must be <= {max_value}"
+            ctx.errors[ctx.path] = f"Értéknek <= {max_value} kell lennie"

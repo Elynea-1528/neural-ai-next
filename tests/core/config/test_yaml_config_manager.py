@@ -421,7 +421,7 @@ def test_load_yaml_with_non_dict_content(tmp_path: Path) -> None:
 def test_save_with_no_filename_raises_valueerror(config_manager: YAMLConfigManager) -> None:
     """Mentés fájlnév nélkül hiba."""
     # A manager nem lett inicializálva fájlnévvel, és a save sem kapott
-    with pytest.raises(ValueError, match="No filename specified"):
+    with pytest.raises(ValueError, match="Nincs fájlnév megadva a mentési művelethez"):
         config_manager.save()
 
 
@@ -442,7 +442,7 @@ def test_validate_dict_with_none_value(config_manager: YAMLConfigManager) -> Non
     assert not valid
     assert errors is not None
     assert "database" in errors
-    assert "Expected dictionary" in errors["database"]
+    assert "Dictionary típusú érték szükséges" in errors["database"]
 
 
 def test_validate_type_with_none_value(config_manager: YAMLConfigManager) -> None:
@@ -487,7 +487,7 @@ def test_validate_nested_with_none_value(config_manager: YAMLConfigManager) -> N
     assert not valid
     assert errors is not None
     assert "database.credentials" in errors
-    assert "Expected dictionary" in errors["database.credentials"]
+    assert "Dictionary típusú érték szükséges" in errors["database.credentials"]
 
 
 def test_validate_choices_invalid(config_manager: YAMLConfigManager) -> None:
@@ -507,4 +507,4 @@ def test_validate_choices_invalid(config_manager: YAMLConfigManager) -> None:
     assert not valid
     assert errors is not None
     assert "logging.level" in errors
-    assert "Value must be one of" in errors["logging.level"]
+    assert "Értéknek a következőek egyikének kell lennie:" in errors["logging.level"]

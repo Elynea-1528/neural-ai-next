@@ -130,7 +130,7 @@ class ConfigManagerFactoryInterface(ABC):
 
 ### YAMLConfigManager
 
-YAML formátumú konfigurációs fájlok kezelése.
+YAML formátumú konfigurációs fájlok kezelése séma alapú validációval.
 
 ```python
 class YAMLConfigManager(ConfigManagerInterface):
@@ -139,6 +139,77 @@ class YAMLConfigManager(ConfigManagerInterface):
 
         Args:
             filename: Opcionális konfig fájl betöltéséhez
+        """
+        pass
+
+    def get(self, *keys: str, default: Any = None) -> Any:
+        """Érték lekérése a konfigurációból.
+
+        Args:
+            *keys: A konfigurációs kulcsok hierarchiája
+            default: Alapértelmezett érték, ha a kulcs nem található
+
+        Returns:
+            A konfigurációs érték vagy az alapértelmezett érték
+        """
+        pass
+
+    def get_section(self, section: str) -> Dict[str, Any]:
+        """Teljes konfigurációs szekció lekérése.
+
+        Args:
+            section: A szekció neve
+
+        Returns:
+            A szekció konfigurációs adatai
+
+        Raises:
+            KeyError: Ha a szekció nem található
+        """
+        pass
+
+    def set(self, *keys: str, value: Any) -> None:
+        """Érték beállítása a konfigurációban.
+
+        Args:
+            *keys: A konfigurációs kulcsok hierarchiája
+            value: A beállítandó érték
+
+        Raises:
+            ValueError: Ha nincs kulcs megadva vagy érvénytelen hierarchia
+        """
+        pass
+
+    def save(self, filename: Optional[str] = None) -> None:
+        """Aktuális konfiguráció mentése fájlba.
+
+        Args:
+            filename: A mentési fájl neve (opcionális, alapértelmezett az eredeti fájlnév)
+
+        Raises:
+            ValueError: Ha nincs fájlnév megadva vagy mentési hiba történik
+        """
+        pass
+
+    def load(self, filename: str) -> None:
+        """Konfiguráció betöltése fájlból.
+
+        Args:
+            filename: A betöltendő fájl neve
+
+        Raises:
+            ConfigLoadError: Ha a fájl nem található vagy betöltési hiba történik
+        """
+        pass
+
+    def validate(self, schema: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, str]]]:
+        """Konfiguráció validálása séma alapján.
+
+        Args:
+            schema: A validációs séma definíció
+
+        Returns:
+            Tuple[bool, Dict[str, str] | None]: (sikeres-e a validáció, hibák dictionary vagy None)
         """
         pass
 ```
@@ -150,6 +221,13 @@ Támogatott típusok:
 - bool: Logikai érték
 - list: Lista
 - dict: Szótár
+
+Validációs lehetőségek:
+- Kötelező/elhagyható mezők (`optional`)
+- Típus ellenőrzés (`type`)
+- Érték tartomány (`min`, `max`)
+- Választék ellenőrzés (`choices`)
+- Beágyazott validáció (`schema`)
 
 ### ConfigManagerFactory
 
@@ -306,10 +384,10 @@ extensions = ConfigManagerFactory.get_supported_extensions()
 
 | Hiba | Leírás | Példa üzenet |
 |------|--------|--------------|
-| Típus hiba | Nem megfelelő típusú érték | "Invalid type, expected int" |
-| Tartomány hiba | Érték a megengedett tartományon kívül | "Value must be >= 0" |
-| Választék hiba | Nem megengedett érték | "Value must be one of: [A, B, C]" |
-| Hiányzó mező | Kötelező mező hiányzik | "Required field is missing" |
+| Típus hiba | Nem megfelelő típusú érték | "Érvénytelen típus, várt: int" |
+| Tartomány hiba | Érték a megengedett tartományon kívül | "Értéknek >= 0 kell lennie" |
+| Választék hiba | Nem megengedett érték | "Értéknek a következőek egyikének kell lennie: [A, B, C]" |
+| Hiányzó mező | Kötelező mező hiányzik | "Kötelező mező hiányzik" |
 
 ### Runtime hibák
 
