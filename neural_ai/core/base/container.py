@@ -69,31 +69,31 @@ class DIContainer:
         self._logger = logging.getLogger(__name__)
 
     def register_instance(self, interface: Any, instance: Any) -> None:
-        """Register an instance in the container.
+        """Példány regisztrálása a konténerben.
 
         Args:
-            interface: The interface type
-            instance: The instance implementing the interface
+            interface: Az interfész típusa
+            instance: Az interfészt megvalósító példány
         """
         self._instances[interface] = instance
 
     def register_factory(self, interface: Any, factory: Any) -> None:
-        """Register a factory function in the container.
+        """Factory függvény regisztrálása a konténerben.
 
         Args:
-            interface: The interface type
-            factory: Factory function to create interface implementation
+            interface: Az interfész típusa
+            factory: Az interfész implementációját létrehozó factory függvény
         """
         self._factories[interface] = factory
 
     def resolve(self, interface: Any) -> Any | None:
-        """Resolve a dependency.
+        """Függőség feloldása.
 
         Args:
-            interface: The interface type
+            interface: Az interfész típusa
 
         Returns:
-            The instance for the interface or None
+            Az interfészhez tartozó példány vagy None
         """
         if interface in self._instances:
             instance = self._instances[interface]
@@ -111,15 +111,15 @@ class DIContainer:
         return None
 
     def register_lazy(self, component_name: str, factory_func: Callable[[], Any]) -> None:
-        """Register a lazy-loaded component.
+        """Lusta betöltésű komponens regisztrálása.
 
         Args:
-            component_name: The component name
-            factory_func: Function to create the component
+            component_name: A komponens neve
+            factory_func: A komponenst létrehozó függvény
 
         Raises:
-            ValueError: If component name is invalid or factory
-                function is not callable
+            ValueError: Ha a komponens név érvénytelen vagy a factory
+                függvény nem hívható
         """
         if not component_name:
             raise ValueError("Component name must be a non-empty string")
@@ -132,16 +132,16 @@ class DIContainer:
         self._logger.info(f"Registered lazy component: {component_name}")
 
     def get(self, component_name: str) -> Any:
-        """Get a component instance (with lazy loading support).
+        """Komponens példány lekérése (lusta betöltés támogatással).
 
         Args:
-            component_name: The name of the component to retrieve
+            component_name: A lekérendő komponens neve
 
         Returns:
-            The component instance
+            A komponens példánya
 
         Raises:
-            ComponentNotFoundError: If the component is not found
+            ComponentNotFoundError: Ha a komponens nem található
         """
         # Check regular instances first
         if component_name in self._instances:
@@ -212,7 +212,7 @@ class DIContainer:
             )
 
         # Check if instance has _instance class variable (class-level singleton)
-        instance_type: type = type(instance)
+        instance_type: type[Any] = type(instance)
         if not hasattr(instance_type, "_instance"):
             warnings.warn(
                 f"Instance of {type(instance).__name__} (component: {component_name}) "
@@ -250,15 +250,15 @@ class DIContainer:
                 )
 
     def register(self, component_name: str, instance: Any) -> None:
-        """Register a component instance.
+        """Komponens példány regisztrálása.
 
         Args:
-            component_name: The name of the component
-            instance: The instance to register
+            component_name: A komponens neve
+            instance: A regisztrálandó példány
 
         Raises:
-            ValueError: If component_name is invalid or instance is None
-            SingletonViolationError: If singleton pattern is violated
+            ValueError: Ha a component_name érvénytelen vagy az instance None
+            SingletonViolationError: Ha a singleton minta megsértésre kerül
         """
         if not component_name:
             raise ValueError("Component name must be a non-empty string")
