@@ -92,6 +92,66 @@ class LoggerFactoryInterface(ABC):
 
 ## Implementációk
 
+### LoggerFactory
+
+Logger példányok létrehozásáért és konfigurálásáért felelős factory osztály.
+
+```python
+class LoggerFactory(LoggerFactoryInterface):
+    """Factory osztály loggerek létrehozásához."""
+
+    @classmethod
+    def register_logger(cls, logger_type: str, logger_class: type[LoggerInterface]) -> None:
+        """Új logger típus regisztrálása.
+
+        Args:
+            logger_type: A logger típus neve
+            logger_class: A logger osztály
+        """
+
+    @classmethod
+    def get_logger(
+        cls,
+        name: str,
+        logger_type: str = "default",
+        **kwargs: Any,
+    ) -> LoggerInterface:
+        """Logger példány létrehozása vagy visszaadása.
+
+        Args:
+            name: A logger neve
+            logger_type: A kért logger típus
+            **kwargs: További paraméterek a loggernek
+
+        Returns:
+            LoggerInterface: Az inicializált logger
+        """
+
+    @classmethod
+    def configure(cls, config: dict[str, Any]) -> None:
+        """Logger rendszer konfigurálása.
+
+        Args:
+            config: Konfigurációs dict a következő struktúrával:
+                {
+                    'default_level': 'INFO',
+                    'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    'date_format': '%Y-%m-%d %H:%M:%S',
+                    'handlers': {
+                        'console': {
+                            'enabled': True,
+                            'level': 'INFO'
+                        },
+                        'file': {
+                            'enabled': True,
+                            'filename': 'app.log',
+                            'level': 'DEBUG'
+                        }
+                    }
+                }
+        """
+```
+
 ### DefaultLogger
 
 Alap naplózási funkciókat biztosító implementáció.

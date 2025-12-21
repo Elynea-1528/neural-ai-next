@@ -93,3 +93,22 @@ class TestLoggerFactory:
             mock_file_handler.assert_called_once_with("test.log")
             assert mock_file.setLevel.called
             assert mock_root_logger.addHandler.call_count == 2
+
+    def test_register_logger(self) -> None:
+        """Teszteli új logger típus regisztrálását."""
+        from neural_ai.core.logger.implementations.default_logger import DefaultLogger
+
+        # Új logger típus regisztrálása
+        LoggerFactory.register_logger("test_logger", DefaultLogger)
+
+        # Ellenőrzés, hogy hozzá lett adva
+        assert "test_logger" in LoggerFactory._logger_types
+        assert LoggerFactory._logger_types["test_logger"] == DefaultLogger
+
+    def test_get_logger_fallback_to_default(self, logger_name: str) -> None:
+        """Teszteli a fallback logikát nem létező logger típus esetén."""
+        # Nem létező logger típus kérése
+        logger = LoggerFactory.get_logger(logger_name, logger_type="nonexistent")
+        assert isinstance(logger, LoggerInterface)
+        # Ellenőrzés, hogy default logger-t kapott
+        assert logger is LoggerFactory.get_logger(logger_name, logger_type="default")
