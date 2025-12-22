@@ -5,9 +5,9 @@ ami ezt a metaclass-t használja, csak egyetlen példány létezzen az alkalmaz�
 életciklusa során.
 """
 
-from typing import TypeVar
+from typing import TypeVar, cast
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class SingletonMeta(type):
@@ -65,4 +65,4 @@ class SingletonMeta(type):
         if cls not in cls._instances:  # type: ignore[attr-defined]
             instance = super().__call__(*args, **kwargs)  # type: ignore[misc]
             cls._instances[cls] = instance  # type: ignore[attr-defined]
-        return cls._instances[cls]  # type: ignore[attr-defined, no-any-return]
+        return cast(T, cls._instances[cls])  # type: ignore[attr-defined]
