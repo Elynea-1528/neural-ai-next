@@ -11,22 +11,23 @@
 
 ## 📉 PROGRESS TRACKER
 
-**Overall Completion:** 14%
-[███░░░░░░░░░░░░░░░░░]
+**Overall Completion:** 29%
+[██████░░░░░░░░░░░░░░]
 
 | Metric       | Count | Ratio |
 |--------------|-------|-------|
 | Total Files  | 7     | 100%  |
-| ✅ Completed | 1     | 14%   |
+| ✅ Completed | 2     | 29%   |
 | 🚧 In Progress | 0   | 0%    |
-| 🔴 Pending   | 6     | 86%   |
+| 🔴 Pending   | 5     | 71%   |
 
 ## ⚡ ACTIVE CONTEXT (CURRENT FOCUS)
 
 ⚠️ **CRITICAL PATH:** Scripts refaktorálás folyamatban. Ez egy elkülönített SATELLITE feladat, nem zavarja a fő fejlesztést.
 
 - ✅ scripts/install/__init__.py elkészült
-- ➡️ Következő feladat: scripts/install/scripts/check_installation.py
+- ✅ scripts/install/scripts/check_installation.py elkészült
+- ➡️ Következő feladat: scripts/install/scripts/jupyter_setup.py
 
 ## 🗂️ WORKFLOW & TASKS
 
@@ -47,7 +48,7 @@ Jelölések:
 | File Path | Matrix [S\|T\|D] | Status |
 |-----------|------------------|--------|
 | `scripts/install/__init__.py` | [✅\|✅\|✅] | ✅ DONE |
-| `scripts/install/scripts/check_installation.py` | [✅\|❌\|❌] | 🚧 WIP |
+| `scripts/install/scripts/check_installation.py` | [✅\|✅\|✅] | ✅ DONE |
 | `scripts/install/scripts/compile_mql.sh` | [✅\|❌\|❌] | 🔴 PENDING |
 | `scripts/install/scripts/jupyter_setup.py` | [✅\|❌\|❌] | 🔴 PENDING |
 | `scripts/install/scripts/main.py` | [✅\|❌\|❌] | 🔴 PENDING |
