@@ -6,14 +6,12 @@ from typing import TYPE_CHECKING, Optional, TypeVar, cast
 
 from neural_ai.core.base.factory import CoreComponentFactory
 
-# Runtime importok a resolve() metódushoz
-from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-
 # Körkörös importok elkerüléséhez
 if TYPE_CHECKING:
     from neural_ai.core.base.container import DIContainer
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 T = TypeVar("T")
 
@@ -97,6 +95,8 @@ class CoreComponents:
             A konfiguráció kezelő példánya, vagy None ha nincs regisztrálva.
         """
         from typing import cast
+
+        from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         result = self._container.resolve(ConfigManagerInterface)
         return cast(Optional["ConfigManagerInterface"], result)
 
@@ -108,6 +108,8 @@ class CoreComponents:
             A naplózó példánya, vagy None ha nincs regisztrálva.
         """
         from typing import cast
+
+        from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         result = self._container.resolve(LoggerInterface)
         return cast(Optional["LoggerInterface"], result)
 
@@ -119,6 +121,8 @@ class CoreComponents:
             A tároló példánya, vagy None ha nincs regisztrálva.
         """
         from typing import cast
+
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
         result = self._container.resolve(StorageInterface)
         return cast(Optional["StorageInterface"], result)
 
@@ -128,6 +132,7 @@ class CoreComponents:
         Args:
             config: A konfiguráció kezelő implementáció példánya.
         """
+        from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         self._container.register_instance(ConfigManagerInterface, config)
 
     def set_logger(self, logger: "LoggerInterface") -> None:
@@ -136,6 +141,7 @@ class CoreComponents:
         Args:
             logger: A naplózó implementáció példánya.
         """
+        from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         self._container.register_instance(LoggerInterface, logger)
 
     def set_storage(self, storage: "StorageInterface") -> None:
@@ -144,6 +150,7 @@ class CoreComponents:
         Args:
             storage: A tároló implementáció példánya.
         """
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
         self._container.register_instance(StorageInterface, storage)
 
     def has_config(self) -> bool:
