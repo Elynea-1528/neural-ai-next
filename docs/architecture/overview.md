@@ -6,7 +6,12 @@ A Neural-AI-Next egy modern, moduláris és skálázható rendszer a pénzügyi 
 
 ### Adatgyűjtés és tárolás réteg
 - **Collectors**: Különböző forrásokból (MT5, API-k, stb.) gyűjtenek adatokat
+  - **MT5 Collector**: Teljes körű MT5 adatgyűjtő implementálva (történelmi és valós idejű adatok)
+  - **Data Quality Framework**: Adatminőség-ellenőrzés és validáció
+  - **Dead Letter Queue**: Sikertelen adatgyűjtések kezelése
 - **Storage**: Az adatok hatékony tárolásáért és kezeléséért felelős
+  - **File Storage**: Fájl alapú adattárolás
+  - **Data Warehouse**: Strukturált adattárház a tanítási adathalmazokhoz
 
 ### Feldolgozási réteg
 - **Processors**: Az adatok feldolgozása és feature-ök kinyerése
@@ -25,9 +30,10 @@ A Neural-AI-Next egy modern, moduláris és skálázható rendszer a pénzügyi 
 
 ### Rendszer mag
 - **Core**: Alapvető infrastruktúra komponensek, amelyeket az összes többi réteg használ
-  - **Logger**: Egységes naplózás
-  - **Config**: Konfiguráció kezelés
-  - **Storage**: Adattárolás és hozzáférés
+  - **Logger**: Egységes naplózás (Colored, Default, Rotating File implementációk)
+  - **Config**: Konfiguráció kezelés (YAML alapú konfigurációkezelő)
+  - **Storage**: Adattárolás és hozzáférés (File alapú tárolás)
+  - **Base**: Alap komponensek (Container, Factory, Lazy Loading, Singleton minták)
 
 ## Interfész-alapú fejlesztés
 
@@ -67,12 +73,14 @@ A Neural-AI-Next egy hierarchikus modell megközelítést alkalmaz:
 ## Technológiai stack
 
 - **Nyelv**: Python 3.10+
-- **Adatkezelés**: pandas, numpy
-- **Gépi tanulás**: scikit-learn, pytorch, lightning
+- **Adatkezelés**: pandas, numpy, polars
+- **Gépi tanulás**: scikit-learn, pytorch, lightning, xgboost
 - **Vizualizáció**: matplotlib, seaborn, plotly
-- **Tesztelés**: pytest
-- **CI/CD**: GitHub Actions
+- **Tesztelés**: pytest, pytest-cov, pytest-asyncio
+- **CI/CD**: GitHub Actions, pre-commit hooks
 - **Dokumentáció**: Markdown, Sphinx
+- **Code Quality**: ruff, mypy, black
+- **Dependency Management**: conda, pip
 
 ## Skálázhatóság és kiterjeszthetőség
 

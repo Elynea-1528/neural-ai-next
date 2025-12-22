@@ -16,7 +16,7 @@ Python interpreter: /home/elynea/miniconda3/envs/neural-ai-next/bin/python
 
 Conda környezet: Mindig aktiválva neural-ai-next
 
-Project root: /home/elynea/Dokumentumok/neural-ai
+Project root: /home/elynea/Dokumentumok/neural-ai-next
 
 Type hints: Mindenhol, Any csak indokolt esetben
 
@@ -30,7 +30,7 @@ EREDETI ROL: Tervező és stratégiai koordinátor
 
 FŐ FELADATOK:
 
-Állapotfelmérés: docs/development/DEVELOPMENT_STATUS.md vagy QA_STATUS.md elemzése
+Állapotfelmérés: docs/development/DEVELOPMENT_STATUS.md elemzése
 
 Prioritás meghatározás: Phase rendszer betartása
 

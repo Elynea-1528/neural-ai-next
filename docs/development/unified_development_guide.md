@@ -25,6 +25,7 @@ class ComponentInterface(ABC):
         """Fő működési metódus leírása."""
         pass
 ```
+
 ### 2.2 Factory pattern használata
 
 Minden komponenshez használjunk factory osztályt a példányok létrehozásához:
@@ -52,6 +53,7 @@ class Processor:
         self.logger = logger or LoggerFactory.get_logger(__name__)
         self.storage = storage or StorageFactory.get_storage(config)
 ```
+
 ## 3. Kódolási Szabványok
 
 ### 3.1 Kód formázás és stílus
@@ -87,6 +89,7 @@ def calculate_moving_average(data: np.ndarray, window: int = 20) -> np.ndarray:
         ValueError: Ha az ablakméret nagyobb, mint az adatok hossza
     """
 ```
+
 ### 3.3 Hibakezelés
 
 - Minden lehetséges hibát explicit kezeljünk
@@ -104,6 +107,7 @@ except Exception as e:
     self.logger.critical(f"Váratlan hiba: {e}")
     raise SystemError(f"Rendszerhiba a feldolgozás során: {e}")
 ```
+
 ## 4. Komponensek Egységes Használata
 
 ### 4.1 Logger
@@ -137,6 +141,7 @@ batch_size = self.config.get("processing", "batch_size", 100)
 # Config szekció lekérése
 storage_config = self.config.get_section("storage")
 ```
+
 ### 4.3 Storage
 
 Az adattároló komponens egységes használata:
@@ -151,6 +156,7 @@ await self.storage.save_raw_data(data_frame, symbol, timeframe)
 # Storage használata - adatok betöltése
 data = await self.storage.load_raw_data(symbol, timeframe)
 ```
+
 ### 4.4 Processorok
 
 Az adatfeldolgozók egységes használata:
@@ -162,11 +168,153 @@ processor = ProcessorFactory.create_processor("d1_price_action", config)
 # Processor használata
 features = processor.process(raw_data)
 ```
-## 5. Tesztelési Előírások
 
-### 5.1 Unit tesztek
+## 5. Komponens Fejlesztési Folyamat
+
+### 5.1 Komponens Tervezése
+
+#### Követelmények meghatározása
+- Mi a komponens pontos funkciója?
+- Milyen interfészekkel fog rendelkezni?
+- Milyen adatokat fogad és ad vissza?
+- Milyen hibakezelési stratégiát alkalmaz?
+- Milyen teljesítmény- és skálázhatósági követelményei vannak?
+
+#### Interfész tervezése
+1. Definiáld az interfészt egy absztrakt osztályban (`interfaces.py` fájlban)
+2. Határozd meg a publikus metódusokat
+3. Dokumentáld a paramétereket és visszatérési értékeket
+4. Határozd meg a kivételeket
+
+#### Komponens architektúra
+- Tervezd meg a komponens belső struktúráját
+- Azonosítsd a szükséges osztályokat és azok felelősségeit
+- Határozd meg a függőségeket más komponensektől
+
+### 5.2 Implementáció Lépései
+
+#### Interfész definíció
+```python
+# példa egy interfész definícióra
+from abc import ABC, abstractmethod
+from typing import Dict, List, Any, Optional
+
+class ProcessorInterface(ABC):
+    @abstractmethod
+    def process(self, data: Any) -> Any:
+        """
+        Adatok feldolgozása.
+
+        Args:
+            data: Feldolgozandó adatok
+
+        Returns:
+            Feldolgozott adatok
+
+        Raises:
+            ProcessorError: Feldolgozási hiba esetén
+        """
+        pass
+
+    @abstractmethod
+    def get_metadata(self) -> Dict[str, Any]:
+        """
+        Feldolgozási metaadatok lekérése.
+
+        Returns:
+            A feldolgozás metaadatai
+        """
+        pass
+```
+
+#### Komponens implementáció
+```python
+# példa egy implementációra
+from neural_ai.core.logger import LoggerFactory
+from neural_ai.processors.interfaces import ProcessorInterface
+
+class TrendProcessor(ProcessorInterface):
+    """
+    Trend feldolgozó komponens.
+
+    Ez a komponens piaci trend indikátorokat számít.
+    """
+
+    def __init__(self, config: Dict[str, Any], logger=None):
+        self.config = config
+        self.logger = logger or LoggerFactory.get_logger(__name__)
+        self.window = config.get("window", 20)
+        self._metadata = {}
+
+        self.logger.info(f"{self.__class__.__name__} initialized with window={self.window}")
+
+    def process(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        Implementálja a trend feldolgozást.
+
+        Args:
+            data: OHLCV adatok pandas DataFrame-ben
+
+        Returns:
+            DataFrame trend indikátorokkal kiegészítve
+
+        Raises:
+            ProcessorError: Feldolgozási hiba esetén
+        """
+        try:
+            self.logger.debug(f"Processing data with shape {data.shape}")
+            # Implementáció...
+            self._metadata = {...}  # Metaadatok tárolása
+            return result
+        except Exception as e:
+            self.logger.error(f"Error processing trend: {e}")
+            raise ProcessorError(f"Trend processing failed: {e}")
+
+    def get_metadata(self) -> Dict[str, Any]:
+        """
+        Visszaadja a feldolgozás metaadatait.
+
+        Returns:
+            Feldolgozási metaadatok
+        """
+        return self._metadata
+```
+
+#### Factory osztály
+```python
+# példa egy factory osztályra
+class ProcessorFactory:
+    """Factory osztály a feldolgozók létrehozásához."""
+
+    @staticmethod
+    def create_processor(processor_type: str, config: Dict[str, Any]) -> ProcessorInterface:
+        """
+        Processzor példány létrehozása.
+
+        Args:
+            processor_type: Processzor típusa
+            config: Konfiguráció
+
+        Returns:
+            ProcessorInterface: Processzor példány
+
+        Raises:
+            ValueError: Ismeretlen processzor típus esetén
+        """
+        if processor_type == "trend":
+            return TrendProcessor(config)
+        elif processor_type == "support_resistance":
+            return SupportResistanceProcessor(config)
+        else:
+            raise ValueError(f"Unknown processor type: {processor_type}")
+```
+
+## 6. Tesztelési Előírások
+
+### 6.1 Unit tesztek
 
 Minden komponenshez készítsünk unit teszteket:
+
 ```python
 # pytest használatával
 def test_processor_initialization():
@@ -179,7 +327,9 @@ def test_processor_processing():
     result = processor.process(test_data)
     assert result.shape[0] == test_data.shape[0]
 ```
-### 5.2 Integration tesztek
+
+### 6.2 Integration tesztek
+
 Komponensek együttműködésének tesztelése:
 
 ```python
@@ -193,30 +343,56 @@ def test_data_flow():
     assert processed_data is not None
     assert "trend_strength" in processed_data.columns
 ```
-## 6. Dokumentációs Szabványok
 
-### 6.1 Komponens dokumentáció
+### 6.3 Edge case tesztek
+
+```python
+@pytest.mark.parametrize("input_data, expected_exception", [
+    (pd.DataFrame(), ValidationError),  # Üres DataFrame
+    (pd.DataFrame({"close": []}), ValidationError),  # Üres oszlop
+    (pd.DataFrame({"close": [1, 2, None, 4]}), None),  # None értékek (elfogadható)
+    (pd.DataFrame({"close": [1, 2, float('nan'), 4]}), None),  # NaN értékek (elfogadható)
+])
+def test_edge_cases(input_data, expected_exception):
+    processor = TestProcessor()
+
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            processor.process(input_data)
+    else:
+        # Nem várunk kivételt
+        result = processor.process(input_data)
+        assert result is not None
+```
+
+## 7. Dokumentációs Szabványok
+
+### 7.1 Komponens dokumentáció
 
 Minden komponenshez készítsünk részletes dokumentációt a /docs/components/ könyvtárban:
 
+```
 /docs/components/[komponens_név]/
   ├── README.md         # Áttekintés és használati útmutató
   ├── api.md            # API dokumentáció
   ├── architecture.md   # Architektúra leírás
   ├── design_spec.md   # Tervezési specifikáció
   └── examples.md       # Használati példák
+```
 
-### 6.2 API dokumentáció
+### 7.2 API dokumentáció
+
 Az API dokumentáció tartalmazza:
 
 - A komponens által nyújtott publikus interfészek leírását
-- A metódusok paramétereit és visszatérési értékeit
+- A metódusok paramétereit és visszatérési értékeket
 - Példakódokat a használathoz
 - Lehetséges hibák és kezelésük
 
-## 7. Workflow és Pull Request Szabályok
+## 8. Workflow és Pull Request Szabályok
 
-### 7.1 Feature fejlesztés workflow
+### 8.1 Feature fejlesztés workflow
+
 1. Hozz létre egy új branch-et a feature-höz: feature/ISSUE-ID-short-description
 2. Implementáld a változtatásokat
 3. Írj unit teszteket
@@ -224,7 +400,8 @@ Az API dokumentáció tartalmazza:
 5. Commitolj a konvenciók szerint
 6. Nyiss Pull Request-et a develop branch-be
 
-### 7.2 Pull Request szabályok
+### 8.2 Pull Request szabályok
+
 Minden PR-nek tartalmaznia kell:
 
 - Világos leírást a változtatásokról
@@ -232,15 +409,25 @@ Minden PR-nek tartalmaznia kell:
 - Az új vagy frissített teszteket
 - A kapcsolódó dokumentációs változtatásokat
 
-## 8. Monitoring és Teljesítmény
+### 8.3 Commit konvenciók
 
-### 8.1 Kód teljesítmény
+Commit üzenetek formátuma: `type(scope): rövid leírás magyarul`
+
+Példák:
+- `feat(collectors): MT5 adatgyűjtő hozzáadása`
+- `fix(config): Konfigurációs betöltés hibajavítás`
+- `docs(processors): D1 processzor dokumentáció frissítése`
+- `refactor(core): Logger komponens egyszerűsítése`
+
+## 9. Monitoring és Teljesítmény
+
+### 9.1 Kód teljesítmény
 
 - Minden kritikus komponenst benchmarkoljunk
 - Az eredményeket dokumentáljuk a komponens dokumentációjában
 - Teljesítmény regresszió esetén vizsgáljuk meg a változások hatását
 
-### 8.2 Rendszer monitoring
+### 9.2 Rendszer monitoring
 
 - A rendszerkomponenseknek monitorozhatónak kell lenniük
 - Minden kritikus művelethez mérjük az időt és erőforrás-használatot
@@ -258,3 +445,29 @@ self.logger.info(
     memory_used=get_memory_usage()
 )
 ```
+
+## 10. Fejlesztési Checklist
+
+### Implementáció
+- [ ] Interfész definiálása
+- [ ] Implementáció elkészítése
+- [ ] Factory osztály létrehozása vagy frissítése
+- [ ] Konfigurációs paraméterek dokumentálása
+
+### Tesztelés
+- [ ] Unit tesztek minden metódushoz
+- [ ] Edge case tesztek
+- [ ] Teljesítmény tesztek (ha kritikus)
+- [ ] Integráció tesztek
+
+### Dokumentáció
+- [ ] Komponens dokumentáció
+- [ ] API dokumentáció
+- [ ] Példák
+- [ ] Konfigurációs lehetőségek dokumentálása
+
+### Review és merge
+- [ ] Self-review
+- [ ] Peer review
+- [ ] CI tesztek sikeressége
+- [ ] Dokumentáció frissítése a fő dokumentációban

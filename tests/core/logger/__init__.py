@@ -1,1 +1,0 @@
-"""Logger komponens teszt csomag."""

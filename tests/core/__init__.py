@@ -1,1 +1,0 @@
-"""Neural-AI-Next core komponensek tesztjei."""

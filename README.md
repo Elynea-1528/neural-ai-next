@@ -160,49 +160,11 @@ A fejlesztéssel kapcsolatos további információk a [docs/](docs/) könyvtárb
 
 ### Fejlesztési állapot
 
-- ✅ Core infrastruktúra (Logger, Config, Storage, Base)
-- ✅ Dokumentációs standardok és template-ek
-- ✅ **MT5 Collector teljes implementáció**
-  - Historical Data Manager (25 éves historikus adatgyűjtés)
-  - Data Quality Framework (3-szintű validálás)
-  - Data Warehouse Manager (hierarchikus adattárolás)
-  - Training Dataset Generator (4 típusú adathalmaz)
-  - MQL5 Expert Advisor bővítés
-  - 194 teszteset
-  - Grafikus felület és log viewer
-- 🚧 Dimension Processors implementálása
-
-### Főbb komponensek
-
-#### MT5 Collector Rendszer
-A teljes MT5 adatgyűjtő rendszer a következő komponensekből áll:
-
-- **[Historical Data Manager](docs/components/collectors/mt5/HISTORICAL_DATA_COLLECTION.md)** - 25 év historikus adatgyűjtés
-- **[Data Quality Framework](docs/components/collectors/mt5/DATA_QUALITY_FRAMEWORK.md)** - 3-szintű adatvalidálás
-- **[Data Warehouse Manager](docs/components/collectors/mt5/DATA_WAREHOUSE_AND_TRAINING_DATASETS.md)** - Hierarchikus adattárolás
-- **[Training Dataset Generator](docs/components/collectors/mt5/DATA_WAREHOUSE_AND_TRAINING_DATASETS.md)** - 4 típusú adathalmaz
-- **[MQL5 Expert Advisor](neural_ai/experts/mt5/README.md)** - Historikus adatgyűjtés bővítéssel
-
-### Dokumentáció
-
-- [MT5 Collector API](docs/components/collectors/mt5/api.md)
-- [Tervezési specifikáció](docs/components/collectors/mt5/design_spec.md)
-- [Adatminőség keretrendszer](docs/components/collectors/mt5/DATA_QUALITY_FRAMEWORK.md)
-- [Historikus adatgyűjtés](docs/components/collectors/mt5/HISTORICAL_DATA_COLLECTION.md)
-- [Adattárház és tréning adathalmazok](docs/components/collectors/mt5/DATA_WAREHOUSE_AND_TRAINING_DATASETS.md)
-- [MQL5 EA implementáció](neural_ai/experts/mt5/README.md)
-
-### Következő lépések
-
-1. Dimension Processors implementálása (15 piaci dimenzió)
-2. Backtesting keretrendszer integráció
-3. Modellek fejlesztése
-4. Teljes rendszer integráció
 
 ## Technológiai stack
 
 - **Nyelv**: Python 3.12
-- **Gépi tanulás**: PyTorch 2.5.1 + Lightning 2.6.0
+- **Gépi tanulás**: PyTorch 2.5.1 + Lightning 2.5.5
 - **Adatkezelés**: pandas 2.3.3, numpy 2.3.5
 - **Backtesting**: VectorBT
 - **Vizualizáció**: matplotlib, seaborn
