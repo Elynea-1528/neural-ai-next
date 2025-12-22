@@ -13,9 +13,6 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-# Globális verbose flag
-verbose_mode = False
-
 
 class InstallMode(Enum):
     """Telepítési módok."""
@@ -66,21 +63,23 @@ def print_info(message: str) -> None:
     print(f"{Colors.BLUE}ℹ️  {message}{Colors.RESET}")
 
 
-def run_command(command: str, check: bool = True, shell: bool = True) -> bool:
+def run_command(
+    command: str, check: bool = True, shell: bool = True, verbose: bool = False
+) -> bool:
     """Futtat egy shell parancsot.
 
     Args:
         command: A végrehajtandó parancs
         check: Ha True, kivételt dob hibakód esetén
         shell: Ha True, shell-en keresztül hajtja végre
+        verbose: Ha True, részletes kimenetet jelenít meg
 
     Returns:
         True ha sikeres, False ha sikertelen
     """
-    global verbose_mode
     print(f"$ {command}")
     try:
-        if verbose_mode:
+        if verbose:
             # Valós idejű kimenet - stdout és stderr egyből a konzolra
             process = subprocess.Popen(
                 command,
@@ -104,7 +103,7 @@ def run_command(command: str, check: bool = True, shell: bool = True) -> bool:
             return result.returncode == 0
     except subprocess.CalledProcessError as e:
         print_error(f"Parancs sikertelen (exit code: {e.returncode})")
-        if verbose_mode and hasattr(e, "stdout") and e.stdout:
+        if verbose and hasattr(e, "stdout") and e.stdout:
             print_error("Részletes hiba:")
             for line in e.stdout.splitlines():
                 print_error(f"  {line}")
@@ -232,11 +231,12 @@ dependencies:
     return str(project_env_path)
 
 
-def install_environment(config: dict[str, Any]) -> bool:
+def install_environment(config: dict[str, Any], verbose: bool = False) -> bool:
     """Telepíti a környezetet a megadott konfiguráció szerint.
 
     Args:
         config: Telepítési konfiguráció
+        verbose: Ha True, részletes kimenetet jelenít meg
 
     Returns:
         True ha sikeres, False ha sikertelen
@@ -256,7 +256,7 @@ def install_environment(config: dict[str, Any]) -> bool:
         print_warning("Folytatás előtt inicializáld a conda-t!")
         response = input("Szeretnéd, hogy megpróbáljam inicializálni? [y/N]: ").strip().lower()
         if response == "y":
-            run_command("conda init bash", check=False)
+            run_command("conda init bash", check=False, verbose=verbose)
             print_warning("Indítsd újra a terminált, majd futtasd újra a scriptet!")
             return False
         else:
@@ -271,12 +271,14 @@ def install_environment(config: dict[str, Any]) -> bool:
 
             # Először deaktiváljuk a környezetet, ha az aktív
             print_info("Környezet deaktiválása...")
-            run_command("conda deactivate", check=False)
+            run_command("conda deactivate", check=False, verbose=verbose)
 
             # Várunk egy kicsit, hogy a deaktiválás befejeződjön
             time.sleep(2)
 
-            if not run_command("conda env remove -n neural-ai-next -y", check=False):
+            if not run_command(
+                "conda env remove -n neural-ai-next -y", check=False, verbose=verbose
+            ):
                 print_error("Környezet törlése sikertelen!")
                 print_info(
                     "Próbáld manuálisan: conda deactivate && conda env remove -n neural-ai-next -y"
@@ -294,12 +296,12 @@ def install_environment(config: dict[str, Any]) -> bool:
         print_info("Környezet létrehozása environment.yml-ből...")
         env_file = update_environment_yml(pytorch_mode)
 
-        if not run_command(f"conda env create -f {env_file}"):
+        if not run_command(f"conda env create -f {env_file}", verbose=verbose):
             print_error("Környezet létrehozása sikertelen!")
             return False
 
         print_success("Környezet létrehozva")
-        run_command("conda activate neural-ai-next")
+        run_command("conda activate neural-ai-next", verbose=verbose)
 
         # 4. Opcionális függőségek telepítése
         print_info("Opcionális függőségek telepítése...")
@@ -308,40 +310,50 @@ def install_environment(config: dict[str, Any]) -> bool:
             print_info("Minimal mód - csak alap függőségek")
         elif install_mode == InstallMode.DEV:
             print_info("Dev mód - fejlesztői eszközök telepítése...")
-            if not run_command("conda run -n neural-ai-next pip install -e .[dev]"):
+            if not run_command(
+                "conda run -n neural-ai-next pip install -e .[dev]", verbose=verbose
+            ):
                 print_error("Dev függőségek telepítése sikertelen!")
                 return False
             print_success("Dev függőségek telepítve")
         elif install_mode == InstallMode.DEV_TRADER:
             print_info("Dev+Trader mód - fejlesztői + trader eszközök...")
-            if not run_command("conda run -n neural-ai-next pip install -e .[dev,trader]"):
+            if not run_command(
+                "conda run -n neural-ai-next pip install -e .[dev,trader]", verbose=verbose
+            ):
                 print_error("Dev+Trader függőségek telepítése sikertelen!")
                 return False
             print_success("Dev+Trader függőségek telepítve")
 
             print_info("Broker telepítő indítása...")
-            run_command("bash scripts/install/scripts/setup_brokers.sh")
+            run_command("bash scripts/install/scripts/setup_brokers.sh", verbose=verbose)
         elif install_mode == InstallMode.FULL:
             print_info("Full mód - minden függőség telepítése...")
-            if not run_command("conda run -n neural-ai-next pip install -e .[full]"):
+            if not run_command(
+                "conda run -n neural-ai-next pip install -e .[full]", verbose=verbose
+            ):
                 print_error("Full függőségek telepítése sikertelen!")
                 return False
             print_success("Full függőségek telepítve")
 
             print_info("Broker telepítő indítása...")
-            run_command("bash scripts/install/scripts/setup_brokers.sh")
+            run_command("bash scripts/install/scripts/setup_brokers.sh", verbose=verbose)
         elif install_mode == InstallMode.TRADER_ONLY:
             print_info("Csak Trader Engine telepítése...")
-            if not run_command("conda run -n neural-ai-next pip install -e .[trader]"):
+            if not run_command(
+                "conda run -n neural-ai-next pip install -e .[trader]", verbose=verbose
+            ):
                 print_error("Trader függőségek telepítése sikertelen!")
                 return False
             print_success("Trader függőségek telepítve")
 
             print_info("Broker telepítő indítása...")
-            run_command("bash scripts/install/scripts/setup_brokers.sh")
+            run_command("bash scripts/install/scripts/setup_brokers.sh", verbose=verbose)
         elif install_mode == InstallMode.JUPYTER_ONLY:
             print_info("Csak Jupyter környezet telepítése...")
-            if not run_command("conda run -n neural-ai-next pip install -e .[jupyter]"):
+            if not run_command(
+                "conda run -n neural-ai-next pip install -e .[jupyter]", verbose=verbose
+            ):
                 print_error("Jupyter függőségek telepítése sikertelen!")
                 return False
             print_success("Jupyter függőségek telepítve")
@@ -349,21 +361,23 @@ def install_environment(config: dict[str, Any]) -> bool:
         # 5. Pre-commit beállítás
         if install_mode in [InstallMode.DEV, InstallMode.DEV_TRADER, InstallMode.FULL]:
             print_info("Pre-commit beállítása...")
-            run_command("conda run -n neural-ai-next pre-commit install")
+            run_command("conda run -n neural-ai-next pre-commit install", verbose=verbose)
             print_success("Pre-commit beállítva")
 
         # 6. Ellenőrzés
         if install_mode not in [InstallMode.MINIMAL]:
             print_info("Telepítés ellenőrzése...")
             run_command(
-                "conda run -n neural-ai-next python scripts/install/scripts/check_installation.py"
+                "conda run -n neural-ai-next python scripts/install/scripts/check_installation.py",
+                verbose=verbose,
             )
     else:
         # CHECK_ONLY mód: csak ellenőrzés, nincs telepítés
         print_info("Csak ellenőrzés mód")
         print_info("Telepítés ellenőrzése...")
         if not run_command(
-            "conda run -n neural-ai-next python scripts/install/scripts/check_installation.py"
+            "conda run -n neural-ai-next python scripts/install/scripts/check_installation.py",
+            verbose=verbose,
         ):
             print_error("Az ellenőrzés során hibák merültek fel!")
             return False
@@ -452,10 +466,6 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Globális verbose flag
-    global verbose_mode
-    verbose_mode = args.verbose
-
     # Konfiguráció létrehozása
     config: dict[str, Any] | None = None
 
@@ -472,7 +482,7 @@ def main() -> None:
         }
 
     # Telepítés végrehajtása
-    success = install_environment(config)
+    success = install_environment(config, verbose=args.verbose)
 
     # Eredmény kiírása
     if success:
