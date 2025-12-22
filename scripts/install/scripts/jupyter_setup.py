@@ -6,13 +6,18 @@ ami Kaggle GPU használatához is alkalmas.
 """
 
 import json
-import subprocess
+import subprocess  # nosec: B404 - required for kernel installation
 import sys
 from pathlib import Path
+from typing import Any
 
 
-def create_kernel():
-    """Létrehozza a Neural AI Next Jupyter kernel-t."""
+def create_kernel() -> bool:
+    """Létrehozza a Neural AI Next Jupyter kernel-t.
+
+    Returns:
+        bool: True ha sikeres, False ha sikertelen.
+    """
     kernel_name = "neural-ai-next"
 
     # Kernel könyvtár meghatározása
@@ -34,7 +39,7 @@ def create_kernel():
         return False
 
     # Kernel specifikáció
-    kernel_spec = {
+    kernel_spec: dict[str, Any] = {
         "argv": [sys.executable, "-m", "ipykernel_launcher", "-f", "{connection_file}"],
         "display_name": "Neural AI Next",
         "language": "python",
@@ -52,7 +57,7 @@ def create_kernel():
 
     # Kernel telepítése
     try:
-        subprocess.run(
+        subprocess.run(  # nosec: B603, B607 - trusted input, system python
             ["python", "-m", "ipykernel", "install", "--user", "--name", kernel_name],
             check=True,
         )
@@ -63,9 +68,13 @@ def create_kernel():
     return True
 
 
-def create_kaggle_template():
-    """Létrehozza a Kaggle notebook template-et."""
-    template = {
+def create_kaggle_template() -> bool:
+    """Létrehozza a Kaggle notebook template-et.
+
+    Returns:
+        bool: True ha sikeres, False ha sikertelen.
+    """
+    template: dict[str, Any] = {
         "cells": [
             {
                 "cell_type": "code",
@@ -108,8 +117,12 @@ def create_kaggle_template():
     return True
 
 
-def main():
-    """Fő belépési pont."""
+def main() -> None:
+    """Fő belépési pont a Jupyter kernel konfigurációhoz.
+
+    Ez a függvény koordinálja a kernel létrehozását és a template
+    generálását, majd kiírja a használati utasításokat.
+    """
     print("=" * 60)
     print("Jupyter Kernel Konfiguráció")
     print("=" * 60)
