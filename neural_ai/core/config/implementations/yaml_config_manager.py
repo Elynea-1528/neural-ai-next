@@ -2,12 +2,16 @@
 
 import os
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import yaml
 
 from neural_ai.core.config.exceptions import ConfigLoadError
 from neural_ai.core.config.interfaces import ConfigManagerInterface
+
+if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces import LoggerInterface
+    from neural_ai.core.storage.interfaces import StorageInterface
 
 
 @dataclass
@@ -19,7 +23,7 @@ class ValidationContext:
 
     path: str
     errors: dict[str, str]
-    value: Any
+    value: Any | None
     schema: dict[str, Any]
 
 
@@ -35,10 +39,24 @@ class YAMLConfigManager(ConfigManagerInterface):
         "dict": dict,
     }
 
-    def __init__(self, filename: str | None = None) -> None:
-        """Inicializálja a YAML konfigurációkezelőt."""
+    def __init__(
+        self,
+        filename: str | None = None,
+        logger: "LoggerInterface | None" = None,
+        storage: "StorageInterface | None" = None,
+    ) -> None:
+        """Inicializálja a YAML konfigurációkezelőt.
+
+        Args:
+            filename: Konfigurációs fájl útvonala (opcionális)
+            logger: Logger interfész a naplózásra (opcionális)
+            storage: Storage interfész a perzisztens tárolásra (opcionális)
+        """
         self._config: dict[str, Any] = {}
         self._filename: str | None = None
+        self._logger: LoggerInterface | None = logger
+        self._storage: StorageInterface | None = storage
+
         if filename:
             self.load(filename)
 
