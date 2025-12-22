@@ -15,7 +15,17 @@ def check_package(
     import_name: str | None = None,
     min_version: str | None = None,
 ) -> tuple[bool, str]:
-    """Ellenőrzi egy csomag telepítését és verzióját."""
+    """Ellenőrzi egy csomag telepítését és verzióját.
+
+    Args:
+        package_name: A csomag neve (pl. 'numpy')
+        import_name: Az importáláshoz használt név (opcionális)
+        min_version: A minimális szükséges verzió (opcionális)
+
+    Returns:
+        tuple[bool, str]: (sikeres-e, üzenet) pár, ahol a sikeres True,
+            ha a csomag telepítve van és megfelelő verzióban
+    """
     try:
         module = __import__(import_name or package_name)
 
@@ -40,16 +50,20 @@ def check_package(
 def estimate_cuda_cores(major: int, minor: int, total_memory_gb: float) -> int:
     """Becsli a CUDA core-ok számát a compute capability és memória alapján.
 
+    A becslés a következő forrásokon alapul:
+    - NVIDIA architektúra dokumentációk
+    - Ismert GPU modellek CUDA core száma
+    - Memória alapú becslés (~64 core/GB)
+
     Args:
-        major: Major compute capability verzió
-        minor: Minor compute capability verzió
+        major: Major compute capability verzió (pl. 8)
+        minor: Minor compute capability verzió (pl. 6)
         total_memory_gb: Teljes GPU memória GB-ban
 
     Returns:
-        Becsült CUDA core-ok száma
+        int: Becsült CUDA core-ok száma
     """
     # CUDA core-ok becslése compute capability alapján
-    # Forrás: NVIDIA architektúra dokumentációk
     cuda_cores_map = {
         (6, 1): 128,  # Pascal (GTX 1050 Ti)
         (7, 5): 1024,  # Turing (RTX 2060+)
@@ -64,8 +78,12 @@ def estimate_cuda_cores(major: int, minor: int, total_memory_gb: float) -> int:
     return cuda_cores_map.get((major, minor), base_cores)
 
 
-def check_cuda():
-    """Ellenőrzi a CUDA és cuDNN telepítését."""
+def check_cuda() -> tuple[bool, str]:
+    """Ellenőrzi a CUDA és cuDNN telepítését.
+
+    Returns:
+        tuple[bool, str]: (sikeres-e, üzenet) pár
+    """
     try:
         if not torch.cuda.is_available():
             return False, "CUDA nem elérhető"
@@ -90,15 +108,21 @@ def check_cuda():
 
         return (
             True,
-            f"CUDA: {device_name}, CUDA verzió: {cuda_version}, cuDNN: {cudnn_version}, Memória: {total_memory:.1f}GB, Compute: {compute_capability}, CUDA Cores: ~{cuda_cores}",
+            f"CUDA: {device_name}, CUDA verzió: {cuda_version}, "
+            f"cuDNN: {cudnn_version}, Memória: {total_memory:.1f}GB, "
+            f"Compute: {compute_capability}, CUDA Cores: ~{cuda_cores}",
         )
 
     except Exception as e:
         return False, f"CUDA ellenőrzés sikertelen: {str(e)}"
 
 
-def main():
-    """Fő ellenőrzési funkció."""
+def main() -> int:
+    """Fő ellenőrzési funkció.
+
+    Returns:
+        int: Kilépési kód (0 = sikeres, 1 = hiba)
+    """
     print("=" * 60)
     print("Neural AI Next - Telepítési Ellenőrzés")
     print("=" * 60)
