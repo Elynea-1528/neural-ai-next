@@ -5,7 +5,7 @@ import sys
 import threading
 import warnings
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Generic, TypeVar
 
 from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
 
@@ -13,7 +13,7 @@ T = TypeVar("T")
 InterfaceT = TypeVar("InterfaceT")
 
 
-class LazyComponent:
+class LazyComponent(Generic[T]):
     """Lusta betöltésű komponensek wrapper osztálya.
 
     Ez az osztály biztosítja a komponensek lusta (lazy) betöltését,
@@ -21,18 +21,18 @@ class LazyComponent:
     először használják.
     """
 
-    def __init__(self, factory_func: Callable[[], Any]) -> None:
+    def __init__(self, factory_func: Callable[[], T]) -> None:
         """Inicializálja a lusta komponenst.
 
         Args:
             factory_func: A komponens létrehozásához használt factory függvény
         """
         self._factory_func = factory_func
-        self._instance: Any | None = None
+        self._instance: T | None = None
         self._loaded: bool = False
         self._lock = threading.RLock()
 
-    def get(self) -> Any:
+    def get(self) -> T:
         """Lekéri a komponens példányt (lusta betöltéssel).
 
         Returns:
@@ -42,7 +42,7 @@ class LazyComponent:
             if not self._loaded:
                 self._instance = self._factory_func()
                 self._loaded = True
-        return self._instance
+        return self._instance  # type: ignore
 
     @property
     def is_loaded(self) -> bool:
@@ -63,12 +63,12 @@ class DIContainer:
 
     def __init__(self) -> None:
         """Konténer inicializálása."""
-        self._instances: dict[Any, Any] = {}
-        self._factories: dict[Any, Any] = {}
-        self._lazy_components: dict[str, LazyComponent] = {}
+        self._instances: dict[object, object] = {}
+        self._factories: dict[object, Callable[[], object]] = {}
+        self._lazy_components: dict[str, LazyComponent[object]] = {}
         self._logger = logging.getLogger(__name__)
 
-    def register_instance(self, interface: Any, instance: Any) -> None:
+    def register_instance(self, interface: InterfaceT, instance: InterfaceT) -> None:
         """Példány regisztrálása a konténerben.
 
         Args:
@@ -77,7 +77,11 @@ class DIContainer:
         """
         self._instances[interface] = instance
 
-    def register_factory(self, interface: Any, factory: Any) -> None:
+    def register_factory(
+        self,
+        interface: InterfaceT,
+        factory: Callable[[], InterfaceT]
+    ) -> None:
         """Factory függvény regisztrálása a konténerben.
 
         Args:
@@ -86,7 +90,7 @@ class DIContainer:
         """
         self._factories[interface] = factory
 
-    def resolve(self, interface: Any) -> Any | None:
+    def resolve(self, interface: InterfaceT) -> InterfaceT | None:
         """Függőség feloldása.
 
         Args:
@@ -99,18 +103,19 @@ class DIContainer:
             instance = self._instances[interface]
             # Verify singleton pattern
             self._verify_singleton(instance, str(interface))
-            return instance
+            return instance  # type: ignore
 
         if interface in self._factories:
-            instance = self._factories[interface]()
+            factory = self._factories[interface]
+            instance = factory()
             self._instances[interface] = instance
             # Verify singleton pattern
             self._verify_singleton(instance, str(interface))
-            return instance
+            return instance  # type: ignore
 
         return None
 
-    def register_lazy(self, component_name: str, factory_func: Callable[[], Any]) -> None:
+    def register_lazy(self, component_name: str, factory_func: Callable[[], T]) -> None:
         """Lusta betöltésű komponens regisztrálása.
 
         Args:
@@ -127,11 +132,11 @@ class DIContainer:
         if not callable(factory_func):
             raise ValueError("Factory function must be callable")
 
-        lazy_component = LazyComponent(factory_func)
-        self._lazy_components[component_name] = lazy_component
+        lazy_component = LazyComponent[T](factory_func)
+        self._lazy_components[component_name] = lazy_component  # type: ignore
         self._logger.info(f"Registered lazy component: {component_name}")
 
-    def get(self, component_name: str) -> Any:
+    def get(self, component_name: str) -> object:
         """Komponens példány lekérése (lusta betöltés támogatással).
 
         Args:
@@ -190,8 +195,9 @@ class DIContainer:
         """Clear the container."""
         self._instances.clear()
         self._factories.clear()
+        self._lazy_components.clear()
 
-    def _verify_singleton(self, instance: Any, component_name: str) -> None:
+    def _verify_singleton(self, instance: object, component_name: str) -> None:
         """Verify that the instance follows singleton pattern.
 
         Args:
@@ -212,7 +218,7 @@ class DIContainer:
             )
 
         # Check if instance has _instance class variable (class-level singleton)
-        instance_type: type[Any] = type(instance)
+        instance_type = type(instance)
         if not hasattr(instance_type, "_instance"):
             warnings.warn(
                 f"Instance of {type(instance).__name__} (component: {component_name}) "
@@ -231,7 +237,7 @@ class DIContainer:
                 stacklevel=2,
             )
 
-    def _enforce_singleton(self, component_name: str, instance: Any) -> None:
+    def _enforce_singleton(self, component_name: str, instance: object) -> None:
         """Enforce singleton pattern by preventing duplicate registration.
 
         Args:
@@ -249,7 +255,7 @@ class DIContainer:
                     "Singleton pattern violated."
                 )
 
-    def register(self, component_name: str, instance: Any) -> None:
+    def register(self, component_name: str, instance: object) -> None:
         """Komponens példány regisztrálása.
 
         Args:
@@ -273,9 +279,9 @@ class DIContainer:
         # Note: In a real implementation, you would log this action
         # For example: self._logger.info(f"Registered component: {component_name}")
 
-    def get_memory_usage(self) -> dict[str, Any]:
+    def get_memory_usage(self) -> dict[str, int | dict[str, int]]:
         """Get memory usage statistics."""
-        stats: dict[str, Any] = {
+        stats: dict[str, int | dict[str, int]] = {
             "total_instances": len(self._instances),
             "lazy_components": len(self._lazy_components),
             "loaded_lazy_components": sum(1 for c in self._lazy_components.values() if c.is_loaded),
@@ -283,7 +289,9 @@ class DIContainer:
         }
 
         # Calculate approximate sizes
+        instance_sizes_dict = stats["instance_sizes"]
+        assert isinstance(instance_sizes_dict, dict)
         for name, instance in self._instances.items():
-            stats["instance_sizes"][str(name)] = sys.getsizeof(instance)
+            instance_sizes_dict[str(name)] = sys.getsizeof(instance)
 
         return stats
