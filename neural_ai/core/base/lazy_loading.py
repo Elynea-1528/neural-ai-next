@@ -11,6 +11,8 @@ from typing import TypeVar, cast
 
 T = TypeVar("T")
 
+__all__ = ["LazyLoader", "lazy_property"]
+
 
 class LazyLoader[T]:
     """Drága erőforrások lustatöltője.
