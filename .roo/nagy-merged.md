@@ -42,19 +42,20 @@
 ---
 
 ## 🤖 AI MÓDOK RÉSZLETES SPECIFIKÁCIÓI
-
 ### 🏗️ ARCHITECT MODE (Grok Code Fast 1)
 **EREDETI ROL:** Tervező és stratégiai koordinátor.
 
 **FŐ FELADATOK:**
-- **Állapotfelmérés:** Elemzi a projektet (könyvtárszerkezet, hiányzó komponensek).
-- **Tree Építés:** Létrehozza vagy frissíti a `docs/development/TASK_TREE.md` fájlt az alábbi dashboard minta alapján.
-- **Prioritálás:** Phase rendszer betartása a Tree-ben.
-- **Koordináció:** Orchestrator aktiválása az első fájllal.
-**KAPCSOLÓDÓ DOKUMENTUMOK**
-docs/*.md (almappák fájljai is)
+- **Állapotfelmérés (REALITY CHECK):**
+  - ⚠️ **KÖTELEZŐ:** Minden elemzésnél FIZIKAILAG ellenőrizni kell a fájlok létezését (list files / ls).
+  - TILOS feltételezni, hogy egy fájl létezik csak azért, mert egy import hivatkozik rá!
+  - Ha a `docs/` mappában nincs meg a fizikai `.md` fájl, az állapot NEM lehet ✅.
+  - Ha a `tests/` mappában nincs meg a `test_*.py`, az állapot NEM lehet ✅.
+- **Tree Építés:** Létrehozza vagy frissíti a `docs/development/TASK_TREE.md` fájlt.
+- **Prioritálás:** Phase rendszer betartása.
+- **Koordináció:** Orchestrator aktiválása.
 
-**TASK TREE MINTA (Ezt hozza létre és tartja karban):**
+**TASK TREE MINTA (BŐVÍTETT VERZIÓ):**
 ```markdown
 # 🧠 NEURAL AI NEXT | SYSTEM STATUS DASHBOARD
 
@@ -90,37 +91,33 @@ docs/*.md (almappák fájljai is)
 
 ## 🗂️ WORKFLOW & TASKS
 
+### JELMAGYARÁZAT (VALIDATION MATRIX)
+A fájlok állapota 3 komponensből áll: `[S|T|D]`
+- **S (Source):** Maga a .py kód fájl.
+- **T (Test):** A hozzá tartozó teszt fájl (pl. tests/core/test_manager.py).
+- **D (Doc):** A fejlesztői dokumentáció (pl. docs/components/manager.md).
+
+Jelölések:
+- `✅` = Fizikailag létezik és valid.
+- `❌` = HIÁNYZIK (Fizikailag nincs a lemezen!).
+- `🚧` = Folyamatban.
+
 ### 🟢 PHASE 1: CORE INFRASTRUCTURE (HIGH PRIORITY)
 
-Alapvető rendszerkomponensek, DI container, Config és Logging.
-
 #### 📦 BASE COMPONENT
-- ✅ neural_ai/core/base/__init__.py ([DÁTUM])
-- ✅ neural_ai/core/base/container.py ([DÁTUM])
+| File Path | Matrix [S\|T\|D] | Status |
+|-----------|------------------|--------|
+| `neural_ai/core/base/container.py` | [✅\|✅\|❌] | 🔴 DOCS MISSING |
+| `neural_ai/core/base/__init__.py` | [✅\|✅\|✅] | ✅ DONE |
 
 #### ⚙️ CONFIG COMPONENT
-- 🚧 neural_ai/core/config/manager.py <-- CURRENT TASK
-- 🔴 neural_ai/core/config/__init__.py
-- 🔴 neural_ai/core/config/exceptions.py
+| File Path | Matrix [S\|T\|D] | Status |
+|-----------|------------------|--------|
+| `neural_ai/core/config/manager.py` | [✅\|❌\|❌] | 🚧 WIP |
+| `neural_ai/core/config/exceptions.py`| [❌\|❌\|❌] | 🔴 PENDING |
 
-### 🟡 PHASE 2: DATA COLLECTORS (MEDIUM PRIORITY)
-
-Adatgyűjtés, MT5 integráció és validáció.
-
-#### 📊 MT5 BRIDGE
-- 🔴 neural_ai/collectors/mt5/mt5_collector.py
-
-## 🛠️ LEGEND & STATUS CODES
-
-| Icon | Status      | Meaning                                      | Action Required              |
-|------|-------------|----------------------------------------------|------------------------------|
-| ✅   | COMPLETED   | Fully refactored, tested (100%), typed.      | None.                        |
-| 🚧   | IN PROGRESS | Agent is actively working on this.           | Wait for completion.         |
-| 🔴   | PENDING     | Scheduled for future work.                   | Orchestrator will assign.    |
-| ⚠️   | BLOCKED     | Syntax error or dependency missing.          | Requires Debug mode.         |
-| 💀   | DEPRECATED  | File removed or skipped.                     | Ignore.                      |
+... (többi fázis hasonlóan) ...
 ```
-
 ---
 
 ### 🪃 ORCHESTRATOR MODE (Grok Code Fast 1)
@@ -169,14 +166,21 @@ Adatgyűjtés, MT5 integráció és validáció.
   - export PYTHONPATH=/home/elynea/miniconda3/envs/neural-ai-next/bin/python
 - **FÁJL ANALÍZIS**
   - Hibák azonosítása (ruff, mypy, pytest).
+    **HIÁNYZÓ FÁJLOK DETEKTÁLÁSA:**
+    - Létezik a `tests/.../test_[név].py`? Ha nem -> Létrehozni!
+    - Létezik a `docs/components/...[név].md`? Ha nem -> Létrehozni!
 - **REFAKTORÁLÁSI LÉPÉSEK**
   - A) IMPORT RENDEZÉS
   - B) TYPE HINTS JAVÍTÁS (Any tilos!)
   - C) DOCSTRING MAGYARÍTÁS
   - D) DI PATTERN BETARTÁS
+  - E) HIÁNYZÓ ELEMEK PÓTLÁSA (Teszt + Doksi generálás)
 - **DOKUMENTÁCIÓ SZINKRONIZÁCIÓ**
   - docs/components/...[fájl].md frissítése.
 - **QUALITY GATE AUTOMATA ELLENŐRZÉS**
+- - ✅ Source fájl létezik és hiba mentes.
+  - ✅ Test fájl létezik és 100% coverage.
+  - ✅ Doc fájl létezik és naprakész.
   - ✅ Ruff: 0 hiba
   - ✅ MyPy: 0 hiba
   - ✅ Pytest: 100% coverage

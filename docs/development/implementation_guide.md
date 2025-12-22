@@ -21,16 +21,17 @@ graph TD
 
 ## 2. Implementációs Sorrend
 
-### 2.1 Első Fázis - Alaprendszer (Befejezve ✅)
+### 2.1 Első Fázis - Alaprendszer
 
 1. **Data Collection System**
-   - ✅ neural_ai/collectors/mt5/ - MT5 adatgyűjtő implementálva
-   - ✅ neural_ai/core/ - Alap komponensek implementálva
+
+   - 🔴  neural_ai/core/
+   - 🔴  neural_ai/collectors
 
 2. **Base Processor**
    - 🔴 neural_ai/processors/ - Feldolgozók implementálása szükséges
 
-### 2.2 Második Fázis - Dimenziók (Folyamatban 🚧)
+### 2.2 Második Fázis - Dimenziók
 
 1. **D1-D5 (Alap dimenziók)**
    - 🔴 neural_ai/processors/dimensions/d1_price.py      # Price Action
