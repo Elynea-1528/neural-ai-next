@@ -1,4 +1,9 @@
-"""Core komponensek factory implementáció."""
+"""Core komponensek factory implementáció.
+
+Ez a modul biztosítja a core komponensek (config, logger, storage) létrehozását
+és kezelését dependency injection pattern használatával. A factory támogatja
+a lazy loadinget, bootstrap inicializálást és NullObject pattern-t fallback-ként.
+"""
 
 import time
 from pathlib import Path
@@ -11,16 +16,12 @@ from neural_ai.core.base.exceptions import (
 )
 from neural_ai.core.base.lazy_loading import LazyLoader, lazy_property
 from neural_ai.core.base.singleton import SingletonMeta
-from neural_ai.core.config.exceptions import ConfigLoadError
-from neural_ai.core.config.implementations import ConfigManagerFactory
-from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-from neural_ai.core.logger.implementations import LoggerFactory
-from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-from neural_ai.core.storage.implementations.file_storage import FileStorage
-from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
     from neural_ai.core.base.core_components import CoreComponents
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 
 class CoreComponentFactory(metaclass=SingletonMeta):
@@ -47,22 +48,26 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         self._config_loader = LazyLoader(self._get_config_manager)
         self._storage_loader = LazyLoader(self._get_storage)
 
-    def _get_logger(self) -> LoggerInterface:
+    def _get_logger(self) -> "LoggerInterface":
         """Lazy loadinggel tölti be a logger komponenst."""
+        from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
         logger = self._container.resolve(LoggerInterface)
         if logger is not None:
             assert isinstance(logger, LoggerInterface), "Logger must implement LoggerInterface"
             return logger
 
-        # Fallback to default logger
+        # Fallback to default logger (NullObject pattern)
         from neural_ai.core.logger.implementations.default_logger import (
             DefaultLogger,
         )
 
         return DefaultLogger(name="CoreComponentFactory")
 
-    def _get_config_manager(self) -> ConfigManagerInterface:
+    def _get_config_manager(self) -> "ConfigManagerInterface":
         """Lazy loadinggel tölti be a config manager komponenst."""
+        from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+
         config_manager = self._container.resolve(ConfigManagerInterface)
         if config_manager is not None:
             assert isinstance(config_manager, ConfigManagerInterface), (
@@ -72,8 +77,10 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         raise DependencyError("ConfigManager not available")
 
-    def _get_storage(self) -> StorageInterface:
+    def _get_storage(self) -> "StorageInterface":
         """Lazy loadinggel tölti be a storage komponenst."""
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
         storage = self._container.resolve(StorageInterface)
         if storage is not None:
             assert isinstance(storage, StorageInterface), "Storage must implement StorageInterface"
@@ -82,17 +89,17 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         raise DependencyError("Storage not available")
 
     @property
-    def logger(self) -> LoggerInterface:
+    def logger(self) -> "LoggerInterface":
         """Visszaadja a logger példányt (lazy-loaded)."""
         return self._logger_loader()
 
     @property
-    def config_manager(self) -> ConfigManagerInterface:
+    def config_manager(self) -> "ConfigManagerInterface":
         """Visszaadja a config manager példányt (lazy-loaded)."""
         return self._config_loader()
 
     @property
-    def storage(self) -> StorageInterface:
+    def storage(self) -> "StorageInterface":
         """Visszaadja a storage példányt (lazy-loaded)."""
         return self._storage_loader()
 
@@ -151,24 +158,9 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         """
         config = config or {}
 
-        # Create a temporary container instance to check for dependencies
-        temp_container = DIContainer()
-
-        # Check logger dependency (required for all components)
-        logger = temp_container.resolve(LoggerInterface)
-        if logger is None:
-            raise DependencyError(
-                f"Logger not initialized. Required for {component_type}. "
-                "Call container.register_instance(LoggerInterface, logger_instance) first."
-            )
-
-        # Check config manager dependency (required for all components)
-        config_manager = temp_container.resolve(ConfigManagerInterface)
-        if config_manager is None:
-            raise DependencyError(
-                f"ConfigManager not initialized. Required for {component_type}. "
-                "Call container.register_instance(ConfigManagerInterface, config_manager_instance) "
-            )
+        # Megjegyzés: A függőség ellenőrzés mostantól csak a konfigurációs
+        # paramétereket ellenőrzi, nem a DI konténert.
+        # A DI konténer ellenőrzése a create_components metódusokra vonatkozik.
 
         # Type-specific validations
         if component_type == "storage":
@@ -229,6 +221,12 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             DependencyError: Ha szükséges függőségek hiányoznak
         """
         from neural_ai.core.base.core_components import CoreComponents
+        from neural_ai.core.config.implementations import ConfigManagerFactory
+        from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+        from neural_ai.core.logger.implementations import LoggerFactory
+        from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+        from neural_ai.core.storage.implementations.file_storage import FileStorage
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
         container = DIContainer()
 
@@ -294,6 +292,13 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             CoreComponents: Az inicializált minimális komponensek
         """
         from neural_ai.core.base.core_components import CoreComponents
+        from neural_ai.core.config.exceptions import ConfigLoadError
+        from neural_ai.core.config.implementations import ConfigManagerFactory
+        from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+        from neural_ai.core.logger.implementations import LoggerFactory
+        from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+        from neural_ai.core.storage.implementations.file_storage import FileStorage
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
         config = None
         log_config: dict[str, Any] = {}
@@ -327,7 +332,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         return CoreComponents(container=container)
 
     @staticmethod
-    def create_logger(name: str, config: dict[str, Any] | None = None) -> LoggerInterface:
+    def create_logger(name: str, config: dict[str, Any] | None = None) -> "LoggerInterface":
         """Létrehoz egy logger példányt.
 
         Args:
@@ -348,12 +353,14 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("logger", config)
 
         # Create logger using LoggerFactory
+        from neural_ai.core.logger.implementations import LoggerFactory
+
         return LoggerFactory.get_logger(name=name, config=config)
 
     @staticmethod
     def create_config_manager(
         config_file_path: str, config: dict[str, Any] | None = None
-    ) -> ConfigManagerInterface:
+    ) -> "ConfigManagerInterface":
         """Létrehoz egy config manager példányt.
 
         Args:
@@ -374,12 +381,14 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("config_manager", config)
 
         # Create config manager using ConfigManagerFactory
+        from neural_ai.core.config.implementations import ConfigManagerFactory
+
         return ConfigManagerFactory.get_manager(config_file_path)
 
     @staticmethod
     def create_storage(
         base_directory: str, config: dict[str, Any] | None = None
-    ) -> StorageInterface:
+    ) -> "StorageInterface":
         """Létrehoz egy storage példányt.
 
         Args:
@@ -400,4 +409,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("storage", config)
 
         # Create storage instance
+        from neural_ai.core.storage.implementations.file_storage import FileStorage
+
         return FileStorage(base_path=base_directory)

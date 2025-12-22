@@ -86,9 +86,47 @@ A base modul fejlesztése során a következő elveket tartjuk be:
 - **Dokumentáció:** Minden komponens rendelkezzen átfogó dokumentációval.
 - **Hibakezelés:** A komponenseknek konzisztens hibakezelést kell biztosítaniuk.
 
+## Kivételek
+
+A base modul számos egyéni kivételt definiál a rendszer egységes hibakezeléséhez:
+
+### NeuralAIException
+Az összes Neural AI Next kivétel alaposztálya. Ez a kivétel szolgál közös alapként
+az összes egyéni kivételnek a rendszerben.
+
+### Tárolási kivételek (Storage Exceptions)
+
+- **StorageException**: Alap kivétel a tárolással kapcsolatos hibákhoz
+- **StorageWriteError**: Fájlírási művelet sikertelenségét jelzi
+- **StorageReadError**: Fájlolvasási művelet sikertelenségét jelzi
+- **StoragePermissionError**: Jogosultsági problémák esetén dobódik
+- **InsufficientDiskSpaceError**: Nincs elég lemezterület a művelethez
+- **PermissionDeniedError**: Jogosultság megtagadásakor dobódik
+
+### Konfigurációs kivételek
+
+- **ConfigurationError**: Érvénytelen vagy hiányos konfiguráció esetén dobódik
+
+### Függőségi kivételek
+
+- **DependencyError**: Szükséges függőségek hiányakor dobódik
+
+### Komponens kivételek
+
+- **ComponentNotFoundError**: Komponens nem található a DI konténerben
+- **SingletonViolationError**: Singleton minta megsértése esetén dobódik
+
+### Hálózati kivételek (Network Exceptions)
+
+- **NetworkException**: Alap kivétel a hálózati hibákhoz
+- **TimeoutError**: Művelet időtúllépése esetén dobódik
+- **ConnectionError**: Kapcsolódási hiba esetén dobódik
+
 ## Kapcsolódó dokumentáció
 
 - [Container dokumentáció](container.md)
 - [Core Components dokumentáció](core_components.md)
 - [Factory dokumentáció](factory.md)
+- [Exceptions dokumentáció](exceptions.md)
 - [Dependency Injection útmutató](../../development/implementation_guide.md)
+- [Hibakezelési útmutató](../../development/error_handling.md)

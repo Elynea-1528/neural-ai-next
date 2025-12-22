@@ -1,24 +1,5 @@
 # 📘 NAGY VÁLTOZAT (2500 token) - TELJES RÉSZLETEKKEL (MERGED)
 
-## Tartalomjegyzék
-
-- [📘 NAGY VÁLTOZAT (2500 token) - TELJES RÉSZLETEKKEL (MERGED)](#-nagy-változat-2500-token---teljes-részletekkel-merged)
-  - [Tartalomjegyzék](#tartalomjegyzék)
-  - [🎯 ALAPVETŐ KÖVETELMÉNYEK](#-alapvető-követelmények)
-    - [NYELVI SZABÁLYOK](#nyelvi-szabályok)
-    - [TECHNIKAI KÖVETELMÉNYEK](#technikai-követelmények)
-    - [📜 AZ IGAZSÁG FORRÁSA](#-az-igazság-forrása)
-  - [🤖 AI MÓDOK RÉSZLETES SPECIFIKÁCIÓI](#-ai-módok-részletes-specifikációi)
-    - [🏗️ ARCHITECT MODE (Grok Code Fast 1)](#️-architect-mode-grok-code-fast-1)
-    - [🪃 ORCHESTRATOR MODE (Grok Code Fast 1)](#-orchestrator-mode-grok-code-fast-1)
-    - [💻 CODE MODE (DeepSeek-V3 128k)](#-code-mode-deepseek-v3-128k)
-    - [🪲 DEBUG MODE (DeepSeek-V3 128k)](#-debug-mode-deepseek-v3-128k)
-    - [❓ ASK MODE (Gemini Flash 1M, 15/day)](#-ask-mode-gemini-flash-1m-15day)
-    - [🚨 KRITIKUS PROTOKOLLOK](#-kritikus-protokollok)
-  - [🚀 INDÍTÁSI PARANCS](#-indítási-parancs)
-
----
-
 ## 🎯 ALAPVETŐ KÖVETELMÉNYEK
 
 ### NYELVI SZABÁLYOK
@@ -131,27 +112,38 @@ Jelölések:
 
 **DELEGÁLÁSI PROTOKOLL:** Minden delegálásnál kötelezően tartalmazza:
 
-
-    🎯 REFAKTORÁLÁSI/FEJLESZTÉSI FELADAT
+    🎯 SZIGORÍTOTT REFAKTORÁLÁSI PARANCS (PROTKOLL v2.0)
 
     📁 FÁJL INFORMÁCIÓK
-    Fájl: [neural_ai/core/base/factory.py]
+    Fájl: [PONTOS_ÚTVONAL_FIND_ALAPJÁN] (pl. neural_ai/core/base/factory.py)
     Állapot: 🚧 (Folyamatban)
 
-    🎯 CÉLKITŰZÉSEK (Task Tree alapján)
-    1. Ruff optimalizálás: 0 hiba
-    2. Type safety: 0 MyPy hiba (Any tilos!)
-    3. Tesztlefedettség: 100% coverage
-    4. Dokumentáció:
-       - Docstring: magyar Google style
-       - Dokumentációs fájl frissítése
-    5. Kódminőség:
-       - Import higiénia
-       - DI pattern betartás
+    🎯 CÉLKITŰZÉSEK (Prioritási sorrendben)
 
-    ⚠️ FELADAT VÉGÉN (STATE UPDATE)
-    6. Frissítsd a TASK_TREE.md-t (✅ erre a fájlra, 🚧 a következőre).
-    7. Jelentsd vissza a következő fájl nevét!
+    1. 🏗️ ARCHITEKTÚRA & DEPENDENCIES (Kritikus!)
+       - Olvasd el: `docs/development/core_dependencies.md`
+       - **Szabály:** Körkörös importok TILOSAK! Használj `if TYPE_CHECKING:` blokkot a típusokhoz.
+       - **DI:** Konkrét osztályokat (Config, Logger) csak `__init__`-ben injektálj, ne globálisan importálj!
+
+    2. 🧹 KÓDMINŐSÉG & TÍPUSBIZTONSÁG
+       - **Nyelv:** Minden Docstring és Komment: **MAGYAR** (Google Style).
+       - **Típusok:** `mypy` szigorú ellenőrzés (0 hiba). **`Any` használata TILOS!**
+       - **Linter:** `ruff` optimalizálás (0 hiba).
+
+    3. 🪞 DOKUMENTÁCIÓ (MIRROR STRUCTURE)
+       - Hozd létre/Frissítsd a leírást a tükör-útvonalon:
+         `docs/components/[AZ_EREDETI_KÓD_RELATÍV_ÚTVONALA].md`
+       - Példa: `neural_ai/core/base/x.py` -> `docs/components/core/base/x.md`
+       - *Megjegyzés: Használj `mkdir -p`-t, ha a mappa nem létezik!*
+
+    4. 🧪 TESZTELÉS
+       - 100% Coverage kötelező (`pytest`).
+
+    🛑 LEZÁRÁS (ATOMIC COMMIT KÉNYSZER)
+    5. **GIT COMMIT:** A feladat CSAK akkor kész, ha futtattad:
+       `git commit -m "refactor(scope): [fájl] magyarítás, típusozás, DI javítás"`
+    6. Frissítsd a `TASK_TREE.md`-t (✅ erre a fájlra).
+    7. Jelentsd: "✅ Kész + 💾 Commit Hash".
 
 ---
 

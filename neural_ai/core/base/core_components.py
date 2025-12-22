@@ -96,7 +96,9 @@ class CoreComponents:
         Returns:
             A konfiguráció kezelő példánya, vagy None ha nincs regisztrálva.
         """
-        return self._container.resolve(ConfigManagerInterface)
+        from typing import cast
+        result = self._container.resolve(ConfigManagerInterface)
+        return cast(Optional["ConfigManagerInterface"], result)
 
     @property
     def logger(self) -> Optional["LoggerInterface"]:
@@ -105,7 +107,9 @@ class CoreComponents:
         Returns:
             A naplózó példánya, vagy None ha nincs regisztrálva.
         """
-        return self._container.resolve(LoggerInterface)
+        from typing import cast
+        result = self._container.resolve(LoggerInterface)
+        return cast(Optional["LoggerInterface"], result)
 
     @property
     def storage(self) -> Optional["StorageInterface"]:
@@ -114,7 +118,9 @@ class CoreComponents:
         Returns:
             A tároló példánya, vagy None ha nincs regisztrálva.
         """
-        return self._container.resolve(StorageInterface)
+        from typing import cast
+        result = self._container.resolve(StorageInterface)
+        return cast(Optional["StorageInterface"], result)
 
     def set_config(self, config: "ConfigManagerInterface") -> None:
         """Beállítja a konfiguráció komponenst (csak teszteléshez).

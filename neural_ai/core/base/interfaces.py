@@ -6,7 +6,15 @@ alapvető interfészeit és absztrakt osztályait.
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+T = TypeVar("T")
+InterfaceT = TypeVar("InterfaceT")
 
 
 class DIContainerInterface(ABC):
@@ -17,7 +25,7 @@ class DIContainerInterface(ABC):
     """
 
     @abstractmethod
-    def register_instance(self, interface: Any, instance: Any) -> None:
+    def register_instance(self, interface: InterfaceT, instance: InterfaceT) -> None:
         """Komponens példány regisztrálása a konténerben.
 
         Args:
@@ -27,7 +35,7 @@ class DIContainerInterface(ABC):
         pass
 
     @abstractmethod
-    def register_factory(self, interface: Any, factory: Callable[[], Any]) -> None:
+    def register_factory(self, interface: InterfaceT, factory: Callable[[], InterfaceT]) -> None:
         """Factory függvény regisztrálása a konténerben.
 
         Args:
@@ -37,7 +45,7 @@ class DIContainerInterface(ABC):
         pass
 
     @abstractmethod
-    def resolve(self, interface: Any) -> Any | None:
+    def resolve(self, interface: InterfaceT) -> InterfaceT | None:
         """Függőség feloldása a konténerből.
 
         Args:
@@ -49,7 +57,7 @@ class DIContainerInterface(ABC):
         pass
 
     @abstractmethod
-    def register_lazy(self, component_name: str, factory_func: Callable[[], Any]) -> None:
+    def register_lazy(self, component_name: str, factory_func: Callable[[], T]) -> None:
         """Lusta betöltésű komponens regisztrálása.
 
         Args:
@@ -62,7 +70,7 @@ class DIContainerInterface(ABC):
         pass
 
     @abstractmethod
-    def get(self, component_name: str) -> Any:
+    def get(self, component_name: str) -> object:
         """Komponens példány lekérése (lusta betöltéssel).
 
         Args:
@@ -91,7 +99,7 @@ class CoreComponentsInterface(ABC):
 
     @property
     @abstractmethod
-    def config(self) -> Any | None:
+    def config(self) -> "ConfigManagerInterface | None":
         """Konfiguráció kezelő komponens.
 
         Returns:
@@ -101,7 +109,7 @@ class CoreComponentsInterface(ABC):
 
     @property
     @abstractmethod
-    def logger(self) -> Any | None:
+    def logger(self) -> "LoggerInterface | None":
         """Logger komponens.
 
         Returns:
@@ -111,7 +119,7 @@ class CoreComponentsInterface(ABC):
 
     @property
     @abstractmethod
-    def storage(self) -> Any | None:
+    def storage(self) -> "StorageInterface | None":
         """Storage komponens.
 
         Returns:
@@ -214,7 +222,7 @@ class LazyComponentInterface(ABC):
     """
 
     @abstractmethod
-    def get(self) -> Any:
+    def get(self) -> object:
         """Komponens példány lekérése (lusta betöltéssel).
 
         Returns:
