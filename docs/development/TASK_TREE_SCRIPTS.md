@@ -1,7 +1,7 @@
 # 🧠 NEURAL AI NEXT | SCRIPTS SATELLITE TASK TREE
 
 **Project Root:** /home/elynea/Dokumentumok/neural-ai-next
-**Last Sync:** 2025-12-22 23:15 UTC
+**Last Sync:** 2025-12-22 23:32 UTC
 
 ## 📟 TELEMETRY & STATUS
 
@@ -11,15 +11,15 @@
 
 ## 📉 PROGRESS TRACKER
 
-**Overall Completion:** 43%
-[████████░░░░░░░░░░░░]
+**Overall Completion:** 57%
+[████████████░░░░░░░░]
 
 | Metric       | Count | Ratio |
 |--------------|-------|-------|
 | Total Files  | 7     | 100%  |
-| ✅ Completed | 3     | 43%   |
+| ✅ Completed | 4     | 57%   |
 | 🚧 In Progress | 0   | 0%    |
-| 🔴 Pending   | 4     | 57%   |
+| 🔴 Pending   | 3     | 43%   |
 
 ## ⚡ ACTIVE CONTEXT (CURRENT FOCUS)
 
@@ -28,7 +28,8 @@
 - ✅ scripts/install/__init__.py elkészült
 - ✅ scripts/install/scripts/check_installation.py elkészült
 - ✅ scripts/install/scripts/jupyter_setup.py elkészült
-- ➡️ Következő feladat: scripts/install/scripts/main.py
+- ✅ scripts/install/scripts/main.py elkészült
+- ➡️ Következő feladat: scripts/install/scripts/setup_brokers.sh
 
 ## 🗂️ WORKFLOW & TASKS
 
@@ -52,6 +53,6 @@ Jelölések:
 | `scripts/install/scripts/check_installation.py` | [✅\|✅\|✅] | ✅ DONE |
 | `scripts/install/scripts/compile_mql.sh` | [✅\|❌\|❌] | 🔴 PENDING |
 | `scripts/install/scripts/jupyter_setup.py` | [✅\|✅\|✅] | ✅ DONE |
-| `scripts/install/scripts/main.py` | [✅\|❌\|❌] | 🔴 PENDING |
+| `scripts/install/scripts/main.py` | [✅\|✅\|✅] | ✅ DONE |
 | `scripts/install/scripts/setup_brokers.sh` | [✅\|❌\|❌] | 🔴 PENDING |
 | `scripts/install/scripts/setup_wine_mt5.sh` | [✅\|❌\|❌] | 🔴 PENDING |
