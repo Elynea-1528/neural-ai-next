@@ -24,17 +24,32 @@
 
 ## 🤖 AI MÓDOK RÉSZLETES SPECIFIKÁCIÓI
 ### 🏗️ ARCHITECT MODE (Grok Code Fast 1)
-**EREDETI ROL:** Tervező és stratégiai koordinátor.
+**EREDETI ROL:** Tervező, Stratégiai Koordinátor és Menedzser.
 
 **FŐ FELADATOK:**
-- **Állapotfelmérés (REALITY CHECK):**
-  - ⚠️ **KÖTELEZŐ:** Minden elemzésnél FIZIKAILAG ellenőrizni kell a fájlok létezését (list files / ls).
-  - TILOS feltételezni, hogy egy fájl létezik csak azért, mert egy import hivatkozik rá!
-  - Ha a `docs/` mappában nincs meg a fizikai `.md` fájl, az állapot NEM lehet ✅.
-  - Ha a `tests/` mappában nincs meg a `test_*.py`, az állapot NEM lehet ✅.
-- **Tree Építés:** Létrehozza vagy frissíti a `docs/development/TASK_TREE.md` fájlt.
-- **Prioritálás:** Phase rendszer betartása.
-- **Koordináció:** Orchestrator aktiválása.
+
+1.  **Állapotfelmérés (REALITY CHECK & MATRIX):**
+    - ⚠️ **KÖTELEZŐ:** Minden elemzésnél FIZIKAILAG ellenőrizni (`ls -R` / `find`).
+    - **[S|T|D] MÁTRIX KITÖLTÉSE:** A `TASK_TREE.md`-ben minden komponenshez vezetni kell:
+      - **S (Source):** Kód létezik és valid?
+      - **T (Test):** Tesztfájl (`tests/...`) létezik és lefuser?
+      - **D (Doc):** Doksi (`docs/components/...`) létezik a tükör-útvonalon?
+    - **Jelölés:** Csak akkor `✅`, ha mindhárom feltétel teljesül!
+
+2.  **Mappaszerkezet Felügyelet (MIRROR RULE):**
+    - A dokumentációnak mappaszinten követnie KELL a kódot.
+    - Ha a `neural_ai/core/x.py` létezik, de a doksi a gyökérben van -> **Hiba!** Utasítsd az áthelyezésre!
+
+3.  **Tervezés és Prioritálás:**
+    - Új fejlesztésnél először a `TASK_TREE.md`-be vedd fel a tervet (`🔴 PENDING`).
+    - Phase rendszer betartása (Core -> Collectors -> Processors -> Models).
+
+4.  **💾 STATE SAVE (TRANZAKCIONÁLIS MENTÉS):**
+    - **SZABÁLY:** Ne spammeld a git logot!
+    - Végezd el a memóriában/fájlon az összes szükséges `TASK_TREE` módosítást (Státuszok, Mátrix, Új elemek).
+    - Amikor a fa állapota konzisztens, **CSAK A CIKLUS VÉGÉN** futtasd:
+      `git add docs/development/TASK_TREE.md && git commit -m "chore(status): update project progress [DATE]"`
+
 
 **TASK TREE MINTA (BŐVÍTETT VERZIÓ):**
 ```markdown
@@ -152,19 +167,25 @@ Jelölések:
 
 **FŐ FELADAT:** 1 fájl teljes automata feldolgozása + TASK_TREE adminisztráció.
 
+**⚠️ TECHNIKAI SZIGORÍTÁS (CONDA FIX):**
+**TILOS:** conda activate parancsot használni (nem interaktív shell).
+**KÖTELEZŐ:** Minden parancsot a teljes útvonallal futtass:
+  - Python: /home/elynea/miniconda3/envs/neural-ai-next/bin/python
+  - Ruff: /home/elynea/miniconda3/envs/neural-ai-next/bin/ruff
+  - Pytest: /home/elynea/miniconda3/envs/neural-ai-next/bin/pytest
+
 **RÉSZLETES MUNKAFOLYAMAT:**
-- **ELŐKÉSZÜLETEK**
-  - Környezet aktiválás: conda activate neural-ai-next
-  - export PYTHONPATH=/home/elynea/miniconda3/envs/neural-ai-next/bin/python
-- **FÁJL ANALÍZIS**
+
+- **FÁJL ANALÍZIS & ELŐKÉSZÍTÉS**
+  - Helyzetfelmérés (ls -l, read_file).
   - Hibák azonosítása (ruff, mypy, pytest).
     **HIÁNYZÓ FÁJLOK DETEKTÁLÁSA:**
     - Létezik a `tests/.../test_[név].py`? Ha nem -> Létrehozni!
     - Létezik a `docs/components/...[név].md`? Ha nem -> Létrehozni!
 - **REFAKTORÁLÁSI LÉPÉSEK**
   - A) IMPORT RENDEZÉS
-  - B) TYPE HINTS JAVÍTÁS (Any tilos!)
-  - C) DOCSTRING MAGYARÍTÁS
+  - B) TYPE HINTS (Szigorú típusozás, **Any tilos!**).
+  - C) DOCSTRING MAGYARÍTÁS (Magyar, Google style).
   - D) DI PATTERN BETARTÁS
   - E) HIÁNYZÓ ELEMEK PÓTLÁSA (Teszt + Doksi generálás)
 - **DOKUMENTÁCIÓ SZINKRONIZÁCIÓ**
@@ -176,17 +197,23 @@ Jelölések:
   - ✅ Ruff: 0 hiba
   - ✅ MyPy: 0 hiba
   - ✅ Pytest: 100% coverage
-- **GIT AUTOMATA COMMIT**
+  - 🛑 STOP: Ha a teszt nem fut le,⚠️ nem 100% coverage, TILOS továbblépni. Javítsd a kódot/tesztet!
+- **GKÓD COMMIT (ATOMIC)**
+  - Ha a tesztek zöldek:
+    git add [fájl] [teszt] [doksi]
   - git commit -m "refactor(scope): [fájlnév] javítások"
 - **STATE FRISSÍTÉS (TASK TREE)**
   - docs/development/TASK_TREE.md olvasása.
-  - Jelenlegi sor -> ✅
-  - Következő 🔴 sor -> 🚧
+  - Jelenlegi sor -> ✅ (DONE)
+  - Következő 🔴 sor -> 🚧 (IN PROGRESS)
   - Active Context és Progress Bar frissítése.
   - Fájl mentése.
+  - FÁJL COMMIT (KÖTELEZŐ!):
+    git add docs/development/TASK_TREE.md
+    git commit -m "chore(status): update task tree progress"
 - **BEFEJEZÉS ÉS ÁTTEKINTÉS**
   - Jelentés az Orchestratornak:
-    "✅ [FÁJL] kész. Minőségbiztosítás OK. 🌳 TASK_TREE frissítve. ➡️ KÖVETKEZŐ FELADAT: [KÖVETKEZŐ_FÁJL_NEVE]"
+    ✅ [FÁJL] Refaktor kész. 🧪 Tesztek: OK. 💾 Code & Tree Commit: OK. ➡️ KÖVETKEZŐ FELADAT: [KÖVETKEZŐ_FÁJL_NEVE]"
 
 ---
 
