@@ -5,7 +5,7 @@ import sys
 import threading
 import warnings
 from collections.abc import Callable
-from typing import Generic, TypeVar
+from typing import TypeVar, cast
 
 from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
 
@@ -13,7 +13,7 @@ T = TypeVar("T")
 InterfaceT = TypeVar("InterfaceT")
 
 
-class LazyComponent(Generic[T]):
+class LazyComponent[T]:
     """Lusta betöltésű komponensek wrapper osztálya.
 
     Ez az osztály biztosítja a komponensek lusta (lazy) betöltését,
@@ -42,7 +42,7 @@ class LazyComponent(Generic[T]):
             if not self._loaded:
                 self._instance = self._factory_func()
                 self._loaded = True
-        return self._instance  # type: ignore
+        return self._instance  # type: ignore[return-value]
 
     @property
     def is_loaded(self) -> bool:
@@ -133,7 +133,7 @@ class DIContainer:
             raise ValueError("Factory function must be callable")
 
         lazy_component = LazyComponent[T](factory_func)
-        self._lazy_components[component_name] = lazy_component  # type: ignore
+        self._lazy_components[component_name] = cast(LazyComponent[object], lazy_component)
         self._logger.info(f"Registered lazy component: {component_name}")
 
     def get(self, component_name: str) -> object:
