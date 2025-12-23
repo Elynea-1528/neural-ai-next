@@ -58,7 +58,7 @@ except metadata.PackageNotFoundError:
     _version = "1.0.0"
 
 __version__: Final[str] = _version
-__schema_version__: Final[str] = "1.0"
+__schema_version__: Final[str] = LoggerFactory.get_schema_version()
 
 __all__: Final[list[str]] = [
     # Verzióinformációk

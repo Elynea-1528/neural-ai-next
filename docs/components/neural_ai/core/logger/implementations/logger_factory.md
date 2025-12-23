@@ -18,6 +18,9 @@ class LoggerFactory(LoggerFactoryInterface)
 - **`_instances`**: `dict[str, LoggerInterface]`
   - A létrehozott logger példányok gyorsítótárja, név alapján.
 
+- **`_schema_version`**: `str`
+  - A logger factory sémaváltozata. Alapértelmezett értéke: `"1.0.0"`.
+
 ### Metódusok
 
 #### `register_logger(cls, logger_type: str, logger_class: type[LoggerInterface]) -> None`
@@ -87,6 +90,71 @@ config = {
     }
 }
 LoggerFactory.configure(config)
+```
+
+#### `get_schema_version(cls) -> str`
+
+A logger factory sémaváltozatának lekérdezése.
+
+**Visszatérési érték:**
+- `str`: A sémaváltozat string formátumban (pl. '1.0.0').
+
+**Példa:**
+```python
+version = LoggerFactory.get_schema_version()
+print(f"Schema version: {version}")
+```
+
+#### `set_schema_version(cls, version: str) -> None`
+
+A logger factory sémaváltozatának beállítása.
+
+**Paraméterek:**
+- `version` (str): Az új sémaváltozat (pl. '1.1.0').
+
+**Példa:**
+```python
+LoggerFactory.set_schema_version("1.1.0")
+```
+
+#### `clear_instances(cls) -> None`
+
+Összes logger példány törlése a gyorsítótárból.
+
+Ez a metódus hasznos teszteléskor vagy amikor teljesen új logger példányokat szeretnénk létrehozni.
+
+**Példa:**
+```python
+LoggerFactory.clear_instances()
+```
+
+#### `get_registered_types(cls) -> list[str]`
+
+Regisztrált logger típusok listázása.
+
+**Visszatérési érték:**
+- `list[str]`: A regisztrált logger típusok neveinek listája.
+
+**Példa:**
+```python
+types = LoggerFactory.get_registered_types()
+print(f"Available logger types: {types}")
+```
+
+#### `is_logger_registered(cls, logger_type: str) -> bool`
+
+Ellenőrzi, hogy egy logger típus regisztrálva van-e.
+
+**Paraméterek:**
+- `logger_type` (str): A logger típus neve.
+
+**Visszatérési érték:**
+- `bool`: True, ha a logger típus regisztrálva van, egyébként False.
+
+**Példa:**
+```python
+if LoggerFactory.is_logger_registered("custom"):
+    logger = LoggerFactory.get_logger("my_app", logger_type="custom")
 ```
 
 ## Használat

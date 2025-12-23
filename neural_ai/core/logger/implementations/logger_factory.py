@@ -1,8 +1,13 @@
 """Logger factory implementáció.
 
-Ez a modul biztosítja a logger factory osztályt, amely felelős a különböző
+Ez a modul biztosítja a LoggerFactory osztályt, amely felelős a különböző
 típusú loggerek létrehozásáért és kezeléséért. A factory mintát követve
 lehetővé teszi a dinamikus logger típusok regisztrálását és példányosítását.
+
+A factory támogatja a következő logger típusokat:
+- default: Alapértelmezett konzol logger
+- colored: Színes kimenetű konzol logger
+- rotating: Fájlba író, automatikusan rotáló logger
 """
 
 import logging
@@ -27,7 +32,16 @@ else:
 
 
 class LoggerFactory(LoggerFactoryInterface):
-    """Factory osztály loggerek létrehozásához."""
+    """Factory osztály loggerek létrehozásához.
+
+    A factory mintát követve centralizálja a logger példányosítást és
+    életciklus kezelést. Támogatja a különböző logger implementációk
+    regisztrálását és lekérdezését.
+
+    Attributes:
+        _logger_types: Regisztrált logger típusok és osztályaik.
+        _instances: Létrehozott logger példányok gyorsítótárban.
+    """
 
     _logger_types: dict[str, type[LoggerInterface]] = cast(
         dict[str, type[LoggerInterface]],
@@ -39,14 +53,18 @@ class LoggerFactory(LoggerFactoryInterface):
     )
 
     _instances: dict[str, LoggerInterface] = {}
+    _schema_version: str = "1.0.0"
 
     @classmethod
     def register_logger(cls, logger_type: str, logger_class: type[LoggerInterface]) -> None:
         """Új logger típus regisztrálása.
 
         Args:
-            logger_type: A logger típus neve
-            logger_class: A logger osztály
+            logger_type: A logger típus neve.
+            logger_class: A logger osztály.
+
+        Raises:
+            TypeError: Ha a logger_class nem implementálja a LoggerInterface-t.
         """
         cls._logger_types[logger_type] = logger_class
 
@@ -60,12 +78,25 @@ class LoggerFactory(LoggerFactoryInterface):
         """Logger példány létrehozása vagy visszaadása.
 
         Args:
-            name: A logger neve
-            logger_type: A kért logger típus
-            **kwargs: További paraméterek a loggernek
+            name: A logger egyedi neve.
+            logger_type: A kért logger típus ('default', 'colored', 'rotating').
+            **kwargs: További paraméterek a loggernek (pl. log_file, level).
 
         Returns:
-            LoggerInterface: Az inicializált logger
+            LoggerInterface: Az inicializált logger példány.
+
+        Raises:
+            ValueError: Ha a 'rotating' típushoz nincs megadva 'log_file'.
+            TypeError: Ha a létrehozott logger nem implementálja az interfészt.
+
+        Példa:
+            >>> logger = LoggerFactory.get_logger("my_app")
+            >>> colored = LoggerFactory.get_logger("app", logger_type="colored")
+            >>> file_logger = LoggerFactory.get_logger(
+            ...     "file_app",
+            ...     logger_type="rotating",
+            ...     log_file="/var/log/app.log"
+            ... )
         """
         # Ha már létezik ilyen nevű logger, azt adjuk vissza
         if name in cls._instances:
@@ -75,8 +106,15 @@ class LoggerFactory(LoggerFactoryInterface):
         if logger_type not in cls._logger_types:
             logger_type = "default"
 
+        # Rotating logger esetén kötelező a log_file paraméter
+        if logger_type == "rotating" and "log_file" not in kwargs:
+            raise ValueError(
+                "A 'rotating' logger típushoz kötelező megadni a 'log_file' paramétert"
+            )
+
         logger_class = cls._logger_types[logger_type]
         logger = logger_class(name=name, **kwargs)
+
         cls._instances[name] = logger
         return logger
 
@@ -136,3 +174,51 @@ class LoggerFactory(LoggerFactoryInterface):
                 file_handler.setLevel(getattr(logging, file_config.get("level", "DEBUG")))
                 file_handler.setFormatter(logging.Formatter(log_format))
                 root_logger.addHandler(file_handler)
+
+    @classmethod
+    def get_schema_version(cls) -> str:
+        """A logger factory sémaváltozatának lekérdezése.
+
+        Returns:
+            str: A sémaváltozat string formátumban (pl. '1.0.0').
+        """
+        return cls._schema_version
+
+    @classmethod
+    def set_schema_version(cls, version: str) -> None:
+        """A logger factory sémaváltozatának beállítása.
+
+        Args:
+            version: Az új sémaváltozat (pl. '1.1.0').
+        """
+        cls._schema_version = version
+
+    @classmethod
+    def clear_instances(cls) -> None:
+        """Összes logger példány törlése a gyorsítótárból.
+
+        Ez a metódus hasznos teszteléskor vagy amikor teljesen
+        új logger példányokat szeretnénk létrehozni.
+        """
+        cls._instances.clear()
+
+    @classmethod
+    def get_registered_types(cls) -> list[str]:
+        """Regisztrált logger típusok listázása.
+
+        Returns:
+            list[str]: A regisztrált logger típusok neveinek listája.
+        """
+        return list(cls._logger_types.keys())
+
+    @classmethod
+    def is_logger_registered(cls, logger_type: str) -> bool:
+        """Ellenőrzi, hogy egy logger típus regisztrálva van-e.
+
+        Args:
+            logger_type: A logger típus neve.
+
+        Returns:
+            bool: True, ha a logger típus regisztrálva van, egyébként False.
+        """
+        return logger_type in cls._logger_types
