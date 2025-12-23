@@ -1,27 +1,50 @@
-🚀 COMMAND: ULTIMATE REFACTOR & COMPLIANCE AUDIT (PRO VERSION)
-"Architect! Csatoltam a FRISSÍTETT @docs mappát. Ez a rendszer megkérdőjelezhetetlen törvénykönyve (SSOT).
-INDÍTSD A 'STRICT COMPLIANCE' PROTOKOLLT A KÖVETKEZŐ KIEGÉSZÍTÉSEKKEL:
+🚀 **COMMAND: ULTIMATE REFACTOR & COMPLIANCE AUDIT (PRO + PYLANCE STRICT EDITION)**
+
+```text
+"Architect! Csatoltam a FRISSÍTETT @docs mappát (benne az új verziókezelési szabályokkal). Ez a rendszer megkérdőjelezhetetlen törvénykönyve (SSOT).
+
+INDÍTSD A 'STRICT COMPLIANCE' PROTOKOLLT A KÖVETKEZŐ BŐVÍTETT SZABÁLYRENDSZERREL:
+
 0. KRITIKUS MŰKÖDÉSI SZABÁLYOK (Azonnali érvényűek):
-ATOMIC COMMIT: Minden egyes sikeresen refaktorált fájl után KÖTELEZŐ a git commit -m "..." parancs futtatása. Ha nincs commit, a feladat ❌ FAILED.
-REALITY CHECK: Soha ne találgass fájlneveket (pl. config_manager). Használd a find parancsot a pontos útvonal megtalálásához!
-MIRROR STRUCTURE: A dokumentációnak mappaszinten követnie kell a kódot (pl. neural_ai/core/base/x.py -> docs/components/core/base/x.md). Ha rossz helyen van, mozgasd át!
+   - ATOMIC COMMIT: Minden egyes sikeresen refaktorált fájl után KÖTELEZŐ a git commit -m "..." parancs futtatása. Ha nincs commit, a feladat ❌ FAILED.
+   - REALITY CHECK: Soha ne találgass fájlneveket. Használd a `find` parancsot a pontos útvonal megtalálásához!
+   - MIRROR STRUCTURE: A dokumentációnak mappaszinten követnie kell a kódot. Ha hiányzik, hozd létre!
+   - PYLANCE STRICT MODE (ÚJ!): A kódnak Pylance 'basic' helyett 'strict' módban is hiba nélkül kell átmennie.
+     * Tilos az 'Any' típus lusta használata.
+     * Optional típusoknál kötelező a `None` check (`if x is not None`).
+     * Használj `typing.cast`-ot, ha a típuslevezetés nem egyértelmű.
+     * A körkörös importokat `if TYPE_CHECKING:` blokkal oldd meg, de a string forward reference-eket (`'ClassName'`) használd a típusannotációkban!
+
 1. HIERARCHIKUS SZABÁLYRENDSZER (Prioritások):
-Development Guide: docs/development/unified_development_guide.md (Stílus: Hungarian docstrings, Google style, Type hints).
-Architektúra: docs/development/core_dependencies.md (KRITIKUS! Körkörös importok ellen Bootstrap minta és NullObject pattern KÖTELEZŐ a core/base mappában).
-Dimenziók: A processzoroknál (D1-D15) a docs/processors/dimensions/overview.md-ben leírt dict visszatérési értékek SZENTÍRÁSOK.
+   - Development Guide: docs/development/unified_development_guide.md (Kiemelten a 10. fejezet: Verziókezelés és Pylance Strict szabályok).
+   - Architektúra: docs/development/core_dependencies.md (Bootstrap minta és NullObject pattern KÖTELEZŐ).
+   - Dimenziók: A processzorok kimeneti formátuma (dict keys) SZENTÍRÁS.
+
 2. AUDIT & MÁTRIX TÖLTÉS:
-Szkenneld végig a neural_ai/ könyvtárat (ls -R).
-Frissítsd a docs/development/TASK_TREE.md-t az [S|T|D] Mátrixszal (Source | Test | Doc).
-JELÖLÉS:
-🔴 REFACTOR NEEDED: Ha a kód megvan, de angol kommentes, hiányzik a típus, VAGY megsérti a core_dependencies.md import szabályait.
-🔴 DOCS MISSING: Ha a kód jó, de nincs meg a párja a docs/components/ (tükör) mappában.
+   - Szkenneld végig a neural_ai/ könyvtárat.
+   - Frissítsd a docs/development/TASK_TREE.md-t.
+   - JELÖLÉS:
+     🔴 REFACTOR NEEDED: Ha a kód megvan, de:
+        1. Angol kommentes.
+        2. Pylance Strict hibát dob (pl. 'reportUnknownMemberType', 'reportOptionalMemberAccess').
+        3. Hiányzik a verziókezelés (Version check).
+     🔴 DOCS MISSING: Ha a kód jó, de nincs meg a párja a docs/components/ mappában.
+
 3. VÉGREHAJTÁS (The Fix Loop):
-Jelentsd a TASK_TREE állapotát.
-Utasítsd az Orchestratort a legkritikusabb 🔴 elem javítására a következő SZIGORÍTOTT PROMPTTAL:
-*'Code Agent! A feladat a(z) [FÁJL] refaktorálása.
-Keresés: find . -name [fájlnév] (Bizonyosodj meg az útvonalról!).
-Architektúra: Olvasd el a docs/development/core_dependencies.md-t. Használj TYPE_CHECKING blokkot az importokhoz!
-Refaktor: Magyar docstring, Type hints (No Any!), Dependency Injection.
-Dokumentálás: Generáld le a doksit a docs/components/... (tükör) mappába.
-Lezárás: Futtass tesztet, majd GIT COMMIT! (Commit nélkül nem fogadom el).'
-Kezdd a munkát a neural_ai/core/base modul szigorú átvizsgálásával és a TASK_TREE generálásával!"
+   Jelentsd a TASK_TREE állapotát, majd utasítsd az Orchestratort a legkritikusabb 🔴 elem javítására ezzel a BŐVÍTETT PROMPTTAL:
+
+   'Code Agent! A feladat a(z) [FÁJL] refaktorálása Strict módban.
+
+   1. Keresés: find . -name [fájlnév]
+   2. Architektúra: Kövesd a docs/development/core_dependencies.md-t.
+   3. PYLANCE JAVÍTÁS (Priority #1):
+      - Minden változónak és függvénynek legyen explicit típusa.
+      - Szüntesd meg a 256+ Pylance hibát! Ne használj `# type: ignore`-t, helyette javítsd a kódot (pl. `assert variable is not None` vagy `cast(Type, variable)`).
+      - Kezeld a `Circular Import` hibákat `TYPE_CHECKING` blokkal.
+   4. VERZIÓKEZELÉS (Priority #2):
+      - Implementáld a 10. fejezet szerinti verzióvizsgálatot (`schema_version` mentése/betöltése).
+      - Az `__init__.py`-ben dinamikus verzióbetöltés legyen (`importlib.metadata`).
+   5. Dokumentálás: Generáld le/frissítsd a tükör doksit magyar nyelven.
+   6. Lezárás: Futtass tesztet, majd GIT COMMIT!
+
+   Kezdd a munkát a `neural_ai/__init__.py` és a `neural_ai/core/base` modulok szigorú Pylance javításával!"

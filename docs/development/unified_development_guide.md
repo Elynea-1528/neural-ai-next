@@ -445,6 +445,35 @@ self.logger.info(
     memory_used=get_memory_usage()
 )
 ```
+## 10. Verziókezelés és Adatstruktúra Stabilitás
+
+A rendszer stabilitása érdekében szigorú verziókezelést alkalmazunk a kódban és a perzisztens adatokban.
+
+### 10.1 Single Source of Truth (SSOT)
+- A szoftver verziószámát KIZÁRÓLAG a `pyproject.toml` fájlban tároljuk.
+- Tilos a verziót (pl. `__version__ = "0.1.0"`) a forráskódban hardcode-olni.
+- A `neural_ai/__init__.py`-nek dinamikusan kell olvasnia a verziót:
+  ```python
+  from importlib.metadata import version, PackageNotFoundError
+  try:
+      __version__ = version("neural-ai-next")
+  except PackageNotFoundError:
+      __version__ = "unknown"
+### 10.2 Perzisztens Adatok Verziózása (Schema Versioning)
+Minden adatmentési műveletnél (Storage) rögzíteni kell az író szoftver verzióját és a séma verzióját metaadatként.
+- Fájl alapú mentésnél:
+  - JSON/YAML: Hozzá kell adni egy _meta: { "version": "..." } mezőt.
+  - Parquet/HDF5: A fájlformátum natív metadata fejlécét kell használni.
+Implementációs elvárás:
+  - A save metódusoknak automatikusan be kell illeszteniük a verziót, a load metódusoknak pedig ellenőrizniük kell azt (warning logolása version mismatch esetén).
+### 10.3 Pylance Strict Megfelelőség
+A kódnak strict típusellenőrzési módban is hiba nélkül kell futnia.
+**Tilos:** Any típus indokolatlan használata.
+**Kötelező:**
+- Optional típusok explicit ellenőrzése (if x is not None).
+- cast használata típus szűkítésnél.
+- Generikusok (TypeVar) helyes definiálása.
+- Hiányzó stubs esetén wrapper vagy explicit Protocol definiálása.
 
 ## 10. Fejlesztési Checklist
 
@@ -471,3 +500,4 @@ self.logger.info(
 - [ ] Peer review
 - [ ] CI tesztek sikeressége
 - [ ] Dokumentáció frissítése a fő dokumentációban
+- [ ] Verziókezelés implementálása (schema_version mentése, config version check)
