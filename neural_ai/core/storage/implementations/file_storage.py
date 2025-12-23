@@ -9,7 +9,7 @@ import os
 from collections.abc import Callable, Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import pandas as pd
 
@@ -26,11 +26,16 @@ from neural_ai.core.storage.exceptions import (
 )
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
+if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
 
 class FileStorage(StorageInterface):
     """Fájlrendszer alapú storage implementáció."""
 
-    def __init__(self, base_path: str | Path | None = None, logger: Any | None = None) -> None:
+    def __init__(
+        self, base_path: str | Path | None = None, logger: Optional["LoggerInterface"] = None
+    ) -> None:
         """Inicializálja a FileStorage példányt.
 
         Args:
@@ -38,7 +43,7 @@ class FileStorage(StorageInterface):
             logger: Logger példány (opcionális)
         """
         self._base_path = Path(base_path) if base_path else Path.cwd()
-        self.logger = logger
+        self.logger: LoggerInterface | None = logger
         self._setup_format_handlers()
 
     def _setup_format_handlers(self) -> None:
@@ -233,14 +238,14 @@ class FileStorage(StorageInterface):
         except OSError as e:
             if temp_path.exists():
                 temp_path.unlink()
-            raise StorageWriteError(f"Failed to write temporary file: {e}")
+            raise StorageWriteError(f"Failed to write temporary file: {e}") from e
 
         try:
             os.replace(temp_path, file_path)
         except OSError as e:
             if temp_path.exists():
                 temp_path.unlink()
-            raise StorageWriteError(f"Failed to replace file: {e}")
+            raise StorageWriteError(f"Failed to replace file: {e}") from e
 
     def save_dataframe(
         self,
@@ -279,15 +284,12 @@ class FileStorage(StorageInterface):
             self._DATAFRAME_FORMATS[fmt]["save"](df, str(full_path), **kwargs)
         except OSError as e:
             if self.logger:
-                self.logger.exception(
-                    f"IO hiba a DataFrame mentése során: {full_path}", stack_info=True
-                )
+                self.logger.error(f"IO hiba a DataFrame mentése során: {full_path}")
             raise StorageIOError(f"Hiba a DataFrame mentése során: {str(e)}") from e
         except Exception as e:
             if self.logger:
-                self.logger.exception(
+                self.logger.error(
                     f"Váratlan hiba a DataFrame mentése során: {full_path}",
-                    stack_info=True,
                 )
             raise StorageIOError(f"Hiba a DataFrame mentése során: {str(e)}") from e
 
@@ -338,16 +340,11 @@ class FileStorage(StorageInterface):
             )
         except OSError as e:
             if self.logger:
-                self.logger.exception(
-                    f"IO hiba a DataFrame betöltése során: {full_path}", stack_info=True
-                )
+                self.logger.error(f"IO hiba a DataFrame betöltése során: {full_path}")
             raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}") from e
         except Exception as e:
             if self.logger:
-                self.logger.exception(
-                    f"Váratlan hiba a DataFrame betöltése során: {full_path}",
-                    stack_info=True,
-                )
+                self.logger.error(f"Váratlan hiba a DataFrame betöltése során: {full_path}")
             raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}") from e
 
     def save_object(
@@ -436,30 +433,19 @@ class FileStorage(StorageInterface):
             return self._OBJECT_FORMATS[fmt]["load"](str(full_path), **kwargs)
         except json.JSONDecodeError as e:
             if self.logger:
-                self.logger.exception(
-                    f"JSON dekódolási hiba az objektum betöltése során: {full_path}",
-                    stack_info=True,
-                )
+                self.logger.error(f"JSON dekódolási hiba az objektum betöltése során: {full_path}")
             raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
         except (TypeError, ValueError) as e:
             if self.logger:
-                self.logger.exception(
-                    f"Szerializációs hiba az objektum betöltése során: {full_path}",
-                    stack_info=True,
-                )
+                self.logger.error(f"Szerializációs hiba az objektum betöltése során: {full_path}")
             raise StorageSerializationError(f"Az objektum nem deszerializálható: {str(e)}") from e
         except OSError as e:
             if self.logger:
-                self.logger.exception(
-                    f"IO hiba az objektum betöltése során: {full_path}", stack_info=True
-                )
+                self.logger.error(f"IO hiba az objektum betöltése során: {full_path}")
             raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
         except Exception as e:
             if self.logger:
-                self.logger.exception(
-                    f"Váratlan hiba az objektum betöltése során: {full_path}",
-                    stack_info=True,
-                )
+                self.logger.error(f"Váratlan hiba az objektum betöltése során: {full_path}")
             raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
 
     def exists(self, path: str) -> bool:
