@@ -4,6 +4,12 @@
 
 A `ConfigManagerInterface` egy absztrakt interfész, amely definiálja a konfigurációkezelők által implementálandó metódusokat. Ez az interfész biztosítja a konzisztens viselkedést a különböző konfigurációs implementációk között.
 
+## Verziókezelés
+
+- **Jelenlegi verzió:** 1.0.0
+- **Séma verzió:** `schema_version` mező a konfigurációban
+- **Kompatibilitás:** A verziókezelés biztosítja a konfigurációs séma kompatibilitását
+
 ## Osztály
 
 ```python
