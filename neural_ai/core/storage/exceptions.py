@@ -1,5 +1,11 @@
 """Storage komponens kivételek."""
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    # Jövőbeli típus hivatkozások helye
+    pass
+
 
 class StorageError(Exception):
     """Alap kivétel a storage műveletekhez."""
