@@ -1,7 +1,11 @@
-"""Storage factory implementáció."""
+"""Storage factory implementáció a különböző tároló komponensek létrehozásához.
+
+Ez a modul felelős a storage implementációk példányosításáért a factory
+minta segítségével. Alapértelmezetten a FileStorage implementációt támogatja,
+de további storage típusok is regisztrálhatók dinamikusan.
+"""
 
 from pathlib import Path
-from typing import Any
 
 from neural_ai.core.storage.exceptions import StorageError
 from neural_ai.core.storage.implementations.file_storage import FileStorage
@@ -23,15 +27,23 @@ class StorageFactory(StorageFactoryInterface):
 
     @classmethod
     def register_storage(cls, storage_type: str, storage_class: type[StorageInterface]) -> None:
-        """Új storage típus regisztrálása.
+        """Új storage típus regisztrálása a factory számára.
 
         Args:
-            storage_type: A storage típus azonosítója
-            storage_class: A storage osztály
+            storage_type: A storage típus egyedi azonosítója (pl. "s3", "database").
+            storage_class: A storage osztály, amely implementálja a StorageInterface-t.
+
+        Raises:
+            ValueError: Ha a storage_class nem implementálja a StorageInterface-t.
 
         Example:
+            >>> from neural_ai.core.storage.interfaces import StorageInterface
+            >>> class S3Storage(StorageInterface):
+            ...     pass
             >>> StorageFactory.register_storage("s3", S3Storage)
         """
+        if not issubclass(storage_class, StorageInterface):
+            raise ValueError(f"A(z) {storage_class} nem implementálja a StorageInterface-t")
         cls._storage_types[storage_type] = storage_class
 
     @classmethod
@@ -39,24 +51,28 @@ class StorageFactory(StorageFactoryInterface):
         cls,
         storage_type: str = "file",
         base_path: str | Path | None = None,
-        **kwargs: Any,
+        **kwargs: object,
     ) -> StorageInterface:
-        """Storage példány létrehozása.
+        """Storage példány létrehozása a megadott típus alapján.
 
         Args:
-            storage_type: A kért storage típus
-            base_path: Alap könyvtár útvonal
-            **kwargs: További paraméterek a storage-nak
+            storage_type: A kért storage típus azonosítója (alapértelmezett: "file").
+            base_path: Alap könyvtár útvonal a file alapú tároláshoz.
+            **kwargs: További paraméterek a storage osztály konstruktorának.
 
         Returns:
-            StorageInterface: Az inicializált storage
+            StorageInterface: Az inicializált storage példány.
 
         Raises:
-            StorageError: Ha nem található a kért storage típus
+            StorageError: Ha nem található a kért storage típus vagy a
+                példányosítás sikertelen.
 
         Example:
             >>> storage = StorageFactory.get_storage("file", base_path="data")
             >>> storage.save_object({"key": "value"}, "config.json")
+            >>> # Egyéni paraméterekkel
+            >>> storage = StorageFactory.get_storage("file", base_path="data",
+            ...                                       create_if_missing=True)
         """
         if storage_type not in cls._storage_types:
             raise StorageError(
@@ -66,7 +82,7 @@ class StorageFactory(StorageFactoryInterface):
 
         storage_class = cls._storage_types[storage_type]
 
-        # A **kwargs-ban továbbítjuk az összes paramétert, beleértve a base_path-t is
+        # A base_path hozzáadása a kwargs-hoz, ha meg van adva
         if base_path is not None:
             kwargs["base_path"] = base_path
 
@@ -74,4 +90,8 @@ class StorageFactory(StorageFactoryInterface):
             storage = storage_class(**kwargs)
             return storage
         except TypeError as e:
-            raise StorageError(f"Nem sikerült létrehozni a storage példányt: {str(e)}")
+            raise StorageError(f"Nem sikerült létrehozni a storage példányt: {str(e)}") from e
+        except Exception as e:
+            raise StorageError(
+                f"Váratlan hiba történt a storage példányosítása közben: {str(e)}"
+            ) from e
