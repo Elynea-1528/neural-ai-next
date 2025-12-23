@@ -4,11 +4,13 @@ Ez a modul tartalmazza a konfigurációkezelő implementációk teszteléséhez
 szükséges teszteseteket.
 """
 
-import sys
 from importlib import import_module
 from unittest import TestCase
 
-from neural_ai.core.config.implementations import ConfigManagerFactory, YAMLConfigManager
+from neural_ai.core.config.implementations import (
+    ConfigManagerFactory,
+    YAMLConfigManager,
+)
 
 
 class TestInit(TestCase):
@@ -25,12 +27,13 @@ class TestInit(TestCase):
     def test_all_exports(self) -> None:
         """Teszteli, hogy minden exportált osztály elérhető-e."""
         # Ellenőrizzük az __all__ listában szereplő osztályokat
+        import neural_ai.core.config.implementations as implementations_module
         from neural_ai.core.config.implementations import __all__ as module_all
 
         for export_name in module_all:
             with self.subTest(export=export_name):
                 self.assertTrue(
-                    hasattr(sys.modules[__name__.rsplit(".", 1)[0]], export_name),
+                    hasattr(implementations_module, export_name),
                     f"Az {export_name} nincs exportálva helyesen",
                 )
 
@@ -77,3 +80,12 @@ class TestInit(TestCase):
                     hasattr(YAMLConfigManager, method_name),
                     f"A {method_name} metódus hiányzik a YAMLConfigManager-ből",
                 )
+
+    def test_version_constants_available(self) -> None:
+        """Teszteli, hogy a verzió konstansok elérhetőek-e."""
+        from neural_ai.core.config.implementations import SCHEMA_VERSION, __version__
+
+        self.assertIsNotNone(__version__)
+        self.assertIsInstance(__version__, str)
+        self.assertIsNotNone(SCHEMA_VERSION)
+        self.assertIsInstance(SCHEMA_VERSION, str)

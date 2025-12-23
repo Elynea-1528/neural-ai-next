@@ -6,10 +6,12 @@ Ez a modul tartalmazza a különböző konfigurációkezelő implementációkat,
 
 ## Tartalom
 
-### Exportált Osztályok
+### Exportált Komponensek
 
 - **[`ConfigManagerFactory`](./config_manager_factory.md)**: Factory osztály konfigurációkezelők létrehozásához
 - **[`YAMLConfigManager`](./yaml_config_manager.md)**: YAML fájlokat kezelő konfigurációkezelő implementáció
+- **`__version__`**: A modul aktuális verziószáma (dinamikusan betöltve)
+- **`SCHEMA_VERSION`**: A konfigurációs séma aktuális verziószáma
 
 ## Használat
 
@@ -195,9 +197,61 @@ pytest tests/core/config/implementations/ -v
 - [Factory Interface](../interfaces/factory_interface.md)
 - [Hibakezelés](../exceptions.md)
 
+## Verziókezelés
+
+### Modul verziója
+
+A modul verziószáma dinamikusan töltődik be a `pyproject.toml` fájlból:
+
+```python
+from neural_ai.core.config.implementations import __version__
+
+print(f"Modul verziója: {__version__}")
+```
+
+### Konfigurációs séma verzió
+
+A konfigurációs fájlokban használható a `schema_version` mező a séma verziójának
+nyilvántartására. Ez lehetővé teszi a verziók közötti migrációkat és kompatibilitás-ellenőrzést.
+
+```python
+from neural_ai.core.config.implementations import SCHEMA_VERSION
+
+# Aktuális séma verzió
+print(f"Séma verzió: {SCHEMA_VERSION}")
+
+# Konfiguráció betöltése és verzió ellenőrzése
+config = factory.get_manager("config.yaml")
+file_version = config.get("schema_version", default="1.0.0")
+
+if file_version != SCHEMA_VERSION:
+    print(f"Figyelem: A konfigurációs fájl verziója ({file_version}) eltér a támogatottól ({SCHEMA_VERSION})")
+    # Verzió migráció végrehajtása...
+```
+
+### Verzió migrációs példa
+
+```python
+from neural_ai.core.config.implementations import ConfigManagerFactory, SCHEMA_VERSION
+
+factory = ConfigManagerFactory()
+config = factory.get_manager("config.yaml")
+
+# Verzió ellenőrzése és migráció
+current_version = config.get("schema_version", default="1.0.0")
+
+if current_version == "1.0.0" and SCHEMA_VERSION == "1.1.0":
+    # Migrációs lépések
+    config.set("new_feature", "enabled", value=True)
+    config.set("schema_version", value="1.1.0")
+    config.save()
+```
+
 ## Verziótörténet
 
 - **v1.0.0** (2024-12-22): Kezdeti implementáció
   - YAML konfigurációkezelő
   - Factory pattern implementáció
   - Séma validáció támogatás
+  - Dinamikus verzióbetöltés
+  - Schema version kezelés
