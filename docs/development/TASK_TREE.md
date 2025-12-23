@@ -35,10 +35,10 @@
 
 ---
 
-### 🟡 PHASE 1: CORE INFRASTRUCTURE (Foundation)
+### 🟢 PHASE 1: CORE INFRASTRUCTURE (Foundation)
 
 **Description:** EventBus, Database, Storage, DI Container implementation.
-**Progress:** 25% [█████░░░░░░░░░░░░░░░] | **Priority:** CRITICAL
+**Progress:** 60% [████████████░░░░░░░░] | **Priority:** CRITICAL
 
 | File Path | Matrix [S|T|D] | Complexity | Token Est. | Deps | Status |
 |-----------|:--------------:|:----------:|:----------:|:-----|:------:|
@@ -48,8 +48,15 @@
 | `neural_ai/core/config/implementations/` | [✅|✅|✅] | ⭐⭐⭐ | 800 | `pydantic` | ✅ DONE |
 | `neural_ai/core/logger/implementations/` | [✅|✅|✅] | ⭐⭐⭐ | 900 | `structlog` | ✅ DONE |
 | `neural_ai/core/storage/implementations/` | [✅|✅|✅] | ⭐⭐⭐ | 700 | - | ✅ DONE |
+| `neural_ai/core/db/base.py` | [✅|✅|✅] | ⭐⭐ | 400 | `sqlalchemy` | ✅ DONE |
+| `neural_ai/core/db/models.py` | [✅|✅|✅] | ⭐⭐⭐ | 1.2k | `sqlalchemy` | ✅ DONE |
+| `neural_ai/core/db/session.py` | [✅|✅|✅] | ⭐⭐⭐ | 1.5k | `sqlalchemy` | ✅ DONE |
+| `neural_ai/core/db/__init__.py` | [✅|✅|✅] | ⭐ | 200 | - | ✅ DONE |
+| `tests/core/db/test_session.py` | [✅|✅|✅] | ⭐⭐⭐ | 1.0k | `pytest` | ✅ DONE |
+| `tests/core/db/test_models.py` | [✅|✅|✅] | ⭐⭐⭐ | 1.5k | `pytest` | ✅ DONE |
+| `docs/components/neural_ai/core/db/session.md` | [✅|✅|✅] | ⭐⭐ | 800 | - | ✅ DONE |
+| `docs/components/neural_ai/core/db/models.md` | [✅|✅|✅] | ⭐⭐ | 900 | - | ✅ DONE |
 | `neural_ai/core/events/bus.py` | [❌|❌|❌] | ⭐⭐⭐⭐ | 1.5k | `zmq, asyncio` | 🔴 PENDING |
-| `neural_ai/core/db/session.py` | [❌|❌|❌] | ⭐⭐⭐ | 1.0k | `sqlalchemy` | 🔴 PENDING |
 | `neural_ai/core/storage/parquet.py` | [❌|❌|❌] | ⭐⭐⭐⭐⭐ | 2.5k | `fastparquet` | 🔴 PENDING |
 | `neural_ai/core/config/dynamic.py` | [❌|❌|❌] | ⭐⭐⭐⭐ | 1.8k | `sqlalchemy` | 🔴 PENDING |
 
