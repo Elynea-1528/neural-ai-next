@@ -90,7 +90,7 @@ Jelölések:
 #### 💾 STORAGE COMPONENT
 | File Path | Matrix [S\|T\|D] | Status |
 |-----------|------------------|--------|
-| `neural_ai/core/storage/__init__.py` | [✅\|✅\|✅] | 🚧 WIP |
+| `neural_ai/core/storage/__init__.py` | [✅\|✅\|✅] | ✅ DONE |
 | `neural_ai/core/storage/exceptions.py` | [✅\|✅\|✅] | ✅ DONE |
 | `neural_ai/core/storage/implementations/__init__.py` | [✅\|✅\|✅] | ✅ DONE |
 | `neural_ai/core/storage/implementations/file_storage.py` | [✅\|✅\|✅] | ✅ DONE |
