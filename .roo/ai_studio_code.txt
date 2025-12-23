@@ -1,0 +1,33 @@
+🚀 COMMAND: PHASE 4 - COLLECTOR INTEGRATION (MT5 & JFOREX)
+
+"Architect! A Core Rendszer (DB, EventBus, Storage) stabil.
+MOST KAPCSOLJUK BE AZ ADATFORRÁSOKAT.
+
+HELYZET: Van egy `main.py`-unk és egy `EventBus`-unk.
+FELADAT: Implementáld a Collectorokat úgy, hogy az EventBus-ra küldjék az adatot, ne közvetlenül a Storage-ba!
+
+1. MT5 SERVER IMPLEMENTÁCIÓ (`collectors/mt5`):
+   - **Terv:** `docs/planning/specs/05_collectors_strategy.md` (MT5 szekció).
+   - **Működés:**
+     1. FastAPI szerver indul.
+     2. Fogadja a POST kérést az EA-tól.
+     3. Publikálja az adatot: `EventBus.publish('market_data.tick', payload)`
+     4. (A Storage szolgáltatás fel van iratkozva erre, ő fog menteni, nem a Collector!).
+
+2. JFOREX DOWNLOADER (`collectors/jforex`):
+   - **Terv:** `docs/planning/specs/05_collectors_strategy.md` (JForex szekció).
+   - **Működés:**
+     1. `Bi5Downloader` letölti a fájlt.
+     2. Kitömöríti Tick adatokká.
+     3. Publikálja: `EventBus.publish('market_data.history_batch', payload)`
+
+3. MAIN.PY FRISSÍTÉS:
+   - Regisztráld be a Collector Service-eket a `main.py` indulási folyamatába.
+
+VÉGREHAJTÁS:
+- Szigorú Pylance.
+- Mirror Dokumentáció.
+- Tesztelés (Mockolt EventBus-szal).
+- Commit.
+
+Kezdd az MT5 Server (FastAPI) integrálásával az EventBus-ra!"

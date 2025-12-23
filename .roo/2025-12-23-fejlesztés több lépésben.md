@@ -2,35 +2,36 @@
 Itt a "GRAND RELAUNCH PROTOKOLL". Ezt a 3 lépést kövesd, pontosan ebben a sorrendben.
 
 
-1. FÁZIS: TAKARÍTÁS ÉS TERVEZÉS (Architect Only)
-Ebben a fázisban az AI nem ír kódot, csak rendet rak, létrehozza a docs/planning mappát és megírja a specifikációkat. Te ezt nézed át.
-Parancs (Új Chatben):
-
-
-Architect! INDÍTSD A 'GENESIS REBOOT' (PLANNING PHASE) PROTOKOLLT.
-
-HELYZET: A rendszer alapjai hiányosak, a dokumentáció elavult. Tiszta lapot nyitunk.
-FELADAT: A teljes rendszer újratervezése és dokumentálása a kódolás előtt.
-
-1. TAKARÍTÁS (Deep Clean):
-   - Nézd át a `docs/development` mappát. Ami nem a v5.0 szabvány (régi checklistek), azt töröld vagy archiváld.
-   - Hozd létre a `docs/planning/specs/` struktúrát.
-
-2. SPECIFIKÁCIÓK LÉTREHOZÁSA (Blueprints):
-   Írd meg a következő terveket a `docs/planning/specs/` mappába:
-   - `01_architecture_overview.md`: Nagy kép (EventBus, DB, Parquet).
-   - `02_core_database.md`: SQLAlchemy modellek és séma tervek.
-   - `03_core_eventbus.md`: Event típusok és feliratkozási logika.
-   - `04_data_warehouse.md`: Parquet particionálás és Big Data stratégia.
-   - `05_main_system.md`: A `main.py` boot folyamata és a GUI előkészítés.
-
-3. ROADMAP ÉS DASHBOARD:
-   - Generáld le az ÚJ `docs/development/TASK_TREE.md`-t a v5.0 formátumban (Token, Complexity, Deps).
-   - Töltsd fel a fenti tervek alapján a feladatokat.
-
-INDÍTÁS:
-- Csak dokumentálj! Ne implementálj semmit!
-- Ha kész a terv, várd a jóváhagyásomat.
+🚀 COMMAND: GENESIS REBOOT (DELEGATION MODE)
+"Architect! INDÍTSD A 'GENESIS REBOOT' PROTOKOLLT.
+HELYZET: Tiszta lapot nyitunk. A docs/development mappa elavult, a docs/planning hiányzik.
+KORLÁT: Te (Architect) nem törölhetsz fájlt és nem hozhatsz létre mappát. Ezt delegálnod kell!
+HAJTSD VÉGRE A KÖVETKEZŐ LÉPÉSEKET SORBAN:
+1. ADMINISZTRÁCIÓ (TASK TREE):
+Írd át a docs/development/TASK_TREE.md-t a v5.0 formátumra.
+Vedd fel első fázisnak: 🔵 PHASE 0: SYSTEM BOOTSTRAP.
+Benne feladat: Cleanup & Structure -> Státusz: 🔴 PENDING.
+Commitold a Fát!
+2. DELEGÁLÁS (A Piszkos Munka):
+Utasítsd az Orchestratort, hogy aktiválja a Code Agentet a következő SZIGORÚ parancssorral:
+*'Code Agent! A feladat a rendszer fizikai előkészítése.
+Takarítás (Shell): Töröld a docs/development/ mappából a régi útmutatókat (checklist, component, implementation), KIVÉVE a unified_development_guide.md-t és core_dependencies.md-t!
+Struktúra (Shell): Hozd létre a mkdir -p docs/planning/specs mappát.
+Bootstrap (File):
+Hozz létre egy üres main.py-t a gyökérben.
+Hozz létre egy README.md-t (Projekt címe, státusz).
+Zárás: `git add . && git commit -m "chore(init): system cleanup and folder structure"'*
+3. SPECIFIKÁCIÓK (A Te Részed):
+Miután az Orchestrator jelentette, hogy a mappák léteznek (✅), TE (Architect) írd meg a specifikációkat a docs/planning/specs/ mappába (mivel .md fájlok, ezeket te is tudod szerkeszteni):
+01_architecture_overview.md
+02_core_database.md
+03_core_eventbus.md
+04_data_warehouse.md
+05_main_system.md
+4. ZÁRÁS:
+Frissítsd a TASK_TREE.md-t: Cleanup & Structure -> ✅ DONE.
+Vegyél fel új feladatot: Core Implementation -> 🔴 PENDING.
+Kezdd a TASK TREE frissítésével és a Delegálással!"
 
 
 
