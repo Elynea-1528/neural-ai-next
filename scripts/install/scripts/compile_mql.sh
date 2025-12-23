@@ -1,10 +1,10 @@
 #!/bin/bash
-# MQL5 Compilation Script for Linux with Wine
-# Alternative to VS Code extensions - Direct MetaEditor compilation
+# MQL5 Fordító Script Linuxhoz Wine alatt
+# Alternatíva a VS Code bővítményeknek - Közvetlen MetaEditor fordítás
 
 set -e
 
-# Configuration
+# Konfiguráció
 WINEPREFIX="${WINEPREFIX:-$HOME/.mt5}"
 MQL_DIR="$WINEPREFIX/drive_c/Program Files/MetaTrader 5"
 METAEDITOR="$MQL_DIR/MetaEditor64.exe"  # MT5 uses MetaEditor64.exe, not metaeditor.exe
@@ -12,17 +12,17 @@ SOURCE_DIR="${1:-$(pwd)}"
 OUTPUT_DIR="$MQL_DIR/MQL5"
 COMPILED_DIR="neural_ai/experts/mt5/compiled"
 
-# Colors for output
+# Színek a kimenethez
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo "=========================================="
-echo "MQL5 Compilation Script for Linux"
+echo "MQL5 Fordító Script Linuxhoz"
 echo "=========================================="
 
-# Check if Wine is installed
+# Wine telepítésének ellenőrzése
 if ! command -v wine &> /dev/null; then
     echo -e "${RED}✗ Wine is not installed!${NC}"
     echo "Install Wine: sudo apt install wine-stable"
@@ -30,7 +30,7 @@ if ! command -v wine &> /dev/null; then
 fi
 echo -e "${GREEN}✓ Wine found${NC}"
 
-# Check if Wine prefix exists
+# Wine prefix létezésének ellenőrzése
 if [ ! -d "$WINEPREFIX" ]; then
     echo -e "${RED}✗ Wine prefix not found: $WINEPREFIX${NC}"
     echo "Run the Wine + MT5 setup first!"
@@ -38,7 +38,7 @@ if [ ! -d "$WINEPREFIX" ]; then
 fi
 echo -e "${GREEN}✓ Wine prefix found: $WINEPREFIX${NC}"
 
-# Check if MetaEditor exists
+# MetaEditor létezésének ellenőrzése
 if [ ! -f "$METAEDITOR" ]; then
     echo -e "${RED}✗ MetaEditor not found: $METAEDITOR${NC}"
     echo "Install MetaTrader 5 first!"
@@ -46,10 +46,10 @@ if [ ! -f "$METAEDITOR" ]; then
 fi
 echo -e "${GREEN}✓ MetaEditor found${NC}"
 
-# Export Wine prefix
+# Wine prefix exportálása
 export WINEPREFIX
 
-# Function to compile a single file
+# Egyetlen fájl fordítására szolgáló függvény
 compile_file() {
     local source_file="$1"
     local filename=$(basename "$source_file")
@@ -57,7 +57,7 @@ compile_file() {
 
     echo -e "\n${YELLOW}Compiling: $source_file${NC}"
 
-    # Determine output subdirectory based on file type
+    # Kimeneti alkönyvtár meghatározása a fájltípus alapján
     case $extension in
         mq5)
             case $filename in
@@ -85,11 +85,11 @@ compile_file() {
             ;;
     esac
 
-    # Compile using MetaEditor through Wine
+    # Fordítás MetaEditor használatával Wine-en keresztül
     wine "$METAEDITOR" /compile:"$source_file" /log > /tmp/mql_compile.log 2>&1
     local compile_result=$?
 
-    # Check if compilation was successful by looking for the .ex5 file
+    # Fordítás sikerességének ellenőrzése a .ex5 fájl keresésével
     # MT5 sometimes creates the .ex5 in the same directory as the source file
     local source_dir=$(dirname "$source_file")
     local basename_no_ext="${filename%.*}"
@@ -97,7 +97,7 @@ compile_file() {
     local source_dir_ex5="$source_dir/$basename_no_ext.ex5"
     local compiled_dir_ex5="$COMPILED_DIR/$basename_no_ext.ex5"
 
-    # Check multiple possible locations
+    # Több lehetséges hely ellenőrzése
     if [ -f "$source_dir_ex5" ]; then
         echo -e "${GREEN}  ✓ Compilation successful${NC}"
         echo -e "${GREEN}  ✓ Output file created: $source_dir_ex5${NC}"
@@ -130,7 +130,7 @@ compile_file() {
     fi
 }
 
-# Function to copy EA source and .ex5 to MT5 folder
+# EA forrás és .ex5 másolása az MT5 mappába
 copy_to_mt5() {
     local source_file="$1"
     local filename=$(basename "$source_file")
@@ -143,10 +143,10 @@ copy_to_mt5() {
 
     echo -e "${YELLOW}Copying EA to MT5 folder...${NC}"
 
-    # Create Experts directory if it doesn't exist
+    # Experts könyvtár létrehozása, ha nem létezik
     mkdir -p "$mt5_ea_dir"
 
-    # Copy source file (.mq5)
+    # Forrásfájl (.mq5) másolása
     if cp "$source_file" "$mt5_ea_dir/$filename"; then
         echo -e "${GREEN}✓ Source copied to: $mt5_ea_dir/$filename${NC}"
     else
@@ -154,7 +154,7 @@ copy_to_mt5() {
         return 1
     fi
 
-    # Find and copy .ex5 file (check compiled directory first, then source directory, then output directory)
+    # .ex5 fájl keresése és másolása (először a fordított, majd a forrás, végül a kimeneti könyvtár ellenőrzése)
     local ex5_found=false
     local ex5_source=""
 
@@ -170,7 +170,7 @@ copy_to_mt5() {
     fi
 
     if [ "$ex5_found" = true ]; then
-        # Always copy (overwrite if exists)
+        # Mindig másolás (felülírás, ha létezik)
         if cp -f "$ex5_source" "$mt5_ea_dir/$basename_no_ext.ex5"; then
             echo -e "${GREEN}✓ .ex5 copied to: $mt5_ea_dir/$basename_no_ext.ex5${NC}"
             return 0
@@ -188,16 +188,16 @@ copy_to_mt5() {
     fi
 }
 
-# Main compilation logic
+# Fő fordítási logika
 if [ $# -eq 0 ]; then
-    # No arguments: compile all .mq5 files in current directory
-    echo "Compiling all .mq5 files in current directory..."
+    # Nincs argumentum: az összes .mq5 fájl fordítása az aktuális könyvtárban
+    echo "Az összes .mq5 fájl fordítása az aktuális könyvtárban..."
     for file in "$SOURCE_DIR"/*.mq5; do
         [ -e "$file" ] || continue
         compile_file "$file" && copy_to_mt5 "$file"
     done
 else
-    # Specific file provided
+    # Megadott fájl
     if [ -f "$1" ]; then
         if compile_file "$1"; then
             copy_to_mt5 "$1"
@@ -208,25 +208,25 @@ else
     fi
 fi
 
-# Check if compilation was successful
+# Fordítás sikerességének ellenőrzése
 if [ $? -eq 0 ]; then
     echo -e "\n=========================================="
-    echo -e "${GREEN}✓ Compilation and copy successful${NC}"
+    echo -e "${GREEN}✓ Fordítás és másolás sikeres${NC}"
     echo "=========================================="
     echo ""
-    echo "Your EA is ready in:"
-    echo "  Project: $COMPILED_DIR/"
+    echo "Az EA készen áll itt:"
+    echo "  Projekt: $COMPILED_DIR/"
     echo "  MT5: $MQL_DIR/MQL5/Experts/"
     echo ""
-    echo "To use in MT5:"
-    echo "  1. Open MT5"
+    echo "Használat MT5-ben:"
+    echo "  1. Nyisd meg az MT5-öt"
     echo "  2. Navigator → Expert Advisors"
-    echo "  3. Find your EA and drag to chart"
+    echo "  3. keresd meg az EA-t és húzd a chartra"
 else
     echo -e "\n=========================================="
-    echo -e "${RED}✗ Compilation FAILED${NC}"
+    echo -e "${RED}✗ Fordítás SIKERTELEN${NC}"
     echo "=========================================="
     echo ""
-    echo "Check the errors above and try again."
+    echo "Ellenőrizd a fenti hibákat és próbáld újra."
     exit 1
 fi
