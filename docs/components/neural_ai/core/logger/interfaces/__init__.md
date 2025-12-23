@@ -2,7 +2,20 @@
 
 ## Áttekintés
 
-Ez a modul tartalmazza a logger rendszer interfészeit, amelyek definiálják a loggerek és logger factory-k által implementálandó alapvető metódusokat és viselkedést.
+Ez a modul tartalmazza a logger rendszer interfészeit, amelyek definiálják a loggerek és logger factory-k által implementálandó alapvető metódusokat és viselkedést. A modul biztosítja a verzióinformációk dinamikus kezelését is, automatikusan szinkronizálva a projekt konfigurációjával.
+
+## Verziókezelés
+
+A modul támogatja a dinamikus verzióbetöltést az `importlib.metadata` segítségével:
+
+```python
+from neural_ai.core.logger.interfaces import __version__
+
+print(f"Logger interfész verzió: {__version__}")
+# Output: Logger interfész verzió: 1.0.0
+```
+
+A verziószám automatikusan frissül a `pyproject.toml`-ban megadott verzióval, így nincs szükség manuális verziókezelésre.
 
 ## Tartalom
 
@@ -73,12 +86,16 @@ class MyLoggerFactory(LoggerFactoryInterface):
 # Összes interfész importálása
 from neural_ai.core.logger.interfaces import (
     LoggerInterface,
-    LoggerFactoryInterface
+    LoggerFactoryInterface,
+    __version__
 )
 
 # Egyéni importálás
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.core.logger.interfaces.factory_interface import LoggerFactoryInterface
+
+# Verzió lekérdezése
+print(f"Logger interfész verzió: {__version__}")
 ```
 
 ## Kapcsolódó Komponensek
@@ -158,6 +175,8 @@ logger = DefaultLogger(name="my_logger")  # ✅
 - [ ] Strukturált logolás interfésze
 - [ ] Metrikák és teljesítményfigyelés interfészei
 - [ ] Plug-in rendszer interfészei
+- [x] Dinamikus verziókezelés implementálva
+- [ ] Verziókompatibilitás ellenőrzése
 
 ## Lásd még
 

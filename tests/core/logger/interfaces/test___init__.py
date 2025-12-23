@@ -9,6 +9,7 @@ import pytest
 from neural_ai.core.logger.interfaces import (
     LoggerFactoryInterface,
     LoggerInterface,
+    __version__,
 )
 
 
@@ -58,3 +59,20 @@ class TestLoggerInterfacesInit:
         assert "register_logger" in LoggerFactoryInterface.__abstractmethods__
         assert "get_logger" in LoggerFactoryInterface.__abstractmethods__
         assert "configure" in LoggerFactoryInterface.__abstractmethods__
+
+    def test_version_available(self) -> None:
+        """Teszteli, hogy a verziószám elérhető-e."""
+        assert __version__ is not None
+        assert isinstance(__version__, str)
+        assert __version__ != ""
+
+    def test_version_format(self) -> None:
+        """Teszteli, hogy a verziószám helyes formátumú-e."""
+        # A verziószámnak tartalmaznia kell legalább egy pontot (pl. "1.0.0")
+        assert "." in __version__
+
+    def test_version_in_all(self) -> None:
+        """Teszteli, hogy a verzió benne van-e az __all__ listában."""
+        import neural_ai.core.logger.interfaces as interfaces_module
+
+        assert "__version__" in interfaces_module.__all__
