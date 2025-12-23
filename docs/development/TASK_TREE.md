@@ -2,7 +2,7 @@
 
 **Project Root:** /home/elynea/Dokumentumok/neural-ai-next
 **Last Sync:** 2025-12-23
-**Last Commit:** 573dc63
+**Last Commit:** 6ac655c
 
 ## 📟 TELEMETRY & STATUS
 
@@ -91,7 +91,7 @@ Jelölések:
 | File Path | Matrix [S\|T\|D] | Status |
 |-----------|------------------|--------|
 | `neural_ai/core/storage/__init__.py` | [✅\|❌\|❌] | 🔴 REFACTOR NEEDED |
-| `neural_ai/core/storage/exceptions.py` | [✅\|❌\|❌] | 🔴 REFACTOR NEEDED |
+| `neural_ai/core/storage/exceptions.py` | [✅\|✅\|✅] | ✅ DONE |
 | `neural_ai/core/storage/implementations/__init__.py` | [✅\|❌\|❌] | 🔴 REFACTOR NEEDED |
 | `neural_ai/core/storage/implementations/file_storage.py` | [✅\|❌\|❌] | 🔴 REFACTOR NEEDED |
 | `neural_ai/core/storage/implementations/storage_factory.py` | [✅\|❌\|❌] | 🔴 REFACTOR NEEDED |
