@@ -4,6 +4,14 @@
 
 A `StorageInterface` egy absztrakt interfész, amely a tárolási műveletek standardizált definícióját biztosítja a Neural AI Next projektben. Ez az interfész garantálja, hogy minden konkrét tárolási implementáció követi a közös szerződést, lehetővé téve a egységes adatkezelést.
 
+## Verzióinformáció
+
+- **Modul verzió**: `1.0.0`
+- **Séma verzió**: `1.0`
+- **Kompatibilitás**: Neural AI Next 1.0.0+
+
+A verziókezelés a `neural_ai.core.storage.__init__.py` modulban van implementálva, dinamikusan betöltve az `importlib.metadata` segítségével a `pyproject.toml`-ból.
+
 ## Cél
 
 Az interfész célja a következő:
@@ -163,11 +171,16 @@ if storage.exists("test.csv"):
 
 ## Tervezési Döntések
 
-### Típusbiztonság
+### Típusbiztonság (Pylance Strict Compliance)
 
-- A `**kwargs` helyett `Mapping[str, Any]` típust használunk a metódusokban
-- Ez biztosítja a típusellenőrzést a kulcs-érték párokra
-- Kerüljük a `typing.Any` közvetlen használatát
+A `StorageInterface` szigorú típusbiztonságot követel meg a Pylance strict mode-nak megfelelően:
+
+- **Explicit típusannotációk**: Minden paraméternek és visszatérési értéknek explicit típusa van
+- **Strict típusellenőrzés**: Nincs `# type: ignore` komment használata, minden típushiba kijavításra kerül
+- **Típusváltozók minimalizálása**: A `typing.Any` használata kerülendő, helyette specifikus típusok használata
+- **Circular import kezelés**: A `TYPE_CHECKING` blokk használata a körkörös importok elkerülésére
+- **Mapping típus**: A `**kwargs` helyett `Mapping[str, Any]` típust használunk a metódusokban
+- **Assert és cast**: Típusbiztonság érdekében `assert` és `cast()` használata szükség esetén
 
 ### Kivételkezelés
 
