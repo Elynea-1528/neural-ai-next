@@ -1,15 +1,20 @@
-# 🧠 NEURAL AI NEXT | SYSTEM KERNEL v5.0 (INSTITUTIONAL GRADE)
+# 🧠 NEURAL AI NEXT | SYSTEM KERNEL v6.0 (GOD MODE / NO MERCY)
 
 ## 🎯 RENDSZERDEFINÍCIÓ & VÍZIÓ
-Ez egy nagy teljesítményű, **Eseményvezérelt (Event-Driven)**, **Big Data (25 év+ Tick adat)** kezelésére alkalmas, Multi-Platform (MT5, JForex, IBKR) kereskedési ökoszisztéma.
-**Fő Cél:** Egyetlen, központi `main.py` által vezérelt rendszer, amely adatbázis alapú konfigurációval (SQLite/Postgres), strukturált logolással és Parquet adattárolással működik.
+- Adat: 25 évnyi TICK ADAT (nem OHLCV!).
+- Stack: Python 3.12, PyTorch 2.5.1 (CUDA:12.1),Lightning 2.5.5, VectorBT Pro, FastParquet.
+- Forrás: Dukascopy (Native .bi5 decoding), MT5, IBKR.
+- Architektúra: Event-Driven (ZeroMQ/AsyncIO), Database-First.
 
 ### 📜 AZ IGAZSÁG FORRÁSAI (SSOT)
 Minden műveletnek ezeken kell alapulnia:
-1.  **Fejlesztés:** `docs/development/unified_development_guide.md` (Pylance Strict, Hungarian Docstring).
-2.  **Architektúra:** `docs/development/core_dependencies.md` (DI Container, Bootstrap, NullObject).
-3.  **Állapot:** `docs/development/TASK_TREE.md` (A Vezérlőpult).
-4.  **Tervek:** `docs/planning/specs/*.md` (Specifikációk implementálás előtt).
+1.  `docs/development/unified_development_guide.md` (Pylance Strict, Hungarian Docstring).
+2.  `docs/development/core_dependencies.md` (DI Container, Bootstrap, NullObject).
+3.  `docs/development/TASK_TREE.md` (A Vezérlőpult).
+4.  `docs/planning/specs/*.md` (Specifikációk implementálás előtt).
+5.  `pyproject.toml` (A technológiai korlátok: verziók, csomagok).
+6.  `docs/models/hierarchical/structure.md` (A meglévő AI modellek).
+7.  `docs/processors/dimensions/overview.md` (A meglévő D1-D15 processzorok).
 
 ---
 
@@ -26,6 +31,8 @@ Minden műveletnek ezeken kell alapulnia:
   - **Ha nincs commit, a feladat ❌ FAILED.**
 
 ### 3. 🐍 TECHNIKAI SZIGORÍTÁS (STRICT MODE)
+- **JForex**: **TILOS** CSV-ről beszélni. .bi5 (LZMA) bináris feldolgozás a kötelező.
+- **Storage**: **TILOS** CSV/JSON adattárolásra. Csak Particionált Parquet (fastparquet).
 - **Környezet:** `conda activate` használata TILOS (nem interaktív shell).
 - **KÖTELEZŐ:** Abszolút útvonalak használata a parancsokhoz:
   - Python: `/home/elynea/miniconda3/envs/neural-ai-next/bin/python`
@@ -37,6 +44,9 @@ Minden műveletnek ezeken kell alapulnia:
 ### 4. 🧠 MEMORY MANAGEMENT (TOKEN VÉDELEM)
 - **TILOS A TÖMÖRÍTÉS (NO CONDENSING):** Szigorúan tilos a kontextus automatikus tömörítése vagy a chat history törlése a felhasználó kifejezett utasítása nélkül! A részletek elvesztése kritikus hiba. Használd ki a teljes 128k/200k ablakot.
 
+### 5. 🔍 CONTEXT AWARENESS (MEMORIZÁLÁS)
+**TILOS** úgy generálni fájlt, hogy nem olvastad el a kapcsolódó meglévő dokumentációt!
+Ha a README.md-t írod, BE KELL LINKELNED a docs/models és docs/processors fájlokat. Nem lehet "általános" szöveg.
 ---
 
 ## 🤖 AI MÓDOK ÉS FELADATKÖRÖK
@@ -196,5 +206,6 @@ Jelentés: "✅ Minden hiba elhárítva. A rendszer stabil."
 ---
 
 ## 🚀 INDÍTÁSI PARANCS
-"Architect, a **SYSTEM KERNEL v5.0** aktív. Kérlek, végezz mély átvilágítást, generáld le az új, ULTRA-RÉSZLETES `TASK_TREE.md`-t (Token, Complexity, Deps, Phases), és jelöld ki az első kritikus `🔴` feladatot az Orchestratornak."
+"Architect, a SYSTEM KERNEL v6.0 aktív.
+Olvass be mindent (find docs), és indítsd a 'TOTAL INTEGRATION' folyamatot!"
 --- END OF FILE custom instructions for all.md ---

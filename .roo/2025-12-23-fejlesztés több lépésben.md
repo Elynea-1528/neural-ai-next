@@ -1,92 +1,90 @@
-ökéletesen látod. A káosz elkerülése végett szigorú sorrendet kell tartanunk. Nem lehet építkezni, amíg nincs tervrajz, és nem lehet betonozni, amíg áll a szemét a telken.
-Itt a "GRAND RELAUNCH PROTOKOLL". Ezt a 3 lépést kövesd, pontosan ebben a sorrendben.
+### 🚀 COMMAND: OMEGA GENESIS - INSTITUTIONAL ARCHITECTURE
 
+ **"Code Agent! (Architect felügyelettel).**
+ **A MÓD: EXECUTOR (Végrehajtó).**
 
-🚀 COMMAND: GENESIS REBOOT (DELEGATION MODE)
-"Architect! INDÍTSD A 'GENESIS REBOOT' PROTOKOLLT.
-HELYZET: Tiszta lapot nyitunk. A docs/development mappa elavult, a docs/planning hiányzik.
+ **VÍZIÓ:** Egy intézményi szintű, eseményvezérelt (Event-Driven), Big Data (25 év+ Tick) kereskedési ökoszisztéma építése.
+ **FILOZÓFIA:** 'Loose Coupling, High Cohesion' (Laza csatolás, magas kohézió).
+ **A rendszer kizárólag a 'Prémium' instrumentumokra optimalizál (High Liquidity, Low Spread).**
 KORLÁT: Te (Architect) nem törölhetsz fájlt és nem hozhatsz létre mappát. Ezt delegálnod kell!
-HAJTSD VÉGRE A KÖVETKEZŐ LÉPÉSEKET SORBAN:
-1. ADMINISZTRÁCIÓ (TASK TREE):
-Írd át a docs/development/TASK_TREE.md-t a v5.0 formátumra.
-Vedd fel első fázisnak: 🔵 PHASE 0: SYSTEM BOOTSTRAP.
-Benne feladat: Cleanup & Structure -> Státusz: 🔴 PENDING.
-Commitold a Fát!
-2. DELEGÁLÁS (A Piszkos Munka):
-Utasítsd az Orchestratort, hogy aktiválja a Code Agentet a következő SZIGORÚ parancssorral:
-*'Code Agent! A feladat a rendszer fizikai előkészítése.
-Takarítás (Shell): Töröld a docs/development/ mappából a régi útmutatókat (checklist, component, implementation), KIVÉVE a unified_development_guide.md-t és core_dependencies.md-t!
-Struktúra (Shell): Hozd létre a mkdir -p docs/planning/specs mappát.
-Bootstrap (File):
-Hozz létre egy üres main.py-t a gyökérben.
-Hozz létre egy README.md-t (Projekt címe, státusz).
-Zárás: `git add . && git commit -m "chore(init): system cleanup and folder structure"'*
-3. SPECIFIKÁCIÓK (A Te Részed):
-Miután az Orchestrator jelentette, hogy a mappák léteznek (✅), TE (Architect) írd meg a specifikációkat a docs/planning/specs/ mappába (mivel .md fájlok, ezeket te is tudod szerkeszteni):
-01_architecture_overview.md
-02_core_database.md
-03_core_eventbus.md
-04_data_warehouse.md
-05_main_system.md
-4. ZÁRÁS:
-Frissítsd a TASK_TREE.md-t: Cleanup & Structure -> ✅ DONE.
-Vegyél fel új feladatot: Core Implementation -> 🔴 PENDING.
-Kezdd a TASK TREE frissítésével és a Delegálással!"
+ **TECHNOLÓGIAI STACK (PROFI):**
+ - **Core:** Python 3.12 (`asyncio`), `Pydantic` (Validáció), `SQLAlchemy 2.0` (Async ORM).
+ - **Observability:** `structlog` (JSON logs), `OpenTelemetry` (Tracing előkészítés).
+ - **Data:** `FastParquet` (Storage), `Polars` (Processing), `VectorBT Pro` (Backtest).
+ - **AI:** `PyTorch` (CUDA), `Lightning`.
+ - **Connectivity:** `MT5` (FastAPI), `JForex` (Native Bi5).
 
+ **HAJTSD VÉGRE A KÖVETKEZŐ LÉPÉSEKET SZIGORÚ SORRENDBEN:**
 
+ **1. MÉLYÁTVIZSGÁLÁS (Deep Scan):**
+    - `find docs -name "*.md"` (Integráld a meglévő modelleket és processzorokat!).
+    - `cat pyproject.toml` (Ismerd a függőségeket).
 
-1. FÁZIS: JÓVÁHAGYÁS ÉS BRANCH (Human Action)
-Itt lépsz közbe te. Ha tetszik, amit az Architect tervezett (a docs/planning mappában), akkor létrehozol egy új, tiszta ágat a fejlesztésnek.
-Teendőd (Terminálban):
-code
-Bash
-# 1. Nézd meg, mit csinált az Architect. Ha jó, mentsd el:
-git add .
-git commit -m "docs(plan): system re-design and specs"
+  **2. TAKARÍTÁS (Cleanup):**
+    - Töröld a régi, elavult útmutatókat a `docs/development`-ből.
+    - Hozd létre: `mkdir -p docs/planning/specs`.
 
-# 2. Hozz létre új ágat a tényleges fejlesztésnek:
-git checkout -b feature/core-foundation-v2
+ **3. SPECIFIKÁCIÓK LÉTREHOZÁSA (The Blueprint):**
+    *Írd meg ezeket a terveket a `docs/planning/specs/` mappába a fenti stack alapján:*
 
+    - **`01_system_architecture.md` (Event-Driven Core):**
+      - Flow: `Collector` -> `Event(MarketData)` -> `EventBus` -> `StorageService` & `StrategyEngine`.
+      - Nincs közvetlen hívás! Minden komponens izolált.
+      - jforex-en is kereskednénk java python bridge-el
 
+    - **`02_dynamic_configuration.md` (Hybrid Config):**
+      - **Layer 1:** `.env` (Pydantic Settings) a statikus dolgoknak (DB URL, API Keys).
+      - **Layer 2:** `SQL Database` a dinamikus dolgoknak (Risk %, Active Pairs).
+      - **UI:** A jövőbeli GUI az adatbázist írja, az App onnan olvassa "Hot Reload"-dal.
 
-3. FÁZIS: MEGVALÓSÍTÁS (Implementation)
-Csak miután megvan az új branch, akkor adod ki a "Nagy Parancsot". Most már van terve, tudja mit kell csinálnia.
-Parancs (Ugyanabban a chatben folytathatod, vagy újban):
-code
-Text
-Architect! A Terveket jóváhagytam. Új branchen vagyunk (`feature/core-foundation-v2`).
-INDÍTSD A 'GENESIS IMPLEMENTATION' PROTOKOLLT (Institutional Foundation).
+    - **`03_observability_logging.md` (Structured Logs):**
+      - **Tech:** structlog (JSON) + SQLAlchemy (DB Log).
+      - **Format:** JSON (fájlba/DB-be) + Color (konzolra).
+      - **Context:** Minden logban legyen `trace_id`, `component`, `symbol`.
 
-A CÉL: A `docs/planning/specs` alatt lévő tervek kóddá alakítása.
+    - **`04_data_warehouse.md` (The Vault):**
+      - **Scope:** 25 évnyi Tick adat, CSAK a `EURUSD, GBPUSD, USDJPY, USDCHF, XAUUSD` párokra.
+      - **Tech:** FastParquet + Polars (gyorsabb mint a Pandas).
+      - **Format:** `{symbol}/tick/year={YYYY}/month={MM}/day={DD}.parquet`.
+      - **Engine:** `FileStorage` bővítése `ParquetStorage` osztállyal (`fastparquet` engine).
+      - **Resampler Service:** Definiálj egy osztályt, ami Tick-ből on-the-fly generál M1/H1 gyertyákat a VectorBT számára.
 
-1. TASK TREE UPDATE:
-   - Jelöld ki az első prioritást: `core/database` és `core/events`.
+    - **`05_collectors_strategy.md` (Ingestion):**
+      - **JForex:** Natív `Bi5Downloader` (LZMA + Struct).
+      - **MT5:** FastAPI szerver (POST /tick, POST /trade).
+      
+      - **JFOREX (CRITICAL)**:
+         - **Adat:** Natív `Bi5Downloader` (Historical).(LZMA + Struct).
+         - **KERESKEDÉS** (Execution): Tervezz egy Java-Python Bridge-et!
+         - Java oldal: Egy "Slave" stratégia, ami WebSocketen/ZMQ-n várja a parancsot (OPEN, CLOSE,MODIFY,HOLD).
+         - Python oldal: JForexExecutionService, ami küldi a szignálokat.
+         - Indoklás: A Dukascopy egy megbízható svájci bank, a kereskedésnek itt is mennie kell! 
 
-2. IMPLEMENTÁCIÓS SORREND (Strict Mode):
-   Utasítsd az Orchestratort a következőkre:
+ **4. SYSTEM BOOTSTRAP (The Skeleton):**
+    - **`main.py`:**
+      - Aszinkron `async def main():`.
+      - 1. Init `DIContainer`.
+      - 2. Init `Database` (Schema check).
+      - 3. Init `EventBus`.
+      - 4. Load `Config` (Env + DB).
+      - 5. Start `Services` (Collectors, Storage).
+      - 6. `await asyncio.Event().wait()` (Örök futás).
+    - **`.env.example`:**
+      ```
+      APP_ENV=development
+      LOG_LEVEL=INFO
+      DB_URL=sqlite+aiosqlite:///neural_ai.db
+      TRADING_SYMBOLS=["EURUSD", "XAUUSD", "GBPUSD", "USDJPY", "USDCHF"]
+      ```
 
-   A) ADATBÁZIS (`core/database`):
-      - Implementáld a `02_core_database.md` specifikációt.
-      - SQLAlchemy 2.0 Async, SQLite/Postgres support.
+ **5. MASTER README GENERÁLÁS (The Map):**
+    - Írd felül a `README.md`-t.
+    - **Deep Linking:** Linkeld be a `docs/models` és `docs/processors` fájlokat!
+    - **Tech Stack:** Jelöld a `structlog`, `SQLAlchemy`, `VectorBT` használatát.
 
-   B) EVENT BUS (`core/events`):
-      - Implementáld a `03_core_eventbus.md` specifikációt.
-      - Aszinkron Publish/Subscribe.
+ **6. DASHBOARD (Task Tree v5.0):**
+    - Frissítsd a `TASK_TREE.md`-t.
+    - Új fázisok: `Phase 1: Event-Driven Core`, `Phase 2: Hybrid Config & Logs`, `Phase 3: Big Data Storage`.
 
-   C) STORAGE ENGINE (`core/storage`):
-      - Implementáld a `04_data_warehouse.md` specifikációt.
-      - Parquet, Particionálás, FastParquet/PyArrow.
-
-   D) MAIN.PY:
-      - Kösd össze az elemeket a `05_main_system.md` alapján.
-
-SZABÁLYOK:
-- Minden fájl után COMMIT.
-- Ha teszt bukik -> Debug Mode.
-- Használd a tükör doksikat (`docs/components/...`).
-
-Kezdd az Adatbázis réteg implementálásával!
-Összefoglalva a menetet:
-Parancs 1: "Tervezd meg és takaríts!" (Architect dolgozik, te kávézol).
-Kézi munka: Átnézed -> git checkout -b.
-Parancs 2: "Valósítsd meg a tervet!" (Architect és Code Agent dolgozik, te felügyelsz).
+ **INDÍTSD A FOLYAMATOT! A `find` PARANCCSAL KEZDD!**
+ *(Minden létrehozott fájl után: `git add ... && git commit ...`)*"
