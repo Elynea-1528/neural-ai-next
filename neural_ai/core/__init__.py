@@ -17,6 +17,30 @@ if TYPE_CHECKING:
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 
+def get_version() -> str:
+    """Dynamikusan betölti a csomag verzióját.
+
+    Returns:
+        A csomag verziója stringként. Ha a verzió nem érhető el,
+        'unknown' értékkel tér vissza.
+    """
+    try:
+        from importlib import metadata
+
+        return metadata.version("neural-ai-next")
+    except Exception:
+        return "unknown"
+
+
+def get_schema_version() -> str:
+    """Visszaadja az aktuális séma verziót.
+
+    Returns:
+        Az aktuális séma verziója stringként.
+    """
+    return "1.0.0"
+
+
 class CoreComponents:
     """Core komponensek tároló osztálya.
 
@@ -113,4 +137,6 @@ __all__ = [
     "CoreComponents",
     "bootstrap_core",
     "get_core_components",
+    "get_version",
+    "get_schema_version",
 ]

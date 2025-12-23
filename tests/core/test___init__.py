@@ -6,7 +6,13 @@ megfelelő működését, függőségi injektálását és inicializálását.
 
 from unittest.mock import Mock, patch
 
-from neural_ai.core import CoreComponents, bootstrap_core, get_core_components
+from neural_ai.core import (
+    CoreComponents,
+    bootstrap_core,
+    get_core_components,
+    get_schema_version,
+    get_version,
+)
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
@@ -193,6 +199,8 @@ class TestModuleExports:
             "CoreComponents",
             "bootstrap_core",
             "get_core_components",
+            "get_version",
+            "get_schema_version",
         ]
 
         for export in expected_exports:
@@ -215,3 +223,57 @@ class TestModuleExports:
         from neural_ai.core import get_core_components
 
         assert callable(get_core_components)
+
+    def test_import_get_version(self) -> None:
+        """Teszteli a get_version importálhatóságát."""
+        assert callable(get_version)
+
+    def test_import_get_schema_version(self) -> None:
+        """Teszteli a get_schema_version importálhatóságát."""
+        assert callable(get_schema_version)
+
+
+class TestVersionFunctions:
+    """Verzió függvények tesztjei."""
+
+    def test_get_version_returns_string(self) -> None:
+        """Teszteli, hogy get_version stringgel tér-e vissza."""
+        version = get_version()
+        assert isinstance(version, str)
+
+    def test_get_version_format(self) -> None:
+        """Teszteli a get_version formátumát."""
+        version = get_version()
+        # A verzió vagy "unknown" vagy semver formátumú
+        if version != "unknown":
+            # Ellenőrizzük, hogy tartalmaz-e legalább egy pontot
+            assert "." in version or version == "unknown"
+
+    @patch("importlib.metadata.version")
+    def test_get_version_returns_unknown_on_exception(self, mock_version: Mock) -> None:
+        """Teszteli, hogy get_version 'unknown'-t ad vissza kivétel esetén."""
+        # Mock kivétel dobása
+        mock_version.side_effect = Exception("Package not found")
+
+        version = get_version()
+        assert version == "unknown"
+
+    def test_get_schema_version_returns_string(self) -> None:
+        """Teszteli, hogy get_schema_version stringgel tér-e vissza."""
+        schema_version = get_schema_version()
+        assert isinstance(schema_version, str)
+
+    def test_get_schema_version_value(self) -> None:
+        """Teszteli a get_schema_version értékét."""
+        schema_version = get_schema_version()
+        assert schema_version == "1.0.0"
+
+    def test_get_schema_version_format(self) -> None:
+        """Teszteli a get_schema_version formátumát."""
+        schema_version = get_schema_version()
+        # Séma verziónak semver formátumúnak kell lennie
+        assert schema_version.count(".") == 2
+        parts = schema_version.split(".")
+        assert len(parts) == 3
+        for part in parts:
+            assert part.isdigit()

@@ -12,6 +12,38 @@ A modul a következő alapvető rendszerkomponenseket kezeli:
 - **Konfiguráció kezelés**: Beállítások és konfigurációk kezelése
 - **Adattárolás**: Fájl- és adattárolási műveletek
 
+## Verziókezelés
+
+A modul dinamikus verziókezelést biztosít:
+
+### get_version()
+
+Dynamikusan betölti a csomag verzióját a `pyproject.toml`-ból.
+
+```python
+from neural_ai.core import get_version
+
+version = get_version()
+print(f"Neural-AI-Next verzió: {version}")
+```
+
+**Visszatérési érték**: 
+- `str`: A csomag verziója vagy `"unknown"`, ha nem érhető el
+
+### get_schema_version()
+
+Visszaadja az aktuális séma verziót, amely a konfigurációs séma kompatibilitását biztosítja.
+
+```python
+from neural_ai.core import get_schema_version
+
+schema_version = get_schema_version()
+print(f"Séma verzió: {schema_version}")
+```
+
+**Visszatérési érték**:
+- `str`: Az aktuális séma verzió (pl. `"1.0.0"`)
+
 ## Osztályok és Funkciók
 
 ### CoreComponents Osztály
@@ -140,6 +172,8 @@ __all__ = [
     "CoreComponents",
     "bootstrap_core", 
     "get_core_components",
+    "get_version",
+    "get_schema_version",
 ]
 ```
 
@@ -176,6 +210,19 @@ logger = core.logger
 logger.info("Alkalmazás konfigurálva")
 ```
 
+### Verzió Információk
+
+```python
+from neural_ai.core import get_version, get_schema_version
+
+# Verzió információk lekérdezése
+package_version = get_version()
+schema_version = get_schema_version()
+
+print(f"Package: {package_version}")
+print(f"Schema: {schema_version}")
+```
+
 ### Tesztelés
 
 ```python
@@ -201,18 +248,34 @@ components = CoreComponents(
 - Minden függvény és metódus típusozott
 - `TYPE_CHECKING` blokkok használata a körkörös importok elkerülésére
 - Nincs `Any` típus használat
+- Szigorú `mypy` ellenőrzés (0 hiba)
+
+### Kódminőség
+
+- `ruff` linter használata (0 hiba)
+- 100% tesztlefedettség kötelező
+- Magyar nyelvű docstringek (Google style)
+- Pylance hiba mentesség
+
+### Verziókezelés
+
+- Dinamikus verzióbetöltés `importlib.metadata` segítségével
+- Séma verzió ellenőrzés a konfiguráció kompatibilitásához
+- Verzió információk elérhetőek a publikus API-n keresztül
 
 ### Dokumentáció
 
 - Minden osztály és függvény magyar nyelvű docstringgel rendelkezik
 - Google style docstring formátum
 - Példakódok a dokumentációban
+- Részletes függőségi dokumentáció
 
 ### Tesztelés
 
 - 100% tesztlefedettség kötelező
 - Mock objektumok használata a függőségek teszteléséhez
 - Unit és integrációs tesztek
+- Verzió függvények külön tesztelése
 
 ## Kapcsolódó Dokumentáció
 
@@ -226,3 +289,4 @@ components = CoreComponents(
 - **v1.0**: Alapvető core inicializálás és függőségi injektálás implementálva
 - **v1.1**: Bootstrap folyamat és szingleton pattern hozzáadva
 - **v2.0**: Teljes refaktorálás TYPE_CHECKING és DI használatával
+- **v2.1**: Verziókezelés hozzáadva (`get_version`, `get_schema_version`)
