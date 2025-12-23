@@ -1,26 +1,42 @@
-"""Logger factory implementáció."""
+"""Logger factory implementáció.
+
+Ez a modul biztosítja a logger factory osztályt, amely felelős a különböző
+típusú loggerek létrehozásáért és kezeléséért. A factory mintát követve
+lehetővé teszi a dinamikus logger típusok regisztrálását és példányosítását.
+"""
 
 import logging
 import sys
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
-from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
-from neural_ai.core.logger.implementations.default_logger import DefaultLogger
-from neural_ai.core.logger.implementations.rotating_file_logger import (
-    RotatingFileLogger,
-)
 from neural_ai.core.logger.interfaces.factory_interface import LoggerFactoryInterface
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+if TYPE_CHECKING:
+    from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
+    from neural_ai.core.logger.implementations.default_logger import DefaultLogger
+    from neural_ai.core.logger.implementations.rotating_file_logger import (
+        RotatingFileLogger,
+    )
+else:
+    from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
+    from neural_ai.core.logger.implementations.default_logger import DefaultLogger
+    from neural_ai.core.logger.implementations.rotating_file_logger import (
+        RotatingFileLogger,
+    )
 
 
 class LoggerFactory(LoggerFactoryInterface):
     """Factory osztály loggerek létrehozásához."""
 
-    _logger_types: dict[str, type[LoggerInterface]] = {
-        "default": DefaultLogger,
-        "colored": ColoredLogger,
-        "rotating": RotatingFileLogger,
-    }
+    _logger_types: dict[str, type[LoggerInterface]] = cast(
+        dict[str, type[LoggerInterface]],
+        {
+            "default": DefaultLogger,
+            "colored": ColoredLogger,
+            "rotating": RotatingFileLogger,
+        },
+    )
 
     _instances: dict[str, LoggerInterface] = {}
 
