@@ -28,6 +28,10 @@ class TestConfigManagerFactoryInterface:
         method = ConfigManagerFactoryInterface.register_manager
         assert hasattr(method, "__isabstractmethod__")
 
+        # Teszteljük a NotImplementedError-t is, ha valaki közvetlenül hívja
+        with pytest.raises(NotImplementedError):
+            method("test", MockConfigManager)
+
     def test_get_manager_abstract(self) -> None:
         """Teszteli, hogy a get_manager metódus absztrakt."""
         # Ellenőrizzük, hogy az interfész tartalmazza az absztrakt metódust
@@ -35,12 +39,20 @@ class TestConfigManagerFactoryInterface:
         method = ConfigManagerFactoryInterface.get_manager
         assert hasattr(method, "__isabstractmethod__")
 
+        # Teszteljük a NotImplementedError-t is, ha valaki közvetlenül hívja
+        with pytest.raises(NotImplementedError):
+            method("test.yml")
+
     def test_create_manager_abstract(self) -> None:
         """Teszteli, hogy a create_manager metódus absztrakt."""
         # Ellenőrizzük, hogy az interfész tartalmazza az absztrakt metódust
         assert hasattr(ConfigManagerFactoryInterface, "create_manager")
         method = ConfigManagerFactoryInterface.create_manager
         assert hasattr(method, "__isabstractmethod__")
+
+        # Teszteljük a NotImplementedError-t is, ha valaki közvetlenül hívja
+        with pytest.raises(NotImplementedError):
+            method("test")
 
     def test_interface_inheritance(self) -> None:
         """Teszteli, hogy az interfész ABC-ből származik."""
@@ -132,7 +144,9 @@ class ConcreteFactory(ConfigManagerFactoryInterface):
         """
         if manager_type not in cls._manager_types:
             raise KeyError(f"Ismeretlen manager típus: {manager_type}")
-        return cls._manager_types[manager_type](*args, **kwargs)
+        # MockConfigManager csak egy opcionális filename paramétert fogad el
+        filename: str | None = str(args[0]) if args else None
+        return cls._manager_types[manager_type](filename)
 
     @classmethod
     def clear_registrations(cls) -> None:
