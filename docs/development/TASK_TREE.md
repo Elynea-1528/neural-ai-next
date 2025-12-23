@@ -92,7 +92,7 @@ Jelölések:
 |-----------|------------------|--------|
 | `neural_ai/core/storage/__init__.py` | [✅\|❌\|❌] | 🔴 REFACTOR NEEDED |
 | `neural_ai/core/storage/exceptions.py` | [✅\|✅\|✅] | ✅ DONE |
-| `neural_ai/core/storage/implementations/__init__.py` | [✅\|❌\|❌] | 🔴 REFACTOR NEEDED |
+| `neural_ai/core/storage/implementations/__init__.py` | [✅\|✅\|✅] | ✅ DONE |
 | `neural_ai/core/storage/implementations/file_storage.py` | [✅\|❌\|❌] | 🔴 REFACTOR NEEDED |
 | `neural_ai/core/storage/implementations/storage_factory.py` | [✅\|❌\|❌] | 🔴 REFACTOR NEEDED |
 | `neural_ai/core/storage/interfaces/__init__.py` | [✅\|❌\|❌] | 🔴 REFACTOR NEEDED |
