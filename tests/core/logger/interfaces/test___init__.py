@@ -76,3 +76,25 @@ class TestLoggerInterfacesInit:
         import neural_ai.core.logger.interfaces as interfaces_module
 
         assert "__version__" in interfaces_module.__all__
+
+    def test_version_fallback_on_package_not_found(self) -> None:
+        """Teszteli a fallback verziókezelést, ha a csomag nem található."""
+        from importlib.metadata import PackageNotFoundError
+        from unittest.mock import patch
+
+        import neural_ai.core.logger.interfaces as interfaces_module
+
+        # Ideiglenesen kiváltjuk a PackageNotFoundError-t
+        with patch("neural_ai.core.logger.interfaces.version") as mock_version:
+            mock_version.side_effect = PackageNotFoundError("Package not found")
+
+            # Újraimportáljuk a modult, hogy a fallback verziót használja
+            import importlib
+
+            importlib.reload(interfaces_module)
+
+            # Ellenőrizzük, hogy a fallback verzió beállításra került-e
+            assert interfaces_module.__version__ == "1.0.0"
+
+            # Visszaállítjuk az eredeti modult
+            importlib.reload(interfaces_module)

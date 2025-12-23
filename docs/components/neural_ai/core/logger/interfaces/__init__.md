@@ -6,7 +6,9 @@ Ez a modul tartalmazza a logger rendszer interfészeit, amelyek definiálják a 
 
 ## Verziókezelés
 
-A modul támogatja a dinamikus verzióbetöltést az `importlib.metadata` segítségével:
+A modul támogatja a dinamikus verzióbetöltést az `importlib.metadata` segítségével, amely automatikusan betölti a csomag verzióját a `pyproject.toml`-ból.
+
+### Dinamikus Verzióbetöltés
 
 ```python
 from neural_ai.core.logger.interfaces import __version__
@@ -15,7 +17,15 @@ print(f"Logger interfész verzió: {__version__}")
 # Output: Logger interfész verzió: 1.0.0
 ```
 
-A verziószám automatikusan frissül a `pyproject.toml`-ban megadott verzióval, így nincs szükség manuális verziókezelésre.
+### Fallback Mechanizmus
+
+Ha a csomag nincs telepítve (pl. fejlesztési környezetben), a modul automatikusan visszaáll egy alapértelmezett verzióra:
+
+```python
+# Ha a csomag nem található, a __version__ értéke "1.0.0" lesz
+```
+
+Ez biztosítja, hogy a modul mindig rendelkezésre álljon verzióinformációval, függetlenül a telepítési állapottól.
 
 ## Tartalom
 
