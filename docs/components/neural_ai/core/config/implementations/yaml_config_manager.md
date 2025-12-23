@@ -4,15 +4,16 @@ Az YAMLConfigManager egy YAML fájlokat kezelő konfigurációkezelő implement�
 
 ## Áttekintés
 
-Ez az osztály lehetővé teszi konfigurációs adatok YAML formátumban történő betöltését, mentését, lekérdezését és validálását. Támogatja a beágyazott struktúrákat, típusellenőrzést és séma alapú validációt.
+Ez az osztály lehetővé teszi konfigurációs adatok YAML formátumban történő betöltését, mentését, lekérdezését és validálását. Támogatja a beágyazott struktúrákat, típusellenőrzést, séma alapú validációt és automatikus verziókezelést.
 
 ## Funkciók
 
-- **Konfiguráció betöltése**: YAML fájlból történő adatbetöltés
-- **Konfiguráció mentése**: Adatok YAML formátumban történő mentése
+- **Konfiguráció betöltése**: YAML fájlból történő adatbetöltés verzióellenőrzéssel
+- **Konfiguráció mentése**: Adatok YAML formátumban történő mentése verzióinformációval
 - **Érték lekérdezése**: Egyszerű és beágyazott értékek lekérdezése
 - **Érték beállítása**: Konfigurációs értékek módosítása
 - **Séma validáció**: Konfigurációs adatok validálása séma alapján
+- **Verziókezelés**: Séma verziók ellenőrzése és kompatibilitás vizsgálata
 - **Függőség injektálás**: Logger és Storage komponensek támogatása
 
 ## Osztálystruktúra
@@ -33,6 +34,7 @@ Fő konfigurációkezelő osztály.
 
 **Konstansok:**
 - `_TYPE_MAP` (dict[str, type]): Típusleképezés a séma validáláshoz
+- `_CURRENT_SCHEMA_VERSION` (str): A jelenlegi séma verziója
 
 **Attribútumok:**
 - `_config` (dict[str, Any]): A betöltött konfigurációs adatok
@@ -115,11 +117,38 @@ def save(self, filename: str | None = None) -> None
 
 Aktuális konfiguráció mentése fájlba.
 
+A konfiguráció mentésekor automatikusan hozzáadja a `_schema_version` mezőt a fájlhoz, hogy a jövőbeli betöltések kompatibilitást ellenőrizhessenek.
+
 **Paraméterek:**
 - `filename` (str | None): A mentési fájl neve (opcionális, alapértelmezett az eredeti fájlnév)
 
 **Kivételek:**
 - `ValueError`: Ha nincs fájlnév megadva vagy mentési hiba történik
+
+### `_get_current_schema_version`
+
+```python
+def _get_current_schema_version(self) -> str
+```
+
+Visszaadja a jelenlegi séma verzióját.
+
+**Visszatérési érték:**
+- str: A jelenlegi séma verziója
+
+### `_check_schema_compatibility`
+
+```python
+def _check_schema_compatibility(self, loaded_version: str) -> bool
+```
+
+Ellenőrzi a betöltött séma kompatibilitását.
+
+**Paraméterek:**
+- `loaded_version` (str): A betöltött konfiguráció séma verziója
+
+**Visszatérési érték:**
+- bool: True ha kompatibilis, False egyébként
 
 ### `load`
 
@@ -128,6 +157,8 @@ def load(self, filename: str) -> None
 ```
 
 Konfiguráció betöltése fájlból.
+
+A betöltés során ellenőrzi a séma verzió kompatibilitást, ha a fájl tartalmaz verzióinformációt. A verzióellenőrzés során figyelmeztetést naplóz, ha a betöltött verzió eltér a vártól.
 
 **Paraméterek:**
 - `filename` (str): A betöltendő fájl neve
@@ -310,6 +341,39 @@ Az osztály a következő kivételeket dobhatja:
 - `neural_ai.core.config.exceptions.ConfigLoadError`: Kivétel osztály
 - `neural_ai.core.logger.interfaces.LoggerInterface`: Naplózó interfész (opcionális)
 - `neural_ai.core.storage.interfaces.StorageInterface`: Tároló interfész (opcionális)
+
+## Verziókezelés
+
+Az YAMLConfigManager automatikus verziókezelést valósít meg a konfigurációs séma kompatibilitásának biztosítására.
+
+### Séma verzió követés
+
+- **Mentéskor**: A rendszer automatikusan hozzáadja a `_schema_version` mezőt a mentett konfigurációhoz
+- **Betöltéskor**: A rendszer ellenőrzi a betöltött verziót és figyelmeztet, ha eltérés van
+- **Jelenlegi verzió**: `1.0` (a `_CURRENT_SCHEMA_VERSION` konstansban tárolva)
+
+### Verzió kompatibilitás
+
+A `_check_schema_compatibility` metódus kezeli a verzió kompatibilitást:
+- Jelenleg csak a pontos verzió egyezést ellenőrzi
+- Jövőbeli fejlesztés: verzió kompatibilitási mátrix implementálása
+
+### Példa verziókezelésre
+
+```python
+# Konfiguráció mentése (automatikusan hozzáadja a verziót)
+manager.save("config.yaml")
+
+# A mentett fájl tartalmazni fogja:
+# _schema_version: "1.0"
+# database:
+#   host: localhost
+#   port: 5432
+
+# Konfiguráció betöltése (verzióellenőrzéssel)
+manager.load("config.yaml")
+# Ha a verzió eltér, warning log jön
+```
 
 ## Típusok
 

@@ -28,7 +28,11 @@ class ValidationContext:
 
 
 class YAMLConfigManager(ConfigManagerInterface):
-    """YAML fájlokat kezelő konfigurációkezelő."""
+    """YAML fájlokat kezelő konfigurációkezelő.
+
+    A konfigurációk mentésekor automatikusan hozzáadja a schema_version-t,
+    és betöltéskor ellenőrzi a kompatibilitást.
+    """
 
     _TYPE_MAP: dict[str, type[Any]] = {
         "str": str,
@@ -38,6 +42,9 @@ class YAMLConfigManager(ConfigManagerInterface):
         "list": list,
         "dict": dict,
     }
+
+    # Jelenlegi séma verzió - változtatás esetén frissíteni kell
+    _CURRENT_SCHEMA_VERSION: str = "1.0"
 
     def __init__(
         self,
@@ -59,6 +66,27 @@ class YAMLConfigManager(ConfigManagerInterface):
 
         if filename:
             self.load(filename)
+
+    def _get_current_schema_version(self) -> str:
+        """Visszaadja a jelenlegi séma verzióját.
+
+        Returns:
+            str: A jelenlegi séma verziója
+        """
+        return self._CURRENT_SCHEMA_VERSION
+
+    def _check_schema_compatibility(self, loaded_version: str) -> bool:
+        """Ellenőrzi a betöltött séma kompatibilitását.
+
+        Args:
+            loaded_version: A betöltött konfiguráció séma verziója
+
+        Returns:
+            bool: True ha kompatibilis, False egyébként
+        """
+        # Jelenleg csak a pontos egyezést ellenőrizzük
+        # Jövőbeli fejlesztés: verzió kompatibilitási mátrix
+        return loaded_version == self._CURRENT_SCHEMA_VERSION
 
     @staticmethod
     def _ensure_dict(data: Any) -> dict[str, Any]:
@@ -142,6 +170,9 @@ class YAMLConfigManager(ConfigManagerInterface):
     def save(self, filename: str | None = None) -> None:
         """Aktuális konfiguráció mentése fájlba.
 
+        A konfiguráció mentésekor automatikusan hozzáadja a schema_version-t,
+        hogy a jövőbeli betöltések kompatibilitást ellenőrizhessenek.
+
         Args:
             filename: A mentési fájl neve (opcionális, alapértelmezett az eredeti fájlnév)
 
@@ -154,13 +185,22 @@ class YAMLConfigManager(ConfigManagerInterface):
 
         try:
             os.makedirs(os.path.dirname(save_filename), exist_ok=True)
+
+            # Verzióinformáció hozzáadása a konfigurációhoz
+            config_to_save = self._config.copy()
+            if "_schema_version" not in config_to_save:
+                config_to_save["_schema_version"] = self._get_current_schema_version()
+
             with open(save_filename, "w", encoding="utf-8") as f:
-                yaml.dump(self._config, f, default_flow_style=False, sort_keys=False)
+                yaml.dump(config_to_save, f, default_flow_style=False, sort_keys=False)
         except (OSError, yaml.YAMLError) as e:
             raise ValueError(f"Konfiguráció mentése sikertelen: {str(e)}") from e
 
     def load(self, filename: str) -> None:
         """Konfiguráció betöltése fájlból.
+
+        A betöltés során ellenőrzi a séma verzió kompatibilitást, ha a fájl
+        tartalmaz verzióinformációt.
 
         Args:
             filename: A betöltendő fájl neve
@@ -175,7 +215,23 @@ class YAMLConfigManager(ConfigManagerInterface):
             with open(filename, encoding="utf-8") as f:
                 file_content = f.read()
                 data = yaml.safe_load(file_content)
-                self._config = self._ensure_dict(data)
+                config_data = self._ensure_dict(data)
+
+                # Verzióellenőrzés
+                loaded_version = config_data.get("_schema_version")
+                if loaded_version and not self._check_schema_compatibility(loaded_version):
+                    if self._logger:
+                        msg = (
+                            f"Konfiguráció verziója ({loaded_version}) eltér a vártól "
+                            f"({self._CURRENT_SCHEMA_VERSION}). "
+                            "Kompatibilitási problémák léphetnek fel."
+                        )
+                        self._logger.warning(msg)
+
+                # Verzióinformáció eltávolítása a konfigurációból
+                config_data.pop("_schema_version", None)
+
+                self._config = config_data
                 self._filename = filename
         except (FileNotFoundError, yaml.YAMLError) as e:
             raise ConfigLoadError(f"Konfiguráció betöltése sikertelen: {str(e)}") from e
