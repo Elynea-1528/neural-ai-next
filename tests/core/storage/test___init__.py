@@ -5,7 +5,8 @@ beleértve az implementációk ellenőrzését.
 """
 
 import sys
-from importlib import import_module
+from importlib import import_module, metadata
+from unittest import mock
 
 import pytest
 
@@ -37,8 +38,18 @@ class TestStorageModuleExports:
     def test_all_export_list(self) -> None:
         """Teszteli, hogy a __all__ lista tartalmazza-e a várt exportokat."""
         expected_exports = [
+            # Verzióinformációk
+            "__version__",
+            "__schema_version__",
+            # Implementációk
             "FileStorage",
             "StorageFactory",
+            # Interfészek
+            "StorageInterface",
+            "StorageFactoryInterface",
+            # Típusok
+            "LoggerInterface",
+            "ConfigManagerInterface",
         ]
 
         assert hasattr(storage_module, "__all__"), "__all__ nem létezik"
@@ -99,6 +110,53 @@ class TestStorageModuleImportCompleteness:
         assert storage_module is not None
         assert hasattr(storage_module, "FileStorage")
         assert hasattr(storage_module, "StorageFactory")
+
+
+class TestStorageModuleVersion:
+    """Teszteli a modul verziókezelését."""
+
+    def test_version_export(self) -> None:
+        """Teszteli, hogy a __version__ elérhető-e a modulból."""
+        assert hasattr(storage_module, "__version__"), "__version__ nem elérhető"
+        assert isinstance(storage_module.__version__, str), "__version__ nem string típusú"
+        assert len(storage_module.__version__.strip()) > 0, "__version__ üres"
+
+    def test_schema_version_export(self) -> None:
+        """Teszteli, hogy a __schema_version__ elérhető-e a modulból."""
+        assert hasattr(storage_module, "__schema_version__"), "__schema_version__ nem elérhető"
+        assert isinstance(storage_module.__schema_version__, str), (
+            "__schema_version__ nem string típusú"
+        )
+        assert storage_module.__schema_version__ == "1.0", "__schema_version__ nem megfelelő"
+
+    def test_version_format(self) -> None:
+        """Teszteli, hogy a verziószám formátuma helyes-e."""
+        import re
+
+        version_pattern = r"^\d+\.\d+\.\d+.*$"
+        assert re.match(version_pattern, storage_module.__version__), (
+            f"__version__ formátuma nem megfelelő: {storage_module.__version__}"
+        )
+
+    def test_version_fallback_on_package_not_found(self) -> None:
+        """Teszteli a fallback verziót, ha a csomag nincs telepítve."""
+        # Mock-oljuk a metadata.version-t, hogy PackageNotFoundError-t dobjon
+        with mock.patch("importlib.metadata.version", side_effect=metadata.PackageNotFoundError):
+            # Újra kell tölteni a modult a mock-kal
+            import importlib
+
+            import neural_ai.core.storage
+
+            # Reload the module to trigger the exception path
+            reloaded_module = importlib.reload(neural_ai.core.storage)
+
+            # Ellenőrizzük, hogy a fallback verzió "1.0.0" lett-e
+            assert reloaded_module.__version__ == "1.0.0", (
+                f"Fallback verzió nem megfelelő: {reloaded_module.__version__}"
+            )
+
+            # Visszaállítjuk az eredeti modult
+            importlib.reload(neural_ai.core.storage)
 
 
 if __name__ == "__main__":

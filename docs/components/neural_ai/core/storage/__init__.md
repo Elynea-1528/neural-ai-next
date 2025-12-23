@@ -18,10 +18,31 @@ Ez a modul a storage komponens fő exportjait tartalmazza, beleértve a `FileSto
 - **[`StorageInterface`](../interfaces/storage_interface.md)** - A tárolási műveletek absztrakt interfésze
 - **[`StorageFactoryInterface`](../interfaces/factory_interface.md)** - A storage factory absztrakt interfésze
 
+### Interfészek
+
+- **[`StorageInterface`](../interfaces/storage_interface.md)** - A tárolási műveletek absztrakt interfésze
+- **[`StorageFactoryInterface`](../interfaces/factory_interface.md)** - A storage factory absztrakt interfésze
+
 ### Típusok
 
 - **[`LoggerInterface`](../logger/interfaces/logger_interface.md)** - Logger interfész típus definíció
 - **[`ConfigManagerInterface`](../config/interfaces/config_interface.md)** - Konfiguráció kezelő interfész típus definíció
+
+## Verzióinformációk
+
+A modul támogatja a dinamikus verziókezelést a 10. fejezet szerint:
+
+- **`__version__`**: A modul aktuális verziószáma (pl. "1.0.0")
+- **`__schema_version__`**: A konfigurációs séma verziószáma (pl. "1.0")
+
+### Verzió lekérdezése
+
+```python
+from neural_ai.core.storage import __version__, __schema_version__
+
+print(f"Storage modul verzió: {__version__}")
+print(f"Séma verzió: {__schema_version__}")
+```
 
 ## Használat
 
@@ -89,7 +110,10 @@ if TYPE_CHECKING:
 A modul explicit módon exportálja a szükséges osztályokat és interfészeket a `__all__` listán keresztül:
 
 ```python
-__all__ = [
+__all__: Final[list[str]] = [
+    # Verzióinformációk
+    "__version__",
+    "__schema_version__",
     # Implementációk
     "FileStorage",
     "StorageFactory",
@@ -109,6 +133,8 @@ __all__ = [
 - **Körkörös Importok Elkerülése**: `TYPE_CHECKING` blokk használatával
 - **Modularitás**: Tiszta interfész-alapú tervezés
 - **Bővíthetőség**: Egyszerűen hozzáadhatóak új storage implementációk
+- **Dinamikus Verziókezelés**: A verziószámot a pyproject.toml-ból tölti be
+- **Séma Verziókezelés**: Konfigurációs séma verziószámának támogatása
 
 ## Kapcsolódó Dokumentáció
 
@@ -119,7 +145,8 @@ __all__ = [
 ## Verzió
 
 - **Modul**: neural_ai.core.storage
-- **Verzió**: 1.0.0
+- **Verzió**: Dinamikusan betöltve a pyproject.toml-ból
+- **Séma Verzió**: 1.0
 - **Utolsó Frissítés**: 2025-12-23
 
 ## Fejlesztés
