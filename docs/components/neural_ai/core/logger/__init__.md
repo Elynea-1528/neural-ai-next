@@ -2,7 +2,7 @@
 
 ## Áttekintés
 
-A `neural_ai.core.logger.__init__` modul a Neural-AI-Next rendszer naplózási komponensének központi exportmodulja. Ez a modul biztosítja a logger komponens összes fontos osztályának, interfészének és kivételének egységes elérését.
+A `neural_ai.core.logger.__init__` modul a Neural-AI-Next rendszer naplózási komponensének központi exportmodulja. Ez a modul biztosítja a logger komponens összes fontos osztályának, interfészének és kivételének egységes elérését. Emellett dinamikus verziókezelést is biztosít a projekt verzióinformációinak és konfigurációs séma verziójának nyomon követéséhez.
 
 ## Szerepkör és Feladat
 
@@ -10,7 +10,8 @@ A `neural_ai.core.logger.__init__` modul a Neural-AI-Next rendszer naplózási k
 
 1. **Központi Export**: Egyetlen import pontot biztosít a logger komponens összes almoduljához
 2. **Típusbiztonság**: TYPE_CHECKING blokkal ellátott importok a körkörös függőségek elkerüléséért
-3. **Modularitás**: Jól szervezett és bővíthető szerkezet
+3. **Verziókezelés**: Dinamikus verzióinformációk betöltése és sémaverzió nyomon követése
+4. **Modularitás**: Jól szervezett és bővíthető szerkezet
 
 ### Exportált Komponensek
 
@@ -25,6 +26,11 @@ A `neural_ai.core.logger.__init__` modul a Neural-AI-Next rendszer naplózási k
 - **`ColoredLogger`**: Színes kimenetű logger implementáció
 - **`RotatingFileLogger`**: Forgató logfájl-kezelő implementáció
 - **`LoggerFactory`**: Logger példányok létrehozásáért felelős factory
+
+#### Verzióinformációk
+
+- **`__version__`**: A projekt aktuális verziószáma (dinamikusan betöltve)
+- **`__schema_version__`**: A konfigurációs séma verziószáma
 
 #### Kivételek
 
@@ -72,6 +78,14 @@ except LoggerConfigurationError as e:
     print(f"Konfigurációs hiba: {e}")
 ```
 
+```python
+# Verzióinformációk elérése
+import neural_ai.core.logger
+
+print(f"Logger verzió: {neural_ai.core.logger.__version__}")
+print(f"Séma verzió: {neural_ai.core.logger.__schema_version__}")
+```
+
 ## Technikai Döntések
 
 ### TYPE_CHECKING Blokk
@@ -99,6 +113,24 @@ class DefaultLogger:
 ```
 
 Ez lehetővé teszi a lazításos betöltést és a tesztelhetőséget.
+
+### Verziókezelés
+
+A modul dinamikusan tölti be a projekt verzióinformációit az `importlib.metadata` segítségével:
+
+```python
+from importlib import metadata
+
+try:
+    _version: str = metadata.version("neural-ai-next")
+except metadata.PackageNotFoundError:
+    _version = "1.0.0"  # Fallback verzió
+
+__version__: Final[str] = _version
+__schema_version__: Final[str] = "1.0"
+```
+
+Ez biztosítja, hogy a verziószám mindig szinkronban legyen a `pyproject.toml` fájllal, és lehetővé teszi a konfigurációs séma verzióellenőrzését a kompatibilitás érdekében.
 
 ## Kapcsolódó Komponensek
 
