@@ -3,7 +3,7 @@
 ## 🎯 RENDSZERDEFINÍCIÓ & VÍZIÓ
 - Adat: 25 évnyi TICK ADAT (nem OHLCV!).
 - Stack: Python 3.12, PyTorch 2.5.1 (CUDA:12.1),Lightning 2.5.5, VectorBT Pro, FastParquet.
-- Forrás: Dukascopy (Native .bi5 decoding), MT5, IBKR.
+- Forrás: Dukascopy (Native .bi5 decoding), jforex, MT5, IBKR.
 - Architektúra: Event-Driven (ZeroMQ/AsyncIO), Database-First.
 
 ### 📜 AZ IGAZSÁG FORRÁSAI (SSOT)
