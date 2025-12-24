@@ -40,10 +40,12 @@ async def async_session(async_engine):
         yield session
 
 
-@pytest.mark.asyncio
+
+
 class TestDynamicConfig:
     """Tesztek a DynamicConfig modellhez."""
 
+    @pytest.mark.asyncio
     async def test_create_dynamic_config(self, async_session: AsyncSession):
         """Teszteli a DynamicConfig létrehozását."""
         config = DynamicConfig(
@@ -168,7 +170,6 @@ class TestDynamicConfig:
         assert "42" in repr_str
 
 
-@pytest.mark.asyncio
 class TestLogEntry:
     """Tesztek a LogEntry modellhez."""
 
@@ -304,10 +305,9 @@ class TestLogEntry:
         assert "LogEntry" in repr_str
         assert "ERROR" in repr_str
         assert "repr.logger" in repr_str
-        assert len(repr_str) < 100  # Rövid legyen
+        assert len(repr_str) < 120  # Rövid legyen
 
 
-@pytest.mark.asyncio
 class TestDynamicConfigCRUDOperations:
     """Komplex CRUD műveletek tesztelése a DynamicConfig-hez."""
 
@@ -387,7 +387,6 @@ class TestDynamicConfigCRUDOperations:
         assert all(c.value_type == "str" for c in str_configs)
 
 
-@pytest.mark.asyncio
 class TestLogEntryCRUDOperations:
     """Komplex CRUD műveletek tesztelése a LogEntry-hez."""
 

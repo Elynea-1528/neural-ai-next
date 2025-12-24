@@ -157,9 +157,11 @@ disallow_untyped_defs = false
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 addopts = "-v --tb=short --strict-markers"
+asyncio_mode = "auto"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
+    "asyncio: AsyncIO tests",
 ]
 
 [tool.coverage.run]

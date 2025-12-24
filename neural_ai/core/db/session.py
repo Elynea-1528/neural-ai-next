@@ -39,7 +39,7 @@ def get_database_url(config_manager: ConfigManagerInterface | None = None) -> st
         ValueError: Ha az adatbázis URL nincs konfigurálva.
     """
     if config_manager is None:
-        config_manager = ConfigManagerFactory.get_manager()
+        config_manager = ConfigManagerFactory.get_manager("config.yaml")
 
     db_url = config_manager.get("db_url")
     if not db_url:
@@ -95,7 +95,7 @@ def get_engine(config_manager: ConfigManagerInterface | None = None) -> Any:  # 
 
     if _engine is None:
         db_url = get_database_url(config_manager)
-        echo = ConfigManagerFactory.get_manager().get("log_level", "INFO") == "DEBUG"
+        echo = ConfigManagerFactory.get_manager("config.yaml").get("log_level", "INFO") == "DEBUG"
         _engine = create_engine(db_url, echo=echo)
 
     return _engine
