@@ -157,3 +157,141 @@ Ha a tesztek zöldek (pytest), commitold a változásokat.
 Frissítsd a TASK_TREE.md-t: Az összes Phase 1 elem legyen ✅ DONE.
 Kezdd a Parquet Storage implementálásával (ez a legfontosabb)!"
 Ha ez a parancs lefut, a rendszered magja (Core) 100%-os készültségű lesz, és készen áll a JForex/MT5 adatok fogadására. 🚀
+
+
+multi kommand: asztali pc: pandas + fastparquet, laptop: polars + pyarow
+
+🚀 COMMAND: PHASE 1 EXECUTION - ADAPTIVE STORAGE & CORE FOUNDATION
+"Code Agent! (Architect felügyelettel).
+SZEKVENCIÁLIS VÉGREHAJTÁS INDÍTÁSA.
+HELYZET: A Phase 0 (Tervezés) kész. A rendszert most kell fizikailag létrehozni, de HARDVER-AGNOSZTIKUS módon (Laptop vs Desktop kompatibilitás).
+A STRATÉGIA (Smart Engine):
+Laptop (AVX2): Polars + PyArrow (High Performance, 500MB/s).
+Desktop (Legacy): Pandas + FastParquet (Compatibility Mode, Safe).
+HAJTSD VÉGRE A KÖVETKEZŐ LÉPÉSEKET (Hierarchikus Rendben):
+1. TERVEZÉS ÉS ADMINISZTRÁCIÓ (Architect Task):
+Olvasd be a docs/planning/specs/ tartalmát.
+Frissítsd a docs/development/TASK_TREE.md-t:
+A Phase 1 alatt bontsd ki a Storage részt:
+core/utils/hardware.py (AVX2 Detector)
+core/storage/backends/ (Polars vs Pandas implementációk)
+core/storage/parquet.py (Selector Service)
+Állítsd ezeket 🔴 PENDING státuszra.
+COMMIT: git add . && git commit -m "docs(plan): update task tree with adaptive storage architecture"
+2. IMPLEMENTÁCIÓ (Orchestrator -> Code Agent):
+Hozd létre a fájlokat a következő sorrendben és logikával:
+A) HARDVER DETEKTOR (neural_ai/core/utils/hardware.py):
+Funkció: has_avx2() -> bool.
+Implementáció: Linuxon olvassa a /proc/cpuinfo fájlt. Ez nem okozhat Illegal Instruction-t!
+B) STORAGE BACKENDS (neural_ai/core/storage/backends/):
+base.py: Absztrakt StorageBackend (write, read, append).
+polars_backend.py: import polars és pyarrow. FONTOS: Csak akkor importálódjon, ha az osztályt példányosítják, különben a Legacy gépen a fájl beolvasásakor összeomlik!
+pandas_backend.py: import pandas és fastparquet.
+C) STORAGE SERVICE (neural_ai/core/storage/parquet.py):
+__init__: Hívd meg a has_avx2()-t.
+Ha True -> Init PolarsBackend.
+Ha False -> Init PandasBackend + Logolj WARNING-ot: "Legacy CPU detected. Running in Compatibility Mode."
+D) DB & EVENTBUS (A maradék Core):
+Implementáld a core/db és core/events modulokat a meglévő specifikációk (02_core_database.md, 03_core_eventbus.md) alapján.
+3. MINŐSÉGBIZTOSÍTÁS (Debug Mode):
+Írj egy tesztet: tests/core/storage/test_adaptive_engine.py.
+Mockold a has_avx2 értékét True-ra és False-ra is, és ellenőrizd, hogy a megfelelő backend töltődik-e be.
+Futtasd a tesztet.
+4. ZÁRÁS:
+Ha a tesztek zöldek:
+git add . && git commit -m "feat(core): implement adaptive storage engine (polars/pandas hybrid)"
+Frissítsd a TASK_TREE.md-t (✅ DONE).
+INDÍTSD A FOLYAMATOT A TASK TREE FRISSÍTÉSÉVEL!"
+
+telepítő refaktorálás:
+
+🚀 COMMAND: UNIFIED SMART INSTALLER REFACTOR
+Másold be egy ÚJ CHAT-be (Code Mode-ban):
+"Code Agent! (Architect felügyelettel).
+FIGYELEM: TELEPÍTŐ ÉS FÜGGŐSÉG REFAKTORÁLÁS.
+HELYZET: A jelenlegi scripts/install/ mappa túl fragmentált, és hiányoznak belőle a Phase 1 (Core) architektúrához szükséges csomagok.
+CÉL: Egyetlen, intelligens install.py létrehozása, ami automatikusan adaptálódik a hardverhez, és a pyproject.toml frissítése a hiányzó Enterprise csomagokkal.
+HAJTSD VÉGRE A KÖVETKEZŐ LÉPÉSEKET:
+1. ÚJ BRANCH LÉTREHOZÁSA (Git):
+git checkout -b refactor/unified-installer
+2. FÜGGŐSÉGEK BŐVÍTÉSE (pyproject.toml):
+Add hozzá a következőket a dependencies listához (verziószámokkal!):
+Core/DB: sqlalchemy[asyncio]>=2.0.0, aiosqlite>=0.19.0, alembic>=1.13.0
+Logs: structlog>=24.1.0
+Type Hints: pandas-stubs>=2.0.0, types-pydantic
+Data: polars>=0.20.0 (opcionális, de listázd), pyarrow>=14.0.0
+Brokers: ib_insync>=0.9.86
+3. INSTALLER KONSZOLIDÁCIÓ (scripts/install.py):
+Hozz létre egy EGYETLEN scripts/install.py fájlt, ami kiváltja a korábbi mappát.
+Funkciók:
+Hardver Detektor:
+Ellenőrizze az /proc/cpuinfo-t (Linux): Van avx2?
+Ellenőrizze az nvidia-smi-t: Van GPU?
+Csomag Telepítő:
+Ha GPU van: conda install ... pytorch-cuda=12.1 ...
+Ha nincs: conda install ... cpuonly ...
+Ha van AVX2: pip install polars
+Broker Setup (Opcionális):
+Kérdezze meg: "Melyik brókert telepítsem? [1] MT5 (Dukascopy), [2] JForex4, [3] IBKR TWS, [4] Mindet"
+Töltse le és futtassa a Wine-os telepítőket automatikusan.
+4. TAKARÍTÁS (Cleanup):
+Töröld a régi scripts/install/ mappa tartalmát (kivéve, amit most írsz).
+Töröld a environment.yml-t (a script generálja majd dinamikusan vagy kezeli a conda-t).
+5. DOKUMENTÁCIÓ:
+Frissítsd a docs/INSTALLATION_GUIDE.md-t az új, egyszerűsített utasítással:
+python scripts/install.py (Ennyi legyen az egész!).
+6. ZÁRÁS:
+git add . && git commit -m "refactor(install): unify installer into smart script and update deps"
+Kezdd a pyproject.toml frissítésével a hiányzó csomagokkal!"
+
+🚀 COMMAND: OMEGA INSTALLER - UNIFIED & AUTOMATED
+"Code Agent! (Architect felügyelettel).
+A FELADAT: A teljes telepítési folyamat (Környezet + Brókerek) egyetlen 'okos' Python scriptbe történő konszolidálása.
+KÖVETELMÉNY: Teljes automatizálás (Zero-Click logic), hardver detektálás, és a bróker telepítők automatikus elindítása.
+HAJTSD VÉGRE A KÖVETKEZŐ LÉPÉSEKET SZIGORÚ SORRENDBEN:
+ÚJ BRANCH LÉTREHOZÁSA (Git):
+git checkout -b refactor/unified-installer
+1. TUDÁSTRANSZFER (Mielőtt bármit törölnél):
+Olvasd be a scripts/install/scripts/setup_wine_mt5.sh és scripts/install/scripts/setup_brokers.sh fájlokat.
+Memorizáld a Wine prefix beállításokat és az URL-eket.
+2. pyproject.toml ÚJRAÍRÁSA (Modern Standard):
+Írd felül a fájlt tiszta függőségi csoportokkal.
+[project.dependencies]: fastapi, uvicorn, websockets, pydantic, sqlalchemy[asyncio], aiosqlite, alembic, structlog, typer, requests. (NE rakj ide hardverfüggő csomagokat: torch, numpy, pandas, polars - ezeket a script intézi!).
+[project.optional-dependencies]:
+dev: pytest, ruff, mypy, pandas-stubs, types-requests.
+trader: ib_insync, vectorbt.
+jupyter: jupyterlab, notebook, tensorboard, matplotlib, plotly.
+3. scripts/install.py IMPLEMENTÁLÁSA (The Master Script):
+Írj egy robusztus Python scriptet, ami a következőket teszi felhasználói kérdés nélkül:
+A) Hardver Detektálás & Core Telepítés:
+Ellenőrizze: Van neural-ai-next Conda env? Ha nincs, hozza létre (Python 3.12).
+GPU Check (nvidia-smi):
+Ha van: conda install -y pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+Ha nincs: conda install -y pytorch torchvision torchaudio cpuonly -c pytorch
+AVX2 Check (/proc/cpuinfo):
+Ha van: pip install polars pyarrow
+Ha nincs: pip install fastparquet (és pandas fallback).
+Alapok: conda install -y numpy pandas scikit-learn
+Csomagok: pip install -e .[dev,trader,jupyter]
+B) Broker Auto-Install (A régi scriptek logikája alapján):
+Hozzon létre egy downloads/ mappát a gyökérben.
+JForex 4:
+Letöltés: https://dukascopy-eu.cdn.online-trading-solutions.com/installer4/dukascopy-eu/JForex4_unix_64_JRE_bundled.sh
+chmod +x
+Futtatás: Indítsa el háttérfolyamatként (subprocess.Popen), hogy a Python script ne blokkoljon.
+IBKR TWS:
+Letöltés: https://download2.interactivebrokers.com/installers/tws/latest/tws-latest-linux-x64.sh
+chmod +x
+Futtatás: Indítsa el háttérfolyamatként.
+MetaTrader 5 (Dukascopy):
+Ellenőrizze: Van wine telepítve? (shutil.which('wine')). Ha nincs, logoljon Error-t, de ne álljon le.
+Ha van Wine: Állítsa be a WINEPREFIX=~/.mt5 környezeti változót (izolált környezet).
+Letöltés: https://download.mql5.com/cdn/web/dukascopy.bank.sa/mt5/dukascopy5setup.exe
+Futtatás: wine downloads/dukascopy5setup.exe (háttérben).
+4. TAKARÍTÁS (Cleanup):
+Most, hogy a logika átkerült a Pythonba, töröld a régi scripts/install mappát és az environment.yml-t.
+5. DOKUMENTÁCIÓ:
+Frissítsd a README.md-t: "Telepítés: python scripts/install.py".
+6. ZÁRÁS:
+git add . && git commit -m "feat(infra): unified zero-touch installer with auto-broker setup"
+INDÍTSD A FOLYAMATOT A RÉGI SCRIPTEK BEOLVASÁSÁVAL!"

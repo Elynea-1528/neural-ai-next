@@ -1,93 +1,66 @@
-# ParquetStorageService - Particionált Parquet Tároló
+# ParquetStorageService - Particionált Parquet tároló szolgáltatás
 
-## 🎯 Áttekintés
+## Áttekintés
 
-A `ParquetStorageService` a Neural AI Next rendszer Big Data tároló komponense, amely particionált Parquet formátumban tárolja a Tick adatokat. A particionálás dátum és szimbólum alapú, ami lehetővé teszi a gyors és hatékony adatlekérdezést 25 évnyi Tick adatra.
+A `ParquetStorageService` egy fejlett, particionált Parquet tároló szolgáltatás, amely automatikusan detektálja a hardver képességeket és kiválasztja a legoptimálisabb tárolási backend-et a Neural AI Next rendszer számára.
 
-## 📦 Jellemzők
+## Főbb jellemzők
 
-### Főbb Képességek
+- **Hardver-gyorsítás detektálás**: Automatikusan észleli az AVX2 utasításkészlet támogatást
+- **Backend selector**: Dinamikusan választja ki a legjobb backend-et (PolarsBackend vagy PandasBackend)
+- **Particionált tárolás**: Dátum és szimbólum alapú particionálás a gyors lekérdezés érdekében
+- **Aszinkron műveletek**: Támogatja az aszinkron adatolvasást és -írást
+- **Adatintegritás ellenőrzés**: Checksum számítás és adatintegritás ellenőrzés
 
-- **Particionált Tárolás:** Dátum és szimbólum alapú particionálás (`/data/tick/EURUSD/tick/year=2023/month=12/day=23/`)
-- **Aszinkron Műveletek:** Minden tárolási és olvasási művelet aszinkron
-- **Adatintegritás:** Checksum ellenőrzés és validáció
-- **Hatékony Lekérdezés:** Csak a szükséges partíciók betöltése
-- **Tömörítés:** Snappy tömörítés a tárolási hely optimalizálásához
-- **Több szimbólum támogatása:** EURUSD, GBPUSD, USDJPY, USDCHF, XAUUSD
+## Architektúra
 
-### Technológiai Stack
+### Backend Selector Mechanizmus
 
-- **Polars:** Gyors DataFrame feldolgozás
-- **FastParquet:** Parquet fájlok kezelése
-- **Loguru:** Strukturált naplózás
-- **Asyncio:** Aszinkron műveletek
+A szolgáltatás a következő logika alapján választja ki a tárolási backend-et:
 
-## 🏗️ Architektúra
-
-### Partíciószerkezet
-
-```
-/data/tick/
-├── EURUSD/
-│   ├── tick/
-│   │   ├── year=2023/
-│   │   │   ├── month=12/
-│   │   │   │   ├── day=01/
-│   │   │   │   │   └── data.parquet
-│   │   │   │   ├── day=02/
-│   │   │   │   └── ...
-│   │   │   └── year=2024/
-│   │   └── ...
-├── GBPUSD/
-├── USDJPY/
-├── USDCHF/
-└── XAUUSD/
-```
-
-### Adatmodell
+1. **AVX2 támogatás esetén**: `PolarsBackend` használata gyorsabb feldolgozáshoz
+2. **AVX2 hiánya esetén**: `PandasBackend` használata kompatibilitási módban
 
 ```python
-class TickData(BaseModel):
-    """Tick adat modell."""
-    timestamp: datetime
-    symbol: str
-    bid: float
-    ask: float
-    volume: Optional[int] = None
-    source: str  # 'jforex', 'mt5', 'ibkr'
-    
-    @property
-    def spread(self) -> float:
-        """Spread kiszámítása."""
-        return self.ask - self.bid
-    
-    @property
-    def mid_price(self) -> float:
-        """Középár kiszámítása."""
-        return (self.bid + self.ask) / 2
+if has_avx2():
+    self.backend = PolarsBackend()
+    self.engine = "polars"
+    logger.info("AVX2 support detected. Using PolarsBackend for accelerated data processing.")
+else:
+    self.backend = PandasBackend()
+    logger.warning("Legacy CPU detected. Running in Compatibility Mode with PandasBackend.")
 ```
 
-## 🔧 API Referencia
-
-### Osztály: `ParquetStorageService`
-
-#### Metódusok
-
-##### `__init__()`
-
-Inicializálja a ParquetStorageService-t.
+### Osztályszerkezet
 
 ```python
-service = ParquetStorageService()
+class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
+    BASE_PATH = Path("/data/tick")
+    
+    def __init__(self) -> None:
+        self.engine = "fastparquet"
+        self.compression = "snappy"
+        self.backend: StorageBackend
+        # ... backend kiválasztás
 ```
 
-##### `store_tick_data(symbol: str, data: pl.DataFrame, date: datetime) -> None`
+## Metódusok
+
+### `__init__()`
+
+Inicializálja a ParquetStorageService-t backend selectorral.
+
+**Paraméterek**: Nincs
+
+**Visszatérési érték**: `None`
+
+### `store_tick_data(symbol: str, data: Any, date: datetime) -> None`
 
 Tick adatok tárolása particionált Parquet formátumban.
 
 **Paraméterek:**
 - `symbol`: A pénzpár szimbóluma (pl. 'EURUSD')
-- `data`: A Tick adatokat tartalmazó Polars DataFrame
+- `data`: A Tick adatokat tartalmazó DataFrame
 - `date`: A dátum, ami alapján a particionálás történik
 
 **Kivételek:**
@@ -106,10 +79,11 @@ data = pl.DataFrame({
     'source': ['jforex']
 })
 
+service = ParquetStorageService()
 await service.store_tick_data('EURUSD', data, datetime.now())
 ```
 
-##### `read_tick_data(symbol: str, start_date: datetime, end_date: datetime) -> pl.DataFrame`
+### `read_tick_data(symbol: str, start_date: datetime, end_date: datetime) -> Any`
 
 Tick adatok olvasása dátumtartományból.
 
@@ -118,13 +92,13 @@ Tick adatok olvasása dátumtartományból.
 - `start_date`: A kezdő dátum
 - `end_date`: A záró dátum
 
-**Visszatérési érték:**
-- A Tick adatokat tartalmazó Polars DataFrame
+**Visszatérési érték:** A Tick adatokat tartalmazó DataFrame
 
 **Példa:**
 ```python
 from datetime import datetime, timedelta
 
+service = ParquetStorageService()
 start = datetime(2023, 12, 1)
 end = datetime(2023, 12, 31)
 
@@ -132,23 +106,16 @@ data = await service.read_tick_data('EURUSD', start, end)
 print(f"Loaded {len(data)} ticks")
 ```
 
-##### `get_available_dates(symbol: str) -> List[datetime]`
+### `get_available_dates(symbol: str) -> list[datetime]`
 
 Elérhető dátumok lekérdezése egy adott szimbólumhoz.
 
 **Paraméterek:**
 - `symbol`: A pénzpár szimbóluma
 
-**Visszatérési érték:**
-- Az elérhető dátumok listája
+**Visszatérési érték:** Az elérhető dátumok listája
 
-**Példa:**
-```python
-dates = await service.get_available_dates('EURUSD')
-print(f"Available dates: {len(dates)}")
-```
-
-##### `calculate_checksum(symbol: str, date: datetime) -> str`
+### `calculate_checksum(symbol: str, date: datetime) -> str`
 
 Adatok checksum számítása integritás ellenőrzéshez.
 
@@ -156,16 +123,9 @@ Adatok checksum számítása integritás ellenőrzéshez.
 - `symbol`: A pénzpár szimbóluma
 - `date`: A dátum
 
-**Visszatérési érték:**
-- A checksum SHA256 hash
+**Visszatérési érték:** A checksum SHA256 hash
 
-**Példa:**
-```python
-checksum = await service.calculate_checksum('EURUSD', datetime.now())
-print(f"Checksum: {checksum}")
-```
-
-##### `verify_data_integrity(symbol: str, date: datetime) -> bool`
+### `verify_data_integrity(symbol: str, date: datetime) -> bool`
 
 Adatintegritás ellenőrzése.
 
@@ -173,193 +133,58 @@ Adatintegritás ellenőrzése.
 - `symbol`: A pénzpár szimbóluma
 - `date`: A dátum
 
-**Visszatérési érték:**
-- `True` ha az adatok integritása megfelelő, egyébként `False`
+**Visszatérési érték:** `True` ha az adatok integritása megfelelő, egyébként `False`
 
-**Példa:**
-```python
-is_valid = await service.verify_data_integrity('EURUSD', datetime.now())
-print(f"Data integrity: {is_valid}")
-```
-
-##### `get_storage_stats(symbol: Optional[str] = None) -> Dict[str, Any]`
+### `get_storage_stats(symbol: str | None = None) -> dict[str, Any]`
 
 Tárolási statisztikák lekérdezése.
 
 **Paraméterek:**
 - `symbol`: Opcionális szimbólum szűréshez
 
-**Visszatérési érték:**
-- A statisztikákat tartalmazó dictionary
+**Visszatérési érték:** A statisztikákat tartalmazó dictionary
+
+## Particionálási stratégia
+
+A tárolás a következő mappaszerkezetet követi:
+
+```
+/data/tick/{SYMBOL}/tick/year={YEAR}/month={MONTH}/day={DAY}/data.parquet
+```
 
 **Példa:**
-```python
-# Összes statisztika
-stats = await service.get_storage_stats()
-print(f"Total files: {stats['total_files']}")
-
-# Csak egy szimbólum statisztikája
-stats = await service.get_storage_stats('EURUSD')
+```
+/data/tick/EURUSD/tick/year=2023/month=12/day=23/data.parquet
 ```
 
-## 🔍 Használati Példák
+## Backend kompatibilitás
 
-### 1. Alapvető Tárolás és Olvasás
+### PolarsBackend (AVX2 támogatással)
 
-```python
-import asyncio
-from datetime import datetime
-import polars as pl
-from neural_ai.core.storage.parquet import ParquetStorageService
+- **Előnyök**: Gyorsabb feldolgozás, jobb memóriakezelés
+- **Használati feltétel**: AVX2 utasításkészlet támogatás
 
-async def main():
-    service = ParquetStorageService()
-    
-    # Minta adatok létrehozása
-    data = pl.DataFrame({
-        'timestamp': [datetime(2023, 12, 23, 10, i, 0) for i in range(10)],
-        'bid': [1.1000 + i * 0.0001 for i in range(10)],
-        'ask': [1.1002 + i * 0.0001 for i in range(10)],
-        'volume': [1000 + i * 100 for i in range(10)],
-        'source': ['jforex'] * 10
-    })
-    
-    # Adatok tárolása
-    await service.store_tick_data('EURUSD', data, datetime(2023, 12, 23))
-    
-    # Adatok olvasása
-    result = await service.read_tick_data(
-        'EURUSD',
-        datetime(2023, 12, 23, 9, 0, 0),
-        datetime(2023, 12, 23, 11, 0, 0)
-    )
-    
-    print(f"Loaded {len(result)} ticks")
+### PandasBackend (Kompatibilitási mód)
 
-asyncio.run(main())
-```
+- **Előnyök**: Széles körű kompatibilitás, minden CPU-n fut
+- **Használati feltétel**: Nincs speciális hardverkövetelmény
 
-### 2. Nagy Adathalmaz Tárolása
+## Függőségek
 
-```python
-async def store_large_dataset():
-    service = ParquetStorageService()
-    
-    # Nagy adathalmaz létrehozása (1M tick)
-    timestamps = [datetime.now() + timedelta(seconds=i) for i in range(1_000_000)]
-    bids = [1.1000 + i * 0.000001 for i in range(1_000_000)]
-    asks = [b + 0.0002 for b in bids]
-    
-    data = pl.DataFrame({
-        'timestamp': timestamps,
-        'bid': bids,
-        'ask': asks,
-        'volume': [1000] * 1_000_000,
-        'source': ['mt5'] * 1_000_000
-    })
-    
-    # Tárolás
-    await service.store_tick_data('EURUSD', data, datetime.now())
-    
-    # Statisztikák lekérdezése
-    stats = await service.get_storage_stats('EURUSD')
-    print(f"Files: {stats['symbols']['EURUSD']['files']}")
-    print(f"Size: {stats['symbols']['EURUSD']['size_gb']:.2f} GB")
+- `neural_ai.core.base.interfaces.StorageInterface`
+- `neural_ai.core.base.singleton.SingletonMeta`
+- `neural_ai.core.utils.hardware.has_avx2`
+- `neural_ai.core.storage.backends.polars_backend.PolarsBackend`
+- `neural_ai.core.storage.backends.pandas_backend.PandasBackend`
 
-asyncio.run(store_large_dataset())
-```
+## Verzió történet
 
-### 3. Adatintegritás Ellenőrzése
+- **2.0.0**: Backend selector implementáció, hardver-gyorsítás detektálás
+- **1.0.0**: Alapvető Parquet tároló szolgáltatás
 
-```python
-async def verify_data():
-    service = ParquetStorageService()
-    symbol = 'EURUSD'
-    date = datetime(2023, 12, 23)
-    
-    # Integritás ellenőrzése
-    is_valid = await service.verify_data_integrity(symbol, date)
-    
-    if is_valid:
-        print("Data integrity: OK")
-        
-        # Checksum lekérdezése
-        checksum = await service.calculate_checksum(symbol, date)
-        print(f"Checksum: {checksum}")
-    else:
-        print("Data integrity: FAILED")
+## Kapcsolódó dokumentáció
 
-asyncio.run(verify_data())
-```
-
-### 4. Több Szimbólum Kezelése
-
-```python
-async def manage_multiple_symbols():
-    service = ParquetStorageService()
-    symbols = ['EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'XAUUSD']
-    
-    for symbol in symbols:
-        # Minta adatok létrehozása
-        data = pl.DataFrame({
-            'timestamp': [datetime.now()],
-            'bid': [1.0],  # Placeholder értékek
-            'ask': [1.0002],
-            'volume': [1000],
-            'source': ['jforex']
-        })
-        
-        # Tárolás
-        await service.store_tick_data(symbol, data, datetime.now())
-    
-    # Összes statisztika
-    stats = await service.get_storage_stats()
-    print(f"Total files: {stats['total_files']}")
-    print(f"Total size: {stats['total_size_gb']:.2f} GB")
-    
-    # Szimbólumonkénti bontás
-    for symbol, symbol_stats in stats['symbols'].items():
-        print(f"{symbol}: {symbol_stats['files']} files, {symbol_stats['size_gb']:.2f} GB")
-
-asyncio.run(manage_multiple_symbols())
-```
-
-## 🧪 Tesztelés
-
-### Tesztfuttatás
-
-```bash
-# ParquetStorageService tesztek futtatása
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/core/storage/test_parquet.py -v
-
-# Teljes coverage
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/core/storage/test_parquet.py --cov=neural_ai.core.storage.parquet --cov-report=html
-```
-
-### Főbb Tesztesetek
-
-1. **Alapvető tárolás és olvasás**
-2. **Üres DataFrame kezelése**
-3. **Hiányzó oszlopok kezelése**
-4. **Nem létező adatok olvasása**
-5. **Elérhető dátumok lekérdezése**
-6. **Checksum számítás**
-7. **Adatintegritás ellenőrzés**
-8. **Tárolási statisztikák**
-9. **Dátum szerinti szűrés**
-10. **Több szimbólum kezelése**
-
-## 🔗 Kapcsolódó Dokumentumok
-
-- [Adattárház Specifikáció](docs/planning/specs/04_data_warehouse.md)
-- [Storage Interface](docs/components/neural_ai/core/storage/interfaces/storage_interface.md)
-- [Storage Factory](docs/components/neural_ai/core/storage/implementations/storage_factory.md)
-- [Fejlesztési Útmutató](docs/development/unified_development_guide.md)
-
-## 📝 Jegyzetek
-
-- A Parquet formátum lehetővé teszi a hatékony tömörítést és gyors lekérdezést
-- A particionálás jelentősen javítja a lekérdezési teljesítményt
-- Az aszinkron műveletek optimalizálják a nagy adathalmazok kezelését
-- A checksum ellenőrzés biztosítja az adatok integritását
-- A Polars DataFrame-ek gyorsabbak mint a Pandas DataFrame-ek nagy adathalmazokon
+- [`neural_ai/core/storage/backends/base.md`](base.md) - Storage Backend alaposztály
+- [`neural_ai/core/storage/backends/polars_backend.md`](backends/polars_backend.md) - PolarsBackend dokumentáció
+- [`neural_ai/core/storage/backends/pandas_backend.md`](backends/pandas_backend.md) - PandasBackend dokumentáció
+- [`neural_ai/core/utils/hardware.md`](../utils/hardware.md) - Hardver detekciós segédfunkciók

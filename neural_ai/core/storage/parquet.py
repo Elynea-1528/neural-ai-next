@@ -4,46 +4,76 @@ Ez a modul implementálja a Tick adatok particionált Parquet formátumban tört
 és lekérdezését a Neural AI Next rendszer számára. A tárolás dátum és szimbólum alapú
 particionálást használ a gyors lekérdezés érdekében.
 
+A szolgáltatás hardver-gyorsítást detektál és automatikusan kiválasztja a legoptimálisabb
+backend-et (PolarsBackend AVX2 támogatással, vagy PandasBackend kompatibilitási módban).
+
 Author: Neural AI Next Team
-Version: 1.0.0
+Version: 2.0.0
 """
 
 import asyncio
 import hashlib
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import polars as pl
 from loguru import logger
 
-from neural_ai.core.base.interfaces import StorageInterface
 from neural_ai.core.base.singleton import SingletonMeta
+from neural_ai.core.utils.hardware import has_avx2
+
+if TYPE_CHECKING:
+    from neural_ai.core.storage.backends.base import StorageBackend
 
 
-class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
-    """Particionált Parquet tároló szolgáltatás.
+class ParquetStorageService(metaclass=SingletonMeta):
+    """Particionált Parquet tároló szolgáltatás backend selectorral.
 
     Ez az osztály felelős a Tick adatok particionált Parquet formátumban történő
     tárolásáért és lekérdezéséért. A particionálás dátum és szimbólum alapú,
     ami lehetővé teszi a gyors és hatékony adatlekérdezést.
 
+    A szolgáltatás automatikusan detektálja a hardver képességeket és kiválasztja
+    a legoptimálisabb tárolási backend-et:
+    - PolarsBackend: AVX2 támogatással gyorsabb feldolgozás
+    - PandasBackend: Kompatibilitási mód régebbi CPU-khoz
+
     Attributes:
         BASE_PATH: A tárolás alapútvonala
-        engine: A Parquet engine ('fastparquet')
+        engine: A Parquet engine ('fastparquet' vagy 'polars')
         compression: Tömörítési algoritmus ('snappy')
+        backend: A kiválasztott tárolási backend
     """
 
     BASE_PATH = Path("/data/tick")
 
     def __init__(self) -> None:
-        """Inicializálja a ParquetStorageService-t.
+        """Inicializálja a ParquetStorageService-t backend selectorral.
 
-        Beállítja a Parquet engine-t és a tömörítési algoritmust.
+        A hardver detekció alapján kiválasztja a megfelelő tárolási backend-et.
+        Ha az AVX2 utasításkészlet elérhető, a PolarsBackend-et használja,
+        egyébként a PandasBackend-et kompatibilitási módban.
         """
         self.engine = "fastparquet"
         self.compression = "snappy"
-        logger.info("ParquetStorageService initialized")
+        self.backend: StorageBackend
+
+        # Hardver detekció és backend kiválasztás
+        if has_avx2():
+            from neural_ai.core.storage.backends.polars_backend import PolarsBackend
+
+            self.backend = PolarsBackend()
+            self.engine = "polars"
+            logger.info(
+                "AVX2 support detected. Using PolarsBackend for accelerated data processing."
+            )
+        else:
+            from neural_ai.core.storage.backends.pandas_backend import PandasBackend
+
+            self.backend = PandasBackend()
+            logger.warning("Legacy CPU detected. Running in Compatibility Mode with PandasBackend.")
+
+        logger.info(f"ParquetStorageService initialized with {self.backend.name} backend")
 
     def _get_path(self, symbol: str, date: datetime) -> Path:
         """Elérési út generálása a megadott szimbólumhoz és dátumhoz.
@@ -72,12 +102,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             / "data.parquet"
         )
 
-    async def store_tick_data(self, symbol: str, data: pl.DataFrame, date: datetime) -> None:
+    async def store_tick_data(self, symbol: str, data: Any, date: datetime) -> None:
         """Tick adatok tárolása particionált Parquet formátumban.
 
         Args:
             symbol: A pénzpár szimbóluma
-            data: A Tick adatokat tartalmazó Polars DataFrame
+            data: A Tick adatokat tartalmazó DataFrame
             date: A dátum, ami alapján a particionálás történik
 
         Raises:
@@ -109,8 +139,8 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         path = self._get_path(symbol, date)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Polars DataFrame -> Parquet
-        data.write_parquet(str(path), compression=self.compression)
+        # Adatok tárolása a kiválasztott backend-en keresztül
+        self.backend.write(data, str(path), compression=self.compression)
 
         logger.info(
             "Tick data stored successfully",
@@ -119,11 +149,10 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             rows=len(data),
             path=str(path),
             size_mb=path.stat().st_size / (1024 * 1024),
+            backend=self.backend.name,
         )
 
-    async def read_tick_data(
-        self, symbol: str, start_date: datetime, end_date: datetime
-    ) -> pl.DataFrame:
+    async def read_tick_data(self, symbol: str, start_date: datetime, end_date: datetime) -> Any:
         """Tick adatok olvasása dátumtartományból.
 
         Args:
@@ -132,7 +161,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             end_date: A záró dátum
 
         Returns:
-            A Tick adatokat tartalmazó Polars DataFrame
+            A Tick adatokat tartalmazó DataFrame
 
         Example:
             >>> from datetime import datetime, timedelta
@@ -161,21 +190,34 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 start_date=start_date.isoformat(),
                 end_date=end_date.isoformat(),
             )
-            return pl.DataFrame()
+            # Üres DataFrame visszaadása a backend típusának megfelelően
+            if self.engine == "polars":
+                import polars as pl
 
-        # Adatok betöltése párhuzamosan
+                return pl.DataFrame()
+            else:
+                import pandas as pd
+
+                return pd.DataFrame()
+
+        # Adatok betöltése párhuzamosan a backend-en keresztül
         dfs = await asyncio.gather(*[self._read_parquet_async(path) for path in paths])
 
         # Összefűzés
         if dfs:
-            result = pl.concat(dfs)
+            result = self._concat_dataframes(dfs)
 
             # Dátum szerinti szűrés (pontosabb)
-            result = result.filter(
-                (pl.col("timestamp") >= start_date) & (pl.col("timestamp") <= end_date)
-            )
+            result = self._filter_by_timestamp(result, start_date, end_date)
         else:
-            result = pl.DataFrame()
+            if self.engine == "polars":
+                import polars as pl
+
+                result = pl.DataFrame()
+            else:
+                import pandas as pd
+
+                result = pd.DataFrame()
 
         logger.info(
             "Tick data loaded successfully",
@@ -184,21 +226,60 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             start_date=start_date.isoformat(),
             end_date=end_date.isoformat(),
             files_loaded=len(paths),
+            backend=self.backend.name,
         )
 
         return result
 
-    async def _read_parquet_async(self, path: Path) -> pl.DataFrame:
+    async def _read_parquet_async(self, path: Path) -> Any:
         """Aszinkron Parquet olvasás.
 
         Args:
             path: A Parquet fájl elérési útja
 
         Returns:
-            A beolvasott Polars DataFrame
+            A beolvasott DataFrame
         """
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, pl.read_parquet, str(path))
+        return await loop.run_in_executor(None, self.backend.read, str(path))
+
+    def _concat_dataframes(self, dfs: list[Any]) -> Any:
+        """DataFrame-ek összefűzése a backend típusának megfelelően.
+
+        Args:
+            dfs: Az összefűzendő DataFrame-ek listája
+
+        Returns:
+            Az összefűzött DataFrame
+        """
+        if self.engine == "polars":
+            import polars as pl
+
+            return pl.concat(dfs)
+        else:
+            import pandas as pd
+
+            return pd.concat(dfs, ignore_index=True)
+
+    def _filter_by_timestamp(self, data: Any, start_date: datetime, end_date: datetime) -> Any:
+        """DataFrame szűrése időbélyeg alapján.
+
+        Args:
+            data: A szűrendő DataFrame
+            start_date: A kezdő dátum
+            end_date: A záró dátum
+
+        Returns:
+            A szűrt DataFrame
+        """
+        if self.engine == "polars":
+            import polars as pl
+
+            return data.filter(
+                (pl.col("timestamp") >= start_date) & (pl.col("timestamp") <= end_date)
+            )
+        else:
+            return data[(data["timestamp"] >= start_date) & (data["timestamp"] <= end_date)]
 
     async def get_available_dates(self, symbol: str) -> list[datetime]:
         """Elérhető dátumok lekérdezése egy adott szimbólumhoz.
@@ -251,9 +332,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             return ""
 
         try:
-            df = pl.read_parquet(str(path))
+            df = self.backend.read(str(path))
             # Csak a fontos oszlopok alapján
-            data_str = df.select(["timestamp", "bid", "ask"]).to_csv()
+            if self.engine == "polars":
+                data_str = df.select(["timestamp", "bid", "ask"]).to_csv()
+            else:
+                data_str = df[["timestamp", "bid", "ask"]].to_csv(index=False)
             return hashlib.sha256(data_str.encode()).hexdigest()
         except Exception as e:
             logger.error(f"Failed to calculate checksum: {e}")
@@ -280,8 +364,8 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             return False
 
         try:
-            # Parquet fájl ellenőrzése
-            df = pl.read_parquet(str(path))
+            # Parquet fájl ellenőrzése a backend-en keresztül
+            df = self.backend.read(str(path))
 
             # Alapvető ellenőrzések
             assert len(df) > 0, "Empty dataframe"
@@ -290,10 +374,17 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             assert "ask" in df.columns, "Missing ask column"
 
             # Rendezés ellenőrzése
-            assert df["timestamp"].is_sorted(), "Data not sorted by timestamp"
+            if self.engine == "polars":
+                assert df["timestamp"].is_sorted(), "Data not sorted by timestamp"
+            else:
+                assert df["timestamp"].is_monotonic_increasing, "Data not sorted by timestamp"
 
             logger.info(
-                "Data integrity verified", symbol=symbol, date=date.isoformat(), rows=len(df)
+                "Data integrity verified",
+                symbol=symbol,
+                date=date.isoformat(),
+                rows=len(df),
+                backend=self.backend.name,
             )
 
             return True

@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from neural_ai.core.storage.backends.base import DataFrameType, StorageBackend
+from neural_ai.core.storage.backends.base import StorageBackend
 
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
@@ -88,7 +88,7 @@ class PolarsBackend(StorageBackend):
             self._polars_wrapper._import_polars()
             self._initialized = True
 
-    def write(self, data: DataFrameType, path: str, **kwargs: dict[str, Any]) -> None:
+    def write(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
         """DataFrame adatok írása Parquet formátumban.
 
         Args:
@@ -142,7 +142,7 @@ class PolarsBackend(StorageBackend):
         except Exception as e:
             raise RuntimeError(f"A tárolási művelet sikertelen: {str(e)}") from e
 
-    def read(self, path: str, **kwargs: dict[str, Any]) -> DataFrameType:
+    def read(self, path: str, **kwargs: dict[str, Any]) -> Any:
         """DataFrame adatok olvasása Parquet fájlból.
 
         Args:
@@ -191,7 +191,7 @@ class PolarsBackend(StorageBackend):
 
     def _read_chunked(
         self, path: str, chunk_size: int, columns: list | None, filters: list | None
-    ) -> DataFrameType:
+    ) -> Any:
         """Chunkoltan olvassa a Parquet fájlt.
 
         Args:
@@ -220,7 +220,7 @@ class PolarsBackend(StorageBackend):
         else:
             return self._polars_wrapper.pl.DataFrame()
 
-    def append(self, data: DataFrameType, path: str, **kwargs: dict[str, Any]) -> None:
+    def append(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
         """DataFrame adatok hozzáfűzése egy meglévő Parquet fájlhoz.
 
         Ha a célfájl nem létezik, létrehozza azt. Ha létezik, hozzáfűzi
@@ -273,7 +273,7 @@ class PolarsBackend(StorageBackend):
         except Exception as e:
             raise RuntimeError(f"A hozzáfűzési művelet sikertelen: {str(e)}") from e
 
-    def _validate_schema(self, existing: DataFrameType, new: DataFrameType) -> bool:
+    def _validate_schema(self, existing: Any, new: Any) -> bool:
         """Ellenőrzi, hogy a két DataFrame sémája kompatibilis-e.
 
         Args:

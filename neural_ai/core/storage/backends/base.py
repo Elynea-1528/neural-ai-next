@@ -5,26 +5,10 @@ amely definiálja a kötelező interfészt minden tárolási implementációhoz.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Protocol
+from typing import Any
 
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
-
-
-class DataFrameType(Protocol):
-    """DataFrame protokoll, amely definiálja a kötelező DataFrame műveleteket."""
-
-    def __len__(self) -> int:
-        """DataFrame hosszának lekérdezése."""
-        ...
-
-    def columns(self) -> list[str]:
-        """Oszlopok lekérdezése."""
-        ...
-
-    def shape(self) -> tuple[int, int]:
-        """DataFrame alakjának lekérdezése."""
-        ...
 
 
 class StorageBackend(ABC):
@@ -58,7 +42,7 @@ class StorageBackend(ABC):
         self.is_async: bool = is_async
 
     @abstractmethod
-    def write(self, data: DataFrameType, path: str, **kwargs: dict[str, Any]) -> None:
+    def write(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
         """DataFrame adatok írása a megadott elérési útra.
 
         Args:
@@ -77,7 +61,7 @@ class StorageBackend(ABC):
         pass
 
     @abstractmethod
-    def read(self, path: str, **kwargs: dict[str, Any]) -> DataFrameType:
+    def read(self, path: str, **kwargs: dict[str, Any]) -> Any:
         """DataFrame adatok olvasása a megadott elérési útról.
 
         Args:
@@ -98,7 +82,7 @@ class StorageBackend(ABC):
         pass
 
     @abstractmethod
-    def append(self, data: DataFrameType, path: str, **kwargs: dict[str, Any]) -> None:
+    def append(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
         """DataFrame adatok hozzáfűzése egy meglévő fájlhoz.
 
         Ha a célfájl nem létezik, létrehozza azt. Ha létezik, hozzáfűzi
@@ -151,7 +135,7 @@ class StorageBackend(ABC):
         """
         pass
 
-    def validate_data(self, data: DataFrameType) -> bool:
+    def validate_data(self, data: Any) -> bool:
         """DataFrame érvényességének ellenőrzése.
 
         Args:
@@ -161,7 +145,7 @@ class StorageBackend(ABC):
             True, ha a DataFrame érvényes, egyébként False
         """
         try:
-            return len(data) >= 0 and len(data.columns()) > 0
+            return len(data) >= 0 and len(data.columns) > 0
         except Exception:
             return False
 

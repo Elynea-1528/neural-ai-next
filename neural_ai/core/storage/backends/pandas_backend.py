@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from neural_ai.core.storage.backends.base import DataFrameType, StorageBackend
+from neural_ai.core.storage.backends.base import StorageBackend
 
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
@@ -81,7 +81,7 @@ class PandasBackend(StorageBackend):
             self._pandas_wrapper._import_pandas()
             self._initialized = True
 
-    def write(self, data: DataFrameType, path: str, **kwargs: dict[str, Any]) -> None:
+    def write(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
         """DataFrame adatok írása Parquet formátumban FastParquet használatával.
 
         Args:
@@ -137,7 +137,7 @@ class PandasBackend(StorageBackend):
             raise RuntimeError(f"A tárolási művelet sikertelen: {str(e)}") from e
 
     def _write_partitioned(
-        self, df: DataFrameType, path: str, partition_by: list, compression: str, index: bool
+        self, df: Any, path: str, partition_by: list, compression: str, index: bool
     ) -> None:
         """Particionált Parquet fájl írása.
 
@@ -155,7 +155,7 @@ class PandasBackend(StorageBackend):
             path, df, compression=compression, write_index=index, partition_on=partition_by
         )
 
-    def read(self, path: str, **kwargs: dict[str, Any]) -> DataFrameType:
+    def read(self, path: str, **kwargs: dict[str, Any]) -> Any:
         """DataFrame adatok olvasása Parquet fájlból FastParquet használatával.
 
         Args:
@@ -200,7 +200,7 @@ class PandasBackend(StorageBackend):
 
     def _read_chunked(
         self, path: str, chunk_size: int, columns: list | None, filters: list | None
-    ) -> DataFrameType:
+    ) -> Any:
         """Chunkoltan olvassa a Parquet fájlt.
 
         Args:
@@ -232,7 +232,7 @@ class PandasBackend(StorageBackend):
         else:
             return self._pandas_wrapper.pd.DataFrame()
 
-    def append(self, data: DataFrameType, path: str, **kwargs: dict[str, Any]) -> None:
+    def append(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
         """DataFrame adatok hozzáfűzése egy meglévő Parquet fájlhoz.
 
         Ha a célfájl nem létezik, létrehozza azt. Ha létezik, hozzáfűzi
@@ -288,7 +288,7 @@ class PandasBackend(StorageBackend):
         except Exception as e:
             raise RuntimeError(f"A hozzáfűzési művelet sikertelen: {str(e)}") from e
 
-    def _validate_schema(self, existing: DataFrameType, new: DataFrameType) -> bool:
+    def _validate_schema(self, existing: Any, new: Any) -> bool:
         """Ellenőrzi, hogy a két DataFrame sémája kompatibilis-e.
 
         Args:
