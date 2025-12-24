@@ -99,26 +99,59 @@ The system implements a **hierarchical AI architecture** for multi-timeframe ana
 
 ### Installation
 
+**🚀 UNIFIED ZERO-TOUCH INSTALLER (RECOMMENDED)**
+
+Run the unified installer that automatically detects hardware, installs dependencies, and sets up brokers:
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/your-org/neural-ai-next.git
 cd neural-ai-next
 
-# 2. Create environment
-conda env create -f environment.yml
+# 2. Run the unified installer (automated everything!)
+python scripts/install.py
+
+# 3. Activate the environment
 conda activate neural-ai-next
 
-# 3. Install dependencies
-pip install -e .
+# 4. Configure environment (if needed)
+cp .env.example .env
+# Edit .env with your settings
+
+# 5. Start the system
+python main.py
+```
+
+**What the installer does automatically:**
+- ✅ Detects NVIDIA GPU and installs CUDA-enabled PyTorch
+- ✅ Checks AVX2 support and installs optimal data libraries (Polars/PyArrow or fastparquet)
+- ✅ Creates Conda environment with Python 3.12
+- ✅ Installs all dependencies (dev + trader + jupyter)
+- ✅ Downloads and launches broker installers (JForex4, TWS, MT5)
+- ✅ Sets up Wine prefix for MT5
+
+**Manual Installation (Legacy)**
+
+If you prefer manual installation:
+
+```bash
+# 1. Create environment
+conda create -n neural-ai-next python=3.12 -y
+conda activate neural-ai-next
+
+# 2. Install PyTorch (GPU or CPU)
+conda install -y pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia  # GPU
+# OR
+conda install -y pytorch torchvision torchaudio cpuonly -c pytorch  # CPU
+
+# 3. Install project dependencies
+pip install -e .[dev,trader,jupyter]
 
 # 4. Configure environment
 cp .env.example .env
 # Edit .env with your settings
 
-# 5. Initialize database
-python scripts/init_db.py
-
-# 6. Start the system
+# 5. Start the system
 python main.py
 ```
 
@@ -336,4 +369,4 @@ Built with institutional-grade engineering practices:
 
 ---
 
-**Status:** 🟡 Architecture Phase | **Last Updated:** 2025-12-23 | **Version:** 1.0.0
+**Status:** 🟡 Architecture Phase | **Last Updated:** 2025-12-24 | **Version:** 1.0.0

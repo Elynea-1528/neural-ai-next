@@ -24,15 +24,35 @@ classifiers = [
 ]
 
 dependencies = [
-    "vectorbt>=0.25.0",
-    "fastparquet>=2023.4.0",
+    # Core web framework
     "fastapi>=0.104.0",
     "uvicorn>=0.24.0",
     "websockets>=12.0",
-    "httpx>=0.25.0",
+    
+    # Data validation & serialization
     "pydantic>=2.4.0",
+    
+    # Database
+    "sqlalchemy[asyncio]>=2.0.0",
+    "aiosqlite>=0.19.0",
+    "alembic>=1.12.0",
+    
+    # Logging
+    "structlog>=23.1.0",
+    
+    # CLI
+    "typer>=0.9.0",
+    
+    # HTTP client
+    "requests>=2.31.0",
+    
+    # YAML config
     "pyyaml>=6.0",
+    
+    # Multipart form data
     "python-multipart>=0.0.6",
+    
+    # Utilities
     "packaging>=23.1",
 ]
 
@@ -51,9 +71,12 @@ dev = [
     "types-setuptools>=69.0.0",
     "types-pytz>=2023.3.0",
     "types-six>=1.16.0",
+    "pandas-stubs>=2.0.0",
 ]
 
 trader = [
+    "ib_insync>=0.9.70",
+    "vectorbt>=0.25.0",
     "dukascopy-python",
     "python-socketio>=5.0.0",
     "redis>=4.0.0",
@@ -71,7 +94,9 @@ jupyter = [
 ]
 
 full = [
-    # Full dependency list (shortened for brevity, include all above)
+    "neural-ai-next[dev]",
+    "neural-ai-next[trader]",
+    "neural-ai-next[jupyter]",
 ]
 
 [project.urls]
