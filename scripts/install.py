@@ -14,6 +14,7 @@ Követelmények:
     - Sudo jogosultság (csak Wine telepítéséhez)
 """
 
+import argparse
 import os
 import shutil
 import subprocess
@@ -27,6 +28,9 @@ from pathlib import Path
 CONDA_ENV_NAME = "neural-ai-next"
 PYTHON_VERSION = "3.12"
 PROJECT_ROOT = Path(__file__).parent.parent
+
+# Globális verbose flag
+_verbose = False
 
 # Bróker letöltési URL-ek
 BROKER_URLS = {
@@ -91,7 +95,9 @@ def run_command(
     Returns:
         A lefuttatott parancs eredménye
     """
-    return subprocess.run(command, shell=shell, check=check, capture_output=True, text=True)
+    if _verbose:
+        print_info(f"Futtatás: {command}")
+    return subprocess.run(command, shell=shell, check=check, capture_output=not _verbose, text=True)
 
 
 def command_exists(command: str) -> bool:
@@ -257,12 +263,19 @@ def install_base_packages() -> None:
     print_success("Alap csomagok telepítve")
 
 
-def install_project_packages() -> None:
-    """Telepíti a projekt csomagjait az összes opcionális függőséggel."""
-    print_info("Projekt csomagok telepítése (dev + trader + jupyter)...")
+def install_project_packages(extra_groups: list[str]) -> None:
+    """Telepíti a projekt csomagjait a megadott opcionális függőséggel.
 
-    # A projekt telepítése fejlesztői és kereskedői csomagokkal
-    run_command(f"{get_conda_path()} run -n {CONDA_ENV_NAME} pip install -e .[dev,trader,jupyter]")
+    Args:
+        extra_groups: Az opcionális függőségi csoportok listája (pl: ['dev', 'trader'])
+    """
+    if not extra_groups:
+        print_info("Projekt csomagok telepítése (csak alap csomagok)...")
+        run_command(f"{get_conda_path()} run -n {CONDA_ENV_NAME} pip install -e .")
+    else:
+        groups_str = ",".join(extra_groups)
+        print_info(f"Projekt csomagok telepítése ({groups_str})...")
+        run_command(f"{get_conda_path()} run -n {CONDA_ENV_NAME} pip install -e .[{groups_str}]")
 
     print_success("Projekt csomagok telepítve")
 
@@ -422,12 +435,15 @@ def run_hardware_detection() -> tuple[bool, bool]:
     return gpu_available, avx2_supported
 
 
-def install_core_environment(gpu_available: bool, avx2_supported: bool) -> None:
+def install_core_environment(
+    gpu_available: bool, avx2_supported: bool, extra_groups: list[str]
+) -> None:
     """Telepíti a core környezetet.
 
     Args:
         gpu_available: True, ha GPU elérhető
         avx2_supported: True, ha AVX2 támogatott
+        extra_groups: Az opcionális függőségi csoportok listája
     """
     print_info("Core környezet telepítése...")
     print()
@@ -453,7 +469,7 @@ def install_core_environment(gpu_available: bool, avx2_supported: bool) -> None:
     print()
 
     # Projekt csomagok
-    install_project_packages()
+    install_project_packages(extra_groups)
     print()
 
     print_success("Core környezet telepítése sikeres!")
@@ -524,17 +540,69 @@ def print_completion_message() -> None:
     print()
 
 
+def parse_arguments() -> argparse.Namespace:
+    """Feldolgozza a parancssori argumentumokat.
+
+    Returns:
+        A feldolgozott argumentumok névtere
+    """
+    parser = argparse.ArgumentParser(
+        description="Neural AI Next - Unified Zero-Touch Installer",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Példák:
+  python scripts/install.py                    # Alap telepítés (összes csoport)
+  python scripts/install.py --no-brokers       # Csak környezet, brókerek nélkül
+  python scripts/install.py --only dev         # Csak dev csomagok
+  python scripts/install.py --only dev,trader  # Dev + trader csomagok
+  python scripts/install.py -v                 # Verbose mód
+  python scripts/install.py --only dev -v      # Dev csomagok verbose módban
+        """,
+    )
+
+    parser.add_argument(
+        "--only", type=str, help='Csak ezeket a függőségi csoportokat telepíti (pl: "dev,trader")'
+    )
+
+    parser.add_argument(
+        "--no-brokers", action="store_true", help="Ne indítsa el a bróker telepítőket"
+    )
+
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Részletes kimenet (verbose mode)"
+    )
+
+    return parser.parse_args()
+
+
 def main() -> None:
     """A fő telepítési folyamat."""
     try:
+        # Argumentumok feldolgozása
+        args = parse_arguments()
+
+        # Globális verbose flag beállítása
+        global _verbose
+        _verbose = args.verbose
+
+        # Függőségi csoportok meghatározása
+        if args.only:
+            extra_groups = [g.strip() for g in args.only.split(",")]
+        else:
+            # Alapértelmezett: minden csoport
+            extra_groups = ["dev", "trader", "jupyter"]
+
         # Hardver detektálás
         gpu_available, avx2_supported = run_hardware_detection()
 
         # Core környezet telepítése
-        install_core_environment(gpu_available, avx2_supported)
+        install_core_environment(gpu_available, avx2_supported, extra_groups)
 
-        # Bróker telepítés
-        install_brokers()
+        # Bróker telepítés (ha nem letiltva)
+        if not args.no_brokers:
+            install_brokers()
+        else:
+            print_info("Bróker telepítők kihagyása (--no-brokers flag)")
 
         # Befejezési üzenet
         print_completion_message()
