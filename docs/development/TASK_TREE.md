@@ -38,7 +38,7 @@
 ### 🟢 PHASE 1: CORE INFRASTRUCTURE (Foundation)
 
 **Description:** EventBus, Database, Storage, DI Container implementation.
-**Progress:** 92% [██████████████████░░] | **Priority:** CRITICAL
+**Progress:** 85% [█████████████████░░░] | **Priority:** CRITICAL
 
 | File Path | Matrix [S|T|D] | Complexity | Token Est. | Deps | Status |
 |-----------|:--------------:|:----------:|:----------:|:-----|:------:|
@@ -57,7 +57,11 @@
 | `docs/components/neural_ai/core/db/session.md` | [✅|✅|✅] | ⭐⭐ | 800 | - | ✅ DONE |
 | `docs/components/neural_ai/core/db/models.md` | [✅|✅|✅] | ⭐⭐ | 900 | - | ✅ DONE |
 | `neural_ai/core/events/bus.py` | [✅|✅|✅] | ⭐⭐⭐⭐ | 1.5k | `zmq, asyncio` | ✅ DONE |
-| `neural_ai/core/storage/parquet.py` | [❌|❌|❌] | ⭐⭐⭐⭐⭐ | 2.5k | `fastparquet` | 🔴 PENDING |
+| `neural_ai/core/utils/hardware.py` | [❌|❌|❌] | ⭐⭐ | 0.8k | - | 🔴 PENDING |
+| `neural_ai/core/storage/backends/base.py` | [❌|❌|❌] | ⭐⭐⭐ | 1.0k | - | 🔴 PENDING |
+| `neural_ai/core/storage/backends/polars_backend.py` | [❌|❌|❌] | ⭐⭐⭐⭐ | 1.5k | `polars` | 🔴 PENDING |
+| `neural_ai/core/storage/backends/pandas_backend.py` | [❌|❌|❌] | ⭐⭐⭐⭐ | 1.5k | `pandas` | 🔴 PENDING |
+| `neural_ai/core/storage/parquet.py` | [❌|❌|❌] | ⭐⭐⭐⭐ | 1.5k | `hardware` | 🔴 PENDING |
 | `neural_ai/core/config/dynamic.py` | [❌|❌|❌] | ⭐⭐⭐⭐ | 1.8k | `sqlalchemy` | 🔴 PENDING |
 
 ---
