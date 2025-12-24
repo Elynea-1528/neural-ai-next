@@ -205,17 +205,27 @@ def install_pytorch(gpu_available: bool) -> None:
         print_info("GPU verzió telepítése (CUDA 12.1)...")
         run_command(
             f"{get_conda_path()} run -n {CONDA_ENV_NAME} "
-            "conda install -y pytorch torchvision torchaudio pytorch-cuda=12.1 "
-            "-c pytorch -c nvidia"
+            "conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia"
         )
     else:
         print_info("CPU verzió telepítése...")
         run_command(
             f"{get_conda_path()} run -n {CONDA_ENV_NAME} "
-            "conda install -y pytorch torchvision torchaudio cpuonly -c pytorch"
+            "conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 cpuonly -c pytorch"
         )
 
     print_success("PyTorch telepítve")
+
+
+def install_lightning() -> None:
+    """Telepíti a PyTorch Lightning-ot."""
+    print_info("PyTorch Lightning telepítése...")
+
+    run_command(
+        f"{get_conda_path()} run -n {CONDA_ENV_NAME} conda install lightning=2.5.5 -c conda-forge"
+    )
+
+    print_success("PyTorch Lightning telepítve")
 
 
 def install_data_libraries(avx2_supported: bool) -> None:
@@ -428,6 +438,10 @@ def install_core_environment(gpu_available: bool, avx2_supported: bool) -> None:
 
     # PyTorch telepítése
     install_pytorch(gpu_available)
+    print()
+
+    # PyTorch Lightning telepítése
+    install_lightning()
     print()
 
     # Adatkezelő könyvtárak
