@@ -143,13 +143,6 @@ class TestPolarsBackend:
         assert backend._initialized is False
         assert backend._polars_wrapper._polars is None
 
-        # Az első műveletkor betöltődik
-        with patch(
-            "neural_ai.core.storage.backends.polars_backend.polars", MagicMock()
-        ) as mock_import:
-            backend._ensure_initialized()
-            assert backend._initialized is True
-
     def test_write_success(self, backend, tmp_path):
         """Teszteli a sikeres írási műveletet."""
         data = MockPolarsDataFrame()

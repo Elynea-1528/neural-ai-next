@@ -121,63 +121,49 @@ class TestParquetStorageService:
             assert "ask" in read_data.columns
 
     @pytest.mark.asyncio
-    async def test_store_and_read_tick_data_pandas(self, service_pandas):
+    async def test_store_and_read_tick_data_pandas(self, temp_dir):
         """Teszteli az adattárolást és -olvasást PandasBackend-el."""
         symbol = "TESTEURUSD"
         date = datetime(2023, 12, 23)
-
-        # Tesztadatok létrehozása
-        if service_pandas.engine == "polars":
-            import polars as pl
-
-            data = pl.DataFrame(
-                {
-                    "timestamp": [
-                        datetime(2023, 12, 23, 10, 0, 0),
-                        datetime(2023, 12, 23, 10, 1, 0),
-                    ],
-                    "bid": [1.1000, 1.1001],
-                    "ask": [1.1002, 1.1003],
-                    "volume": [1000, 1200],
-                }
-            )
-        else:
-            import pandas as pd
-
-            data = pd.DataFrame(
-                {
-                    "timestamp": [
-                        datetime(2023, 12, 23, 10, 0, 0),
-                        datetime(2023, 12, 23, 10, 1, 0),
-                    ],
-                    "bid": [1.1000, 1.1001],
-                    "ask": [1.1002, 1.1003],
-                    "volume": [1000, 1200],
-                }
-            )
-
-        # Adatok tárolása
-        await service_pandas.store_tick_data(symbol, data, date)
-
-        # Ellenőrzés, hogy a fájl létrejött-e
-        expected_path = service_pandas._get_path(symbol, date)
-        assert expected_path.exists(), f"Expected file not found: {expected_path}"
-
-        # Adatok olvasása
-        start_date = datetime(2023, 12, 23, 0, 0, 0)
-        end_date = datetime(2023, 12, 23, 23, 59, 59)
-        read_data = await service_pandas.read_tick_data(symbol, start_date, end_date)
-
-        # Ellenőrzés
-        assert len(read_data) == 2
-        if service_pandas.engine == "polars":
-            assert "timestamp" in read_data.columns
-            assert "bid" in read_data.columns
-            assert "ask" in read_data.columns
-        else:
-            assert "timestamp" in read_data.columns
-            assert "bid" in read_data.columns
-            assert "ask" in read_data.columns
+        
+        # Mock has_avx2 to return False to force Pandas backend
+        with patch("neural_ai.core.storage.parquet.has_avx2", return_value=False):
+            with patch("neural_ai.core.storage.parquet.ParquetStorageService.BASE_PATH", temp_dir):
+                service = ParquetStorageService()
+                assert service.backend.name == "pandas"
+                
+                # Tesztadatok létrehozása
+                import pandas as pd
+                
+                data = pd.DataFrame(
+                    {
+                        "timestamp": [
+                            datetime(2023, 12, 23, 10, 0, 0),
+                            datetime(2023, 12, 23, 10, 1, 0),
+                        ],
+                        "bid": [1.1000, 1.1001],
+                        "ask": [1.1002, 1.1003],
+                        "volume": [1000, 1200],
+                    }
+                )
+                
+                # Adatok tárolása
+                await service.store_tick_data(symbol, data, date)
+                
+                # Ellenőrzés, hogy a fájl létrejött-e
+                expected_path = service._get_path(symbol, date)
+                assert expected_path.exists(), f"Expected file not found: {expected_path}"
+                
+                # Adatok olvasása
+                start_date = datetime(2023, 12, 23, 0, 0, 0)
+                end_date = datetime(2023, 12, 23, 23, 59, 59)
+                read_data = await service.read_tick_data(symbol, start_date, end_date)
+                
+                # Ellenőrzés
+                assert len(read_data) == 2
+                assert "timestamp" in read_data.columns
+                assert "bid" in read_data.columns
+                assert "ask" in read_data.columns
 
     @pytest.mark.asyncio
     async def test_store_empty_dataframe_raises_error(self, service_polars):

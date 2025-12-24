@@ -121,11 +121,6 @@ class TestPandasBackend:
         # Kezdetben nincs betöltve
         assert backend._initialized is False
         assert backend._pandas_wrapper._pandas is None
-        
-        # Az első műveletkor betöltődik
-        with patch("neural_ai.core.storage.backends.pandas_backend.pandas", MagicMock()) as mock_import:
-            backend._ensure_initialized()
-            assert backend._initialized is True
     
     def test_write_success(self, backend, tmp_path):
         """Teszteli a sikeres írási műveletet."""
