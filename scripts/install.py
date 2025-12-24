@@ -19,6 +19,7 @@ import os
 import shutil
 import subprocess
 import sys
+import traceback
 from pathlib import Path
 
 # ============================================================================
@@ -669,8 +670,6 @@ def main() -> None:
         sys.exit(1)
     except Exception as e:
         print_error(f"Váratlan hiba: {e}")
-        import traceback
-
         traceback.print_exc()
         sys.exit(1)
 
