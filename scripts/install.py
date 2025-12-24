@@ -209,15 +209,17 @@ def install_pytorch(gpu_available: bool) -> None:
 
     if gpu_available:
         print_info("GPU verzió telepítése (CUDA 12.1)...")
+        # GPU verziót pip-ről telepítjük, hogy elkerüljük a Conda MKL konfliktust
         run_command(
             f"{get_conda_path()} run -n {CONDA_ENV_NAME} "
-            "conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia"
+            "pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121"
         )
     else:
         print_info("CPU verzió telepítése...")
+        # CPU verziót pip-ről telepítjük, hogy elkerüljük a Conda MKL konfliktust
         run_command(
             f"{get_conda_path()} run -n {CONDA_ENV_NAME} "
-            "conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 cpuonly -c pytorch"
+            "pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu"
         )
 
     print_success("PyTorch telepítve")
@@ -256,9 +258,11 @@ def install_base_packages() -> None:
     """Telepíti az alap csomagokat (NumPy, Pandas, Scikit-learn)."""
     print_info("Alap csomagok telepítése...")
 
-    run_command(
-        f"{get_conda_path()} run -n {CONDA_ENV_NAME} conda install -y numpy pandas scikit-learn"
-    )
+    # NumPy-t külön telepítjük pip-pel, hogy kompatibilis legyen a PyTorch-sal
+    run_command(f"{get_conda_path()} run -n {CONDA_ENV_NAME} pip install numpy")
+
+    # Pandas és Scikit-learn
+    run_command(f"{get_conda_path()} run -n {CONDA_ENV_NAME} conda install -y pandas scikit-learn")
 
     print_success("Alap csomagok telepítve")
 
