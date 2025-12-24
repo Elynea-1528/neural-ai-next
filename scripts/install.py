@@ -138,10 +138,15 @@ def check_nvidia_gpu() -> bool:
     try:
         result = run_command("nvidia-smi --query-gpu=name --format=csv,noheader", check=False)
         gpu_detected = result.returncode == 0 and result.stdout.strip() != ""
-        if _verbose and gpu_detected:
-            print_info(f"GPU detektálva: {result.stdout.strip()}")
+        if _verbose:
+            if gpu_detected:
+                print_info(f"GPU detektálva: {result.stdout.strip()}")
+            else:
+                print_info("GPU nem található")
         return gpu_detected
     except Exception:
+        if _verbose:
+            print_warning("Hiba a GPU detektálásakor")
         return False
 
 
@@ -189,7 +194,8 @@ def remove_conda_env() -> None:
     try:
         result = run_command(f"{get_conda_path()} env list | grep {CONDA_ENV_NAME}", check=False)
 
-        if CONDA_ENV_NAME in result.stdout:
+        # Check if result.stdout is not None before using 'in'
+        if result.stdout and CONDA_ENV_NAME in result.stdout:
             print_info(f"A(z) '{CONDA_ENV_NAME}' környezet eltávolítása...")
             run_command(f"{get_conda_path()} env remove -n {CONDA_ENV_NAME} -y")
             print_success(f"A(z) '{CONDA_ENV_NAME}' környezet eltávolítva")
@@ -208,7 +214,8 @@ def create_conda_env_with_packages(gpu_available: bool) -> None:
     print_info(f"A(z) '{CONDA_ENV_NAME}' környezet létrehozása az összes csomaggal...")
 
     # Alap csomagok
-    base_packages = f"python={PYTHON_VERSION} pandas numpy scikit-learn"
+    python = f"python={PYTHON_VERSION}"
+    base_packages = "pandas numpy scikit-learn"
 
     # PyTorch csomagok
     if gpu_available:
@@ -222,7 +229,7 @@ def create_conda_env_with_packages(gpu_available: bool) -> None:
     lightning_package = "lightning=2.5.5"
 
     # Összes csomag együtt
-    all_packages = f"{pytorch_packages} {lightning_package} {base_packages}"
+    all_packages = f"{python} {pytorch_packages} {lightning_package} {base_packages}"
 
     # Környezet létrehozása az összes csomaggal
     run_command(f"{get_conda_path()} create -n {CONDA_ENV_NAME} {all_packages} {channels} -y")
@@ -402,14 +409,14 @@ def run_hardware_detection() -> tuple[bool, bool]:
     print_success("Conda telepítve van")
 
     # GPU ellenőrzés
-    gpu_available = check_nvidia_gpu()
+    gpu_available: bool = check_nvidia_gpu()
     if gpu_available:
         print_success("NVIDIA GPU észlelve")
     else:
         print_warning("NVIDIA GPU nem található, CPU mód használata")
 
     # AVX2 ellenőrzés
-    avx2_supported = check_avx2_support()
+    avx2_supported: bool = check_avx2_support()
     if avx2_supported:
         print_success("AVX2 támogatott")
     else:
