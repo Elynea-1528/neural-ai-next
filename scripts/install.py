@@ -229,9 +229,7 @@ def install_lightning() -> None:
     """Telepíti a PyTorch Lightning-ot."""
     print_info("PyTorch Lightning telepítése...")
 
-    run_command(
-        f"{get_conda_path()} run -n {CONDA_ENV_NAME} conda install lightning=2.5.5 -c conda-forge"
-    )
+    run_command(f"{get_conda_path()} run -n {CONDA_ENV_NAME} pip install lightning=2.5.5 ")
 
     print_success("PyTorch Lightning telepítve")
 
