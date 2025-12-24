@@ -133,20 +133,32 @@ def check_nvidia_gpu() -> bool:
         True, ha NVIDIA GPU található
     """
     if not command_exists("nvidia-smi"):
+        if _verbose:
+            print_info("nvidia-smi nem elérhető")
         return False
 
     try:
         result = run_command("nvidia-smi --query-gpu=name --format=csv,noheader", check=False)
-        gpu_detected = result.returncode == 0 and result.stdout.strip() != ""
+
+        if _verbose:
+            print_info(f"Return code: {result.returncode}")
+            print_info(f"Stdout: '{result.stdout}'")
+            print_info(f"Stderr: '{result.stderr}'")
+
+        gpu_detected = bool(
+            result.returncode == 0 and result.stdout and result.stdout.strip() != ""
+        )
+
         if _verbose:
             if gpu_detected:
                 print_info(f"GPU detektálva: {result.stdout.strip()}")
             else:
-                print_info("GPU nem található")
+                print_info(f"GPU nem található (returncode={result.returncode})")
+
         return gpu_detected
-    except Exception:
+    except Exception as e:
         if _verbose:
-            print_warning("Hiba a GPU detektálásakor")
+            print_warning(f"Hiba a GPU detektálásakor: {e}")
         return False
 
 
