@@ -137,7 +137,10 @@ def check_nvidia_gpu() -> bool:
 
     try:
         result = run_command("nvidia-smi --query-gpu=name --format=csv,noheader", check=False)
-        return result.returncode == 0 and result.stdout.strip() != ""
+        gpu_detected = result.returncode == 0 and result.stdout.strip() != ""
+        if _verbose and gpu_detected:
+            print_info(f"GPU detektálva: {result.stdout.strip()}")
+        return gpu_detected
     except Exception:
         return False
 
@@ -179,59 +182,51 @@ def get_conda_path() -> str:
 # ============================================================================
 
 
-def create_conda_env() -> None:
-    """Létrehozza a neural-ai-next Conda környezetet, ha még nem létezik."""
-    print_info("Conda környezet ellenőrzése...")
+def remove_conda_env() -> None:
+    """Eltávolítja a neural-ai-next Conda környezetet, ha létezik."""
+    print_info("Régi környezet ellenőrzése...")
 
-    # Ellenőrizzük, hogy létezik-e a környezet
     try:
         result = run_command(f"{get_conda_path()} env list | grep {CONDA_ENV_NAME}", check=False)
 
         if CONDA_ENV_NAME in result.stdout:
-            print_success(f"A(z) '{CONDA_ENV_NAME}' környezet már létezik")
-            return
-    except Exception:
-        pass
-
-    # Környezet létrehozása
-    print_info(f"A(z) '{CONDA_ENV_NAME}' környezet létrehozása...")
-    run_command(f"{get_conda_path()} create -n {CONDA_ENV_NAME} python={PYTHON_VERSION} -y")
-    print_success(f"A(z) '{CONDA_ENV_NAME}' környezet létrejött")
+            print_info(f"A(z) '{CONDA_ENV_NAME}' környezet eltávolítása...")
+            run_command(f"{get_conda_path()} env remove -n {CONDA_ENV_NAME} -y")
+            print_success(f"A(z) '{CONDA_ENV_NAME}' környezet eltávolítva")
+        else:
+            print_info(f"A(z) '{CONDA_ENV_NAME}' környezet nem létezik")
+    except Exception as e:
+        print_warning(f"Hiba a környezet ellenőrzésekor: {e}")
 
 
-def install_pytorch(gpu_available: bool) -> None:
-    """Telepíti a PyTorch-ot GPU vagy CPU verzióban.
+def create_conda_env_with_packages(gpu_available: bool) -> None:
+    """Létrehozza a neural-ai-next Conda környezetet az összes csomaggal együtt.
 
     Args:
         gpu_available: True, ha GPU elérhető
     """
-    print_info("PyTorch telepítése...")
+    print_info(f"A(z) '{CONDA_ENV_NAME}' környezet létrehozása az összes csomaggal...")
 
+    # Alap csomagok
+    base_packages = f"python={PYTHON_VERSION} pandas numpy scikit-learn"
+
+    # PyTorch csomagok
     if gpu_available:
-        print_info("GPU verzió telepítése (CUDA 12.1)...")
-        # GPU verziót pip-ről telepítjük, hogy elkerüljük a Conda MKL konfliktust
-        run_command(
-            f"{get_conda_path()} run -n {CONDA_ENV_NAME} "
-            "pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121"
-        )
+        pytorch_packages = "pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1"
+        channels = "-c pytorch -c nvidia -c conda-forge"
     else:
-        print_info("CPU verzió telepítése...")
-        # CPU verziót pip-ről telepítjük, hogy elkerüljük a Conda MKL konfliktust
-        run_command(
-            f"{get_conda_path()} run -n {CONDA_ENV_NAME} "
-            "pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu"
-        )
+        pytorch_packages = "pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 cpuonly"
+        channels = "-c pytorch -c conda-forge"
 
-    print_success("PyTorch telepítve")
+    # Lightning
+    lightning_package = "lightning=2.5.5"
 
+    # Összes csomag együtt
+    all_packages = f"{pytorch_packages} {lightning_package} {base_packages}"
 
-def install_lightning() -> None:
-    """Telepíti a PyTorch Lightning-ot."""
-    print_info("PyTorch Lightning telepítése...")
-
-    run_command(f"{get_conda_path()} run -n {CONDA_ENV_NAME} pip install lightning=2.5.5 ")
-
-    print_success("PyTorch Lightning telepítve")
+    # Környezet létrehozása az összes csomaggal
+    run_command(f"{get_conda_path()} create -n {CONDA_ENV_NAME} {all_packages} {channels} -y")
+    print_success(f"A(z) '{CONDA_ENV_NAME}' környezet létrejött az összes csomaggal")
 
 
 def install_data_libraries(avx2_supported: bool) -> None:
@@ -250,19 +245,6 @@ def install_data_libraries(avx2_supported: bool) -> None:
         run_command(f"{get_conda_path()} run -n {CONDA_ENV_NAME} pip install fastparquet")
 
     print_success("Adatkezelő könyvtárak telepítve")
-
-
-def install_base_packages() -> None:
-    """Telepíti az alap csomagokat (NumPy, Pandas, Scikit-learn)."""
-    print_info("Alap csomagok telepítése...")
-
-    # NumPy-t külön telepítjük pip-pel, hogy kompatibilis legyen a PyTorch-sal
-    run_command(f"{get_conda_path()} run -n {CONDA_ENV_NAME} pip install numpy")
-
-    # Pandas és Scikit-learn
-    run_command(f"{get_conda_path()} run -n {CONDA_ENV_NAME} conda install -y pandas scikit-learn")
-
-    print_success("Alap csomagok telepítve")
 
 
 def install_project_packages(extra_groups: list[str]) -> None:
@@ -440,37 +422,29 @@ def run_hardware_detection() -> tuple[bool, bool]:
 def install_core_environment(
     gpu_available: bool, avx2_supported: bool, extra_groups: list[str]
 ) -> None:
-    """Telepíti a core környezetet.
+    """Telepíti a core környezetet az új módszerrel (egyetlen conda create parancs).
 
     Args:
         gpu_available: True, ha GPU elérhető
         avx2_supported: True, ha AVX2 támogatott
         extra_groups: Az opcionális függőségi csoportok listája
     """
-    print_info("Core környezet telepítése...")
+    print_info("Core környezet telepítése (új módszer)...")
     print()
 
-    # Conda környezet létrehozása
-    create_conda_env()
+    # Régi környezet eltávolítása
+    remove_conda_env()
     print()
 
-    # PyTorch telepítése
-    install_pytorch(gpu_available)
+    # Környezet létrehozása az összes csomaggal együtt
+    create_conda_env_with_packages(gpu_available)
     print()
 
-    # PyTorch Lightning telepítése
-    install_lightning()
-    print()
-
-    # Adatkezelő könyvtárak
+    # Adatkezelő könyvtárak (ezeket pip-pel kell telepíteni)
     install_data_libraries(avx2_supported)
     print()
 
-    # Alap csomagok
-    install_base_packages()
-    print()
-
-    # Projekt csomagok
+    # Projekt csomagok telepítése
     install_project_packages(extra_groups)
     print()
 
