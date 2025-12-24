@@ -97,7 +97,13 @@ def run_command(
     """
     if _verbose:
         print_info(f"Futtatás: {command}")
-    return subprocess.run(command, shell=shell, check=check, capture_output=not _verbose, text=True)
+    # Always capture output for GPU detection, but print it in verbose mode
+    result = subprocess.run(command, shell=shell, check=check, capture_output=True, text=True)
+    if _verbose and result.stdout:
+        print_info(f"Output: {result.stdout.strip()}")
+    if _verbose and result.stderr:
+        print_info(f"Error: {result.stderr.strip()}")
+    return result
 
 
 def command_exists(command: str) -> bool:
