@@ -95,13 +95,11 @@ def mock_fastparquet():
 @pytest.fixture
 def backend(mock_pandas, mock_fastparquet):
     """Backend fixture mock könyvtárakkal."""
-    with patch("neural_ai.core.storage.backends.pandas_backend.pandas", mock_pandas), \
-         patch("neural_ai.core.storage.backends.pandas_backend.fastparquet", mock_fastparquet):
-        backend = PandasBackend()
-        backend._initialized = True
-        backend._pandas_wrapper._pandas = mock_pandas
-        backend._pandas_wrapper._fastparquet = mock_fastparquet
-        yield backend
+    backend = PandasBackend()
+    backend._initialized = True
+    backend._pandas_wrapper._pandas = mock_pandas
+    backend._pandas_wrapper._fastparquet = mock_fastparquet
+    yield backend
 
 
 class TestPandasBackend:
