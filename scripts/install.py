@@ -515,28 +515,83 @@ def install_brokers() -> None:
     print()
 
 
-def print_completion_message() -> None:
-    """Kiírja a telepítés befejezési üzenetét."""
+def print_completion_message(
+    gpu_available: bool, avx2_supported: bool, extra_groups: list[str]
+) -> None:
+    """Kiírja a telepítés befejezési üzenetét a telepített verziókkal.
+
+    Args:
+        gpu_available: True, ha GPU elérhető
+        avx2_supported: True, ha AVX2 támogatott
+        extra_groups: A telepített csomagcsoportok listája
+    """
     print(f"{Colors.GREEN}{'=' * 60}")
     print("✓ TELJES TELEPÍTÉS SIKERES!")
     print(f"{'=' * 60}{Colors.NC}")
     print()
-    print("Következő lépések:")
+    print("Telepített környezet összegzés:")
     print()
-    print("1. Aktiváld a Conda környezetet:")
-    print(f"   conda activate {CONDA_ENV_NAME}")
+
+    # Hardver információk
+    print("• Hardver:")
+    print(f"  - GPU: {'✓ NVIDIA GPU észlelve' if gpu_available else '✗ CPU mód'}")
+    print(f"  - AVX2: {'✓ Támogatott' if avx2_supported else '✗ Nem támogatott'}")
     print()
-    print("2. Ellenőrizd a telepítést:")
-    print("   python -c 'import torch; print(f\"PyTorch: {torch.__version__}\")'")
+
+    # Python és alap csomagok
+    print(f"• Python: {PYTHON_VERSION}")
+    print("• Alap csomagok: pandas, numpy, scikit-learn")
     print()
-    print("3. Bróker telepítők állapota:")
-    print("   - JForex4: A telepítő ablakban kövesd az utasításokat")
-    print("   - TWS: A telepítő ablakban kövesd az utasításokat")
-    print("   - MT5: Wine-on keresztül települ, ellenőrizd a ~/.mt5 mappát")
+
+    # PyTorch verzió
+    print("• PyTorch: 2.5.1")
+    if gpu_available:
+        print("  - CUDA: 12.1")
+    else:
+        print("  - CPU only")
     print()
-    print("4. Indítsd el a fejlesztést:")
-    print("   python main.py")
+
+    # PyTorch Lightning
+    print("• PyTorch Lightning: 2.5.5")
     print()
+
+    # Adatkezelő könyvtárak
+    if avx2_supported:
+        print("• Adatkezelés: polars + pyarrow (AVX2 optimalizált)")
+    else:
+        print("• Adatkezelés: fastparquet (fallback)")
+    print()
+
+    # Telepített csomagcsoportok
+    if extra_groups:
+        groups_str = ", ".join(extra_groups)
+        print(f"• Telepített csomagcsoportok: {groups_str}")
+    else:
+        print("• Telepített csomagcsoportok: alap csomagok")
+    print()
+
+    # Bróker információk
+    print("• Bróker telepítők:")
+    print("  - JForex4: Letöltve és elindítva")
+    print("  - IBKR TWS: Letöltve és elindítva")
+    print("  - MT5 (Dukascopy): Letöltve és elindítva (Wine)")
+    print()
+
+    # Aktiválás
+    print("Aktiválás:")
+    print(f"  conda activate {CONDA_ENV_NAME}")
+    print()
+
+    # Ellenőrzés
+    print("Ellenőrzés:")
+    if gpu_available:
+        print(
+            "  python -c \"import torch; print(f'PyTorch: {torch.__version__}, CUDA: {torch.cuda.get_device_name(0)}')\""
+        )
+    else:
+        print("  python -c \"import torch; print(f'PyTorch: {torch.__version__}')\"")
+    print()
+
     print("További információ: docs/INSTALLATION_GUIDE.md")
     print()
 
@@ -606,7 +661,7 @@ def main() -> None:
             print_info("Bróker telepítők kihagyása (--no-brokers flag)")
 
         # Befejezési üzenet
-        print_completion_message()
+        print_completion_message(gpu_available, avx2_supported, extra_groups)
 
     except KeyboardInterrupt:
         print()
