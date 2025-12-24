@@ -1,3 +1,5 @@
+1. architektúra létrehozása.
+
 ### 🚀 COMMAND: OMEGA GENESIS - INSTITUTIONAL ARCHITECTURE
 
  **"Code Agent! (Architect felügyelettel).**
@@ -88,3 +90,70 @@ KORLÁT: Te (Architect) nem törölhetsz fájlt és nem hozhatsz létre mappát.
 
  **INDÍTSD A FOLYAMATOT! A `find` PARANCCSAL KEZDD!**
  *(Minden létrehozott fájl után: `git add ... && git commit ...`)*"
+
+
+
+ 2.
+
+ 🚀 COMMAND: PHASE 1 EXECUTION - CORE FOUNDATION
+Másold be ezt egy ÚJ CHAT-be:
+"Architect! A tervezés kész (Phase 0 ✅). Most lépünk a Phase 1: CORE INFRASTRUCTURE megvalósításába.
+HELYZET: A docs/planning/specs mappában ott vannak a részletes tervrajzok. A TASK_TREE.md mutatja az utat.
+CÉL: A rendszer "idegrendszerének" (EventBus) és "memóriájának" (Database) lefejlesztése.
+TERVEZÉS (PLANNING PHASE):
+Hozz létre egy új bejegyzést(bejegyzéseket),vagy frissítsd a docs/development/TASK_TREE.md-ben a megfelelő Fázis alatt.
+INDÍTSD A 'CORE BUILD' PROTOKOLLT (Utasítsd az Orchestratort a fejlesztésre):
+1. ADATBÁZIS RÉTEG (neural_ai/core/db):
+Specifikáció: docs/planning/specs/02_dynamic_configuration.md
+Feladat:
+Hozd létre a session.py-t (AsyncSession factory).
+Hozd létre a models.py-t (SQLAlchemy modellek: DynamicConfig, LogEntry).
+Írj hozzá migrációs scriptet (alembic init).
+Teszt: Írj pytest-et, ami felhúz egy in-memory SQLite-ot és teszteli az írást/olvasást.
+1. EVENT BUS (neural_ai/core/events):
+Specifikáció: docs/planning/specs/01_system_architecture.md
+Feladat:
+Implementáld a bus.py-t (asyncio.Queue alapú Pub/Sub első körben, ZeroMQ előkészítéssel).
+Definiáld az esemény típusokat (events.py): MarketDataEvent, SignalEvent, SystemLogEvent (Pydantic modellek).
+Teszt: Készíts egy tesztet, ahol egy Publisher küld, és két Subscriber fogad.
+1. KONFIGURÁCIÓ BEKÖTÉSE (neural_ai/core/config):
+Frissítsd a meglévő Config Managert, hogy tudjon olvasni az új Adatbázisból (Hybrid Config).
+VÉGREHAJTÁSI SZABÁLYOK:
+Olvass: Először mindig olvasd el a releváns specifikációt (read_file).
+Szigor: Pylance Strict (Type hints kötelező!), Magyar docstring.
+Validáció: Csak akkor commitolj, ha a pytest 100% zöld.
+Admin: Minden fájl után frissítsd a TASK_TREE.md-t (🔴 -> ✅).
+Kezdd az Adatbázis (core/db) réteggel!"
+
+3.command:
+
+🚀 A KÖVETKEZŐ LÉPÉS: PHASE 1 LEZÁRÁSA (The Final Push)
+Nem léphetünk a Collectorokra (JForex/MT5), amíg nincs hova menteni az adatot (Parquet) és nincs honnan konfigurálni őket (Dynamic Config).
+Itt a "PHASE 1 COMPLETION" parancs, ami kitölti a maradék hézagokat.
+Másold be egy ÚJ CHAT-be (Code Mode-ban):
+HELYZET: A Phase 1 alapjai (EventBus, DB Models, FileStorage) elkészültek és kiválóak.
+HIÁNY: A Big Data tárolás (Parquet) és a Dinamikus Konfiguráció logikája még hiányzik. Ezek nélkül nem léphetünk tovább.
+INDÍTSD A 'CORE COMPLETION' PROTOKOLLT:
+TERVEZÉS (PLANNING PHASE):
+Hozz létre egy új bejegyzést(bejegyzéseket),vagy frissítsd a docs/development/TASK_TREE.md-ben a megfelelő Fázis alatt.
+INDÍTSD A 'CORE BUILD' PROTOKOLLT (Utasítsd az Orchestratort a fejlesztésre): 
+1. PARQUET STORAGE IMPLEMENTÁCIÓ (neural_ai/core/storage/parquet.py):
+Forrás: docs/planning/specs/04_data_warehouse.md.
+Feladat:
+Implementáld a ParquetStorageService osztályt.
+Használj polars-t és fastparquet-et (ahogy a specifikáció kéri).
+Particionálás: {symbol}/tick/year={YYYY}/month={MM}/day={DD}/data.parquet.
+API: store_tick_data, read_tick_data (szűréssel).
+Teszt: Írj egy tesztet (tests/core/storage/test_parquet.py), ami generál 100k dummy tick-et, elmenti és visszahívja.
+1. DINAMIKUS KONFIGURÁCIÓ (neural_ai/core/config/dynamic.py):
+Forrás: docs/planning/specs/02_dynamic_configuration.md.
+Feladat:
+Implementáld a DynamicConfigManager osztályt.
+Tudjon olvasni az SQLAlchemy session-ből.
+Implementálj egy watch() vagy poll() metódust a változások figyelésére (Hot Reload).
+Teszt: Írj tesztet, ami beír egy értéket a DB-be, és ellenőrzi, hogy a Manager észreveszi-e.
+1. VÉGLEGESÍTÉS:
+Ha a tesztek zöldek (pytest), commitold a változásokat.
+Frissítsd a TASK_TREE.md-t: Az összes Phase 1 elem legyen ✅ DONE.
+Kezdd a Parquet Storage implementálásával (ez a legfontosabb)!"
+Ha ez a parancs lefut, a rendszered magja (Core) 100%-os készültségű lesz, és készen áll a JForex/MT5 adatok fogadására. 🚀
