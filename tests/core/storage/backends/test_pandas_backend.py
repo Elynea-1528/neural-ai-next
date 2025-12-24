@@ -83,7 +83,7 @@ def mock_pandas():
     mock_pd = MagicMock()
     mock_pd.DataFrame = MockPandasDataFrame
     mock_pd.concat = MagicMock(return_value=MockPandasDataFrame())
-        return mock_pd
+    return mock_pd
 
 
 @pytest.fixture

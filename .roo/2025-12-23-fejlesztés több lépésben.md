@@ -93,7 +93,7 @@ KORLÁT: Te (Architect) nem törölhetsz fájlt és nem hozhatsz létre mappát.
 
 
 
- 2.
+ 2. 1. fázis megkezdése
 
  🚀 COMMAND: PHASE 1 EXECUTION - CORE FOUNDATION
 Másold be ezt egy ÚJ CHAT-be:
@@ -295,3 +295,34 @@ Frissítsd a README.md-t: "Telepítés: python scripts/install.py".
 6. ZÁRÁS:
 git add . && git commit -m "feat(infra): unified zero-touch installer with auto-broker setup"
 INDÍTSD A FOLYAMATOT A RÉGI SCRIPTEK BEOLVASÁSÁVAL!"
+
+újraellenőrző kommand: 
+
+🚀 COMMAND: DEEP SYSTEM AUDIT & REPAIR
+Másold be egy ÚJ CHAT-be (Code Mode-ban):
+"Code Agent! (Architect felügyelettel).
+RENDSZERSZINTŰ AUDIT ÉS JAVÍTÁS INDÍTÁSA.
+HELYZET: Több fejlesztési szál futott párhuzamosan (Installer, Core, Storage).
+GYANÚ: Lehetnek inkonzisztenciák, hiányzó tesztek vagy csak "papíron" (Task Tree-ben) kész funkciók.
+A FELADAT: A teljes rendszer átvilágítása és a hibák automatikus javítása.
+HAJTSD VÉGRE A KÖVETKEZŐ LÉPÉSEKET:Utasítsd az Orchestratort a fejlesztésre
+1. FIZIKAI TESZT FUTTATÁS (Reality Check):
+Futtasd le: /home/elynea/miniconda3/envs/neural-ai-next/bin/pytest
+ELEMZÉS: Melyik modul bukik el? Melyiknek nincs tesztje?
+2. HIÁNYZÓ IMPLEMENTÁCIÓK PÓTLÁSA:
+Nézd át a neural_ai/core/ mappát.
+EventBus: Kész van a bus.py és az events.py? Működik a Pub/Sub?
+Database: Kész a session.py és models.py? Működik az SQLite kapcsolat?
+Storage: Kész a parquet.py az "Adaptive Engine" (Polars/Pandas) logikával?
+HA VALAMI HIÁNYZIK: Implementáld most azonnal a docs/planning/specs tervek alapján!
+3. INSTALLER ELLENŐRZÉS:
+Ellenőrizd a scripts/install.py fájlt. Tartalmazza a teljes "Zero-Touch" logikát (GPU check, Bróker letöltés)?
+Ha nem, egészítsd ki a korábbi parancs alapján.
+4. DOKUMENTÁCIÓ SZINKRON:
+Ellenőrizd, hogy minden kódhoz van-e docs/components/... leírás (Mirror Rule).
+Ha nincs, generáld le.
+5. ZÁRÁS:
+Ha minden teszt zöld:
+git add . && git commit -m "fix(audit): system-wide repair and consolidation"
+Frissítsd a TASK_TREE.md-t a VALÓS állapottal.
+INDÍTSD A pytest FUTTATÁSÁVAL! NE HAGYD KI A HIBÁKAT!"

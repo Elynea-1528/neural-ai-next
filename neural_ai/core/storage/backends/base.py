@@ -5,7 +5,7 @@ amely definiálja a kötelező interfészt minden tárolási implementációhoz.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, TypeAlias
 
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
@@ -155,3 +155,7 @@ class StorageBackend(ABC):
             f"{self.__class__.__name__}(name='{self.name}', "
             f"formats={self.supported_formats}, async={self.is_async})"
         )
+
+
+# DataFrameType alias a támogatott DataFrame típusokhoz
+DataFrameType: TypeAlias = Any

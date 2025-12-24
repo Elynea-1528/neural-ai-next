@@ -6,6 +6,7 @@ az adatbázis műveletek aszinkron kezeléséhez.
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -14,7 +15,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
-from neural_ai.core.base.interfaces import IConfigManager
+from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.config.implementations.config_manager_factory import (
     ConfigManagerFactory,
 )
@@ -24,7 +25,7 @@ _engine: Any | None = None  # type: ignore
 _async_session_maker: Any | None = None  # type: ignore
 
 
-def get_database_url(config_manager: IConfigManager | None = None) -> str:
+def get_database_url(config_manager: ConfigManagerInterface | None = None) -> str:
     """Adatbázis URL lekérdezése a konfigurációból.
 
     Args:
@@ -79,7 +80,7 @@ def create_engine(db_url: str, echo: bool = False) -> Any:  # type: ignore
     return engine
 
 
-def get_engine(config_manager: IConfigManager | None = None) -> Any:  # type: ignore
+def get_engine(config_manager: ConfigManagerInterface | None = None) -> Any:  # type: ignore
     """Globális adatbázis engine lekérdezése.
 
     Ha az engine még nincs létrehozva, létrehozza azt a konfiguráció alapján.
@@ -100,7 +101,7 @@ def get_engine(config_manager: IConfigManager | None = None) -> Any:  # type: ig
     return _engine
 
 
-def get_async_session_maker(config_manager: IConfigManager | None = None) -> Any:  # type: ignore
+def get_async_session_maker(config_manager: ConfigManagerInterface | None = None) -> Any:  # type: ignore
     """AsyncSession factory lekérdezése.
 
     Ha a session maker még nincs létrehozva, létrehozza azt.
@@ -221,7 +222,7 @@ class DatabaseManager:
         config_manager: A konfiguráció kezelő példány.
     """
 
-    def __init__(self, config_manager: IConfigManager | None = None):
+    def __init__(self, config_manager: ConfigManagerInterface | None = None):
         """Inicializálja az adatbázis kezelőt.
 
         Args:

@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from loguru import logger
+import structlog
 
 from neural_ai.core.base.singleton import SingletonMeta
 from neural_ai.core.utils.hardware import has_avx2
@@ -25,6 +25,8 @@ from neural_ai.core.utils.hardware import has_avx2
 if TYPE_CHECKING:
     from neural_ai.core.storage.backends.base import StorageBackend
 
+
+logger = structlog.get_logger()
 
 class ParquetStorageService(metaclass=SingletonMeta):
     """Particionált Parquet tároló szolgáltatás backend selectorral.
