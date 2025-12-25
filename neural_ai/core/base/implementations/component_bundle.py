@@ -8,7 +8,7 @@ from neural_ai.core.base.factory import CoreComponentFactory
 
 # Körkörös importok elkerüléséhez
 if TYPE_CHECKING:
-    from neural_ai.core.base.container import DIContainer
+    from neural_ai.core.base.implementations.di_container import DIContainer
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
@@ -82,7 +82,7 @@ class CoreComponents:
                        Ha nincs megadva, új konténert hoz létre.
         """
         # Körkörös import elkerüléséhez
-        from neural_ai.core.base.container import DIContainer
+        from neural_ai.core.base.implementations.di_container import DIContainer
 
         self._container = container or DIContainer()
         self._factory = CoreComponentFactory(self._container)

@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING
 
 # A TYPE_CHECKING blokk tesztelése
 if TYPE_CHECKING:
-    from neural_ai.core.base.container import DIContainer
-    from neural_ai.core.base.core_components import CoreComponents
     from neural_ai.core.base.factory import CoreComponentFactory
+    from neural_ai.core.base.implementations.component_bundle import CoreComponents
+    from neural_ai.core.base.implementations.di_container import DIContainer
 
 # Normál importok
 from neural_ai.core.base import CoreComponentFactory, CoreComponents, DIContainer

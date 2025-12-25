@@ -1,15 +1,14 @@
 """Tesztek a CoreComponentFactory osztályhoz."""
 
-from pathlib import Path
 from typing import Any
 from unittest import mock
 
 import pytest
 
-from neural_ai.core.base.container import DIContainer
-from neural_ai.core.base.exceptions import ConfigurationError, DependencyError
+from neural_ai.core.base.exceptions import ConfigurationError
 from neural_ai.core.base.factory import CoreComponentFactory
-from neural_ai.core.base.lazy_loading import LazyLoader
+from neural_ai.core.base.implementations.di_container import DIContainer
+from neural_ai.core.base.implementations.lazy_loader import LazyLoader
 
 
 class TestCoreComponentFactory:
@@ -134,8 +133,8 @@ class TestCoreComponentFactory:
         assert components is not None
         assert components._container == container
 
-    @mock.patch("neural_ai.core.base.factory.ConfigManagerFactory")
-    @mock.patch("neural_ai.core.base.factory.LoggerFactory")
+    @mock.patch("neural_ai.core.config.implementations.config_manager_factory.ConfigManagerFactory")
+    @mock.patch("neural_ai.core.logger.implementations.logger_factory.LoggerFactory")
     @mock.patch("neural_ai.core.storage.implementations.file_storage.FileStorage")
     def test_create_minimal_success(self, mock_storage: Any, mock_logger_factory: Any, mock_config_factory: Any) -> None:
         """Teszteli a minimális komponensek sikeres létrehozását."""
@@ -154,7 +153,7 @@ class TestCoreComponentFactory:
         mock_logger_factory.get_logger.assert_called_once()
         mock_storage.assert_called_once()
 
-    @mock.patch("neural_ai.core.base.factory.LoggerFactory")
+    @mock.patch("neural_ai.core.logger.implementations.logger_factory.LoggerFactory")
     def test_create_logger_success(self, mock_logger_factory: Any) -> None:
         """Teszteli a logger sikeres létrehozását."""
         # Arrange
@@ -174,7 +173,7 @@ class TestCoreComponentFactory:
         with pytest.raises(ConfigurationError, match="Logger name not configured"):
             CoreComponentFactory.create_logger(name="")
 
-    @mock.patch("neural_ai.core.base.factory.ConfigManagerFactory")
+    @mock.patch("neural_ai.core.config.implementations.config_manager_factory.ConfigManagerFactory")
     def test_create_config_manager_success(self, mock_config_factory: Any) -> None:
         """Teszteli a config manager sikeres létrehozását."""
         # Arrange

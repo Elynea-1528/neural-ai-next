@@ -258,12 +258,12 @@ class TestInterfacesImplementation:
         assert container.resolve(str) is None
         with pytest.raises(KeyError):
             container.get("lazy_test")
-        
+
         # Property-k használata a coverage érdekében
         assert hasattr(container, "instances")
         assert hasattr(container, "factories")
         assert hasattr(container, "lazy_components")
-        
+
         # Factory metódus meghívása a coverage érdekében
         factory_result = container.resolve(int)
         assert factory_result is None  # Nincs regisztrálva factory
@@ -301,7 +301,7 @@ class TestInterfacesImplementation:
             @property
             def logger(self) -> MockLogger | None:  # type: ignore
                 return self._logger
-            
+
             @property
             def storage(self) -> MockStorage | None:  # type: ignore
                 return self._storage

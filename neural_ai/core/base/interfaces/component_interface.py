@@ -6,8 +6,9 @@ Ez a modul tartalmazza a core komponensekhez kapcsolódó interfészeket.
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from neural_ai.core.base.interfaces.container_interface import DIContainerInterface
+
 if TYPE_CHECKING:
-    from neural_ai.core.base.interfaces.container_interface import DIContainerInterface
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface

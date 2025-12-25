@@ -9,16 +9,16 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from neural_ai.core.base.container import DIContainer
 from neural_ai.core.base.exceptions import (
     ConfigurationError,
     DependencyError,
 )
-from neural_ai.core.base.lazy_loading import LazyLoader, lazy_property
-from neural_ai.core.base.singleton import SingletonMeta
+from neural_ai.core.base.implementations.di_container import DIContainer
+from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
+from neural_ai.core.base.implementations.singleton import SingletonMeta
 
 if TYPE_CHECKING:
-    from neural_ai.core.base.core_components import CoreComponents
+    from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
@@ -220,10 +220,12 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             ConfigurationError: Ha a konfiguráció érvénytelen
             DependencyError: Ha szükséges függőségek hiányoznak
         """
-        from neural_ai.core.base.core_components import CoreComponents
-        from neural_ai.core.config.implementations import ConfigManagerFactory
+        from neural_ai.core.base.implementations.component_bundle import CoreComponents
+        from neural_ai.core.config.implementations.config_manager_factory import (
+            ConfigManagerFactory,
+        )
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.logger.implementations import LoggerFactory
+        from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         from neural_ai.core.storage.implementations.file_storage import FileStorage
         from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
@@ -276,7 +278,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         Returns:
             CoreComponents: Az inicializált core komponensek
         """
-        from neural_ai.core.base.core_components import CoreComponents
+        from neural_ai.core.base.implementations.component_bundle import CoreComponents
 
         return CoreComponents(container=container)
 
@@ -291,11 +293,13 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         Returns:
             CoreComponents: Az inicializált minimális komponensek
         """
-        from neural_ai.core.base.core_components import CoreComponents
+        from neural_ai.core.base.implementations.component_bundle import CoreComponents
         from neural_ai.core.config.exceptions import ConfigLoadError
-        from neural_ai.core.config.implementations import ConfigManagerFactory
+        from neural_ai.core.config.implementations.config_manager_factory import (
+            ConfigManagerFactory,
+        )
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.logger.implementations import LoggerFactory
+        from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         from neural_ai.core.storage.implementations.file_storage import FileStorage
         from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
@@ -353,7 +357,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("logger", config)
 
         # Create logger using LoggerFactory
-        from neural_ai.core.logger.implementations import LoggerFactory
+        from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
 
         return LoggerFactory.get_logger(name=name, config=config)
 
@@ -381,7 +385,9 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("config_manager", config)
 
         # Create config manager using ConfigManagerFactory
-        from neural_ai.core.config.implementations import ConfigManagerFactory
+        from neural_ai.core.config.implementations.config_manager_factory import (
+            ConfigManagerFactory,
+        )
 
         return ConfigManagerFactory.get_manager(config_file_path)
 

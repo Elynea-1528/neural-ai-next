@@ -7,7 +7,7 @@ from typing import Any
 
 import pytest
 
-from neural_ai.core.base.lazy_loading import LazyLoader, lazy_property
+from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
 
 
 class TestLazyLoader:

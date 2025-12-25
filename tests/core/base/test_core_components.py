@@ -4,7 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from neural_ai.core.base.core_components import CoreComponents, LazyLoader
+from neural_ai.core.base.implementations.component_bundle import CoreComponents
+from neural_ai.core.base.implementations.lazy_loader import LazyLoader
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
@@ -121,7 +122,7 @@ class TestCoreComponents:
     def test_core_components_initialization_with_container(self) -> None:
         """Teszteli a komponensek inicializálását megadott konténerrel."""
         # Arrange
-        from neural_ai.core.base.container import DIContainer
+        from neural_ai.core.base.implementations.di_container import DIContainer
         container = DIContainer()
 
         # Act

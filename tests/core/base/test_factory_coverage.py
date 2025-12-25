@@ -1,14 +1,11 @@
 """Additional coverage tests for CoreComponentFactory to reach 100% coverage."""
 
-from typing import Any
-from unittest import mock
-from unittest.mock import Mock
 
 import pytest
 
-from neural_ai.core.base.container import DIContainer
 from neural_ai.core.base.exceptions import DependencyError
 from neural_ai.core.base.factory import CoreComponentFactory
+from neural_ai.core.base.implementations.di_container import DIContainer
 from neural_ai.core.logger.implementations.default_logger import DefaultLogger
 
 
@@ -20,10 +17,10 @@ class TestCoreComponentFactoryCoverage:
         # Arrange
         container = DIContainer()
         factory = CoreComponentFactory(container)
-        
+
         # Act
         logger = factory._get_logger()
-        
+
         # Assert
         assert isinstance(logger, DefaultLogger)
         assert logger is not None
@@ -33,7 +30,7 @@ class TestCoreComponentFactoryCoverage:
         # Arrange
         container = DIContainer()
         factory = CoreComponentFactory(container)
-        
+
         # Act & Assert
         with pytest.raises(DependencyError, match="ConfigManager not available"):
             factory._get_config_manager()
@@ -43,7 +40,7 @@ class TestCoreComponentFactoryCoverage:
         # Arrange
         container = DIContainer()
         factory = CoreComponentFactory(container)
-        
+
         # Act & Assert
         with pytest.raises(DependencyError, match="Storage not available"):
             factory._get_storage()
@@ -54,10 +51,10 @@ class TestCoreComponentFactoryCoverage:
         container = DIContainer()
         factory = CoreComponentFactory(container)
         test_config = {"test": "value"}
-        
+
         # Act
         result = factory._process_config(test_config)
-        
+
         # Assert
         assert result == test_config
 
@@ -66,10 +63,10 @@ class TestCoreComponentFactoryCoverage:
         # Arrange
         container = DIContainer()
         factory = CoreComponentFactory(container)
-        
+
         # Act
         result = factory._load_component_cache()
-        
+
         # Assert
         assert result == {}
 
@@ -77,7 +74,7 @@ class TestCoreComponentFactoryCoverage:
         """Teszteli a komponensek létrehozását konfig nélkül (Missing lines)."""
         # Act
         components = CoreComponentFactory.create_components()
-        
+
         # Assert
         assert components is not None
         assert components._container is not None
@@ -88,7 +85,7 @@ class TestCoreComponentFactoryCoverage:
         components = CoreComponentFactory.create_components(
             config_path="tests/config.yml"
         )
-        
+
         # Assert
         assert components is not None
 
@@ -97,7 +94,7 @@ class TestCoreComponentFactoryCoverage:
         # Ez a teszt lefedi a 307-308 sorokat, ahol a config létezik
         # Act
         components = CoreComponentFactory.create_minimal()
-        
+
         # Assert
         assert components is not None
 
@@ -105,10 +102,10 @@ class TestCoreComponentFactoryCoverage:
         """Teszteli a logger létrehozását konfigurációs dictionary-vel."""
         # Arrange
         config = {"name": "test_logger", "level": "DEBUG"}
-        
+
         # Act
         logger = CoreComponentFactory.create_logger(name="test_logger", config=config)
-        
+
         # Assert
         assert logger is not None
 
@@ -119,7 +116,7 @@ class TestCoreComponentFactoryCoverage:
             config_file_path="tests/config.yml",
             config={"test": "value"}
         )
-        
+
         # Assert
         assert config_manager is not None
 
@@ -130,6 +127,6 @@ class TestCoreComponentFactoryCoverage:
             base_directory="/tmp/test",
             config={"test": "value"}
         )
-        
+
         # Assert
         assert storage is not None

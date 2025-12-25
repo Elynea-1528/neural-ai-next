@@ -6,7 +6,7 @@ a singleton minta megfelelő működését.
 
 from typing import Any
 
-from neural_ai.core.base.singleton import SingletonMeta
+from neural_ai.core.base.implementations.singleton import SingletonMeta
 
 
 class TestSingletonMeta:

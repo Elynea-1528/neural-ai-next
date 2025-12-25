@@ -1,14 +1,11 @@
 """Tesztek a DIContainer és LazyComponent osztályokhoz."""
 
-import sys
 import warnings
-from typing import Any
-from unittest import TestCase, mock
 
 import pytest
 
-from neural_ai.core.base.container import DIContainer, LazyComponent
 from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
+from neural_ai.core.base.implementations.di_container import DIContainer, LazyComponent
 
 
 class TestLazyComponent:
@@ -370,10 +367,10 @@ class TestDIContainer:
         container = DIContainer()
         test_instance = "test_value"
         container.register("test_component", test_instance)
-        
+
         # Act
         result = container.get("test_component")
-        
+
         # Assert
         assert result == test_instance
 
