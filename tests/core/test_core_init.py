@@ -66,9 +66,9 @@ class TestCoreComponents:
 class TestBootstrapCore:
     """Bootstrap funkció tesztjei."""
 
-    @patch("neural_ai.core.config.implementations.config_manager_factory.ConfigManagerFactory")
-    @patch("neural_ai.core.logger.implementations.logger_factory.LoggerFactory")
-    @patch("neural_ai.core.storage.implementations.storage_factory.StorageFactory")
+    @patch("neural_ai.core.config.factory.ConfigManagerFactory")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    @patch("neural_ai.core.storage.factory.StorageFactory")
     def test_bootstrap_core_default(
         self, mock_storage_factory: Mock, mock_logger_factory: Mock, mock_config_factory: Mock
     ) -> None:
@@ -100,9 +100,9 @@ class TestBootstrapCore:
             storage_type="file", base_path=None, logger=mock_logger
         )
 
-    @patch("neural_ai.core.config.implementations.config_manager_factory.ConfigManagerFactory")
-    @patch("neural_ai.core.logger.implementations.logger_factory.LoggerFactory")
-    @patch("neural_ai.core.storage.implementations.storage_factory.StorageFactory")
+    @patch("neural_ai.core.config.factory.ConfigManagerFactory")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    @patch("neural_ai.core.storage.factory.StorageFactory")
     def test_bootstrap_core_with_parameters(
         self, mock_storage_factory: Mock, mock_logger_factory: Mock, mock_config_factory: Mock
     ) -> None:
@@ -134,11 +134,11 @@ class TestBootstrapCore:
         """Teszteli, hogy a bootstrap_core CoreComponents-t ad-e vissza."""
         with (
             patch(
-                "neural_ai.core.config.implementations.config_manager_factory.ConfigManagerFactory"
+                "neural_ai.core.config.factory.ConfigManagerFactory"
             ) as mock_cf,
-            patch("neural_ai.core.logger.implementations.logger_factory.LoggerFactory") as mock_lf,
+            patch("neural_ai.core.logger.factory.LoggerFactory") as mock_lf,
             patch(
-                "neural_ai.core.storage.implementations.storage_factory.StorageFactory"
+                "neural_ai.core.storage.factory.StorageFactory"
             ) as mock_sf,
         ):
             mock_cf.get_manager.return_value = Mock(spec=ConfigManagerInterface)

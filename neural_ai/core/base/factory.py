@@ -223,7 +223,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.base.implementations.component_bundle import CoreComponents
         from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
+        from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         from neural_ai.core.storage.implementations.file_storage import FileStorage
         from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
@@ -295,7 +295,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.config.exceptions import ConfigLoadError
         from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
+        from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         from neural_ai.core.storage.implementations.file_storage import FileStorage
         from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
@@ -353,7 +353,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("logger", config)
 
         # Create logger using LoggerFactory
-        from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
+        from neural_ai.core.logger.factory import LoggerFactory
 
         return LoggerFactory.get_logger(name=name, config=config)
 

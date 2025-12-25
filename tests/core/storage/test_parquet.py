@@ -29,7 +29,7 @@ class TestParquetStorageService:
     @pytest.fixture
     def service_polars(self, temp_dir):
         """PolarsBackend-et használó szolgáltatás létrehozása."""
-        with patch("neural_ai.core.storage.parquet.ParquetStorageService.BASE_PATH", temp_dir):
+        with patch("neural_ai.core.storage.implementations.parquet_storage.ParquetStorageService.BASE_PATH", temp_dir):
             with patch("neural_ai.core.utils.hardware.has_avx2", return_value=True):
                 service = ParquetStorageService()
                 assert service.engine == "polars"
@@ -39,7 +39,7 @@ class TestParquetStorageService:
     @pytest.fixture
     def service_pandas(self, temp_dir):
         """PandasBackend-et használó szolgáltatás létrehozása."""
-        with patch("neural_ai.core.storage.parquet.ParquetStorageService.BASE_PATH", temp_dir):
+        with patch("neural_ai.core.storage.implementations.parquet_storage.ParquetStorageService.BASE_PATH", temp_dir):
             with patch("neural_ai.core.utils.hardware.has_avx2", return_value=False):
                 service = ParquetStorageService()
                 assert service.engine == "fastparquet"
@@ -51,7 +51,7 @@ class TestParquetStorageService:
     )
     def test_backend_selection_based_on_avx2(self, temp_dir, has_avx2_value, expected_backend):
         """Teszteli a backend kiválasztást az AVX2 támogatás alapján."""
-        with patch("neural_ai.core.storage.parquet.ParquetStorageService.BASE_PATH", temp_dir):
+        with patch("neural_ai.core.storage.implementations.parquet_storage.ParquetStorageService.BASE_PATH", temp_dir):
             with patch("neural_ai.core.utils.hardware.has_avx2", return_value=has_avx2_value):
                 service = ParquetStorageService()
 
@@ -127,8 +127,8 @@ class TestParquetStorageService:
         date = datetime(2023, 12, 23)
         
         # Mock has_avx2 to return False to force Pandas backend
-        with patch("neural_ai.core.storage.parquet.has_avx2", return_value=False):
-            with patch("neural_ai.core.storage.parquet.ParquetStorageService.BASE_PATH", temp_dir):
+        with patch("neural_ai.core.utils.hardware.has_avx2", return_value=False):
+            with patch("neural_ai.core.storage.implementations.parquet_storage.ParquetStorageService.BASE_PATH", temp_dir):
                 service = ParquetStorageService()
                 assert service.backend.name == "pandas"
                 

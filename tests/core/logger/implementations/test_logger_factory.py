@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 

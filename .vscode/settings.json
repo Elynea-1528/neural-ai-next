@@ -1,5 +1,5 @@
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}/../../miniconda3/envs/neural-ai-next/bin/python",
+    "python.defaultInterpreterPath": "/home/elynea/miniconda3/envs/neural-ai-next/bin/python",
     "python.languageServer": "Pylance",
     /* Testing Configuration */
     "python.testing.pytestEnabled": true,

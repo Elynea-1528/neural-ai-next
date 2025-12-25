@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from neural_ai.core.events.events import (
+from neural_ai.core.events.interfaces.event_models import (
     EventType,
     MarketDataEvent,
     OrderEvent,

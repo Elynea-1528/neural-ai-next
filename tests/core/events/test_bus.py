@@ -10,8 +10,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from neural_ai.core.events.bus import EventBus, EventBusConfig
-from neural_ai.core.events.events import MarketDataEvent, SignalEvent
+from neural_ai.core.events.implementations.zeromq_bus import EventBus, EventBusConfig
+from neural_ai.core.events.interfaces.event_models import MarketDataEvent, SignalEvent
 
 
 class TestEventBusConfig:

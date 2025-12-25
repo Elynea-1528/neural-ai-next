@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from neural_ai.core.base.singleton import SingletonMeta
+from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.storage.exceptions import StorageError
 from neural_ai.core.utils.hardware import has_avx2
 
