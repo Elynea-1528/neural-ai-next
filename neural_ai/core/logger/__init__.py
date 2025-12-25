@@ -29,10 +29,10 @@ if TYPE_CHECKING:
         LoggerError,
         LoggerInitializationError,
     )
+    from neural_ai.core.logger.factory import LoggerFactory
     from neural_ai.core.logger.implementations import (
         ColoredLogger,
         DefaultLogger,
-        LoggerFactory,
         RotatingFileLogger,
     )
     from neural_ai.core.logger.interfaces import LoggerFactoryInterface, LoggerInterface
@@ -42,10 +42,10 @@ from neural_ai.core.logger.exceptions import (
     LoggerError,
     LoggerInitializationError,
 )
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.logger.implementations import (
     ColoredLogger,
     DefaultLogger,
-    LoggerFactory,
     RotatingFileLogger,
 )
 from neural_ai.core.logger.interfaces import LoggerFactoryInterface, LoggerInterface

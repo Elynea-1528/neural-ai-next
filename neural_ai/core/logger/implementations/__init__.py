@@ -20,14 +20,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
     from neural_ai.core.logger.implementations.default_logger import DefaultLogger
-    from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
     from neural_ai.core.logger.implementations.rotating_file_logger import (
         RotatingFileLogger,
     )
 
 from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
 from neural_ai.core.logger.implementations.default_logger import DefaultLogger
-from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
 from neural_ai.core.logger.implementations.rotating_file_logger import (
     RotatingFileLogger,
 )
@@ -35,6 +33,5 @@ from neural_ai.core.logger.implementations.rotating_file_logger import (
 __all__ = [
     "ColoredLogger",
     "DefaultLogger",
-    "LoggerFactory",
     "RotatingFileLogger",
 ]
