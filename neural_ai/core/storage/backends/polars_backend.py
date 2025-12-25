@@ -15,6 +15,12 @@ from neural_ai.core.storage.backends.base import StorageBackend
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
 
+# Modul szintű változók a lazy import támogatásához
+# Ezeket a tesztelés során lehet mock-olni
+polars = None
+pyarrow = None
+pq = None
+
 
 class PolarsDataFrame:
     """Wrapper osztály a Polars DataFrame köré lazy importtal.
@@ -38,6 +44,12 @@ class PolarsDataFrame:
             self._polars = pl
             self._pyarrow = pa
             self._parquet = pq
+            
+            # Frissítsük a modul szintű változókat is a teszteléshez
+            import neural_ai.core.storage.backends.polars_backend as pb_module
+            pb_module.polars = pl
+            pb_module.pyarrow = pa
+            pb_module.pq = pq
         return self._polars, self._pyarrow, self._parquet
 
     @property
@@ -284,8 +296,23 @@ class PolarsBackend(StorageBackend):
             True, ha a sémák kompatibilisek, egyébként False
         """
         try:
-            existing_cols = set(existing.columns)
-            new_cols = set(new.columns)
+            # Lekérjük az oszlopokat (attribútum vagy metódus)
+            existing_cols = None
+            new_cols = None
+            
+            if hasattr(existing, 'columns') and callable(existing.columns):
+                existing_cols = set(existing.columns())
+            elif hasattr(existing, 'columns'):
+                existing_cols = set(existing.columns)
+                
+            if hasattr(new, 'columns') and callable(new.columns):
+                new_cols = set(new.columns())
+            elif hasattr(new, 'columns'):
+                new_cols = set(new.columns)
+
+            # Ha valamelyik oszlophalmaz None, akkor nem kompatibilis
+            if existing_cols is None or new_cols is None:
+                return False
 
             # Az új adatoknak tartalmazniuk kell az összes meglévő oszlopot
             return existing_cols.issubset(new_cols)

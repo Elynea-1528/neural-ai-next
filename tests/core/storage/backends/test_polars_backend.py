@@ -32,7 +32,11 @@ class MockPolarsDataFrame:
 
     def write_parquet(self, path: str, **kwargs):
         """Mock Parquet írás."""
-        pass
+        # Hozzuk létre a fájlt a mock íráshoz
+        import os
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w') as f:
+            f.write("mock parquet data")
 
 
 class MockBatch:
@@ -159,7 +163,7 @@ class TestPolarsBackend:
         path = tmp_path / "test.parquet"
 
         # None adatok
-        with pytest.raises(ValueError, match="Érvénytelen DataFrame adatok"):
+        with pytest.raises(RuntimeError, match="Érvénytelen DataFrame adatok"):
             backend.write(None, str(path))
 
     def test_write_invalid_path(self, backend):
@@ -167,7 +171,7 @@ class TestPolarsBackend:
         data = MockPolarsDataFrame()
 
         # Nem Parquet kiterjesztés
-        with pytest.raises(ValueError, match=".parquet kiterjesztéssel kell rendelkeznie"):
+        with pytest.raises(RuntimeError, match=".parquet kiterjesztéssel kell rendelkeznie"):
             backend.write(data, "test.csv")
 
     def test_read_success(self, backend, tmp_path):

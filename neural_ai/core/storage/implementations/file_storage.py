@@ -114,26 +114,26 @@ class FileStorage(StorageInterface):
             raise StorageIOError(f"Failed to check disk space: {e}") from e
 
     def _check_permissions(self, file_path: Path, check_write: bool = True) -> None:
-        """Check file/directory permissions.
+        """Ellenőrzi a fájl/könyvtár jogosultságokat.
 
         Args:
-            file_path: The target file path
-            check_write: Whether to check write permissions
+            file_path: A célfájl útvonala
+            check_write: Ha True, ellenőrzi az írási jogosultságot is
 
         Raises:
-            PermissionDeniedError: If permissions are insufficient
-            StorageIOError: If path check fails
+            PermissionDeniedError: Ha a jogosultságok nem megfelelőek
+            StorageIOError: Ha az útvonal ellenőrzése sikertelen
         """
         try:
             if not file_path.parent.exists():
                 raise PermissionDeniedError(f"Parent directory does not exist: {file_path.parent}")
 
-            if check_write and not os.access(file_path.parent, os.W_OK):
+            if check_write and not os.access(str(file_path.parent), os.W_OK):
                 raise PermissionDeniedError(
                     f"No write permission for directory: {file_path.parent}"
                 )
 
-            if file_path.exists() and not os.access(file_path, os.R_OK):
+            if file_path.exists() and not os.access(str(file_path), os.R_OK):
                 raise PermissionDeniedError(f"No read permission for file: {file_path}")
         except OSError as e:
             raise StorageIOError(f"Failed to check permissions: {e}") from e
@@ -201,20 +201,28 @@ class FileStorage(StorageInterface):
             InsufficientDiskSpaceError: Ha nincs elég lemezterület
             PermissionDeniedError: Ha nincs megfelelő jogosultság
         """
-        # Check permissions first
+        # Ellenőrizzük a jogosultságokat
         self._check_permissions(file_path, check_write=True)
 
-        # Calculate required space
+        # Ellenőrizzük a formátumot
+        if fmt not in self._DATAFRAME_FORMATS and fmt not in self._OBJECT_FORMATS:
+            raise StorageFormatError(
+                f"Nem támogatott formátum: {fmt}. "
+                f"Támogatott DataFrame formátumok: {list(self._DATAFRAME_FORMATS.keys())}. "
+                f"Támogatott objektum formátumok: {list(self._OBJECT_FORMATS.keys())}"
+            )
+
+        # Számoljuk ki a szükséges területet
         if isinstance(content, str):
             content_bytes = len(content.encode("utf-8"))
         elif isinstance(content, bytes):
             content_bytes = len(content)
         else:
-            # For non-string, non-bytes content (like DataFrames), use default size
-            # since they are handled by format-specific savers
-            content_bytes = 1024 * 1024  # 1MB default
+            # Nem string/bytes tartalom esetén (pl. DataFrame), használjunk alapértelmezett méretet
+            # mivel ezeket a formátum-specifikus mentők kezelik
+            content_bytes = 1024 * 1024  # 1MB alapértelmezett
 
-        # Check disk space (add 10% buffer for filesystem overhead)
+        # Ellenőrizzük a lemezterületet (adjunk hozzá 10% puffert a fájlrendszer overhead-hez)
         self._check_disk_space(file_path, int(content_bytes * 1.1))
 
         temp_path = file_path.with_suffix(file_path.suffix + ".tmp")
@@ -226,15 +234,6 @@ class FileStorage(StorageInterface):
             # Objektum esetén
             elif fmt in self._OBJECT_FORMATS:
                 self._OBJECT_FORMATS[fmt]["save"](content, str(temp_path), **kwargs)
-            # Szöveg vagy bytes esetén
-            else:
-                with open(temp_path, mode, encoding="utf-8" if "b" not in mode else None) as f:
-                    if isinstance(content, (str, bytes)):
-                        f.write(content)
-                    else:
-                        json.dump(content, f, indent=2, ensure_ascii=False)
-                    f.flush()
-                    os.fsync(f.fileno())
         except OSError as e:
             if temp_path.exists():
                 temp_path.unlink()
@@ -265,6 +264,8 @@ class FileStorage(StorageInterface):
         Raises:
             StorageFormatError: Ha a formátum nem támogatott
             StorageIOError: Ha a mentés sikertelen
+            InsufficientDiskSpaceError: Ha nincs elég lemezterület
+            PermissionDeniedError: Ha nincs írási jogosultság
         """
         full_path = self._get_full_path(path)
 
@@ -278,6 +279,19 @@ class FileStorage(StorageInterface):
                 f"Nem támogatott DataFrame formátum: {fmt}. "
                 f"Támogatott formátumok: {list(self._DATAFRAME_FORMATS.keys())}"
             )
+
+        # Ellenőrizzük a jogosultságokat
+        self._check_permissions(full_path, check_write=True)
+
+        # Ellenőrizzük a lemezterületet (becsült méret alapján)
+        try:
+            estimated_size = df.memory_usage(deep=True).sum()
+            self._check_disk_space(full_path, int(estimated_size * 1.1))
+        except (InsufficientDiskSpaceError, StorageIOError):
+            raise
+        except Exception as e:
+            if self.logger:
+                self.logger.warning(f"Could not estimate DataFrame size: {e}")
 
         try:
             full_path.parent.mkdir(parents=True, exist_ok=True)
@@ -319,7 +333,7 @@ class FileStorage(StorageInterface):
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
 
-        # Check read permissions
+        # Ellenőrizzük az olvasási jogosultságot
         self._check_permissions(full_path, check_write=False)
 
         if fmt is None:
@@ -366,6 +380,8 @@ class FileStorage(StorageInterface):
             StorageFormatError: Ha a formátum nem támogatott
             StorageSerializationError: Ha az objektum nem szerializálható
             StorageIOError: Ha a mentés sikertelen
+            InsufficientDiskSpaceError: Ha nincs elég lemezterület
+            PermissionDeniedError: Ha nincs írási jogosultság
         """
         full_path = self._get_full_path(path)
 
@@ -379,6 +395,20 @@ class FileStorage(StorageInterface):
                 f"Nem támogatott objektum formátum: {fmt}. "
                 f"Támogatott formátumok: {list(self._OBJECT_FORMATS.keys())}"
             )
+
+        # Ellenőrizzük a jogosultságokat
+        self._check_permissions(full_path, check_write=True)
+
+        # Ellenőrizzük a lemezterületet (becsült méret alapján)
+        try:
+            import sys
+            estimated_size = sys.getsizeof(str(obj))
+            self._check_disk_space(full_path, int(estimated_size * 1.1))
+        except (InsufficientDiskSpaceError, StorageIOError):
+            raise
+        except Exception as e:
+            if self.logger:
+                self.logger.warning(f"Could not estimate object size: {e}")
 
         try:
             full_path.parent.mkdir(parents=True, exist_ok=True)
@@ -415,7 +445,7 @@ class FileStorage(StorageInterface):
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
 
-        # Check read permissions
+        # Ellenőrizzük az olvasási jogosultságot
         self._check_permissions(full_path, check_write=False)
 
         if fmt is None:
@@ -473,10 +503,10 @@ class FileStorage(StorageInterface):
             StorageIOError: Ha a lekérés sikertelen
         """
         full_path = self._get_full_path(path)
-        if not full_path.exists():
-            raise StorageNotFoundError(f"Fájl nem található: {full_path}")
-
         try:
+            if not full_path.exists():
+                raise StorageNotFoundError(f"Fájl nem található: {full_path}")
+
             stat = full_path.stat()
             return {
                 "size": stat.st_size,
@@ -486,8 +516,12 @@ class FileStorage(StorageInterface):
                 "is_file": full_path.is_file(),
                 "is_dir": full_path.is_dir(),
             }
-        except Exception as e:
+        except StorageNotFoundError:
+            raise
+        except OSError as e:
             raise StorageIOError(f"Hiba a metaadatok lekérése során: {str(e)}") from e
+        except Exception as e:
+            raise StorageIOError(f"Váratlan hiba a metaadatok lekérése során: {str(e)}") from e
 
     def delete(self, path: str) -> None:
         """Törli a megadott fájlt vagy könyvtárat.

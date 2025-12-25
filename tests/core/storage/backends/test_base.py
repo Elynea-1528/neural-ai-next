@@ -11,10 +11,15 @@ class MockDataFrame:
     """Mock DataFrame osztály a teszteléshez."""
 
     def __init__(self, data: dict[str, list] = None):
-        self._data = data or {"col1": [1, 2, 3], "col2": ["a", "b", "c"]}
+        if data is None:
+            self._data = {"col1": [1, 2, 3], "col2": ["a", "b", "c"]}
+        else:
+            self._data = data
 
     def __len__(self) -> int:
         """DataFrame hosszának lekérdezése."""
+        if not self._data:
+            return 0
         return len(next(iter(self._data.values())))
 
     def columns(self) -> list[str]:

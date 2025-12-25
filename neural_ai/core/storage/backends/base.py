@@ -145,7 +145,26 @@ class StorageBackend(ABC):
             True, ha a DataFrame érvényes, egyébként False
         """
         try:
-            return len(data) >= 0 and len(data.columns) > 0
+            if data is None:
+                return False
+            # Ellenőrizzük, hogy van-e hossza
+            if len(data) < 0:
+                return False
+            
+            # Próbáljuk meg lekérni az oszlopokat (attribútum vagy metódus)
+            columns = None
+            if hasattr(data, 'columns') and callable(data.columns):
+                columns = data.columns()
+            elif hasattr(data, 'columns'):
+                columns = data.columns
+            
+            # Típus ellenőrzés és hossz lekérdezése
+            if columns is None:
+                return False
+            if isinstance(columns, (list, tuple)):
+                return len(columns) > 0 and len(data) > 0
+            # Ha nem list/tuple, próbáljuk meg lekérni a hosszát
+            return len(columns) > 0 and len(data) > 0
         except Exception:
             return False
 

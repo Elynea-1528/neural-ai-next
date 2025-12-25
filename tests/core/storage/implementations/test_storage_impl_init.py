@@ -51,7 +51,7 @@ class TestStorageImplementationsModuleTypeHints:
         import inspect
 
         signature = inspect.signature(FS.__init__)
-        assert "return" in signature.return_annotation or signature.return_annotation is None
+        assert signature.return_annotation is None or "return" in str(signature.return_annotation)
 
 
 class TestStorageImplementationsModuleDocstring:
