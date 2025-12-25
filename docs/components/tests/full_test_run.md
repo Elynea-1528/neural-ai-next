@@ -4,24 +4,61 @@
 
 Ez a dokumentum a Neural AI Next rendszer teljes tesztelési folyamatát dokumentálja, beleértve a pytest futtatást, coverage mérést, és ruff linting ellenőrzést.
 
-## Tesztelési Fázisok
+## Tesztelési Eredmények (2025-12-25)
 
-### 1. Pytest Futtatás
+### 1. Modulonkénti Tesztelés
 
-A tesztek futtatása a következő paranccsal történik:
+A teljes tesztcsomag futtatása megszakad, ezért modulonként futtattuk a teszteket.
+
+#### ✅ Base Modul (tests/core/base/)
+- **Összes teszt:** 170 db
+- **Sikeres:** 170 db (100%)
+- **Időtartam:** 2.08s
+- **Státusz:** ✅ Tökéletes
+
+#### ✅ Config Modul (tests/core/config/)
+- **Összes teszt:** 109 db
+- **Sikeres:** 109 db (100%)
+- **Időtartam:** 0.35s
+- **Státusz:** ✅ Tökéletes
+
+#### ✅ DB Modul (tests/core/db/)
+- **Összes teszt:** 44 db
+- **Sikeres:** 43 db (97.7%)
+- **Kihagyva:** 1 db (PostgreSQL teszt - asyncpg nincs telepítve)
+- **Időtartam:** 0.99s
+- **Státusz:** ✅ Tökéletes
+
+#### 📊 Összesítés (Eddig)
+- **Összes teszt:** 323 db
+- **Sikeres:** 322 db (99.7%)
+- **Kihagyva:** 1 db (0.3%)
+- **Bukott:** 0 db (0%)
+
+### 2. Ruff Linting
+
+A kódminőség ellenőrzése:
 
 ```bash
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -vv
+/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check
 ```
 
 **Eredmények:**
-- Összesen 883 teszt van a rendszerben
-- A tesztek nagy része (több mint 40%) sikeresen lefut
-- A tesztfuttatás megszakad (SIGKILL) időtúllépés vagy memória probléma miatt
+- Összesen 88 hiba található
+- 10 hiba javítható a `--fix` opcióval (javítva)
+- 79 hiba maradt (főleg E501 - sor túl hosszú)
 
-**Ismert Hibák:**
-- `tests/core/db/test_session.py::TestCreateEngine::test_create_engine_with_malformed_url` - A teszt URL-t használt, ami valójában érvényes a SQLAlchemy számára
-  - **Javítva:** A teszt URL-je `invalid:///`-ra lett módosítva, ami biztosan hibát okoz
+**Hibatípusok:**
+- **UP040:** Type alias használata (1 hiba)
+- **W293:** Whitespace a blank line-okban (1 hiba)
+- **B007:** Nem használt loop változó (1 hiba)
+- **D205:** Hiányzó üres sor a docstring-ben (1 hiba)
+- **D415:** Docstring első sora nem végződik ponttal (1 hiba)
+- **D101:** Hiányzó docstring public class-ban (1 hiba)
+- **E501:** Sor túl hosszú (több mint 100 karakter) - **Több mint 50 hiba**
+- **I001:** Rendezetlen import blokk (2 hiba)
+- **W292:** Nincs új sor a fájl végén (2 hiba)
+- **UP036:** Elavult version block (2 hiba)
 
 ### 2. Ruff Linting
 
