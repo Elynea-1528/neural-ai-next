@@ -48,20 +48,40 @@ class ParquetStorageService(metaclass=SingletonMeta):
         backend: A kiválasztott tárolási backend
     """
 
-    BASE_PATH = Path("/data/tick")
+    # Alapértelmezett útvonal
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        base_path: str | Path | None = None,
+        compression: str = "snappy",
+    ) -> None:
         """Inicializálja a ParquetStorageService-t backend selectorral.
 
         A hardver detekció alapján kiválasztja a megfelelő tárolási backend-et.
         Ha az AVX2 utasításkészlet elérhető, a PolarsBackend-et használja,
         egyébként a PandasBackend-et kompatibilitási módban.
+
+        Args:
+            base_path: Az alapútvonal a tároláshoz (opcionális)
+            compression: A tömörítési algoritmus (alapértelmezett: 'snappy')
         """
+        self.BASE_PATH = Path(base_path) if base_path else Path("/data/tick")
         self.engine = "fastparquet"
-        self.compression = "snappy"
+        self.compression = compression
         self.backend: StorageBackend
 
         # Hardver detekció és backend kiválasztás
+        self._select_backend()
+
+        logger.info(f"ParquetStorageService initialized with {self.backend.name} backend")
+    
+    def _select_backend(self) -> None:
+        """Backend kiválasztása hardver detekció alapján.
+        
+        Ez a metódus felelős a megfelelő tárolási backend kiválasztásáért
+        a hardver képességek alapján. Külön metódusba van kiszervezve,
+        hogy a tesztek könnyen mockolhassák.
+        """
         if has_avx2():
             from neural_ai.core.storage.backends.polars_backend import PolarsBackend
 
@@ -75,8 +95,6 @@ class ParquetStorageService(metaclass=SingletonMeta):
 
             self.backend = PandasBackend()
             logger.warning("Legacy CPU detected. Running in Compatibility Mode with PandasBackend.")
-
-        logger.info(f"ParquetStorageService initialized with {self.backend.name} backend")
 
     def _get_path(self, symbol: str, date: datetime) -> Path:
         """Elérési út generálása a megadott szimbólumhoz és dátumhoz.
@@ -338,7 +356,8 @@ class ParquetStorageService(metaclass=SingletonMeta):
             df = self.backend.read(str(path))
             # Csak a fontos oszlopok alapján
             if self.engine == "polars":
-                data_str = df.select(["timestamp", "bid", "ask"]).to_csv()
+                import polars as pl
+                data_str = df.select(["timestamp", "bid", "ask"]).write_csv()
             else:
                 data_str = df[["timestamp", "bid", "ask"]].to_csv(index=False)
             return hashlib.sha256(data_str.encode()).hexdigest()
