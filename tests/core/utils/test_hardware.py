@@ -8,11 +8,7 @@ import tempfile
 import unittest.mock
 from pathlib import Path
 
-from neural_ai.core.utils.hardware import (
-    get_cpu_features,
-    has_avx2,
-    supports_simd,
-)
+from neural_ai.core.utils.factory import HardwareFactory
 
 
 class TestHasAvx2:
@@ -20,17 +16,19 @@ class TestHasAvx2:
 
     def test_has_avx2_returns_bool(self) -> None:
         """Teszteli, hogy a függvény bool értéket ad vissza."""
-        result = has_avx2()
+        hardware_info = HardwareFactory.get_hardware_info()
+        result = hardware_info.has_avx2()
         assert isinstance(result, bool)
 
     def test_has_avx2_non_linux_returns_false(self) -> None:
         """Teszteli, hogy nem Linux rendszereken False-t ad vissza."""
+        hardware_info = HardwareFactory.get_hardware_info()
         with unittest.mock.patch("platform.system", return_value="Windows"):
-            result = has_avx2()
+            result = hardware_info.has_avx2()
             assert result is False
 
         with unittest.mock.patch("platform.system", return_value="Darwin"):
-            result = has_avx2()
+            result = hardware_info.has_avx2()
             assert result is False
 
     def test_has_avx2_with_avx2_flag(self) -> None:
@@ -46,16 +44,17 @@ flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
             temp_path = f.name
 
         try:
+            hardware_info = HardwareFactory.get_hardware_info()
             with (
                 unittest.mock.patch("platform.system", return_value="Linux"),
                 unittest.mock.patch(
-                    "neural_ai.core.utils.hardware.os.path.exists", return_value=True
+                    "neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True
                 ),
                 unittest.mock.patch(
                     "builtins.open", unittest.mock.mock_open(read_data=cpuinfo_content)
                 ),
             ):
-                result = has_avx2()
+                result = hardware_info.has_avx2()
                 assert result is True
         finally:
             Path(temp_path).unlink(missing_ok=True)
@@ -68,43 +67,47 @@ vendor_id   : GenuineIntel
 cpu family  : 6
 flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
 """
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch(
                 "builtins.open", unittest.mock.mock_open(read_data=cpuinfo_content)
             ),
         ):
-            result = has_avx2()
+            result = hardware_info.has_avx2()
             assert result is False
 
     def test_has_avx2_file_not_found(self) -> None:
         """Teszteli a viselkedést, ha a /proc/cpuinfo fájl nem létezik."""
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=False),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=False),
         ):
-            result = has_avx2()
+            result = hardware_info.has_avx2()
             assert result is False
 
     def test_has_avx2_io_error(self) -> None:
         """Teszteli a viselkedést IOError esetén."""
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch("builtins.open", side_effect=OSError("Permission denied")),
         ):
-            result = has_avx2()
+            result = hardware_info.has_avx2()
             assert result is False
 
     def test_has_avx2_permission_error(self) -> None:
         """Teszteli a viselkedést PermissionError esetén."""
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch("builtins.open", side_effect=PermissionError("Permission denied")),
         ):
-            result = has_avx2()
+            result = hardware_info.has_avx2()
             assert result is False
 
     def test_has_avx2_malformed_cpuinfo(self) -> None:
@@ -114,14 +117,15 @@ processor   : 0
 vendor_id   : GenuineIntel
 malformed line without colon
 """
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch(
                 "builtins.open", unittest.mock.mock_open(read_data=cpuinfo_content)
             ),
         ):
-            result = has_avx2()
+            result = hardware_info.has_avx2()
             assert result is False
 
     def test_has_avx2_no_flags_line(self) -> None:
@@ -131,14 +135,15 @@ processor   : 0
 vendor_id   : GenuineIntel
 cpu family  : 6
 """
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch(
                 "builtins.open", unittest.mock.mock_open(read_data=cpuinfo_content)
             ),
         ):
-            result = has_avx2()
+            result = hardware_info.has_avx2()
             assert result is False
 
 
@@ -147,13 +152,15 @@ class TestGetCpuFeatures:
 
     def test_get_cpu_features_returns_set(self) -> None:
         """Teszteli, hogy a függvény set-et ad vissza."""
-        result = get_cpu_features()
+        hardware_info = HardwareFactory.get_hardware_info()
+        result = hardware_info.get_cpu_features()
         assert isinstance(result, set)
 
     def test_get_cpu_features_non_linux_returns_empty(self) -> None:
         """Teszteli, hogy nem Linux rendszereken üres halmazt ad vissza."""
+        hardware_info = HardwareFactory.get_hardware_info()
         with unittest.mock.patch("platform.system", return_value="Windows"):
-            result = get_cpu_features()
+            result = hardware_info.get_cpu_features()
             assert result == set()
 
     def test_get_cpu_features_with_flags(self) -> None:
@@ -163,34 +170,37 @@ processor   : 0
 flags       : fpu vme de pse tsc msr pae mce cx8 apic sep
 """
         expected = {"fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce", "cx8", "apic", "sep"}
+        hardware_info = HardwareFactory.get_hardware_info()
 
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch(
                 "builtins.open", unittest.mock.mock_open(read_data=cpuinfo_content)
             ),
         ):
-            result = get_cpu_features()
+            result = hardware_info.get_cpu_features()
             assert result == expected
 
     def test_get_cpu_features_file_not_found(self) -> None:
         """Teszteli a viselkedést, ha a /proc/cpuinfo fájl nem létezik."""
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=False),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=False),
         ):
-            result = get_cpu_features()
+            result = hardware_info.get_cpu_features()
             assert result == set()
 
     def test_get_cpu_features_io_error(self) -> None:
         """Teszteli a viselkedést IOError esetén."""
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch("builtins.open", side_effect=OSError("Permission denied")),
         ):
-            result = get_cpu_features()
+            result = hardware_info.get_cpu_features()
             assert result == set()
 
     def test_get_cpu_features_no_flags_line(self) -> None:
@@ -199,14 +209,15 @@ flags       : fpu vme de pse tsc msr pae mce cx8 apic sep
 processor   : 0
 vendor_id   : GenuineIntel
 """
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch(
                 "builtins.open", unittest.mock.mock_open(read_data=cpuinfo_content)
             ),
         ):
-            result = get_cpu_features()
+            result = hardware_info.get_cpu_features()
             assert result == set()
 
 
@@ -215,7 +226,8 @@ class TestSupportsSimd:
 
     def test_supports_simd_returns_bool(self) -> None:
         """Teszteli, hogy a függvény bool értéket ad vissza."""
-        result = supports_simd()
+        hardware_info = HardwareFactory.get_hardware_info()
+        result = hardware_info.supports_simd()
         assert isinstance(result, bool)
 
     def test_supports_simd_with_all_simd_flags(self) -> None:
@@ -224,14 +236,15 @@ class TestSupportsSimd:
 processor   : 0
 flags       : sse sse2 sse3 ssse3 sse4_1 sse4_2 avx
 """
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch(
                 "builtins.open", unittest.mock.mock_open(read_data=cpuinfo_content)
             ),
         ):
-            result = supports_simd()
+            result = hardware_info.supports_simd()
             assert result is True
 
     def test_supports_simd_with_some_simd_flags(self) -> None:
@@ -240,14 +253,15 @@ flags       : sse sse2 sse3 ssse3 sse4_1 sse4_2 avx
 processor   : 0
 flags       : sse sse2 avx
 """
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch(
                 "builtins.open", unittest.mock.mock_open(read_data=cpuinfo_content)
             ),
         ):
-            result = supports_simd()
+            result = hardware_info.supports_simd()
             assert result is True
 
     def test_supports_simd_without_simd_flags(self) -> None:
@@ -256,20 +270,22 @@ flags       : sse sse2 avx
 processor   : 0
 flags       : fpu vme de pse tsc msr
 """
+        hardware_info = HardwareFactory.get_hardware_info()
         with (
             unittest.mock.patch("platform.system", return_value="Linux"),
-            unittest.mock.patch("neural_ai.core.utils.hardware.os.path.exists", return_value=True),
+            unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True),
             unittest.mock.patch(
                 "builtins.open", unittest.mock.mock_open(read_data=cpuinfo_content)
             ),
         ):
-            result = supports_simd()
+            result = hardware_info.supports_simd()
             assert result is False
 
     def test_supports_simd_non_linux_returns_false(self) -> None:
         """Teszteli, hogy nem Linux rendszereken False-t ad vissza."""
+        hardware_info = HardwareFactory.get_hardware_info()
         with unittest.mock.patch("platform.system", return_value="Windows"):
-            result = supports_simd()
+            result = hardware_info.supports_simd()
             assert result is False
 
 
@@ -279,30 +295,32 @@ class TestIntegration:
     def test_all_functions_work_together(self) -> None:
         """Teszteli, hogy az összes függvény együttműködik."""
         # Csak ellenőrizzük, hogy minden függvény hívható anélkül, hogy kivételt dobna
-        has_avx2()
-        get_cpu_features()
-        supports_simd()
+        hardware_info = HardwareFactory.get_hardware_info()
+        hardware_info.has_avx2()
+        hardware_info.get_cpu_features()
+        hardware_info.supports_simd()
 
     def test_actual_system_compatibility(self) -> None:
         """Teszteli a függvényeket a tényleges rendszeren."""
         # Ez a teszt a tényleges rendszeren fut, és ellenőrzi a valós viselkedést
+        hardware_info = HardwareFactory.get_hardware_info()
         if platform.system() == "Linux":
             # Linux rendszeren ellenőrizzük, hogy a függvények értelmes értékeket adnak vissza
-            features = get_cpu_features()
+            features = hardware_info.get_cpu_features()
             assert isinstance(features, set)
 
-            avx2_result = has_avx2()
+            avx2_result = hardware_info.has_avx2()
             assert isinstance(avx2_result, bool)
 
-            simd_result = supports_simd()
+            simd_result = hardware_info.supports_simd()
             assert isinstance(simd_result, bool)
         else:
             # Nem Linux rendszeren ellenőrizzük a helyes viselkedést
-            features = get_cpu_features()
+            features = hardware_info.get_cpu_features()
             assert features == set()
 
-            avx2_result = has_avx2()
+            avx2_result = hardware_info.has_avx2()
             assert avx2_result is False
 
-            simd_result = supports_simd()
+            simd_result = hardware_info.supports_simd()
             assert simd_result is False
