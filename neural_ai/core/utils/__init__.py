@@ -5,14 +5,10 @@ beleértve a hardver detekciót, típuskonverziókat és egyéb általános cél
 eszközöket.
 """
 
-from neural_ai.core.utils.hardware import (
-    get_cpu_features,
-    has_avx2,
-    supports_simd,
-)
+from neural_ai.core.utils.factory import HardwareFactory
+from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 __all__ = [
-    "get_cpu_features",
-    "has_avx2",
-    "supports_simd",
+    "HardwareFactory",
+    "HardwareInterface",
 ]

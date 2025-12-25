@@ -4,10 +4,23 @@
 
 A `neural_ai.core.utils` csomag tartalmazza a Neural AI Next rendszer alapvető segédfunkcióit és utility osztályait. Ezek a komponensek általános célú eszközöket nyújtanak, amelyeket a rendszer különböző részei használhatnak.
 
+## Architektúra
+
+A csomag az alábbi architektúrát követi:
+
+- **Interfészek**: Az [`interfaces/`](interfaces/) könyvtár tartalmazza az összes utility interfészt.
+- **Implementációk**: A [`implementations/`](implementations/) könyvtár tartalmazza a konkrét implementációkat.
+- **Factory**: A [`factory.py`](factory.md) fájl tartalmazza a Factory osztályokat a példányosításhoz.
+
 ## Almodulok
 
 ### Hardware
-A [`hardware`](hardware.md) modul hardver-specifikus képességek detektálását valósítja meg, különös tekintettel a CPU utasításkészlet-bővítményekre.
+
+A hardver-specifikus képességek detektálását az alábbi komponensek valósítják meg:
+
+- **Interfész**: [`HardwareInterface`](interfaces/hardware_interface.md) - A hardverinformációk lekérdezéséhez szükséges metódusokat definiálja.
+- **Implementáció**: [`HardwareInfo`](implementations/hardware_info.md) - A hardverinformációk lekérdezését implementálja a `/proc/cpuinfo` fájl elemzésével.
+- **Factory**: [`HardwareFactory`](factory.md) - A `HardwareInfo` példányosításáért felelős.
 
 **Fő funkciók:**
 - AVX2 támogatás ellenőrzése
@@ -17,15 +30,22 @@ A [`hardware`](hardware.md) modul hardver-specifikus képességek detektálásá
 ## Használat
 
 ```python
-from neural_ai.core.utils.hardware import has_avx2, get_cpu_features
+from neural_ai.core.utils import HardwareFactory
+
+# Factory-n keresztül kapjuk meg a példányt
+hardware_info = HardwareFactory.get_hardware_info()
 
 # AVX2 támogatás ellenőrzése
-if has_avx2():
+if hardware_info.has_avx2():
     print("AVX2 támogatott")
 
 # CPU feature-ök lekérdezése
-features = get_cpu_features()
+features = hardware_info.get_cpu_features()
 print(f"CPU feature-ök: {features}")
+
+# SIMD támogatás ellenőrzése
+if hardware_info.supports_simd():
+    print("SIMD támogatott")
 ```
 
 ## Jövőbeli bővítések
@@ -54,6 +74,6 @@ A következő utility modulok tervezettek:
 
 ---
 
-**Utolsó frissítés:** 2025-12-24  
-**Verzió:** 1.0.0  
-**Státusz:** 🚧 Fejlesztés alatt
+**Utolsó frissítés:** 2025-12-25  
+**Verzió:** 2.0.0  
+**Státusz:** ✅ Aktív

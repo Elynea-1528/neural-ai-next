@@ -73,10 +73,14 @@
 | `neural_ai/core/events/implementations/zeromq_bus.py` | [✅|✅|✅] | ⭐⭐⭐⭐ | 2.0k | `zmq, asyncio` | ✅ DONE |
 | `neural_ai/core/events/factory.py` | [✅|✅|✅] | ⭐⭐ | 0.5k | - | ✅ DONE |
 | `neural_ai/core/events/interfaces/event_models.py` | [✅|✅|✅] | ⭐⭐⭐ | 1.0k | `pydantic` | ✅ DONE |
-| `neural_ai/core/utils/hardware.py` | [✅|✅|✅] | ⭐⭐ | 0.8k | - | ✅ DONE |
+| `neural_ai/core/utils/interfaces/hardware_interface.py` | [✅|✅|✅] | ⭐⭐ | 0.5k | - | ✅ DONE |
+| `neural_ai/core/utils/implementations/hardware_info.py` | [✅|✅|✅] | ⭐⭐ | 1.0k | - | ✅ DONE |
+| `neural_ai/core/utils/factory.py` | [✅|✅|✅] | ⭐ | 0.3k | - | ✅ DONE |
 | `neural_ai/core/utils/__init__.py` | [✅|✅|✅] | ⭐ | 0.2k | - | ✅ DONE |
 | `tests/core/utils/test_hardware.py` | [✅|✅|✅] | ⭐⭐ | 1.2k | `pytest` | ✅ DONE |
-| `docs/components/neural_ai/core/utils/hardware.md` | [✅|✅|✅] | ⭐⭐ | 1.0k | - | ✅ DONE |
+| `docs/components/neural_ai/core/utils/interfaces/hardware_interface.md` | [✅|✅|✅] | ⭐⭐ | 0.8k | - | ✅ DONE |
+| `docs/components/neural_ai/core/utils/implementations/hardware_info.md` | [✅|✅|✅] | ⭐⭐ | 1.0k | - | ✅ DONE |
+| `docs/components/neural_ai/core/utils/factory.md` | [✅|✅|✅] | ⭐ | 0.5k | - | ✅ DONE |
 | `docs/components/neural_ai/core/utils/__init__.md` | [✅|✅|✅] | ⭐ | 0.5k | - | ✅ DONE |
 | `neural_ai/core/storage/backends/base.py` | [✅|✅|✅] | ⭐⭐⭐ | 1.0k | - | ✅ DONE |
 | `neural_ai/core/storage/backends/polars_backend.py` | [✅|✅|✅] | ⭐⭐⭐⭐ | 1.5k | `polars` | ✅ DONE |
