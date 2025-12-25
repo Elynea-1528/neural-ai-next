@@ -7,10 +7,8 @@ szükséges teszteseteket.
 from importlib import import_module
 from unittest import TestCase
 
-from neural_ai.core.config.implementations import (
-    ConfigManagerFactory,
-    YAMLConfigManager,
-)
+from neural_ai.core.config import ConfigManagerFactory
+from neural_ai.core.config.implementations import YAMLConfigManager
 
 
 class TestInit(TestCase):

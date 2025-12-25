@@ -96,7 +96,7 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
         >>> config_value = core.config.get("database.host")
     """
     # Importok a függőségi körkörök elkerüléséhez
-    from neural_ai.core.config.implementations.config_manager_factory import ConfigManagerFactory
+    from neural_ai.core.config.factory import ConfigManagerFactory
     from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
     from neural_ai.core.storage.implementations.storage_factory import StorageFactory
 

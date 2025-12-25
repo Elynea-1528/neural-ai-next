@@ -16,9 +16,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.pool import NullPool
 
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-from neural_ai.core.config.implementations.config_manager_factory import (
-    ConfigManagerFactory,
-)
+from neural_ai.core.config.factory import ConfigManagerFactory
 
 # Globális változók a session factory-nek
 _engine: Any | None = None  # type: ignore

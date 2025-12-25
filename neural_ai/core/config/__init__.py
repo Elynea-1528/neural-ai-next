@@ -45,9 +45,7 @@ from neural_ai.core.config.exceptions import (
     ConfigTypeError,
     ConfigValidationError,
 )
-from neural_ai.core.config.implementations.config_manager_factory import (
-    ConfigManagerFactory,
-)
+from neural_ai.core.config.factory import ConfigManagerFactory
 from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.config.interfaces.factory_interface import (

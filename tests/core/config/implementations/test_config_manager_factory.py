@@ -7,9 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from neural_ai.core.config.exceptions import ConfigLoadError
-from neural_ai.core.config.implementations.config_manager_factory import (
-    ConfigManagerFactory,
-)
+from neural_ai.core.config.factory import ConfigManagerFactory
 from neural_ai.core.config.implementations.yaml_config_manager import (
     YAMLConfigManager,
 )

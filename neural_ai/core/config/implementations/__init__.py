@@ -24,10 +24,8 @@ from importlib import metadata
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .config_manager_factory import ConfigManagerFactory as ConfigManagerFactory
     from .yaml_config_manager import YAMLConfigManager as YAMLConfigManager
 
-from .config_manager_factory import ConfigManagerFactory
 from .yaml_config_manager import YAMLConfigManager
 
 # Dinamikus verzióbetöltés a pyproject.toml-ből
@@ -40,7 +38,6 @@ except metadata.PackageNotFoundError:
 SCHEMA_VERSION: str = "1.0.0"
 
 __all__ = [
-    "ConfigManagerFactory",
     "YAMLConfigManager",
     "__version__",
     "SCHEMA_VERSION",

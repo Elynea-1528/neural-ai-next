@@ -221,9 +221,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             DependencyError: Ha szükséges függőségek hiányoznak
         """
         from neural_ai.core.base.implementations.component_bundle import CoreComponents
-        from neural_ai.core.config.implementations.config_manager_factory import (
-            ConfigManagerFactory,
-        )
+        from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
@@ -295,9 +293,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         """
         from neural_ai.core.base.implementations.component_bundle import CoreComponents
         from neural_ai.core.config.exceptions import ConfigLoadError
-        from neural_ai.core.config.implementations.config_manager_factory import (
-            ConfigManagerFactory,
-        )
+        from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
@@ -385,9 +381,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("config_manager", config)
 
         # Create config manager using ConfigManagerFactory
-        from neural_ai.core.config.implementations.config_manager_factory import (
-            ConfigManagerFactory,
-        )
+        from neural_ai.core.config.factory import ConfigManagerFactory
 
         return ConfigManagerFactory.get_manager(config_file_path)
 
