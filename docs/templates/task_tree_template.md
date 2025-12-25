@@ -24,13 +24,26 @@
 
 | File Path | Matrix `[S|T|D]` | Stmt% | Brch% | Complexity | Token Est. | Dependencies | Status |
 |-----------|:----------------:|:-----:|:-----:|:----------:|:----------:|:-------------|:------:|
-| `[relatív/útvonal.py]` | `[✅/❌\|✅/❌\|✅/❌]` | `[XX%]` | `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
-| `[relatív/útvonal.py]` | `[✅/❌\|✅/❌\|✅/❌]` | `[XX%]` | `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
+| `[relatív/útvonal.py]` | `[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]` |🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 `[XX%]` | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
+| `[relatív/útvonal.py]` | `[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]` |🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 `[XX%]` | 🟨🟨🟨🟨🟨🟨⬜⬜⬜⬜ `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
+| `[relatív/útvonal.py]` | `[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]` |🟨🟨🟨🟨🟨🟨⬜⬜⬜⬜ `[XX%]` | 🟥🟥🟥⬜⬜⬜⬜⬜⬜⬜ `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
+| `[relatív/útvonal.py]` | `[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]` |🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥 `[XX%]` | 🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥 `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
 
-**Matrix Jelmagyarázat:**
-- **S** = Source Code (Forrás kód elkészült)
-- **T** = Test Coverage (Tesztek elkészültek és átmennek)
-- **D** = Documentation (Dokumentáció elkészült)
+## 🔑 MATRIX DEFINITIONS
+### `[S|T|D]` Components
+- **S (Source Code):**
+  - `❌` Missing / Syntax Error
+  - `🟡` Working but messy (Any types, bad naming)
+  - `✅` Clean Code, Strict Types, Pylance compatible
+- **T (Tests):**
+  - `❌` No tests / Failing tests
+  - `🟡` Happy path only (<80% coverage)
+  - `✅` Full edge-case coverage (100%)
+- **D (Documentation):**
+  - `❌` No docstrings / No mirror file
+  - `🟡` Basic docstrings / Outdated mirror
+  - `✅` Google Style Docstrings + `docs/components/` mirror
+
 
 **Statusz Jelmagyarázat:**
 - **✅ PERFECT** = 100% Stmt / 100% Brch Coverage + Type Checked + Dokumentálva
@@ -50,7 +63,7 @@
 
 | File Path | Matrix `[S|T|D]` | Stmt% | Brch% | Complexity | Token Est. | Dependencies | Status |
 |-----------|:----------------:|:-----:|:-----:|:----------:|:----------:|:-------------|:------:|
-| `[relatív/útvonal.py]` | `[✅/❌\|✅/❌\|✅/❌]` | `[XX%]` | `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
+| `[relatív/útvonal.py]` | `[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]` |🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 `[XX%]` | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
 
 ---
 
@@ -80,7 +93,7 @@
 
 | Issue | Severity | Affected Files | Notes |
 |-------|:--------:|:---------------|:------|
-| `[Issue leírás]` | `[🔴/🟡/🟢]` | `[fájlok]` | `[Megjegyzés]` |
+| `[Issue leírás]` | `[✅/🟢/🟡/🔴]` | `[fájlok]` | `[Megjegyzés]` |
 
 ---
 
@@ -88,11 +101,11 @@
 
 | Metric | Target | Current | Status |
 |--------|:------:|:-------:|:------:|
-| Code Coverage (Stmt) | 100% | `[XX%]` | `[✅/🟡/🔴]` |
-| Code Coverage (Branch) | 100% | `[XX%]` | `[✅/🟡/🔴]` |
-| Type Safety | Strict | `[Strict/Partial]` | `[✅/🟡/🔴]` |
-| Linter Errors | 0 | `[X]` | `[✅/🟡/🔴]` |
-| Documentation | 100% | `[XX%]` | `[✅/🟡/🔴]` |
+| Code Coverage (Stmt) | 100% | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩`[XX%]` | `[✅/🟢/🟡/🔴]` |
+| Code Coverage (Branch) | 100% | 🟨🟨🟨🟨🟨🟨🟨🟨⬜⬜`[XX%]` | `[✅/🟢/🟡/🔴]` |
+| Type Safety | Strict | `[Strict/Partial]` | `[✅/🟢/🟡/🔴]` |
+| Linter Errors | 0 | `[X]` | `[✅/🟢/🟡/🔴]` |
+| Documentation | 100% | 🟥🟥🟥⬜⬜⬜⬜⬜⬜⬜`[XX%]` | `[✅/🟢/🟡/🔴]` |
 
 ---
 
