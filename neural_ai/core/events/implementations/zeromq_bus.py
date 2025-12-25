@@ -233,7 +233,7 @@ class EventBus:
             A deserializált esemény objektum vagy None ha hiba történt
         """
         # Importáljuk itt, hogy elkerüljük a körkörös importot
-        from neural_ai.core.events.events import (
+        from neural_ai.core.events.interfaces.event_models import (
             MarketDataEvent,
             OrderEvent,
             PositionEvent,
