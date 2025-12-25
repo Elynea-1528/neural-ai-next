@@ -10,7 +10,7 @@ from sqlalchemy import Boolean, Index, String, Text
 from sqlalchemy.dialects.sqlite import JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import Base
+from .model_base import Base
 
 
 class DynamicConfig(Base):
@@ -152,4 +152,5 @@ class LogEntry(Base):
         Returns:
             A modell rövid string reprezentációja.
         """
-        return f"<LogEntry(level='{self.level}', logger='{self.logger_name}', message='{self.message[:50]}...')>"
+        msg = self.message[:50]
+        return f"<LogEntry(level='{self.level}', logger='{self.logger_name}', message='{msg}...')>"

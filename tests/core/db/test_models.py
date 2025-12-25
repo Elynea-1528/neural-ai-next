@@ -11,8 +11,8 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
-from neural_ai.core.db.base import Base
-from neural_ai.core.db.models import DynamicConfig, LogEntry
+from neural_ai.core.db.implementations.model_base import Base
+from neural_ai.core.db.implementations.models import DynamicConfig, LogEntry
 
 
 @pytest.fixture

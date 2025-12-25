@@ -15,8 +15,8 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
-from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.config.factory import ConfigManagerFactory
+from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 
 # Globális változók a session factory-nek
 _engine: Any | None = None  # type: ignore
@@ -226,7 +226,7 @@ class DatabaseManager:
         Args:
             config_manager: Opcionális konfiguráció kezelő.
         """
-        self.config_manager = config_manager or ConfigManagerFactory.get_manager()
+        self.config_manager = config_manager or ConfigManagerFactory.get_manager("config.yaml")
         self._engine: Any | None = None
         self._session_maker: Any | None = None
 

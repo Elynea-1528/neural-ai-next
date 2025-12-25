@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from neural_ai.core.db.session import (
+from neural_ai.core.db.implementations.sqlalchemy_session import (
     DatabaseManager,
     close_db,
     create_engine,
@@ -40,7 +40,7 @@ class TestGetDatabaseUrl:
 
     def test_get_database_url_without_config_manager(self):
         """Teszteli az adatbázis URL lekérdezést alapértelmezett konfigurációval."""
-        with patch("neural_ai.core.db.session.ConfigManagerFactory.get_manager") as mock_factory:
+        with patch("neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory.get_manager") as mock_factory:
             mock_config = Mock()
             mock_config.get.return_value = "sqlite+aiosqlite:///neural_ai.db"
             mock_factory.return_value = mock_config
@@ -88,8 +88,8 @@ class TestGetEngine:
 
     def test_get_engine_creates_once(self):
         """Teszteli, hogy az engine csak egyszer jön létre."""
-        with patch("neural_ai.core.db.session.create_engine") as mock_create:
-            with patch("neural_ai.core.db.session.ConfigManagerFactory.get_manager") as mock_factory:
+        with patch("neural_ai.core.db.implementations.sqlalchemy_session.create_engine") as mock_create:
+            with patch("neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory.get_manager") as mock_factory:
                 mock_config = Mock()
                 mock_config.get.return_value = "sqlite+aiosqlite:///test.db"
                 mock_factory.return_value = mock_config
@@ -112,7 +112,7 @@ class TestGetAsyncSessionMaker:
 
     def test_get_async_session_maker_creates_once(self):
         """Teszteli, hogy a session maker csak egyszer jön létre."""
-        with patch("neural_ai.core.db.session.get_engine") as mock_get_engine:
+        with patch("neural_ai.core.db.implementations.sqlalchemy_session.get_engine") as mock_get_engine:
             mock_engine = Mock()
             mock_get_engine.return_value = mock_engine
 
@@ -137,7 +137,7 @@ class TestGetDbSession:
         mock_session.rollback = AsyncMock()
         mock_session.close = AsyncMock()
 
-        with patch("neural_ai.core.db.session.get_async_session_maker") as mock_maker:
+        with patch("neural_ai.core.db.implementations.sqlalchemy_session.get_async_session_maker") as mock_maker:
             mock_maker.return_value.return_value.__aenter__.return_value = mock_session
 
             async with get_db_session() as session:
@@ -156,7 +156,7 @@ class TestGetDbSession:
         mock_session.rollback = AsyncMock()
         mock_session.close = AsyncMock()
 
-        with patch("neural_ai.core.db.session.get_async_session_maker") as mock_maker:
+        with patch("neural_ai.core.db.implementations.sqlalchemy_session.get_async_session_maker") as mock_maker:
             mock_maker.return_value.return_value.__aenter__.return_value = mock_session
 
             with pytest.raises(Exception):
@@ -177,7 +177,7 @@ class TestGetDbSessionDirect:
         """Teszteli, hogy a függvény session-t ad vissza."""
         mock_session = Mock(spec=AsyncSession)
 
-        with patch("neural_ai.core.db.session.get_async_session_maker") as mock_maker:
+        with patch("neural_ai.core.db.implementations.sqlalchemy_session.get_async_session_maker") as mock_maker:
             mock_maker.return_value.return_value = mock_session
 
             session = await get_db_session_direct()
@@ -197,7 +197,7 @@ class TestInitDb:
         mock_engine.begin.return_value.__aenter__.return_value = mock_conn
         mock_engine.begin.return_value.__aexit__.return_value = None
 
-        with patch("neural_ai.core.db.session.get_engine", return_value=mock_engine):
+        with patch("neural_ai.core.db.implementations.sqlalchemy_session.get_engine", return_value=mock_engine):
             await init_db()
 
             # Ellenőrzés, hogy a függvény lefutott
@@ -212,8 +212,8 @@ class TestCloseDb:
         """Teszteli, hogy a close_db felszabadítja az engine-t."""
         mock_engine = AsyncMock()
 
-        with patch("neural_ai.core.db.session._engine", mock_engine):
-            with patch("neural_ai.core.db.session._async_session_maker", Mock()):
+        with patch("neural_ai.core.db.implementations.sqlalchemy_session._engine", mock_engine):
+            with patch("neural_ai.core.db.implementations.sqlalchemy_session._async_session_maker", Mock()):
                 await close_db()
 
                 # Ellenőrzés, hogy a dispose meghívásra került
@@ -234,7 +234,7 @@ class TestDatabaseManager:
 
         manager = DatabaseManager(mock_config)
 
-        with patch("neural_ai.core.db.session.create_engine") as mock_create_engine:
+        with patch("neural_ai.core.db.implementations.sqlalchemy_session.create_engine") as mock_create_engine:
             mock_engine = Mock()
             mock_conn = AsyncMock()
             mock_engine.begin.return_value = AsyncMock()

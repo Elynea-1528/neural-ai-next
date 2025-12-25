@@ -1,12 +1,11 @@
-"""Adatbázis modul a Neural AI Next rendszerhez.
+"""Adatbázis implementációk a Neural AI Next rendszerhez.
 
-Ez a modul biztosítja az adatbázis kapcsolat kezelést, modelleket és session
-factory-t az aszinkron adatbázis műveletekhez.
+Ez a modul tartalmazza az adatbázis műveletek konkrét implementációit.
 """
 
-from .implementations.model_base import Base
-from .implementations.models import DynamicConfig, LogEntry
-from .implementations.sqlalchemy_session import (
+from .model_base import Base
+from .models import DynamicConfig, LogEntry
+from .sqlalchemy_session import (
     DatabaseManager,
     close_db,
     create_engine,
