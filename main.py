@@ -31,6 +31,24 @@ from neural_ai.core.logger.factory import LoggerFactory
 logger = structlog.get_logger("neural_ai.bootstrap")
 
 
+class StaticConfig(BaseSettings):
+    """Statikus konfiguráció (lásd: docs/planning/specs/02_dynamic_configuration.md)."""
+
+    app_env: str = "development"
+    log_level: str = "INFO"
+    db_url: str = "sqlite+aiosqlite:///neural_ai.db"
+    trading_symbols: list = ["EURUSD", "XAUUSD", "GBPUSD", "USDJPY", "USDCHF"]
+    data_base_path: str = "/data/tick"
+    api_host: str = "0.0.0.0"
+    api_port: int = 8000
+
+    class Config:
+        """Pydantic konfiguráció osztály."""
+
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
 def setup_logging(config: StaticConfig) -> None:
     """Logging rendszer konfigurálása structlog-gal.
     
@@ -69,22 +87,6 @@ def setup_logging(config: StaticConfig) -> None:
     logger.info("logging_setup_completed")
 
 
-class StaticConfig(BaseSettings):
-    """Statikus konfiguráció (lásd: docs/planning/specs/02_dynamic_configuration.md)."""
-
-    app_env: str = "development"
-    log_level: str = "INFO"
-    db_url: str = "sqlite+aiosqlite:///neural_ai.db"
-    trading_symbols: list = ["EURUSD", "XAUUSD", "GBPUSD", "USDJPY", "USDCHF"]
-    data_base_path: str = "/data/tick"
-    api_host: str = "0.0.0.0"
-    api_port: int = 8000
-
-    class Config:
-        """Pydantic konfiguráció osztály."""
-
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
 
 async def setup_database(config: StaticConfig):
