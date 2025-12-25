@@ -548,3 +548,87 @@ class TestEventBusErrorHandling:
         # Második stop nem okozhat hibát
         await bus.stop()
         assert bus._running is False
+
+
+class TestEventBusPortBinding:
+    """ZeroMQ port foglaltság tesztjei."""
+
+    @pytest.mark.asyncio
+    async def test_port_already_in_use_pub_port(self):
+        """Teszteli a publisher port foglaltság hibát."""
+        config1 = EventBusConfig(pub_port=5555, sub_port=5556, use_inproc=False)
+        bus1 = EventBus(config=config1)
+
+        # Elindítjuk az első bus-t
+        await bus1.start()
+        assert bus1._running is True
+
+        # Megpróbáljuk elindítani a második bus-t ugyanazzal a pub porttal
+        config2 = EventBusConfig(pub_port=5555, sub_port=5557, use_inproc=False)
+        bus2 = EventBus(config=config2)
+
+        # A második bus start-jának hibát kell dobnia (ZMQError vagy OSError)
+        with pytest.raises((Exception, OSError)) as exc_info:
+            await bus2.start()
+
+        # Ellenőrizzük, hogy valamilyen socket/port hiba történt
+        assert exc_info.value is not None
+
+        # Takarítás
+        await bus1.stop()
+
+    @pytest.mark.asyncio
+    async def test_port_bind_failure_handling(self):
+        """Teszteli a port bindolási hiba kezelését."""
+        config = EventBusConfig(use_inproc=False)
+        bus = EventBus(config=config)
+
+        # Mockoljuk a publisher socket bind metódusát, hogy hibát dobjon
+        mock_socket = MagicMock()
+        mock_socket.bind.side_effect = Exception("Address already in use")
+
+        with patch.object(bus._context, "socket", return_value=mock_socket):
+            with pytest.raises(Exception, match="Address already in use"):
+                await bus.start()
+
+    @pytest.mark.asyncio
+    async def test_zmq_bind_error_simulation(self):
+        """Szimulálja a ZeroMQ bind hiba kezelését."""
+        config = EventBusConfig(pub_port=5555, use_inproc=False)
+        bus = EventBus(config=config)
+
+        # Mockoljuk a context.socket-et, hogy ZMQError-t dobjon
+        with patch.object(bus._context, "socket", side_effect=Exception("ZMQ Bind error")):
+            with pytest.raises(Exception, match="ZMQ Bind error"):
+                await bus.start()
+
+    @pytest.mark.asyncio
+    async def test_socket_creation_failure(self):
+        """Teszteli a socket létrehozási hibát."""
+        config = EventBusConfig(use_inproc=False)
+        bus = EventBus(config=config)
+
+        # Mockoljuk a context.socket-et, hogy None-t adjon vissza
+        with patch.object(bus._context, "socket", return_value=None):
+            with pytest.raises((AttributeError, EventBusError)):
+                await bus.start()
+
+    @pytest.mark.asyncio
+    async def test_multiple_buses_inproc_different_ports(self):
+        """Teszteli, hogy több bus is futhat inproc módban különböző portokon."""
+        config1 = EventBusConfig(pub_port=6666, sub_port=6667, use_inproc=True)
+        bus1 = EventBus(config=config1)
+
+        config2 = EventBusConfig(pub_port=6668, sub_port=6669, use_inproc=True)
+        bus2 = EventBus(config=config2)
+
+        # Mindkét bus-nak el kell indulnia inproc módban
+        await bus1.start()
+        await bus2.start()
+
+        assert bus1._running is True
+        assert bus2._running is True
+
+        # Takarítás
+        await bus1.stop()
+        await bus2.stop()

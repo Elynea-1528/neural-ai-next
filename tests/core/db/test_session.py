@@ -7,6 +7,7 @@ a kapcsolódó segédfunkciókhoz.
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
+from sqlalchemy.exc import ArgumentError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neural_ai.core.db.exceptions import DBConnectionError
@@ -82,6 +83,40 @@ class TestCreateEngine:
 
         assert engine is not None
         assert str(engine.url) == db_url
+
+    def test_create_engine_with_invalid_url(self):
+        """Teszteli a hibát, ha érvénytelen adatbázis URL-t adunk meg."""
+        # Érvénytelen URL (nincs driver megadva)
+        invalid_url = "invalid:///test.db"
+
+        with pytest.raises((ArgumentError, Exception)):
+            create_engine(invalid_url)
+
+    def test_create_engine_with_malformed_url(self):
+        """Teszteli a hibát, ha hibásan formázott adatbázis URL-t adunk meg."""
+        # Hibásan formázott URL
+        malformed_url = "sqlite+aiosqlite:///:memory:?invalid_param"
+
+        with pytest.raises((ArgumentError, Exception)):
+            create_engine(malformed_url)
+
+    def test_create_engine_with_sqlite_relative_path(self):
+        """Teszteli az engine létrehozását relatív útvonallal."""
+        db_url = "sqlite+aiosqlite:///./test.db"
+
+        engine = create_engine(db_url, echo=False)
+
+        assert engine is not None
+        assert "test.db" in str(engine.url)
+
+    def test_create_engine_with_sqlite_absolute_path(self):
+        """Teszteli az engine létrehozását abszolút útvonallal."""
+        db_url = "sqlite+aiosqlite:////tmp/test.db"
+
+        engine = create_engine(db_url, echo=False)
+
+        assert engine is not None
+        assert "/tmp/test.db" in str(engine.url)
 
 
 class TestGetEngine:
@@ -290,3 +325,70 @@ class TestDatabaseManager:
         mock_engine.dispose.assert_awaited_once()
         assert manager._engine is None
         assert manager._session_maker is None
+
+    @pytest.mark.asyncio
+    async def test_database_manager_initialize_with_invalid_url(self):
+        """Teszteli a DatabaseManager inicializálását érvénytelen URL-lel."""
+        mock_config = Mock()
+        mock_config.get.side_effect = lambda key, default=None: {
+            "db_url": "invalid:///test.db",  # Érvénytelen URL
+            "log_level": "INFO",
+        }.get(key, default)
+
+        manager = DatabaseManager(mock_config)
+
+        # Az inicializálásnak hibát kell dobnia
+        with pytest.raises((ArgumentError, Exception)):
+            await manager.initialize()
+
+    @pytest.mark.asyncio
+    async def test_database_manager_initialize_with_missing_url(self):
+        """Teszteli a DatabaseManager inicializálását hiányzó URL-lel."""
+        mock_config = Mock()
+        mock_config.get.side_effect = lambda key, default=None: {
+            "db_url": None,  # Hiányzó URL
+            "log_level": "INFO",
+        }.get(key, default)
+
+        manager = DatabaseManager(mock_config)
+
+        # Az inicializálásnak hibát kell dobnia
+        with pytest.raises(DBConnectionError, match="Adatbázis URL nincs konfigurálva"):
+            await manager.initialize()
+
+    @pytest.mark.asyncio
+    async def test_database_manager_double_initialize(self):
+        """Teszteli a dupla inicializálást."""
+        mock_config = Mock()
+        mock_config.get.side_effect = lambda key, default=None: {
+            "db_url": "sqlite+aiosqlite:///test.db",
+            "log_level": "INFO",
+        }.get(key, default)
+
+        manager = DatabaseManager(mock_config)
+
+        with patch("neural_ai.core.db.implementations.sqlalchemy_session.create_engine") as mock_create_engine:
+            mock_engine = Mock()
+            mock_conn = AsyncMock()
+            mock_engine.begin.return_value = AsyncMock()
+            mock_engine.begin.return_value.__aenter__.return_value = mock_conn
+            mock_engine.begin.return_value.__aexit__.return_value = None
+            mock_create_engine.return_value = mock_engine
+
+            # Első inicializálás
+            await manager.initialize()
+            assert manager._engine is not None
+
+            # Második inicializálás - nem szabad hibát dobnia
+            await manager.initialize()
+            assert manager._engine is not None
+
+    @pytest.mark.asyncio
+    async def test_database_manager_close_not_initialized(self):
+        """Teszteli a close-t ha nincs inicializálva."""
+        mock_config = Mock()
+        manager = DatabaseManager(mock_config)
+
+        # A close nem szabad hibát dobjon, ha nincs inicializálva
+        await manager.close()
+        assert manager._engine is None

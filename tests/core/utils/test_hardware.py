@@ -8,7 +8,10 @@ import tempfile
 import unittest.mock
 from pathlib import Path
 
+import pytest
+
 from neural_ai.core.utils.factory import HardwareFactory
+from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
 
 
 class TestHasAvx2:
@@ -324,3 +327,139 @@ class TestIntegration:
 
             simd_result = hardware_info.supports_simd()
             assert simd_result is False
+
+
+class TestHardwareInfoExceptionHandling:
+    """HardwareInfo kivételkezelés tesztjei."""
+
+    def test_cpuinfo_missing_exception_handling(self) -> None:
+        """Teszteli a /proc/cpuinfo hiányának kivételkezelését."""
+        hardware_info = HardwareInfo()
+
+        # Szimuláljuk, hogy a /proc/cpuinfo fájl nem létezik
+        with unittest.mock.patch("platform.system", return_value="Linux"):
+            with unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=False):
+                # A függvényeknek nem szabad kivételt dobniuk, hanem biztonságos értéket kell visszaadniuk
+                result_avx2 = hardware_info.has_avx2()
+                result_features = hardware_info.get_cpu_features()
+                result_simd = hardware_info.supports_simd()
+
+                assert result_avx2 is False
+                assert result_features == set()
+                assert result_simd is False
+
+    def test_cpuinfo_read_permission_error(self) -> None:
+        """Teszteli a /proc/cpuinfo olvasási jogosultság hiányát."""
+        hardware_info = HardwareInfo()
+
+        with unittest.mock.patch("platform.system", return_value="Linux"):
+            with unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True):
+                with unittest.mock.patch("builtins.open", side_effect=PermissionError("Access denied")):
+                    # A függvényeknek nem szabad kivételt dobniuk
+                    result_avx2 = hardware_info.has_avx2()
+                    result_features = hardware_info.get_cpu_features()
+                    result_simd = hardware_info.supports_simd()
+
+                    assert result_avx2 is False
+                    assert result_features == set()
+                    assert result_simd is False
+
+    def test_cpuinfo_file_io_error(self) -> None:
+        """Teszteli az IOError kezelését /proc/cpuinfo olvasásakor."""
+        hardware_info = HardwareInfo()
+
+        with unittest.mock.patch("platform.system", return_value="Linux"):
+            with unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True):
+                with unittest.mock.patch("builtins.open", side_effect=OSError("IO Error")):
+                    # A függvényeknek nem szabad kivételt dobniuk
+                    result_avx2 = hardware_info.has_avx2()
+                    result_features = hardware_info.get_cpu_features()
+                    result_simd = hardware_info.supports_simd()
+
+                    assert result_avx2 is False
+                    assert result_features == set()
+                    assert result_simd is False
+
+    def test_cpuinfo_empty_file(self) -> None:
+        """Teszteli az üres /proc/cpuinfo fájl kezelését."""
+        hardware_info = HardwareInfo()
+
+        with unittest.mock.patch("platform.system", return_value="Linux"):
+            with unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True):
+                with unittest.mock.patch("builtins.open", unittest.mock.mock_open(read_data="")):
+                    # Üres fájl esetén is biztonságos viselkedés
+                    result_avx2 = hardware_info.has_avx2()
+                    result_features = hardware_info.get_cpu_features()
+                    result_simd = hardware_info.supports_simd()
+
+                    assert result_avx2 is False
+                    assert result_features == set()
+                    assert result_simd is False
+
+    def test_cpuinfo_malformed_content(self) -> None:
+        """Teszteli a hibásan formázott /proc/cpuinfo tartalom kezelését."""
+        hardware_info = HardwareInfo()
+
+        # Teljesen hibás formátum
+        malformed_content = """
+sdfasdfasdf
+asdfasdfasdf
+asdfasdf
+"""
+        with unittest.mock.patch("platform.system", return_value="Linux"):
+            with unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True):
+                with unittest.mock.patch("builtins.open", unittest.mock.mock_open(read_data=malformed_content)):
+                    # Hibás formátum esetén is biztonságos viselkedés
+                    result_avx2 = hardware_info.has_avx2()
+                    result_features = hardware_info.get_cpu_features()
+                    result_simd = hardware_info.supports_simd()
+
+                    assert result_avx2 is False
+                    assert result_features == set()
+                    assert result_simd is False
+
+    def test_non_linux_platform_safety(self) -> None:
+        """Teszteli a nem Linux platformok biztonságos viselkedését."""
+        hardware_info = HardwareInfo()
+
+        # Windows platform
+        with unittest.mock.patch("platform.system", return_value="Windows"):
+            result_avx2 = hardware_info.has_avx2()
+            result_features = hardware_info.get_cpu_features()
+            result_simd = hardware_info.supports_simd()
+
+            assert result_avx2 is False
+            assert result_features == set()
+            assert result_simd is False
+
+        # macOS platform
+        with unittest.mock.patch("platform.system", return_value="Darwin"):
+            result_avx2 = hardware_info.has_avx2()
+            result_features = hardware_info.get_cpu_features()
+            result_simd = hardware_info.supports_simd()
+
+            assert result_avx2 is False
+            assert result_features == set()
+            assert result_simd is False
+
+    def test_cpuinfo_partial_flags_line(self) -> None:
+        """Teszteli a részleges flags sor kezelését."""
+        hardware_info = HardwareInfo()
+
+        # Flags sor ":" nélkül
+        cpuinfo_content = """
+processor   : 0
+vendor_id   : GenuineIntel
+flags       fpu vme de pse tsc msr
+"""
+        with unittest.mock.patch("platform.system", return_value="Linux"):
+            with unittest.mock.patch("neural_ai.core.utils.implementations.hardware_info.os.path.exists", return_value=True):
+                with unittest.mock.patch("builtins.open", unittest.mock.mock_open(read_data=cpuinfo_content)):
+                    result_avx2 = hardware_info.has_avx2()
+                    result_features = hardware_info.get_cpu_features()
+                    result_simd = hardware_info.supports_simd()
+
+                    # A split(":", 1) nem talál ":"-t, így a flags rész None lesz
+                    assert result_avx2 is False
+                    assert result_features == set()
+                    assert result_simd is False
