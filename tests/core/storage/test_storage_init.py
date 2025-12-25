@@ -29,7 +29,7 @@ class TestStorageModuleExports:
     def test_storage_factory_export(self) -> None:
         """Teszteli, hogy a StorageFactory elérhető-e a modulból."""
         assert hasattr(storage_module, "StorageFactory"), "StorageFactory nem elérhető"
-        from neural_ai.core.storage.implementations.storage_factory import (
+        from neural_ai.core.storage.factory import (
             StorageFactory as ExpectedStorageFactory,
         )
 

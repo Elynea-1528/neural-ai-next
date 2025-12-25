@@ -14,11 +14,12 @@ if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.implementations.file_storage import FileStorage
-    from neural_ai.core.storage.implementations.storage_factory import StorageFactory
+    from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
     from neural_ai.core.storage.interfaces.factory_interface import StorageFactoryInterface
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
-from neural_ai.core.storage.implementations import FileStorage, StorageFactory
+from neural_ai.core.storage.factory import StorageFactory
+from neural_ai.core.storage.implementations import FileStorage, ParquetStorageService
 
 # Dinamikus verzióbetöltés a pyproject.toml-ból
 try:
@@ -38,6 +39,7 @@ __all__: Final[list[str]] = [
     "__schema_version__",
     # Implementációk
     "FileStorage",
+    "ParquetStorageService",
     "StorageFactory",
     # Interfészek
     "StorageInterface",

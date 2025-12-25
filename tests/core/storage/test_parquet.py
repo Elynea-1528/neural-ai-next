@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 import pytest
 
-from neural_ai.core.storage.parquet import ParquetStorageService
+from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
 
 
 class TestParquetStorageService:

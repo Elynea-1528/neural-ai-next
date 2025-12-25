@@ -5,7 +5,7 @@ import sys
 
 import pytest
 
-from neural_ai.core.storage.implementations import FileStorage, StorageFactory
+from neural_ai.core.storage.implementations import FileStorage, ParquetStorageService
 
 
 class TestStorageImplementationsModuleExports:
@@ -18,18 +18,17 @@ class TestStorageImplementationsModuleExports:
 
         assert FS is FileStorage
 
-    def test_storage_factory_export(self) -> None:
-        """Teszteli, hogy a StorageFactory elérhető-e az importban."""
-        assert hasattr(sys.modules["neural_ai.core.storage.implementations"], "StorageFactory")
-        from neural_ai.core.storage.implementations import StorageFactory as SF
-
-        assert SF is StorageFactory
+    def test_parquet_storage_service_export(self) -> None:
+        """Teszteli, hogy a ParquetStorageService elérhető-e az importban."""
+        assert hasattr(sys.modules["neural_ai.core.storage.implementations"], "ParquetStorageService")
+        from neural_ai.core.storage.implementations import ParquetStorageService as PSS
+        assert PSS is ParquetStorageService
 
     def test_all_export_list(self) -> None:
         """Teszteli, hogy az __all__ lista csak exportálandó neveket tartalmaz."""
         from neural_ai.core.storage.implementations import __all__ as module_exports
 
-        expected_exports = {"FileStorage", "StorageFactory"}
+        expected_exports = {"FileStorage", "ParquetStorageService"}
         actual_exports = set(module_exports)
 
         assert actual_exports == expected_exports, (
@@ -82,7 +81,7 @@ class TestStorageImplementationsModuleImportCompleteness:
         try:
             from neural_ai.core.storage.implementations import (
                 FileStorage,
-                StorageFactory,
+                ParquetStorageService,
             )
 
             assert True
@@ -111,9 +110,9 @@ class TestStorageImplementationsModuleTypeSafety:
         # Ellenőrizzük az osztályok __init__ metódusának annotációit
         import inspect
 
-        from neural_ai.core.storage.implementations import FileStorage, StorageFactory
+        from neural_ai.core.storage.implementations import FileStorage, ParquetStorageService
 
-        for cls in [FileStorage, StorageFactory]:
+        for cls in [FileStorage, ParquetStorageService]:
             if hasattr(cls, "__init__"):
                 signature = inspect.signature(cls.__init__)
                 # Legalább egy paraméternek legyen annotációja (az 'self' kivételével)
@@ -133,9 +132,9 @@ class TestStorageImplementationsModuleDependencyInjection:
         # Ellenőrizzük, hogy az osztályok __init__ metódusa elfogad-e opcionális paramétereket
         import inspect
 
-        from neural_ai.core.storage.implementations import FileStorage, StorageFactory
+        from neural_ai.core.storage.implementations import FileStorage, ParquetStorageService
 
-        for cls in [FileStorage, StorageFactory]:
+        for cls in [FileStorage, ParquetStorageService]:
             signature = inspect.signature(cls.__init__)
             # Ellenőrizzük, hogy vannak-e opcionális paraméterek (config, logger stb.)
             params = list(signature.parameters.values())[1:]  # 'self' kihagyása

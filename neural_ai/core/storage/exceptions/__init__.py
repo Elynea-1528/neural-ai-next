@@ -39,3 +39,13 @@ class StorageNotFoundError(StorageError):
 
 class StorageValidationError(StorageError):
     """Érvénytelen adat vagy paraméter esetén."""
+
+
+__all__ = [
+    "StorageError",
+    "StorageFormatError",
+    "StorageSerializationError",
+    "StorageIOError",
+    "StorageNotFoundError",
+    "StorageValidationError",
+]

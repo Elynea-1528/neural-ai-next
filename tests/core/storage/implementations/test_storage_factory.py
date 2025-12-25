@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 
 from neural_ai.core.storage.exceptions import StorageError
+from neural_ai.core.storage.factory import StorageFactory
 from neural_ai.core.storage.implementations.file_storage import FileStorage
-from neural_ai.core.storage.implementations.storage_factory import StorageFactory
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 
