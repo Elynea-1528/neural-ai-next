@@ -43,6 +43,7 @@ class TestStorageModuleExports:
             "__schema_version__",
             # Implementációk
             "FileStorage",
+            "ParquetStorageService",
             "StorageFactory",
             # Interfészek
             "StorageInterface",

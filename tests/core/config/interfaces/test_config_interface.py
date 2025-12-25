@@ -31,8 +31,8 @@ class TestConfigManagerInterface:
         """get_section metódus szignatúrájának ellenőrzése."""
         sig = ConfigManagerInterface.get_section.__annotations__
         assert "section" in sig
-        assert sig["section"] == str
-        assert sig["return"] == dict[str, Any]
+        assert sig["section"] is str
+        assert sig["return"] is dict[str, Any]
 
     def test_set_method_signature(self) -> None:
         """set metódus szignatúrájának ellenőrzése."""
@@ -52,7 +52,7 @@ class TestConfigManagerInterface:
         """load metódus szignatúrájának ellenőrzése."""
         sig = ConfigManagerInterface.load.__annotations__
         assert "filename" in sig
-        assert sig["filename"] == str
+        assert sig["filename"] is str
         assert sig["return"] is None
 
     def test_validate_method_signature(self) -> None:

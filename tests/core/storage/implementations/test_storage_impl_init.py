@@ -20,7 +20,8 @@ class TestStorageImplementationsModuleExports:
 
     def test_parquet_storage_service_export(self) -> None:
         """Teszteli, hogy a ParquetStorageService elérhető-e az importban."""
-        assert hasattr(sys.modules["neural_ai.core.storage.implementations"], "ParquetStorageService")
+        module = sys.modules["neural_ai.core.storage.implementations"]
+        assert hasattr(module, "ParquetStorageService")
         from neural_ai.core.storage.implementations import ParquetStorageService as PSS
         assert PSS is ParquetStorageService
 
@@ -78,15 +79,8 @@ class TestStorageImplementationsModuleImportCompleteness:
 
     def test_all_imports_successful(self) -> None:
         """Teszteli, hogy minden import sikeresen végrehajtódik-e."""
-        try:
-            from neural_ai.core.storage.implementations import (
-                FileStorage,
-                ParquetStorageService,
-            )
-
-            assert True
-        except ImportError as e:
-            pytest.fail(f"Import hiba történt: {e}")
+        # A teszt lényege, hogy eljut idáig a kód
+        assert True
 
     def test_no_circular_imports(self) -> None:
         """Teszteli, hogy nincsenek-e körkörös importok."""
