@@ -22,7 +22,7 @@ try:
     _version: str = metadata.version("neural-ai-next")
 except metadata.PackageNotFoundError:
     # Fallback a pyproject.toml-ból, ha a csomag nincs telepítve
-    _version = "1.0.0"
+    _version = "0.5.0"
 
 __version__: Final[str] = _version
 

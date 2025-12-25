@@ -45,7 +45,7 @@ if config.schema_version != current_schema:
 __version__: Final[str]
 ```
 
-A projekt aktuális verziószáma (pl. "1.0.0"). A verziószámot a `pyproject.toml`-ből tölti be dinamikusan.
+A projekt aktuális verziószáma (pl. "0.5.0"). A verziószámot a `pyproject.toml`-ból tölti be dinamikusan.
 
 ```python
 __schema_version__: Final[str]
@@ -84,7 +84,7 @@ A modul szigorú típusozást használ a `typing.Final` annotációval, hogy meg
 ```python
 from typing import Final
 
-__version__: Final[str] = "1.0.0"
+__version__: Final[str] = "0.5.0"
 __schema_version__: Final[str] = "1.0"
 ```
 
@@ -142,8 +142,8 @@ def check_installation():
 A projekt a [Semantic Versioning](https://semver.org/) elveit követi:
 
 - **Major** (1.0.0): Kompatibilitástörő változtatások
-- **Minor** (1.1.0): Új funkciók, visszafelé kompatibilis
-- **Patch** (1.0.1): Hibajavítások
+- **Minor** (0.5.0): Új funkciók, visszafelé kompatibilis
+- **Patch** (0.4.1): Hibajavítások
 
 ### Sémaverzió kezelés
 
