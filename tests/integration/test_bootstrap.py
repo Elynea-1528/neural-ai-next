@@ -357,17 +357,21 @@ class TestMainBootstrap:
                                 with patch.object(main, "setup_strategy_engine"):
                                     with patch.object(main, "start_services"):
                                         with patch.object(main, "health_check", return_value=False):
-                                            with patch.object(main, "sys") as mock_sys:
-                                                mock_sys.exit = MagicMock()
+                                            with patch("asyncio.Event") as mock_event:
+                                                mock_event_instance = MagicMock()
+                                                mock_event.return_value = mock_event_instance
+                                                mock_event_instance.wait = AsyncMock()
+                                                with patch.object(main, "sys") as mock_sys:
+                                                    mock_sys.exit = MagicMock()
 
-                                                # A tesztnek el kell érnie a sys.exit(1) hívást
-                                                try:
-                                                    await main.main()
-                                                except SystemExit:
-                                                    pass
+                                                    # A tesztnek el kell érnie a sys.exit(1) hívást
+                                                    try:
+                                                        await main.main()
+                                                    except SystemExit:
+                                                        pass
 
-                                                # Ellenőrizzük, hogy a sys.exit meghívásra került
-                                                mock_sys.exit.assert_called_once_with(1)
+                                                    # Ellenőrizzük, hogy a sys.exit meghívásra került
+                                                    mock_sys.exit.assert_called_once_with(1)
 
     @pytest.mark.asyncio
     async def test_main_handles_keyboard_interrupt(self) -> None:
@@ -423,18 +427,28 @@ class TestMainBootstrap:
             with patch.object(main, "setup_logging"):
                 with patch.object(main, "setup_database") as mock_setup_database:
                     # Dobjunk egy általános kivételt a database setup során
-                                                    mock_setup_database.side_effect = Exception("Database error")
-                                                    with patch.object(main, "sys") as mock_sys:
-                                                        mock_sys.exit = MagicMock()
+                    mock_setup_database.side_effect = Exception("Database error")
+                    with patch.object(main, "setup_event_bus"):
+                        with patch.object(main, "setup_storage_service"):
+                            with patch.object(main, "setup_collectors"):
+                                with patch.object(main, "setup_strategy_engine"):
+                                    with patch.object(main, "start_services"):
+                                        with patch.object(main, "health_check", return_value=True):
+                                            with patch("asyncio.Event") as mock_event:
+                                                mock_event_instance = MagicMock()
+                                                mock_event.return_value = mock_event_instance
+                                                mock_event_instance.wait = AsyncMock()
+                                                with patch.object(main, "sys") as mock_sys:
+                                                    mock_sys.exit = MagicMock()
 
-                                                        # A tesztnek el kell érnie a sys.exit(1) hívást
-                                                        try:
-                                                            await main.main()
-                                                        except SystemExit:
-                                                            pass
+                                                    # A tesztnek el kell érnie a sys.exit(1) hívást
+                                                    try:
+                                                        await main.main()
+                                                    except SystemExit:
+                                                        pass
 
-                                                        # Ellenőrizzük, hogy a sys.exit meghívásra került
-                                                        mock_sys.exit.assert_called_once_with(1)
+                                                    # Ellenőrizzük, hogy a sys.exit meghívásra került
+                                                    mock_sys.exit.assert_called_once_with(1)
 
 
 class TestSetupFunctions:
