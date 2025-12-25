@@ -15,6 +15,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional
 
+from neural_ai.core.events.exceptions import EventBusError, PublishError
+
 # Csak típusellenőrzéskor importáljuk, hogy elkerüljük a körkörös importot
 if TYPE_CHECKING:
     from typing import Any
@@ -145,13 +147,14 @@ class EventBus:
             event: Az esemény objektum (Pydantic BaseModel)
 
         Raises:
-            RuntimeError: Ha az EventBus nincs elindítva
+            EventBusError: Ha az EventBus nincs elindítva
+            PublishError: Ha a publisher socket nincs inicializálva
         """
         if not self._running:
-            raise RuntimeError("EventBus nincs elindítva")
+            raise EventBusError("EventBus nincs elindítva")
 
         if self._publisher is None:
-            raise RuntimeError("Publisher socket nincs inicializálva")
+            raise PublishError("Publisher socket nincs inicializálva")
 
         # Serializáljuk az eseményt JSON formátumba
         # A model_dump_json() automatikusan kezeli a datetime objektumokat
@@ -275,7 +278,7 @@ class EventBus:
             Ez egy blokkoló metódus, csak teszteléshez vagy külön task-ként használd
         """
         if not self._running:
-            raise RuntimeError("EventBus nincs elindítva")
+            raise EventBusError("EventBus nincs elindítva")
 
         # Subscriber socket létrehozása
         subscriber = self._context.socket(self._zmq.SUB)

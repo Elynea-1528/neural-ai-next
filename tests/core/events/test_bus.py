@@ -10,6 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from neural_ai.core.events.exceptions import EventBusError, PublishError
 from neural_ai.core.events.implementations.zeromq_bus import EventBus, EventBusConfig
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent, SignalEvent
 
@@ -158,7 +159,7 @@ class TestEventBusPublish:
             symbol="EURUSD", timestamp=datetime.now(UTC), bid=1.0850, ask=1.0851, source="mt5"
         )
 
-        with pytest.raises(RuntimeError, match="nincs elindítva"):
+        with pytest.raises(EventBusError, match="nincs elindítva"):
             await bus.publish("market_data", event)
 
     @pytest.mark.asyncio
@@ -354,24 +355,29 @@ class TestEventBusErrorHandling:
         """Teszteli a publish timeout hibát."""
         config = EventBusConfig(use_inproc=True)
         bus = EventBus(config=config)
-        
+
         await bus.start()
-        
+
         # Mockoljuk a publisher socketet
         mock_socket = MagicMock()
         bus._publisher = mock_socket
-        
+
         # A send_multipart timeout-ot okoz
-        mock_socket.send_multipart.side_effect = asyncio.TimeoutError("Socket timeout")
-        
+        mock_socket.send_multipart.side_effect = TimeoutError("Socket timeout")
+
         event = MarketDataEvent(
-            symbol="EURUSD", timestamp=datetime.now(UTC), bid=1.0850, ask=1.0851, source="mt5", volume=1000
+            symbol="EURUSD",
+            timestamp=datetime.now(UTC),
+            bid=1.0850,
+            ask=1.0851,
+            source="mt5",
+            volume=1000,
         )
-        
+
         # A timeout hibát a publish-nak tovább kell adnia
         with pytest.raises(asyncio.TimeoutError, match="Socket timeout"):
             await bus.publish("market_data", event)
-        
+
         await bus.stop()
 
     @pytest.mark.asyncio
@@ -379,42 +385,52 @@ class TestEventBusErrorHandling:
         """Teszteli, hogy a callback kivételeket jól kezeljük."""
         config = EventBusConfig(use_inproc=True)
         bus = EventBus(config=config)
-        
+
         await bus.start()
-        
+
         # Callback ami kivételt dob
         async def failing_callback(event):
             raise ValueError("Callback error")
-        
+
         # Másik callback ami lefut
         success_callback = AsyncMock()
-        
+
         bus.subscribe("market_data", failing_callback)
         bus.subscribe("market_data", success_callback)
-        
+
         event = MarketDataEvent(
-            symbol="EURUSD", timestamp=datetime.now(UTC), bid=1.0850, ask=1.0851, source="mt5", volume=1000
+            symbol="EURUSD",
+            timestamp=datetime.now(UTC),
+            bid=1.0850,
+            ask=1.0851,
+            source="mt5",
+            volume=1000,
         )
-        
+
         # A publish-nak működnie kell, a callback kivételt elnyeljük
         await bus.publish("market_data", event)
-        
+
         # A callback-ek csak akkor hívódnak meg, ha a run_forever fut
         # Jelenleg csak a publish működését teszteljük
         # A teszt sikeres, ha nem dob kivételt
-        
+
         await bus.stop()
 
     @pytest.mark.asyncio
     async def test_publish_not_started_error(self):
         """Teszteli a nem elindított bus publish hibáját."""
         bus = EventBus()
-        
+
         event = MarketDataEvent(
-            symbol="EURUSD", timestamp=datetime.now(UTC), bid=1.0850, ask=1.0851, source="mt5", volume=1000
+            symbol="EURUSD",
+            timestamp=datetime.now(UTC),
+            bid=1.0850,
+            ask=1.0851,
+            source="mt5",
+            volume=1000,
         )
-        
-        with pytest.raises(RuntimeError, match="nincs elindítva"):
+
+        with pytest.raises(EventBusError, match="nincs elindítva"):
             await bus.publish("market_data", event)
 
     @pytest.mark.asyncio
@@ -422,27 +438,32 @@ class TestEventBusErrorHandling:
         """Teszteli a publish-t ha nincs publisher socket."""
         config = EventBusConfig(use_inproc=True)
         bus = EventBus(config=config)
-        
+
         await bus.start()
-        
+
         # Töröljük a publisher socketet
         bus._publisher = None
-        
+
         event = MarketDataEvent(
-            symbol="EURUSD", timestamp=datetime.now(UTC), bid=1.0850, ask=1.0851, source="mt5", volume=1000
+            symbol="EURUSD",
+            timestamp=datetime.now(UTC),
+            bid=1.0850,
+            ask=1.0851,
+            source="mt5",
+            volume=1000,
         )
-        
-        with pytest.raises(RuntimeError, match="nincs inicializálva"):
+
+        with pytest.raises(PublishError, match="nincs inicializálva"):
             await bus.publish("market_data", event)
-        
+
         await bus.stop()
 
     @pytest.mark.asyncio
     async def test_run_forever_not_started(self):
         """Teszteli a run_forever-t ha nincs elindítva."""
         bus = EventBus()
-        
-        with pytest.raises(RuntimeError, match="nincs elindítva"):
+
+        with pytest.raises(EventBusError, match="nincs elindítva"):
             await bus.run_forever()
 
     @pytest.mark.asyncio
@@ -450,14 +471,14 @@ class TestEventBusErrorHandling:
         """Teszteli az ismeretlen eseménytípus deszerializálását."""
         config = EventBusConfig(use_inproc=True)
         bus = EventBus(config=config)
-        
+
         await bus.start()
-        
+
         # Deszerializálás ismeretlen típussal
         result = bus._deserialize_event("unknown_type", {"key": "value"})
-        
+
         assert result is None
-        
+
         await bus.stop()
 
     @pytest.mark.asyncio
@@ -465,15 +486,15 @@ class TestEventBusErrorHandling:
         """Teszteli az érvénytelen eseményadatok deszerializálását."""
         config = EventBusConfig(use_inproc=True)
         bus = EventBus(config=config)
-        
+
         await bus.start()
-        
+
         # Érvénytelen adatok (hiányzó kötelező mezők)
         result = bus._deserialize_event("market_data", {})
-        
+
         # A deszerializálásnak None-t kell visszaadnia hibánál
         assert result is None
-        
+
         await bus.stop()
 
     @pytest.mark.asyncio
@@ -481,12 +502,12 @@ class TestEventBusErrorHandling:
         """Teszteli az esemény továbbítást ha nincs feliratkozó."""
         config = EventBusConfig(use_inproc=True)
         bus = EventBus(config=config)
-        
+
         await bus.start()
-        
+
         # Nincs feliratkozó, nem szabad hibát dobnia
         await bus._dispatch_event("unknown_type", {"key": "value"})
-        
+
         await bus.stop()
 
     @pytest.mark.asyncio
@@ -494,11 +515,11 @@ class TestEventBusErrorHandling:
         """Teszteli a ZeroMQ socket hibák kezelését."""
         config = EventBusConfig(use_inproc=True)
         bus = EventBus(config=config)
-        
+
         await bus.start()
-        
+
         # Mockoljuk a context.socket-et hogy hibát dobjon
-        with patch.object(bus._context, 'socket', side_effect=Exception("Socket error")):
+        with patch.object(bus._context, "socket", side_effect=Exception("Socket error")):
             # A start már meghívódott, de a stop-nak működnie kell
             await bus.stop()
 
@@ -506,11 +527,11 @@ class TestEventBusErrorHandling:
     async def test_context_cleanup_on_stop(self):
         """Teszteli a kontextus takarítást stop-kor."""
         bus = EventBus()
-        
+
         await bus.start()
         assert bus._running is True
         assert bus._publisher is not None
-        
+
         await bus.stop()
         assert bus._running is False
         assert bus._publisher is None
@@ -519,11 +540,11 @@ class TestEventBusErrorHandling:
     async def test_double_context_cleanup(self):
         """Teszteli a dupla stop hatását."""
         bus = EventBus()
-        
+
         await bus.start()
         await bus.stop()
         assert bus._running is False
-        
+
         # Második stop nem okozhat hibát
         await bus.stop()
         assert bus._running is False
