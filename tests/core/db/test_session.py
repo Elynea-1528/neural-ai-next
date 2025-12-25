@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from neural_ai.core.db.exceptions import DBConnectionError
 from neural_ai.core.db.implementations.sqlalchemy_session import (
     DatabaseManager,
     close_db,
@@ -55,7 +56,7 @@ class TestGetDatabaseUrl:
         mock_config = Mock()
         mock_config.get.return_value = None
 
-        with pytest.raises(ValueError, match="Adatbázis URL nincs konfigurálva"):
+        with pytest.raises(DBConnectionError, match="Adatbázis URL nincs konfigurálva"):
             get_database_url(mock_config)
 
 
@@ -74,7 +75,7 @@ class TestCreateEngine:
     def test_create_engine_postgresql(self):
         """Teszteli az engine létrehozását PostgreSQL adatbázishoz."""
         pytest.skip("PostgreSQL teszt kihagyva - asyncpg nincs telepítve")
-        
+
         db_url = "postgresql+asyncpg://user:pass@localhost/db"
 
         engine = create_engine(db_url, echo=True)
@@ -93,7 +94,7 @@ class TestGetEngine:
                 mock_config = Mock()
                 mock_config.get.return_value = "sqlite+aiosqlite:///test.db"
                 mock_factory.return_value = mock_config
-                
+
                 mock_engine = Mock()
                 mock_create.return_value = mock_engine
 
@@ -272,7 +273,7 @@ class TestDatabaseManager:
         mock_config = Mock()
         manager = DatabaseManager(mock_config)
 
-        with pytest.raises(RuntimeError, match="nincs inicializálva"):
+        with pytest.raises(DBConnectionError, match="nincs inicializálva"):
             async with manager.get_session():
                 pass
 

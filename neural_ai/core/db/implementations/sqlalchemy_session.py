@@ -17,6 +17,7 @@ from sqlalchemy.pool import NullPool
 
 from neural_ai.core.config.factory import ConfigManagerFactory
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+from neural_ai.core.db.exceptions import DBConnectionError
 
 # Globális változók a session factory-nek
 _engine: Any | None = None  # type: ignore
@@ -41,8 +42,11 @@ def get_database_url(config_manager: ConfigManagerInterface | None = None) -> st
 
     db_url = config_manager.get("db_url")
     if not db_url:
-        raise ValueError(
-            "Adatbázis URL nincs konfigurálva. Kérlek állítsd be a DB_URL környezeti változót."
+        raise DBConnectionError(
+            message=(
+                "Adatbázis URL nincs konfigurálva. "
+                "Kérlek állítsd be a DB_URL környezeti változót."
+            )
         )
 
     return db_url
@@ -262,8 +266,11 @@ class DatabaseManager:
             RuntimeError: Ha a kezelő nincs inicializálva.
         """
         if self._session_maker is None:
-            raise RuntimeError(
-                "Adatbázis kezelő nincs inicializálva. Hívd meg először az initialize() metódust."
+            raise DBConnectionError(
+                message=(
+                    "Adatbázis kezelő nincs inicializálva. "
+                    "Hívd meg először az initialize() metódust."
+                )
             )
 
         async with self._session_maker() as session:
