@@ -4,6 +4,7 @@ Ez a modul biztosítja az adatbázis kapcsolat kezelést, modelleket és session
 factory-t az aszinkron adatbázis műveletekhez.
 """
 
+from .factory import DatabaseFactory
 from .implementations.model_base import Base
 from .implementations.models import DynamicConfig, LogEntry
 from .implementations.sqlalchemy_session import (
@@ -32,6 +33,8 @@ __all__ = [
     "close_db",
     # Osztályok
     "DatabaseManager",
+    # Factory
+    "DatabaseFactory",
     # Segédfüggvények
     "get_database_url",
     "create_engine",

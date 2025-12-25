@@ -22,14 +22,51 @@ from pydantic_settings import BaseSettings
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-# Importok a jövőbeli implementációkból (frissítve az új architektúra szerint)
-# from neural_ai.core.base.implementations.di_container import DIContainer
-# from neural_ai.core.events.factory import EventBusFactory
-# from neural_ai.core.config.factory import ConfigFactory
-# from neural_ai.core.logger.factory import LoggerFactory
-# from neural_ai.core.storage.factory import StorageFactory
+# Importok az új architektúra szerint
+from neural_ai.core.events.factory import EventBusFactory
+from neural_ai.core.storage.factory import StorageFactory
+from neural_ai.core.db.factory import DatabaseFactory
+from neural_ai.core.logger.factory import LoggerFactory
 
 logger = structlog.get_logger("neural_ai.bootstrap")
+
+
+def setup_logging(config: StaticConfig) -> None:
+    """Logging rendszer konfigurálása structlog-gal.
+    
+    Args:
+        config: A statikus konfiguráció objektum.
+    """
+    logger.info("logging_setup_started", log_level=config.log_level)
+    
+    # Structlog konfiguráció
+    structlog.configure(
+        processors=[
+            structlog.contextvars.merge_contextvars,
+            structlog.processors.add_log_level,
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.dev.ConsoleRenderer(),
+        ],
+        wrapper_class=structlog.make_filtering_bound_logger(config.log_level),
+        context_class=dict,
+        logger_factory=structlog.PrintLoggerFactory(),
+        cache_logger_on_first_use=False,
+    )
+    
+    # Standard logging konfigurálása
+    LoggerFactory.configure({
+        'default_level': config.log_level,
+        'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        'date_format': '%Y-%m-%d %H:%M:%S',
+        'handlers': {
+            'console': {
+                'enabled': True,
+                'level': config.log_level
+            }
+        }
+    })
+    
+    logger.info("logging_setup_completed")
 
 
 class StaticConfig(BaseSettings):
@@ -50,19 +87,14 @@ class StaticConfig(BaseSettings):
         env_file_encoding = "utf-8"
 
 
-async def setup_database(config: StaticConfig) -> sessionmaker:
-    """Adatbázis kapcsolat és session factory létrehozása."""
+async def setup_database(config: StaticConfig):
+    """Adatbázis kapcsolat és session factory létrehozása a DatabaseFactory használatával."""
     logger.info("database_setup_started", db_url=config.db_url)
 
     try:
-        # Async engine létrehozása
-        engine = create_async_engine(
-            config.db_url, echo=config.app_env == "development", future=True
-        )
-
-        # Session factory létrehozása
-        async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
+        # Session maker létrehozása a DatabaseFactory segítségével
+        async_session_maker = DatabaseFactory.get_session_maker()
+        
         logger.info("database_setup_completed")
         return async_session_maker
 
@@ -72,17 +104,15 @@ async def setup_database(config: StaticConfig) -> sessionmaker:
 
 
 async def setup_event_bus(config: StaticConfig):
-    """Event Bus inicializálása."""
+    """Event Bus inicializálása az EventBusFactory használatával."""
     logger.info("event_bus_setup_started")
 
     try:
-        # TODO: EventBus implementáció (lásd: docs/planning/specs/01_system_architecture.md)
-        # event_bus = EventBus()
-        # await event_bus.initialize()
-
+        # EventBus létrehozása és indítása a factory segítségével
+        event_bus = await EventBusFactory.create_and_start()
+        
         logger.info("event_bus_setup_completed")
-        # return event_bus
-        return None
+        return event_bus
 
     except Exception as e:
         logger.error("event_bus_setup_failed", error=str(e))
@@ -90,16 +120,18 @@ async def setup_event_bus(config: StaticConfig):
 
 
 async def setup_storage_service(config: StaticConfig):
-    """Tároló szolgáltatás inicializálása."""
+    """Tároló szolgáltatás inicializálása a StorageFactory használatával."""
     logger.info("storage_service_setup_started", path=config.data_base_path)
 
     try:
-        # TODO: ParquetStorageService implementáció (lásd: docs/planning/specs/04_data_warehouse.md)
-        # storage = ParquetStorageService(base_path=config.data_base_path)
-
+        # Storage létrehozása a factory segítségével
+        storage = StorageFactory.get_storage(
+            storage_type="file",
+            base_path=config.data_base_path
+        )
+        
         logger.info("storage_service_setup_completed")
-        # return storage
-        return None
+        return storage
 
     except Exception as e:
         logger.error("storage_service_setup_failed", error=str(e))
@@ -196,42 +228,45 @@ async def main():
         logger.info("loading_configuration")
         config = StaticConfig()
         logger.info("configuration_loaded", app_env=config.app_env)
+        
+        # 2. Logging rendszer konfigurálása
+        setup_logging(config)
 
-        # 2. DI Container inicializálása
+        # 3. DI Container inicializálása
         logger.info("initializing_di_container")
         # container = DIContainer()
         # container.register_singleton(StaticConfig, config)
 
-        # 3. Adatbázis kapcsolat
+        # 4. Adatbázis kapcsolat
         db_session_maker = await setup_database(config)
         # container.register_singleton(sessionmaker, db_session_maker)
 
-        # 4. Event Bus
+        # 5. Event Bus
         event_bus = await setup_event_bus(config)
         # container.register_singleton(EventBus, event_bus)
 
-        # 5. Tároló szolgáltatás
-        _ = await setup_storage_service(config)
+        # 6. Tároló szolgáltatás
+        storage_service = await setup_storage_service(config)
         # container.register_singleton(ParquetStorageService, storage_service)
 
-        # 6. Adatgyűjtők
+        # 7. Adatgyűjtők
         collectors = await setup_collectors(config, event_bus)
 
-        # 7. Stratégia motor
+        # 8. Stratégia motor
         strategy_engine = await setup_strategy_engine(config, event_bus, db_session_maker)
 
-        # 8. Összes szolgáltatás összegyűjtése
+        # 9. Összes szolgáltatás összegyűjtése
         all_services = collectors + [strategy_engine] if strategy_engine else collectors
 
-        # 9. Szolgáltatások indítása
+        # 10. Szolgáltatások indítása
         await start_services(all_services)
 
-        # 10. Health check
+        # 11. Health check
         if not await health_check():
             logger.error("health_check_failed_on_startup")
             sys.exit(1)
 
-        # 11. Alkalmazás sikeresen elindult
+        # 12. Alkalmazás sikeresen elindult
         logger.info(
             "application_started",
             app_env=config.app_env,
@@ -239,7 +274,7 @@ async def main():
             api_url=f"http://{config.api_host}:{config.api_port}",
         )
 
-        # 12. Örök futás (vagy amíg nem kapunk kill signal-t)
+        # 13. Örök futás (vagy amíg nem kapunk kill signal-t)
         await asyncio.Event().wait()
 
     except KeyboardInterrupt:
