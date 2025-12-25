@@ -90,6 +90,20 @@
 
 ---
 
+#### 🟡 PHASE 1.1: CORE BOOTSTRAP INTEGRATION (Glue Code)
+
+**Description:** Refactor core bootstrap to integrate Database, EventBus, Hardware into CoreComponents. Simplify main.py to use unified bootstrap.
+**Progress:** 0% [░░░░░░░░░░░░░░░░░░░░] | **Priority:** HIGH
+
+| File Path | Matrix [S|T|D] | Complexity | Token Est. | Deps | Status |
+|-----------|:--------------:|:----------:|:----------:|:-----|:------:|
+| `neural_ai/core/__init__.py` | [❌|❌|❌] | ⭐⭐⭐ | 1.5k | `database, event_bus, hardware` | 🔴 PENDING |
+| `main.py` | [❌|❌|❌] | ⭐⭐ | 800 | `bootstrap_core` | 🔴 PENDING |
+| `docs/components/neural_ai/core/__init__.md` | [❌|❌|❌] | ⭐⭐ | 1.0k | - | 🔴 PENDING |
+| `tests/core/base/test_core_bootstrap.py` | [❌|❌|❌] | ⭐⭐⭐ | 1.2k | `pytest` | 🔴 PENDING |
+
+---
+
 ### 🟡 PHASE 2: DATA COLLECTORS (Ingestion)
 
 **Description:** JForex Bi5, MT5 FastAPI, Java Bridge, IBKR TWS.

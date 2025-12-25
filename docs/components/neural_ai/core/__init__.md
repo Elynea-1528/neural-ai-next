@@ -11,6 +11,9 @@ A modul a következő alapvető rendszerkomponenseket kezeli:
 - **Logger rendszer**: Alkalmazás naplózás
 - **Konfiguráció kezelés**: Beállítások és konfigurációk kezelése
 - **Adattárolás**: Fájl- és adattárolási műveletek
+- **Adatbázis**: Adatbázis kapcsolat és session kezelés
+- **Event Bus**: Eseményvezérelt architektúra
+- **Hardver információk**: CPU feature-ök detektálása
 
 ## Verziókezelés
 
@@ -56,9 +59,12 @@ class CoreComponents:
     
     def __init__(
         self,
-        config: ConfigInterface,
+        config: ConfigManagerInterface,
         logger: LoggerInterface,
-        storage: StorageInterface
+        storage: StorageInterface,
+        database: DatabaseManager,
+        event_bus: EventBus,
+        hardware: HardwareInfo
     ) -> None:
         """Inicializálja a core komponenseket.
         
@@ -66,6 +72,9 @@ class CoreComponents:
             config: A konfiguráció kezelő példány
             logger: A logger példány
             storage: A tárhely kezelő példány
+            database: Az adatbázis kezelő példány
+            event_bus: Az esemény busz példány
+            hardware: A hardver információ példány
         """
 ```
 
@@ -74,6 +83,9 @@ class CoreComponents:
 - `config`: A konfiguráció kezelő interfész
 - `logger`: A logger interfész
 - `storage`: A tárhely kezelő interfész
+- `database`: Az adatbázis kezelő
+- `event_bus`: Az esemény busz
+- `hardware`: A hardver információk
 
 ### bootstrap_core Funkció
 
@@ -95,12 +107,14 @@ def bootstrap_core(
     """
 ```
 
-**Bootstrap folyamat:**
+**Bootstrap folyamat (lépésenkénti inicializálás):**
 
-1. Alap konfiguráció létrehozása
-2. Logger inicializálása a konfiggal
-3. Konfig frissítése a valódi loggerrel
-4. Storage inicializálása
+1. **Hardware inicializálása** - Hardver információk lekérdezése
+2. **Konfiguráció létrehozása** - Konfigurációs fájl betöltése
+3. **Logger inicializálása** - Logger létrehozása a konfiggal
+4. **Adatbázis inicializálása** - Adatbázis kapcsolat (Config+Logger)
+5. **EventBus inicializálása** - Esemény busz (Config+Logger)
+6. **Storage inicializálása** - Tárhely (Config+Logger+HardwareInfo)
 
 **Példa használat:**
 
@@ -118,7 +132,8 @@ core = bootstrap_core(
 
 # Komponensek használata
 core.logger.info("Alkalmazás elindult")
-config_value = core.config.get("database.host")
+await core.database.initialize()
+await core.event_bus.start()
 ```
 
 ### get_core_components Funkció
@@ -158,9 +173,11 @@ A modul a következő módszereket alkalmazza a körkörös függőségek elker�
 ### Függőségi Gráf
 
 ```
-Config → Logger → Storage
-   ↑         ↓        ↓
-   └─────────┴────────┘
+Hardware → Config → Logger → Database
+                                    ↓
+EventBus ←──────────────────────────┘
+                                    ↓
+Storage ←───────────────────────────┘
 ```
 
 ## Publikus API
@@ -192,6 +209,9 @@ core = get_core_components()
 logger = core.logger
 config = core.config
 storage = core.storage
+database = core.database
+event_bus = core.event_bus
+hardware = core.hardware
 ```
 
 ### Speciális Konfiguráció
@@ -233,12 +253,43 @@ from unittest.mock import Mock
 mock_config = Mock()
 mock_logger = Mock()
 mock_storage = Mock()
+mock_database = Mock()
+mock_event_bus = Mock()
+mock_hardware = Mock()
 
 components = CoreComponents(
     config=mock_config,
     logger=mock_logger,
-    storage=mock_storage
+    storage=mock_storage,
+    database=mock_database,
+    event_bus=mock_event_bus,
+    hardware=mock_hardware
 )
+```
+
+### Main.py Egyszerűsített Használata
+
+```python
+#!/usr/bin/env python3
+import asyncio
+from neural_ai.core import bootstrap_core
+
+async def main():
+    """Fő alkalmazás belépési pont."""
+    # Core komponensek inicializálása
+    components = bootstrap_core()
+
+    # EventBus indítása
+    await components.event_bus.start()
+
+    # Adatbázis inicializálása
+    await components.database.initialize()
+
+    # Örök futás
+    await asyncio.Event().wait()
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Fejlesztési Szempontok
@@ -283,6 +334,9 @@ components = CoreComponents(
 - [Konfiguráció Kezelés](./config/__init__.md)
 - [Logger Rendszer](./logger/__init__.md)
 - [Tárhely Kezelés](./storage/__init__.md)
+- [Adatbázis Kezelés](./db/__init__.md)
+- [Event Bus](./events/__init__.md)
+- [Hardver Információk](./utils/__init__.md)
 
 ## Verzió Történet
 
@@ -290,3 +344,4 @@ components = CoreComponents(
 - **v1.1**: Bootstrap folyamat és szingleton pattern hozzáadva
 - **v2.0**: Teljes refaktorálás TYPE_CHECKING és DI használatával
 - **v2.1**: Verziókezelés hozzáadva (`get_version`, `get_schema_version`)
+- **v3.0**: Core bootstrap refaktor - Database, EventBus, Hardware integráció
