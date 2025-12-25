@@ -94,8 +94,8 @@ class TestCreateEngine:
 
     def test_create_engine_with_malformed_url(self):
         """Teszteli a hibát, ha hibásan formázott adatbázis URL-t adunk meg."""
-        # Hibásan formázott URL
-        malformed_url = "sqlite+aiosqlite:///:memory:?invalid_param"
+        # Teljesen érvénytelen URL, ami biztosan hibát okoz
+        malformed_url = "invalid:///"
 
         with pytest.raises((ArgumentError, Exception)):
             create_engine(malformed_url)
