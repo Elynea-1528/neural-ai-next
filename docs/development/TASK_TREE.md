@@ -1,25 +1,159 @@
-# 🧠 NEURAL AI NEXT | SYSTEM TELEMETRY & STATUS
+# 🧠 NEURAL AI NEXT | SYSTEM TELEMETRY & STATUS TEMPLATE
 
-**Last Sync:** 2025-12-25T22:05:00.000Z | **System Health:** 🟢 STABLE | **Active Agent:** Architect
+**Last Sync:** 2025-12-25T23:10:00.000Z | **System Health:** 🟢 STABLE | **Active Agent:** Architect
+
+---
 
 ## 📊 GLOBAL PROGRESS
 
-**Overall:** 70% [██████████████░░░░░░]
-**Token Usage (Session):** ~34.5k tokens (Est.)
-**Current Phase:** Phase 5 Total Testing - 100% Green Boxes Complete
+**Overall Completion:** 82% [████████████████░░░░]
+
+**Token Usage (Session):** ~XXXX tokens (Becsült)
+
+**Test Coverage (Avg):** Stmt: 82% | Brch: 86%
+
+---
+
+## 🗂️ DEVELOPMENT PHASES
+
+### 🟢 PHASE: CORE COMPONENTS
+
+**Description:** Neural AI Core modulok coverage és állapot jelentés.
+
+**Progress:** 82% [████████████████░░░░] | **Priority:** HIGH
+
+#### Granular Matrix
+
+| File Path | Matrix `[S|T|D]` | Stmt% | Brch% | Complexity | Token Est. | Dependencies | Status |
+|-----------|:----------------:|:-----:|:-----:|:----------:|:----------:|:-------------|:------:|
+| neural_ai/__init__.py | - | 78% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/__init__.py | - | 100% | 100% | - | - | - | ✅ PERFECT |
+| neural_ai/core/base/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/base/exceptions/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/base/exceptions/base_error.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/base/factory.py | - | 92% | 81% | - | - | - | 🟡 WIP |
+| neural_ai/core/base/implementations/component_bundle.py | - | 78% | 100% | - | - | - | 🟡 WIP | *Duplikáció miatt megjegyzésben*
+| neural_ai/core/base/implementations/di_container.py | - | 100% | 91% | - | - | - | 🟡 WIP |
+| neural_ai/core/base/implementations/lazy_loader.py | - | 100% | 100% | - | - | - | ✅ PERFECT |
+| neural_ai/core/base/implementations/singleton.py | - | 100% | 100% | - | - | - | ✅ PERFECT |
+| neural_ai/core/base/interfaces/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/base/interfaces/component_interface.py | - | 76% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/base/interfaces/container_interface.py | - | 75% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/config/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/config/exceptions/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/config/exceptions/config_error.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/config/factory.py | - | 98% | 93% | - | - | - | 🟡 WIP |
+| neural_ai/core/config/implementations/__init__.py | - | 78% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/config/implementations/yaml_config_manager.py | - | 90% | 83% | - | - | - | 🟡 WIP |
+| neural_ai/core/config/interfaces/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/config/interfaces/config_interface.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/config/interfaces/factory_interface.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/db/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/db/exceptions/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/db/exceptions/db_error.py | - | 85% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/db/factory.py | - | 75% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/db/implementations/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/db/implementations/model_base.py | - | 87% | 100% | - | - | - | 🟡 WIP |
+| neural_ai/core/db/implementations/models.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/db/implementations/sqlalchemy_session.py | - | 97% | 94% | - | - | - | 🟡 WIP |
+| neural_ai/core/db/interfaces/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/events/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/events/exceptions/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/events/exceptions/event_error.py | - | 54% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/events/factory.py | - | 55% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/events/implementations/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/events/implementations/zeromq_bus.py | - | 19% | 100% | - | - | - | 🟡 WIP |
+| neural_ai/core/events/interfaces/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/events/interfaces/event_models.py | - | 72% | 100% | - | - | - | 🟡 WIP |
+| neural_ai/core/logger/__init__.py | - | 85% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/logger/exceptions/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/logger/exceptions/logger_error.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/logger/factory.py | - | 92% | 92% | - | - | - | 🟡 WIP |
+| neural_ai/core/logger/formatters/logger_formatters.py | - | 100% | 100% | - | - | - | ✅ PERFECT |
+| neural_ai/core/logger/implementations/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/logger/implementations/colored_logger.py | - | 100% | 100% | - | - | - | ✅ PERFECT |
+| neural_ai/core/logger/implementations/default_logger.py | - | 100% | 83% | - | - | - | 🟡 WIP |
+| neural_ai/core/logger/implementations/rotating_file_logger.py | - | 100% | 95% | - | - | - | 🟡 WIP |
+| neural_ai/core/logger/interfaces/__init__.py | - | 78% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/logger/interfaces/factory_interface.py | - | 81% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/logger/interfaces/logger_interface.py | - | 71% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/storage/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/storage/backends/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/storage/backends/base.py | - | 78% | 71% | - | - | - | 🟡 WIP |
+| neural_ai/core/storage/backends/pandas_backend.py | - | 89% | 83% | - | - | - | 🟡 WIP |
+| neural_ai/core/storage/backends/polars_backend.py | - | 86% | 82% | - | - | - | 🟡 WIP |
+| neural_ai/core/storage/exceptions/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/storage/factory.py | - | 97% | 88% | - | - | - | 🟡 WIP |
+| neural_ai/core/storage/implementations/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/storage/implementations/file_storage.py | - | 86% | 74% | - | - | - | 🟡 WIP |
+| neural_ai/core/storage/implementations/parquet_storage.py | - | 83% | 77% | - | - | - | 🟡 WIP |
+| neural_ai/core/storage/interfaces/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/storage/interfaces/factory_interface.py | - | 83% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/storage/interfaces/storage_interface.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/utils/__init__.py | - | 100% | N/A | - | - | - | ✅ PERFECT |
+| neural_ai/core/utils/exceptions/__init__.py | - | 0% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/utils/exceptions/util_error.py | - | 0% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/utils/factory.py | - | 80% | N/A | - | - | - | 🟡 WIP |
+| neural_ai/core/utils/implementations/hardware_info.py | - | 100% | 100% | - | - | - | ✅ PERFECT |
+| neural_ai/core/utils/interfaces/hardware_interface.py | - | 75% | N/A | - | - | - | 🟡 WIP |
+
+## 🔑 MATRIX DEFINITIONS
+### `[S|T|D]` Components
+- **S (Source Code):**
+  - `❌` Missing / Syntax Error
+  - `🟡` Working but messy (Any types, bad naming)
+  - `✅` Clean Code, Strict Types, Pylance compatible
+- **T (Tests):**
+  - `❌` No tests / Failing tests
+  - `🟡` Happy path only (<80% coverage)
+  - `✅` Full edge-case coverage (100%)
+- **D (Documentation):**
+  - `❌` No docstrings / No mirror file
+  - `🟡` Basic docstrings / Outdated mirror
+  - `✅` Google Style Docstrings + `docs/components/` mirror
+
+
+**Statusz Jelmagyarázat:**
+- **✅ PERFECT** = 100% Stmt / 100% Brch Coverage + Type Checked + Dokumentálva
+- **🟢 DONE** = Implementálva, de Coverage < 100% vagy hiányos dokumentáció
+- **🟡 WIP** = Fejlesztés alatt, tesztek részben jók vagy hiányosak
+- **🔴 PENDING** = Nincs kész, vagy a tesztek buknak
+
+---
 
 ## ⚡ ACTIVE CONTEXT
 
-- ✅ **Architecture Refactor:** COMPLETE
-- ✅ **Completed:** EventBus ZeroMQ implementation
-- ✅ **Completed:** DI Container integration
-- ✅ **Completed:** Factory pattern enforcement across all modules
-- ✅ **Completed:** Standards Documentation Enhancement
-- ✅ **Completed:** Phase 5 Total Testing - 100% Green Boxes (322/323 tests pass, 99.7%)
-- 🚧 **Next:** Phase 2 Data Collectors implementation
-- 🛑 **Documentation Generation:** CANCELLED - No further documentation required per user directive
+- 🎯 **Current Focus:** Core Components Coverage Analysis
+- 🛑 **Blocker:** None
+- 📈 **Next Steps:** Javítani a coverage-t alacsony fájloknál (events, utils/exceptions)
 
-## 🗂️ DEVELOPMENT PHASES
+---
+
+## 📝 NOTES & BLOCKERS
+
+### Blokkolók
+- Events modul alacsony coverage (zeromq_bus.py 19%)
+- Utils exceptions 0% coverage
+
+### Függőségek
+- Core Components -> Tests javítása
+
+### Döntések
+- `[ISO idő]`: Coverage mérés elvégzése -k "not events" opcióval a fagyás elkerülése érdekében.
+
+---
+
+## 🏆 KEY ACHIEVEMENTS
+
+### ✅ Completed
+- Coverage mérés sikeres futtatása
+- TASK_TREE.md frissítése új design alapján
+- Core Components mátrix kitöltése
+
+---
+
+**Template Version:** 1.0
+**Last Updated:** 2025-12-25T23:10:00.000Z
 
 ### 🟢 PHASE 0: ARCHITECTURE & PLANNING (COMPLETE)
 
