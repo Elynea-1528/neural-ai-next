@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Neural AI Next - Fő indító szkript
+"""Neural AI Next - Fő indító szkript.
 
 Ez a szkript inicializálja a teljes kereskedési ökoszisztémát:
 1. DI Container
@@ -22,12 +22,12 @@ from pydantic_settings import BaseSettings
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-# Importok a jövőbeli implementációkból
-# from neural_ai.core.base.container import DIContainer
-# from neural_ai.core.events.bus import EventBus
-# from neural_ai.core.config.static import StaticConfig
-# from neural_ai.core.logger import configure_structlog
-# from neural_ai.core.storage.parquet import ParquetStorageService
+# Importok a jövőbeli implementációkból (frissítve az új architektúra szerint)
+# from neural_ai.core.base.implementations.di_container import DIContainer
+# from neural_ai.core.events.factory import EventBusFactory
+# from neural_ai.core.config.factory import ConfigFactory
+# from neural_ai.core.logger.factory import LoggerFactory
+# from neural_ai.core.storage.factory import StorageFactory
 
 logger = structlog.get_logger("neural_ai.bootstrap")
 
@@ -44,6 +44,8 @@ class StaticConfig(BaseSettings):
     api_port: int = 8000
 
     class Config:
+        """Pydantic konfiguráció osztály."""
+
         env_file = ".env"
         env_file_encoding = "utf-8"
 
@@ -209,7 +211,7 @@ async def main():
         # container.register_singleton(EventBus, event_bus)
 
         # 5. Tároló szolgáltatás
-        storage_service = await setup_storage_service(config)
+        _ = await setup_storage_service(config)
         # container.register_singleton(ParquetStorageService, storage_service)
 
         # 6. Adatgyűjtők
