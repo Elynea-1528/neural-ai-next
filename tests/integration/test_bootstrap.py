@@ -223,8 +223,8 @@ class TestBootstrapCore:
 
     def test_bootstrap_core_returns_core_components(self) -> None:
         """Teszteli, hogy a bootstrap_core visszaadja a CoreComponents objektumot."""
-        from neural_ai.core import bootstrap_core, CoreComponents
-        
+        from neural_ai.core import CoreComponents, bootstrap_core
+
         # Mockoljuk a factory függvényeket, hogy ne próbáljanak ténylegesen inicializálni
         with patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager") as mock_config:
             with patch("neural_ai.core.logger.factory.LoggerFactory.get_logger") as mock_logger:
@@ -318,7 +318,7 @@ class TestCoreModule:
 
     def test_get_core_components_returns_singleton(self) -> None:
         """Teszteli, hogy a get_core_components szingleton példányt ad vissza."""
-        from neural_ai.core import get_core_components, CoreComponents
+        from neural_ai.core import CoreComponents, get_core_components
 
         # Mockoljuk a bootstrap_core-t, hogy ne próbáljon ténylegesen inicializálni
         with patch("neural_ai.core.bootstrap_core") as mock_bootstrap:
@@ -326,7 +326,7 @@ class TestCoreModule:
 
             # Első hívás
             components1 = get_core_components()
-            
+
             # Második hívás - ugyanazt a példányt kell visszaadnia
             components2 = get_core_components()
 

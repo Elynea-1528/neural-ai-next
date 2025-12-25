@@ -8,8 +8,6 @@ import tempfile
 import unittest.mock
 from pathlib import Path
 
-import pytest
-
 from neural_ai.core.utils.factory import HardwareFactory
 from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
 

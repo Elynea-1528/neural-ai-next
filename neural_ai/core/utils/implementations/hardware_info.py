@@ -11,7 +11,7 @@ import platform
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+    pass
 
 
 class HardwareInfo:

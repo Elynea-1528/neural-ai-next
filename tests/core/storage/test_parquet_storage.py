@@ -8,11 +8,12 @@ import shutil
 import tempfile
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
 import pytest
 
 from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
+from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 
 class TestParquetStorageService:
@@ -31,48 +32,52 @@ class TestParquetStorageService:
         """PolarsBackend-et használó szolgáltatás létrehozása."""
         from neural_ai.core.base.implementations.singleton import SingletonMeta
         SingletonMeta._instances = {}
-        
-        with patch("neural_ai.core.storage.implementations.parquet_storage.has_avx2", return_value=True):
-            service = ParquetStorageService(base_path=str(temp_dir))
-            assert service.engine == "polars"
-            assert service.backend.name == "polars"
-            yield service
+
+        mock_hardware = MagicMock(spec=HardwareInterface)
+        mock_hardware.has_avx2.return_value = True
+        service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware)
+        assert service.engine == "polars"
+        assert service.backend.name == "polars"
+        yield service
 
     @pytest.fixture
     def service_pandas(self, temp_dir):
         """PandasBackend-et használó szolgáltatás létrehozása."""
         from neural_ai.core.base.implementations.singleton import SingletonMeta
         SingletonMeta._instances = {}
-        
-        with patch("neural_ai.core.storage.implementations.parquet_storage.has_avx2", return_value=False):
-            service = ParquetStorageService(base_path=str(temp_dir))
-            assert service.engine == "fastparquet"
-            assert service.backend.name == "pandas"
-            yield service
+
+        mock_hardware = MagicMock(spec=HardwareInterface)
+        mock_hardware.has_avx2.return_value = False
+        service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware)
+        assert service.engine == "fastparquet"
+        assert service.backend.name == "pandas"
+        yield service
 
     def test_backend_selection_polars_when_avx2_available(self, temp_dir):
         """Teszteli a PolarsBackend kiválasztást, ha AVX2 támogatás van."""
         # Töröljük a Singleton cache-t, hogy új példányt hozzon létre
         from neural_ai.core.base.implementations.singleton import SingletonMeta
         SingletonMeta._instances = {}
-        
-        # Mockoljuk a has_avx2 függvényt
-        with patch("neural_ai.core.storage.implementations.parquet_storage.has_avx2", return_value=True):
-            service = ParquetStorageService(base_path=str(temp_dir))
-            assert service.backend.name == "polars"
-            assert service.engine == "polars"
+
+        # Mockoljuk a HardwareInterface-t
+        mock_hardware = MagicMock(spec=HardwareInterface)
+        mock_hardware.has_avx2.return_value = True
+        service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware)
+        assert service.backend.name == "polars"
+        assert service.engine == "polars"
 
     def test_backend_selection_pandas_when_no_avx2(self, temp_dir):
         """Teszteli a PandasBackend kiválasztást, ha nincs AVX2 támogatás."""
         # Töröljük a Singleton cache-t, hogy új példányt hozzon létre
         from neural_ai.core.base.implementations.singleton import SingletonMeta
         SingletonMeta._instances = {}
-        
-        # Mockoljuk a has_avx2 függvényt
-        with patch("neural_ai.core.storage.implementations.parquet_storage.has_avx2", return_value=False):
-            service = ParquetStorageService(base_path=str(temp_dir))
-            assert service.backend.name == "pandas"
-            assert service.engine == "fastparquet"
+
+        # Mockoljuk a HardwareInterface-t
+        mock_hardware = MagicMock(spec=HardwareInterface)
+        mock_hardware.has_avx2.return_value = False
+        service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware)
+        assert service.backend.name == "pandas"
+        assert service.engine == "fastparquet"
 
     @pytest.mark.asyncio
     async def test_store_and_read_tick_data_polars(self, service_polars):
@@ -139,46 +144,47 @@ class TestParquetStorageService:
         symbol = "TESTEURUSD"
         date = datetime(2023, 12, 23)
 
-        # Mock has_avx2 to return False to force Pandas backend
+        # Mock HardwareInterface to return False to force Pandas backend
         from neural_ai.core.base.implementations.singleton import SingletonMeta
         SingletonMeta._instances = {}
-        
-        with patch("neural_ai.core.storage.implementations.parquet_storage.has_avx2", return_value=False):
-            service = ParquetStorageService(base_path=str(temp_dir))
-            assert service.backend.name == "pandas"
 
-            # Tesztadatok létrehozása
-            import pandas as pd
+        mock_hardware = MagicMock(spec=HardwareInterface)
+        mock_hardware.has_avx2.return_value = False
+        service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware)
+        assert service.backend.name == "pandas"
 
-            data = pd.DataFrame(
-                {
-                    "timestamp": [
-                        datetime(2023, 12, 23, 10, 0, 0),
-                        datetime(2023, 12, 23, 10, 1, 0),
-                    ],
-                    "bid": [1.1000, 1.1001],
-                    "ask": [1.1002, 1.1003],
-                    "volume": [1000, 1200],
-                }
-            )
+        # Tesztadatok létrehozása
+        import pandas as pd
 
-            # Adatok tárolása
-            await service.store_tick_data(symbol, data, date)
+        data = pd.DataFrame(
+            {
+                "timestamp": [
+                    datetime(2023, 12, 23, 10, 0, 0),
+                    datetime(2023, 12, 23, 10, 1, 0),
+                ],
+                "bid": [1.1000, 1.1001],
+                "ask": [1.1002, 1.1003],
+                "volume": [1000, 1200],
+            }
+        )
 
-            # Ellenőrzés, hogy a fájl létrejött-e
-            expected_path = service._get_path(symbol, date)
-            assert expected_path.exists(), f"Expected file not found: {expected_path}"
+        # Adatok tárolása
+        await service.store_tick_data(symbol, data, date)
 
-            # Adatok olvasása
-            start_date = datetime(2023, 12, 23, 0, 0, 0)
-            end_date = datetime(2023, 12, 23, 23, 59, 59)
-            read_data = await service.read_tick_data(symbol, start_date, end_date)
+        # Ellenőrzés, hogy a fájl létrejött-e
+        expected_path = service._get_path(symbol, date)
+        assert expected_path.exists(), f"Expected file not found: {expected_path}"
 
-            # Ellenőrzés
-            assert len(read_data) == 2
-            assert "timestamp" in read_data.columns
-            assert "bid" in read_data.columns
-            assert "ask" in read_data.columns
+        # Adatok olvasása
+        start_date = datetime(2023, 12, 23, 0, 0, 0)
+        end_date = datetime(2023, 12, 23, 23, 59, 59)
+        read_data = await service.read_tick_data(symbol, start_date, end_date)
+
+        # Ellenőrzés
+        assert len(read_data) == 2
+        assert "timestamp" in read_data.columns
+        assert "bid" in read_data.columns
+        assert "ask" in read_data.columns
 
     @pytest.mark.asyncio
     async def test_store_empty_dataframe_raises_error(self, service_polars):

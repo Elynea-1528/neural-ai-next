@@ -20,11 +20,10 @@ from typing import TYPE_CHECKING, Any
 import structlog
 
 from neural_ai.core.base.implementations.singleton import SingletonMeta
-from neural_ai.core.storage.exceptions import StorageError
-from neural_ai.core.utils.hardware import has_avx2
 
 if TYPE_CHECKING:
     from neural_ai.core.storage.backends.base import StorageBackend
+    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 
 logger = structlog.get_logger()
@@ -54,6 +53,7 @@ class ParquetStorageService(metaclass=SingletonMeta):
         self,
         base_path: str | Path | None = None,
         compression: str = "snappy",
+        hardware: "HardwareInterface | None" = None,
     ) -> None:
         """Inicializálja a ParquetStorageService-t backend selectorral.
 
@@ -64,17 +64,25 @@ class ParquetStorageService(metaclass=SingletonMeta):
         Args:
             base_path: Az alapútvonal a tároláshoz (opcionális)
             compression: A tömörítési algoritmus (alapértelmezett: 'snappy')
+            hardware: A hardverképességek detektálásáért felelős interfész (opcionális)
         """
         self.BASE_PATH = Path(base_path) if base_path else Path("/data/tick")
         self.engine = "fastparquet"
         self.compression = compression
         self.backend: StorageBackend
 
+        # Dependency Injection a HardwareInterface-hez
+        if hardware is None:
+            from neural_ai.core.utils.factory import HardwareFactory
+            self.hardware = HardwareFactory.get_hardware_interface()
+        else:
+            self.hardware = hardware
+
         # Hardver detekció és backend kiválasztás
         self._select_backend()
 
         logger.info(f"ParquetStorageService initialized with {self.backend.name} backend")
-    
+
     def _select_backend(self) -> None:
         """Backend kiválasztása hardver detekció alapján.
         
@@ -82,7 +90,7 @@ class ParquetStorageService(metaclass=SingletonMeta):
         a hardver képességek alapján. Külön metódusba van kiszervezve,
         hogy a tesztek könnyen mockolhassák.
         """
-        if has_avx2():
+        if self.hardware.has_avx2():
             from neural_ai.core.storage.backends.polars_backend import PolarsBackend
 
             self.backend = PolarsBackend()
@@ -356,7 +364,6 @@ class ParquetStorageService(metaclass=SingletonMeta):
             df = self.backend.read(str(path))
             # Csak a fontos oszlopok alapján
             if self.engine == "polars":
-                import polars as pl
                 data_str = df.select(["timestamp", "bid", "ask"]).write_csv()
             else:
                 data_str = df[["timestamp", "bid", "ask"]].to_csv(index=False)

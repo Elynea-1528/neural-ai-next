@@ -44,7 +44,7 @@ class PolarsDataFrame:
             self._polars = pl
             self._pyarrow = pa
             self._parquet = pq
-            
+
             # Frissítsük a modul szintű változókat is a teszteléshez
             import neural_ai.core.storage.backends.polars_backend as pb_module
             pb_module.polars = pl
@@ -299,12 +299,12 @@ class PolarsBackend(StorageBackend):
             # Lekérjük az oszlopokat (attribútum vagy metódus)
             existing_cols = None
             new_cols = None
-            
+
             if hasattr(existing, 'columns') and callable(existing.columns):
                 existing_cols = set(existing.columns())
             elif hasattr(existing, 'columns'):
                 existing_cols = set(existing.columns)
-                
+
             if hasattr(new, 'columns') and callable(new.columns):
                 new_cols = set(new.columns())
             elif hasattr(new, 'columns'):

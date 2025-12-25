@@ -150,14 +150,14 @@ class StorageBackend(ABC):
             # Ellenőrizzük, hogy van-e hossza
             if len(data) < 0:
                 return False
-            
+
             # Próbáljuk meg lekérni az oszlopokat (attribútum vagy metódus)
             columns = None
             if hasattr(data, 'columns') and callable(data.columns):
                 columns = data.columns()
             elif hasattr(data, 'columns'):
                 columns = data.columns
-            
+
             # Típus ellenőrzés és hossz lekérdezése
             if columns is None:
                 return False

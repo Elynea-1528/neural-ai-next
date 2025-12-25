@@ -6,11 +6,15 @@ de további storage típusok is regisztrálhatók dinamikusan.
 """
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from neural_ai.core.storage.exceptions import StorageError
 from neural_ai.core.storage.implementations.file_storage import FileStorage
 from neural_ai.core.storage.interfaces.factory_interface import StorageFactoryInterface
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+if TYPE_CHECKING:
+    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 
 class StorageFactory(StorageFactoryInterface):
@@ -51,6 +55,7 @@ class StorageFactory(StorageFactoryInterface):
         cls,
         storage_type: str = "file",
         base_path: str | Path | None = None,
+        hardware: "HardwareInterface | None" = None,
         **kwargs: object,
     ) -> StorageInterface:
         """Storage példány létrehozása a megadott típus alapján.
@@ -58,6 +63,7 @@ class StorageFactory(StorageFactoryInterface):
         Args:
             storage_type: A kért storage típus azonosítója (alapértelmezett: "file").
             base_path: Alap könyvtár útvonal a file alapú tároláshoz.
+            hardware: A hardverképességek detektálásáért felelős interfész (opcionális).
             **kwargs: További paraméterek a storage osztály konstruktorának.
 
         Returns:
@@ -65,7 +71,7 @@ class StorageFactory(StorageFactoryInterface):
 
         Raises:
             StorageError: Ha nem található a kért storage típus vagy a
-                példányosítás sikertelen.
+                példányosítása sikertelen.
 
         Example:
             >>> storage = StorageFactory.get_storage("file", base_path="data")
@@ -85,6 +91,10 @@ class StorageFactory(StorageFactoryInterface):
         # A base_path hozzáadása a kwargs-hoz, ha meg van adva
         if base_path is not None:
             kwargs["base_path"] = base_path
+
+        # A hardware hozzáadása a kwargs-hoz, ha meg van adva
+        if hardware is not None:
+            kwargs["hardware"] = hardware
 
         try:
             storage = storage_class(**kwargs)

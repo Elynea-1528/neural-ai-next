@@ -7,8 +7,8 @@ Ez a modul a `HardwareFactory` osztályt tartalmazza, amely a
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
     from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
+    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 
 class HardwareFactory:
