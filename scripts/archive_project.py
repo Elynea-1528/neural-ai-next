@@ -76,13 +76,16 @@ def main() -> None:
     # Archiválandó fájlok és mappák listája
     files_to_archive = [
         "neural_ai/",
-        "docs/",
+        "tests/docs/",
         "main.py",
         "pyproject.toml",
         ".vscode/settings.json",
         "environment.yml",
+        ".pre-commit-config.yaml",
         ".env.example",
         "README.md",
+        ".roo/2025-12-23-custom.md",
+        "comments/",
     ]
 
     # Ellenőrizzük, hogy a fájlok léteznek-e
