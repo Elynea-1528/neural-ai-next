@@ -208,7 +208,8 @@ class TestDIContainer:
 
         # Assert
         assert result == "test_string"
-        assert "test_component" not in container._lazy_components  # Áthelyeződik a regular instances-be
+        # Áthelyeződik a regular instances-be
+        assert "test_component" not in container._lazy_components
         assert "test_component" in container._instances
 
     def test_get_component_not_found(self) -> None:
