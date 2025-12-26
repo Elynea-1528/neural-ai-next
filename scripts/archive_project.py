@@ -78,14 +78,12 @@ def main() -> None:
         "neural_ai/",
         "docs/",
         "main.py",
+        "README.md",
         "pyproject.toml",
         ".vscode/settings.json",
-        "environment.yml",
-        ".pre-commit-config.yaml",
+        ".env",
         ".env.example",
-        "README.md",
-        ".roo/2025-12-23-custom.md",
-        "comments/",
+        ".pre-commit-config.yaml",
     ]
 
     # Ellenőrizzük, hogy a fájlok léteznek-e
