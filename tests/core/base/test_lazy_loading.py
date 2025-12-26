@@ -3,8 +3,6 @@
 Ez a modul tartalmazza a LazyLoader és lazy_property tesztjeit.
 """
 
-from typing import Any
-
 import pytest
 
 from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
@@ -67,7 +65,7 @@ class TestLazyLoader:
         """Teszteli a LazyLoader-t komplex objektumokkal."""
 
         # Given
-        def loader() -> dict[str, Any]:
+        def loader() -> dict[str, str | int]:
             return {"key": "value", "number": 42}
 
         lazy_loader = LazyLoader(loader)
