@@ -62,7 +62,9 @@ class TestCoreComponentFactory:
         config = {"base_directory": "/nonexistent/path/to/nowhere"}
 
         # Act & Assert
-        with pytest.raises(ConfigurationError, match="Storage base_directory parent does not exist"):
+        with pytest.raises(
+            ConfigurationError, match="Storage base_directory parent does not exist"
+        ):
             CoreComponentFactory._validate_dependencies("storage", config)
 
     def test_validate_dependencies_logger_missing_name(self) -> None:
@@ -95,7 +97,9 @@ class TestCoreComponentFactory:
     @mock.patch("neural_ai.core.config.factory.ConfigManagerFactory")
     @mock.patch("neural_ai.core.logger.factory.LoggerFactory")
     @mock.patch("neural_ai.core.storage.implementations.file_storage.FileStorage")
-    def test_create_components_success(self, mock_storage: Any, mock_logger_factory: Any, mock_config_factory: Any) -> None:
+    def test_create_components_success(
+        self, mock_storage: Any, mock_logger_factory: Any, mock_config_factory: Any
+    ) -> None:
         """Teszteli a komponensek sikeres létrehozását."""
         # Arrange
         mock_config = mock.Mock()
@@ -110,9 +114,7 @@ class TestCoreComponentFactory:
 
         # Act
         components = CoreComponentFactory.create_components(
-            config_path="tests/config.yml",
-            log_path="app.log",
-            storage_path="/tmp/storage"
+            config_path="tests/config.yml", log_path="app.log", storage_path="/tmp/storage"
         )
 
         # Assert
@@ -136,7 +138,9 @@ class TestCoreComponentFactory:
     @mock.patch("neural_ai.core.config.factory.ConfigManagerFactory")
     @mock.patch("neural_ai.core.logger.factory.LoggerFactory")
     @mock.patch("neural_ai.core.storage.implementations.file_storage.FileStorage")
-    def test_create_minimal_success(self, mock_storage: Any, mock_logger_factory: Any, mock_config_factory: Any) -> None:
+    def test_create_minimal_success(
+        self, mock_storage: Any, mock_logger_factory: Any, mock_config_factory: Any
+    ) -> None:
         """Teszteli a minimális komponensek sikeres létrehozását."""
         # Arrange
         mock_config_factory.get_manager.side_effect = FileNotFoundError()
@@ -165,7 +169,9 @@ class TestCoreComponentFactory:
 
         # Assert
         assert logger == mock_logger
-        mock_logger_factory.get_logger.assert_called_once_with(name="test_logger", config={"name": "test_logger"})
+        mock_logger_factory.get_logger.assert_called_once_with(
+            name="test_logger", config={"name": "test_logger"}
+        )
 
     def test_create_logger_missing_name(self) -> None:
         """Teszteli a logger létrehozását hiányzó névvel."""
