@@ -11,11 +11,11 @@ import asyncio
 import json
 import logging
 from collections.abc import Callable
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional
 
 from neural_ai.core.events.exceptions import EventBusError, PublishError
+from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
 
 # Csak típusellenőrzéskor importáljuk, hogy elkerüljük a körkörös importot
 if TYPE_CHECKING:
@@ -32,24 +32,11 @@ logger = logging.getLogger(__name__)
 EventCallback = Callable[["BaseModel"], "Any"]
 
 
-@dataclass
-class EventBusConfig:
-    """EventBus konfiguráció.
-
-    Attributes:
-        zmq_context: ZeroMQ kontextus (opcionális, létrejön ha nincs megadva)
-        pub_port: Publisher port (alapértelmezett: 5555)
-        sub_port: Subscriber port (alapértelmezett: 5556)
-        use_inproc: Használjon inproc transportot teszteléshez (alapértelmezett: False)
-    """
-
-    zmq_context: Optional["zmq.asyncio.Context"] = None
-    pub_port: int = 5555
-    sub_port: int = 5556
-    use_inproc: bool = False
+# A konfiguráció osztályt az interfészben definiáljuk
+from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
 
 
-class EventBus:
+class EventBus(EventBusInterface):
     """ZeroMQ alapú aszinkron eseménybusz.
 
     Ez az osztály biztosítja az események közzétételét és feliratkozást
@@ -66,13 +53,18 @@ class EventBus:
         _running: Futási állapot jelzője
     """
 
+    @property
+    def config(self) -> EventBusConfig:
+        """Visszaadja az EventBus konfigurációját."""
+        return self._config
+
     def __init__(self, config: EventBusConfig | None = None) -> None:
         """Inicializálja az EventBus-t.
 
         Args:
             config: EventBus konfiguráció (opcionális)
         """
-        self.config = config or EventBusConfig()
+        self._config = config or EventBusConfig()
 
         # Importáljuk itt, hogy ne legyen kötelező függőség a használathoz
         try:

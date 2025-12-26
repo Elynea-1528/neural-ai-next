@@ -1,35 +1,54 @@
-# 🧠 NEURAL AI NEXT | SYSTEM TELEMETRY & STATUS TEMPLATE
+# 🌳 NEURAL AI NEXT | SYSTEM DASHBOARD
 
-**Last Sync:** `[ISO 8601 DÁTUM]` | **System Health:** `[🟢 STABLE / 🟡 WARNING / 🔴 CRITICAL]` | **Active Agent:** `[Architect/Code/Debug/Orchestrator/Ask]`
-
----
-
-## 📊 GLOBAL PROGRESS
-
-**Overall Completion:** `[XX%]` `[████████████░░░░░░░░]`
-**Token Usage (Session):** `[~XXXX tokens (Becsült)]`
-**Test Coverage (Avg):** `[Stmt: XX% | Brch: XX%]`
+**Last Sync:** `[YYYY-MM-DD HH:MM]` | **Version:** `[0.5.0]` | **Health:** `[🟢 STABLE / 🟡 WARNING / 🔴 CRITICAL]`
 
 ---
 
-## 🗂️ DEVELOPMENT PHASES
+## 📊 GLOBAL TELEMETRY
 
-### `[🟢/🟡/🔴]` PHASE `[X]`: `[PHASE NAME]`
+| Metric | Visual Progress | Value | Trend | Target |
+|:-------|:----------------|:-----:|:-----:|:------:|
+| **Total Completion** | `🟩🟩🟩🟩🟩🟩🟩🟩⬜⬜` | **85%** | 📈 | 100% |
+| **Test Coverage** | `🟨🟨🟨🟨🟨🟨🟨⬜⬜⬜` | **79%** | 📉 | 100% |
+| **Type Safety** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` | **100%** | ➡️ | Strict |
+| **Tech Debt** | `🟥🟥⬜⬜⬜⬜⬜⬜⬜⬜` | **Low** | 📉 | None |
 
-**Description:** `[Rövid leírás a fázis céljáról és scope-járól]`
-**Progress:** `[XX%]` `[████████████░░░░░░░░]` | **Priority:** `[CRITICAL/HIGH/MEDIUM/LOW]`
-**Complexity:** `[⭐-⭐⭐⭐⭐⭐]` | **Token Budget:** `[~XXXX tokens]`
+---
 
-#### Granular Matrix
+## 🚦 STATUS LEGEND (The 4 States)
 
-| File Path | Matrix `[S|T|D]` | Stmt% | Brch% | Complexity | Token Est. | Dependencies | Status |
-|-----------|:----------------:|:-----:|:-----:|:----------:|:----------:|:-------------|:------:|
-| `[relatív/útvonal.py]` | `[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]` |🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 `[XX%]` | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
-| `[relatív/útvonal.py]` | `[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]` |🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 `[XX%]` | 🟨🟨🟨🟨🟨🟨⬜⬜⬜⬜ `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
-| `[relatív/útvonal.py]` | `[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]` |🟨🟨🟨🟨🟨🟨⬜⬜⬜⬜ `[XX%]` | 🟥🟥🟥⬜⬜⬜⬜⬜⬜⬜ `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
-| `[relatív/útvonal.py]` | `[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]` |🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥 `[XX%]` | 🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥 `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
+| Symbol | Status | Condition (Coverage / Quality) | Action Required |
+|:------:|:-------|:-------------------------------|:----------------|
+| 🔴 | **CRITICAL** | **0% - 49%** (Missing, Broken, No Tests) | 🆘 Immediate Fix / Implement |
+| 🟡 | **WIP** | **50% - 79%** (Draft, Low Coverage, Loose Types) | 🛠️ Refactor & Test |
+| 🟢 | **STABLE** | **80% - 99%** (Functional, Good Coverage, Typed) | 🔍 Polish & Optimize |
+| ✅ | **PERFECT** | **100%** (Strict Types, Full Coverage, Mirrored Docs) | 🔒 Lock & Archive |
+
+---
+
+## 🗂️ PHASE `[1]`: `[CORE INFRASTRUCTURE]`
+
+**Goal:** `[Rövid leírás]` | **Token Budget:** `[~150k]` | **Complexity:** `[⭐⭐⭐⭐]`
+
+### 🏗️ MODULE: `[core/base]`
+
+| File Path | Matrix `[S|T|D]` | Stmt Coverage | Brch Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `factory.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐ | `✅ PERFECT` |
+| `implementations/di_container.py` | `[✅|🟢|🟡]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **92%** | `🟨🟨🟨🟨🟨🟨🟨🟨⬜⬜` **85%** | ⭐⭐⭐ | `🟢 STABLE` |
+| `interfaces/component_interface.py` | `[✅|➖|✅]` | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | ⭐ | `✅ PERFECT` |
+
+### 🟣 MODULE: `[core/events]`
+
+| File Path | Matrix `[S|T|D]` | Stmt Coverage | Brch Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `implementations/zeromq_bus.py` | `[✅|🔴|🟡]` | `🟥🟥🟥🟥⬜⬜⬜⬜⬜⬜` **40%** | `🟥🟥⬜⬜⬜⬜⬜⬜⬜⬜` **20%** | ⭐⭐⭐⭐⭐ | `🔴 CRITICAL` |
+| `interfaces/...` | `[✅|➖|✅]` | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | ⭐ | `✅ PERFECT` |
+
+---
 
 ## 🔑 MATRIX DEFINITIONS
+
 ### `[S|T|D]` Components
 - **S (Source Code):**
   - `❌` Missing / Syntax Error
@@ -44,80 +63,23 @@
   - `🟡` Basic docstrings / Outdated mirror
   - `✅` Google Style Docstrings + `docs/components/` mirror
 
+---
 
-**Statusz Jelmagyarázat:**
-- **✅ PERFECT** = 100% Stmt / 100% Brch Coverage + Type Checked + Dokumentálva
-- **🟢 DONE** = Implementálva, de Coverage < 100% vagy hiányos dokumentáció
-- **🟡 WIP** = Fejlesztés alatt, tesztek részben jók vagy hiányosak
-- **🔴 PENDING** = Nincs kész, vagy a tesztek buknak
+## ⚡ ACTIVE CONTEXT & BLOCKERS
+
+- **Current Focus:** `[Mit csinálunk éppen?]`
+- **Blockers:**
+  1. `[Hiba 1]`
+  2. `[Hiba 2]`
+- **Next Steps:**
+  1. `[Lépés 1]`
+  2. `[Lépés 2]`
 
 ---
 
-### `[🟢/🟡/🔴]` PHASE `[X+1]`: `[PHASE NAME]`
+## 🔧 TECHNICAL DEBT LOG
 
-**Description:** `[Rövid leírás a fázis céljáról és scope-járól]`
-**Progress:** `[XX%]` `[████████████░░░░░░░░]` | **Priority:** `[CRITICAL/HIGH/MEDIUM/LOW]`
-**Complexity:** `[⭐-⭐⭐⭐⭐⭐]` | **Token Budget:** `[~XXXX tokens]`
-
-#### Granular Matrix
-
-| File Path | Matrix `[S|T|D]` | Stmt% | Brch% | Complexity | Token Est. | Dependencies | Status |
-|-----------|:----------------:|:-----:|:-----:|:----------:|:----------:|:-------------|:------:|
-| `[relatív/útvonal.py]` | `[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]|[✅/🟢/🟡/🔴]` |🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 `[XX%]` | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 `[XX%]` | `[⭐-⭐⭐⭐⭐⭐]` | `[XXXX]` | `[dep1, dep2]` | `[✅/🟢/🟡/🔴]` |
-
----
-
-## ⚡ ACTIVE CONTEXT
-
-- 🎯 **Current Focus:** `[aktuális fájl/komponens]`
-- 🛑 **Blocker:** `[Akadály vagy függőség]`
-- 📈 **Next Steps:** `[Következő lépések rövid leírása]`
-
----
-
-## 📝 NOTES & BLOCKERS
-
-### Blokkolók
-1. `[Blokkoló probléma leírása és hatása]`
-2. `[Másik blokkoló]`
-
-### Függőségek
-- `[Fázis/Modul]` vár `[Másik Fázis/Modul]`-ra
-
-### Döntések
-- `[Dátum]`: `[Fontos döntés vagy változtatás leírása]`
-
----
-
-## 🔧 TECHNICAL DEBT
-
-| Issue | Severity | Affected Files | Notes |
-|-------|:--------:|:---------------|:------|
-| `[Issue leírás]` | `[✅/🟢/🟡/🔴]` | `[fájlok]` | `[Megjegyzés]` |
-
----
-
-## 📊 QUALITY METRICS
-
-| Metric | Target | Current | Status |
-|--------|:------:|:-------:|:------:|
-| Code Coverage (Stmt) | 100% | 🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩`[XX%]` | `[✅/🟢/🟡/🔴]` |
-| Code Coverage (Branch) | 100% | 🟨🟨🟨🟨🟨🟨🟨🟨⬜⬜`[XX%]` | `[✅/🟢/🟡/🔴]` |
-| Type Safety | Strict | `[Strict/Partial]` | `[✅/🟢/🟡/🔴]` |
-| Linter Errors | 0 | `[X]` | `[✅/🟢/🟡/🔴]` |
-| Documentation | 100% | 🟥🟥🟥⬜⬜⬜⬜⬜⬜⬜`[XX%]` | `[✅/🟢/🟡/🔴]` |
-
----
-
-## 🚀 RECENT COMMITS
-
-```
-[Commit hash] - feat(scope): [commit message]
-[Commit hash] - fix(scope): [commit message]
-[Commit hash] - docs(scope): [commit message]
-```
-
----
-
-**Template Version:** 1.0
-**Last Updated:** `[ISO 8601 DÁTUM]`
+| Severity | Module | Description | Plan |
+|:--------:|:-------|:------------|:-----|
+| `🔴` | `events` | `ZeroMQ` tests freeze without mock | Implement proper mocking |
+| `🟡` | `config` | `Pylance` complains about dynamic attr | Add type stubs |
