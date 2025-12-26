@@ -11,10 +11,10 @@ if TYPE_CHECKING:
     from neural_ai.core.base.implementations.di_container import DIContainer
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
-    from neural_ai.core.events.implementations.zeromq_bus import EventBus
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-    from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
+    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 T = TypeVar("T")
 
@@ -100,6 +100,7 @@ class CoreComponents:
         from typing import cast
 
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+
         result = self._container.resolve(ConfigManagerInterface)
         return cast(Optional["ConfigManagerInterface"], result)
 
@@ -113,6 +114,7 @@ class CoreComponents:
         from typing import cast
 
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
         result = self._container.resolve(LoggerInterface)
         return cast(Optional["LoggerInterface"], result)
 
@@ -126,6 +128,7 @@ class CoreComponents:
         from typing import cast
 
         from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
         result = self._container.resolve(StorageInterface)
         return cast(Optional["StorageInterface"], result)
 
@@ -139,11 +142,12 @@ class CoreComponents:
         from typing import cast
 
         from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
+
         result = self._container.resolve(DatabaseManager)
         return cast(Optional["DatabaseManager"], result)
 
     @property
-    def event_bus(self) -> Optional["EventBus"]:
+    def event_bus(self) -> Optional["EventBusInterface"]:
         """Esemény busz komponens lekérése.
 
         Returns:
@@ -151,12 +155,13 @@ class CoreComponents:
         """
         from typing import cast
 
-        from neural_ai.core.events.implementations.zeromq_bus import EventBus
-        result = self._container.resolve(EventBus)
-        return cast(Optional["EventBus"], result)
+        from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+
+        result = self._container.resolve(EventBusInterface)
+        return cast(Optional["EventBusInterface"], result)
 
     @property
-    def hardware(self) -> Optional["HardwareInfo"]:
+    def hardware(self) -> Optional["HardwareInterface"]:
         """Hardver információ komponens lekérése.
 
         Returns:
@@ -164,9 +169,10 @@ class CoreComponents:
         """
         from typing import cast
 
-        from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
-        result = self._container.resolve(HardwareInfo)
-        return cast(Optional["HardwareInfo"], result)
+        from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+
+        result = self._container.resolve(HardwareInterface)
+        return cast(Optional["HardwareInterface"], result)
 
     def set_config(self, config: "ConfigManagerInterface") -> None:
         """Beállítja a konfiguráció komponenst (csak teszteléshez).
@@ -175,6 +181,7 @@ class CoreComponents:
             config: A konfiguráció kezelő implementáció példánya.
         """
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+
         self._container.register_instance(ConfigManagerInterface, config)
 
     def set_logger(self, logger: "LoggerInterface") -> None:
@@ -184,6 +191,7 @@ class CoreComponents:
             logger: A naplózó implementáció példánya.
         """
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
         self._container.register_instance(LoggerInterface, logger)
 
     def set_storage(self, storage: "StorageInterface") -> None:
@@ -193,6 +201,7 @@ class CoreComponents:
             storage: A tároló implementáció példánya.
         """
         from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
         self._container.register_instance(StorageInterface, storage)
 
     def set_database(self, database: "DatabaseManager") -> None:
@@ -202,25 +211,28 @@ class CoreComponents:
             database: Az adatbázis implementáció példánya.
         """
         from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
+
         self._container.register_instance(DatabaseManager, database)
 
-    def set_event_bus(self, event_bus: "EventBus") -> None:
+    def set_event_bus(self, event_bus: "EventBusInterface") -> None:
         """Beállítja az esemény busz komponenst (csak teszteléshez).
 
         Args:
             event_bus: Az esemény busz implementáció példánya.
         """
-        from neural_ai.core.events.implementations.zeromq_bus import EventBus
-        self._container.register_instance(EventBus, event_bus)
+        from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
 
-    def set_hardware(self, hardware: "HardwareInfo") -> None:
+        self._container.register_instance(EventBusInterface, event_bus)
+
+    def set_hardware(self, hardware: "HardwareInterface") -> None:
         """Beállítja a hardver információ komponenst (csak teszteléshez).
 
         Args:
             hardware: A hardver információ implementáció példánya.
         """
-        from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
-        self._container.register_instance(HardwareInfo, hardware)
+        from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+
+        self._container.register_instance(HardwareInterface, hardware)
 
     def has_config(self) -> bool:
         """Ellenőrzi, hogy van-e config komponens.
@@ -276,11 +288,13 @@ class CoreComponents:
         Returns:
             bool: True ha minden komponens megvan, False ha valamelyik hiányzik
         """
-        return all([
-            self.has_config(),
-            self.has_logger(),
-            self.has_storage(),
-            self.has_database(),
-            self.has_event_bus(),
-            self.has_hardware()
-        ])
+        return all(
+            [
+                self.has_config(),
+                self.has_logger(),
+                self.has_storage(),
+                self.has_database(),
+                self.has_event_bus(),
+                self.has_hardware(),
+            ]
+        )

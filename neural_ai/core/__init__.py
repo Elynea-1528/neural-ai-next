@@ -70,20 +70,20 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
     from neural_ai.core.db.factory import DatabaseFactory
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.factory import EventBusFactory
-    from neural_ai.core.events.implementations.zeromq_bus import EventBus
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.factory import LoggerFactory
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.factory import StorageFactory
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
     from neural_ai.core.utils.factory import HardwareFactory
-    from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
+    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
     # DI container létrehozása
     container = DIContainer()
 
     # 1. Hardware inicializálása
     hardware = HardwareFactory.get_hardware_info()
-    container.register_instance(HardwareInfo, hardware)
+    container.register_instance(HardwareInterface, hardware)
 
     # 2. Konfiguráció létrehozása
     config = ConfigManagerFactory.get_manager(filename=config_path or "config.yml")
@@ -98,11 +98,13 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
     container.register_instance(DatabaseManager, database)
 
     # 5. EventBus inicializálása (Config+Logger)
-    event_bus = EventBusFactory.create()
-    container.register_instance(EventBus, event_bus)
+    event_bus = EventBusFactory.create_from_config(config)
+    container.register_instance(EventBusInterface, event_bus)
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
-    storage = StorageFactory.get_storage(storage_type="file", base_path=None, logger=logger)
+    storage = StorageFactory.get_storage(
+        storage_type="file", base_path=None, logger=logger, hardware=hardware
+    )
     container.register_instance(StorageInterface, storage)
 
     return CoreComponents(container=container)

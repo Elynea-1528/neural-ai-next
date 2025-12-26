@@ -10,11 +10,13 @@ import os
 import platform
 from typing import TYPE_CHECKING
 
+from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+
 if TYPE_CHECKING:
     pass
 
 
-class HardwareInfo:
+class HardwareInfo(HardwareInterface):
     """Hardverinformációk lekérdezését implementáló osztály.
 
     Ez az osztály a `HardwareInterface` interfészt implementálja, és
