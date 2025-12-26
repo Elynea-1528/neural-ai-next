@@ -126,8 +126,7 @@ class TestCoreComponentFactoryInterface:
         assert callable(method)
         # Statikus metódus ellenőrzése
         assert isinstance(
-            inspect.getattr_static(CoreComponentFactoryInterface, "create_components"),
-            staticmethod
+            inspect.getattr_static(CoreComponentFactoryInterface, "create_components"), staticmethod
         )
 
     def test_interface_has_create_with_container_static_method(self) -> None:
@@ -135,12 +134,21 @@ class TestCoreComponentFactoryInterface:
         assert hasattr(CoreComponentFactoryInterface, "create_with_container")
         method = CoreComponentFactoryInterface.create_with_container
         assert callable(method)
+        # Statikus metódus ellenőrzése
+        assert isinstance(
+            inspect.getattr_static(CoreComponentFactoryInterface, "create_with_container"),
+            staticmethod,
+        )
 
     def test_interface_has_create_minimal_static_method(self) -> None:
         """Teszteli, hogy az interfész rendelkezik create_minimal statikus metódussal."""
         assert hasattr(CoreComponentFactoryInterface, "create_minimal")
         method = CoreComponentFactoryInterface.create_minimal
         assert callable(method)
+        # Statikus metódus ellenőrzése
+        assert isinstance(
+            inspect.getattr_static(CoreComponentFactoryInterface, "create_minimal"), staticmethod
+        )
 
 
 class TestLazyComponentInterface:
@@ -197,6 +205,34 @@ class TestInterfacesIntegration:
                         f"{interface.__name__}.{name} nem absztrakt metódus"
                     )
 
+    def test_interface_method_signatures(self) -> None:
+        """Teszteli az interfész metódusok aláírásait és docstringjeit."""
+        interfaces: list[type] = [
+            DIContainerInterface,
+            CoreComponentsInterface,
+            CoreComponentFactoryInterface,
+            LazyComponentInterface,
+        ]
+
+        for interface in interfaces:
+            for name in dir(interface):
+                if name.startswith("_"):
+                    continue
+                attr = getattr(interface, name)
+                if callable(attr):
+                    # Docstring ellenőrzése
+                    assert attr.__doc__ is not None, (
+                        f"{interface.__name__}.{name} metódusnak nincs docstringje"
+                    )
+                    assert len(attr.__doc__.strip()) > 0, (
+                        f"{interface.__name__}.{name} metódus docstringje üres"
+                    )
+                    # Signature ellenőrzése
+                    sig = inspect.signature(attr)
+                    assert sig is not None, (
+                        f"{interface.__name__}.{name} metódusnak nincs signature-je"
+                    )
+
 
 class TestInterfacesImplementation:
     """Interfészek implementációs tesztjei a 100% coverage eléréséhez."""
@@ -245,11 +281,13 @@ class TestInterfacesImplementation:
         # Teszt: register_factory
         def factory() -> str:
             return "from_factory"
+
         container.register_factory(int, factory)
 
         # Teszt: register_lazy és get
         def lazy_factory() -> str:
             return "lazy_loaded"
+
         container.register_lazy("lazy_test", lazy_factory)
         assert container.get("lazy_test") == "lazy_loaded"
 
@@ -288,7 +326,7 @@ class TestInterfacesImplementation:
                 self,
                 config: MockConfig | None = None,
                 logger: MockLogger | None = None,
-                storage: MockStorage | None = None
+                storage: MockStorage | None = None,
             ) -> None:
                 self._config = config
                 self._logger = logger
@@ -333,9 +371,7 @@ class TestInterfacesImplementation:
         mock_logger = MockLogger()
         mock_storage = MockStorage()
         full_components = ConcreteCoreComponents(
-            config=mock_config,
-            logger=mock_logger,
-            storage=mock_storage
+            config=mock_config, logger=mock_logger, storage=mock_storage
         )
         assert full_components.config is mock_config
         assert full_components.logger is mock_logger
@@ -384,6 +420,122 @@ class TestInterfacesImplementation:
         # Második hozzáféréskor már nem hívódik meg a factory
         result2 = lazy_component.get()
         assert result2 == result
+
+    def test_core_component_factory_implementation(self) -> None:
+        """Teszteli a CoreComponentFactoryInterface implementációját."""
+
+        # Mock osztályok a teszteléshez
+        class MockComponents(CoreComponentsInterface):
+            """Mock komponensek."""
+
+            def __init__(self) -> None:
+                self._config = None
+                self._logger = None
+                self._storage = None
+
+            @property
+            def config(self) -> None:  # type: ignore
+                return self._config
+
+            @property
+            def logger(self) -> None:  # type: ignore
+                return self._logger
+
+            @property
+            def storage(self) -> None:  # type: ignore
+                return self._storage
+
+            def has_config(self) -> bool:
+                return False
+
+            def has_logger(self) -> bool:
+                return False
+
+            def has_storage(self) -> bool:
+                return False
+
+            def validate(self) -> bool:
+                return False
+
+        class MockContainer(DIContainerInterface):
+            """Mock DI konténer."""
+
+            def __init__(self) -> None:
+                self.instances: dict[object, object] = {}
+                self.factories: dict[object, object] = {}
+                self.lazy_components: dict[str, object] = {}
+
+            def register_instance(self, interface: object, instance: object) -> None:
+                self.instances[interface] = instance
+
+            def register_factory(self, interface: object, factory: object) -> None:
+                self.factories[interface] = factory
+
+            def resolve(self, interface: object) -> object | None:  # type: ignore
+                return self.instances.get(interface)
+
+            def register_lazy(self, component_name: str, factory_func: object) -> None:
+                self.lazy_components[component_name] = factory_func
+
+            def get(self, component_name: str) -> object:
+                factory = self.lazy_components.get(component_name)
+                if factory and callable(factory):
+                    return factory()
+                raise KeyError(f"Component {component_name} not found")
+
+            def clear(self) -> None:
+                self.instances.clear()
+                self.factories.clear()
+                self.lazy_components.clear()
+
+        class ConcreteCoreComponentFactory(CoreComponentFactoryInterface):
+            """Konkrét core komponens factory implementáció."""
+
+            @staticmethod
+            def create_components(
+                config_path: str | None = None,
+                log_path: str | None = None,
+                storage_path: str | None = None,
+            ) -> CoreComponentsInterface:
+                """Core komponensek létrehozása és inicializálása."""
+                return MockComponents()
+
+            @staticmethod
+            def create_with_container(container: DIContainerInterface) -> CoreComponentsInterface:
+                """Core komponensek létrehozása meglévő konténerből."""
+                return MockComponents()
+
+            @staticmethod
+            def create_minimal() -> CoreComponentsInterface:
+                """Minimális core komponens készlet létrehozása."""
+                return MockComponents()
+
+        factory = ConcreteCoreComponentFactory()
+        mock_container = MockContainer()
+
+        # Teszt: create_components
+        components1 = factory.create_components(
+            config_path="test_config.yaml", log_path="test_log.txt", storage_path="test_storage"
+        )
+        assert isinstance(components1, CoreComponentsInterface)
+
+        # Teszt: create_with_container
+        components2 = factory.create_with_container(mock_container)
+        assert isinstance(components2, CoreComponentsInterface)
+
+        # Teszt: create_minimal
+        components3 = factory.create_minimal()
+        assert isinstance(components3, CoreComponentsInterface)
+
+        # Teszt: Statikus metódusok hívása az interfészen keresztül
+        components4 = ConcreteCoreComponentFactory.create_components()
+        assert isinstance(components4, CoreComponentsInterface)
+
+        components5 = ConcreteCoreComponentFactory.create_with_container(mock_container)
+        assert isinstance(components5, CoreComponentsInterface)
+
+        components6 = ConcreteCoreComponentFactory.create_minimal()
+        assert isinstance(components6, CoreComponentsInterface)
 
 
 if __name__ == "__main__":
