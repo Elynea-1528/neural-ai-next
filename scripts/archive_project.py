@@ -76,7 +76,7 @@ def main() -> None:
     # Archiválandó fájlok és mappák listája
     files_to_archive = [
         "neural_ai/",
-        "tests/docs/",
+        "docs/",
         "main.py",
         "pyproject.toml",
         ".vscode/settings.json",
