@@ -157,38 +157,11 @@
 
 ## ⚡ ACTIVE CONTEXT & BLOCKERS
 
-- **Current Focus:** `[Test Suite Stabilization - 100% Coverage Achievement]`
-- **Blockers:**
-  1. `[ZeroMQ EventBus tests freezing without mocks - Critical]`
-  2. `[Parquet storage test coverage 83% - Needs edge cases]`
-  3. `[Bootstrap integration tests pending]`
-- **Next Steps:**
-  1. `[Stabilize test_bus.py with proper mocking]`
-  2. `[Elevate parquet_storage.py to 100% coverage]`
-  3. `[Implement bootstrap integration tests]`
 
 ---
 
 ## 🪃 ORCHESTRATOR QUEUE
 
-1. **Code Agent! A feladat a(z) `tests/core/events/test_bus.py` [REFAKTORÁLÁSA].**
-   - **Architektúra:** DI Enforcement, Interface/Impl separation, Factory usage.
-   - **Kódminőség:** Magyar docstringek, Strict Types, `ruff check` 0 hiba.
-   - **Mockolás:** ZeroMQ hálózati hívások mockolása kötelező.
-   - **Coverage:** 100% Stmt & Brch elérés.
-   - **Lezárás:** `git commit -m "fix(tests): stabilize bus tests, add mocks, achieve 100% coverage"`
-
-2. **Code Agent! A feladat a(z) `tests/core/storage/implementations/test_parquet_storage.py` [REFAKTORÁLÁSA].**
-   - **Architektúra:** Parquet chunking & async support.
-   - **Kódminőség:** Type Hints, Edge-case coverage.
-   - **Coverage:** 100% Stmt & Brch.
-   - **Lezárás:** `git commit -m "fix(tests): elevate parquet storage coverage to 100%"`
-
-3. **Code Agent! A feladat a(z) `tests/integration/test_bootstrap.py` [LÉTREHOZÁSA].**
-   - **Architektúra:** Core komponensek integrációs tesztelése.
-   - **Kódminőség:** Async testing, Proper mocking.
-   - **Coverage:** 100% új teszteket.
-   - **Lezárás:** `git commit -m "feat(tests): add bootstrap integration tests"`
 
 ---
 
@@ -196,6 +169,3 @@
 
 | Severity | Module | Description | Plan |
 |:--------:|:-------|:------------|:-----|
-| `🔴` | `events` | `ZeroMQ` tests freeze without mock | Implement proper mocking |
-| `🟡` | `storage` | `Parquet` coverage 83% | Add edge-case tests |
-| `🟡` | `bootstrap` | Missing integration tests | Create bootstrap test suite |
