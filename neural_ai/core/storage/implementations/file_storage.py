@@ -34,17 +34,22 @@ class FileStorage(StorageInterface):
     """Fájlrendszer alapú storage implementáció."""
 
     def __init__(
-        self, base_path: str | Path | None = None, logger: Optional["LoggerInterface"] = None
+        self,
+        base_path: str | Path | None = None,
+        logger: Optional["LoggerInterface"] = None,
+        **kwargs: Any,
     ) -> None:
         """Inicializálja a FileStorage példányt.
 
         Args:
             base_path: Alap könyvtár útvonala
             logger: Logger példány (opcionális)
+            **kwargs: További paraméterek (pl. hardware), amiket figyelmen kívül hagyunk.
         """
         self._base_path = Path(base_path) if base_path else Path.cwd()
         self.logger: LoggerInterface | None = logger
         self._setup_format_handlers()
+        # A kwargs-al nem csinálunk semmit, csak hagyjuk, hogy létezzen.
 
     def _setup_format_handlers(self) -> None:
         """Beállítja a formátum kezelőket."""
@@ -402,6 +407,7 @@ class FileStorage(StorageInterface):
         # Ellenőrizzük a lemezterületet (becsült méret alapján)
         try:
             import sys
+
             estimated_size = sys.getsizeof(str(obj))
             self._check_disk_space(full_path, int(estimated_size * 1.1))
         except (InsufficientDiskSpaceError, StorageIOError):
