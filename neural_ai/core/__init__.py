@@ -85,9 +85,9 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
     hardware = HardwareFactory.get_hardware_info()
     container.register_instance(HardwareInterface, hardware)
 
-    # 2. Konfiguráció létrehozása és YAML fájlok betöltése
-    config = ConfigManagerFactory.get_manager(filename="config.yml")
-    # Betöltjük az összes YAML fájlt a configs/ mappából namespaced struktúrába
+    # 2. Konfiguráció létrehozása (Fájl nélkül inicializáljuk!)
+    config = ConfigManagerFactory.create_manager("yaml")
+    # Betöltjük a configs/ mappát
     config.load_directory("configs")
     container.register_instance(ConfigManagerInterface, config)
 

@@ -131,38 +131,53 @@ class LoggerFactory(LoggerFactoryInterface):
                     'handlers': {
                         'console': {
                             'enabled': True,
-                            'level': 'INFO'
+                            'level': 'INFO',
+                            'colored': True
                         },
                         'file': {
                             'enabled': True,
-                            'filename': 'app.log',
-                            'level': 'DEBUG'
+                            'filename': 'logs/app.log',
+                            'level': 'DEBUG',
+                            'json_format': True,
+                            'rotating': True,
+                            'max_bytes': 10485760,
+                            'backup_count': 10
                         }
                     }
                 }
         """
+        import json
+        from pathlib import Path
+
         # Alap beállítások
         default_level = getattr(logging, config.get("default_level", "INFO"))
         log_format = config.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         date_format = config.get("date_format", "%Y-%m-%d %H:%M:%S")
 
         # Root logger konfigurálása
-        logging.basicConfig(
-            level=default_level,
-            format=log_format,
-            datefmt=date_format,
-        )
+        root_logger = logging.getLogger()
+        root_logger.setLevel(default_level)
+
+        # Meglévő handlerek törlése, hogy ne legyenek duplikálva
+        root_logger.handlers.clear()
 
         # Handlerek beállítása
         handlers = config.get("handlers", {})
-        root_logger = logging.getLogger()
 
         # Console handler
         console_config = handlers.get("console", {})
         if console_config.get("enabled", False):
             console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setLevel(getattr(logging, console_config.get("level", "INFO")))
-            console_handler.setFormatter(logging.Formatter(log_format))
+
+            # Színes formatter ellenőrzése
+            if console_config.get("colored", False):
+                from neural_ai.core.logger.formatters.logger_formatters import ColoredFormatter
+
+                console_handler.setFormatter(ColoredFormatter(log_format, date_format))
+            else:
+                console_handler.setFormatter(logging.Formatter(log_format, date_format))
+
             root_logger.addHandler(console_handler)
 
         # File handler
@@ -170,9 +185,44 @@ class LoggerFactory(LoggerFactoryInterface):
         if file_config.get("enabled", False):
             filename = file_config.get("filename")
             if filename:
-                file_handler = logging.FileHandler(filename)
+                # Mappa létrehozása, ha nem létezik
+                file_path = Path(filename)
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+
+                # Rotating file handler ellenőrzése
+                if file_config.get("rotating", False):
+                    from logging.handlers import RotatingFileHandler
+
+                    max_bytes = file_config.get("max_bytes", 10485760)
+                    backup_count = file_config.get("backup_count", 10)
+                    file_handler = RotatingFileHandler(
+                        filename, maxBytes=max_bytes, backupCount=backup_count
+                    )
+                else:
+                    file_handler = logging.FileHandler(filename)
+
                 file_handler.setLevel(getattr(logging, file_config.get("level", "DEBUG")))
-                file_handler.setFormatter(logging.Formatter(log_format))
+
+                # JSON formatter ellenőrzése
+                if file_config.get("json_format", False):
+                    # JSON formatter implementációja
+                    class JSONFormatter(logging.Formatter):
+                        def format(self, record: logging.LogRecord) -> str:
+                            log_data: dict[str, str | int] = {
+                                "timestamp": self.formatTime(record, date_format),
+                                "name": record.name,
+                                "level": record.levelname,
+                                "message": record.getMessage(),
+                                "module": record.module,
+                                "function": record.funcName,
+                                "line": record.lineno,
+                            }
+                            return json.dumps(log_data)
+
+                    file_handler.setFormatter(JSONFormatter())
+                else:
+                    file_handler.setFormatter(logging.Formatter(log_format, date_format))
+
                 root_logger.addHandler(file_handler)
 
     @classmethod
