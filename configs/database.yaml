@@ -1,10 +1,7 @@
-type: "sqlite" # sqlite, postgresql
+type: "sqlite"
 connection:
-  database: "neural_ai.db"
-  # host: "localhost"
-  # port: 5432
-  # user: "${DB_USER}" # Env változó lesz
-  # password: "${DB_PASSWORD}"
+  # A kód először ezt nézi. Ha nincs itt, akkor az .env DB_URL-t.
+  url: "sqlite+aiosqlite:///neural_ai.db"
 pool:
   size: 5
-  timeout: 30
+  recycle: 3600
