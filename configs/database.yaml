@@ -1,0 +1,10 @@
+type: "sqlite" # sqlite, postgresql
+connection:
+  database: "neural_ai.db"
+  # host: "localhost"
+  # port: 5432
+  # user: "${DB_USER}" # Env változó lesz
+  # password: "${DB_PASSWORD}"
+pool:
+  size: 5
+  timeout: 30

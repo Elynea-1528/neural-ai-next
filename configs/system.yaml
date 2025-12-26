@@ -1,0 +1,9 @@
+app_name: "Neural AI Next"
+version: "0.5.0"
+environment: "development" # production, staging
+debug: true
+paths:
+  data: "data"
+  logs: "logs"
+  models: "models"
+  cache: ".cache"
