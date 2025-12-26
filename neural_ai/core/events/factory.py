@@ -73,7 +73,7 @@ class EventBusFactory:
 
         # Biztonságos lekérdezés (ha nincs szekció, üres dict)
         try:
-            data = config_manager.get_section("event_bus")
+            data = config_manager.get_section("events")
         except (KeyError, ValueError):
             data = {}
 

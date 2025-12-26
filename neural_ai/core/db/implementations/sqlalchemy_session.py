@@ -40,12 +40,19 @@ def get_database_url(config_manager: ConfigManagerInterface | None = None) -> st
     if config_manager is None:
         config_manager = ConfigManagerFactory.get_manager("config.yaml")
 
-    db_url = config_manager.get("db_url")
+    # Elsődlegesen a namespaced konfigban keressük
+    db_url = config_manager.get("database", "connection", "url")
+
+    # Ha nincs, akkor a régi env fallback
+    if not db_url:
+        db_url = config_manager.get("db_url")
+
     if not db_url:
         raise DBConnectionError(
             message=(
                 "Adatbázis URL nincs konfigurálva. "
-                "Kérlek állítsd be a DB_URL környezeti változót."
+                "Kérlek állítsd be a database.connection.url-t a configs/database.yaml-ben "
+                "vagy a DB_URL környezeti változót."
             )
         )
 

@@ -362,3 +362,49 @@ class YAMLConfigManager(ConfigManagerInterface):
             ctx.errors[ctx.path] = f"Értéknek >= {min_value} kell lennie"
         if max_value is not None and ctx.value > max_value:
             ctx.errors[ctx.path] = f"Értéknek <= {max_value} kell lennie"
+
+   def load_directory(self, path: str) -> None:
+       """Betölti az összes YAML fájlt egy mappából namespaced struktúrába.
+
+       A fájlneveket (kiterjesztés nélkül) használja kulcsként, és a tartalmukat
+       az adott kulcs alá tölti be. A 'system.yaml' fájl tartalmát a gyökérbe is
+       betölti az app_name, debug stb. elérhetősége érdekében.
+
+       Args:
+           path: A konfigurációs mappa útvonala
+
+       Raises:
+           ConfigLoadError: Ha a mappa nem található vagy betöltési hiba történik
+       """
+       if not os.path.exists(path):
+           raise ConfigLoadError(f"Konfigurációs mappa nem található: {path}")
+
+       if not os.path.isdir(path):
+           raise ConfigLoadError(f"Az útvonal nem egy mappa: {path}")
+
+       try:
+           # Összes .yaml fájl listázása
+           yaml_files = [f for f in os.listdir(path) if f.endswith(('.yaml', '.yml'))]
+
+           for filename in yaml_files:
+               file_path = os.path.join(path, filename)
+               
+               # Fájlnév kiterjesztés nélkül (kulcsként használjuk)
+               key = os.path.splitext(filename)[0]
+
+               # Fájl tartalmának betöltése
+               with open(file_path, encoding="utf-8") as f:
+                   data = yaml.safe_load(f)
+                   if data:
+                       # Tartalom elhelyezése a kulcs alatt
+                       self._config[key] = data
+
+                       # system.yaml speciális kezelése: gyökérbe is betöltjük
+                       if key == "system":
+                           # A gyökérbe csak azokat a kulcsokat töltjük, amik még nincsenek ott
+                           for sys_key, sys_value in data.items():
+                               if sys_key not in self._config:
+                                   self._config[sys_key] = sys_value
+
+       except (OSError, yaml.YAMLError) as e:
+           raise ConfigLoadError(f"Konfigurációs mappa betöltése sikertelen: {str(e)}") from e

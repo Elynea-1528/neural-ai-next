@@ -39,6 +39,14 @@ class ConfigManagerInterface(ABC):
         """Konfiguráció betöltése fájlból."""
 
     @abstractmethod
+    def load_directory(self, path: str) -> None:
+        """Betölti az összes YAML fájlt egy mappából namespaced struktúrába.
+
+        Args:
+            path: A konfigurációs mappa útvonala
+        """
+
+    @abstractmethod
     def validate(self, schema: dict[str, Any]) -> tuple[bool, dict[str, str] | None]:
         """Konfiguráció validálása séma alapján.
 

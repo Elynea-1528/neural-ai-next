@@ -85,12 +85,17 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
     hardware = HardwareFactory.get_hardware_info()
     container.register_instance(HardwareInterface, hardware)
 
-    # 2. Konfiguráció létrehozása
-    config = ConfigManagerFactory.get_manager(filename=config_path or "config.yml")
+    # 2. Konfiguráció létrehozása és YAML fájlok betöltése
+    config = ConfigManagerFactory.get_manager(filename="config.yml")
+    # Betöltjük az összes YAML fájlt a configs/ mappából namespaced struktúrába
+    config.load_directory("configs")
     container.register_instance(ConfigManagerInterface, config)
 
     # 3. Logger inicializálása a konfiggal
-    logger = LoggerFactory.get_logger(name="NeuralAI", logger_type="default", level=log_level)
+    logging_config = config.get_section("logging")
+    LoggerFactory.configure(logging_config)
+    # Alap logger példány létrehozása
+    logger = LoggerFactory.get_logger(name="NeuralAI", logger_type="default")
     container.register_instance(LoggerInterface, logger)
 
     # 4. Adatbázis inicializálása (Config+Logger)
