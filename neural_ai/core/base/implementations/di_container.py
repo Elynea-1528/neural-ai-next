@@ -77,11 +77,7 @@ class DIContainer:
         """
         self._instances[interface] = instance
 
-    def register_factory(
-        self,
-        interface: InterfaceT,
-        factory: Callable[[], InterfaceT]
-    ) -> None:
+    def register_factory(self, interface: InterfaceT, factory: Callable[[], InterfaceT]) -> None:
         """Factory függvény regisztrálása a konténerben.
 
         Args:
@@ -207,35 +203,23 @@ class DIContainer:
         Raises:
             UserWarning: If singleton pattern is not properly implemented
         """
-        # Check if instance has _initialized flag
-        if not hasattr(instance, "_initialized"):
+        # 1. Init ellenőrzés (Mindenkinek kötelező)
+        if not getattr(instance, "_initialized", False):
             warnings.warn(
-                f"Instance of {type(instance).__name__} (component: {component_name}) "
-                "does not have _initialized flag. Singleton pattern may not be "
-                "properly implemented.",
+                f"Instance of {type(instance).__name__} ({component_name}) is missing '_initialized' flag.",
                 UserWarning,
                 stacklevel=2,
             )
 
-        # Check if instance has _instance class variable (class-level singleton)
-        instance_type = type(instance)
-        if not hasattr(instance_type, "_instance"):
-            warnings.warn(
-                f"Instance of {type(instance).__name__} (component: {component_name}) "
-                "does not have _instance class variable. Consider implementing "
-                "proper singleton pattern.",
-                UserWarning,
-                stacklevel=2,
-            )
-
-        # Check if instance is properly registered
-        if component_name not in self._instances:
-            warnings.warn(
-                f"Component {component_name} not properly registered in container. "
-                "Singleton pattern may be compromised.",
-                UserWarning,
-                stacklevel=2,
-            )
+        # 2. Singleton ellenőrzés (Csak ha SingletonMeta-t használ)
+        # Ha az osztálynak van _instances attribútuma (a SingletonMeta jele)
+        if hasattr(type(instance), "_instances"):
+            if not hasattr(type(instance), "_instance"):
+                warnings.warn(
+                    f"Singleton class {type(instance).__name__} is missing '_instance'.",
+                    UserWarning,
+                    stacklevel=2,
+                )
 
     def _enforce_singleton(self, component_name: str, instance: object) -> None:
         """Enforce singleton pattern by preventing duplicate registration.
