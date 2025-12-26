@@ -42,6 +42,9 @@ class SingletonMeta(type):
         Ha az osztály még nem szerepel a _instances szótárban, létrehoz egy új
         példányt és eltárolja. Ellenkező esetben a meglévő példányt adja vissza.
 
+        DI Container kompatibilitás érdekében beállítja az _initialized és _instance
+        attribútumokat.
+
         Args:
             cls: Az osztály, amelyből példányt szeretnénk létrehozni.
             *args: Pozicionális argumentumok az osztály konstruktorához.
@@ -63,6 +66,15 @@ class SingletonMeta(type):
             'sqlite:///mydb.db'
         """
         if cls not in cls._instances:  # type: ignore[attr-defined]
+            # Példány létrehozása
             instance = super().__call__(*args, **kwargs)  # type: ignore[misc]
+
+            # 1. DI Container követelmény: _initialized flag
+            instance._initialized = True
+
+            # 2. DI Container követelmény: _instance class variable
+            # (Bár a dict-ben tároljuk, a DI ellenőrzés ezt is keresi)
+            cls._instance = instance  # type: ignore
+
             cls._instances[cls] = instance  # type: ignore[attr-defined]
         return cast(T, cls._instances[cls])  # type: ignore[attr-defined]
