@@ -1,193 +1,241 @@
-# Component Bundle - Komponens gyűjtemény
+# Component Bundle Implementáció
 
 ## Áttekintés
 
-Ez a modul a core komponensek gyűjteményét és a lusta betöltés mechanizmusát tartalmazza. A `CoreComponents` osztály egyesíti a config, logger és storage komponenseket, és biztosítja azok egységes elérését lusta betöltéssel.
+Core komponensek gyűjtemény.
 
 ## Osztályok
 
 ### `LazyLoader[T]`
 
-**Hely:** [`neural_ai.core.base.implementations.component_bundle:19`](neural_ai/core/base/implementations/component_bundle.py:19)
-
-Generikus lusta betöltő osztály drága erőforrásokhoz. Szálbiztos implementációval rendelkezik.
+Drága erőforrások lusta betöltője.
 
 #### Metódusok
 
-##### `__init__(loader_func: Callable[[], T]) -> None`
-Inicializálja a lustabetöltőt.
+##### `__init__(loader_func)`
+
+Lustabetöltő inicializálása.
 
 **Paraméterek:**
-- `loader_func`: A függvény, amely az erőforrás betöltését végzi
+- `loader_func`: A függvény, amely az erőforrás betöltését végzi.
 
-##### `_load() -> T`
+##### `_load()`
+
 Betölti az erőforrást, ha még nincs betöltve.
 
-**Visszatérési érték:** A betöltött erőforrás
+**Visszatérési érték:**
+- `T`: A betöltött erőforrás.
 
-##### `__call__() -> T`
-Visszaadja a betöltött erőforrást. Ha még nincs betöltve, először meghívja a betöltő függvényt.
+##### `__call__()`
 
-**Visszatérési érték:** A betöltött erőforrás
+Visszaadja a betöltött erőforrást.
+
+**Visszatérési érték:**
+- `T`: A betöltött erőforrás.
 
 ##### `is_loaded` property
+
 Ellenőrzi, hogy az erőforrás betöltődött-e.
 
-**Visszatérési érték:** `bool` - True, ha az erőforrás betöltve van, különben False
+**Visszatérési érték:**
+- `bool`: True, ha az erőforrás betöltve van, különben False.
 
-##### `reset() -> None`
-Visszaállítja a betöltőt, hogy kirakja az erőforrást. Lehetővé teszi az erőforrás újbóli betöltését.
+##### `reset()`
 
-**Példa:**
-```python
-from neural_ai.core.base.implementations.component_bundle import LazyLoader
+Visszaállítja a betöltőt, hogy kirakja az erőforrást.
 
-def load_expensive_resource():
-    print("Betöltés...")
-    return "drága adatok"
-
-loader = LazyLoader(load_expensive_resource)
-# A betöltő függvény még nem fut le
-
-data = loader()  # Most fut le először: "Betöltés..."
-print(data)  # "drága adatok"
-
-data2 = loader()  # Már nem fut le újra, gyorsítótárból jön
-print(data2)  # "drága adatok"
-
-loader.reset()  # Visszaállítás
-data3 = loader()  # Újra lefut: "Betöltés..."
-```
+Ez a metódus visszaállítja a betöltő állapotát, lehetővé téve az erőforrás újbóli betöltését.
 
 ### `CoreComponents`
 
-**Hely:** [`neural_ai.core.base.implementations.component_bundle:74`](neural_ai/core/base/implementations/component_bundle.py:74)
-
-Alap komponensek gyűjteménye lusta betöltéssel. Ez az osztály egyesíti a config, logger és storage komponenseket, és biztosítja azok egységes elérését.
+Alap komponensek lusta betöltéssel.
 
 #### Metódusok
 
-##### `__init__(container: Optional[DIContainer] = None) -> None`
-Inicializálja a core komponenseket.
+##### `__init__(container)`
+
+Alap komponensek inicializálása.
 
 **Paraméterek:**
 - `container`: Egy függőséginjektáló konténer példány. Ha nincs megadva, új konténert hoz létre.
 
 ##### `config` property
+
 Konfiguráció kezelő komponens lekérése.
 
-**Visszatérési érték:** `Optional[ConfigManagerInterface]` - A konfiguráció kezelő példánya, vagy None ha nincs regisztrálva
+**Visszatérési érték:**
+- `ConfigManagerInterface | None`: A konfiguráció kezelő példánya, vagy None ha nincs regisztrálva.
 
 ##### `logger` property
+
 Naplózó komponens lekérése.
 
-**Visszatérési érték:** `Optional[LoggerInterface]` - A naplózó példánya, vagy None ha nincs regisztrálva
+**Visszatérési érték:**
+- `LoggerInterface | None`: A naplózó példánya, vagy None ha nincs regisztrálva.
 
 ##### `storage` property
+
 Tároló komponens lekérése.
 
-**Visszatérési érték:** `Optional[StorageInterface]` - A tároló példánya, vagy None ha nincs regisztrálva
+**Visszatérési érték:**
+- `StorageInterface | None`: A tároló példánya, vagy None ha nincs regisztrálva.
 
-##### `set_config(config: ConfigManagerInterface) -> None`
+##### `database` property
+
+Adatbázis komponens lekérése.
+
+**Visszatérési érték:**
+- `DatabaseManager | None`: Az adatbázis példánya, vagy None ha nincs regisztrálva.
+
+##### `event_bus` property
+
+Esemény busz komponens lekérése.
+
+**Visszatérési érték:**
+- `EventBus | None`: Az esemény busz példánya, vagy None ha nincs regisztrálva.
+
+##### `hardware` property
+
+Hardver információ komponens lekérése.
+
+**Visszatérési érték:**
+- `HardwareInfo | None`: A hardver információ példánya, vagy None ha nincs regisztrálva.
+
+##### `set_config(config)`
+
 Beállítja a konfiguráció komponenst (csak teszteléshez).
 
 **Paraméterek:**
-- `config`: A konfiguráció kezelő implementáció példánya
+- `config`: A konfiguráció kezelő implementáció példánya.
 
-##### `set_logger(logger: LoggerInterface) -> None`
+##### `set_logger(logger)`
+
 Beállítja a naplózó komponenst (csak teszteléshez).
 
 **Paraméterek:**
-- `logger`: A naplózó implementáció példánya
+- `logger`: A naplózó implementáció példánya.
 
-##### `set_storage(storage: StorageInterface) -> None`
+##### `set_storage(storage)`
+
 Beállítja a tároló komponenst (csak teszteléshez).
 
 **Paraméterek:**
-- `storage`: A tároló implementáció példánya
+- `storage`: A tároló implementáció példánya.
 
-##### `has_config() -> bool`
+##### `set_database(database)`
+
+Beállítja az adatbázis komponenst (csak teszteléshez).
+
+**Paraméterek:**
+- `database`: Az adatbázis implementáció példánya.
+
+##### `set_event_bus(event_bus)`
+
+Beállítja az esemény busz komponenst (csak teszteléshez).
+
+**Paraméterek:**
+- `event_bus`: Az esemény busz implementáció példánya.
+
+##### `set_hardware(hardware)`
+
+Beállítja a hardver információ komponenst (csak teszteléshez).
+
+**Paraméterek:**
+- `hardware`: A hardver információ implementáció példánya.
+
+##### `has_config()`
+
 Ellenőrzi, hogy van-e config komponens.
 
-**Visszatérési érték:** `bool` - True ha van config komponens, False ha nincs
+**Visszatérési érték:**
+- `bool`: True ha van config komponens, False ha nincs
 
-##### `has_logger() -> bool`
+##### `has_logger()`
+
 Ellenőrzi, hogy van-e logger komponens.
 
-**Visszatérési érték:** `bool` - True ha van logger komponens, False ha nincs
+**Visszatérési érték:**
+- `bool`: True ha van logger komponens, False ha nincs
 
-##### `has_storage() -> bool`
+##### `has_storage()`
+
 Ellenőrzi, hogy van-e storage komponens.
 
-**Visszatérési érték:** `bool` - True ha van storage komponens, False ha nincs
+**Visszatérési érték:**
+- `bool`: True ha van storage komponens, False ha nincs
 
-##### `validate() -> bool`
+##### `has_database()`
+
+Ellenőrzi, hogy van-e database komponens.
+
+**Visszatérési érték:**
+- `bool`: True ha van database komponens, False ha nincs
+
+##### `has_event_bus()`
+
+Ellenőrzi, hogy van-e event_bus komponens.
+
+**Visszatérési érték:**
+- `bool`: True ha van event_bus komponens, False ha nincs
+
+##### `has_hardware()`
+
+Ellenőrzi, hogy van-e hardware komponens.
+
+**Visszatérési érték:**
+- `bool`: True ha van hardware komponens, False ha nincs
+
+##### `validate()`
+
 Ellenőrzi, hogy minden szükséges komponens megvan-e.
 
-**Visszatérési érték:** `bool` - True ha minden komponens megvan, False ha valamelyik hiányzik
+**Visszatérési érték:**
+- `bool`: True ha minden komponens megvan, False ha valamelyik hiányzik
 
-**Példa:**
+## Használati Példák
+
+### Alap komponensek létrehozása
+
 ```python
-from neural_ai.core.base import CoreComponents, DIContainer
-from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+from neural_ai.core.base.implementations.component_bundle import CoreComponents
+from neural_ai.core.base.implementations.di_container import DIContainer
 
 # Konténer létrehozása
 container = DIContainer()
 
-# Komponensek regisztrálása
-config = ConfigManagerInterface()
-logger = LoggerInterface()
-storage = StorageInterface()
-
-container.register_instance(ConfigManagerInterface, config)
-container.register_instance(LoggerInterface, logger)
-container.register_instance(StorageInterface, storage)
-
 # Core komponensek létrehozása
-components = CoreComponents(container)
+components = CoreComponents(container=container)
 
-# Komponensek elérése
-if components.has_config():
-    config = components.config
-
+# Komponensek használata
 if components.has_logger():
     logger = components.logger
-
-if components.has_storage():
-    storage = components.storage
-
-# Validálás
-if components.validate():
-    print("Minden komponens elérhető")
-else:
-    print("Néhány komponens hiányzik")
+    logger.info("Alkalmazás elindult")
 ```
 
-## Függőségek
+### Komponensek beállítása teszteléshez
 
-- `threading` - Szálbiztosság érdekében
-- `collections.abc.Callable` - Függvény típusokhoz
-- `typing.TYPE_CHECKING` - Körkörös importok elkerüléséhez
-- `neural_ai.core.base.factory.CoreComponentFactory` - Factory hozzáféréshez
+```python
+from neural_ai.core.logger.implementations import DefaultLogger
+from neural_ai.core.config.implementations import YamlConfigManager
 
-## Jellemzők
+# Teszt komponensek létrehozása
+test_logger = DefaultLogger(name="test")
+test_config = YamlConfigManager("test_config.yml")
 
-- **Lazy Loading:** A komponensek csak akkor töltődnek be, amikor először használják őket
-- **Szálbiztosság:** Az összes művelet szálbiztos, így többszálú környezetben is biztonságosan használható
-- **DI támogatás:** Teljes mértékben integrálható a dependency injection konténerrel
-- **Type Safety:** Erős típusosság generikus típusokkal
+# Komponensek beállítása
+components = CoreComponents()
+components.set_logger(test_logger)
+components.set_config(test_config)
 
-## Használati területek
+# Ellenőrzés
+assert components.has_logger()
+assert components.has_config()
+assert components.validate()
+```
 
-- Core komponensek egységes kezelése
-- Drága erőforrások lusta betöltése
-- Tesztelés során mock komponensek beállítása
-- Komponens életciklus kezelése
+## Kapcsolódó Dokumentáció
 
-## Kapcsolódó dokumentáció
-
-- [Core Component Factory](neural_ai/core/base/factory.md)
-- [DI Container](neural_ai/core/base/implementations/di_container.md)
-- [Lazy Loader](neural_ai/core/base/implementations/lazy_loader.md)
+- [CoreComponentFactory](../factory.md)
+- [DIContainer](di_container.md)
+- [LazyLoader](lazy_loader.md)
+- [Base Modul](../__init__.md)

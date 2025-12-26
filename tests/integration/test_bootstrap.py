@@ -226,12 +226,19 @@ class TestBootstrapCore:
         from neural_ai.core import CoreComponents, bootstrap_core
 
         # Mockoljuk a factory függvényeket, hogy ne próbáljanak ténylegesen inicializálni
-        with patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager") as mock_config:
-            with patch("neural_ai.core.logger.factory.LoggerFactory.get_logger") as mock_logger:
-                with patch("neural_ai.core.db.factory.DatabaseFactory.create_manager") as mock_db:
-                    with patch("neural_ai.core.events.factory.EventBusFactory.create") as mock_event:
-                        with patch("neural_ai.core.storage.factory.StorageFactory.get_storage") as mock_storage:
-                            with patch("neural_ai.core.utils.factory.HardwareFactory.get_hardware_info") as mock_hw:
+        config_path = "neural_ai.core.config.factory.ConfigManagerFactory.get_manager"
+        logger_path = "neural_ai.core.logger.factory.LoggerFactory.get_logger"
+        db_path = "neural_ai.core.db.factory.DatabaseFactory.create_manager"
+        event_path = "neural_ai.core.events.factory.EventBusFactory.create"
+        storage_path = "neural_ai.core.storage.factory.StorageFactory.get_storage"
+        hw_path = "neural_ai.core.utils.factory.HardwareFactory.get_hardware_info"
+
+        with patch(config_path) as mock_config, \
+             patch(logger_path) as mock_logger, \
+             patch(db_path) as mock_db, \
+             patch(event_path) as mock_event, \
+             patch(storage_path) as mock_storage, \
+             patch(hw_path) as mock_hw:
                                 # Beállítjuk a mockok visszatérési értékét
                                 mock_config.return_value = MagicMock()
                                 mock_logger.return_value = MagicMock()
@@ -258,15 +265,14 @@ class TestBootstrapCore:
         mock_event_bus = MagicMock()
         mock_hardware = MagicMock()
 
-        # Létrehozzuk a CoreComponents példányt
-        components = CoreComponents(
-            config=mock_config,
-            logger=mock_logger,
-            storage=mock_storage,
-            database=mock_database,
-            event_bus=mock_event_bus,
-            hardware=mock_hardware,
-        )
+        # Létrehozzuk a CoreComponents példányt és beállítjuk a komponenseket
+        components = CoreComponents()
+        components.set_config(mock_config)
+        components.set_logger(mock_logger)
+        components.set_storage(mock_storage)
+        components.set_database(mock_database)
+        components.set_event_bus(mock_event_bus)
+        components.set_hardware(mock_hardware)
 
         # Ellenőrizzük, hogy minden attribútum létezik
         assert hasattr(components, "config")
@@ -283,6 +289,11 @@ class TestBootstrapCore:
         assert components.database is mock_database
         assert components.event_bus is mock_event_bus
         assert components.hardware is mock_hardware
+
+        # Ellenőrizzük az új mezőket a feladat szerint
+        assert components.database is not None
+        assert components.event_bus is not None
+        assert components.hardware is not None
 
 
 class TestCoreModule:

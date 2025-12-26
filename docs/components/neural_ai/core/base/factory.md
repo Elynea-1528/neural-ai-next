@@ -1,155 +1,149 @@
-# Core Component Factory
+# CoreComponentFactory
 
 ## Áttekintés
 
+Core komponensek factory implementáció.
+
 Ez a modul biztosítja a core komponensek (config, logger, storage) létrehozását és kezelését dependency injection pattern használatával. A factory támogatja a lazy loadinget, bootstrap inicializálást és NullObject pattern-t fallback-ként.
 
-## Osztályok
+## Osztály
 
 ### `CoreComponentFactory`
 
-**Hely:** [`neural_ai.core.base.factory:27`](neural_ai/core/base/factory.py:27)
+Core komponensek létrehozásáért felelős factory lazy loadinggel.
 
-Singleton osztály, amely a core komponensek egységes létrehozásáért és kezeléséért felelős.
+Ez az osztály biztosítja a core komponensek (config, logger, storage) egységes létrehozását és kezelését. Singleton minta használatával biztosítja, hogy csak egy példány létezik, és lazy loading technikával optimalizálja a teljesítményt.
+
+A factory támogatja a komponensek validációját, függőségi injektálást és automatikus inicializálást különböző konfigurációs forgatókönyvekben.
 
 #### Attribútumok
 
-- `_container: DIContainer` - A dependency injection konténer
-- `_logger_loader: LazyLoader` - Lazy loader a logger komponenshez
-- `_config_loader: LazyLoader` - Lazy loader a config manager komponenshez
-- `_storage_loader: LazyLoader` - Lazy loader a storage komponenshez
+- `_container`: A dependency injection konténer
+- `_logger_loader`: Lazy loader a logger komponenshez
+- `_config_loader`: Lazy loader a config manager komponenshez
+- `_storage_loader`: Lazy loader a storage komponenshez
 
 #### Metódusok
 
 ##### `__init__(container: DIContainer)`
+
 Inicializálja a factory-t lazy-loaded függőségekkel.
 
 **Paraméterek:**
 - `container`: A dependency injection konténer
 
 ##### `logger` property
+
 Visszaadja a logger példányt (lazy-loaded).
 
-**Visszatérési érték:** `LoggerInterface`
+**Visszatérési érték:**
+- `LoggerInterface`: A logger példány
 
 ##### `config_manager` property
+
 Visszaadja a config manager példányt (lazy-loaded).
 
-**Visszatérési érték:** `ConfigManagerInterface`
+**Visszatérési érték:**
+- `ConfigManagerInterface`: A config manager példány
 
 ##### `storage` property
+
 Visszaadja a storage példányt (lazy-loaded).
 
-**Visszatérési érték:** `StorageInterface`
+**Visszatérési érték:**
+- `StorageInterface`: A storage példány
 
-##### `reset_lazy_loaders() -> None`
-Visszaállítja az összes lazy loader állapotát. Hasznos tesztelés során vagy újrainicializáláskor.
+##### `reset_lazy_loaders()`
 
-##### `create_components(config_path, log_path, storage_path) -> CoreComponents` (static)
+Visszaállítja az összes lazy loadert.
+
+Ez a metódus visszaállítja az összes lazy loader állapotát, amely hasznos lehet tesztelés során vagy újrainicializáláskor. A lazy property-ket is törli.
+
+##### `create_components(config_path, log_path, storage_path)`
+
 Core komponensek létrehozása és inicializálása.
 
-**Paraméterek:**
-- `config_path: str | Path | None` - A konfigurációs fájl elérési útja (opcionális)
-- `log_path: str | Path | None` - A log fájl elérési útja (opcionális)
-- `storage_path: str | Path | None` - A tároló alapkönyvtára (opcionális)
+Létrehozza és inicializálja az összes core komponenst (config, logger, storage) a megadott elérési utak alapján. A komponensek lazy loadinggel kerülnek betöltésre.
 
-**Visszatérési érték:** `CoreComponents` - Az inicializált core komponensek gyűjteménye
+**Paraméterek:**
+- `config_path`: A konfigurációs fájl elérési útja (opcionális)
+- `log_path`: A log fájl elérési útja (opcionális)
+- `storage_path`: A tároló alapkönyvtára (opcionális)
+
+**Visszatérési érték:**
+- `CoreComponents`: Az inicializált core komponensek gyűjteménye
 
 **Kivételek:**
 - `ConfigurationError`: Ha a konfiguráció érvénytelen
 - `DependencyError`: Ha szükséges függőségek hiányoznak
 
-**Példa:**
-```python
-from neural_ai.core.base import CoreComponentFactory
+##### `create_with_container(container)`
 
-# Komponensek létrehozása
-components = CoreComponentFactory.create_components(
-    config_path="config.yml",
-    log_path="logs/app.log",
-    storage_path="data/"
-)
-
-# Komponensek használata
-logger = components.logger
-config = components.config
-storage = components.storage
-```
-
-##### `create_with_container(container) -> CoreComponents` (static)
 Core komponensek létrehozása meglévő konténerből.
 
 **Paraméterek:**
-- `container: DIContainer` - A DI konténer, amely tartalmazza a komponenseket
+- `container`: A DI konténer, amely tartalmazza a komponenseket
 
-**Visszatérési érték:** `CoreComponents`
+**Visszatérési érték:**
+- `CoreComponents`: Az inicializált core komponensek
 
-##### `create_minimal() -> CoreComponents` (static)
-Minimális core komponens készlet létrehozása alapértelmezett beállításokkal.
+##### `create_minimal()`
 
-**Visszatérési érték:** `CoreComponents`
+Minimális core komponens készlet létrehozása.
 
-##### `create_logger(name, config) -> LoggerInterface` (static)
-Logger példány létrehozása.
+Létrehoz egy alapvető komponens készletet alapértelmezett beállításokkal. Megpróbálja betölteni a config.yml fájlt, ha létezik, különben alapértelmezett konfigurációt használ.
+
+**Visszatérési érték:**
+- `CoreComponents`: Az inicializált minimális komponensek
+
+##### `create_logger(name, config)`
+
+Létrehoz egy logger példányt.
 
 **Paraméterek:**
-- `name: str` - A logger neve
-- `config: dict[str, Any] | None` - Konfigurációs dictionary (opcionális)
+- `name`: A logger neve
+- `config`: Konfigurációs dictionary (opcionális)
 
-**Visszatérési érték:** `LoggerInterface`
+**Visszatérési érték:**
+- `LoggerInterface`: A létrehozott logger példány
 
 **Kivételek:**
 - `ConfigurationError`: Ha a konfiguráció érvénytelen
 - `DependencyError`: Ha szükséges függőségek hiányoznak
 
-##### `create_config_manager(config_file_path, config) -> ConfigManagerInterface` (static)
-Config manager példány létrehozása.
+##### `create_config_manager(config_file_path, config)`
+
+Létrehoz egy config manager példányt.
 
 **Paraméterek:**
-- `config_file_path: str` - A konfigurációs fájl elérési útja
-- `config: dict[str, Any] | None` - Konfigurációs dictionary
+- `config_file_path`: A konfigurációs fájl elérési útja
+- `config`: Konfigurációs dictionary
 
-**Visszatérési érték:** `ConfigManagerInterface`
+**Visszatérési érték:**
+- `ConfigManagerInterface`: A létrehozott config manager példány
 
 **Kivételek:**
 - `ConfigurationError`: Ha a konfiguráció érvénytelen
 - `DependencyError`: Ha szükséges függőségek hiányoznak
 
-##### `create_storage(base_directory, config) -> StorageInterface` (static)
-Storage példány létrehozása.
+##### `create_storage(base_directory, config)`
+
+Létrehoz egy storage példányt.
 
 **Paraméterek:**
-- `base_directory: str` - A tároló alapkönyvtára
-- `config: dict[str, Any] | None` - Konfigurációs dictionary
+- `base_directory`: A tároló alapkönyvtára
+- `config`: Konfigurációs dictionary
 
-**Visszatérési érték:** `StorageInterface`
+**Visszatérési érték:**
+- `StorageInterface`: A létrehozott storage példány
 
 **Kivételek:**
 - `ConfigurationError`: Ha a konfiguráció érvénytelen
 - `DependencyError`: Ha szükséges függőségek hiányoznak
 
-## Lazy Loading
+## Kapcsolódó Dokumentáció
 
-A factory lazy loading technikát használ a komponensek betöltéséhez:
-
-- `_expensive_config`: Drága konfiguráció lusta betöltése
-- `_component_cache`: Komponens gyorsítótár lusta betöltése
-
-## NullObject Pattern
-
-Ha a logger komponens nem érhető el, a factory visszaad egy `DefaultLogger` példányt, amely implementálja a NullObject pattern-t.
-
-## Függőségek
-
-- `neural_ai.core.base.implementations.di_container.DIContainer`
-- `neural_ai.core.base.implementations.lazy_loader.LazyLoader`
-- `neural_ai.core.base.implementations.singleton.SingletonMeta`
-- `neural_ai.core.base.exceptions.ConfigurationError`
-- `neural_ai.core.base.exceptions.DependencyError`
-
-## Kapcsolódó dokumentáció
-
-- [Core Components](neural_ai/core/base/implementations/component_bundle.md)
-- [DI Container](neural_ai/core/base/implementations/di_container.md)
-- [Lazy Loader](neural_ai/core/base/implementations/lazy_loader.md)
-- [Singleton](neural_ai/core/base/implementations/singleton.md)
+- [CoreComponents](implementations/component_bundle.md)
+- [DIContainer](implementations/di_container.md)
+- [LazyLoader](implementations/lazy_loader.md)
+- [SingletonMeta](implementations/singleton.md)

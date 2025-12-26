@@ -10,8 +10,11 @@ from neural_ai.core.base.factory import CoreComponentFactory
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.di_container import DIContainer
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
+    from neural_ai.core.events.implementations.zeromq_bus import EventBus
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
 
 T = TypeVar("T")
 
@@ -126,6 +129,45 @@ class CoreComponents:
         result = self._container.resolve(StorageInterface)
         return cast(Optional["StorageInterface"], result)
 
+    @property
+    def database(self) -> Optional["DatabaseManager"]:
+        """Adatbázis komponens lekérése.
+
+        Returns:
+            Az adatbázis példánya, vagy None ha nincs regisztrálva.
+        """
+        from typing import cast
+
+        from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
+        result = self._container.resolve(DatabaseManager)
+        return cast(Optional["DatabaseManager"], result)
+
+    @property
+    def event_bus(self) -> Optional["EventBus"]:
+        """Esemény busz komponens lekérése.
+
+        Returns:
+            Az esemény busz példánya, vagy None ha nincs regisztrálva.
+        """
+        from typing import cast
+
+        from neural_ai.core.events.implementations.zeromq_bus import EventBus
+        result = self._container.resolve(EventBus)
+        return cast(Optional["EventBus"], result)
+
+    @property
+    def hardware(self) -> Optional["HardwareInfo"]:
+        """Hardver információ komponens lekérése.
+
+        Returns:
+            A hardver információ példánya, vagy None ha nincs regisztrálva.
+        """
+        from typing import cast
+
+        from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
+        result = self._container.resolve(HardwareInfo)
+        return cast(Optional["HardwareInfo"], result)
+
     def set_config(self, config: "ConfigManagerInterface") -> None:
         """Beállítja a konfiguráció komponenst (csak teszteléshez).
 
@@ -153,6 +195,33 @@ class CoreComponents:
         from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
         self._container.register_instance(StorageInterface, storage)
 
+    def set_database(self, database: "DatabaseManager") -> None:
+        """Beállítja az adatbázis komponenst (csak teszteléshez).
+
+        Args:
+            database: Az adatbázis implementáció példánya.
+        """
+        from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
+        self._container.register_instance(DatabaseManager, database)
+
+    def set_event_bus(self, event_bus: "EventBus") -> None:
+        """Beállítja az esemény busz komponenst (csak teszteléshez).
+
+        Args:
+            event_bus: Az esemény busz implementáció példánya.
+        """
+        from neural_ai.core.events.implementations.zeromq_bus import EventBus
+        self._container.register_instance(EventBus, event_bus)
+
+    def set_hardware(self, hardware: "HardwareInfo") -> None:
+        """Beállítja a hardver információ komponenst (csak teszteléshez).
+
+        Args:
+            hardware: A hardver információ implementáció példánya.
+        """
+        from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
+        self._container.register_instance(HardwareInfo, hardware)
+
     def has_config(self) -> bool:
         """Ellenőrzi, hogy van-e config komponens.
 
@@ -177,10 +246,41 @@ class CoreComponents:
         """
         return self.storage is not None
 
+    def has_database(self) -> bool:
+        """Ellenőrzi, hogy van-e database komponens.
+
+        Returns:
+            bool: True ha van database komponens, False ha nincs
+        """
+        return self.database is not None
+
+    def has_event_bus(self) -> bool:
+        """Ellenőrzi, hogy van-e event_bus komponens.
+
+        Returns:
+            bool: True ha van event_bus komponens, False ha nincs
+        """
+        return self.event_bus is not None
+
+    def has_hardware(self) -> bool:
+        """Ellenőrzi, hogy van-e hardware komponens.
+
+        Returns:
+            bool: True ha van hardware komponens, False ha nincs
+        """
+        return self.hardware is not None
+
     def validate(self) -> bool:
         """Ellenőrzi, hogy minden szükséges komponens megvan-e.
 
         Returns:
             bool: True ha minden komponens megvan, False ha valamelyik hiányzik
         """
-        return all([self.has_config(), self.has_logger(), self.has_storage()])
+        return all([
+            self.has_config(),
+            self.has_logger(),
+            self.has_storage(),
+            self.has_database(),
+            self.has_event_bus(),
+            self.has_hardware()
+        ])

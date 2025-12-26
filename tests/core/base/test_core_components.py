@@ -342,14 +342,24 @@ class TestCoreComponents:
     def test_validate_returns_true_when_all_components_present(self) -> None:
         """Teszteli, hogy validate True-t ad vissza, ha minden komponens megvan."""
         # Arrange
+        from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
+        from neural_ai.core.events.implementations.zeromq_bus import EventBus
+        from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
+        
         components = CoreComponents()
         config_mock = Mock(spec=ConfigManagerInterface)
         logger_mock = Mock(spec=LoggerInterface)
         storage_mock = Mock(spec=StorageInterface)
+        database_mock = Mock(spec=DatabaseManager)
+        event_bus_mock = Mock(spec=EventBus)
+        hardware_mock = Mock(spec=HardwareInfo)
 
         components.set_config(config_mock)
         components.set_logger(logger_mock)
         components.set_storage(storage_mock)
+        components.set_database(database_mock)
+        components.set_event_bus(event_bus_mock)
+        components.set_hardware(hardware_mock)
 
         # Act
         result = components.validate()

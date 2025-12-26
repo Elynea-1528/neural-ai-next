@@ -9,15 +9,7 @@ A modul biztosítja a core komponensek megfelelő inicializálását és
 függőségi injektálását, elkerülve a körkörös függőségeket.
 """
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-    from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
-    from neural_ai.core.events.implementations.zeromq_bus import EventBus
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-    from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
+from neural_ai.core.base.implementations.component_bundle import CoreComponents
 
 
 def get_version() -> str:
@@ -42,48 +34,6 @@ def get_schema_version() -> str:
         Az aktuális séma verziója stringként.
     """
     return "1.0.0"
-
-
-class CoreComponents:
-    """Core komponensek tároló osztálya.
-
-    Ez az osztály tárolja a rendszer alapvető komponenseit, biztosítva
-    a hozzáférésüket az egész alkalmazásban.
-
-    Attributes:
-        config: A konfiguráció kezelő interfész
-        logger: A logger interfész
-        storage: A tárhely kezelő interfész
-        database: Az adatbázis kezelő
-        event_bus: Az esemény busz
-        hardware: A hardver információk
-    """
-
-    def __init__(
-        self,
-        config: "ConfigManagerInterface",
-        logger: "LoggerInterface",
-        storage: "StorageInterface",
-        database: "DatabaseManager",
-        event_bus: "EventBus",
-        hardware: "HardwareInfo",
-    ) -> None:
-        """Inicializálja a core komponenseket.
-
-        Args:
-            config: A konfiguráció kezelő példány
-            logger: A logger példány
-            storage: A tárhely kezelő példány
-            database: Az adatbázis kezelő példány
-            event_bus: Az esemény busz példány
-            hardware: A hardver információ példány
-        """
-        self.config: ConfigManagerInterface = config
-        self.logger: LoggerInterface = logger
-        self.storage: StorageInterface = storage
-        self.database: DatabaseManager = database
-        self.event_bus: EventBus = event_bus
-        self.hardware: HardwareInfo = hardware
 
 
 def bootstrap_core(config_path: str | None = None, log_level: str | None = None) -> CoreComponents:
@@ -114,39 +64,48 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
         >>> await core.event_bus.start()
     """
     # Importok a függőségi körkörök elkerüléséhez
+    from neural_ai.core.base.implementations.di_container import DIContainer
     from neural_ai.core.config.factory import ConfigManagerFactory
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.db.factory import DatabaseFactory
+    from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.factory import EventBusFactory
+    from neural_ai.core.events.implementations.zeromq_bus import EventBus
     from neural_ai.core.logger.factory import LoggerFactory
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.factory import StorageFactory
+    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
     from neural_ai.core.utils.factory import HardwareFactory
+    from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
+
+    # DI container létrehozása
+    container = DIContainer()
 
     # 1. Hardware inicializálása
     hardware = HardwareFactory.get_hardware_info()
+    container.register_instance(HardwareInfo, hardware)
 
     # 2. Konfiguráció létrehozása
     config = ConfigManagerFactory.get_manager(filename=config_path or "config.yml")
+    container.register_instance(ConfigManagerInterface, config)
 
     # 3. Logger inicializálása a konfiggal
     logger = LoggerFactory.get_logger(name="NeuralAI", logger_type="default", level=log_level)
+    container.register_instance(LoggerInterface, logger)
 
     # 4. Adatbázis inicializálása (Config+Logger)
     database = DatabaseFactory.create_manager(config_manager=config)
+    container.register_instance(DatabaseManager, database)
 
     # 5. EventBus inicializálása (Config+Logger)
     event_bus = EventBusFactory.create()
+    container.register_instance(EventBus, event_bus)
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
     storage = StorageFactory.get_storage(storage_type="file", base_path=None, logger=logger)
+    container.register_instance(StorageInterface, storage)
 
-    return CoreComponents(
-        config=config,
-        logger=logger,
-        storage=storage,
-        database=database,
-        event_bus=event_bus,
-        hardware=hardware,
-    )
+    return CoreComponents(container=container)
 
 
 def get_core_components() -> CoreComponents:

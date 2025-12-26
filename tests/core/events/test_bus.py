@@ -511,17 +511,20 @@ class TestEventBusErrorHandling:
         await bus.stop()
 
     @pytest.mark.asyncio
-    async def test_zmq_socket_error_handling(self):
+    @patch('zmq.asyncio.Context')
+    async def test_zmq_socket_error_handling(self, mock_context: MagicMock) -> None:
         """Teszteli a ZeroMQ socket hibák kezelését."""
         config = EventBusConfig(use_inproc=True)
         bus = EventBus(config=config)
 
-        await bus.start()
-
         # Mockoljuk a context.socket-et hogy hibát dobjon
-        with patch.object(bus._context, "socket", side_effect=Exception("Socket error")):
-            # A start már meghívódott, de a stop-nak működnie kell
-            await bus.stop()
+        mock_socket = MagicMock()
+        mock_socket.bind.side_effect = Exception("Socket bind error")
+        mock_context.return_value.socket.return_value = mock_socket
+
+        # A start hibát kell dobjon
+        with pytest.raises(Exception, match="Socket bind error"):
+            await bus.start()
 
     @pytest.mark.asyncio
     async def test_context_cleanup_on_stop(self):
@@ -578,7 +581,8 @@ class TestEventBusPortBinding:
         await bus1.stop()
 
     @pytest.mark.asyncio
-    async def test_port_bind_failure_handling(self):
+    @patch('zmq.asyncio.Context')
+    async def test_port_bind_failure_handling(self, mock_context: MagicMock) -> None:
         """Teszteli a port bindolási hiba kezelését."""
         config = EventBusConfig(use_inproc=False)
         bus = EventBus(config=config)
@@ -586,32 +590,38 @@ class TestEventBusPortBinding:
         # Mockoljuk a publisher socket bind metódusát, hogy hibát dobjon
         mock_socket = MagicMock()
         mock_socket.bind.side_effect = Exception("Address already in use")
+        mock_context.return_value.socket.return_value = mock_socket
 
-        with patch.object(bus._context, "socket", return_value=mock_socket):
-            with pytest.raises(Exception, match="Address already in use"):
-                await bus.start()
+        with pytest.raises(Exception, match="Address already in use"):
+            await bus.start()
 
     @pytest.mark.asyncio
-    async def test_zmq_bind_error_simulation(self):
+    @patch('zmq.asyncio.Context')
+    async def test_zmq_bind_error_simulation(self, mock_context: MagicMock) -> None:
         """Szimulálja a ZeroMQ bind hiba kezelését."""
         config = EventBusConfig(pub_port=5555, use_inproc=False)
         bus = EventBus(config=config)
 
-        # Mockoljuk a context.socket-et, hogy ZMQError-t dobjon
-        with patch.object(bus._context, "socket", side_effect=Exception("ZMQ Bind error")):
-            with pytest.raises(Exception, match="ZMQ Bind error"):
-                await bus.start()
+        # Mockoljuk a context.socket-et, hogy hibát dobjon
+        mock_socket = MagicMock()
+        mock_socket.bind.side_effect = Exception("ZMQ Bind error")
+        mock_context.return_value.socket.return_value = mock_socket
+
+        with pytest.raises(Exception, match="ZMQ Bind error"):
+            await bus.start()
 
     @pytest.mark.asyncio
-    async def test_socket_creation_failure(self):
+    @patch('zmq.asyncio.Context')
+    async def test_socket_creation_failure(self, mock_context: MagicMock) -> None:
         """Teszteli a socket létrehozási hibát."""
         config = EventBusConfig(use_inproc=False)
         bus = EventBus(config=config)
 
         # Mockoljuk a context.socket-et, hogy None-t adjon vissza
-        with patch.object(bus._context, "socket", return_value=None):
-            with pytest.raises((AttributeError, EventBusError)):
-                await bus.start()
+        mock_context.return_value.socket.return_value = None
+
+        with pytest.raises((AttributeError, EventBusError)):
+            await bus.start()
 
     @pytest.mark.asyncio
     async def test_multiple_buses_inproc_different_ports(self):

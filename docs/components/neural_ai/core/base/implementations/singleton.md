@@ -1,38 +1,42 @@
-# Singleton - Singleton Metaclass
+# Singleton Implementáció
 
 ## Áttekintés
 
-Ez a modul egy metaclass-t biztosít, amely garantálja, hogy minden osztályból, ami ezt a metaclass-t használja, csak egyetlen példány létezzen az alkalmazás életciklusa során. Ez a singleton tervezési minta szabványos Python implementációja.
+Singleton metaclass megvalósítása a singleton tervezési minta biztosításához.
+
+Ez a modul egy metaclass-t biztosít, amely garantálja, hogy minden osztályból, ami ezt a metaclass-t használja, csak egyetlen példány létezzen az alkalmazás életciklusa során.
 
 ## Osztályok
 
 ### `SingletonMeta`
 
-**Hely:** [`neural_ai.core.base.implementations.singleton:13`](neural_ai/core/base/implementations/singleton.py:13)
+Singleton minta megvalósítására szolgáló metaclass.
 
-Singleton minta megvalósítására szolgáló metaclass. Ez a metaclass biztosítja, hogy egy osztályból csak egy példány létezzen. A létrehozott példányokat egy osztályszintű szótárban tárolja, és minden következő példányosításnál ezt adja vissza.
+Ez a metaclass biztosítja, hogy egy osztályból csak egy példány létezzen. A létrehozott példányokat egy osztályszintű szótárban tárolja, és minden következő példányosításnál ezt adja vissza.
 
 #### Attribútumok
 
-- `_instances: dict[type, object]` - Osztályszintű szótár, amely tárolja a singleton példányokat. A kulcs az osztály, az érték pedig a létrehozott példány.
+- `_instances`: Osztályszintű szótár, amely tárolja a singleton példányokat. A kulcs az osztály, az érték pedig a létrehozott példány.
 
 #### Metódusok
 
-##### `__call__(cls: type[T], *args: object, **kwargs: object) -> T`
+##### `__call__(cls, *args, **kwargs)`
+
 Singleton példány létrehozása vagy visszaadása.
 
-Ha az osztály még nem szerepel a `_instances` szótárban, létrehoz egy új példányt és eltárolja. Ellenkező esetben a meglévő példányt adja vissza.
+Ha az osztály még nem szerepel a _instances szótárban, létrehoz egy új példányt és eltárolja. Ellenkező esetben a meglévő példányt adja vissza.
 
 **Paraméterek:**
-- `cls`: Az osztály, amelyből példányt szeretnénk létrehozni
-- `*args`: Pozicionális argumentumok az osztály konstruktorához
-- `**kwargs`: Kulcsszavas argumentumok az osztály konstruktorához
+- `cls`: Az osztály, amelyből példányt szeretnénk létrehozni.
+- `*args`: Pozicionális argumentumok az osztály konstruktorához.
+- `**kwargs`: Kulcsszavas argumentumok az osztály konstruktorához.
 
-**Visszatérési érték:** A létrehozott vagy meglévő singleton példány
+**Visszatérési érték:**
+- `T`: A létrehozott vagy meglévő singleton példány.
 
-## Használat
+## Használati Példák
 
-### Alap használat
+### Alap singleton használat
 
 ```python
 from neural_ai.core.base.implementations.singleton import SingletonMeta
@@ -43,45 +47,45 @@ class MyClass(metaclass=SingletonMeta):
 
 # Első példányosítás
 obj1 = MyClass(42)
-print(obj1.value)  # 42
 
 # Második példányosítás - ugyanazt a példányt kapjuk vissza
 obj2 = MyClass(100)
-print(obj2.value)  # 42 (nem 100!)
 
-# Ellenőrzés, hogy tényleg ugyanaz a példány
+# Ellenőrzés
 print(obj1 is obj2)  # True
+print(obj1.value)    # 42 (az első érték marad)
+print(obj2.value)    # 42 (ugyanaz az objektum)
 ```
 
-### Adatbázis kapcsolat
+### Adatbázis kezelő singleton
 
 ```python
 from neural_ai.core.base.implementations.singleton import SingletonMeta
-import sqlite3
 
 class Database(metaclass=SingletonMeta):
     def __init__(self, connection_string: str):
         self.connection_string = connection_string
-        self.connection = sqlite3.connect(connection_string)
-        print(f"Adatbázis kapcsolat létrehozva: {connection_string}")
+        self.connection = self._create_connection()
+        print(f"Adatbázis kapcsolat létrejött: {connection_string}")
     
-    def query(self, sql: str):
-        return self.connection.execute(sql).fetchall()
+    def _create_connection(self):
+        # Szimulált kapcsolat létrehozás
+        return f"Connection to {self.connection_string}"
 
-# Első kapcsolat létrehozása
+# Első példányosítás
 db1 = Database("sqlite:///mydb.db")
-# Kimenet: "Adatbázis kapcsolat létrehozva: sqlite:///mydb.db"
+# Kiírja: "Adatbázis kapcsolat létrejött: sqlite:///mydb.db"
 
-# Második "példányosítás" - ugyanazt a kapcsolatot kapjuk
+# Második példányosítás - nem hoz létre új kapcsolatot
 db2 = Database("postgresql://localhost/mydb")
-# Nincs kimenet, mert nem jön létre új kapcsolat
+# Nem ír ki semmit, mert ugyanazt a példányt adja vissza
 
 print(db1 is db2)  # True
 print(db1.connection_string)  # "sqlite:///mydb.db"
-print(db2.connection_string)  # "sqlite:///mydb.db" (nem a postgres!)
+print(db2.connection_string)  # "sqlite:///mydb.db" (az első marad)
 ```
 
-### Konfiguráció kezelő
+### Konfiguráció kezelő singleton
 
 ```python
 from neural_ai.core.base.implementations.singleton import SingletonMeta
@@ -102,32 +106,33 @@ class ConfigManager(metaclass=SingletonMeta):
 # Első példányosítás
 config1 = ConfigManager("app_config.yml")
 
-# Bárhol a kódban, mindig ugyanazt a példányt kapjuk
-config2 = ConfigManager("different_config.yml")  # Figyelmen kívül hagyja az új fájlt
+# További példányosítások
+config2 = ConfigManager("different_config.yml")
+config3 = ConfigManager()
 
-print(config1 is config2)  # True
-print(config1.config_file)  # "app_config.yml"
-print(config2.config_file)  # "app_config.yml"
+# Mind ugyanazt a példányt adják vissza
+print(config1 is config2 is config3)  # True
+print(config1.config_file)  # "app_config.yml" (az első marad)
 ```
 
-### Logger osztály
+### Logger singleton
 
 ```python
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 import logging
 
-class AppLogger(metaclass=SingletonMeta):
+class Logger(metaclass=SingletonMeta):
     def __init__(self, name: str = "app", level: int = logging.INFO):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
         
-        # Handler beállítása
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
+        if not self.logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
     
     def info(self, message: str):
         self.logger.info(message)
@@ -135,98 +140,86 @@ class AppLogger(metaclass=SingletonMeta):
     def error(self, message: str):
         self.logger.error(message)
 
-# Különböző modulokban
-logger1 = AppLogger(name="my_app")
-logger2 = AppLogger(name="different_app")  # Ugyanaz a logger
+# Használat
+logger1 = Logger(name="my_app")
+logger2 = Logger(name="different_app")  # Ugyanazt kapjuk vissza
 
-logger1.info("Üzenet az első loggertől")
-logger2.error("Hiba a második loggertől")  # Mindkettő ugyanahhoz a logger példányhoz ír
+logger1.info("Ez egy információ")  # A my_app logger írja ki
+logger2.error("Ez egy hiba")       # Ugyanaz a logger írja ki
 ```
 
-## Fontos megjegyzések
+## Fontos Megjegyzések
 
 ### Konstruktor paraméterek
 
 A singleton minta miatt az első példányosításnál megadott paraméterek maradnak érvényben. A későbbi példányosításoknál megadott paramétereket figyelmen kívül hagyjuk.
 
 ```python
-class Example(metaclass=SingletonMeta):
-    def __init__(self, value: str):
-        self.value = value
+class Service(metaclass=SingletonMeta):
+    def __init__(self, host: str = "localhost"):
+        self.host = host
 
-obj1 = Example("első")
-obj2 = Example("második")
+service1 = Service("api.example.com")
+service2 = Service("other.example.com")
 
-print(obj1.value)  # "első"
-print(obj2.value)  # "első" (nem "második"!)
+print(service1.host)  # "api.example.com"
+print(service2.host)  # "api.example.com" (nem "other.example.com")
 ```
 
-### Öröklés
+### Szálbiztonság
 
-A singleton minta öröklődik, de minden alosztály külön singleton lesz:
-
-```python
-class BaseClass(metaclass=SingletonMeta):
-    pass
-
-class ChildClass(BaseClass):
-    pass
-
-base1 = BaseClass()
-base2 = BaseClass()
-child1 = ChildClass()
-child2 = ChildClass()
-
-print(base1 is base2)  # True
-print(child1 is child2)  # True
-print(base1 is child1)  # False - különböző osztályok
-```
-
-### Szálbiztosság
-
-Ez az alap implementáció nem szálbiztos. Ha szálbiztos singletonra van szükséged, használd a szálzárást:
+Az alapvető `SingletonMeta` implementáció nem szálbiztos. Ha szálbiztos singletonra van szükséged, használd a `RLock`-ot a `__call__` metódusban:
 
 ```python
 import threading
+from typing import TypeVar, cast
+
+T = TypeVar("T")
 
 class ThreadSafeSingletonMeta(type):
-    _instances = {}
-    _lock = threading.Lock()
+    _instances: dict[type, object] = {}
+    _lock = threading.RLock()
     
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls: type[T], *args: object, **kwargs: object) -> T:
         with cls._lock:
-            if cls not in cls._instances:
-                instance = super().__call__(*args, **kwargs)
-                cls._instances[cls] = instance
-        return cls._instances[cls]
+            if cls not in cls._instances:  # type: ignore[attr-defined]
+                instance = super().__call__(*args, **kwargs)  # type: ignore[misc]
+                cls._instances[cls] = instance  # type: ignore[attr-defined]
+        return cast(T, cls._instances[cls])  # type: ignore[attr-defined]
 ```
 
-## Függőségek
+### Tesztelés
 
-- `typing.TypeVar` - Generikus típusokhoz
-- `typing.cast` - Típus konverzióhoz
+A singleton osztályok tesztelésekor fontos, hogy a tesztesetek között reseteld a singleton állapotát:
+
+```python
+import unittest
+
+class TestSingleton(unittest.TestCase):
+    def tearDown(self):
+        # Reseteljük a singleton állapotát
+        if hasattr(MySingletonClass, '_instances'):
+            MySingletonClass._instances.clear()
+    
+    def test_singleton_pattern(self):
+        obj1 = MySingletonClass()
+        obj2 = MySingletonClass()
+        self.assertIs(obj1, obj2)
+```
 
 ## Előnyök
 
-1. **Egyetlen példány:** Garantálja, hogy egy osztályból csak egy példány létezik
-2. **Globális hozzáférés:** Könnyű hozzáférés az alkalmazás bármely pontjáról
-3. **Erőforrás takarékosság:** Megelőzi a felesleges erőforrás felhasználást
-4. **Konzisztencia:** Biztosítja, hogy mindenhol ugyanazt a példányt használjuk
+1. **Egyetlen példány:** Garantálja, hogy egy osztályból csak egy példány létezik.
 
-## Korlátozások
+2. **Globális hozzáférés:** A singleton példány globálisan elérhető az alkalmazásban.
 
-1. **Tesztelés nehézség:** A singletonok nehezen tesztelhetőek, mert globális állapotot tartanak
-2. **Függőség rejtés:** Elrejti az osztály függőségeit
-3. **Párhuzamos hozzáférés:** Alap implementáció nem szálbiztos
+3. **Lusta inicializálás:** A példány csak az első hozzáféréskor jön létre.
 
-## Alternatívák
+4. **Erőforrás takarékosság:** Megakadályozza a felesleges erőforrás-felhasználást.
 
-- **Dependency Injection:** Használj DI konténert a példányok kezelésére
-- **Modul szintű változók:** Pythonban a modulok is singletonok
-- **Borg minta:** Minden példány megosztja az állapotot, de külön példányok
+## Kapcsolódó Dokumentáció
 
-## Kapcsolódó dokumentáció
-
-- [DI Container](neural_ai/core/base/implementations/di_container.md) - Ahol a singleton pattern ellenőrzése történik
-- [Core Component Factory](neural_ai/core/base/factory.md) - Ahol a SingletonMeta használatos
-- [Component Bundle](neural_ai/core/base/implementations/component_bundle.md) - Komponens életciklus kezelés
+- [Component Bundle](component_bundle.md)
+- [DI Container](di_container.md)
+- [Lazy Loader](lazy_loader.md)
+- [Base Modul](../__init__.md)
