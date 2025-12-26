@@ -67,6 +67,9 @@ class DefaultLogger:
         # Propagate kikapcsolása a duplikált üzenetek elkerülésére
         self.logger.propagate = False
 
+        # DI Container kompatibilitás: _initialized flag beállítása
+        self._initialized = True
+
     def debug(self, message: str, **kwargs: Any) -> None:
         """Debug szintű üzenet logolása.
 

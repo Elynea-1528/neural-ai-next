@@ -14,6 +14,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional
 
+from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.events.exceptions import EventBusError, PublishError
 from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
 
@@ -21,8 +22,6 @@ from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterfa
 if TYPE_CHECKING:
     from typing import Any
 
-    import zmq
-    import zmq.asyncio
     from pydantic import BaseModel
 
 
@@ -36,7 +35,7 @@ EventCallback = Callable[["BaseModel"], "Any"]
 from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
 
 
-class EventBus(EventBusInterface):
+class EventBus(EventBusInterface, metaclass=SingletonMeta):
     """ZeroMQ alapú aszinkron eseménybusz.
 
     Ez az osztály biztosítja az események közzétételét és feliratkozást

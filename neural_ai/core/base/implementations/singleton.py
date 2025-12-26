@@ -5,12 +5,13 @@ ami ezt a metaclass-t használja, csak egyetlen példány létezzen az alkalmaz�
 életciklusa során.
 """
 
+from abc import ABCMeta
 from typing import TypeVar, cast
 
 T = TypeVar("T")
 
 
-class SingletonMeta(type):
+class SingletonMeta(ABCMeta):
     """Singleton minta megvalósítására szolgáló metaclass.
 
     Ez a metaclass biztosítja, hogy egy osztályból csak egy példány létezzen.

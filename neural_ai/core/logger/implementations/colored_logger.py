@@ -67,6 +67,9 @@ class ColoredLogger(LoggerInterface):
         self.logger.addHandler(handler)
         self.logger.propagate = False
 
+        # DI Container kompatibilitás: _initialized flag beállítása
+        self._initialized = True
+
         # Ha DEBUG szint van beállítva, a root logger szintjét is állítsuk be
         if level <= logging.DEBUG:
             root_logger: logging.Logger = logging.getLogger()

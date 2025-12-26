@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
+from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.config.factory import ConfigManagerFactory
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.db.exceptions import DBConnectionError
@@ -221,7 +222,7 @@ async def close_db() -> None:
     print("✅ Adatbázis kapcsolat lezárva.")
 
 
-class DatabaseManager:
+class DatabaseManager(metaclass=SingletonMeta):
     """Adatbázis kezelő osztály a Neural AI Next rendszerhez.
 
     Ez az osztály magas szintű interfészt biztosít az adatbázis műveletekhez,
