@@ -82,7 +82,7 @@ async def run_live_test():
         # Feliratkozás
         components.event_bus.subscribe("system_log", on_test_event)
         print("     ⏳ ZMQ kapcsolódás...")
-        await asyncio.sleep(1.0) # <--- Növelt timeout a lassú ZMQ indításhoz
+        await asyncio.sleep(2.0) # <--- Növelt timeout a lassú ZMQ indításhoz
         
         # Küldés
         test_msg = SystemLogEvent(
@@ -141,8 +141,13 @@ async def run_live_test():
         # (Itt egy kis hack, hogy megtudjuk az útvonalat a loghoz, de a storage elfedi)
         print_info("Path", f"data/tick/{symbol}/...")
 
-        # Olvasás (Validáció)
-        data_back = await components.storage.read_tick_data(symbol, date, date)
+        # Olvasás (Validáció) - Bővített ablakkal!
+        from datetime import timedelta
+        # Olvassunk egy teljes napot, hogy biztosan benne legyen
+        start_read = date - timedelta(hours=1)
+        end_read = date + timedelta(hours=1)
+        
+        data_back = await components.storage.read_tick_data(symbol, start_read, end_read)
         if len(data_back) > 0:
             print_success(f"Adat sikeresen visszaolvasva ({len(data_back)} sor)")
         else:

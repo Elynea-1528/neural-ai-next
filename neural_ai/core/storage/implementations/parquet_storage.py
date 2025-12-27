@@ -254,8 +254,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if dfs:
             result = self._concat_dataframes(dfs)
 
+            logger.debug(f"Rows before filter: {len(result)}")
+
             # Dátum szerinti szűrés (pontosabb)
             result = self._filter_by_timestamp(result, start_date, end_date)
+
+            logger.debug(f"Rows after filter: {len(result)}")
         else:
             if self.engine == "polars":
                 import polars as pl
