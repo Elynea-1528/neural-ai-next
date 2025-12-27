@@ -1,0 +1,7 @@
+test_key: test_value
+database:
+  host: localhost
+  port: 5432
+  credentials:
+    username: admin
+    password: secret
