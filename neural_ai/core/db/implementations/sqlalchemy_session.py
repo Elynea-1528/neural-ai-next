@@ -6,10 +6,11 @@ az adatbázis műveletek aszinkron kezeléséhez.
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import TYPE_CHECKING, cast
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
@@ -21,9 +22,12 @@ from neural_ai.core.config.factory import ConfigManagerFactory
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.db.exceptions import DBConnectionError
 
+if TYPE_CHECKING:
+    pass
+
 # Globális változók a session factory-nek
-_engine: Any | None = None  # type: ignore
-_async_session_maker: Any | None = None  # type: ignore
+_engine: AsyncEngine | None = None
+_async_session_maker: async_sessionmaker[AsyncSession] | None = None
 
 
 def get_database_url(config_manager: ConfigManagerInterface | None = None) -> str:
@@ -43,11 +47,11 @@ def get_database_url(config_manager: ConfigManagerInterface | None = None) -> st
         config_manager = ConfigManagerFactory.get_manager("config.yaml")
 
     # Elsődlegesen a namespaced konfigban keressük
-    db_url = config_manager.get("database", "connection", "url")
+    db_url = cast(str | None, config_manager.get("database", "connection", "url"))
 
     # Ha nincs, akkor a régi env fallback
     if not db_url:
-        db_url = config_manager.get("db_url")
+        db_url = cast(str | None, config_manager.get("db_url"))
 
     if not db_url:
         raise DBConnectionError(
@@ -61,7 +65,7 @@ def get_database_url(config_manager: ConfigManagerInterface | None = None) -> st
     return db_url
 
 
-def create_engine(db_url: str, echo: bool = False) -> Any:  # type: ignore
+def create_engine(db_url: str, echo: bool = False) -> AsyncEngine:
     """Aszinkron adatbázis engine létrehozása.
 
     Args:
@@ -91,7 +95,7 @@ def create_engine(db_url: str, echo: bool = False) -> Any:  # type: ignore
     return engine
 
 
-def get_engine(config_manager: ConfigManagerInterface | None = None) -> Any:  # type: ignore
+def get_engine(config_manager: ConfigManagerInterface | None = None) -> AsyncEngine:
     """Globális adatbázis engine lekérdezése.
 
     Ha az engine még nincs létrehozva, létrehozza azt a konfiguráció alapján.
@@ -112,7 +116,9 @@ def get_engine(config_manager: ConfigManagerInterface | None = None) -> Any:  # 
     return _engine
 
 
-def get_async_session_maker(config_manager: ConfigManagerInterface | None = None) -> Any:  # type: ignore
+def get_async_session_maker(
+    config_manager: ConfigManagerInterface | None = None,
+) -> async_sessionmaker[AsyncSession]:
     """AsyncSession factory lekérdezése.
 
     Ha a session maker még nincs létrehozva, létrehozza azt.
@@ -240,8 +246,8 @@ class DatabaseManager(metaclass=SingletonMeta):
             config_manager: Opcionális konfiguráció kezelő.
         """
         self.config_manager = config_manager or ConfigManagerFactory.get_manager("config.yaml")
-        self._engine: Any | None = None
-        self._session_maker: Any | None = None
+        self._engine: AsyncEngine | None = None
+        self._session_maker: async_sessionmaker[AsyncSession] | None = None
 
     async def initialize(self) -> None:
         """Adatbázis inicializálása a kezelővel.
@@ -292,7 +298,7 @@ class DatabaseManager(metaclass=SingletonMeta):
             finally:
                 await session.close()
 
-    async def get_active_configs(self) -> dict[str, Any]:
+    async def get_active_configs(self) -> dict[str, object]:
         """Aktív dinamikus konfigurációk lekérdezése.
 
         Visszaadja az összes aktív dinamikus konfigurációt kulcs-érték párokként.
@@ -312,7 +318,7 @@ class DatabaseManager(metaclass=SingletonMeta):
             )
 
         async with self._session_maker() as session:
-            stmt = select(DynamicConfig).where(DynamicConfig.is_active == True)
+            stmt = select(DynamicConfig).where(DynamicConfig.is_active)
             result = await session.execute(stmt)
             configs = result.scalars().all()
 

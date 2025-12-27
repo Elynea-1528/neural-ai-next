@@ -4,7 +4,7 @@ Ez a modul biztosítja az adatbázis kezelő komponensek létrehozását a facto
 minta segítségével, beleértve a session maker-t és a DatabaseManager-t.
 """
 
-from typing import Any
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.db.implementations.sqlalchemy_session import (
@@ -25,7 +25,7 @@ class DatabaseFactory:
     @staticmethod
     def get_session_maker(
         config_manager: ConfigManagerInterface | None = None,
-    ) -> Any:  # type: ignore
+    ) -> async_sessionmaker[AsyncSession]:
         """Session maker létrehozása vagy visszaadása.
 
         Args:
@@ -39,7 +39,7 @@ class DatabaseFactory:
     @staticmethod
     def get_engine(
         config_manager: ConfigManagerInterface | None = None,
-    ) -> Any:  # type: ignore
+    ) -> AsyncEngine:
         """Adatbázis engine létrehozása vagy visszaadása.
 
         Args:
@@ -51,7 +51,7 @@ class DatabaseFactory:
         return get_engine(config_manager)
 
     @staticmethod
-    def create_engine(db_url: str, echo: bool = False) -> Any:  # type: ignore
+    def create_engine(db_url: str, echo: bool = False) -> AsyncEngine:
         """Egyéni adatbázis engine létrehozása.
 
         Args:

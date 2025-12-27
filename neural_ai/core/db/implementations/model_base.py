@@ -5,7 +5,7 @@ Ez a modul definiálja az összes adatbázis modell által használt alaposztál
 """
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
@@ -65,7 +65,7 @@ class Base(DeclarativeBase):
         """
         return cls.__name__.lower().replace("config", "").replace("entry", "") + "s"
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, object]:
         """Modell átalakítása dictionary formátumba.
 
         Az összes oszlop értékét dictionary formátumba konvertálja,
@@ -74,8 +74,8 @@ class Base(DeclarativeBase):
         Returns:
             A modell adatait tartalmazó dictionary.
         """
-        result: dict[str, Any] = {}
-        for column in self.__table__.columns:  # type: ignore
+        result: dict[str, object] = {}
+        for column in self.__table__.columns:
             value = getattr(self, column.name)
             if isinstance(value, datetime):
                 result[column.name] = value.isoformat()

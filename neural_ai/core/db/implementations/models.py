@@ -4,7 +4,7 @@ Ez a modul definiálja az összes adatbázis táblát és modellt a rendszerben,
 beleértve a DynamicConfig és LogEntry modelleket.
 """
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Index, String, Text
 from sqlalchemy.dialects.sqlite import JSON
@@ -13,7 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from .model_base import Base
 
 if TYPE_CHECKING:
-    from typing import Any
+    pass
 
 
 class DynamicConfig(Base):
@@ -37,7 +37,7 @@ class DynamicConfig(Base):
         String(255), unique=True, nullable=False, index=True, doc="A konfigurációs kulcs (egyedi)"
     )
 
-    value: Mapped[Any] = mapped_column(
+    value: Mapped[object] = mapped_column(
         JSON, nullable=False, doc="A konfigurációs érték (JSON formátumban)"
     )
 
@@ -139,7 +139,7 @@ class LogEntry(Base):
         Text, nullable=True, doc="A traceback információ (ha van)"
     )
 
-    extra_data: Mapped[dict[str, Any] | None] = mapped_column(
+    extra_data: Mapped[dict[str, object] | None] = mapped_column(
         JSON, nullable=True, doc="További egyéni adatok (JSON formátumban)"
     )
 
