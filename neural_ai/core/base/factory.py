@@ -7,7 +7,7 @@ a lazy loadinget, bootstrap inicializálást és NullObject pattern-t fallback-k
 
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from neural_ai.core.base.exceptions import (
     ConfigurationError,
@@ -55,7 +55,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         logger = self._container.resolve(LoggerInterface)
         if logger is not None:
             assert isinstance(logger, LoggerInterface), "Logger must implement LoggerInterface"
-            return logger
+            return cast(LoggerInterface, logger)
 
         # Fallback to default logger (NullObject pattern)
         from neural_ai.core.logger.implementations.default_logger import (
@@ -73,7 +73,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             assert isinstance(config_manager, ConfigManagerInterface), (
                 "ConfigManager must implement ConfigManagerInterface"
             )
-            return config_manager
+            return cast(ConfigManagerInterface, config_manager)
 
         raise DependencyError("ConfigManager not available")
 
@@ -84,7 +84,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         storage = self._container.resolve(StorageInterface)
         if storage is not None:
             assert isinstance(storage, StorageInterface), "Storage must implement StorageInterface"
-            return storage
+            return cast(StorageInterface, storage)
 
         raise DependencyError("Storage not available")
 

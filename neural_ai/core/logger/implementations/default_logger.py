@@ -5,13 +5,12 @@ amely a Python beépített logging rendszerét használja.
 """
 
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-if TYPE_CHECKING:
-    pass
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
-class DefaultLogger:
+class DefaultLogger(LoggerInterface):
     """Alapértelmezett logger implementáció a Python logging moduljával.
 
     Ez az osztály a Python standard library logging rendszerét használja,
