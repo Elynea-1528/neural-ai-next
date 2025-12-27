@@ -1,19 +1,31 @@
-default_level: "DEBUG"
+# Alapértelmezett szint (Mindenkinek, aki nincs külön felsorolva)
+default_level: "INFO"  # <--- VÁLTOZÁS: DEBUG helyett INFO a zajszűrésért
+
 format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 date_format: "%Y-%m-%d %H:%M:%S"
+
 handlers:
   console:
     enabled: true
-    level: "DEBUG"
+    level: "INFO" # Konzolra csak a lényeg
     colored: true
   file:
     enabled: true
-    level: "DEBUG"
     filename: "logs/neural_ai.log"
+    level: "DEBUG" # Fájlba minden mehet, DE... (lásd loggers)
     rotating: true
     max_bytes: 10485760
     backup_count: 10
     json_format: false
+
 loggers:
-  neural_ai: { level: "DEBUG" }
-  zeromq_bus: { level: "DEBUG" }
+  # SAJÁT MODULOK (Ezek legyenek bőbeszédűek)
+  neural_ai: 
+    level: "DEBUG"
+    propagate: false # Ne küldje tovább a rootnak duplán
+  
+  # KÜLSŐ ZAJKELTŐK (Ezeket némítjuk)
+  aiosqlite: { level: "WARNING" }
+  sqlalchemy: { level: "WARNING" }
+  asyncio: { level: "WARNING" }
+  parso: { level: "WARNING" }
