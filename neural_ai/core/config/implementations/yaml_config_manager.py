@@ -411,7 +411,7 @@ class YAMLConfigManager(ConfigManagerInterface):
 
                 # DEBUG log a fájlbetöltéshez
                 if self._logger:
-                    self._logger.debug(f"Loading config file: {filename}")
+                    self._logger.debug(f"Config betöltve: {filename}")
 
                 # Fájl tartalmának betöltése
                 with open(file_path, encoding="utf-8") as f:

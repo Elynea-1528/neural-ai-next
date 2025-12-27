@@ -108,45 +108,55 @@ def bootstrap_core(
 
     # DI container létrehozása
     container = DIContainer()
+    
+    # Ideiglenes logger a bootstrap folyamat elejéhez
+    print("🚀 Neural AI Next - Rendszer indítása...")
 
     # 1. Konfiguráció létrehozása (először, hogy legyen konfig a loggernek)
+    print("⏳ 1. Konfiguráció betöltése...")
     config = ConfigManagerFactory.create_manager("yaml")
     # Betöltjük a configs/ mappát
     config.load_directory("configs")
     container.register_instance(ConfigManagerInterface, config)
+    print("   ✅ Config betöltve")
 
     # 2. Logger inicializálása a konfiggal
+    print("⏳ 2. Logger konfigurálása...")
     logging_config = config.get_section("logging") or {}
     LoggerFactory.configure(logging_config)
     # Alap logger példány létrehozása
-    logger = LoggerFactory.get_logger(name="NeuralAI", logger_type="default")
+    logger = LoggerFactory.get_logger(name="NeuralAI.Bootstrap", logger_type="default")
     container.register_instance(LoggerInterface, logger)
     
-    logger.debug("Bootstrap process started...")
+    # Visszajelzés az előző lépésekről
+    logger.info("🚀 Rendszer indítása...")
+    logger.debug("✅ 1. Hardver: Detektálva")
+    logger.debug("✅ 2. Config: Betöltve")
+    logger.debug("✅ 3. Logger: Konfigurálva")
 
     # 3. Hardware inicializálása
-    logger.debug("Initializing Hardware Factory...")
+    logger.info("⏳ 4. Hardver információ gyűjtése...")
     hardware = HardwareFactory.get_hardware_info()
     container.register_instance(HardwareInterface, hardware)
+    logger.debug("-> Hardver manager regisztrálva")
 
     # 4. Adatbázis inicializálása (Config+Logger)
-    logger.debug("Initializing Database Factory...")
+    logger.info("⏳ 5. Adatbázis indítása...")
     # Helyesen a DatabaseFactory-t használjuk, és átadjuk a már betöltött configot
     database = DatabaseFactory.create_manager(config_manager=config)
     container.register_instance(DatabaseManager, database)
+    logger.debug("-> Adatbázis manager regisztrálva")
 
     # 5. EventBus inicializálása (Config+Logger)
-    logger.debug("Initializing EventBus Factory...")
+    logger.info("⏳ 6. EventBus indítása...")
     event_bus = EventBusFactory.create_from_config(config)
     container.register_instance(EventBusInterface, event_bus)
+    logger.debug("-> EventBus regisztrálva")
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
-    logger.debug("Initializing Storage Factory...")
+    logger.info("⏳ 7. Storage indítása...")
     storage_conf = config.get("storage") or {} # Szekció lekérése
     storage_type = storage_conf.get("type", "file") # Típus (file/parquet)
-
-    # DEBUG LOG: Nyomkövetés a storage típushoz
-    logger.debug(f"Initializing Storage with type: {storage_type}")
 
     storage = StorageFactory.get_storage(
         storage_type=storage_type,
@@ -155,15 +165,17 @@ def bootstrap_core(
         hardware=hardware
     )
     container.register_instance(StorageInterface, storage)
+    logger.debug(f"-> Storage engine: {storage_type}")
 
     # 7. Rendszer monitorozás inicializálása
-    logger.debug("Initializing Health Monitor...")
+    logger.info("⏳ 8. Rendszer monitorozás indítása...")
     health_monitor = SystemComponentFactory.create_health_monitor(
         name="core", logger=logger
     )
     container.register_instance(HealthMonitorInterface, health_monitor)
+    logger.debug("-> Health monitor regisztrálva")
     
-    logger.debug("Core components initialization complete!")
+    logger.info("✅ RENDSZER ÜZEMKÉSZ")
 
     return CoreComponents(container=container)
 

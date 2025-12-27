@@ -7,6 +7,8 @@ import warnings
 from collections.abc import Callable
 from typing import TypeVar, cast
 
+import structlog
+
 from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
 
 T = TypeVar("T")
@@ -75,6 +77,9 @@ class DIContainer:
             interface: Az interfész típusa
             instance: Az interfészt megvalósító példány
         """
+        interface_name = getattr(interface, '__name__', str(interface))
+        instance_name = type(instance).__name__
+        self._logger.debug(f"DI: Regisztrálva -> {interface_name} ({instance_name})")
         self._instances[interface] = instance
 
     def register_factory(self, interface: InterfaceT, factory: Callable[[], InterfaceT]) -> None:
@@ -84,6 +89,9 @@ class DIContainer:
             interface: Az interfész típusa
             factory: Az interfész implementációját létrehozó factory függvény
         """
+        interface_name = getattr(interface, '__name__', str(interface))
+        factory_name = getattr(factory, '__name__', 'anonymous')
+        self._logger.debug(f"DI: Factory regisztrálva -> {interface_name} ({factory_name})")
         self._factories[interface] = factory
 
     def resolve(self, interface: InterfaceT) -> InterfaceT | None:
