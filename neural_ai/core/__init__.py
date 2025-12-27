@@ -93,6 +93,7 @@ def bootstrap_core(
     from neural_ai.core.base.implementations.di_container import DIContainer
     from neural_ai.core.config.factory import ConfigManagerFactory
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.db.factory import DatabaseFactory
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.factory import EventBusFactory
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
@@ -126,8 +127,8 @@ def bootstrap_core(
     container.register_instance(LoggerInterface, logger)
 
     # 4. Adatbázis inicializálása (Config+Logger)
-    database = ConfigManagerFactory.create_manager("database")
-    database.load_directory("configs")
+    # Helyesen a DatabaseFactory-t használjuk, és átadjuk a már betöltött configot
+    database = DatabaseFactory.create_manager(config_manager=config)
     container.register_instance(DatabaseManager, database)
 
     # 5. EventBus inicializálása (Config+Logger)
