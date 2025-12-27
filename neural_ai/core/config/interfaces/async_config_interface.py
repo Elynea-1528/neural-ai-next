@@ -8,7 +8,6 @@ from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from typing import Any
 
-
 # Type alias a konfiguráció változásokat figyelő callback-ekhez
 ConfigListener = Callable[[str, Any], Awaitable[None]]
 
@@ -19,6 +18,21 @@ class AsyncConfigManagerInterface(ABC):
     Ez az interfész definiálja az aszinkron konfigurációkezelők által implementálandó metódusokat,
     amelyek főleg adatbázis-alapú dinamikus konfigurációkezelésre szolgálnak.
     """
+
+    @abstractmethod
+    def __init__(
+        self,
+        filename: str | None = None,
+        session: Any | None = None,
+        logger: Any | None = None,
+    ) -> None:
+        """Inicializálja az aszinkron konfigurációkezelőt.
+
+        Args:
+            filename: Konfigurációs fájl útvonala (opcionális, lehet None)
+            session: Adatbázis session (opcionális)
+            logger: Logger interfész (opcionális)
+        """
 
     @abstractmethod
     async def get(self, *keys: str, default: Any = None) -> Any:

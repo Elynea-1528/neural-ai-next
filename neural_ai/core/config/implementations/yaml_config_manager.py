@@ -124,11 +124,11 @@ class YAMLConfigManager(ConfigManagerInterface):
             current = cast(dict[str, Any], current).get(key)
             if current is None:
                 return default
-        
+
         # DEBUG log a konfigurációs lekérdezésekhez
         if self._logger:
             self._logger.debug(f"Config get: {'.'.join(keys)} -> {current}")
-        
+
         return current
 
     def get_section(self, section: str) -> dict[str, Any]:
