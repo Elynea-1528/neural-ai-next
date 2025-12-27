@@ -8,9 +8,12 @@ A modul lazy importot használ a pandas és fastparquet csomagok számára.
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from neural_ai.core.storage.backends.base import StorageBackend
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
@@ -23,12 +26,12 @@ class PandasDataFrame:
     akkor töltődjön be, amikor az osztályt valóban használják.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Inicializálja a PandasDataFrame wrapper-t."""
-        self._pandas = None
-        self._fastparquet = None
+        self._pandas: Any = None
+        self._fastparquet: Any = None
 
-    def _import_pandas(self):
+    def _import_pandas(self) -> tuple[Any, Any]:
         """Lazy import a pandas és fastparquet csomagok számára."""
         if self._pandas is None:
             import fastparquet
@@ -39,12 +42,12 @@ class PandasDataFrame:
         return self._pandas, self._fastparquet
 
     @property
-    def pd(self):
+    def pd(self) -> Any:
         """Pandas modul lekérdezése."""
         return self._import_pandas()[0]
 
     @property
-    def fp(self):
+    def fp(self) -> Any:
         """FastParquet modul lekérdezése."""
         return self._import_pandas()[1]
 
@@ -65,7 +68,7 @@ class PandasBackend(StorageBackend):
         is_async: True
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Inicializálja a PandasBackend példányt.
 
         A lazy import miatt a pandas és fastparquet csomagok csak akkor
@@ -75,7 +78,7 @@ class PandasBackend(StorageBackend):
         self._pandas_wrapper = PandasDataFrame()
         self._initialized = False
 
-    def _ensure_initialized(self):
+    def _ensure_initialized(self) -> None:
         """Biztosítja, hogy a pandas csomag betöltődött."""
         if not self._initialized:
             self._pandas_wrapper._import_pandas()
@@ -113,9 +116,9 @@ class PandasBackend(StorageBackend):
             path_obj.parent.mkdir(parents=True, exist_ok=True)
 
             # Konfigurációs paraméterek
-            compression = kwargs.get("compression", "snappy")
-            partition_by = kwargs.get("partition_by", None)
-            index = kwargs.get("index", False)
+            compression: str = kwargs.get("compression", "snappy")  # type: ignore
+            partition_by: list[str] | None = kwargs.get("partition_by", None)  # type: ignore
+            index: bool = kwargs.get("index", False)  # type: ignore
 
             # Pandas DataFrame konvertálás, ha szükséges
             if not isinstance(data, self._pandas_wrapper.pd.DataFrame):
@@ -137,7 +140,7 @@ class PandasBackend(StorageBackend):
             raise RuntimeError(f"A tárolási művelet sikertelen: {str(e)}") from e
 
     def _write_partitioned(
-        self, df: Any, path: str, partition_by: list, compression: str, index: bool
+        self, df: "pd.DataFrame", path: str, partition_by: list[str], compression: str, index: bool
     ) -> None:
         """Particionált Parquet fájl írása.
 
@@ -155,7 +158,7 @@ class PandasBackend(StorageBackend):
             path, df, compression=compression, write_index=index, partition_on=partition_by
         )
 
-    def read(self, path: str, **kwargs: dict[str, Any]) -> Any:
+    def read(self, path: str, **kwargs: dict[str, Any]) -> "pd.DataFrame":
         """DataFrame adatok olvasása Parquet fájlból FastParquet használatával.
 
         Args:
@@ -180,9 +183,9 @@ class PandasBackend(StorageBackend):
                 raise FileNotFoundError(f"A forrásfájl nem található: {path}")
 
             # Konfigurációs paraméterek
-            columns = kwargs.get("columns", None)
-            filters = kwargs.get("filters", None)
-            chunk_size = kwargs.get("chunk_size", None)
+            columns: list[str] | None = kwargs.get("columns", None)  # type: ignore
+            filters: list[tuple[Any, ...]] | None = kwargs.get("filters", None)  # type: ignore
+            chunk_size: int | None = kwargs.get("chunk_size", None)  # type: ignore
 
             # Chunkolás vagy egyszeri betöltés
             if chunk_size:
@@ -199,8 +202,12 @@ class PandasBackend(StorageBackend):
             raise RuntimeError(f"Az olvasási művelet sikertelen: {str(e)}") from e
 
     def _read_chunked(
-        self, path: str, chunk_size: int, columns: list | None, filters: list | None
-    ) -> Any:
+        self,
+        path: str,
+        chunk_size: int,
+        columns: list[str] | None,
+        filters: list[tuple[Any, ...]] | None,
+    ) -> "pd.DataFrame":
         """Chunkoltan olvassa a Parquet fájlt.
 
         Args:
@@ -219,7 +226,8 @@ class PandasBackend(StorageBackend):
 
         chunks = []
         for chunk in parquet_file.iter_row_groups():
-            df_chunk = chunk.to_pandas(columns=columns, filters=filters)
+            # A chunk már egy DataFrame, nem kell to_pandas hívni
+            df_chunk = chunk
             chunks.append(df_chunk)
 
             # Ha elértük a kívánt chunk méretet, álljunk le
@@ -288,7 +296,7 @@ class PandasBackend(StorageBackend):
         except Exception as e:
             raise RuntimeError(f"A hozzáfűzési művelet sikertelen: {str(e)}") from e
 
-    def _validate_schema(self, existing: Any, new: Any) -> bool:
+    def _validate_schema(self, existing: "pd.DataFrame", new: "pd.DataFrame") -> bool:
         """Ellenőrzi, hogy a két DataFrame sémája kompatibilis-e.
 
         Args:
