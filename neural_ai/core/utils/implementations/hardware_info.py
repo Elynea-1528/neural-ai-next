@@ -10,7 +10,13 @@ import os
 import platform
 from typing import TYPE_CHECKING
 
+import structlog
+
+from neural_ai.core.utils.decorators import trace
 from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+
+# Logger inicializálása
+logger = structlog.get_logger(__name__)
 
 if TYPE_CHECKING:
     pass
@@ -25,6 +31,7 @@ class HardwareInfo(HardwareInterface):
     elemzésével.
     """
 
+    @trace
     def has_avx2(self) -> bool:
         """Ellenőrzi, hogy a CPU támogatja-e az AVX2 utasításkészletet.
 
@@ -87,6 +94,7 @@ class HardwareInfo(HardwareInterface):
             # biztonságosabb False-t visszaadni
             return False
 
+    @trace
     def get_cpu_features(self) -> set[str]:
         """Visszaadja a CPU által támogatott összes feature flag-et.
 
@@ -126,6 +134,7 @@ class HardwareInfo(HardwareInterface):
         except (OSError, PermissionError):
             return set()
 
+    @trace
     def supports_simd(self) -> bool:
         """Ellenőrzi, hogy a CPU támogatja-e az alapvető SIMD utasításokat.
 
