@@ -112,8 +112,11 @@ A bootstrap folyamat szigorúan definiált sorrendben történik:
    - Regisztráció a DI containerben
 
 4. **Adatbázis inicializálása**
-   - Adatbázis manager létrehozása
+   - Adatbázis manager létrehozása a `DatabaseFactory.create_manager()` hívással
+   - A már betöltött konfiguráció átadása a `config_manager=config` paraméterrel
    - Regisztráció a DI containerben
+   
+   **Fontos változás:** A korábbi implementációval ellentétben most már helyesen a `DatabaseFactory` kerül használatra, és a már inicializált `config` objektumot kapja meg paraméterként. Ez biztosítja, hogy az adatbázis kapcsolat a megfelelő konfigurációs beállításokkal jöjjön létre.
 
 5. **EventBus inicializálása**
    - Esemény busz létrehozása a konfiguráció alapján
