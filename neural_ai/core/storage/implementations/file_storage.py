@@ -49,6 +49,7 @@ class FileStorage(StorageInterface):
         self._base_path = Path(base_path) if base_path else Path.cwd()
         self.logger: LoggerInterface | None = logger
         self._setup_format_handlers()
+        self._initialized = True
         # A kwargs-al nem csinálunk semmit, csak hagyjuk, hogy létezzen.
 
     def _setup_format_handlers(self) -> None:

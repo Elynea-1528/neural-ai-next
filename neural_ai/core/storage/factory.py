@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 from neural_ai.core.storage.exceptions import StorageError
 from neural_ai.core.storage.implementations.file_storage import FileStorage
+from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
 from neural_ai.core.storage.interfaces.factory_interface import StorageFactoryInterface
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
@@ -27,6 +28,7 @@ class StorageFactory(StorageFactoryInterface):
 
     _storage_types: dict[str, type[StorageInterface]] = {
         "file": FileStorage,
+        "parquet": ParquetStorageService,
     }
 
     @classmethod

@@ -136,8 +136,14 @@ def bootstrap_core(
     container.register_instance(EventBusInterface, event_bus)
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
+    storage_conf = config.get("storage") or {} # Szekció lekérése
+    storage_type = storage_conf.get("type", "file") # Típus (file/parquet)
+
     storage = StorageFactory.get_storage(
-        storage_type="file", base_path=None, logger=logger, hardware=hardware
+        storage_type=storage_type,
+        base_path=storage_conf.get("base_path"),
+        logger=logger,
+        hardware=hardware
     )
     container.register_instance(StorageInterface, storage)
 

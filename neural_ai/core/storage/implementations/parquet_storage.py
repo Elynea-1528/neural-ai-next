@@ -20,6 +20,8 @@ from typing import TYPE_CHECKING, Any, cast
 import structlog
 
 from neural_ai.core.base.implementations.singleton import SingletonMeta
+from neural_ai.core.storage.exceptions import StorageError, StorageIOError, StorageNotFoundError
+from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -32,7 +34,7 @@ if TYPE_CHECKING:
 logger = structlog.get_logger()
 
 
-class ParquetStorageService(metaclass=SingletonMeta):
+class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
     """Particionált Parquet tároló szolgáltatás backend selectorral.
 
     Ez az osztály felelős a Tick adatok particionált Parquet formátumban történő
@@ -482,6 +484,144 @@ class ParquetStorageService(metaclass=SingletonMeta):
 
         if not base_path.exists():
             return stats
+    
+        # StorageInterface implementáció
+        def save_dataframe(self, df: pd.DataFrame, path: str, **kwargs: Any) -> None:
+            """DataFrame mentése a megadott útvonalra.
+            
+            Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
+            A ParquetStorageService saját store_tick_data metódusát használja.
+            """
+            import pandas as pd
+            from datetime import datetime
+            
+            # Konvertálás pandas DataFrame-re ha szükséges
+            if not isinstance(df, pd.DataFrame):
+                df = pd.DataFrame(df)
+            
+            # Alapértelmezett dátum a mai nap
+            date = kwargs.get('date', datetime.now())
+            symbol = kwargs.get('symbol', 'DEFAULT')
+            
+            # Aszinkron hívás szinkron wrapper-ben
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # Ha már fut egy loop, akkor task-ként indítjuk
+                    task = loop.create_task(self.store_tick_data(symbol, df, date))
+                    # Várakozás a task befejezésére
+                    while not task.done():
+                        pass
+                else:
+                    # Ha nincs futó loop, akkor futtatjuk
+                    loop.run_until_complete(self.store_tick_data(symbol, df, date))
+            except RuntimeError:
+                # Ha nincs event loop, létrehozunk egyet
+                asyncio.run(self.store_tick_data(symbol, df, date))
+    
+        def load_dataframe(self, path: str, **kwargs: Any) -> pd.DataFrame:
+            """DataFrame betöltése a megadott útvonalról.
+            
+            Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
+            """
+            import pandas as pd
+            from datetime import datetime, timedelta
+            
+            # Dátumtartomány kinyerése a path-ból vagy kwargs-ból
+            start_date = kwargs.get('start_date', datetime.now() - timedelta(days=1))
+            end_date = kwargs.get('end_date', datetime.now())
+            symbol = kwargs.get('symbol', 'DEFAULT')
+            
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # Ha már fut egy loop, akkor task-ként indítjuk
+                    task = loop.create_task(self.read_tick_data(symbol, start_date, end_date))
+                    # Várakozás a task befejezésére
+                    while not task.done():
+                        pass
+                    result = task.result()
+                else:
+                    # Ha nincs futó loop, akkor futtatjuk
+                    result = loop.run_until_complete(self.read_tick_data(symbol, start_date, end_date))
+            except RuntimeError:
+                # Ha nincs event loop, létrehozunk egyet
+                result = asyncio.run(self.read_tick_data(symbol, start_date, end_date))
+            
+            # Konvertálás pandas DataFrame-re ha szükséges
+            if not isinstance(result, pd.DataFrame):
+                try:
+                    import polars as pl
+                    if isinstance(result, pl.DataFrame):
+                        result = result.to_pandas()
+                except ImportError:
+                    pass
+            
+            return result
+    
+        def save_object(self, obj: object, path: str, **kwargs: Any) -> None:
+            """Objektum mentése a megadott útvonalra.
+            
+            Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
+            """
+            import pickle
+            full_path = Path(path)
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(full_path, 'wb') as f:
+                pickle.dump(obj, f)
+    
+        def load_object(self, path: str, **kwargs: Any) -> object:
+            """Objektum betöltése a megadott útvonalról.
+            
+            Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
+            """
+            import pickle
+            full_path = Path(path)
+            with open(full_path, 'rb') as f:
+                return pickle.load(f)
+    
+        def exists(self, path: str) -> bool:
+            """Ellenőrzi, hogy az útvonal létezik-e."""
+            return Path(path).exists()
+    
+        def get_metadata(self, path: str) -> dict[str, Any]:
+            """Fájl vagy könyvtár metaadatainak lekérdezése."""
+            full_path = Path(path)
+            if not full_path.exists():
+                raise StorageNotFoundError(f"Fájl nem található: {full_path}")
+            
+            stat = full_path.stat()
+            return {
+                "size": stat.st_size,
+                "created": datetime.fromtimestamp(stat.st_ctime),
+                "modified": datetime.fromtimestamp(stat.st_mtime),
+                "accessed": datetime.fromtimestamp(stat.st_atime),
+                "is_file": full_path.is_file(),
+                "is_dir": full_path.is_dir(),
+            }
+    
+        def delete(self, path: str) -> None:
+            """Fájl vagy könyvtár törlése."""
+            full_path = Path(path)
+            if not full_path.exists():
+                raise StorageNotFoundError(f"Fájl nem található: {full_path}")
+            
+            if full_path.is_file():
+                full_path.unlink()
+            else:
+                import shutil
+                shutil.rmtree(full_path)
+    
+        def list_dir(self, path: str, pattern: str | None = None) -> Sequence[Path]:
+            """Könyvtár tartalmának listázása."""
+            full_path = Path(path)
+            if not full_path.exists():
+                raise StorageNotFoundError(f"Könyvtár nem található: {full_path}")
+            if not full_path.is_dir():
+                raise StorageIOError(f"Az útvonal nem könyvtár: {full_path}")
+            
+            pattern = pattern or "*"
+            return list(full_path.glob(pattern))
 
         # Fájlok felsorolása
         for parquet_file in base_path.rglob("*.parquet"):

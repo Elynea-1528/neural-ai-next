@@ -81,6 +81,8 @@ async def run_live_test():
 
         # Feliratkozás
         components.event_bus.subscribe("system_log", on_test_event)
+        print("     ⏳ ZMQ kapcsolódás...")
+        await asyncio.sleep(0.5) # <--- EZ KELL A SIKERHEZ
         
         # Küldés
         test_msg = SystemLogEvent(

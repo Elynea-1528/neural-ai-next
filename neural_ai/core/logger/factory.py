@@ -217,7 +217,7 @@ class LoggerFactory(LoggerFactoryInterface):
                                 "function": record.funcName,
                                 "line": record.lineno,
                             }
-                            return json.dumps(log_data)
+                            return json.dumps(log_data, ensure_ascii=False)
 
                     file_handler.setFormatter(JSONFormatter())
                 else:
