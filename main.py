@@ -2,6 +2,10 @@
 
 Ez a modul tartalmazza az alkalmazás fő belépési pontját, amely felelős a core
 komponensek inicializálásáért és az alkalmazás életciklusának kezeléséért.
+
+A szkript követi a Dependency Injection (DI) elvet, kizárólag interfészeken
+keresztül kommunikál a komponensekkel, és a CoreComponents bundle-t használja
+a szolgáltatások eléréséhez.
 """
 
 import asyncio
@@ -10,10 +14,10 @@ from contextlib import suppress
 from typing import TYPE_CHECKING
 
 from neural_ai.core import bootstrap_core
-from neural_ai.core.base.implementations.component_bundle import CoreComponents
 
 # Körkörös importok elkerüléséhez
 if TYPE_CHECKING:
+    from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface

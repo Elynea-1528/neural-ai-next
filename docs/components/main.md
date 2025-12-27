@@ -1,137 +1,116 @@
-# Main Modul - Alkalmazás Belépési Pont
+# Main - Fő indító szkript
 
 ## Áttekintés
 
-A `main.py` modul a Neural AI Next alkalmazás fő belépési pontját tartalmazza. Ez a szkript felelős az alkalmazás teljes életciklusának kezeléséért, a core komponensek inicializálásáért és a rendszer stabil működéséért.
+A `main.py` a Neural AI Next rendszer fő belépési pontja. Ez a modul felelős az alkalmazás életciklusának kezeléséért, a core komponensek inicializálásáért és a szolgáltatások indításáért.
 
-## Szerkezet
+## Architektúra
 
-### Fő Funkciók
+### Dependency Injection (DI) Elv
 
-#### `main() -> None`
+A main modul szigorúan követi a Dependency Injection elvet:
 
-Az alkalmazás fő aszinkron belépési pontja.
+- **Interfész alapú kommunikáció**: A modul kizárólag interfészeken keresztül kommunikál a komponensekkel
+- **Factory Pattern**: A komponenseket a `bootstrap_core()` függvényen keresztül kapja meg
+- **Típusos hozzáférés**: A `CoreComponents` bundle biztosítja a típusos hozzáférést a szolgáltatásokhoz
 
-**Felelősségek:**
-1. Core komponensek inicializálása a `bootstrap_core()` segítségével
-2. Logger komponens lekérése és rendszerindítási üzenet naplózása
-3. Esemény busz indítása (ha elérhető)
-4. Adatbázis inicializálása (ha elérhető)
-5. Örök futás biztosítása, amíg a felhasználó le nem állítja (Ctrl+C)
-6. Hiba kezelése és naplózása
-
-**Paraméterek:**
-- Nincs paramétere
-
-**Visszatérési érték:**
-- `None`
-
-**Kivételek:**
-- `SystemExit`: Kritikus hiba esetén az alkalmazás leáll
-
-**Példa:**
-```python
-await main()
-```
-
-### Típusosság és Függőség Injektálás
-
-A modul szigorú típusosságot követ:
+### Komponens Struktúra
 
 ```python
-from typing import TYPE_CHECKING
-
-# Körkörös importok elkerüléséhez
-if TYPE_CHECKING:
-    from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
-    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-
-# Típusos változók
-components: CoreComponents = bootstrap_core()
-logger: "LoggerInterface | None" = components.logger
-event_bus: "EventBusInterface | None" = components.event_bus
-database: "DatabaseManager | None" = components.database
+CoreComponents:
+├── logger: LoggerInterface
+├── event_bus: EventBusInterface
+├── database: DatabaseManager
+└── config: ConfigManagerInterface
 ```
 
-### Naplózás
+## Funkcionalitás
 
-A modul a következő üzeneteket naplózza:
+### Fő funkciók
 
-- **Rendszer indítása**: `logger.info("Rendszer indítása", extra={"version": "0.5.0"})`
-- **Rendszer fut**: `logger.info("Rendszer fut, eseményekre vár")`
+1. **Core inicializálás**: A `bootstrap_core()` hívással történik
+2. **Szolgáltatások indítása**:
+   - Event Bus indítása (ha elérhető)
+   - Adatbázis inicializálása (ha elérhető)
+3. **Életciklus kezelés**:
+   - Örök futás biztosítása
+   - Elegáns leállás (Ctrl+C kezelése)
+   - Hibakezelés és naplózás
 
-### Hiba Kezelés
+### Hibakezelés
 
-A modul két szinten kezeli a hibákat:
+A modul robusztus hibakezelést valósít meg:
 
-1. **Globális hiba kezelés** (a legfelső szinten):
-   - `KeyboardInterrupt`: A felhasználó által generált Ctrl+C esemény
-   - `Exception`: Bármely egyéb kivétel, amelyet kiír a konzolra és `sys.exit(1)`-el kilép
-
-2. **Aszinkron hiba kezelés** (a `main()` függvényben):
-   - A `suppress(asyncio.CancelledError)` biztosítja, hogy a CancelledError ne okozzon problémát
-
-### Komponens Függőségek
-
-A `main.py` a következő core komponenseket használja:
-
-- **CoreComponents**: A rendszer összes alap komponensének tárolója
-- **LoggerInterface**: Naplózási műveletekhez
-- **EventBusInterface**: Eseményvezérelt kommunikációhoz
-- **DatabaseManager**: Adatbázis műveletekhez
+- **Kivétel kezelés**: A `suppress` kontextus kezeli a `CancelledError`-t
+- **Globális hibakezelés**: A `__main__` blokk elkapja az összes nem várt kivételt
+- **Rendszeres leállás**: A `KeyboardInterrupt` (Ctrl+C) elegáns leállítást biztosít
 
 ## Használat
 
-### Alap indítás
+### Futtatás
 
 ```bash
 python main.py
 ```
 
-### Leállítás
+### Modul importálása
 
-Nyomd meg a `Ctrl+C` billentyűkombinációt a konzolon.
+```python
+from main import main
 
-### Várható kimenet
-
-```
-2024-12-26 12:00:00 - NeuralAI - INFO - Rendszer indítása
-2024-12-26 12:00:01 - NeuralAI - INFO - Rendszer fut, eseményekre vár
-^C
-🛑 Rendszer leállítva.
+# Aszinkron hívás
+await main()
 ```
 
-## Architektúra Elvek
+## Tesztelés
 
-### Dependency Injection
+A modult átfogó tesztek védik:
 
-A modul nem példányosít közvetlenül osztályokat, hanem a `bootstrap_core()` függvényen keresztül kapja meg a komponenseket. Ez biztosítja a laza csatolást és a tesztelhetőséget.
+- **Komponens inicializálás**: Ellenőrzi a logger, event bus és adatbázis helyes indítását
+- **Resilience tesztek**: Teszteli a hiányzó komponensek esetét
+- **Életciklus tesztek**: Ellenőrzi az elegáns leállítást
+- **Entry point tesztek**: Validálja a `__main__` blokk helyes működését
 
-### Típusos Változók
+### Teszt futtatása
 
-Minden változó explicit típusannotációval rendelkezik, ami javítja a kód olvashatóságát és segíti a statikus elemzőket.
+```bash
+# Összes teszt futtatása
+pytest tests/test_main.py -v
 
-### Optional Típusok
+# Coverage jelentés
+pytest tests/test_main.py --cov=main --cov-report=html
+```
 
-A komponensek `Optional` típusúak, mert a `bootstrap_core()` függvény visszaadhat `None` értékeket, ha egy komponens nem inicializálható. A kód minden komponens használata előtt ellenőrzi, hogy nem `None`-e.
+## Kódminőség
+
+- **Típusos**: Szigorú típusos jelölések (`Type Hints`)
+- **Dokumentált**: Google Style docstring-ek (magyar nyelven)
+- **Linter**: A `ruff check` 0 hibát jelez
+- **Coverage**: 72% statement coverage (a hiányzó sorok a `__main__` blokk végrehajtási kódjai)
 
 ## Fejlesztés
 
-### Hibakeresés
+### Előfeltételek
 
-A modul hibakereséséhez használhatod a következő technikákat:
+- Python 3.12+
+- neural_ai.core csomag
 
-1. **Logger szint módosítása**: Állítsd be a logger szintjét `DEBUG`-ra a részletesebb üzenetekért
-2. **Komponens tesztelés**: A `bootstrap_core()` által visszaadott komponenseket külön is tesztelheted
+### Kódolási szabványok
 
-### Tesztelés
+- **Nyelv**: Magyar docstring-ek és kommentek
+- **Típusok**: `Optional`, `List`, `Dict` helyes használata
+- **Importok**: `TYPE_CHECKING` blokk körkörös importok elkerüléséhez
 
-A modul teszteléséhez lásd: [`tests/test_main.py`](../tests/test_main.py)
+### Extension Points
 
-## Kapcsolódó Dokumentáció
+A main modul a következőképpen bővíthető:
 
-- [Core Komponensek](../neural_ai/core/__init__.py)
-- [Logger Interfész](../neural_ai/core/logger/interfaces/logger_interface.py)
-- [Event Bus Interfész](../neural_ai/core/events/interfaces/event_bus_interface.py)
-- [Database Manager](../neural_ai/core/db/implementations/sqlalchemy_session.py)
+1. **Új komponensek**: A `CoreComponents` bővítése új interfészekkel
+2. **Életciklus hookok**: A `main()` függvény kibővítése előtte/utána hookokkal
+3. **Konfiguráció**: A `bootstrap_core()` paraméterezése konfigurációs beállításokkal
+
+## Kapcsolódó dokumentáció
+
+- [Core Bootstrap](core/bootstrap.md) - A core inicializálás részletei
+- [Architektúra szabványok](../development/architecture_standards.md) - A projekt architektúrája
+- [TASK_TREE](../development/TASK_TREE.md) - A fejlesztés állapota

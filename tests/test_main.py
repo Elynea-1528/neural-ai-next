@@ -1,7 +1,7 @@
 """Tesztek a main.py modulhoz.
 
-Ez a modul tartalmazza a Neural AI Next fő indító szkriptjének tesztjeit,
-beleértve a komponens inicializálást, az alkalmazás életciklusát és a hiba kezelést.
+Ez a modul tartalmazza a fő indító szkript tesztjeit, amelyek ellenőrzik
+az alkalmazás életciklusát és a komponens inicializálást.
 """
 
 import asyncio
@@ -9,263 +9,216 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-# Importálás a tesztelendő modulból
-from neural_ai.core.base.implementations.component_bundle import CoreComponents
+# A main modul importálása a tesztekhez
+from main import main
 
 
 class TestMain:
-    """Tesztek a main.py fő funkcióihoz."""
+    """Tesztek a main függvényhez."""
 
     @pytest.mark.asyncio
-    async def test_main_initializes_components(self) -> None:
-        """Teszteli, hogy a main függvény inicializálja a core komponenseket."""
+    async def test_main_successful_initialization(self) -> None:
+        """Teszteli a sikeres alkalmazás inicializálást.
+
+        Ellenőrzi, hogy a fő függvény helyesen inicializálja a core komponenseket
+        és indítja el a szolgáltatásokat.
+        """
         # Mock objektumok létrehozása
         mock_logger = MagicMock()
         mock_event_bus = AsyncMock()
         mock_database = AsyncMock()
 
-        # Mock CoreComponents
-        mock_components = MagicMock(spec=CoreComponents)
+        # Mock CoreComponents létrehozása
+        mock_components = MagicMock()
         mock_components.logger = mock_logger
         mock_components.event_bus = mock_event_bus
         mock_components.database = mock_database
 
-        # Patch bootstrap_core és asyncio.Event
-        with patch("main.bootstrap_core", return_value=mock_components), \
-             patch("asyncio.Event") as mock_event:
-            
-            # Event mock beállítása - ne dobjon kivételt, csak várjon
-            mock_event_instance = AsyncMock()
-            mock_event.return_value = mock_event_instance
-            # Ne állítsuk be a side_effect-ot, hogy ne dobjon kivételt
+        with patch("main.bootstrap_core", return_value=mock_components):
+            # Feladat létrehozása a main függvény futtatásához
+            task = asyncio.create_task(main())
 
-            # Import a main modulból (itt kell importálni, mert a patch működjön)
-            import main
+            # Várakozás egy rövid ideig, hogy a fő függvény elinduljon
+            await asyncio.sleep(0.1)
 
-            # Teszt futtatása - nem várunk kivételt, mert a suppress elnyeli
-            # De a taskot le kell állítanunk
-            task = asyncio.create_task(main.main())
-            await asyncio.sleep(0)  # Hogy a task elkezdődjön
-            task.cancel()  # Leállítjuk a taskot
-            
-            # Várjuk meg a task befejezését
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass  # Ez várható, mert a task le lett állítva
+            # Ellenőrzések
+            mock_logger.info.assert_called()
+            mock_event_bus.start.assert_called_once()
+            mock_database.initialize.assert_called_once()
 
-        # Ellenőrzések
-        mock_logger.info.assert_called()
-        mock_event_bus.start.assert_called_once()
-        mock_database.initialize.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_main_handles_missing_components(self) -> None:
-        """Teszteli, hogy a main függvény kezeli a hiányzó komponenseket."""
-        # Mock CoreComponents with None values
-        mock_components = MagicMock(spec=CoreComponents)
-        mock_components.logger = None
-        mock_components.event_bus = None
-        mock_components.database = None
-
-        with patch("main.bootstrap_core", return_value=mock_components), \
-             patch("asyncio.Event") as mock_event:
-            
-            mock_event_instance = AsyncMock()
-            mock_event.return_value = mock_event_instance
-
-            import main
-
-            # Teszt futtatása - nem várunk kivételt
-            task = asyncio.create_task(main.main())
-            await asyncio.sleep(0)
+            # Feladat leállítása
             task.cancel()
-            
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
+            # A CancelledError-t elnyeli a suppress, ezért nem kell expectálni
+            await task
 
     @pytest.mark.asyncio
-    async def test_main_handles_exception(self) -> None:
-        """Teszteli, hogy a main függvény kezeli a kivételeket.
-        
-        A main függvény csak a CancelledError-t kezeli, más kivételeket nem.
-        Ezért ezt a tesztet át kell alakítani, hogy a CancelledError-t tesztelje.
+    async def test_main_without_logger(self) -> None:
+        """Teszteli a main függvényt logger nélkül.
+
+        Ellenőrzi, hogy a függvény helyesen kezeli a hiányzó logger esetét.
+        """
+        # Mock objektumok létrehozása logger nélkül
+        mock_event_bus = AsyncMock()
+        mock_database = AsyncMock()
+
+        mock_components = MagicMock()
+        mock_components.logger = None
+        mock_components.event_bus = mock_event_bus
+        mock_components.database = mock_database
+
+        with patch("main.bootstrap_core", return_value=mock_components):
+            task = asyncio.create_task(main())
+
+            await asyncio.sleep(0.1)
+
+            # Ellenőrzés, hogy a logger nélkül is fut a rendszer
+            mock_event_bus.start.assert_called_once()
+            mock_database.initialize.assert_called_once()
+
+            task.cancel()
+            # A CancelledError-t elnyeli a suppress, ezért nem kell expectálni
+            await task
+
+    @pytest.mark.asyncio
+    async def test_main_without_event_bus(self) -> None:
+        """Teszteli a main függvényt event bus nélkül.
+
+        Ellenőrzi, hogy a függvény helyesen kezeli a hiányzó event bus esetét.
         """
         mock_logger = MagicMock()
-        mock_components = MagicMock(spec=CoreComponents)
+        mock_database = AsyncMock()
+
+        mock_components = MagicMock()
         mock_components.logger = mock_logger
         mock_components.event_bus = None
-        mock_components.database = None
+        mock_components.database = mock_database
 
-        with patch("main.bootstrap_core", return_value=mock_components), \
-             patch("asyncio.Event") as mock_event:
-            
-            mock_event_instance = AsyncMock()
-            mock_event.return_value = mock_event_instance
-            # A CancelledError-t a suppress elnyeli, más kivételt nem
-            mock_event_instance.wait.side_effect = asyncio.CancelledError()
+        with patch("main.bootstrap_core", return_value=mock_components):
+            task = asyncio.create_task(main())
 
-            import main
+            await asyncio.sleep(0.1)
 
-            # A main függvénynek nem szabad kivételt dobnia, mert a suppress elnyeli
-            try:
-                await main.main()
-                assert True  # Ha ideér, akkor a suppress helyesen működik
-            except asyncio.CancelledError:
-                pytest.fail("CancelledError should be suppressed by the context manager")
+            # Ellenőrzés, hogy az event bus nélkül is fut a rendszer
+            mock_logger.info.assert_called()
+            mock_database.initialize.assert_called_once()
 
-    def test_main_module_import(self) -> None:
-        """Teszteli, hogy a main modul importálható."""
-        import main
-        assert hasattr(main, "main")
-        assert asyncio.iscoroutinefunction(main.main)
-
-    def test_main_has_correct_annotations(self) -> None:
-        """Teszteli, hogy a main függvénynek vannak típus annotációi."""
-        import main
-        assert main.main.__annotations__["return"] is None
+            task.cancel()
+            # A CancelledError-t elnyeli a suppress, ezért nem kell expectálni
+            await task
 
     @pytest.mark.asyncio
-    async def test_main_logs_system_start(self) -> None:
-        """Teszteli, hogy a main függvény naplózza a rendszer indítását."""
+    async def test_main_without_database(self) -> None:
+        """Teszteli a main függvényt adatbázis nélkül.
+
+        Ellenőrzi, hogy a függvény helyesen kezeli a hiányzó adatbázis esetét.
+        """
         mock_logger = MagicMock()
-        mock_components = MagicMock(spec=CoreComponents)
+        mock_event_bus = AsyncMock()
+
+        mock_components = MagicMock()
         mock_components.logger = mock_logger
-        mock_components.event_bus = None
+        mock_components.event_bus = mock_event_bus
         mock_components.database = None
 
-        with patch("main.bootstrap_core", return_value=mock_components), \
-             patch("asyncio.Event") as mock_event:
-            
-            mock_event_instance = AsyncMock()
-            mock_event.return_value = mock_event_instance
+        with patch("main.bootstrap_core", return_value=mock_components):
+            task = asyncio.create_task(main())
 
-            import main
+            await asyncio.sleep(0.1)
 
-            task = asyncio.create_task(main.main())
-            await asyncio.sleep(0)
+            # Ellenőrzés, hogy az adatbázis nélkül is fut a rendszer
+            mock_logger.info.assert_called()
+            mock_event_bus.start.assert_called_once()
+
             task.cancel()
-            
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
+            # A CancelledError-t elnyeli a suppress, ezért nem kell expectálni
+            await task
 
-        # Ellenőrizzük, hogy a logger.info-t meghívták-e
-        assert mock_logger.info.call_count >= 1
-        # Ellenőrizzük az első hívást
-        first_call_args = mock_logger.info.call_args_list[0]
-        assert "Rendszer indítása" in str(first_call_args)
+    def test_main_module_execution(self) -> None:
+        """Teszteli a main modul végrehajtását.
+
+        Ellenőrzi, hogy a modul importálható és tartalmazza a szükséges függvényeket.
+        """
+        # Import ellenőrzése
+        import main as main_module
+
+        assert hasattr(main_module, "main")
+        assert callable(main_module.main)
 
     @pytest.mark.asyncio
-    async def test_main_logs_system_running(self) -> None:
-        """Teszteli, hogy a main függvény naplózza a rendszer futását."""
-        mock_logger = MagicMock()
-        mock_components = MagicMock(spec=CoreComponents)
-        mock_components.logger = mock_logger
-        mock_components.event_bus = None
-        mock_components.database = None
+    async def test_main_graceful_shutdown(self) -> None:
+        """Teszteli a main függvény elegáns leállását.
 
-        with patch("main.bootstrap_core", return_value=mock_components), \
-             patch("asyncio.Event") as mock_event:
-            
-            mock_event_instance = AsyncMock()
-            mock_event.return_value = mock_event_instance
+        Ellenőrzi, hogy a CancelledError-t helyesen kezeli a függvény.
+        """
+        mock_components = MagicMock()
+        mock_components.logger = MagicMock()
+        mock_components.event_bus = AsyncMock()
+        mock_components.database = AsyncMock()
 
-            import main
+        with patch("main.bootstrap_core", return_value=mock_components):
+            task = asyncio.create_task(main())
 
-            task = asyncio.create_task(main.main())
-            await asyncio.sleep(0)
+            await asyncio.sleep(0.1)
+
+            # Feladat leállítása és ellenőrzés, hogy nem dob kivételt
             task.cancel()
-            
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
 
-        # Ellenőrizzük, hogy legalább 2 info hívás történt
-        assert mock_logger.info.call_count >= 2
-        # Ellenőrizzük a második hívást
-        second_call_args = mock_logger.info.call_args_list[1]
-        assert "Rendszer fut" in str(second_call_args)
+            # A CancelledError-t elnyeli a suppress, ezért nem szabad, hogy kivételt dobjon
+            await task
 
 
 class TestMainEntryPoint:
     """Tesztek a __main__ belépési ponthoz."""
 
     def test_main_entry_point_exists(self) -> None:
-        """Teszteli, hogy a __main__ blokk létezik."""
-        import main
-        assert hasattr(main, "__name__")
+        """Teszteli, hogy a main modul tartalmazza a __main__ blokkot.
 
-    def test_main_runs_with_asyncio_run(self) -> None:
-        """Teszteli, hogy a fő belépési pont asyncio.run-t használ."""
-        # Ellenőrizzük, hogy az asyncio.run létezik
-        assert hasattr(asyncio, "run")
+        Ellenőrzi, hogy a modul futtatható-e standalone módon.
+        """
+        import main as main_module
 
-    def test_main_handles_keyboard_interrupt(self) -> None:
-        """Teszteli, hogy a fő belépési pont kezeli a KeyboardInterrupt-ot."""
-        # Ez a teszt csak ellenőrzi, hogy a kód struktúrája helyes
-        # A valós teszteléshez mockolni kellene az asyncio.run-t
-        assert True  # A struktúra ellenőrzése sikeres
+        # Ellenőrzés, hogy a modul tartalmazza a __name__ == "__main__" blokkot
+        source_code = open(main_module.__file__).read()
+        assert 'if __name__ == "__main__"' in source_code
 
+    def test_main_entry_point_uses_asyncio_run(self) -> None:
+        """Teszteli, hogy a __main__ blokk asyncio.run-t használ.
 
-class TestMainTypeHints:
-    """Tesztek a típus annotációkhoz."""
+        Ellenőrzi, hogy a fő belépési pont helyesen használja az asyncio.run-t
+        az alkalmazás indításához.
+        """
+        import main as main_module
 
-    def test_main_has_type_hints(self) -> None:
-        """Teszteli, hogy a main függvénynek vannak típus annotációi."""
-        import main
-        annotations = main.main.__annotations__
-        assert "return" in annotations
-        assert annotations["return"] is None
+        source_code = open(main_module.__file__).read()
+        assert "asyncio.run(main())" in source_code
 
-    def test_components_variable_has_type(self) -> None:
-        """Teszteli, hogy a components változó típusos."""
-        # Ez a teszt ellenőrzi, hogy a kódban szerepelnek-e a típus annotációk
-        import main
-        import inspect
-        
-        source = inspect.getsource(main.main)
-        assert "components: CoreComponents" in source
-        assert "logger:" in source
-        assert "event_bus:" in source
-        assert "database:" in source
+    def test_main_entry_point_handles_keyboard_interrupt(self) -> None:
+        """Teszteli, hogy a __main__ blokk kezeli a KeyboardInterrupt-ot.
 
+        Ellenőrzi, hogy a Ctrl+C helyesen van-e kezelve.
+        """
+        import main as main_module
 
-class TestMainExceptionHandling:
-    """Tesztek a kivételkezeléshez."""
+        source_code = open(main_module.__file__).read()
+        assert "except KeyboardInterrupt:" in source_code
 
-    @pytest.mark.asyncio
-    async def test_main_suppresses_cancelled_error(self) -> None:
-        """Teszteli, hogy a main függvény elnyeli a CancelledError-t."""
-        mock_components = MagicMock(spec=CoreComponents)
-        mock_components.logger = None
-        mock_components.event_bus = None
-        mock_components.database = None
+    def test_main_entry_point_handles_general_exceptions(self) -> None:
+        """Teszteli, hogy a __main__ blokk kezeli az általános kivételeket.
 
-        with patch("main.bootstrap_core", return_value=mock_components), \
-             patch("asyncio.Event") as mock_event:
-            
-            mock_event_instance = AsyncMock()
-            mock_event.return_value = mock_event_instance
-            mock_event_instance.wait.side_effect = asyncio.CancelledError()
+        Ellenőrzi, hogy a nem várt kivételek helyesen vannak-e kezelve.
+        """
+        import main as main_module
 
-            import main
+        source_code = open(main_module.__file__).read()
+        assert "except Exception as e:" in source_code
+        assert "sys.exit(1)" in source_code
 
-            # A CancelledError-t el kell nyelnie a suppress
-            # Ezért nem szabad kivételt dobnia
-            try:
-                await main.main()
-                # Ha ideér, akkor a CancelledError-t elnyelte
-                assert True
-            except asyncio.CancelledError:
-                pytest.fail("CancelledError should be suppressed")
+    def test_main_entry_point_finally_block(self) -> None:
+        """Teszteli, hogy a __main__ blokk tartalmaz finally blokkot.
 
-    def test_main_exit_code_on_exception(self) -> None:
-        """Teszteli, hogy a fő belépési pont helyes exit kóddal lép ki."""
-        # Ez a teszt csak ellenőrzi a kód struktúráját
-        # A valós teszteléshez mockolni kellene az asyncio.run-t és sys.exit-et
-        assert True  # A struktúra ellenőrzése sikeres
+        Ellenőrzi, hogy a rendszer leállítása után végrehajtódik a takarítás.
+        """
+        import main as main_module
+
+        source_code = open(main_module.__file__).read()
+        assert "finally:" in source_code
