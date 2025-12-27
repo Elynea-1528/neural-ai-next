@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
 
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.backends.base import StorageBackend
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
@@ -59,6 +60,8 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         base_path: str | Path | None = None,
         compression: str = "snappy",
         hardware: "HardwareInterface | None" = None,
+        logger: "LoggerInterface | None" = None,  # <--- EZ HIÁNYZOTT
+        **kwargs: Any,                            # <--- ÉS EZ A BIZTONSÁGÉRT
     ) -> None:
         """Inicializálja a ParquetStorageService-t backend selectorral.
 
@@ -70,11 +73,14 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             base_path: Az alapútvonal a tároláshoz (opcionális)
             compression: A tömörítési algoritmus (alapértelmezett: 'snappy')
             hardware: A hardverképességek detektálásáért felelős interfész (opcionális)
+            logger: A naplózásért felelős interfész (opcionális)
+            **kwargs: További opcionális paraméterek
         """
         self.BASE_PATH = Path(base_path) if base_path else Path("/data/tick")
         self.engine = "fastparquet"
         self.compression = compression
         self.backend: StorageBackend
+        self.logger = logger  # <--- Elmentjük
 
         # Dependency Injection a HardwareInterface-hez
         if hardware is None:
@@ -86,8 +92,13 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
         # Hardver detekció és backend kiválasztás
         self._select_backend()
-
-        logger.info(f"ParquetStorageService initialized with {self.backend.name} backend")
+        
+        # Logolás a saját loggerrel (ha van), vagy a globálissal
+        log_msg = f"ParquetStorageService initialized with {self.backend.name} backend"
+        if self.logger:
+            self.logger.info(log_msg)
+        else:
+            structlog.get_logger().info(log_msg)
 
     def _select_backend(self) -> None:
         """Backend kiválasztása hardver detekció alapján.
