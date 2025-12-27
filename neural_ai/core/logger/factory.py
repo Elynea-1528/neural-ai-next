@@ -18,14 +18,13 @@ from structlog.processors import JSONRenderer
 from structlog.stdlib import ProcessorFormatter
 from structlog.types import Processor
 
-from neural_ai.core.logger.interfaces.factory_interface import LoggerFactoryInterface
-from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-
 from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
 from neural_ai.core.logger.implementations.default_logger import DefaultLogger
 from neural_ai.core.logger.implementations.rotating_file_logger import (
     RotatingFileLogger,
 )
+from neural_ai.core.logger.interfaces.factory_interface import LoggerFactoryInterface
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class LoggerFactory(LoggerFactoryInterface):
