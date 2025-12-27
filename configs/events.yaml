@@ -4,4 +4,5 @@ connection:
   host: "127.0.0.1"
   pub_port: 5555
   sub_port: 5556
-  use_inproc: false # Teszteléshez true
+  use_inproc: false
+socket_timeout: 2000

@@ -139,6 +139,9 @@ def bootstrap_core(
     storage_conf = config.get("storage") or {} # Szekció lekérése
     storage_type = storage_conf.get("type", "file") # Típus (file/parquet)
 
+    # DEBUG LOG: Nyomkövetés a storage típushoz
+    logger.debug(f"Initializing Storage with type: {storage_type}")
+
     storage = StorageFactory.get_storage(
         storage_type=storage_type,
         base_path=storage_conf.get("base_path"),

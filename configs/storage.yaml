@@ -1,7 +1,7 @@
-type: "file" # file, parquet, s3
+type: "parquet"
 base_path: "data/tick"
-compression: "snappy" # snappy, gzip, brotli
-engine: "auto" # auto (polars/pandas), fastparquet, pyarrow
+compression: "snappy"
+engine: "auto"
 partitioning:
   - "year"
   - "month"

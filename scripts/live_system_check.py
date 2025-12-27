@@ -82,7 +82,7 @@ async def run_live_test():
         # Feliratkozás
         components.event_bus.subscribe("system_log", on_test_event)
         print("     ⏳ ZMQ kapcsolódás...")
-        await asyncio.sleep(0.5) # <--- EZ KELL A SIKERHEZ
+        await asyncio.sleep(1.0) # <--- Növelt timeout a lassú ZMQ indításhoz
         
         # Küldés
         test_msg = SystemLogEvent(
