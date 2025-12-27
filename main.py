@@ -1,46 +1,61 @@
-"""Neural AI Next - Fő indító szkript."""
+"""Neural AI Next - Fő indító szkript.
+
+Ez a modul tartalmazza az alkalmazás fő belépési pontját, amely felelős a core
+komponensek inicializálásáért és az alkalmazás életciklusának kezeléséért.
+"""
 
 import asyncio
 import sys
 from contextlib import suppress
+from typing import TYPE_CHECKING
 
 from neural_ai.core import bootstrap_core
+from neural_ai.core.base.implementations.component_bundle import CoreComponents
+
+# Körkörös importok elkerüléséhez
+if TYPE_CHECKING:
+    from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
-async def main():
-    """Fő alkalmazás belépési pont."""
-    try:
-        # Core komponensek inicializálása
-        components = bootstrap_core()
-        logger = components.logger
+async def main() -> None:
+    """Fő alkalmazás belépési pont.
 
-        if logger:
-            logger.info("system_starting", version="0.5.0")
+    Ez a függvény felelős az alkalmazás teljes életciklusáért:
+    1. Core komponensek inicializálása
+    2. Szolgáltatások indítása (event bus, adatbázis)
+    3. Örök futás biztosítása, amíg le nem állítják
+    4. Hiba kezelése és naplózása
 
-        # Szolgáltatások indítása
-        if components.event_bus:
-            await components.event_bus.start()
+    Raises:
+        SystemExit: Ha kritikus hiba történik az alkalmazás indítása során.
+    """
+    # Core komponensek inicializálása típusos változóval
+    components: CoreComponents = bootstrap_core()
 
-        if components.database:
-            await components.database.initialize()
+    # Logger komponens lekérése és típusos cast
+    logger: LoggerInterface | None = components.logger
 
-        if logger:
-            logger.info("system_running_waiting_for_events")
+    if logger is not None:
+        logger.info("Rendszer indítása", extra={"version": "0.5.0"})
 
-        # Örök futás (amíg nem jön Ctrl+C)
-        # A suppress elnyeli a CancelledError-t leálláskor
-        with suppress(asyncio.CancelledError):
-            await asyncio.Event().wait()
+    # Szolgáltatások indítása
+    event_bus: EventBusInterface | None = components.event_bus
+    if event_bus is not None:
+        await event_bus.start()
 
-    except Exception as e:
-        # Ha van logger, oda írjuk, ha nincs, print
-        if "logger" in locals() and logger:
-            logger.critical("system_crash", error=str(e))
-        else:
-            print(f"CRITICAL SYSTEM ERROR: {e}")
-        sys.exit(1)
-    finally:
-        print("\n🛑 Rendszer leállítva.")
+    database: DatabaseManager | None = components.database
+    if database is not None:
+        await database.initialize()
+
+    if logger is not None:
+        logger.info("Rendszer fut, eseményekre vár")
+
+    # Örök futás (amíg nem jön Ctrl+C)
+    # A suppress elnyeli a CancelledError-t leálláskor
+    with suppress(asyncio.CancelledError):
+        await asyncio.Event().wait()
 
 
 if __name__ == "__main__":
@@ -49,3 +64,9 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         # Ez kapja el a Ctrl+C-t a legfelső szinten
         pass
+    except Exception as e:
+        # Globális hiba kezelése
+        print(f"CRITICAL SYSTEM ERROR: {e}")
+        sys.exit(1)
+    finally:
+        print("\n🛑 Rendszer leállítva.")
