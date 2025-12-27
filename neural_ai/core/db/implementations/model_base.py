@@ -4,11 +4,14 @@ Ez a modul definiálja az összes adatbázis modell által használt alaposztál
 és segédosztályokat a Neural AI Next rendszerben.
 """
 
-from datetime import datetime
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import DateTime, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
+
+if TYPE_CHECKING:
+    pass
 
 
 class Base(DeclarativeBase):
@@ -37,15 +40,15 @@ class Base(DeclarativeBase):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=datetime.utcnow,
+        default=lambda: datetime.now(UTC),
         nullable=False,
         doc="A rekord létrehozásának időpontja (UTC)",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         nullable=False,
         doc="A rekord utolsó módosításának időpontja (UTC)",
     )
@@ -71,7 +74,7 @@ class Base(DeclarativeBase):
         Returns:
             A modell adatait tartalmazó dictionary.
         """
-        result = {}
+        result: dict[str, Any] = {}
         for column in self.__table__.columns:  # type: ignore
             value = getattr(self, column.name)
             if isinstance(value, datetime):
