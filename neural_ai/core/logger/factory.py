@@ -1,42 +1,43 @@
-"""Logger factory implementáció.
+"""Logger factory implementáció structlog használatával.
 
 Ez a modul biztosítja a LoggerFactory osztályt, amely felelős a különböző
 típusú loggerek létrehozásáért és kezeléséért. A factory mintát követve
 lehetővé teszi a dinamikus logger típusok regisztrálását és példányosítását.
 
-A factory támogatja a következő logger típusokat:
-- default: Alapértelmezett konzol logger
-- colored: Színes kimenetű konzol logger
-- rotating: Fájlba író, automatikusan rotáló logger
+A factory kizárólag structlog renderereket használ:
+- Console: structlog.dev.ConsoleRenderer(colors=True)
+- File: structlog.processors.JSONRenderer()
 """
 
 import logging
 import sys
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
+
+import structlog
+from structlog.processors import JSONRenderer
+from structlog.stdlib import ProcessorFormatter
+from structlog.types import Processor
 
 from neural_ai.core.logger.interfaces.factory_interface import LoggerFactoryInterface
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
-if TYPE_CHECKING:
-    from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
-    from neural_ai.core.logger.implementations.default_logger import DefaultLogger
-    from neural_ai.core.logger.implementations.rotating_file_logger import (
-        RotatingFileLogger,
-    )
-else:
-    from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
-    from neural_ai.core.logger.implementations.default_logger import DefaultLogger
-    from neural_ai.core.logger.implementations.rotating_file_logger import (
-        RotatingFileLogger,
-    )
+from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
+from neural_ai.core.logger.implementations.default_logger import DefaultLogger
+from neural_ai.core.logger.implementations.rotating_file_logger import (
+    RotatingFileLogger,
+)
 
 
 class LoggerFactory(LoggerFactoryInterface):
-    """Factory osztály loggerek létrehozásához.
+    """Factory osztály loggerek létrehozásához structlog-gal.
 
     A factory mintát követve centralizálja a logger példányosítást és
     életciklus kezelést. Támogatja a különböző logger implementációk
     regisztrálását és lekérdezését.
+
+    A configure metódus kizárólag structlog renderereket használ:
+    - Console: structlog.dev.ConsoleRenderer(colors=True)
+    - File: structlog.processors.JSONRenderer()
 
     Attributes:
         _logger_types: Regisztrált logger típusok és osztályaik.
@@ -120,39 +121,61 @@ class LoggerFactory(LoggerFactoryInterface):
 
     @classmethod
     def configure(cls, config: dict[str, Any]) -> None:
-        """Logger rendszer konfigurálása.
+        """Logger rendszer konfigurálása structlog-gal.
+
+        A metódus kizárólag structlog renderereket használ:
+        - Console: structlog.dev.ConsoleRenderer(colors=True)
+        - File: structlog.processors.JSONRenderer()
 
         Args:
             config: Konfigurációs dict a következő struktúrával:
                 {
-                    'default_level': 'INFO',
-                    'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    'date_format': '%Y-%m-%d %H:%M:%S',
+                    'default_level': 'DEBUG',
                     'handlers': {
                         'console': {
                             'enabled': True,
-                            'level': 'INFO',
+                            'level': 'DEBUG',
                             'colored': True
                         },
                         'file': {
                             'enabled': True,
-                            'filename': 'logs/app.log',
+                            'filename': 'logs/neural_ai.log',
                             'level': 'DEBUG',
                             'json_format': True,
                             'rotating': True,
                             'max_bytes': 10485760,
-                            'backup_count': 10
+                            'backup_count': 5
                         }
+                    },
+                    'loggers': {
+                        'neural_ai': {'level': 'DEBUG', 'propagate': True},
+                        'aiosqlite': {'level': 'WARNING'},
+                        'asyncio': {'level': 'WARNING'}
                     }
                 }
         """
-        import json
         from pathlib import Path
 
+        # Alap structlog konfiguráció
+        structlog.configure(
+            processors=[
+                structlog.stdlib.filter_by_level,
+                structlog.stdlib.add_logger_name,
+                structlog.stdlib.add_log_level,
+                structlog.stdlib.PositionalArgumentsFormatter(),
+                structlog.processors.TimeStamper(fmt="iso"),
+                structlog.processors.StackInfoRenderer(),
+                structlog.processors.format_exc_info,
+                structlog.processors.UnicodeDecoder(),
+                structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+            ],
+            context_class=dict,
+            logger_factory=structlog.stdlib.LoggerFactory(),
+            cache_logger_on_first_use=True,
+        )
+
         # Alap beállítások
-        default_level = getattr(logging, config.get("default_level", "INFO"))
-        log_format = config.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        date_format = config.get("date_format", "%Y-%m-%d %H:%M:%S")
+        default_level = getattr(logging, config.get("default_level", "DEBUG"))
 
         # Root logger konfigurálása
         root_logger = logging.getLogger()
@@ -164,23 +187,28 @@ class LoggerFactory(LoggerFactoryInterface):
         # Handlerek beállítása
         handlers = config.get("handlers", {})
 
-        # Console handler
+        # Console handler structlog-gal
         console_config = handlers.get("console", {})
         if console_config.get("enabled", False):
             console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setLevel(getattr(logging, console_config.get("level", "INFO")))
+            console_handler.setLevel(getattr(logging, console_config.get("level", "DEBUG")))
 
-            # Színes formatter ellenőrzése
-            if console_config.get("colored", False):
-                from neural_ai.core.logger.formatters.logger_formatters import ColoredFormatter
+            # Console renderer - mindig színes
+            console_processors: list[Processor] = [
+                structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                structlog.dev.ConsoleRenderer(colors=True),
+            ]
 
-                console_handler.setFormatter(ColoredFormatter(log_format, date_format))
-            else:
-                console_handler.setFormatter(logging.Formatter(log_format, date_format))
+            console_handler.setFormatter(
+                ProcessorFormatter(
+                    foreign_pre_chain=[],
+                    processors=console_processors,
+                )
+            )
 
             root_logger.addHandler(console_handler)
 
-        # File handler
+        # File handler structlog-gal
         file_config = handlers.get("file", {})
         if file_config.get("enabled", False):
             filename = file_config.get("filename")
@@ -194,36 +222,38 @@ class LoggerFactory(LoggerFactoryInterface):
                     from logging.handlers import RotatingFileHandler
 
                     max_bytes = file_config.get("max_bytes", 10485760)
-                    backup_count = file_config.get("backup_count", 10)
+                    backup_count = file_config.get("backup_count", 5)
                     file_handler = RotatingFileHandler(
-                        filename, maxBytes=max_bytes, backupCount=backup_count
+                        filename, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8"
                     )
                 else:
-                    file_handler = logging.FileHandler(filename)
+                    file_handler = logging.FileHandler(filename, encoding="utf-8")
 
                 file_handler.setLevel(getattr(logging, file_config.get("level", "DEBUG")))
 
-                # JSON formatter ellenőrzése
-                if file_config.get("json_format", False):
-                    # JSON formatter implementációja
-                    class JSONFormatter(logging.Formatter):
-                        def format(self, record: logging.LogRecord) -> str:
-                            log_data: dict[str, str | int] = {
-                                "timestamp": self.formatTime(record, date_format),
-                                "name": record.name,
-                                "level": record.levelname,
-                                "message": record.getMessage(),
-                                "module": record.module,
-                                "function": record.funcName,
-                                "line": record.lineno,
-                            }
-                            return json.dumps(log_data, ensure_ascii=False)
+                # File renderer - mindig JSON
+                file_processors: list[Processor] = [
+                    structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                    JSONRenderer(),
+                ]
 
-                    file_handler.setFormatter(JSONFormatter())
-                else:
-                    file_handler.setFormatter(logging.Formatter(log_format, date_format))
+                file_handler.setFormatter(
+                    ProcessorFormatter(
+                        foreign_pre_chain=[],
+                        processors=file_processors,
+                    )
+                )
 
                 root_logger.addHandler(file_handler)
+
+        # Egyedi logger konfigurációk beállítása
+        loggers_config = config.get("loggers", {})
+        for logger_name, logger_settings in loggers_config.items():
+            logger_instance = logging.getLogger(logger_name)
+            if "level" in logger_settings:
+                logger_instance.setLevel(getattr(logging, logger_settings["level"]))
+            if "propagate" in logger_settings:
+                logger_instance.propagate = logger_settings["propagate"]
 
     @classmethod
     def get_schema_version(cls) -> str:

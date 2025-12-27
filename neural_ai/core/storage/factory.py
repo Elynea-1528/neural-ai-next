@@ -6,7 +6,7 @@ de további storage típusok is regisztrálhatók dinamikusan.
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from neural_ai.core.storage.exceptions import StorageError
 from neural_ai.core.storage.implementations.file_storage import FileStorage
@@ -15,6 +15,7 @@ from neural_ai.core.storage.interfaces.factory_interface import StorageFactoryIn
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 
@@ -99,6 +100,12 @@ class StorageFactory(StorageFactoryInterface):
             kwargs["hardware"] = hardware
 
         try:
+            # DEBUG log a storage létrehozáshoz
+            logger = kwargs.get("logger")
+            if logger and hasattr(logger, "debug"):
+                logger_interface = cast("LoggerInterface", logger)
+                logger_interface.debug(f"Creating storage instance: type={storage_type}")
+            
             storage = storage_class(**kwargs)
             return storage
         except TypeError as e:

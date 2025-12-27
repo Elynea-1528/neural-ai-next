@@ -124,6 +124,11 @@ class YAMLConfigManager(ConfigManagerInterface):
             current = cast(dict[str, Any], current).get(key)
             if current is None:
                 return default
+        
+        # DEBUG log a konfigurációs lekérdezésekhez
+        if self._logger:
+            self._logger.debug(f"Config get: {'.'.join(keys)} -> {current}")
+        
         return current
 
     def get_section(self, section: str) -> dict[str, Any]:
@@ -403,6 +408,10 @@ class YAMLConfigManager(ConfigManagerInterface):
 
                 # Fájlnév kiterjesztés nélkül (kulcsként használjuk)
                 key = os.path.splitext(filename)[0]
+
+                # DEBUG log a fájlbetöltéshez
+                if self._logger:
+                    self._logger.debug(f"Loading config file: {filename}")
 
                 # Fájl tartalmának betöltése
                 with open(file_path, encoding="utf-8") as f:

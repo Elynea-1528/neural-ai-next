@@ -112,6 +112,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
             self.backend = PolarsBackend()
             self.engine = "polars"
+            # DEBUG log a backend kiválasztáshoz
+            log_msg = f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
+            if self.logger:
+                self.logger.debug(log_msg)
+            else:
+                logger.info(log_msg)
             logger.info(
                 "AVX2 support detected. Using PolarsBackend for accelerated data processing."
             )
@@ -120,6 +126,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
             self.backend = PandasBackend()
             self.engine = "fastparquet"
+            # DEBUG log a backend kiválasztáshoz
+            log_msg = f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
+            if self.logger:
+                self.logger.debug(log_msg)
+            else:
+                logger.info(log_msg)
             logger.warning("Legacy CPU detected. Running in Compatibility Mode with PandasBackend.")
 
     def _get_path(self, symbol: str, date: datetime) -> Path:
