@@ -6,7 +6,9 @@ de további storage típusok is regisztrálhatók dinamikusan.
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
+
+import structlog
 
 from neural_ai.core.storage.exceptions import StorageError
 from neural_ai.core.storage.implementations.file_storage import FileStorage
@@ -15,8 +17,9 @@ from neural_ai.core.storage.interfaces.factory_interface import StorageFactoryIn
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+
+logger = structlog.get_logger(__name__)
 
 
 class StorageFactory(StorageFactoryInterface):
@@ -49,9 +52,12 @@ class StorageFactory(StorageFactoryInterface):
             ...     pass
             >>> StorageFactory.register_storage("s3", S3Storage)
         """
-        if not issubclass(storage_class, StorageInterface):
-            raise ValueError(f"A(z) {storage_class} nem implementálja a StorageInterface-t")
         cls._storage_types[storage_type] = storage_class
+        logger.debug(
+            "Storage type registered",
+            storage_type=storage_type,
+            storage_class=str(storage_class)
+        )
 
     @classmethod
     def get_storage(
@@ -100,17 +106,27 @@ class StorageFactory(StorageFactoryInterface):
             kwargs["hardware"] = hardware
 
         try:
-            # DEBUG log a storage létrehozáshoz
-            logger = kwargs.get("logger")
-            if logger and hasattr(logger, "debug"):
-                logger_interface = cast("LoggerInterface", logger)
-                logger_interface.debug(f"Creating storage instance: type={storage_type}")
-            
+            logger.debug(
+                "Creating storage instance",
+                storage_type=storage_type,
+                storage_class=str(storage_class)
+            )
             storage = storage_class(**kwargs)
+            logger.info("Storage instance created successfully", storage_type=storage_type)
             return storage
         except TypeError as e:
+            logger.error(
+                "Failed to create storage instance due to type error",
+                storage_type=storage_type,
+                error=str(e)
+            )
             raise StorageError(f"Nem sikerült létrehozni a storage példányt: {str(e)}") from e
         except Exception as e:
+            logger.error(
+                "Unexpected error during storage instantiation",
+                storage_type=storage_type,
+                error=str(e)
+            )
             raise StorageError(
                 f"Váratlan hiba történt a storage példányosítása közben: {str(e)}"
             ) from e

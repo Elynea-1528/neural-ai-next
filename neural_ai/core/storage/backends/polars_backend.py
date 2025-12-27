@@ -10,10 +10,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import structlog
+
 from neural_ai.core.storage.backends.base import StorageBackend
 
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
+
+logger = structlog.get_logger(__name__)
 
 # Modul szintű változók a lazy import támogatásához
 # Ezeket a tesztelés során lehet mock-olni

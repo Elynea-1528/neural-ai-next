@@ -5,10 +5,27 @@ amely definiálja a kötelező interfészt minden tárolási implementációhoz.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, TypeAlias
+from typing import Any, Protocol
+
+import structlog
 
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
+
+logger = structlog.get_logger(__name__)
+
+
+class DataFrameProtocol(Protocol):
+    """Protokoll a DataFrame-szerű objektumok típusozásához."""
+
+    @property
+    def columns(self) -> Any:
+        """Lekéri a DataFrame oszlopait."""
+        ...
+
+    def __len__(self) -> int:
+        """Visszaadja a DataFrame sorainak számát."""
+        ...
 
 
 class StorageBackend(ABC):
@@ -177,4 +194,4 @@ class StorageBackend(ABC):
 
 
 # DataFrameType alias a támogatott DataFrame típusokhoz
-DataFrameType: TypeAlias = Any
+type DataFrameType = DataFrameProtocol

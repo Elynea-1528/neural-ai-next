@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, cast
 
 import pandas as pd
+import structlog
 
 from neural_ai.core.base.exceptions import (
     InsufficientDiskSpaceError,
@@ -28,6 +29,8 @@ from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+logger = structlog.get_logger(__name__)
 
 
 class FileStorage(StorageInterface):

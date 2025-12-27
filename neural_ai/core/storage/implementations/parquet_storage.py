@@ -21,8 +21,9 @@ from typing import TYPE_CHECKING, Any, cast
 import structlog
 
 from neural_ai.core.base.implementations.singleton import SingletonMeta
-from neural_ai.core.storage.exceptions import StorageError, StorageIOError, StorageNotFoundError
+from neural_ai.core.storage.exceptions import StorageIOError, StorageNotFoundError
 from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+from neural_ai.core.utils.decorators import trace
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -92,7 +93,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
         # Hardver detekció és backend kiválasztás
         self._select_backend()
-        
+
         # Logolás a saját loggerrel (ha van), vagy a globálissal
         log_msg = f"ParquetStorageService initialized with {self.backend.name} backend"
         if self.logger:
@@ -161,6 +162,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             / "data.parquet"
         )
 
+    @trace
     async def store_tick_data(self, symbol: str, data: Any, date: datetime) -> None:
         """Tick adatok tárolása particionált Parquet formátumban.
 
@@ -211,6 +213,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             backend=self.backend.name,
         )
 
+    @trace
     async def read_tick_data(self, symbol: str, start_date: datetime, end_date: datetime) -> Any:
         """Tick adatok olvasása dátumtartományból.
 
@@ -359,6 +362,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             mask = (pd_data["timestamp"] >= start_date) & (pd_data["timestamp"] <= end_date)
             return pd_data[mask]
 
+    @trace
     async def get_available_dates(self, symbol: str) -> list[datetime]:
         """Elérhető dátumok lekérdezése egy adott szimbólumhoz.
 
@@ -427,6 +431,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             logger.error(f"Failed to calculate checksum: {e}")
             return ""
 
+    @trace
     async def verify_data_integrity(self, symbol: str, date: datetime) -> bool:
         """Adatintegritás ellenőrzése.
 
@@ -539,16 +544,16 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
     def save_dataframe(self, df: "pd.DataFrame", path: str, **kwargs: Any) -> None:
         """DataFrame mentése a megadott útvonalra.
-        
+
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
         A ParquetStorageService saját store_tick_data metódusát használja.
         """
         from datetime import datetime
-        
+
         # Alapértelmezett dátum a mai nap
         date = kwargs.get('date', datetime.now())
         symbol = kwargs.get('symbol', 'DEFAULT')
-        
+
         # Aszinkron hívás szinkron wrapper-ben
         try:
             loop = asyncio.get_event_loop()
@@ -567,16 +572,16 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
     def load_dataframe(self, path: str, **kwargs: Any) -> "pd.DataFrame":
         """DataFrame betöltése a megadott útvonalról.
-        
+
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
         """
         from datetime import datetime, timedelta
-        
+
         # Dátumtartomány kinyerése a path-ból vagy kwargs-ból
         start_date = kwargs.get('start_date', datetime.now() - timedelta(days=1))
         end_date = kwargs.get('end_date', datetime.now())
         symbol = kwargs.get('symbol', 'DEFAULT')
-        
+
         try:
             loop = asyncio.get_event_loop()
             if loop.is_running():
@@ -592,7 +597,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         except RuntimeError:
             # Ha nincs event loop, létrehozunk egyet
             result = asyncio.run(self.read_tick_data(symbol, start_date, end_date))
-        
+
         # Konvertálás pandas DataFrame-re ha szükséges
         if not isinstance(result, pd.DataFrame):
             try:
@@ -601,12 +606,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                     result = result.to_pandas()
             except ImportError:
                 pass
-        
+
         return result
 
     def save_object(self, obj: object, path: str, **kwargs: Any) -> None:
         """Objektum mentése a megadott útvonalra.
-        
+
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
         """
         import pickle
@@ -617,7 +622,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
     def load_object(self, path: str, **kwargs: Any) -> object:
         """Objektum betöltése a megadott útvonalról.
-        
+
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
         """
         import pickle
@@ -635,7 +640,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if not full_path.exists():
             from neural_ai.core.storage.exceptions import StorageNotFoundError
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
-        
+
         stat = full_path.stat()
         return {
             "size": stat.st_size,
@@ -648,11 +653,10 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
     def delete(self, path: str) -> None:
         """Fájl vagy könyvtár törlése."""
-        from neural_ai.core.storage.exceptions import StorageNotFoundError
         full_path = self._get_full_path(path)
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
-        
+
         if full_path.is_file():
             full_path.unlink()
         else:
@@ -661,13 +665,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
     def list_dir(self, path: str, pattern: str | None = None) -> Sequence[Path]:
         """Könyvtár tartalmának listázása."""
-        from neural_ai.core.storage.exceptions import StorageNotFoundError, StorageIOError
         full_path = self._get_full_path(path)
         if not full_path.exists():
             raise StorageNotFoundError(f"Könyvtár nem található: {full_path}")
         if not full_path.is_dir():
             raise StorageIOError(f"Az útvonal nem könyvtár: {full_path}")
-        
+
         pattern = pattern or "*"
         return list(full_path.glob(pattern))
 
