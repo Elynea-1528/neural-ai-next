@@ -1,12 +1,10 @@
 """Tesztek a DynamicConfigManager osztályhoz."""
 
-import asyncio
 from datetime import datetime, timezone
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from neural_ai.core.config.exceptions import ConfigError
@@ -19,7 +17,7 @@ from neural_ai.core.db.implementations.models import DynamicConfig
 @pytest.fixture
 def mock_session() -> AsyncMock:
     """Mock AsyncSession létrehozása."""
-    session = AsyncMock(spec=AsyncSession)
+    session: AsyncMock = AsyncMock(spec=AsyncSession)
     session.execute = AsyncMock()
     session.commit = AsyncMock()
     session.rollback = AsyncMock()
@@ -29,7 +27,8 @@ def mock_session() -> AsyncMock:
 @pytest.fixture
 def mock_logger() -> MagicMock:
     """Mock Logger létrehozása."""
-    return MagicMock()
+    logger: MagicMock = MagicMock()
+    return logger
 
 
 @pytest.fixture
@@ -76,6 +75,7 @@ class TestDynamicConfigManagerInit:
 class TestDynamicConfigManagerGet:
     """DynamicConfigManager get metódusának tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_get_with_multiple_keys_raises_value_error(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -83,6 +83,7 @@ class TestDynamicConfigManagerGet:
         with pytest.raises(ValueError, match="csak egyetlen kulcsot támogat"):
             await config_manager.get("key1", "key2")
 
+    @pytest.mark.asyncio
     async def test_get_from_cache(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -91,6 +92,7 @@ class TestDynamicConfigManagerGet:
         result = await config_manager.get("test_key", default="default_value")
         assert result == "cached_value"
 
+    @pytest.mark.asyncio
     async def test_get_from_database_success(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -102,7 +104,7 @@ class TestDynamicConfigManagerGet:
             value_type="str",
             category="system",
         )
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalar_one_or_none.return_value = mock_config
         mock_session.execute.return_value = mock_result
 
@@ -112,11 +114,12 @@ class TestDynamicConfigManagerGet:
         assert config_manager._cache["test_key"] == "test_value"
         mock_session.execute.assert_awaited_once()
 
+    @pytest.mark.asyncio
     async def test_get_from_database_not_found_returns_default(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
         """Teszt: Alapértelmezett érték visszaadása, ha a kulcs nem található."""
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalar_one_or_none.return_value = None
         mock_session.execute.return_value = mock_result
 
@@ -124,6 +127,7 @@ class TestDynamicConfigManagerGet:
 
         assert result == "default_value"
 
+    @pytest.mark.asyncio
     async def test_get_database_error_raises_config_error(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -137,6 +141,7 @@ class TestDynamicConfigManagerGet:
 class TestDynamicConfigManagerSet:
     """DynamicConfigManager set metódusának tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_set_with_multiple_keys_raises_value_error(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -144,11 +149,12 @@ class TestDynamicConfigManagerSet:
         with pytest.raises(ValueError, match="csak egyetlen kulcsot támogat"):
             await config_manager.set("key1", "key2", value="value")
 
+    @pytest.mark.asyncio
     async def test_set_new_config_success(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
         """Teszt: Új konfiguráció létrehozása."""
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalar_one_or_none.return_value = None
         mock_session.execute.return_value = mock_result
 
@@ -159,6 +165,7 @@ class TestDynamicConfigManagerSet:
         mock_session.commit.assert_awaited_once()
         assert config_manager._cache["new_key"] == "new_value"
 
+    @pytest.mark.asyncio
     async def test_set_existing_config_success(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -169,7 +176,7 @@ class TestDynamicConfigManagerSet:
             value_type="str",
             category="system",
         )
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalar_one_or_none.return_value = mock_config
         mock_session.execute.return_value = mock_result
 
@@ -179,11 +186,12 @@ class TestDynamicConfigManagerSet:
         mock_session.commit.assert_awaited_once()
         assert config_manager._cache["existing_key"] == "updated_value"
 
+    @pytest.mark.asyncio
     async def test_set_database_error_raises_config_error(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
         """Teszt: ConfigError-t dob adatbázis hiba esetén."""
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalar_one_or_none.return_value = None
         mock_session.execute.return_value = mock_result
         mock_session.commit.side_effect = Exception("Database error")
@@ -197,6 +205,7 @@ class TestDynamicConfigManagerSet:
 class TestDynamicConfigManagerGetSection:
     """DynamicConfigManager get_section metódusának tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_get_section_success(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -205,7 +214,7 @@ class TestDynamicConfigManagerGetSection:
             DynamicConfig(key="key1", value="value1", value_type="str", category="risk"),
             DynamicConfig(key="key2", value="value2", value_type="int", category="risk"),
         ]
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalars.return_value.all.return_value = mock_configs
         mock_session.execute.return_value = mock_result
 
@@ -213,17 +222,19 @@ class TestDynamicConfigManagerGetSection:
 
         assert result == {"key1": "value1", "key2": "value2"}
 
+    @pytest.mark.asyncio
     async def test_get_section_not_found_raises_key_error(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
         """Teszt: KeyError-t dob, ha a szekció nem található."""
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalars.return_value.all.return_value = []
         mock_session.execute.return_value = mock_result
 
         with pytest.raises(KeyError, match="Konfigurációs kategória nem található"):
             await config_manager.get_section("nonexistent_category")
 
+    @pytest.mark.asyncio
     async def test_get_section_database_error_raises_config_error(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -237,6 +248,7 @@ class TestDynamicConfigManagerGetSection:
 class TestDynamicConfigManagerNotImplementedMethods:
     """Nem implementált metódusok tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_save_raises_not_implemented_error(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -244,6 +256,7 @@ class TestDynamicConfigManagerNotImplementedMethods:
         with pytest.raises(NotImplementedError):
             await config_manager.save()
 
+    @pytest.mark.asyncio
     async def test_load_raises_not_implemented_error(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -251,6 +264,7 @@ class TestDynamicConfigManagerNotImplementedMethods:
         with pytest.raises(NotImplementedError):
             await config_manager.load("filename")
 
+    @pytest.mark.asyncio
     async def test_load_directory_raises_not_implemented_error(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -262,6 +276,7 @@ class TestDynamicConfigManagerNotImplementedMethods:
 class TestDynamicConfigManagerValidate:
     """DynamicConfigManager validate metódusának tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_validate_success(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -282,6 +297,7 @@ class TestDynamicConfigManagerValidate:
         assert is_valid is True
         assert errors is None
 
+    @pytest.mark.asyncio
     async def test_validate_missing_required_field(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -298,6 +314,7 @@ class TestDynamicConfigManagerValidate:
         assert "missing_key" in errors
         assert errors["missing_key"] == "Kötelező mező hiányzik"
 
+    @pytest.mark.asyncio
     async def test_validate_invalid_type(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -353,6 +370,7 @@ class TestDynamicConfigManagerListeners:
 class TestDynamicConfigManagerHotReload:
     """Hot reload metódusok tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_start_hot_reload_success(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -365,6 +383,7 @@ class TestDynamicConfigManagerHotReload:
         # Hot reload leállítása
         await config_manager.stop_hot_reload()
 
+    @pytest.mark.asyncio
     async def test_start_hot_reload_when_already_running_raises_runtime_error(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -376,6 +395,7 @@ class TestDynamicConfigManagerHotReload:
 
         await config_manager.stop_hot_reload()
 
+    @pytest.mark.asyncio
     async def test_stop_hot_reload_success(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -386,6 +406,7 @@ class TestDynamicConfigManagerHotReload:
         assert config_manager._hot_reload_task is None
         assert config_manager._stop_hot_reload.is_set()
 
+    @pytest.mark.asyncio
     async def test_stop_hot_reload_when_not_running_no_error(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -397,6 +418,7 @@ class TestDynamicConfigManagerHotReload:
 class TestDynamicConfigManagerGetAll:
     """DynamicConfigManager get_all metódusának tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_get_all_success(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -405,7 +427,7 @@ class TestDynamicConfigManagerGetAll:
             DynamicConfig(key="key1", value="value1", value_type="str", category="system"),
             DynamicConfig(key="key2", value="value2", value_type="int", category="risk"),
         ]
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalars.return_value.all.return_value = mock_configs
         mock_session.execute.return_value = mock_result
 
@@ -413,6 +435,7 @@ class TestDynamicConfigManagerGetAll:
 
         assert result == {"key1": "value1", "key2": "value2"}
 
+    @pytest.mark.asyncio
     async def test_get_all_with_category_filter(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -420,7 +443,7 @@ class TestDynamicConfigManagerGetAll:
         mock_configs = [
             DynamicConfig(key="key1", value="value1", value_type="str", category="risk"),
         ]
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalars.return_value.all.return_value = mock_configs
         mock_session.execute.return_value = mock_result
 
@@ -428,6 +451,7 @@ class TestDynamicConfigManagerGetAll:
 
         assert result == {"key1": "value1"}
 
+    @pytest.mark.asyncio
     async def test_get_all_database_error_raises_config_error(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -441,11 +465,12 @@ class TestDynamicConfigManagerGetAll:
 class TestDynamicConfigManagerSetWithMetadata:
     """DynamicConfigManager set_with_metadata metódusának tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_set_with_metadata_new_config_success(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
         """Teszt: Új konfiguráció létrehozása metaadatokkal."""
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalar_one_or_none.return_value = None
         mock_session.execute.return_value = mock_result
 
@@ -461,6 +486,7 @@ class TestDynamicConfigManagerSetWithMetadata:
         mock_session.commit.assert_awaited_once()
         assert config_manager._cache["test_key"] == "test_value"
 
+    @pytest.mark.asyncio
     async def test_set_with_metadata_existing_config_success(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -471,7 +497,7 @@ class TestDynamicConfigManagerSetWithMetadata:
             value_type="str",
             category="system",
         )
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalar_one_or_none.return_value = mock_config
         mock_session.execute.return_value = mock_result
 
@@ -493,6 +519,7 @@ class TestDynamicConfigManagerSetWithMetadata:
 class TestDynamicConfigManagerDelete:
     """DynamicConfigManager delete metódusának tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_delete_existing_config_success(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -504,7 +531,7 @@ class TestDynamicConfigManagerDelete:
             category="system",
             is_active=True,
         )
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalar_one_or_none.return_value = mock_config
         mock_session.execute.return_value = mock_result
 
@@ -515,11 +542,12 @@ class TestDynamicConfigManagerDelete:
         mock_session.commit.assert_awaited_once()
         assert "test_key" not in config_manager._cache
 
+    @pytest.mark.asyncio
     async def test_delete_nonexistent_config_returns_false(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
         """Teszt: False visszaadása, ha a konfiguráció nem található."""
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalar_one_or_none.return_value = None
         mock_session.execute.return_value = mock_result
 
@@ -527,6 +555,7 @@ class TestDynamicConfigManagerDelete:
 
         assert result is False
 
+    @pytest.mark.asyncio
     async def test_delete_database_error_raises_config_error(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -537,7 +566,7 @@ class TestDynamicConfigManagerDelete:
             value_type="str",
             category="system",
         )
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalar_one_or_none.return_value = mock_config
         mock_session.execute.return_value = mock_result
         mock_session.commit.side_effect = Exception("Database error")
@@ -593,6 +622,7 @@ class TestDynamicConfigManagerDetermineValueType:
 class TestDynamicConfigManagerNotifyListeners:
     """_notify_listeners metódus tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_notify_listeners_success(
         self, config_manager: DynamicConfigManager
     ) -> None:
@@ -614,6 +644,7 @@ class TestDynamicConfigManagerNotifyListeners:
         assert listener_key == "test_key"
         assert listener_value == "test_value"
 
+    @pytest.mark.asyncio
     async def test_notify_listeners_with_exception_in_listener(
         self, config_manager: DynamicConfigManager, mock_logger: MagicMock
     ) -> None:
@@ -647,6 +678,7 @@ class TestDynamicConfigManagerNotifyListeners:
 class TestDynamicConfigManagerCheckForUpdates:
     """_check_for_updates metódus tesztjei."""
 
+    @pytest.mark.asyncio
     async def test_check_for_updates_first_time_loads_all(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -656,7 +688,7 @@ class TestDynamicConfigManagerCheckForUpdates:
         mock_configs = [
             DynamicConfig(key="key1", value="value1", value_type="str", category="system"),
         ]
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalars.return_value.all.return_value = mock_configs
         mock_session.execute.return_value = mock_result
 
@@ -665,6 +697,7 @@ class TestDynamicConfigManagerCheckForUpdates:
         assert config_manager._cache == {"key1": "value1"}
         assert config_manager._last_update is not None
 
+    @pytest.mark.asyncio
     async def test_check_for_updates_with_changes(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
@@ -679,7 +712,7 @@ class TestDynamicConfigManagerCheckForUpdates:
             value_type="str",
             category="system",
         )
-        mock_result = MagicMock()
+        mock_result: MagicMock = MagicMock()
         mock_result.scalars.return_value.all.return_value = [updated_config]
         mock_session.execute.return_value = mock_result
 
@@ -696,6 +729,7 @@ class TestDynamicConfigManagerCheckForUpdates:
         assert config_manager._cache["updated_key"] == "new_value"
         assert listener_called is True
 
+    @pytest.mark.asyncio
     async def test_check_for_updates_database_error_logged(
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock, mock_logger: MagicMock
     ) -> None:
