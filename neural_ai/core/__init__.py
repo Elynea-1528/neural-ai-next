@@ -4,12 +4,27 @@ Ez a modul a rendszer alapvető infrastrukturális komponenseit tartalmazza:
 - Logger rendszer
 - Konfiguráció kezelés
 - Adattárolás
+- Rendszer monitorozás
 
 A modul biztosítja a core komponensek megfelelő inicializálását és
 függőségi injektálását, elkerülve a körkörös függőségeket.
 """
 
-from neural_ai.core.base.implementations.component_bundle import CoreComponents
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from neural_ai.core.base.implementations.component_bundle import CoreComponents
+    from neural_ai.core.config.interfaces.config_interface import (
+        ConfigManagerInterface,  # noqa: F401
+    )
+    from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager  # noqa: F401
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface  # noqa: F401
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface  # noqa: F401
+    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface  # noqa: F401
+    from neural_ai.core.system.interfaces.health_interface import (
+        HealthMonitorInterface,  # noqa: F401
+    )
+    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface  # noqa: F401
 
 
 def get_version() -> str:
@@ -36,7 +51,9 @@ def get_schema_version() -> str:
     return "1.0.0"
 
 
-def bootstrap_core(config_path: str | None = None, log_level: str | None = None) -> CoreComponents:
+def bootstrap_core(
+    config_path: str | None = None, log_level: str | None = None
+) -> "CoreComponents":
     """Bootstrap funkció a core komponensek inicializálásához.
 
     Ez a függvény biztosítja a core komponensek megfelelő sorrendű
@@ -49,13 +66,21 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
     4. DatabaseFactory - Adatbázis kapcsolat létrehozása (Config+Logger)
     5. EventBusFactory - Esemény busz inicializálása (Config+Logger)
     6. StorageFactory - Tárhely inicializálása (Config+Logger+HardwareInfo)
+    7. SystemFactory - Rendszer monitorozás (Config+Logger)
 
     Args:
-        config_path: Opcionális konfigurációs fájl útvonala
-        log_level: Opcionális log szint beállítás
+        config_path: Opcionális konfigurációs fájl útvonala. Ha None, akkor
+            a 'configs' könyvtárat tölti be.
+        log_level: Opcionális log szint beállítás. Ha None, akkor a konfigurációból
+            olvassa ki.
 
     Returns:
         A teljesen inicializált CoreComponents példány
+
+    Raises:
+        ConfigError: Ha a konfiguráció betöltése sikertelen
+        LoggerError: Ha a logger inicializálása sikertelen
+        DatabaseError: Ha az adatbázis kapcsolat létrehozása sikertelen
 
     Example:
         >>> core = bootstrap_core()
@@ -64,10 +89,10 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
         >>> await core.event_bus.start()
     """
     # Importok a függőségi körkörök elkerüléséhez
+    from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.base.implementations.di_container import DIContainer
     from neural_ai.core.config.factory import ConfigManagerFactory
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-    from neural_ai.core.db.factory import DatabaseFactory
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.factory import EventBusFactory
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
@@ -75,6 +100,8 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.factory import StorageFactory
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.core.system.factory import SystemComponentFactory
+    from neural_ai.core.system.interfaces.health_interface import HealthMonitorInterface
     from neural_ai.core.utils.factory import HardwareFactory
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
@@ -85,21 +112,22 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
     hardware = HardwareFactory.get_hardware_info()
     container.register_instance(HardwareInterface, hardware)
 
-    # 2. Konfiguráció létrehozása (Fájl nélkül inicializáljuk!)
+    # 2. Konfiguráció létrehozása
     config = ConfigManagerFactory.create_manager("yaml")
     # Betöltjük a configs/ mappát
     config.load_directory("configs")
     container.register_instance(ConfigManagerInterface, config)
 
     # 3. Logger inicializálása a konfiggal
-    logging_config = config.get_section("logging")
+    logging_config = config.get_section("logging") or {}
     LoggerFactory.configure(logging_config)
     # Alap logger példány létrehozása
     logger = LoggerFactory.get_logger(name="NeuralAI", logger_type="default")
     container.register_instance(LoggerInterface, logger)
 
     # 4. Adatbázis inicializálása (Config+Logger)
-    database = DatabaseFactory.create_manager(config_manager=config)
+    database = ConfigManagerFactory.create_manager("database")
+    database.load_directory("configs")
     container.register_instance(DatabaseManager, database)
 
     # 5. EventBus inicializálása (Config+Logger)
@@ -112,10 +140,16 @@ def bootstrap_core(config_path: str | None = None, log_level: str | None = None)
     )
     container.register_instance(StorageInterface, storage)
 
+    # 7. Rendszer monitorozás inicializálása
+    health_monitor = SystemComponentFactory.create_health_monitor(
+        name="core", logger=logger
+    )
+    container.register_instance(HealthMonitorInterface, health_monitor)
+
     return CoreComponents(container=container)
 
 
-def get_core_components() -> CoreComponents:
+def get_core_components() -> "CoreComponents":
     """Globális core komponensek lekérdezése.
 
     Ez a függvény egy szingleton példányt ad vissza a core komponensekből,
@@ -137,7 +171,6 @@ def get_core_components() -> CoreComponents:
 
 # Publikus interfészek exportálása a könnyű hozzáférés érdekében
 __all__ = [
-    "CoreComponents",
     "bootstrap_core",
     "get_core_components",
     "get_version",
