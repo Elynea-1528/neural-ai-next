@@ -5,10 +5,12 @@ beleértve a hardver detekciót, típuskonverziókat és egyéb általános cél
 eszközöket.
 """
 
+from neural_ai.core.utils.decorators import trace
 from neural_ai.core.utils.factory import HardwareFactory
 from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 __all__ = [
     "HardwareFactory",
     "HardwareInterface",
+    "trace",
 ]
