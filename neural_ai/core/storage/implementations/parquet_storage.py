@@ -17,13 +17,14 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-import pandas as pd
-import polars as pl
 import structlog
 
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 
 if TYPE_CHECKING:
+    import pandas as pd
+    import polars as pl
+
     from neural_ai.core.storage.backends.base import StorageBackend
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
@@ -105,9 +106,7 @@ class ParquetStorageService(metaclass=SingletonMeta):
 
             self.backend = PandasBackend()
             self.engine = "fastparquet"
-            logger.warning(
-                "Legacy CPU detected. Running in Compatibility Mode with PandasBackend."
-            )
+            logger.warning("Legacy CPU detected. Running in Compatibility Mode with PandasBackend.")
 
     def _get_path(self, symbol: str, date: datetime) -> Path:
         """Elérési út generálása a megadott szimbólumhoz és dátumhoz.
@@ -136,9 +135,7 @@ class ParquetStorageService(metaclass=SingletonMeta):
             / "data.parquet"
         )
 
-    async def store_tick_data(
-        self, symbol: str, data: "pd.DataFrame | pl.DataFrame", date: datetime
-    ) -> None:
+    async def store_tick_data(self, symbol: str, data: Any, date: datetime) -> None:
         """Tick adatok tárolása particionált Parquet formátumban.
 
         Args:
@@ -188,9 +185,7 @@ class ParquetStorageService(metaclass=SingletonMeta):
             backend=self.backend.name,
         )
 
-    async def read_tick_data(
-        self, symbol: str, start_date: datetime, end_date: datetime
-    ) -> "pd.DataFrame | pl.DataFrame":
+    async def read_tick_data(self, symbol: str, start_date: datetime, end_date: datetime) -> Any:
         """Tick adatok olvasása dátumtartományból.
 
         Args:
@@ -230,8 +225,12 @@ class ParquetStorageService(metaclass=SingletonMeta):
             )
             # Üres DataFrame visszaadása a backend típusának megfelelően
             if self.engine == "polars":
+                import polars as pl
+
                 return pl.DataFrame()
             else:
+                import pandas as pd
+
                 return pd.DataFrame()
 
         # Adatok betöltése párhuzamosan a backend-en keresztül
@@ -245,8 +244,12 @@ class ParquetStorageService(metaclass=SingletonMeta):
             result = self._filter_by_timestamp(result, start_date, end_date)
         else:
             if self.engine == "polars":
+                import polars as pl
+
                 result = pl.DataFrame()
             else:
+                import pandas as pd
+
                 result = pd.DataFrame()
 
         logger.info(
@@ -261,7 +264,7 @@ class ParquetStorageService(metaclass=SingletonMeta):
 
         return result
 
-    async def _read_parquet_async(self, path: Path) -> "pd.DataFrame | pl.DataFrame":
+    async def _read_parquet_async(self, path: Path) -> Any:
         """Aszinkron Parquet olvasás.
 
         Args:
@@ -276,9 +279,7 @@ class ParquetStorageService(metaclass=SingletonMeta):
             await loop.run_in_executor(None, self.backend.read, str(path)),
         )
 
-    def _concat_dataframes(
-        self, dfs: list["pd.DataFrame | pl.DataFrame"]
-    ) -> "pd.DataFrame | pl.DataFrame":
+    def _concat_dataframes(self, dfs: list[Any]) -> Any:
         """DataFrame-ek összefűzése a backend típusának megfelelően.
 
         Args:
@@ -288,16 +289,20 @@ class ParquetStorageService(metaclass=SingletonMeta):
             Az összefűzött DataFrame
         """
         if self.engine == "polars":
+            import polars as pl
+
             return pl.concat(dfs)
         else:
+            import pandas as pd
+
             return pd.concat(dfs, ignore_index=True)
 
     def _filter_by_timestamp(
         self,
-        data: "pd.DataFrame | pl.DataFrame",
+        data: Any,
         start_date: datetime,
         end_date: datetime,
-    ) -> "pd.DataFrame | pl.DataFrame":
+    ) -> Any:
         """DataFrame szűrése időbélyeg alapján.
 
         Args:
@@ -309,17 +314,20 @@ class ParquetStorageService(metaclass=SingletonMeta):
             A szűrt DataFrame
         """
         if self.engine == "polars":
+            import polars as pl
+
             pl_data = cast(pl.DataFrame, data)
             # A filter metódus a Polars DataFrame-et adja vissza
             return pl_data.filter(
                 (pl.col("timestamp") >= start_date) & (pl.col("timestamp") <= end_date)
             )
         else:
+            import pandas as pd
+
             pd_data = cast(pd.DataFrame, data)
             # A pandas filter más, itt a boolean indexelést használjuk
             mask = (pd_data["timestamp"] >= start_date) & (pd_data["timestamp"] <= end_date)
             return pd_data[mask]
-            
 
     async def get_available_dates(self, symbol: str) -> list[datetime]:
         """Elérhető dátumok lekérdezése egy adott szimbólumhoz.
@@ -375,9 +383,13 @@ class ParquetStorageService(metaclass=SingletonMeta):
             df = self.backend.read(str(path))
             # Csak a fontos oszlopok alapján
             if self.engine == "polars":
+                import polars as pl
+
                 pl_df = cast(pl.DataFrame, df)
                 data_str = pl_df.select(["timestamp", "bid", "ask"]).write_csv()
             else:
+                import pandas as pd
+
                 pd_df = cast(pd.DataFrame, df)
                 data_str = pd_df[["timestamp", "bid", "ask"]].to_csv(index=False)
             return hashlib.sha256(data_str.encode()).hexdigest()
@@ -417,6 +429,8 @@ class ParquetStorageService(metaclass=SingletonMeta):
 
             # Rendezés ellenőrzése
             if self.engine == "polars":
+                import polars as pl
+
                 pl_df = cast(pl.DataFrame, df)
                 # Egyszerűbb ellenőrzés: csak azt nézzük, hogy a timestamp oszlop monoton növekvő-e
                 # A Polars Series-nek nincs is_monotonic_increasing property-je, ezért
@@ -425,6 +439,8 @@ class ParquetStorageService(metaclass=SingletonMeta):
                 is_sorted = (pl_df["timestamp"] == sorted_timestamp).all()
                 assert is_sorted, "Data not sorted by timestamp"
             else:
+                import pandas as pd
+
                 pd_df = cast(pd.DataFrame, df)
                 assert pd_df["timestamp"].is_monotonic_increasing, "Data not sorted by timestamp"
 

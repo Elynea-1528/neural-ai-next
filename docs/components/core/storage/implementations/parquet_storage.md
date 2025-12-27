@@ -54,9 +54,9 @@ Tick adatok tárolása particionált Parquet formátumban.
 
 ```python
 async def store_tick_data(
-    self, 
-    symbol: str, 
-    data: "pd.DataFrame | pl.DataFrame", 
+    self,
+    symbol: str,
+    data: Any,
     date: datetime
 ) -> None
 ```
@@ -75,11 +75,11 @@ Tick adatok olvasása dátumtartományból.
 
 ```python
 async def read_tick_data(
-    self, 
-    symbol: str, 
-    start_date: datetime, 
+    self,
+    symbol: str,
+    start_date: datetime,
     end_date: datetime
-) -> "pd.DataFrame | pl.DataFrame"
+) -> Any
 ```
 
 **Paraméterek:**
@@ -259,13 +259,15 @@ A szolgáltatás automatikusan detektálja a hardver képességeket:
    - Széleskörű támogatás
    - Megbízható működés
 
-## Típusos támogatás
+## Lazy Import és Kompatibilitás
 
-A szolgáltatás mind a Pandas, mind a Polars DataFrame-eket támogatja:
+A szolgáltatás **Lazy Import** technikát használ a kompatibilitás érdekében:
 
-- **Tárolás**: Bármelyik DataFrame típust eltárolja
-- **Olvasás**: A backend típusának megfelelő DataFrame-et ad vissza
-- **Konverzió**: Automatikus konverzió a backend igényei szerint
+- **Globális importok elkerülése**: A `pandas` és `polars` modulok nincsenek globálisan importálva
+- **Helyi importok**: A modulok csak akkor töltődnek be, amikor ténylegesen szükség van rájuk
+- **CPU kompatibilitás**: Ez megakadályozza az összeomlást olyan régi CPU-kon (pl. Phenom II), amelyek nem támogatják az AVX2 utasításkészletet
+- **Típusannotációk**: A `TYPE_CHECKING` blokkban vannak a típusok, így a futásidőben nem szükséges a modulok jelenléte
+- **Dinamikus backend kiválasztás**: A hardver detekció után a megfelelő backend modulja töltődik be
 
 ## Hibakezelés
 
