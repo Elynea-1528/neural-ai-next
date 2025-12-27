@@ -1,6 +1,5 @@
 """YAMLConfigManager tesztek."""
 
-import os
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -22,14 +21,14 @@ class TestValidationContext:
         """Teszteli a ValidationContext inicializálását."""
         errors: dict[str, str] = {}
         schema: dict[str, Any] = {"type": "str"}
-        
+
         ctx = ValidationContext(
             path="test.path",
             errors=errors,
             value="test_value",
             schema=schema
         )
-        
+
         assert ctx.path == "test.path"
         assert ctx.errors is errors
         assert ctx.value == "test_value"
@@ -39,14 +38,14 @@ class TestValidationContext:
         """Teszteli a ValidationContext inicializálását None értékkel."""
         errors: dict[str, str] = {}
         schema: dict[str, Any] = {"type": "str", "optional": True}
-        
+
         ctx = ValidationContext(
             path="test.path",
             errors=errors,
             value=None,
             schema=schema
         )
-        
+
         assert ctx.path == "test.path"
         assert ctx.value is None
 
@@ -185,10 +184,10 @@ class TestYAMLConfigManager:
         """Teszteli a konfiguráció mentését fájlnévvel."""
         manager = YAMLConfigManager()
         manager.set("key", value="value")
-        
+
         save_path = temp_dir / "saved_config.yaml"
         manager.save(filename=str(save_path))
-        
+
         assert save_path.exists()
         with open(save_path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
@@ -199,7 +198,7 @@ class TestYAMLConfigManager:
         """Teszteli a konfiguráció mentését fájlnév nélkül."""
         manager = YAMLConfigManager()
         manager.set("key", value="value")
-        
+
         with pytest.raises(ValueError, match="Nincs fájlnév megadva"):
             manager.save()
 
@@ -211,14 +210,14 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager(filename=str(config_path))
         manager.set("key", value="value")
         manager.save()
-        
+
         assert config_path.exists()
 
     def test_load_existing_file(self, config_file: Path) -> None:
         """Teszteli a konfiguráció betöltését létező fájlból."""
         manager = YAMLConfigManager()
         manager.load(str(config_file))
-        
+
         assert manager._filename == str(config_file)
         assert manager.get("database", "host") == "localhost"
 
@@ -226,7 +225,7 @@ class TestYAMLConfigManager:
         """Teszteli a konfiguráció betöltését nem létező fájlból."""
         manager = YAMLConfigManager()
         nonexistent_path = temp_dir / "nonexistent.yaml"
-        
+
         with pytest.raises(ConfigLoadError, match="Fájl nem található"):
             manager.load(str(nonexistent_path))
 
@@ -235,7 +234,7 @@ class TestYAMLConfigManager:
         invalid_path = temp_dir / "invalid.yaml"
         with open(invalid_path, "w", encoding="utf-8") as f:
             f.write("invalid: yaml: content: [")
-        
+
         manager = YAMLConfigManager()
         with pytest.raises(ConfigLoadError, match="Konfiguráció betöltése sikertelen"):
             manager.load(str(invalid_path))
@@ -249,10 +248,10 @@ class TestYAMLConfigManager:
         }
         with open(config_path, "w", encoding="utf-8") as f:
             yaml.dump(config_data, f)
-        
+
         manager = YAMLConfigManager()
         manager.load(str(config_path))
-        
+
         assert manager.get("key") == "value"
         # A séma verziót eltávolítja a betöltéskor
         assert manager.get("_schema_version") is None
@@ -262,7 +261,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("database", "host", value="localhost")
         manager.set("database", "port", value=5432)
-        
+
         schema = {
             "database": {
                 "type": "dict",
@@ -272,7 +271,7 @@ class TestYAMLConfigManager:
                 }
             }
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is True
         assert errors is None
@@ -281,11 +280,11 @@ class TestYAMLConfigManager:
         """Teszteli a konfiguráció validálását érvénytelen típussal."""
         manager = YAMLConfigManager()
         manager.set("port", value="not_a_number")
-        
+
         schema = {
             "port": {"type": "int"}
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
         assert errors is not None
@@ -294,11 +293,11 @@ class TestYAMLConfigManager:
     def test_validate_missing_required(self) -> None:
         """Teszteli a konfiguráció validálását hiányzó kötelező mezővel."""
         manager = YAMLConfigManager()
-        
+
         schema = {
             "required_field": {"type": "str"}
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
         assert errors is not None
@@ -307,11 +306,11 @@ class TestYAMLConfigManager:
     def test_validate_optional_field(self) -> None:
         """Teszteli a konfiguráció validálását opcionális mezővel."""
         manager = YAMLConfigManager()
-        
+
         schema = {
             "optional_field": {"type": "str", "optional": True}
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is True
         assert errors is None
@@ -320,11 +319,11 @@ class TestYAMLConfigManager:
         """Teszteli a choices validálását érvényes értékkel."""
         manager = YAMLConfigManager()
         manager.set("level", value="INFO")
-        
+
         schema = {
             "level": {"type": "str", "choices": ["DEBUG", "INFO", "WARNING"]}
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is True
         assert errors is None
@@ -333,11 +332,11 @@ class TestYAMLConfigManager:
         """Teszteli a choices validálását érvénytelen értékkel."""
         manager = YAMLConfigManager()
         manager.set("level", value="INVALID")
-        
+
         schema = {
             "level": {"type": "str", "choices": ["DEBUG", "INFO", "WARNING"]}
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
         assert errors is not None
@@ -347,11 +346,11 @@ class TestYAMLConfigManager:
         """Teszteli a range validálását érvényes értékkel."""
         manager = YAMLConfigManager()
         manager.set("port", value=8080)
-        
+
         schema = {
             "port": {"type": "int", "min": 1, "max": 65535}
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is True
         assert errors is None
@@ -360,11 +359,11 @@ class TestYAMLConfigManager:
         """Teszteli a range validálását érvénytelen minimum értékkel."""
         manager = YAMLConfigManager()
         manager.set("port", value=0)
-        
+
         schema = {
             "port": {"type": "int", "min": 1, "max": 65535}
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
         assert errors is not None
@@ -374,11 +373,11 @@ class TestYAMLConfigManager:
         """Teszteli a range validálását érvénytelen maximum értékkel."""
         manager = YAMLConfigManager()
         manager.set("port", value=70000)
-        
+
         schema = {
             "port": {"type": "int", "min": 1, "max": 65535}
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
         assert errors is not None
@@ -389,7 +388,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("database", "host", value="localhost")
         manager.set("database", "port", value=5432)
-        
+
         schema = {
             "database": {
                 "type": "dict",
@@ -399,7 +398,7 @@ class TestYAMLConfigManager:
                 }
             }
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is True
         assert errors is None
@@ -409,7 +408,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("database", "host", value="localhost")
         manager.set("database", "port", value="not_a_number")
-        
+
         schema = {
             "database": {
                 "type": "dict",
@@ -419,7 +418,7 @@ class TestYAMLConfigManager:
                 }
             }
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
         assert errors is not None
@@ -429,24 +428,24 @@ class TestYAMLConfigManager:
         # Hozz létre több YAML fájlt
         configs_dir = temp_dir / "configs"
         configs_dir.mkdir()
-        
+
         # system.yaml
         system_config = {"app_name": "TestApp", "debug": True}
         with open(configs_dir / "system.yaml", "w", encoding="utf-8") as f:
             yaml.dump(system_config, f)
-        
+
         # database.yaml
         db_config = {"host": "localhost", "port": 5432}
         with open(configs_dir / "database.yaml", "w", encoding="utf-8") as f:
             yaml.dump(db_config, f)
-        
+
         manager = YAMLConfigManager()
         manager.load_directory(str(configs_dir))
-        
+
         # Ellenőrizd a namespaced betöltést
         assert manager.get("system", "app_name") == "TestApp"
         assert manager.get("database", "host") == "localhost"
-        
+
         # Ellenőrizd a system.yaml gyökérbe betöltését
         assert manager.get("app_name") == "TestApp"
         assert manager.get("debug") is True
@@ -455,7 +454,7 @@ class TestYAMLConfigManager:
         """Teszteli a mappa betöltését nem létező mappából."""
         manager = YAMLConfigManager()
         nonexistent_dir = temp_dir / "nonexistent"
-        
+
         with pytest.raises(ConfigLoadError, match="Konfigurációs mappa nem található"):
             manager.load_directory(str(nonexistent_dir))
 
@@ -463,9 +462,9 @@ class TestYAMLConfigManager:
         """Teszteli a mappa betöltését, ha az útvonal nem mappa."""
         file_path = temp_dir / "not_a_dir"
         file_path.touch()
-        
+
         manager = YAMLConfigManager()
-        
+
         with pytest.raises(ConfigLoadError, match="Az útvonal nem egy mappa"):
             manager.load_directory(str(file_path))
 
@@ -473,7 +472,7 @@ class TestYAMLConfigManager:
         """Teszteli a _validate_dict metódust nem dictionary értékkel."""
         manager = YAMLConfigManager()
         manager.set("key", value="not_a_dict")
-        
+
         schema = {
             "key": {
                 "type": "dict",
@@ -482,7 +481,7 @@ class TestYAMLConfigManager:
                 }
             }
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
         assert errors is not None
@@ -492,11 +491,11 @@ class TestYAMLConfigManager:
         """Teszteli a validálást nem támogatott típussal."""
         manager = YAMLConfigManager()
         manager.set("key", value="value")
-        
+
         schema = {
             "key": {"type": "unsupported_type"}
         }
-        
+
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
         assert errors is not None
@@ -506,20 +505,20 @@ class TestYAMLConfigManager:
         """Teszteli, hogy a save létrehozza a könyvtárat, ha az nem létezik."""
         manager = YAMLConfigManager()
         manager.set("key", value="value")
-        
+
         save_path = temp_dir / "nested" / "dir" / "config.yaml"
         manager.save(filename=str(save_path))
-        
+
         assert save_path.exists()
 
     def test_save_error_handling(self, temp_dir: Path) -> None:
         """Teszteli a hibakezelést mentéskor."""
         manager = YAMLConfigManager()
         manager.set("key", value="value")
-        
+
         # Próbálj meg menteni egy érvénytelen útvonalra
         invalid_path = temp_dir / "invalid" / ".." / ".." / ".." / "readonly" / "config.yaml"
-        
+
         # Ez valószínűleg nem fog hibát dobni, de teszteljük a hibakezelést
         try:
             manager.save(filename=str(invalid_path))
