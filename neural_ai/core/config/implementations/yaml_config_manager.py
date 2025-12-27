@@ -250,7 +250,15 @@ class YAMLConfigManager(ConfigManagerInterface):
         return not bool(ctx.errors), ctx.errors if ctx.errors else None
 
     def _validate_dict(self, ctx: ValidationContext) -> None:
-        """Rekurzív séma validáció."""
+        """Rekurzív séma validáció.
+
+        Args:
+            ctx: Validációs kontextus a konfigurációs adatokkal
+        """
+        if not isinstance(ctx.value, dict):
+            ctx.errors[ctx.path] = "Dictionary típusú érték szükséges a validáláshoz"
+            return
+
         config = cast(dict[str, Any], ctx.value)
         for key, schema_value in ctx.schema.items():
             current_path = f"{ctx.path}.{key}" if ctx.path else key
@@ -314,7 +322,11 @@ class YAMLConfigManager(ConfigManagerInterface):
         return True
 
     def _validate_nested(self, ctx: ValidationContext) -> None:
-        """Beágyazott értékek validálása."""
+        """Beágyazott értékek validálása.
+
+        Args:
+            ctx: Validációs kontextus
+        """
         if ctx.schema.get("type") == "dict" and "schema" in ctx.schema:
             if not isinstance(ctx.value, dict):
                 ctx.errors[ctx.path] = "Dictionary típusú érték szükséges"
@@ -322,7 +334,7 @@ class YAMLConfigManager(ConfigManagerInterface):
             nested_ctx = ValidationContext(
                 path=ctx.path,
                 errors=ctx.errors,
-                value=cast(dict[str, Any], ctx.value),
+                value=ctx.value,
                 schema=ctx.schema["schema"],
             )
             self._validate_dict(nested_ctx)
