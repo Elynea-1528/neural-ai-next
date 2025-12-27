@@ -8,6 +8,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -290,6 +291,32 @@ class DatabaseManager(metaclass=SingletonMeta):
                 raise
             finally:
                 await session.close()
+
+    async def get_active_configs(self) -> dict[str, Any]:
+        """Aktív dinamikus konfigurációk lekérdezése.
+
+        Visszaadja az összes aktív dinamikus konfigurációt kulcs-érték párokként.
+
+        Returns:
+            Szótár az aktív konfigurációkulcsokkal és értékeikkel.
+
+        Raises:
+            RuntimeError: Ha a kezelő nincs inicializálva.
+        """
+        from .models import DynamicConfig  # Körkörös import elkerülése
+
+        if self._session_maker is None:
+            raise RuntimeError(
+                "Adatbázis kezelő nincs inicializálva. "
+                "Hívd meg először az initialize() metódust."
+            )
+
+        async with self._session_maker() as session:
+            stmt = select(DynamicConfig).where(DynamicConfig.is_active == True)
+            result = await session.execute(stmt)
+            configs = result.scalars().all()
+
+            return {config.key: config.value for config in configs}
 
     async def close(self) -> None:
         """Adatbázis kapcsolat lezárása.
