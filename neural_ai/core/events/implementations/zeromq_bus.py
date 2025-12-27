@@ -9,14 +9,16 @@ Version: 1.0.0
 
 import asyncio
 import json
-import logging
 from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional
 
+import structlog
+
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.events.exceptions import EventBusError, PublishError
-from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig, EventBusInterface
+from neural_ai.core.utils.decorators import trace
 
 # Csak típusellenőrzéskor importáljuk, hogy elkerüljük a körkörös importot
 if TYPE_CHECKING:
@@ -25,14 +27,10 @@ if TYPE_CHECKING:
     from pydantic import BaseModel
 
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # Típus aliasok a jobb olvashatóság érdekében
 EventCallback = Callable[["BaseModel"], "Any"]
-
-
-# A konfiguráció osztályt az interfészben definiáljuk
-from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
 
 
 class EventBus(EventBusInterface, metaclass=SingletonMeta):
@@ -85,8 +83,9 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         self._publisher: zmq.Socket | None = None
         self._subscribers: dict[str, list[EventCallback]] = {}
         self._running = False
-        self._logger = logging.getLogger(self.__class__.__name__)
+        self._logger = structlog.get_logger(self.__class__.__name__)
 
+    @trace
     async def start(self) -> None:
         """Elindítja az EventBus-t és létrehozza a socketeket."""
         if self._running:
@@ -105,7 +104,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             pub_url = f"tcp://*:{self.config.pub_port}"
 
         self._publisher.bind(pub_url)
-        self._logger.info(f"Publisher bind-olva: {pub_url}")
+        self._logger.info("Publisher bind-olva", pub_url=pub_url)
 
         # Kis várakozás, hogy a bind teljesüljön
         await asyncio.sleep(0.1)
@@ -113,6 +112,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         self._running = True
         self._logger.info("EventBus elindítva")
 
+    @trace
     async def stop(self) -> None:
         """Leállítja az EventBus-t és felszabadítja az erőforrásokat."""
         if not self._running:
@@ -130,6 +130,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
         self._logger.info("EventBus leállítva")
 
+    @trace
     async def publish(self, event_type: str, event: "BaseModel") -> None:
         """Esemény közzététele a buszon.
 
@@ -159,8 +160,9 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         topic = event_type.encode("utf-8")
         await self._publisher.send_multipart([topic, message])
 
-        self._logger.debug(f"Esemény közzétéve: {event_type}")
+        self._logger.debug("Esemény közzétéve", event_type=event_type)
 
+    @trace
     def subscribe(self, event_type: str, callback: EventCallback) -> None:
         """Feliratkozás eseménytípusra.
 
@@ -175,8 +177,9 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             self._subscribers[event_type] = []
 
         self._subscribers[event_type].append(callback)
-        self._logger.info(f"Feliratkozás létrehozva: {event_type}")
+        self._logger.info("Feliratkozás létrehozva", event_type=event_type)
 
+    @trace
     def unsubscribe(self, event_type: str, callback: EventCallback) -> None:
         """Leiratkozás eseménytípusról.
 
@@ -187,7 +190,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if event_type in self._subscribers:
             if callback in self._subscribers[event_type]:
                 self._subscribers[event_type].remove(callback)
-                self._logger.info(f"Leiratkozás: {event_type}")
+                self._logger.info("Leiratkozás", event_type=event_type)
 
     async def _dispatch_event(self, event_type: str, event_data: dict[str, "Any"]) -> None:
         """Esemény továbbítása a feliratkozóknak.
@@ -210,9 +213,11 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                 try:
                     await callback(event)
                 except Exception as e:
-                    self._logger.error(f"Hiba a callback végrehajtásakor: {e}", exc_info=True)
+                    self._logger.error(
+                        "Hiba a callback végrehajtásakor", error=str(e), exc_info=True
+                    )
         except Exception as e:
-            self._logger.error(f"Hiba az esemény deserializálásakor: {e}", exc_info=True)
+            self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)
 
     def _deserialize_event(
         self, event_type: str, event_data: dict[str, "Any"]
@@ -253,12 +258,13 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             elif event_type == "position":
                 return PositionEvent(**event_data)
             else:
-                self._logger.warning(f"Ismeretlen eseménytípus: {event_type}")
+                self._logger.warning("Ismeretlen eseménytípus", event_type=event_type)
                 return None
         except Exception as e:
-            self._logger.error(f"Hiba az esemény deserializálásakor: {e}", exc_info=True)
+            self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)
             return None
 
+    @trace
     async def run_forever(self) -> None:
         """Eseménybusz örök futás (blokkoló).
 
@@ -284,7 +290,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         # Feliratkozás az összes témakörre
         subscriber.setsockopt(self._zmq.SUBSCRIBE, b"")
 
-        self._logger.info(f"Subscriber csatlakozva: {sub_url}")
+        self._logger.info("Subscriber csatlakozva", sub_url=sub_url)
 
         try:
             while self._running:
@@ -309,7 +315,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                     # Időtúllépés, ellenőrizzük a futási állapotot
                     continue
                 except Exception as e:
-                    self._logger.error(f"Hiba az esemény fogadásakor: {e}", exc_info=True)
+                    self._logger.error("Hiba az esemény fogadásakor", error=str(e), exc_info=True)
 
         finally:
             subscriber.close()
