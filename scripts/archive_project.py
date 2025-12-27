@@ -77,7 +77,7 @@ def main() -> None:
     files_to_archive = [
         "neural_ai/",
         "docs/",
-        "main.py",
+        "configs/logs/tests/main.py",
         "README.md",
         "pyproject.toml",
         ".vscode/settings.json",
