@@ -18,7 +18,7 @@ class TestDatabaseFactory:
     def test_get_session_maker_without_config(self) -> None:
         """Teszteli a session maker lekérdezést konfig nélkül."""
         session_maker = DatabaseFactory.get_session_maker()
-        
+
         assert session_maker is not None
         assert isinstance(session_maker, async_sessionmaker)
 
@@ -26,7 +26,7 @@ class TestDatabaseFactory:
         """Teszteli a session maker lekérdezést konfiggal."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         session_maker = DatabaseFactory.get_session_maker(mock_config)
-        
+
         assert session_maker is not None
         assert isinstance(session_maker, async_sessionmaker)
 
@@ -35,9 +35,9 @@ class TestDatabaseFactory:
         """Teszteli az engine lekérdezést konfig nélkül."""
         mock_engine = MagicMock()
         mock_get_engine.return_value = mock_engine
-        
+
         engine = DatabaseFactory.get_engine()
-        
+
         assert engine is mock_engine
         mock_get_engine.assert_called_once_with(None)
 
@@ -47,9 +47,9 @@ class TestDatabaseFactory:
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         mock_engine = MagicMock()
         mock_get_engine.return_value = mock_engine
-        
+
         engine = DatabaseFactory.get_engine(mock_config)
-        
+
         assert engine is mock_engine
         mock_get_engine.assert_called_once_with(mock_config)
 
@@ -57,7 +57,7 @@ class TestDatabaseFactory:
         """Teszteli az egyéni engine létrehozást."""
         custom_url = "sqlite+aiosqlite:///:memory:"
         engine = DatabaseFactory.create_engine(custom_url, echo=False)
-        
+
         assert engine is not None
         assert isinstance(engine, AsyncEngine)
 
@@ -65,14 +65,14 @@ class TestDatabaseFactory:
         """Teszteli az engine létrehozást echo módban."""
         custom_url = "sqlite+aiosqlite:///:memory:"
         engine = DatabaseFactory.create_engine(custom_url, echo=True)
-        
+
         assert engine is not None
         assert isinstance(engine, AsyncEngine)
 
     def test_create_manager_without_config(self) -> None:
         """Teszteli a DatabaseManager létrehozást konfig nélkül."""
         manager = DatabaseFactory.create_manager()
-        
+
         assert manager is not None
         assert isinstance(manager, DatabaseManager)
 
@@ -80,7 +80,7 @@ class TestDatabaseFactory:
         """Teszteli a DatabaseManager létrehozást konfiggal."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         manager = DatabaseFactory.create_manager(mock_config)
-        
+
         assert manager is not None
         assert isinstance(manager, DatabaseManager)
         assert manager.config_manager is not None
@@ -90,10 +90,10 @@ class TestDatabaseFactory:
         """Teszteli, hogy a session maker cache-elődik a modul szintjén."""
         mock_session_maker = MagicMock()
         mock_get_session.return_value = mock_session_maker
-        
+
         result1 = DatabaseFactory.get_session_maker()
         result2 = DatabaseFactory.get_session_maker()
-        
+
         assert result1 is result2
         # A modul szintű cache miatt csak egyszer hívódik meg a globális függvény
         mock_get_session.assert_called()
@@ -103,10 +103,10 @@ class TestDatabaseFactory:
         """Teszteli, hogy az engine cache-elődik a modul szintjén."""
         mock_engine = MagicMock()
         mock_get_engine.return_value = mock_engine
-        
+
         result1 = DatabaseFactory.get_engine()
         result2 = DatabaseFactory.get_engine()
-        
+
         assert result1 is result2
         # A modul szintű cache miatt csak egyszer hívódik meg a globális függvény
         mock_get_engine.assert_called()
@@ -117,7 +117,7 @@ class TestDatabaseFactory:
             "sqlite+aiosqlite:///:memory:",
             "sqlite+aiosqlite:///test.db",
         ]
-        
+
         for url in urls:
             engine = DatabaseFactory.create_engine(url)
             assert engine is not None
@@ -128,15 +128,15 @@ class TestDatabaseFactory:
         """Teszteli, hogy a factory metódusok konzisztens típusokat adnak vissza."""
         mock_engine = MagicMock(spec=AsyncEngine)
         mock_get_engine.return_value = mock_engine
-        
+
         # Session maker teszt
         session_maker = DatabaseFactory.get_session_maker()
         assert isinstance(session_maker, async_sessionmaker)
-        
+
         # Engine teszt
         engine = DatabaseFactory.get_engine()
         assert engine is mock_engine
-        
+
         # Manager teszt
         manager = DatabaseFactory.create_manager()
         assert isinstance(manager, DatabaseManager)
@@ -146,6 +146,6 @@ class TestDatabaseFactory:
         # Két különböző hívást kell ugyanazt az eredményt adnia
         manager1 = DatabaseFactory.create_manager()
         manager2 = DatabaseFactory.create_manager()
-        
+
         # A manager Singleton, ezért ugyanazt a példányt kell visszaadnia
         assert manager1 is manager2

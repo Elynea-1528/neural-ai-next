@@ -4,10 +4,13 @@ Ez a modul tartalmazza a DynamicConfig és LogEntry modellek tesztjeit,
 100% kódfedettségi célkitűzéssel.
 """
 
+from collections.abc import Generator
 from datetime import datetime
 
 import pytest
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from neural_ai.core.db.implementations.model_base import Base
@@ -18,14 +21,14 @@ class TestDynamicConfig:
     """DynamicConfig modell tesztjei."""
 
     @pytest.fixture
-    def engine(self):
+    def engine(self) -> Engine:
         """In-memory SQLite engine létrehozása teszteléshez."""
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         return engine
 
     @pytest.fixture
-    def session(self, engine):
+    def session(self, engine: Engine) -> Generator[Session, None, None]:
         """Adatbázis munkamenet létrehozása."""
         with Session(engine) as session:
             yield session
@@ -125,7 +128,7 @@ class TestDynamicConfig:
         )
         session.add(config2)
 
-        with pytest.raises(Exception):  # Unique constraint violation
+        with pytest.raises(IntegrityError):  # Unique constraint violation
             session.commit()
 
     def test_dynamic_config_different_value_types(self, session: Session) -> None:
@@ -180,14 +183,14 @@ class TestLogEntry:
     """LogEntry modell tesztjei."""
 
     @pytest.fixture
-    def engine(self):
+    def engine(self) -> Engine:
         """In-memory SQLite engine létrehozása teszteléshez."""
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         return engine
 
     @pytest.fixture
-    def session(self, engine):
+    def session(self, engine: Engine) -> Generator[Session, None, None]:
         """Adatbázis munkamenet létrehozása."""
         with Session(engine) as session:
             yield session
@@ -366,14 +369,14 @@ class TestModelRelationships:
     """Modellek közötti kapcsolatok tesztelése."""
 
     @pytest.fixture
-    def engine(self):
+    def engine(self) -> Engine:
         """In-memory SQLite engine létrehozása teszteléshez."""
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         return engine
 
     @pytest.fixture
-    def session(self, engine):
+    def session(self, engine: Engine) -> Generator[Session, None, None]:
         """Adatbázis munkamenet létrehozása."""
         with Session(engine) as session:
             yield session
@@ -465,14 +468,14 @@ class TestModelValidation:
     """Modell validáció tesztelése."""
 
     @pytest.fixture
-    def engine(self):
+    def engine(self) -> Engine:
         """In-memory SQLite engine létrehozása teszteléshez."""
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         return engine
 
     @pytest.fixture
-    def session(self, engine):
+    def session(self, engine: Engine) -> Generator[Session, None, None]:
         """Adatbázis munkamenet létrehozása."""
         with Session(engine) as session:
             yield session
@@ -480,7 +483,7 @@ class TestModelValidation:
     def test_dynamic_config_nullable_fields(self, session: Session) -> None:
         """DynamicConfig nem nullázható mezőinek tesztelése."""
         # Kötelező mezők hiánya hibát okoz
-        with pytest.raises(Exception):
+        with pytest.raises(IntegrityError):
             config = DynamicConfig()  # Hiányzik minden kötelező mező
             session.add(config)
             session.commit()
@@ -488,7 +491,7 @@ class TestModelValidation:
     def test_log_entry_nullable_fields(self, session: Session) -> None:
         """LogEntry nem nullázható mezőinek tesztelése."""
         # Kötelező mezők hiánya hibát okoz
-        with pytest.raises(Exception):
+        with pytest.raises(IntegrityError):
             log_entry = LogEntry()  # Hiányzik minden kötelező mező
             session.add(log_entry)
             session.commit()
