@@ -146,8 +146,10 @@ class PolarsBackend(StorageBackend):
 
             # Írás particionálással vagy anélkül
             if partition_by:
+                # Polars particionálás - a path egy könyvtár lesz
+                path_obj = Path(path)
                 pl_df.write_parquet(
-                    path,
+                    str(path_obj.parent),  # Könyvtár elérési útja
                     compression=compression,
                     use_pyarrow=True,
                     pyarrow_options={"partition_by": partition_by},
