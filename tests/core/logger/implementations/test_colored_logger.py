@@ -7,18 +7,18 @@ from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
 class TestColoredLogger:
     """ColoredLogger osztály tesztei."""
 
-    def test_init_basic(self):
+    def test_init_basic(self) -> None:
         """Alap logger inicializálás tesztelése."""
         logger = ColoredLogger("test_basic")
         assert isinstance(logger.logger, logging.Logger)
         assert logger.get_level() == logging.INFO
 
-    def test_init_with_custom_level(self):
+    def test_init_with_custom_level(self) -> None:
         """Logger inicializálás egyéni szinttel."""
         logger = ColoredLogger("test_debug", level=logging.DEBUG)
         assert logger.get_level() == logging.DEBUG
 
-    def test_debug_logging(self, monkeypatch):
+    def test_debug_logging(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Debug üzenet logolásának tesztelése."""
         import io
         import sys
@@ -29,7 +29,7 @@ class TestColoredLogger:
         output = buffer.getvalue()
         assert "Test debug message" in output
 
-    def test_info_logging(self, monkeypatch):
+    def test_info_logging(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Info üzenet logolásának tesztelése."""
         import io
         import sys
@@ -40,7 +40,7 @@ class TestColoredLogger:
         output = buffer.getvalue()
         assert "Test info message" in output
 
-    def test_warning_logging(self, monkeypatch):
+    def test_warning_logging(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Warning üzenet logolásának tesztelése."""
         import io
         import sys
@@ -51,7 +51,7 @@ class TestColoredLogger:
         output = buffer.getvalue()
         assert "Test warning message" in output
 
-    def test_error_logging(self, monkeypatch):
+    def test_error_logging(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Error üzenet logolásának tesztelése."""
         import io
         import sys
@@ -62,7 +62,7 @@ class TestColoredLogger:
         output = buffer.getvalue()
         assert "Test error message" in output
 
-    def test_critical_logging(self, monkeypatch):
+    def test_critical_logging(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Critical üzenet logolásának tesztelése."""
         import io
         import sys
@@ -73,7 +73,7 @@ class TestColoredLogger:
         output = buffer.getvalue()
         assert "Test critical message" in output
 
-    def test_set_level(self):
+    def test_set_level(self) -> None:
         """Log szint módosításának tesztelése."""
         logger = ColoredLogger("test_set_level")
         assert logger.get_level() == logging.INFO
@@ -82,13 +82,13 @@ class TestColoredLogger:
         logger.set_level(logging.ERROR)
         assert logger.get_level() == logging.ERROR
 
-    def test_logger_name(self):
+    def test_logger_name(self) -> None:
         """Logger nevének ellenőrzése."""
         logger_name = "test_unique_name"
         logger = ColoredLogger(logger_name)
         assert logger.logger.name == logger_name
 
-    def test_colored_formatter_present(self):
+    def test_colored_formatter_present(self) -> None:
         """Színes formázó jelenlétének ellenőrzése."""
         logger = ColoredLogger("test_formatter")
         assert len(logger.logger.handlers) > 0

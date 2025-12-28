@@ -6,12 +6,12 @@ from neural_ai.core.logger.interfaces.factory_interface import LoggerFactoryInte
 class TestLoggerFactoryInterface:
     """LoggerFactoryInterface osztály tesztei."""
 
-    def test_interface_is_abstract(self):
+    def test_interface_is_abstract(self) -> None:
         """Interfész absztrakt osztály-e."""
         with pytest.raises(TypeError):
             LoggerFactoryInterface()  # type: ignore
 
-    def test_interface_has_required_methods(self):
+    def test_interface_has_required_methods(self) -> None:
         """Interfész tartalmazza a szükséges metódusokat."""
         required_methods = [
             "register_logger",

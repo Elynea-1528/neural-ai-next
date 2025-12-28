@@ -7,7 +7,7 @@ from neural_ai.core.logger.formatters.logger_formatters import ColoredFormatter
 class TestColoredFormatter:
     """ColoredFormatter osztály tesztei."""
 
-    def test_format_debug(self):
+    def test_format_debug(self) -> None:
         """Debug szintű üzenet formázásának tesztelése."""
         formatter = ColoredFormatter()
         record = logging.LogRecord(
@@ -24,7 +24,7 @@ class TestColoredFormatter:
         assert "\033[94m" in formatted  # Kék színkód
         assert "\033[0m" in formatted  # Reset színkód
 
-    def test_format_info(self):
+    def test_format_info(self) -> None:
         """Info szintű üzenet formázásának tesztelése."""
         formatter = ColoredFormatter()
         record = logging.LogRecord(
@@ -41,7 +41,7 @@ class TestColoredFormatter:
         assert "\033[92m" in formatted  # Zöld színkód
         assert "\033[0m" in formatted  # Reset színkód
 
-    def test_format_warning(self):
+    def test_format_warning(self) -> None:
         """Warning szintű üzenet formázásának tesztelése."""
         formatter = ColoredFormatter()
         record = logging.LogRecord(
@@ -58,7 +58,7 @@ class TestColoredFormatter:
         assert "\033[93m" in formatted  # Sárga színkód
         assert "\033[0m" in formatted  # Reset színkód
 
-    def test_format_error(self):
+    def test_format_error(self) -> None:
         """Error szintű üzenet formázásának tesztelése."""
         formatter = ColoredFormatter()
         record = logging.LogRecord(
@@ -75,7 +75,7 @@ class TestColoredFormatter:
         assert "\033[91m" in formatted  # Piros színkód
         assert "\033[0m" in formatted  # Reset színkód
 
-    def test_format_critical(self):
+    def test_format_critical(self) -> None:
         """Critical szintű üzenet formázásának tesztelése."""
         formatter = ColoredFormatter()
         record = logging.LogRecord(
@@ -92,7 +92,7 @@ class TestColoredFormatter:
         assert "\033[97;41m" in formatted  # Fehér szöveg piros háttéren
         assert "\033[0m" in formatted  # Reset színkód
 
-    def test_format_unknown_level(self):
+    def test_format_unknown_level(self) -> None:
         """Ismeretlen szintű üzenet formázásának tesztelése."""
         formatter = ColoredFormatter()
         record = logging.LogRecord(
