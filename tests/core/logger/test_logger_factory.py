@@ -116,3 +116,99 @@ class TestLoggerFactory:
         LoggerFactory.set_schema_version("2.0.0")
         assert LoggerFactory.get_schema_version() == "2.0.0"
         LoggerFactory.set_schema_version(original_version)
+
+    def test_get_logger_invalid_type_fallback_to_default(self) -> None:
+        """Érvénytelen logger típus esetén az alapértelmezett logger jön létre (107. sor)."""
+        logger = LoggerFactory.get_logger("test_invalid_type", logger_type="nonexistent")
+        assert isinstance(logger, LoggerInterface)
+        # Alapértelmezett logger jön létre
+        assert logger.get_level() == 20  # INFO level
+
+    def test_configure_file_handler_with_rotating(self, tmp_path: Path) -> None:
+        """File handler konfigurálása rotating loggal (213-246. sorok)."""
+        log_file = tmp_path / "rotating.log"
+        config: dict[str, object] = {
+            "default_level": "DEBUG",
+            "handlers": {
+                "console": {"enabled": False},
+                "file": {
+                    "enabled": True,
+                    "filename": str(log_file),
+                    "level": "DEBUG",
+                    "json_format": True,
+                    "rotating": True,
+                    "max_bytes": 1048576,
+                    "backup_count": 3,
+                },
+            },
+            "loggers": {},
+        }
+        LoggerFactory.configure(config)
+        
+        # Ellenőrizzük, hogy a fájl létrejött-e
+        assert log_file.exists()
+        
+        # Ellenőrizzük, hogy a rotating handler be van-e állítva
+        root_logger = logging.getLogger()
+        assert len(root_logger.handlers) > 0
+
+    def test_configure_file_handler_without_rotating(self, tmp_path: Path) -> None:
+        """File handler konfigurálása sima file loggal (213-246. sorok)."""
+        log_file = tmp_path / "simple.log"
+        config: dict[str, object] = {
+            "default_level": "DEBUG",
+            "handlers": {
+                "console": {"enabled": False},
+                "file": {
+                    "enabled": True,
+                    "filename": str(log_file),
+                    "level": "DEBUG",
+                    "json_format": True,
+                    "rotating": False,
+                },
+            },
+            "loggers": {},
+        }
+        LoggerFactory.configure(config)
+        
+        # Ellenőrizzük, hogy a fájl létrejött-e
+        assert log_file.exists()
+
+    def test_configure_file_handler_creates_parent_directories(self, tmp_path: Path) -> None:
+        """File handler létrehozza a szülő könyvtárakat, ha nem léteznek (216-217. sorok)."""
+        log_file = tmp_path / "deep" / "nested" / "path" / "test.log"
+        config: dict[str, object] = {
+            "default_level": "DEBUG",
+            "handlers": {
+                "console": {"enabled": False},
+                "file": {
+                    "enabled": True,
+                    "filename": str(log_file),
+                    "level": "DEBUG",
+                    "json_format": True,
+                },
+            },
+            "loggers": {},
+        }
+        LoggerFactory.configure(config)
+        
+        # Ellenőrizzük, hogy a könyvtárak és a fájl létrejöttek-e
+        assert log_file.exists()
+        assert log_file.parent.exists()
+
+    def test_configure_loggers_with_propagate_false(self) -> None:
+        """Logger konfigurálása propagate=False beállítással (254-255. sorok)."""
+        config: dict[str, object] = {
+            "default_level": "DEBUG",
+            "handlers": {
+                "console": {"enabled": True, "level": "DEBUG"},
+            },
+            "loggers": {
+                "test_logger": {"level": "INFO", "propagate": False}
+            },
+        }
+        LoggerFactory.configure(config)
+        
+        logger = logging.getLogger("test_logger")
+        assert logger.level == logging.INFO
+        assert logger.propagate is False

@@ -6,6 +6,7 @@ Author: Neural AI Next Team
 Version: 1.0.0
 """
 
+import asyncio
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -68,7 +69,8 @@ class TestEventBusInitialization:
         assert bus._own_context is False
         assert bus._context is external_context
 
-    def test_zmq_import_error(self) -> None:
+    @patch("zmq.asyncio.Context")
+    def test_zmq_import_error(self, mock_context_class: MagicMock) -> None:
         """Teszteli a ZMQ import hibát."""
         with patch.dict("sys.modules", {"zmq": None, "zmq.asyncio": None}):
             with pytest.raises(ImportError, match="ZeroMQ nincs telepítve"):
@@ -473,3 +475,453 @@ class TestEventBusDispatch:
         await bus._dispatch_event("market_data", event_data)
 
         callback.assert_awaited_once()
+
+
+class TestEventBusDeserializationAdditional:
+    """További deszerializáció tesztek a hiányzó sorok lefedésére."""
+
+    @patch("zmq.asyncio.Context")
+    def test_deserialize_trade_event(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a TradeEvent deszerializációját."""
+        mock_context = MagicMock()
+        mock_context_class.return_value = mock_context
+
+        bus = EventBus()
+        event_data = {
+            "symbol": "EURUSD",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "direction": "BUY",
+            "price": 1.0850,
+            "volume": 0.01,
+            "order_id": "ord_12345",
+        }
+
+        result = bus._deserialize_event("trade", event_data)
+
+        assert result is not None
+        from neural_ai.core.events.interfaces.event_models import TradeEvent
+        assert isinstance(result, TradeEvent)
+        assert result.order_id == "ord_12345"
+
+    @patch("zmq.asyncio.Context")
+    def test_deserialize_signal_event(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a SignalEvent deszerializációját."""
+        mock_context = MagicMock()
+        mock_context_class.return_value = mock_context
+
+        bus = EventBus()
+        event_data = {
+            "symbol": "EURUSD",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "signal_type": "ENTRY_LONG",
+            "confidence": 0.85,
+            "strategy_id": "strat_001",
+        }
+
+        result = bus._deserialize_event("signal", event_data)
+
+        assert result is not None
+        from neural_ai.core.events.interfaces.event_models import SignalEvent
+        assert isinstance(result, SignalEvent)
+        assert result.strategy_id == "strat_001"
+
+    @patch("zmq.asyncio.Context")
+    def test_deserialize_system_log_event(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a SystemLogEvent deszerializációját."""
+        mock_context = MagicMock()
+        mock_context_class.return_value = mock_context
+
+        bus = EventBus()
+        event_data = {
+            "timestamp": datetime.now(UTC).isoformat(),
+            "level": "INFO",
+            "component": "test_component",
+            "message": "System started",
+        }
+
+        result = bus._deserialize_event("system_log", event_data)
+
+        assert result is not None
+        from neural_ai.core.events.interfaces.event_models import SystemLogEvent
+        assert isinstance(result, SystemLogEvent)
+        assert result.level == "INFO"
+
+    @patch("zmq.asyncio.Context")
+    def test_deserialize_order_event(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a OrderEvent deszerializációját."""
+        mock_context = MagicMock()
+        mock_context_class.return_value = mock_context
+
+        bus = EventBus()
+        event_data = {
+            "order_id": "ord_001",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "symbol": "EURUSD",
+            "order_type": "MARKET",
+            "direction": "BUY",
+            "volume": 0.01,
+            "price": 1.0850,
+            "status": "PENDING",
+        }
+
+        result = bus._deserialize_event("order", event_data)
+
+        assert result is not None
+        from neural_ai.core.events.interfaces.event_models import OrderEvent
+        assert isinstance(result, OrderEvent)
+        assert result.order_id == "ord_001"
+
+    @patch("zmq.asyncio.Context")
+    def test_deserialize_position_event(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a PositionEvent deszerializációját."""
+        mock_context = MagicMock()
+        mock_context_class.return_value = mock_context
+
+        bus = EventBus()
+        event_data = {
+            "position_id": "pos_001",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "symbol": "EURUSD",
+            "direction": "LONG",
+            "volume": 0.01,
+            "entry_price": 1.0850,
+            "current_price": 1.0855,
+            "status": "OPEN",
+        }
+
+        result = bus._deserialize_event("position", event_data)
+
+        assert result is not None
+        from neural_ai.core.events.interfaces.event_models import PositionEvent
+        assert isinstance(result, PositionEvent)
+        assert result.position_id == "pos_001"
+
+
+class TestEventBusDispatchExceptionHandling:
+    """Esemény továbbítás kivételkezelés tesztek."""
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_dispatch_event_deserialization_error(
+        self, mock_context_class: MagicMock
+    ) -> None:
+        """Teszteli a deserializálási hiba kezelését."""
+        mock_context = MagicMock()
+        mock_context_class.return_value = mock_context
+
+        bus = EventBus()
+        callback = AsyncMock()
+        bus.subscribe("market_data", callback)
+
+        # Érvénytelen esemény adatok, amelyek deserializálási hibát okoznak
+        event_data = {"invalid": "data", "missing_required": True}
+
+        # Nem dob hibát, csak logol
+        await bus._dispatch_event("market_data", event_data)
+
+        # A callback nem hívódik meg, mert a deserializálás sikertelen
+        callback.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_dispatch_event_deserialization_returns_none(
+        self, mock_context_class: MagicMock
+    ) -> None:
+        """Teszteli a None visszatérési érték kezelését."""
+        mock_context = MagicMock()
+        mock_context_class.return_value = mock_context
+
+        bus = EventBus()
+        callback = AsyncMock()
+        bus.subscribe("unknown_type", callback)
+
+        event_data = {"key": "value"}
+
+        # Nem dob hibát, a deserializálás None-t ad vissza
+        await bus._dispatch_event("unknown_type", event_data)
+
+        # A callback nem hívódik meg
+        callback.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_dispatch_event_outer_exception_handling(
+        self, mock_context_class: MagicMock
+    ) -> None:
+        """Teszteli a külső try-except blokk kivételkezelését (219-220. sorok)."""
+        mock_context = MagicMock()
+        mock_context_class.return_value = mock_context
+
+        bus = EventBus()
+        callback = AsyncMock()
+        bus.subscribe("market_data", callback)
+
+        # Olyan esemény adatok, amelyek kivételt okoznak a _deserialize_event-ben
+        # még a belső try-except előtt (pl. import hiba vagy váratlan kivétel)
+        event_data = {"valid": "data"}
+
+        # Mockoljuk a _deserialize_event-et, hogy dobjon egy kivételt
+        # ami a külső try-except blokkban lesz elkapva
+        with patch.object(bus, '_deserialize_event', side_effect=Exception("Deszerializálási hiba")):
+            # Nem dob hibát, csak logol (219-220. sorok)
+            await bus._dispatch_event("market_data", event_data)
+
+        # A callback nem hívódik meg, mert a deszerializálás hibát dobott
+        callback.assert_not_awaited()
+
+
+class TestEventBusRunForever:
+    """EventBus run_forever metódus tesztek."""
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_run_forever_success(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a run_forever sikeres futását."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockoljuk a recv_multipart-et, hogy adjon vissza egy érvényes üzenetet
+        # majd a második hívásnál dobjon asyncio.CancelledError-t a ciklusból való kilépéshez
+        call_count = 0
+        async def recv_multipart_side_effect():
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return [
+                    b"market_data",
+                    b'{"symbol":"EURUSD","timestamp":"2024-01-01T12:00:00Z","bid":1.0850,"ask":1.0852,"source":"test","volume":100000,"_event_type":"market_data","_timestamp":"2024-01-01T12:00:00Z"}',
+                ]
+            else:
+                raise asyncio.CancelledError()
+
+        mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
+
+        bus = EventBus()
+        await bus.start()
+
+        # Futtassuk a run_forever-t
+        bus._running = True
+        with pytest.raises(asyncio.CancelledError):
+            await bus.run_forever()
+
+        # Ellenőrizzük, hogy a socket metódusok meghívást kaptak-e
+        mock_socket.connect.assert_called_once()
+        mock_socket.setsockopt.assert_called_once()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_run_forever_timeout_handling(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a timeout kezelését a run_forever-ben."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockoljuk a recv_multipart-et, hogy timeout-ot okozzon, majd CancelledError-t
+        call_count = 0
+        async def recv_multipart_side_effect():
+            nonlocal call_count
+            call_count += 1
+            if call_count <= 3:
+                raise asyncio.TimeoutError()
+            else:
+                raise asyncio.CancelledError()
+
+        mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
+
+        bus = EventBus()
+        await bus.start()
+
+        # Futtassuk a run_forever-t
+        bus._running = True
+        with pytest.raises(asyncio.CancelledError):
+            await bus.run_forever()
+
+        # A timeout-ot kezelni kell, és folytatni a ciklust
+        mock_socket.connect.assert_called_once()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_run_forever_not_started(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a run_forever hívását indítás nélkül."""
+        mock_context = MagicMock()
+        mock_context_class.return_value = mock_context
+
+        bus = EventBus()
+
+        with pytest.raises(EventBusError, match="EventBus nincs elindítva"):
+            await bus.run_forever()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_run_forever_message_processing(self, mock_context_class: MagicMock) -> None:
+        """Teszteli az üzenet feldolgozást a run_forever-ben."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockoljuk a recv_multipart-et, hogy adjon vissza egy érvényes üzenetet
+        # majd a második hívásnál dobjon asyncio.CancelledError-t
+        call_count = 0
+        async def recv_multipart_side_effect():
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return [
+                    b"trade",
+                    b'{"order_id":"ord_123","symbol":"EURUSD","direction":"BUY","volume":0.01,"price":1.0850,"timestamp":"2024-01-01T12:00:00Z","_event_type":"trade","_timestamp":"2024-01-01T12:00:00Z"}',
+                ]
+            else:
+                raise asyncio.CancelledError()
+
+        mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
+
+        bus = EventBus()
+        callback = AsyncMock()
+        bus.subscribe("trade", callback)
+        await bus.start()
+
+        # Futtassuk a run_forever-t
+        bus._running = True
+        with pytest.raises(asyncio.CancelledError):
+            await bus.run_forever()
+
+        # Ellenőrizzük, hogy a callback meghívódott-e
+        callback.assert_awaited()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_run_forever_invalid_message_format(
+        self, mock_context_class: MagicMock
+    ) -> None:
+        """Teszteli az érvénytelen üzenet formátum kezelését."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockoljuk a recv_multipart-et, hogy adjon vissza érvénytelen üzenetet
+        # majd a második hívásnál dobjon asyncio.CancelledError-t
+        call_count = 0
+        async def recv_multipart_side_effect():
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return [b"topic"]  # Nincs elég rész
+            else:
+                raise asyncio.CancelledError()
+
+        mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
+
+        bus = EventBus()
+        await bus.start()
+
+        # Futtassuk a run_forever-t
+        bus._running = True
+        with pytest.raises(asyncio.CancelledError):
+            await bus.run_forever()
+
+        # Nem szabad hibát dobnia
+        mock_socket.connect.assert_called_once()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_run_forever_json_decode_error(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a JSON decode hiba kezelését."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockoljuk a recv_multipart-et, hogy adjon vissza érvénytelen JSON-t
+        # majd a második hívásnál dobjon asyncio.CancelledError-t
+        call_count = 0
+        async def recv_multipart_side_effect():
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return [
+                    b"market_data",
+                    b"invalid json{",
+                ]
+            else:
+                raise asyncio.CancelledError()
+
+        mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
+
+        bus = EventBus()
+        await bus.start()
+
+        # Futtassuk a run_forever-t
+        bus._running = True
+        with pytest.raises(asyncio.CancelledError):
+            await bus.run_forever()
+
+        # Nem szabad hibát dobnia
+        mock_socket.connect.assert_called_once()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_run_forever_general_exception_handling(
+        self, mock_context_class: MagicMock
+    ) -> None:
+        """Teszteli az általános kivétel kezelését a run_forever-ben."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockoljuk a recv_multipart-et, hogy dobjon egy általános kivételt
+        # majd a második hívásnál dobjon asyncio.CancelledError-t
+        call_count = 0
+        async def recv_multipart_side_effect():
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise Exception("Általános hiba")
+            else:
+                raise asyncio.CancelledError()
+
+        mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
+
+        bus = EventBus()
+        await bus.start()
+
+        # Futtassuk a run_forever-t
+        bus._running = True
+        with pytest.raises(asyncio.CancelledError):
+            await bus.run_forever()
+
+        # Nem szabad hibát dobnia, csak logol
+        mock_socket.connect.assert_called_once()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_run_forever_with_inproc(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a run_forever-t inproc transporttal (284. sor lefedése)."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockoljuk a recv_multipart-et, hogy azonnal CancelledError-t dobjon
+        async def recv_multipart_side_effect():
+            raise asyncio.CancelledError()
+
+        mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
+
+        # Inproc konfigurációval hozzuk létre az EventBus-t
+        config = EventBusConfig(use_inproc=True)
+        bus = EventBus(config)
+        await bus.start()
+
+        # Futtassuk a run_forever-t
+        bus._running = True
+        with pytest.raises(asyncio.CancelledError):
+            await bus.run_forever()
+
+        # Ellenőrizzük, hogy az inproc URL lett volna használva
+        mock_socket.connect.assert_called_once_with("inproc://eventbus_pub")

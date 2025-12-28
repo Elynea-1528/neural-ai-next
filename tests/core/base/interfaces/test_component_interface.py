@@ -5,12 +5,18 @@ interfészek egységtesztjeit, amelyek ellenőrzik az interfész definíciók he
 """
 
 import inspect
-from typing import get_type_hints
+from typing import TYPE_CHECKING, Any, get_type_hints
+from unittest.mock import Mock
 
 from neural_ai.core.base.interfaces.component_interface import (
     CoreComponentFactoryInterface,
     CoreComponentsInterface,
 )
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 
 class TestCoreComponentsInterface:
@@ -89,6 +95,23 @@ class TestCoreComponentsInterface:
         assert inspect.signature(has_storage_method).return_annotation is not inspect.Signature.empty
         assert inspect.signature(validate_method).return_annotation is not inspect.Signature.empty
 
+    def test_interface_properties_accessible(self) -> None:
+        """Teszteli, hogy az interfész property-jei elérhetők-e."""
+        # Property-k elérése az interfészen
+        config_prop = CoreComponentsInterface.config
+        logger_prop = CoreComponentsInterface.logger
+        storage_prop = CoreComponentsInterface.storage
+        
+        # Ellenőrizzük, hogy property-k
+        assert isinstance(config_prop, property)
+        assert isinstance(logger_prop, property)
+        assert isinstance(storage_prop, property)
+        
+        # Property-k dokumentációjának ellenőrzése
+        assert config_prop.__doc__ is not None
+        assert logger_prop.__doc__ is not None
+        assert storage_prop.__doc__ is not None
+
 
 class TestCoreComponentFactoryInterface:
     """CoreComponentFactoryInterface interfész tesztjei."""
@@ -146,3 +169,107 @@ class TestCoreComponentFactoryInterface:
 
         create_minimal_method = CoreComponentFactoryInterface.create_minimal
         assert callable(create_minimal_method), "create_minimal nem hívható"
+
+    def test_all_abstract_methods_implemented(self) -> None:
+        """Teszteli, hogy az összes absztrakt metódus implementálva van-e a mockban."""
+        
+        class MockCoreComponents(CoreComponentsInterface):
+            """Mock implementáció a CoreComponentsInterface-hez."""
+            
+            def __init__(self) -> None:
+                super().__init__()
+                self._config: Any | None = None
+                self._logger: Any | None = None
+                self._storage: Any | None = None
+            
+            @property
+            def config(self) -> Any | None:
+                return self._config
+            
+            @property
+            def logger(self) -> Any | None:
+                return self._logger
+            
+            @property
+            def storage(self) -> Any | None:
+                return self._storage
+            
+            def has_config(self) -> bool:
+                super().has_config()
+                return self._config is not None
+            
+            def has_logger(self) -> bool:
+                super().has_logger()
+                return self._logger is not None
+            
+            def has_storage(self) -> bool:
+                super().has_storage()
+                return self._storage is not None
+            
+            def validate(self) -> bool:
+                super().validate()
+                return self.has_config() and self.has_logger() and self.has_storage()
+        
+        # Teszt: Létrehozás és property-k ellenőrzése
+        mock_components = MockCoreComponents()
+        assert mock_components.config is None
+        assert mock_components.logger is None
+        assert mock_components.storage is None
+        
+        # Teszt: has_* metódusok
+        assert not mock_components.has_config()
+        assert not mock_components.has_logger()
+        assert not mock_components.has_storage()
+        
+        # Teszt: validate metódus
+        assert not mock_components.validate()
+        
+        # Teszt: Mock objektumok hozzáadása után
+        mock_components._config = Mock()
+        mock_components._logger = Mock()
+        mock_components._storage = Mock()
+        
+        assert mock_components.has_config()
+        assert mock_components.has_logger()
+        assert mock_components.has_storage()
+        assert mock_components.validate()
+        
+        # Teszt: Factory interfész mock implementációja
+        class MockCoreComponentFactory(CoreComponentFactoryInterface):
+            """Mock implementáció a CoreComponentFactoryInterface-hez."""
+            
+            @staticmethod
+            def create_components(
+                config_path: str | None = None,
+                log_path: str | None = None,
+                storage_path: str | None = None,
+            ) -> CoreComponentsInterface:
+                return MockCoreComponents()
+            
+            @staticmethod
+            def create_with_container(container: Any) -> CoreComponentsInterface:
+                return MockCoreComponents()
+            
+            @staticmethod
+            def create_minimal() -> CoreComponentsInterface:
+                return MockCoreComponents()
+        
+        # Teszt: Factory metódusok hívhatósága
+        components1 = MockCoreComponentFactory.create_components()
+        assert isinstance(components1, CoreComponentsInterface)
+        
+        components2 = MockCoreComponentFactory.create_with_container(Mock())
+        assert isinstance(components2, CoreComponentsInterface)
+        
+        components3 = MockCoreComponentFactory.create_minimal()
+        assert isinstance(components3, CoreComponentsInterface)
+        
+        # Explicit teszt a property-k eléréséhez
+        assert hasattr(mock_components, 'config')
+        assert hasattr(mock_components, 'logger')
+        assert hasattr(mock_components, 'storage')
+        
+        # Property-k közvetlen elérése
+        _ = mock_components.config
+        _ = mock_components.logger
+        _ = mock_components.storage
