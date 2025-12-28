@@ -274,3 +274,39 @@ class TestDIContainer:
             container._verify_singleton(instance, "test_component")
             assert len(w) == 1
             assert "_initialized" in str(w[0].message)
+
+    def test_verify_singleton_missing_instance_attribute(self) -> None:
+        """Teszteli a singleton ellenőrzést hiányzó _instance attribútum esetén (236-237. sorok)."""
+        container: DIContainer = DIContainer()
+
+        class TestClass:
+            _initialized = True
+            _instances = {}  # Van _instances, de nincs _instance
+
+        instance = TestClass()
+
+        import warnings
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            container._verify_singleton(instance, "test_component")
+            assert len(w) == 1  # Csak a _instance hiánya miatti figyelmeztetés
+            # Ellenőrizzük, hogy a figyelmeztetés a _instance hiányáról szól
+            assert "_instance" in str(w[0].message)
+
+    def test_enforce_singleton_different_instance(self) -> None:
+        """Teszteli a singleton kikényszerítést különböző példányok esetén (254-256. sorok)."""
+        container: DIContainer = DIContainer()
+
+        class TestClass:
+            _initialized = True
+
+        instance1 = TestClass()
+        instance2 = TestClass()
+
+        # Először regisztráljuk az első példányt
+        container._instances["test_component"] = instance1
+
+        # Aztán megpróbáljuk ugyanazzal a névvel regisztrálni a második példányt
+        from neural_ai.core.base.exceptions import SingletonViolationError
+        with pytest.raises(SingletonViolationError, match="Singleton pattern violated"):
+            container._enforce_singleton("test_component", instance2)

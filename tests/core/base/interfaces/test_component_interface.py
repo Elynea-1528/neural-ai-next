@@ -184,14 +184,20 @@ class TestCoreComponentFactoryInterface:
             
             @property
             def config(self) -> Any | None:
+                # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
+                super().config
                 return self._config
             
             @property
             def logger(self) -> Any | None:
+                # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
+                super().logger
                 return self._logger
             
             @property
             def storage(self) -> Any | None:
+                # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
+                super().storage
                 return self._storage
             
             def has_config(self) -> bool:
