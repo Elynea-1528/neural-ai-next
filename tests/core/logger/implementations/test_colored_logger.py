@@ -1,6 +1,8 @@
 """Colored logger implementáció tesztei."""
 import logging
+
 import pytest
+
 from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
 
 

@@ -1,5 +1,6 @@
 """Logger interfész tesztek."""
 import pytest
+
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 

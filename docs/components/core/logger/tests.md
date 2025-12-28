@@ -194,15 +194,15 @@ def test_with_capsys(self, capsys: pytest.CaptureFixture[str]) -> None:
 
 | Modul | Sorok | Hiányzó | Coverage |
 |-------|-------|---------|----------|
-| `neural_ai/core/logger/__init__.py` | 13 | 2 | 85% |
+| `neural_ai/core/logger/__init__.py` | 13 | 2 | 85% | 56-58 |
 | `neural_ai/core/logger/exceptions/logger_error.py` | 6 | 0 | 100% |
-| `neural_ai/core/logger/factory.py` | 85 | 15 | 82% |
+| `neural_ai/core/logger/factory.py` | 85 | 15 | 82% | 107, 213-246 |
 | `neural_ai/core/logger/formatters/logger_formatters.py` | 9 | 0 | 100% |
-| `neural_ai/core/logger/implementations/colored_logger.py` | 36 | 1 | 97% |
+| `neural_ai/core/logger/implementations/colored_logger.py` | 36 | 1 | 97% | 55 |
 | `neural_ai/core/logger/implementations/default_logger.py` | 34 | 0 | 100% |
-| `neural_ai/core/logger/implementations/rotating_file_logger.py` | 56 | 7 | 88% |
-| `neural_ai/core/logger/interfaces/factory_interface.py` | 16 | 3 | 81% |
-| `neural_ai/core/logger/interfaces/logger_interface.py` | 28 | 8 | 71% |
+| `neural_ai/core/logger/implementations/rotating_file_logger.py` | 56 | 7 | 88% | 60, 75, 106, 118, 130, 142, 154 |
+| `neural_ai/core/logger/interfaces/factory_interface.py` | 16 | 3 | 81% | 35, 54, 67 |
+| `neural_ai/core/logger/interfaces/logger_interface.py` | 28 | 8 | 71% | 33, 46, 59, 72, 85, 97, 109, 118 |
 
 ## Best Practices
 

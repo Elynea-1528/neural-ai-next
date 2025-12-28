@@ -1,9 +1,10 @@
 """Rotating file logger implementáció tesztei."""
 import logging
-import os
-import pytest
 import tempfile
 from pathlib import Path
+
+import pytest
+
 from neural_ai.core.logger.implementations.rotating_file_logger import RotatingFileLogger
 
 
@@ -21,7 +22,7 @@ class TestRotatingFileLogger:
     def test_init_without_file_raises_error(self) -> None:
         """Logger inicializálás fájl nélkül hibát dob."""
         with pytest.raises(TypeError, match="missing 1 required positional argument: 'log_file'"):
-            RotatingFileLogger("test_no_file")
+            RotatingFileLogger("test_no_file")  # type: ignore[call-arg]
 
     def test_init_with_custom_level(self) -> None:
         """Logger inicializálás egyéni szinttel."""
@@ -44,7 +45,9 @@ class TestRotatingFileLogger:
         """Debug üzenet logolásának tesztelése."""
         with tempfile.TemporaryDirectory() as tmpdir:
             log_file = Path(tmpdir) / "test_debug.log"
-            logger = RotatingFileLogger("test_debug_log", log_file=str(log_file), level=logging.DEBUG)
+            logger = RotatingFileLogger(
+                "test_debug_log", log_file=str(log_file), level=logging.DEBUG
+            )
             logger.debug("Test debug message", extra_data="debug_value")
             assert log_file.exists()
             content = log_file.read_text()
@@ -114,7 +117,7 @@ class TestRotatingFileLogger:
         with tempfile.TemporaryDirectory() as tmpdir:
             log_file = Path(tmpdir) / "test_invalid.log"
             with pytest.raises(ValueError, match="Érvénytelen rotation_type"):
-                RotatingFileLogger("test_invalid", log_file=str(log_file), rotation_type="invalid")
+                RotatingFileLogger("test_invalid", log_file=str(log_file), rotation_type="invalid")  # type: ignore[arg-type]
 
     def test_clean_old_logs(self) -> None:
         """Régi log fájlok törlésének tesztelése."""

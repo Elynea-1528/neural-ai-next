@@ -1,6 +1,6 @@
 """Logger formatter tesztek."""
 import logging
-import pytest
+
 from neural_ai.core.logger.formatters.logger_formatters import ColoredFormatter
 
 
