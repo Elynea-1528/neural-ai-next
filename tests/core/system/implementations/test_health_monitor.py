@@ -390,6 +390,33 @@ class TestHealthMonitor(unittest.TestCase):
             # Error log ellenőrzése
             mock_logger.error.assert_called_once()
 
+    def test_check_health_exception_in_for_loop_coverage(self) -> None:
+        """Teszteli a check_health 77-87 sorainak kivételkezelését.
 
-if __name__ == "__main__":
-    unittest.main()
+        Ez a teszt specifikusan a 77-87 sorok kivételkezelő blokkját fedi le.
+        A kivételnek a check_health for ciklusában kell keletkeznie.
+        """
+        # Mockoljuk a check_component metódust, hogy kivételt dobjon
+        with patch.object(self.monitor, 'check_component') as mock_check_component:
+            mock_check_component.side_effect = RuntimeError("For loop exception")
+
+            # Regisztrálunk egy komponenst
+            self.monitor.register_component("test_component")
+
+            # Ellenőrizzük az egészségügyi állapotot
+            health = self.monitor.check_health()
+
+            # A rendszernek CRITICAL állapotúnak kell lennie
+            self.assertEqual(health.overall_status, HealthStatus.CRITICAL)
+            self.assertEqual(len(health.components), 1)
+
+            # Ellenőrizzük a hibás komponenst
+            error_component = health.components[0]
+            self.assertEqual(error_component.name, "test_component")
+            self.assertEqual(error_component.status, ComponentStatus.CRITICAL)
+            self.assertIn("Hiba", error_component.message)
+            self.assertIn("For loop exception", error_component.message)
+
+
+    if __name__ == "__main__":
+        unittest.main()
