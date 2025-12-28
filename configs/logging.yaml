@@ -14,6 +14,8 @@ handlers:
     backup_count: 5
 loggers:
   neural_ai: { level: "DEBUG", propagate: true }
+  # Nyomkövetési logger a tracing üzenetek konfigurálható kezeléséhez
+  neural_ai.trace: { level: "DEBUG" }
   # Külső zajszűrés
   aiosqlite: { level: "WARNING" }
   asyncio: { level: "WARNING" }
