@@ -1,0 +1,151 @@
+"""Tesztek a neural_ai.core.db.factory modulhoz.
+
+Ez a modul tartalmazza a DatabaseFactory osztály és annak metódusainak tesztjeit.
+"""
+
+from unittest.mock import MagicMock, patch
+
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
+
+from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+from neural_ai.core.db.factory import DatabaseFactory
+from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
+
+
+class TestDatabaseFactory:
+    """DatabaseFactory osztály tesztjei."""
+
+    def test_get_session_maker_without_config(self) -> None:
+        """Teszteli a session maker lekérdezést konfig nélkül."""
+        session_maker = DatabaseFactory.get_session_maker()
+        
+        assert session_maker is not None
+        assert isinstance(session_maker, async_sessionmaker)
+
+    def test_get_session_maker_with_config(self) -> None:
+        """Teszteli a session maker lekérdezést konfiggal."""
+        mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
+        session_maker = DatabaseFactory.get_session_maker(mock_config)
+        
+        assert session_maker is not None
+        assert isinstance(session_maker, async_sessionmaker)
+
+    @patch('neural_ai.core.db.factory.get_engine')
+    def test_get_engine_without_config(self, mock_get_engine: MagicMock) -> None:
+        """Teszteli az engine lekérdezést konfig nélkül."""
+        mock_engine = MagicMock()
+        mock_get_engine.return_value = mock_engine
+        
+        engine = DatabaseFactory.get_engine()
+        
+        assert engine is mock_engine
+        mock_get_engine.assert_called_once_with(None)
+
+    @patch('neural_ai.core.db.factory.get_engine')
+    def test_get_engine_with_config(self, mock_get_engine: MagicMock) -> None:
+        """Teszteli az engine lekérdezést konfiggal."""
+        mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
+        mock_engine = MagicMock()
+        mock_get_engine.return_value = mock_engine
+        
+        engine = DatabaseFactory.get_engine(mock_config)
+        
+        assert engine is mock_engine
+        mock_get_engine.assert_called_once_with(mock_config)
+
+    def test_create_engine_with_custom_url(self) -> None:
+        """Teszteli az egyéni engine létrehozást."""
+        custom_url = "sqlite+aiosqlite:///:memory:"
+        engine = DatabaseFactory.create_engine(custom_url, echo=False)
+        
+        assert engine is not None
+        assert isinstance(engine, AsyncEngine)
+
+    def test_create_engine_with_echo_enabled(self) -> None:
+        """Teszteli az engine létrehozást echo módban."""
+        custom_url = "sqlite+aiosqlite:///:memory:"
+        engine = DatabaseFactory.create_engine(custom_url, echo=True)
+        
+        assert engine is not None
+        assert isinstance(engine, AsyncEngine)
+
+    def test_create_manager_without_config(self) -> None:
+        """Teszteli a DatabaseManager létrehozást konfig nélkül."""
+        manager = DatabaseFactory.create_manager()
+        
+        assert manager is not None
+        assert isinstance(manager, DatabaseManager)
+
+    def test_create_manager_with_config(self) -> None:
+        """Teszteli a DatabaseManager létrehozást konfiggal."""
+        mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
+        manager = DatabaseFactory.create_manager(mock_config)
+        
+        assert manager is not None
+        assert isinstance(manager, DatabaseManager)
+        assert manager.config_manager is not None
+
+    @patch('neural_ai.core.db.factory.get_async_session_maker')
+    def test_get_session_maker_caches_result(self, mock_get_session: MagicMock) -> None:
+        """Teszteli, hogy a session maker cache-elődik a modul szintjén."""
+        mock_session_maker = MagicMock()
+        mock_get_session.return_value = mock_session_maker
+        
+        result1 = DatabaseFactory.get_session_maker()
+        result2 = DatabaseFactory.get_session_maker()
+        
+        assert result1 is result2
+        # A modul szintű cache miatt csak egyszer hívódik meg a globális függvény
+        mock_get_session.assert_called()
+
+    @patch('neural_ai.core.db.factory.get_engine')
+    def test_get_engine_caches_result(self, mock_get_engine: MagicMock) -> None:
+        """Teszteli, hogy az engine cache-elődik a modul szintjén."""
+        mock_engine = MagicMock()
+        mock_get_engine.return_value = mock_engine
+        
+        result1 = DatabaseFactory.get_engine()
+        result2 = DatabaseFactory.get_engine()
+        
+        assert result1 is result2
+        # A modul szintű cache miatt csak egyszer hívódik meg a globális függvény
+        mock_get_engine.assert_called()
+
+    def test_create_engine_different_urls(self) -> None:
+        """Teszteli az engine létrehozást különböző URL-ekkel."""
+        urls = [
+            "sqlite+aiosqlite:///:memory:",
+            "sqlite+aiosqlite:///test.db",
+        ]
+        
+        for url in urls:
+            engine = DatabaseFactory.create_engine(url)
+            assert engine is not None
+            assert isinstance(engine, AsyncEngine)
+
+    @patch('neural_ai.core.db.factory.get_engine')
+    def test_factory_methods_return_consistent_types(self, mock_get_engine: MagicMock) -> None:
+        """Teszteli, hogy a factory metódusok konzisztens típusokat adnak vissza."""
+        mock_engine = MagicMock(spec=AsyncEngine)
+        mock_get_engine.return_value = mock_engine
+        
+        # Session maker teszt
+        session_maker = DatabaseFactory.get_session_maker()
+        assert isinstance(session_maker, async_sessionmaker)
+        
+        # Engine teszt
+        engine = DatabaseFactory.get_engine()
+        assert engine is mock_engine
+        
+        # Manager teszt
+        manager = DatabaseFactory.create_manager()
+        assert isinstance(manager, DatabaseManager)
+
+    def test_factory_is_stateless(self) -> None:
+        """Teszteli, hogy a factory osztály állapotmentes-e."""
+        # Két különböző hívást kell ugyanazt az eredményt adnia
+        manager1 = DatabaseFactory.create_manager()
+        manager2 = DatabaseFactory.create_manager()
+        
+        # A manager Singleton, ezért ugyanazt a példányt kell visszaadnia
+        assert manager1 is manager2
