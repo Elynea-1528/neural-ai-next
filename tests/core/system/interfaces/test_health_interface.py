@@ -3,30 +3,32 @@
 Ez a modul a `health_interface.py` interfészek tesztjeit tartalmazza.
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
+
 from neural_ai.core.system.interfaces.health_interface import (
-    ComponentStatus,
-    HealthStatus,
     ComponentHealth,
-    SystemHealth,
+    ComponentStatus,
+    HealthCheckInterface,
     HealthMonitorInterface,
-    HealthCheckInterface
+    HealthStatus,
+    SystemHealth,
 )
 
 
 class TestComponentStatus:
     """ComponentStatus enum tesztek."""
-    
-    def test_enum_values(self):
+
+    def test_enum_values(self) -> None:
         """Teszteli az enum értékeket."""
         assert ComponentStatus.HEALTHY.value == "healthy"
         assert ComponentStatus.WARNING.value == "warning"
         assert ComponentStatus.CRITICAL.value == "critical"
         assert ComponentStatus.UNKNOWN.value == "unknown"
         assert ComponentStatus.OFFLINE.value == "offline"
-    
-    def test_enum_members(self):
+
+    def test_enum_members(self) -> None:
         """Teszteli az enum tagokat."""
         assert len(list(ComponentStatus)) == 5
         assert ComponentStatus.HEALTHY in ComponentStatus
@@ -38,15 +40,15 @@ class TestComponentStatus:
 
 class TestHealthStatus:
     """HealthStatus enum tesztek."""
-    
-    def test_enum_values(self):
+
+    def test_enum_values(self) -> None:
         """Teszteli az enum értékeket."""
         assert HealthStatus.OK.value == "ok"
         assert HealthStatus.DEGRADED.value == "degraded"
         assert HealthStatus.CRITICAL.value == "critical"
         assert HealthStatus.UNKNOWN.value == "unknown"
-    
-    def test_enum_members(self):
+
+    def test_enum_members(self) -> None:
         """Teszteli az enum tagokat."""
         assert len(list(HealthStatus)) == 4
         assert HealthStatus.OK in HealthStatus
@@ -57,8 +59,8 @@ class TestHealthStatus:
 
 class TestComponentHealth:
     """ComponentHealth dataclass tesztek."""
-    
-    def test_create_with_required_fields(self):
+
+    def test_create_with_required_fields(self) -> None:
         """Teszteli a létrehozást kötelező mezőkkel."""
         timestamp = datetime.now()
         health = ComponentHealth(
@@ -67,14 +69,14 @@ class TestComponentHealth:
             message="Minden OK",
             timestamp=timestamp
         )
-        
+
         assert health.name == "test_component"
         assert health.status == ComponentStatus.HEALTHY
         assert health.message == "Minden OK"
         assert health.timestamp == timestamp
         assert health.metrics is None
-    
-    def test_create_with_optional_metrics(self):
+
+    def test_create_with_optional_metrics(self) -> None:
         """Teszteli a létrehozást opcionális metrikákkal."""
         timestamp = datetime.now()
         metrics = {"response_time_ms": 10.5, "error_rate": 0.01}
@@ -85,12 +87,12 @@ class TestComponentHealth:
             timestamp=timestamp,
             metrics=metrics
         )
-        
+
         assert health.metrics == metrics
         assert health.metrics["response_time_ms"] == 10.5
         assert health.metrics["error_rate"] == 0.01
-    
-    def test_immutability(self):
+
+    def test_immutability(self) -> None:
         """Teszteli az adatok megváltoztathatóságát."""
         timestamp = datetime.now()
         health = ComponentHealth(
@@ -99,7 +101,7 @@ class TestComponentHealth:
             message="Minden OK",
             timestamp=timestamp
         )
-        
+
         # A dataclass alapértelmezett nem változtatható (frozen=False)
         # Ezért ez a teszt csak ellenőrzi, hogy a mezők beállíthatók-e
         health.metrics = {"test": 1.0}
@@ -108,8 +110,8 @@ class TestComponentHealth:
 
 class TestSystemHealth:
     """SystemHealth dataclass tesztek."""
-    
-    def test_create_with_required_fields(self):
+
+    def test_create_with_required_fields(self) -> None:
         """Teszteli a létrehozást kötelező mezőkkel."""
         timestamp = datetime.now()
         components = [
@@ -120,21 +122,21 @@ class TestSystemHealth:
                 timestamp=timestamp
             )
         ]
-        
+
         health = SystemHealth(
             overall_status=HealthStatus.OK,
             message="Rendszer OK",
             timestamp=timestamp,
             components=components
         )
-        
+
         assert health.overall_status == HealthStatus.OK
         assert health.message == "Rendszer OK"
         assert health.timestamp == timestamp
         assert health.components == components
         assert health.system_metrics is None
-    
-    def test_create_with_optional_metrics(self):
+
+    def test_create_with_optional_metrics(self) -> None:
         """Teszteli a létrehozást opcionális metrikákkal."""
         timestamp = datetime.now()
         components = []
@@ -143,7 +145,7 @@ class TestSystemHealth:
             "memory_usage": 67.8,
             "disk_usage": 23.4
         }
-        
+
         health = SystemHealth(
             overall_status=HealthStatus.OK,
             message="Rendszer OK",
@@ -151,11 +153,11 @@ class TestSystemHealth:
             components=components,
             system_metrics=system_metrics
         )
-        
+
         assert health.system_metrics == system_metrics
         assert health.system_metrics["cpu_usage"] == 45.2
-    
-    def test_empty_components_list(self):
+
+    def test_empty_components_list(self) -> None:
         """Teszteli az üres komponens listát."""
         timestamp = datetime.now()
         health = SystemHealth(
@@ -164,30 +166,30 @@ class TestSystemHealth:
             timestamp=timestamp,
             components=[]
         )
-        
+
         assert len(health.components) == 0
 
 
 class TestHealthMonitorInterface:
     """HealthMonitorInterface tesztek."""
-    
-    def test_interface_is_abstract(self):
+
+    def test_interface_is_abstract(self) -> None:
         """Teszteli, hogy az interfész absztrakt."""
         with pytest.raises(TypeError):
             HealthMonitorInterface()
-    
-    def test_check_health_is_abstract(self):
+
+    def test_check_health_is_abstract(self) -> None:
         """Teszteli, hogy a check_health metódus absztrakt."""
-        
+
         class ConcreteMonitor(HealthMonitorInterface):
             pass
-        
+
         with pytest.raises(TypeError):
             ConcreteMonitor()
-    
-    def test_implement_interface(self):
+
+    def test_implement_interface(self) -> None:
         """Teszteli az interfész implementációját."""
-        
+
         class TestMonitor(HealthMonitorInterface):
             def check_health(self):
                 return SystemHealth(
@@ -196,7 +198,7 @@ class TestHealthMonitorInterface:
                     timestamp=datetime.now(),
                     components=[]
                 )
-            
+
             def check_component(self, component_name: str):
                 return ComponentHealth(
                     name=component_name,
@@ -204,16 +206,16 @@ class TestHealthMonitorInterface:
                     message="OK",
                     timestamp=datetime.now()
                 )
-            
+
             def get_registered_components(self):
                 return []
-            
+
             def register_component(self, component_name: str):
                 pass
-            
+
             def unregister_component(self, component_name: str):
                 pass
-        
+
         monitor = TestMonitor()
         assert isinstance(monitor, HealthMonitorInterface)
         assert hasattr(monitor, 'check_health')
@@ -225,24 +227,24 @@ class TestHealthMonitorInterface:
 
 class TestHealthCheckInterface:
     """HealthCheckInterface tesztek."""
-    
-    def test_interface_is_abstract(self):
+
+    def test_interface_is_abstract(self) -> None:
         """Teszteli, hogy az interfész absztrakt."""
         with pytest.raises(TypeError):
             HealthCheckInterface()
-    
-    def test_check_is_abstract(self):
+
+    def test_check_is_abstract(self) -> None:
         """Teszteli, hogy a check metódus absztrakt."""
-        
+
         class ConcreteCheck(HealthCheckInterface):
             pass
-        
+
         with pytest.raises(TypeError):
             ConcreteCheck()
-    
-    def test_implement_interface(self):
+
+    def test_implement_interface(self) -> None:
         """Teszteli az interfész implementációját."""
-        
+
         class TestCheck(HealthCheckInterface):
             def check(self):
                 return ComponentHealth(
@@ -251,10 +253,10 @@ class TestHealthCheckInterface:
                     message="OK",
                     timestamp=datetime.now()
                 )
-            
+
             def get_name(self):
                 return "test_check"
-        
+
         check = TestCheck()
         assert isinstance(check, HealthCheckInterface)
         assert hasattr(check, 'check')
@@ -263,18 +265,18 @@ class TestHealthCheckInterface:
 
 class TestIntegration:
     """Integrációs tesztek."""
-    
-    def test_component_health_in_system_health(self):
+
+    def test_component_health_in_system_health(self) -> None:
         """Teszteli a ComponentHealth integrációját SystemHealth-ben."""
         timestamp = datetime.now()
-        
+
         component1 = ComponentHealth(
             name="database",
             status=ComponentStatus.HEALTHY,
             message="Adatbázis OK",
             timestamp=timestamp
         )
-        
+
         component2 = ComponentHealth(
             name="api",
             status=ComponentStatus.WARNING,
@@ -282,45 +284,21 @@ class TestIntegration:
             timestamp=timestamp,
             metrics={"response_time_ms": 500.0}
         )
-        
+
         system_health = SystemHealth(
             overall_status=HealthStatus.DEGRADED,
             message="Rendszer figyelmeztetéssel",
             timestamp=timestamp,
             components=[component1, component2]
         )
-        
+
         assert len(system_health.components) == 2
         assert system_health.components[0].name == "database"
         assert system_health.components[1].name == "api"
         assert system_health.components[1].metrics["response_time_ms"] == 500.0
-    
-    def test_health_status_aggregation(self):
+
+    def test_health_status_aggregation(self) -> None:
         """Teszteli az egészségügyi állapotok aggregációját."""
-        # Kritikus komponens -> CRITICAL
-        critical_component = ComponentHealth(
-            name="critical",
-            status=ComponentStatus.CRITICAL,
-            message="Hiba",
-            timestamp=datetime.now()
-        )
-        
-        # Figyelmeztető komponens -> DEGRADED
-        warning_component = ComponentHealth(
-            name="warning",
-            status=ComponentStatus.WARNING,
-            message="Figyelmeztetés",
-            timestamp=datetime.now()
-        )
-        
-        # Egészséges komponens -> OK
-        healthy_component = ComponentHealth(
-            name="healthy",
-            status=ComponentStatus.HEALTHY,
-            message="OK",
-            timestamp=datetime.now()
-        )
-        
         # Teszteljük a különböző kombinációkat
         assert ComponentStatus.CRITICAL.value == "critical"
         assert ComponentStatus.WARNING.value == "warning"
@@ -329,20 +307,20 @@ class TestIntegration:
 
 class TestTypeSafety:
     """Típusbiztonság tesztek."""
-    
-    def test_component_status_type(self):
+
+    def test_component_status_type(self) -> None:
         """Teszteli a ComponentStatus típusát."""
         status = ComponentStatus.HEALTHY
         assert isinstance(status, ComponentStatus)
         assert isinstance(status.value, str)
-    
-    def test_health_status_type(self):
+
+    def test_health_status_type(self) -> None:
         """Teszteli a HealthStatus típusát."""
         status = HealthStatus.OK
         assert isinstance(status, HealthStatus)
         assert isinstance(status.value, str)
-    
-    def test_component_health_types(self):
+
+    def test_component_health_types(self) -> None:
         """Teszteli a ComponentHealth mezőinek típusát."""
         health = ComponentHealth(
             name="test",
@@ -351,14 +329,14 @@ class TestTypeSafety:
             timestamp=datetime.now(),
             metrics={"test": 1.0}
         )
-        
+
         assert isinstance(health.name, str)
         assert isinstance(health.status, ComponentStatus)
         assert isinstance(health.message, str)
         assert isinstance(health.timestamp, datetime)
         assert isinstance(health.metrics, dict)
-    
-    def test_system_health_types(self):
+
+    def test_system_health_types(self) -> None:
         """Teszteli a SystemHealth mezőinek típusát."""
         health = SystemHealth(
             overall_status=HealthStatus.OK,
@@ -367,7 +345,7 @@ class TestTypeSafety:
             components=[],
             system_metrics={"cpu": 50.0}
         )
-        
+
         assert isinstance(health.overall_status, HealthStatus)
         assert isinstance(health.message, str)
         assert isinstance(health.timestamp, datetime)

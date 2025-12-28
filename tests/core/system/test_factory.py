@@ -5,7 +5,7 @@ a rendszer komponensek (pl. HealthMonitor) létrehozásáért és kezeléséért
 """
 
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from neural_ai.core.system.factory import SystemComponentFactory
 from neural_ai.core.system.interfaces.health_interface import (
@@ -46,7 +46,7 @@ class TestSystemComponentFactory(unittest.TestCase):
 
     def test_create_health_monitor_with_logger(self) -> None:
         """HealthMonitor létrehozása loggerrel."""
-        mock_logger = MagicMock()
+        mock_logger: MagicMock = MagicMock()
         monitor = SystemComponentFactory.create_health_monitor(
             name="logger_test", logger=mock_logger
         )
@@ -78,7 +78,7 @@ class TestSystemComponentFactory(unittest.TestCase):
 
     def test_create_health_check_with_logger(self) -> None:
         """HealthCheck létrehozása loggerrel."""
-        mock_logger = MagicMock()
+        mock_logger: MagicMock = MagicMock()
         check = SystemComponentFactory.create_health_check(
             component_name="logger_test", logger=mock_logger
         )
@@ -107,7 +107,7 @@ class TestSystemComponentFactory(unittest.TestCase):
 
     def test_register_component_with_custom_check(self) -> None:
         """Komponens regisztrálása egyedi ellenőrzéssel."""
-        mock_check = MagicMock(spec=HealthCheckInterface)
+        mock_check: MagicMock = MagicMock(spec=HealthCheckInterface)
         mock_check.check.return_value = ComponentHealth(
             name="custom_test",
             status=ComponentStatus.HEALTHY,
@@ -253,6 +253,23 @@ class TestSystemComponentFactory(unittest.TestCase):
             # A metrikáknak float típusúnak kell lenniük
             self.assertIsInstance(health.system_metrics["cpu_percent"], float)
             self.assertIsInstance(health.system_metrics["memory_percent"], float)
+
+    def test_register_component_fallback_implementation(self) -> None:
+        """Teszteli a register_component fallback implementációját."""
+        # Mockoljunk egy nem HealthMonitor implementációt
+        mock_monitor: MagicMock = MagicMock(spec=HealthMonitorInterface)
+        SystemComponentFactory._health_monitors["fallback_test"] = mock_monitor
+
+        # Regisztráljunk egy komponenst
+        SystemComponentFactory.register_component(
+            monitor_name="fallback_test", component_name="test_component"
+        )
+
+        # Ellenőrizzük, hogy a mock monitor register_component metódusa meghívásra került-e
+        mock_monitor.register_component.assert_called_once_with("test_component")
+
+        # Takarítás
+        del SystemComponentFactory._health_monitors["fallback_test"]
 
 
 if __name__ == "__main__":
