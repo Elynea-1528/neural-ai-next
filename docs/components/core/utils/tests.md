@@ -95,8 +95,8 @@ pytest tests/core/utils/ --cov=neural_ai.core.utils --cov-report=term-missing
 |-------|-------------------|-----------------|
 | decorators.py | 100% | 100% |
 | factory.py | 100% | 100% |
-| hardware_info.py | 89% | 85% |
-| **Összesen** | **83%** | **82%** |
+| hardware_info.py | 89% | 89% |
+| **Összesen** | **83%** | **83%** |
 
 ### Ismétlődő hibák és megoldások
 
