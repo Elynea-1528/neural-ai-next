@@ -1,6 +1,5 @@
 """Dependency injection konténer implementáció."""
 
-import logging
 import sys
 import threading
 import warnings
@@ -10,6 +9,7 @@ from typing import TypeVar, cast
 import structlog
 
 from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
+from neural_ai.core.utils.decorators import trace
 
 T = TypeVar("T")
 InterfaceT = TypeVar("InterfaceT")
@@ -68,8 +68,9 @@ class DIContainer:
         self._instances: dict[object, object] = {}
         self._factories: dict[object, Callable[[], object]] = {}
         self._lazy_components: dict[str, LazyComponent[object]] = {}
-        self._logger = logging.getLogger(__name__)
+        self._logger = structlog.get_logger(__name__)
 
+    @trace
     def register_instance(self, interface: InterfaceT, instance: InterfaceT) -> None:
         """Példány regisztrálása a konténerben.
 
@@ -77,11 +78,12 @@ class DIContainer:
             interface: Az interfész típusa
             instance: Az interfészt megvalósító példány
         """
-        interface_name = getattr(interface, '__name__', str(interface))
+        interface_name = getattr(interface, "__name__", str(interface))
         instance_name = type(instance).__name__
-        self._logger.debug(f"DI: Regisztrálva -> {interface_name} ({instance_name})")
+        self._logger.debug("DI regisztrálva", interface=interface_name, instance=instance_name)
         self._instances[interface] = instance
 
+    @trace
     def register_factory(self, interface: InterfaceT, factory: Callable[[], InterfaceT]) -> None:
         """Factory függvény regisztrálása a konténerben.
 
@@ -89,11 +91,14 @@ class DIContainer:
             interface: Az interfész típusa
             factory: Az interfész implementációját létrehozó factory függvény
         """
-        interface_name = getattr(interface, '__name__', str(interface))
-        factory_name = getattr(factory, '__name__', 'anonymous')
-        self._logger.debug(f"DI: Factory regisztrálva -> {interface_name} ({factory_name})")
+        interface_name = getattr(interface, "__name__", str(interface))
+        factory_name = getattr(factory, "__name__", "anonymous")
+        self._logger.debug(
+            "DI factory regisztrálva", interface=interface_name, factory=factory_name
+        )
         self._factories[interface] = factory
 
+    @trace
     def resolve(self, interface: InterfaceT) -> InterfaceT | None:
         """Függőség feloldása.
 
@@ -119,6 +124,7 @@ class DIContainer:
 
         return None
 
+    @trace
     def register_lazy(self, component_name: str, factory_func: Callable[[], T]) -> None:
         """Lusta betöltésű komponens regisztrálása.
 
@@ -138,8 +144,9 @@ class DIContainer:
 
         lazy_component = LazyComponent[T](factory_func)
         self._lazy_components[component_name] = cast(LazyComponent[object], lazy_component)
-        self._logger.info(f"Registered lazy component: {component_name}")
+        self._logger.info("Lazy komponens regisztrálva", component_name=component_name)
 
+    @trace
     def get(self, component_name: str) -> object:
         """Komponens példány lekérése (lusta betöltés támogatással).
 
@@ -192,7 +199,7 @@ class DIContainer:
         """
         for name in component_names:
             if name in self._lazy_components:
-                self._logger.info(f"Preloading component: {name}")
+                self._logger.info("Komponens előtöltése", component_name=name)
                 self.get(name)
 
     def clear(self) -> None:
@@ -213,8 +220,12 @@ class DIContainer:
         """
         # 1. Init ellenőrzés (Mindenkinek kötelező)
         if not getattr(instance, "_initialized", False):
+            msg = (
+                f"Instance of {type(instance).__name__} ({component_name}) "
+                "is missing '_initialized' flag."
+            )
             warnings.warn(
-                f"Instance of {type(instance).__name__} ({component_name}) is missing '_initialized' flag.",
+                msg,
                 UserWarning,
                 stacklevel=2,
             )

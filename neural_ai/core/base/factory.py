@@ -16,6 +16,7 @@ from neural_ai.core.base.exceptions import (
 from neural_ai.core.base.implementations.di_container import DIContainer
 from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
 from neural_ai.core.base.implementations.singleton import SingletonMeta
+from neural_ai.core.utils.decorators import trace
 
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
@@ -198,6 +199,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
                 raise ConfigurationError(f"Config file does not exist: {config_path}")
 
     @staticmethod
+    @trace
     def create_components(
         config_path: str | Path | None = None,
         log_path: str | Path | None = None,
@@ -267,6 +269,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         return components
 
     @staticmethod
+    @trace
     def create_with_container(container: DIContainer) -> "CoreComponents":
         """Core komponensek létrehozása meglévő konténerből.
 
@@ -281,6 +284,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         return CoreComponents(container=container)
 
     @staticmethod
+    @trace
     def create_minimal() -> "CoreComponents":
         """Minimális core komponens készlet létrehozása.
 

@@ -9,6 +9,10 @@ import threading
 from collections.abc import Callable
 from typing import TypeVar, cast
 
+import structlog
+
+from neural_ai.core.utils.decorators import trace
+
 T = TypeVar("T")
 
 __all__ = ["LazyLoader", "lazy_property"]
@@ -36,6 +40,7 @@ class LazyLoader[T]:
         self._loaded: bool = False
         self._value: T | None = None
         self._lock = threading.RLock()
+        self._logger = structlog.get_logger(__name__)
 
     def _load(self) -> T:
         """Betölti az erőforrást, ha még nincs betöltve.
@@ -54,6 +59,7 @@ class LazyLoader[T]:
                 assert self._value is not None, "A betöltő függvény None értéket adott vissza"
         return cast(T, self._value)
 
+    @trace
     def __call__(self) -> T:
         """Visszaadja a betöltött erőforrást.
 

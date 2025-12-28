@@ -8,6 +8,8 @@ ami ezt a metaclass-t használja, csak egyetlen példány létezzen az alkalmaz�
 from abc import ABCMeta
 from typing import TypeVar, cast
 
+from neural_ai.core.utils.decorators import trace
+
 T = TypeVar("T")
 
 
@@ -37,6 +39,7 @@ class SingletonMeta(ABCMeta):
 
     _instances: dict[type, object] = {}
 
+    @trace
     def __call__(cls: type[T], *args: object, **kwargs: object) -> T:
         """Singleton példány létrehozása vagy visszaadása.
 

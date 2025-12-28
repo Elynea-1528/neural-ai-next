@@ -1,10 +1,11 @@
 """Core komponensek gyűjtemény."""
 
-import threading
-from collections.abc import Callable
-from typing import TYPE_CHECKING, Optional, TypeVar, cast
+from typing import TYPE_CHECKING, Optional, TypeVar
+
+import structlog
 
 from neural_ai.core.base.factory import CoreComponentFactory
+from neural_ai.core.utils.decorators import trace
 
 # Körkörös importok elkerüléséhez
 if TYPE_CHECKING:
@@ -17,61 +18,6 @@ if TYPE_CHECKING:
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 T = TypeVar("T")
-
-
-class LazyLoader[T]:
-    """Drága erőforrások lusta betöltője."""
-
-    def __init__(self, loader_func: Callable[[], T]) -> None:
-        """Lustabetöltő inicializálása.
-
-        Args:
-            loader_func: A függvény, amely az erőforrás betöltését végzi.
-        """
-        self._loader_func = loader_func
-        self._loaded: bool = False
-        self._value: T | None = None
-        self._lock = threading.RLock()
-
-    def _load(self) -> T:
-        """Betölti az erőforrást, ha még nincs betöltve.
-
-        Returns:
-            A betöltött erőforrás.
-        """
-        with self._lock:
-            if not self._loaded:
-                self._value = self._loader_func()
-                self._loaded = True
-                assert self._value is not None, "Loader function returned None"
-        return cast(T, self._value)
-
-    def __call__(self) -> T:
-        """Visszaadja a betöltött erőforrást.
-
-        Returns:
-            A betöltött erőforrás.
-        """
-        return self._load()
-
-    @property
-    def is_loaded(self) -> bool:
-        """Ellenőrzi, hogy az erőforrás betöltődött-e.
-
-        Returns:
-            True, ha az erőforrás betöltve van, különben False.
-        """
-        return self._loaded
-
-    def reset(self) -> None:
-        """Visszaállítja a betöltőt, hogy kirakja az erőforrást.
-
-        Ez a metódus visszaállítja a betöltő állapotát, lehetővé téve
-        az erőforrás újbóli betöltését.
-        """
-        with self._lock:
-            self._loaded = False
-            self._value = None
 
 
 class CoreComponents:
@@ -89,6 +35,7 @@ class CoreComponents:
 
         self._container = container or DIContainer()
         self._factory = CoreComponentFactory(self._container)
+        self._logger = structlog.get_logger(__name__)
 
     @property
     def config(self) -> Optional["ConfigManagerInterface"]:
@@ -282,6 +229,7 @@ class CoreComponents:
         """
         return self.hardware is not None
 
+    @trace
     def validate(self) -> bool:
         """Ellenőrzi, hogy minden szükséges komponens megvan-e.
 
