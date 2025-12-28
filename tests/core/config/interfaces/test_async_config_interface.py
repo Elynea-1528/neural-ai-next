@@ -6,7 +6,6 @@ helyes definícióját és a megvalósító osztályok konzisztenciáját.
 """
 
 from abc import ABC
-from collections.abc import Callable
 from typing import Any
 
 import pytest
@@ -339,7 +338,9 @@ class TestAsyncConfigManagerInterface:
 
     def test_interface_method_order(self) -> None:
         """Teszteli, hogy az interfész metódusai logikus sorrendben vannak."""
-        method_names = [name for name in dir(AsyncConfigManagerInterface) if not name.startswith('_')]
+        method_names = [
+            name for name in dir(AsyncConfigManagerInterface) if not name.startswith('_')
+        ]
         expected_order = [
             "get",
             "get_section",
