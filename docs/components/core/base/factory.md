@@ -284,7 +284,31 @@ A factory a következő technikákat használja a teljesítmény optimalizálás
 3. **Lazy Property-k**: Drága műveletek csak egyszer hajtódnak végre
 4. **Dependency Injection**: A függőségek konténeren keresztül kerülnek injektálásra
 
+## Observability (Megfigyelhetőség)
+
+A factory támogatja a strukturált naplózást és a konfigurálható tracing-et a teljes rendszer megfigyelhetősége érdekében.
+
+### Logging
+
+- **Strukturált naplózás**: Minden log üzenet kulcs-érték párokkal kerül rögzítésre
+- **Structlog integráció**: Egységes log formátum a teljes rendszerben
+- **Példa**:
+  ```python
+  logger.info("Komponens létrehozva", component_type="storage", path="./data")
+  ```
+
+### Tracing
+
+A következő metódusok kerültek tracinggel ellátva:
+
+- `create_components`: Core komponensek létrehozásának nyomon követése
+- `create_with_container`: Konténer alapú létrehozás tracing
+- `create_minimal`: Minimális komponens készlet tracing
+
+A tracing konfigurálható, így a teljesítmény optimalizálható.
+
 ## Verziótörténet
 
 - **v1.0**: Alap factory implementáció lazy loadinggel és DI támogatással
 - **v2.0**: Típusos visszatérési értékek hozzáadása, Pylance hibák javítása
+- **v3.0**: Structlog integráció, strukturált logging, konfigurálható tracing
