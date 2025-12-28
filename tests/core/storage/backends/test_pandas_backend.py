@@ -3,7 +3,6 @@
 Ez a modul tartalmazza a PandasBackend osztály tesztjeit.
 """
 
-import os
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -81,11 +80,13 @@ class TestPandasBackend:
         backend._ensure_initialized()
         assert backend._initialized is True
 
-    def test_write_basic(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
+    def test_write_basic(
+        self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path
+    ) -> None:
         """Teszteli az alap write műveletet."""
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
-        
+
         assert path.exists()
         backend._ensure_initialized()
         assert backend._pandas_wrapper.fp.ParquetFile(str(path)) is not None
@@ -94,7 +95,7 @@ class TestPandasBackend:
         """Teszteli a write műveletet tömörítéssel."""
         path = temp_dir / "test_compressed.parquet"
         backend.write(sample_dataframe, str(path), compression='gzip')
-        
+
         assert path.exists()
 
     def test_write_invalid_data(self, backend: PandasBackend, temp_dir: Path) -> None:
@@ -105,14 +106,14 @@ class TestPandasBackend:
 
     def test_write_invalid_path(self, backend: PandasBackend, sample_dataframe: Any) -> None:
         """Teszteli a write műveletet érvénytelen elérési úttal."""
-        with pytest.raises(RuntimeError, match="\.parquet kiterjesztéssel kell rendelkeznie"):
+        with pytest.raises(RuntimeError, match=r"\.parquet kiterjesztéssel kell rendelkeznie"):
             backend.write(sample_dataframe, "/invalid/path.txt")
 
     def test_read_basic(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
         """Teszteli az alap read műveletet."""
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
-        
+
         result = backend.read(str(path))
         assert len(result) == 3
         assert list(result.columns) == ['id', 'name', 'age']
@@ -121,7 +122,7 @@ class TestPandasBackend:
         """Teszteli a read műveletet oszlopszűréssel."""
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
-        
+
         result = backend.read(str(path), columns=['id', 'name'])
         assert len(result.columns) == 2
         assert 'age' not in result.columns
@@ -136,7 +137,7 @@ class TestPandasBackend:
         """Teszteli a chunkolt olvasást."""
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
-        
+
         result = backend.read(str(path), chunk_size=2)
         assert len(result) == 3
 
@@ -144,7 +145,7 @@ class TestPandasBackend:
         """Teszteli a hozzáfűzést új fájlhoz."""
         path = temp_dir / "test.parquet"
         backend.append(sample_dataframe, str(path))
-        
+
         assert path.exists()
         result = backend.read(str(path))
         assert len(result) == 3
@@ -153,7 +154,7 @@ class TestPandasBackend:
         """Teszteli a hozzáfűzést meglévő fájlhoz."""
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
-        
+
         # Új adatok
         pd = backend._pandas_wrapper.pd
         new_data = pd.DataFrame({
@@ -161,7 +162,7 @@ class TestPandasBackend:
             'name': ['David', 'Eve'],
             'age': [28, 32]
         })
-        
+
         backend.append(new_data, str(path))
         result = backend.read(str(path))
         assert len(result) == 5
@@ -170,7 +171,7 @@ class TestPandasBackend:
         """Teszteli a hozzáfűzést sémavizsgálattal - érvényes eset."""
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
-        
+
         # Ugyanazok az oszlopok
         pd = backend._pandas_wrapper.pd
         new_data = pd.DataFrame({
@@ -178,7 +179,7 @@ class TestPandasBackend:
             'name': ['David'],
             'age': [28]
         })
-        
+
         backend.append(new_data, str(path), schema_validation=True)
         result = backend.read(str(path))
         assert len(result) == 4
@@ -187,7 +188,7 @@ class TestPandasBackend:
         """Teszteli a hozzáfűzést sémavizsgálattal - érvénytelen eset."""
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
-        
+
         # Hiányzó oszlop
         pd = backend._pandas_wrapper.pd
         new_data = pd.DataFrame({
@@ -195,7 +196,7 @@ class TestPandasBackend:
             'name': ['David']
             # 'age' oszlop hiányzik
         })
-        
+
         with pytest.raises(ValueError, match="sémája nem kompatibilis"):
             backend.append(new_data, str(path), schema_validation=True)
 
@@ -215,9 +216,9 @@ class TestPandasBackend:
         """Teszteli a get_info metódust."""
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
-        
+
         info = backend.get_info(str(path))
-        
+
         assert info['size'] > 0
         assert info['rows'] == 3
         assert set(info['columns']) == {'id', 'name', 'age'}
@@ -249,7 +250,7 @@ class TestPandasBackend:
         """Teszteli a particionált írást."""
         path = temp_dir / "partitioned.parquet"
         backend.write(sample_dataframe, str(path), partition_by=['age'])
-        
+
         # A particionált írás létrehoz egy könyvtárat
         assert path.exists() or path.parent.exists()
 
@@ -257,14 +258,14 @@ class TestPandasBackend:
         """Teszteli az írást index mentéssel."""
         path = temp_dir / "test_index.parquet"
         backend.write(sample_dataframe, str(path), index=True)
-        
+
         assert path.exists()
 
     def test_read_with_filters(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
         """Teszteli az olvasást szűrőkkel."""
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
-        
+
         # Szűrők a fastparquet formátumban
         filters = [('age', '=', 25)]
         result = backend.read(str(path), filters=filters)
@@ -279,7 +280,7 @@ class TestPandasBackend:
             'age': [28],
             'extra': ['info']  # Extra oszlop is lehet
         })
-        
+
         assert backend._validate_schema(sample_dataframe, new_data) is True
 
     def test_validate_schema_invalid(self, backend: PandasBackend, sample_dataframe: Any) -> None:
@@ -290,7 +291,7 @@ class TestPandasBackend:
             'name': ['David']
             # 'age' oszlop hiányzik
         })
-        
+
         assert backend._validate_schema(sample_dataframe, new_data) is False
 
     def test_validate_schema_exception(self, backend: PandasBackend) -> None:

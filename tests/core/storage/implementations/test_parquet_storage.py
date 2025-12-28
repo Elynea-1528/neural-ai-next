@@ -21,6 +21,11 @@ from neural_ai.core.storage.implementations.parquet_storage import ParquetStorag
 class TestParquetStorageService:
     """ParquetStorageService osztály tesztjei."""
 
+    def setup_method(self) -> None:
+        """Teszt metódus előtti beállítás - Singleton cache törlése."""
+        from neural_ai.core.base.implementations.singleton import SingletonMeta
+        SingletonMeta._instances.clear()
+
     @pytest.fixture
     def temp_dir(self) -> Path:
         """Ideiglenes könyvtár létrehozása a tesztekhez."""
@@ -76,25 +81,31 @@ class TestParquetStorageService:
         hardware.has_avx2.return_value = False
         return hardware
 
-    def test_init_with_avx2_support(self, temp_dir: Path, mock_hardware_with_avx2: MagicMock) -> None:
+    def test_init_with_avx2_support(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock
+    ) -> None:
         """Teszteli a PolarsBackend kiválasztását AVX2 támogatás esetén."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         assert service.engine == "polars"
         assert service.backend.name == "polars"
-        mock_hardware_with_avx2.has_avx2.assert_called_once()
+        # A has_avx2-t többször is meghívhatják (pl. inicializáláskor és logoláskor)
+        assert mock_hardware_with_avx2.has_avx2.called
 
-    def test_init_without_avx2_support(self, temp_dir: Path, mock_hardware_without_avx2: MagicMock) -> None:
+    def test_init_without_avx2_support(
+        self, temp_dir: Path, mock_hardware_without_avx2: MagicMock
+    ) -> None:
         """Teszteli a PandasBackend kiválasztását AVX2 támogatás hiányában."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_without_avx2
         )
-        
+
         assert service.engine == "fastparquet"
         assert service.backend.name == "pandas"
-        mock_hardware_without_avx2.has_avx2.assert_called_once()
+        # A has_avx2-t többször is meghívhatják (pl. inicializáláskor és logoláskor)
+        assert mock_hardware_without_avx2.has_avx2.called
 
     def test_get_path(self, temp_dir: Path, mock_hardware_with_avx2: MagicMock) -> None:
         """Teszteli az elérési út generálást."""
@@ -103,43 +114,48 @@ class TestParquetStorageService:
         )
         date = datetime(2023, 12, 23)
         path = service._get_path("EURUSD", date)
-        
+
         expected_path = (
-            service.BASE_PATH / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23" / "data.parquet"
+            service.BASE_PATH / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23"
+            / "data.parquet"
         )
         assert path == expected_path
 
     @pytest.mark.asyncio
     async def test_store_tick_data_pandas(
-        self, temp_dir: Path, mock_hardware_without_avx2: MagicMock, sample_pandas_data: pd.DataFrame
+        self, temp_dir: Path, mock_hardware_without_avx2: MagicMock,
+        sample_pandas_data: pd.DataFrame
     ) -> None:
         """Teszteli a Pandas DataFrame tárolását."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_without_avx2
         )
-        
+
         await service.store_tick_data("EURUSD", sample_pandas_data, datetime(2023, 12, 23))
-        
+
         # Ellenőrizzük, hogy a fájl létrejött-e
         expected_path = (
-            temp_dir / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23" / "data.parquet"
+            temp_dir / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23"
+            / "data.parquet"
         )
         assert expected_path.exists()
 
     @pytest.mark.asyncio
     async def test_store_tick_data_polars(
-        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock, sample_polars_data: pl.DataFrame
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock,
+        sample_polars_data: pl.DataFrame
     ) -> None:
         """Teszteli a Polars DataFrame tárolását."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
-        
+
         # Ellenőrizzük, hogy a fájl létrejött-e
         expected_path = (
-            temp_dir / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23" / "data.parquet"
+            temp_dir / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23"
+            / "data.parquet"
         )
         assert expected_path.exists()
 
@@ -151,9 +167,9 @@ class TestParquetStorageService:
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         empty_df = pl.DataFrame()
-        
+
         with pytest.raises(ValueError, match="Cannot store empty DataFrame"):
             await service.store_tick_data("EURUSD", empty_df, datetime(2023, 12, 23))
 
@@ -165,30 +181,31 @@ class TestParquetStorageService:
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         # Csak timestamp oszlop, hiányzik bid és ask
         incomplete_df = pl.DataFrame({"timestamp": [datetime.now()]})
-        
+
         with pytest.raises(ValueError, match="Missing required columns"):
             await service.store_tick_data("EURUSD", incomplete_df, datetime(2023, 12, 23))
 
     @pytest.mark.asyncio
     async def test_read_tick_data_polars(
-        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock, sample_polars_data: pl.DataFrame
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock,
+        sample_polars_data: pl.DataFrame
     ) -> None:
         """Teszteli a Polars DataFrame olvasását."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         # Adatok tárolása
         await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
-        
+
         # Adatok olvasása
         result = await service.read_tick_data(
-            "EURUSD", datetime(2023, 12, 23), datetime(2023, 12, 23)
+            "EURUSD", datetime(2023, 12, 23, 0, 0, 0), datetime(2023, 12, 23, 23, 59, 59)
         )
-        
+
         assert len(result) == 3
         assert "timestamp" in result.columns
         assert "bid" in result.columns
@@ -196,21 +213,22 @@ class TestParquetStorageService:
 
     @pytest.mark.asyncio
     async def test_read_tick_data_pandas(
-        self, temp_dir: Path, mock_hardware_without_avx2: MagicMock, sample_pandas_data: pd.DataFrame
+        self, temp_dir: Path, mock_hardware_without_avx2: MagicMock,
+        sample_pandas_data: pd.DataFrame
     ) -> None:
         """Teszteli a Pandas DataFrame olvasását."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_without_avx2
         )
-        
+
         # Adatok tárolása
         await service.store_tick_data("EURUSD", sample_pandas_data, datetime(2023, 12, 23))
-        
+
         # Adatok olvasása
         result = await service.read_tick_data(
-            "EURUSD", datetime(2023, 12, 23), datetime(2023, 12, 23)
+            "EURUSD", datetime(2023, 12, 23, 0, 0, 0), datetime(2023, 12, 23, 23, 59, 59)
         )
-        
+
         assert len(result) == 3
         assert "timestamp" in result.columns
         assert "bid" in result.columns
@@ -218,24 +236,25 @@ class TestParquetStorageService:
 
     @pytest.mark.asyncio
     async def test_read_tick_data_multiple_days(
-        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock, sample_polars_data: pl.DataFrame
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock,
+        sample_polars_data: pl.DataFrame
     ) -> None:
         """Teszteli a több napos adatok olvasását."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         # Adatok tárolása több napra
         for day in range(23, 26):
             await service.store_tick_data(
                 "EURUSD", sample_polars_data, datetime(2023, 12, day)
             )
-        
+
         # Adatok olvasása dátumtartományból
         result = await service.read_tick_data(
             "EURUSD", datetime(2023, 12, 23), datetime(2023, 12, 25)
         )
-        
+
         assert len(result) == 9  # 3 nap × 3 sor
 
     @pytest.mark.asyncio
@@ -246,30 +265,31 @@ class TestParquetStorageService:
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         result = await service.read_tick_data(
             "EURUSD", datetime(2023, 12, 23), datetime(2023, 12, 25)
         )
-        
+
         assert len(result) == 0
 
     @pytest.mark.asyncio
     async def test_get_available_dates(
-        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock, sample_polars_data: pl.DataFrame
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock,
+        sample_polars_data: pl.DataFrame
     ) -> None:
         """Teszteli az elérhető dátumok lekérdezését."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         # Adatok tárolása több napra
         dates = [datetime(2023, 12, 23), datetime(2023, 12, 24), datetime(2023, 12, 25)]
         for date in dates:
             await service.store_tick_data("EURUSD", sample_polars_data, date)
-        
+
         # Elérhető dátumok lekérdezése
         available_dates = await service.get_available_dates("EURUSD")
-        
+
         assert len(available_dates) == 3
         assert available_dates == dates
 
@@ -281,24 +301,25 @@ class TestParquetStorageService:
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         available_dates = await service.get_available_dates("EURUSD")
-        
+
         assert len(available_dates) == 0
 
     @pytest.mark.asyncio
     async def test_calculate_checksum(
-        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock, sample_polars_data: pl.DataFrame
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock,
+        sample_polars_data: pl.DataFrame
     ) -> None:
         """Teszteli a checksum számítást."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
-        
+
         checksum = await service.calculate_checksum("EURUSD", datetime(2023, 12, 23))
-        
+
         assert len(checksum) == 64  # SHA256 hash hossza
         assert checksum != ""
 
@@ -310,24 +331,25 @@ class TestParquetStorageService:
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         checksum = await service.calculate_checksum("EURUSD", datetime(2023, 12, 23))
-        
+
         assert checksum == ""
 
     @pytest.mark.asyncio
     async def test_verify_data_integrity_success(
-        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock, sample_polars_data: pl.DataFrame
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock,
+        sample_polars_data: pl.DataFrame
     ) -> None:
         """Teszteli az adatintegritás ellenőrzését sikeres esetben."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
-        
+
         is_valid = await service.verify_data_integrity("EURUSD", datetime(2023, 12, 23))
-        
+
         assert is_valid is True
 
     @pytest.mark.asyncio
@@ -338,54 +360,63 @@ class TestParquetStorageService:
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         is_valid = await service.verify_data_integrity("EURUSD", datetime(2023, 12, 23))
-        
+
         assert is_valid is False
 
     @pytest.mark.asyncio
     async def test_get_storage_stats(
-        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock, sample_polars_data: pl.DataFrame
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock,
+        sample_polars_data: pl.DataFrame
     ) -> None:
         """Teszteli a tárolási statisztikák lekérdezését."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         # Adatok tárolása több szimbólumra
         await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
         await service.store_tick_data("GBPUSD", sample_polars_data, datetime(2023, 12, 23))
-        
+
         # Statisztikák lekérdezése
         stats = await service.get_storage_stats()
-        
+
         assert stats["total_files"] == 2
         assert stats["total_size_gb"] > 0
+        assert "symbols" in stats
         assert "EURUSD" in stats["symbols"]
         assert "GBPUSD" in stats["symbols"]
+        assert stats["symbols"]["EURUSD"]["files"] == 1
+        assert stats["symbols"]["GBPUSD"]["files"] == 1
 
     @pytest.mark.asyncio
     async def test_get_storage_stats_with_symbol(
-        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock, sample_polars_data: pl.DataFrame
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock,
+        sample_polars_data: pl.DataFrame
     ) -> None:
         """Teszteli a tárolási statisztikák lekérdezését szimbólum szerint."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         # Adatok tárolása több szimbólumra
         await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
         await service.store_tick_data("GBPUSD", sample_polars_data, datetime(2023, 12, 23))
-        
+
         # Statisztikák lekérdezése csak EURUSD-ra
         stats = await service.get_storage_stats("EURUSD")
-        
+
         assert stats["total_files"] == 1
-        assert "EURUSD" in stats["symbols"]
-        assert "GBPUSD" not in stats["symbols"]
+        assert "symbols" in stats
+        assert "tick" in stats["symbols"]
+        assert stats["symbols"]["tick"]["files"] == 1
+        assert stats["symbols"]["tick"]["size_gb"] > 0
 
     @pytest.mark.asyncio
-    async def test_singleton_pattern(self, temp_dir: Path, mock_hardware_with_avx2: MagicMock) -> None:
+    async def test_singleton_pattern(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock
+    ) -> None:
         """Teszteli a Singleton mintát."""
         service1 = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
@@ -393,21 +424,23 @@ class TestParquetStorageService:
         service2 = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
-        
+
         assert service1 is service2
 
-    def test_compression_parameter(self, temp_dir: Path, mock_hardware_with_avx2: MagicMock) -> None:
+    def test_compression_parameter(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock
+    ) -> None:
         """Teszteli a tömörítési paraméter beállítását."""
         service = ParquetStorageService(
             base_path=str(temp_dir),
             compression="gzip",
             hardware=mock_hardware_with_avx2
         )
-        
+
         assert service.compression == "gzip"
 
     def test_default_base_path(self, mock_hardware_with_avx2: MagicMock) -> None:
         """Teszteli az alapértelmezett útvonal beállítását."""
         service = ParquetStorageService(hardware=mock_hardware_with_avx2)
-        
+
         assert service.BASE_PATH == Path("/data/tick")

@@ -14,14 +14,12 @@ import pandas as pd
 import pytest
 
 from neural_ai.core.base.exceptions import (
-    InsufficientDiskSpaceError,
     PermissionDeniedError,
 )
 from neural_ai.core.storage.exceptions import (
     StorageFormatError,
     StorageIOError,
     StorageNotFoundError,
-    StorageSerializationError,
 )
 from neural_ai.core.storage.implementations.file_storage import FileStorage
 
@@ -100,10 +98,10 @@ class TestFileStorage:
     def test_save_dataframe_csv(self, storage: FileStorage, sample_dataframe: pd.DataFrame) -> None:
         """Teszteli a DataFrame mentését CSV formátumban."""
         storage.save_dataframe(sample_dataframe, "test.csv")
-        
+
         # Ellenőrizzük, hogy a fájl létrejött
         assert storage.exists("test.csv")
-        
+
         # Betöltjük és ellenőrizzük az adatokat
         loaded = storage.load_dataframe("test.csv")
         assert len(loaded) == 3
@@ -111,11 +109,14 @@ class TestFileStorage:
 
     def test_save_dataframe_excel(self, storage: FileStorage, sample_dataframe: pd.DataFrame) -> None:
         """Teszteli a DataFrame mentését Excel formátumban."""
+        # Ellenőrizzük, hogy az openpyxl csomag telepítve van-e
+        pytest.importorskip("openpyxl")
+
         storage.save_dataframe(sample_dataframe, "test.xlsx")
-        
+
         # Ellenőrizzük, hogy a fájl létrejött
         assert storage.exists("test.xlsx")
-        
+
         # Betöltjük és ellenőrizzük az adatokat
         loaded = storage.load_dataframe("test.xlsx")
         assert len(loaded) == 3
@@ -133,10 +134,10 @@ class TestFileStorage:
     def test_save_object_json(self, storage: FileStorage, sample_object: dict[str, object]) -> None:
         """Teszteli a Python objektum mentését JSON formátumban."""
         storage.save_object(sample_object, "test.json")
-        
+
         # Ellenőrizzük, hogy a fájl létrejött
         assert storage.exists("test.json")
-        
+
         # Betöltjük és ellenőrizzük az adatokat
         loaded = storage.load_object("test.json")
         assert loaded == sample_object
@@ -156,7 +157,7 @@ class TestFileStorage:
         # Hozzunk létre egy érvénytelen JSON fájlt
         invalid_json_path = storage._get_full_path("invalid.json")
         invalid_json_path.write_text("{invalid json}")
-        
+
         with pytest.raises(StorageIOError):
             storage.load_object("invalid.json")
 
@@ -164,9 +165,9 @@ class TestFileStorage:
         """Teszteli a fájl metaadatok lekérdezését."""
         test_file = storage._get_full_path("meta_test.txt")
         test_file.write_text("test content")
-        
+
         metadata = storage.get_metadata("meta_test.txt")
-        
+
         assert metadata['size'] > 0
         assert metadata['is_file'] is True
         assert metadata['is_dir'] is False
@@ -182,7 +183,7 @@ class TestFileStorage:
         """Teszteli a fájl törlését."""
         test_file = storage._get_full_path("delete_test.txt")
         test_file.write_text("test")
-        
+
         assert storage.exists("delete_test.txt")
         storage.delete("delete_test.txt")
         assert not storage.exists("delete_test.txt")
@@ -198,7 +199,7 @@ class TestFileStorage:
         (storage._get_full_path("dir1") / "file1.txt").parent.mkdir(parents=True, exist_ok=True)
         storage._get_full_path("dir1/file1.txt").write_text("test1")
         storage._get_full_path("dir1/file2.txt").write_text("test2")
-        
+
         files = storage.list_dir("dir1")
         assert len(files) == 2
         filenames = [f.name for f in files]
@@ -211,7 +212,7 @@ class TestFileStorage:
         (storage._get_full_path("dir2") / "file1.txt").parent.mkdir(parents=True, exist_ok=True)
         storage._get_full_path("dir2/file1.txt").write_text("test1")
         storage._get_full_path("dir2/file2.csv").write_text("test2")
-        
+
         txt_files = storage.list_dir("dir2", pattern="*.txt")
         assert len(txt_files) == 1
         assert txt_files[0].name == "file1.txt"
@@ -226,7 +227,7 @@ class TestFileStorage:
         test_file = temp_dir / "readonly.txt"
         test_file.write_text("test")
         test_file.chmod(0o444)
-        
+
         # Ez nem szabad, hogy hibát dobjon, csak írási jogosultság ellenőrzésénél
         try:
             storage._check_permissions(test_file, check_write=False)
@@ -236,7 +237,7 @@ class TestFileStorage:
     def test_get_storage_info(self, storage: FileStorage) -> None:
         """Teszteli a tároló információk lekérdezését."""
         info = storage.get_storage_info(storage._base_path)
-        
+
         assert 'total_space_gb' in info
         assert 'used_space_gb' in info
         assert 'free_space_gb' in info
@@ -247,10 +248,10 @@ class TestFileStorage:
         """Teszteli az atomi írást JSON formátumban."""
         test_file = storage._get_full_path("atomic_test.json")
         storage._atomic_write(test_file, sample_object, fmt="json")
-        
+
         # Ellenőrizzük, hogy a fájl létrejött
         assert test_file.exists()
-        
+
         # Ellenőrizzük a tartalmat
         loaded = json.loads(test_file.read_text())
         assert loaded == sample_object
@@ -259,10 +260,10 @@ class TestFileStorage:
         """Teszteli az atomi írást DataFrame-mel."""
         test_file = storage._get_full_path("atomic_df.csv")
         storage._atomic_write(test_file, sample_dataframe, fmt="csv")
-        
+
         # Ellenőrizzük, hogy a fájl létrejött
         assert test_file.exists()
-        
+
         # Betöltjük és ellenőrizzük
         loaded = pd.read_csv(test_file)
         assert len(loaded) == 3
@@ -272,12 +273,12 @@ class TestFileStorage:
         assert 'csv' in storage._DATAFRAME_FORMATS
         assert 'excel' in storage._DATAFRAME_FORMATS
         assert 'json' in storage._OBJECT_FORMATS
-        
+
         # Ellenőrizzük, hogy a kezelők rendelkeznek save és load metódusokkal
         for fmt in storage._DATAFRAME_FORMATS:
             assert 'save' in storage._DATAFRAME_FORMATS[fmt]
             assert 'load' in storage._DATAFRAME_FORMATS[fmt]
-        
+
         for fmt in storage._OBJECT_FORMATS:
             assert 'save' in storage._OBJECT_FORMATS[fmt]
             assert 'load' in storage._OBJECT_FORMATS[fmt]
