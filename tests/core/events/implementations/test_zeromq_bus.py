@@ -6,7 +6,7 @@ Author: Neural AI Next Team
 Version: 1.0.0
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -23,9 +23,9 @@ def reset_singleton():
     # Mentsük el az eredeti _instances szótárt
     from neural_ai.core.base.implementations.singleton import SingletonMeta
     original_instances = getattr(SingletonMeta, "_instances", {}).copy()
-    
+
     yield
-    
+
     # Állítsuk vissza az eredeti állapotot
     SingletonMeta._instances = original_instances
 
@@ -188,7 +188,7 @@ class TestEventBusPublish:
 
         event = MarketDataEvent(
             symbol="EURUSD",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             bid=1.0850,
             ask=1.0852,
             source="jforex",
@@ -212,7 +212,7 @@ class TestEventBusPublish:
         bus = EventBus()
         event = MarketDataEvent(
             symbol="EURUSD",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             bid=1.0850,
             ask=1.0852,
             source="jforex",
@@ -233,7 +233,7 @@ class TestEventBusPublish:
         bus._running = True  # Elindítva, de nincs publisher
         event = MarketDataEvent(
             symbol="EURUSD",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             bid=1.0850,
             ask=1.0852,
             source="jforex",
@@ -350,7 +350,7 @@ class TestEventBusDeserialization:
         bus = EventBus()
         event_data = {
             "symbol": "EURUSD",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "bid": 1.0850,
             "ask": 1.0852,
             "source": "jforex",
@@ -409,7 +409,7 @@ class TestEventBusDispatch:
 
         event_data = {
             "symbol": "EURUSD",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "bid": 1.0850,
             "ask": 1.0852,
             "source": "jforex",
@@ -437,7 +437,7 @@ class TestEventBusDispatch:
 
         event_data = {
             "symbol": "EURUSD",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "bid": 1.0850,
             "ask": 1.0852,
             "source": "jforex",
@@ -462,7 +462,7 @@ class TestEventBusDispatch:
 
         event_data = {
             "symbol": "EURUSD",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "bid": 1.0850,
             "ask": 1.0852,
             "source": "jforex",

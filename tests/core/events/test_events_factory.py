@@ -105,7 +105,9 @@ class TestEventBusFactoryCreateFromConfig:
             "use_inproc": True,
         }
 
-        with patch("neural_ai.core.events.implementations.zeromq_bus.EventBus") as mock_event_bus_class:
+        with patch(
+            "neural_ai.core.events.implementations.zeromq_bus.EventBus"
+        ) as mock_event_bus_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 
@@ -124,7 +126,9 @@ class TestEventBusFactoryCreateFromConfig:
         mock_config_manager = MagicMock(spec=ConfigManagerInterface)
         mock_config_manager.get_section.side_effect = KeyError("Section not found")
 
-        with patch("neural_ai.core.events.implementations.zeromq_bus.EventBus") as mock_event_bus_class:
+        with patch(
+            "neural_ai.core.events.implementations.zeromq_bus.EventBus"
+        ) as mock_event_bus_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 
@@ -142,7 +146,9 @@ class TestEventBusFactoryCreateFromConfig:
         mock_config_manager = MagicMock(spec=ConfigManagerInterface)
         mock_config_manager.get_section.side_effect = ValueError("Invalid value")
 
-        with patch("neural_ai.core.events.implementations.zeromq_bus.EventBus") as mock_event_bus_class:
+        with patch(
+            "neural_ai.core.events.implementations.zeromq_bus.EventBus"
+        ) as mock_event_bus_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 
@@ -163,7 +169,9 @@ class TestEventBusFactoryCreateFromConfig:
             # sub_port és use_inproc hiányzik
         }
 
-        with patch("neural_ai.core.events.implementations.zeromq_bus.EventBus") as mock_event_bus_class:
+        with patch(
+            "neural_ai.core.events.implementations.zeromq_bus.EventBus"
+        ) as mock_event_bus_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 

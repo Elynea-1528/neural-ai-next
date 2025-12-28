@@ -243,27 +243,27 @@ class TestEventBusInterface:
 
         # start
         start_sig = inspect.signature(EventBusInterface.start)
-        assert start_sig.return_annotation == None
+        assert start_sig.return_annotation is None
 
         # stop
         stop_sig = inspect.signature(EventBusInterface.stop)
-        assert stop_sig.return_annotation == None
+        assert stop_sig.return_annotation is None
 
         # publish
         publish_sig = inspect.signature(EventBusInterface.publish)
-        assert publish_sig.parameters["event_type"].annotation == str
-        assert publish_sig.return_annotation == None
+        assert publish_sig.parameters["event_type"].annotation is str
+        assert publish_sig.return_annotation is None
 
         # subscribe
         subscribe_sig = inspect.signature(EventBusInterface.subscribe)
-        assert subscribe_sig.parameters["event_type"].annotation == str
-        assert subscribe_sig.return_annotation == None
+        assert subscribe_sig.parameters["event_type"].annotation is str
+        assert subscribe_sig.return_annotation is None
 
         # unsubscribe
         unsubscribe_sig = inspect.signature(EventBusInterface.unsubscribe)
-        assert unsubscribe_sig.parameters["event_type"].annotation == str
-        assert unsubscribe_sig.return_annotation == None
+        assert unsubscribe_sig.parameters["event_type"].annotation is str
+        assert unsubscribe_sig.return_annotation is None
 
         # run_forever
         run_forever_sig = inspect.signature(EventBusInterface.run_forever)
-        assert run_forever_sig.return_annotation == None
+        assert run_forever_sig.return_annotation is None

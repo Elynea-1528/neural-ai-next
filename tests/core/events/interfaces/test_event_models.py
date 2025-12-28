@@ -7,7 +7,7 @@ Author: Neural AI Next Team
 Version: 1.0.0
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
@@ -43,7 +43,7 @@ class TestMarketDataEvent:
         """Teszteli az érvényes MarketDataEvent létrehozását."""
         event = MarketDataEvent(
             symbol="EURUSD",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             bid=1.0850,
             ask=1.0852,
             source="jforex",
@@ -59,7 +59,7 @@ class TestMarketDataEvent:
         """Teszteli a MarketDataEvent létrehozását volume nélkül."""
         event = MarketDataEvent(
             symbol="EURUSD",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             bid=1.0850,
             ask=1.0852,
             source="mt5",
@@ -72,7 +72,7 @@ class TestMarketDataEvent:
         with pytest.raises(ValidationError) as exc_info:
             MarketDataEvent(
                 symbol="EURUSD",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 bid=1.0850,
                 ask=1.0852,
                 source="invalid_source",
@@ -85,7 +85,7 @@ class TestMarketDataEvent:
         with pytest.raises(ValidationError):
             MarketDataEvent(
                 symbol="EURUSD",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 bid=-1.0,
                 ask=1.0852,
                 source="jforex",
@@ -97,7 +97,7 @@ class TestMarketDataEvent:
         with pytest.raises(ValidationError):
             MarketDataEvent(
                 symbol="EURUSD",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 bid=1.0850,
                 ask=-1.0,
                 source="jforex",
@@ -112,7 +112,7 @@ class TestTradeEvent:
         """Teszteli az érvényes TradeEvent létrehozását."""
         event = TradeEvent(
             symbol="EURUSD",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             direction="BUY",
             price=1.0850,
             volume=0.01,
@@ -130,7 +130,7 @@ class TestTradeEvent:
         """Teszteli a TradeEvent létrehozását strategy_id nélkül."""
         event = TradeEvent(
             symbol="EURUSD",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             direction="SELL",
             price=1.0850,
             volume=0.01,
@@ -143,7 +143,7 @@ class TestTradeEvent:
         with pytest.raises(ValidationError) as exc_info:
             TradeEvent(
                 symbol="EURUSD",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 direction="INVALID",
                 price=1.0850,
                 volume=0.01,
@@ -156,7 +156,7 @@ class TestTradeEvent:
         with pytest.raises(ValidationError):
             TradeEvent(
                 symbol="EURUSD",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 direction="BUY",
                 price=-1.0,
                 volume=0.01,
@@ -171,7 +171,7 @@ class TestSignalEvent:
         """Teszteli az érvényes SignalEvent létrehozását."""
         event = SignalEvent(
             symbol="EURUSD",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             signal_type="ENTRY_LONG",
             confidence=0.85,
             strategy_id="strategy_123",
@@ -191,7 +191,7 @@ class TestSignalEvent:
         """Teszteli a SignalEvent létrehozását árak nélkül."""
         event = SignalEvent(
             symbol="EURUSD",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             signal_type="EXIT_SHORT",
             confidence=0.75,
             strategy_id="strategy_123",
@@ -208,7 +208,7 @@ class TestSignalEvent:
         with pytest.raises(ValidationError) as exc_info:
             SignalEvent(
                 symbol="EURUSD",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 signal_type="INVALID",
                 confidence=0.85,
                 strategy_id="strategy_123",
@@ -223,7 +223,7 @@ class TestSignalEvent:
         with pytest.raises(ValidationError):
             SignalEvent(
                 symbol="EURUSD",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 signal_type="ENTRY_LONG",
                 confidence=1.5,
                 strategy_id="strategy_123",
@@ -239,7 +239,7 @@ class TestSystemLogEvent:
     def test_valid_system_log_event(self) -> None:
         """Teszteli az érvényes SystemLogEvent létrehozását."""
         event = SystemLogEvent(
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             level="INFO",
             component="EventBus",
             message="EventBus elindítva",
@@ -253,7 +253,7 @@ class TestSystemLogEvent:
     def test_system_log_event_without_extra_data(self) -> None:
         """Teszteli a SystemLogEvent létrehozását extra_data nélkül."""
         event = SystemLogEvent(
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             level="ERROR",
             component="Collector",
             message="Hiba történt",
@@ -265,7 +265,7 @@ class TestSystemLogEvent:
         """Teszteli az érvénytelen log szintet."""
         with pytest.raises(ValidationError) as exc_info:
             SystemLogEvent(
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 level="INVALID",
                 component="EventBus",
                 message="Üzenet",
@@ -281,7 +281,7 @@ class TestOrderEvent:
         """Teszteli az érvényes OrderEvent létrehozását."""
         event = OrderEvent(
             order_id="order_123",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             symbol="EURUSD",
             order_type="MARKET",
             direction="BUY",
@@ -301,7 +301,7 @@ class TestOrderEvent:
         """Teszteli az OrderEvent létrehozását árrésztvevővel."""
         event = OrderEvent(
             order_id="order_456",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             symbol="EURUSD",
             order_type="LIMIT",
             direction="SELL",
@@ -316,7 +316,7 @@ class TestOrderEvent:
         with pytest.raises(ValidationError) as exc_info:
             OrderEvent(
                 order_id="order_123",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 symbol="EURUSD",
                 order_type="INVALID",
                 direction="BUY",
@@ -331,7 +331,7 @@ class TestOrderEvent:
         with pytest.raises(ValidationError) as exc_info:
             OrderEvent(
                 order_id="order_123",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 symbol="EURUSD",
                 order_type="MARKET",
                 direction="BUY",
@@ -349,7 +349,7 @@ class TestPositionEvent:
         """Teszteli az érvényes PositionEvent létrehozását."""
         event = PositionEvent(
             position_id="position_123",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             symbol="EURUSD",
             direction="LONG",
             volume=0.01,
@@ -371,7 +371,7 @@ class TestPositionEvent:
         """Teszteli a PositionEvent létrehozását profit_loss nélkül."""
         event = PositionEvent(
             position_id="position_456",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             symbol="EURUSD",
             direction="SHORT",
             volume=0.02,
@@ -387,7 +387,7 @@ class TestPositionEvent:
         with pytest.raises(ValidationError) as exc_info:
             PositionEvent(
                 position_id="position_123",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 symbol="EURUSD",
                 direction="INVALID",
                 volume=0.01,
@@ -403,7 +403,7 @@ class TestPositionEvent:
         with pytest.raises(ValidationError) as exc_info:
             PositionEvent(
                 position_id="position_123",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 symbol="EURUSD",
                 direction="LONG",
                 volume=0.01,
