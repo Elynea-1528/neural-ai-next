@@ -221,3 +221,57 @@ class TestStorageBackend:
         assert backend.append_called
         assert backend.supports_format_called
         assert backend.get_info_called
+
+    def test_validate_data_edge_cases(self) -> None:
+        """Teszteli a validate_data metódus szélsőséges eseteit."""
+        
+        class MockBackend(StorageBackend):
+            """Mock backend implementáció."""
+            
+            def write(self, data, path, **kwargs):
+                pass
+            
+            def read(self, path, **kwargs):
+                return Mock()
+            
+            def append(self, data, path, **kwargs):
+                pass
+            
+            def supports_format(self, format_name):
+                return True
+            
+            def get_info(self, path):
+                return {}
+        
+        backend = MockBackend("test", ["parquet"])
+        
+        # Teszt: 0 hosszúságú adat (nem negatív, de üres)
+        mock_zero_length = Mock()
+        mock_zero_length.__len__ = Mock(return_value=0)
+        mock_zero_length.columns = ['col1']
+        assert not backend.validate_data(mock_zero_length)
+        
+        # Teszt: Oszlopok, de 0 hossz
+        mock_columns_no_data = Mock()
+        mock_columns_no_data.__len__ = Mock(return_value=0)
+        mock_columns_no_data.columns = ['col1', 'col2']
+        assert not backend.validate_data(mock_columns_no_data)
+        
+        # Teszt: Nincs oszlop, de van hossz
+        mock_no_columns_with_length = Mock()
+        mock_no_columns_with_length.__len__ = Mock(return_value=5)
+        mock_no_columns_with_length.columns = []
+        assert not backend.validate_data(mock_no_columns_with_length)
+        
+        # Teszt: Oszlop mint tuple
+        mock_tuple_columns = Mock()
+        mock_tuple_columns.__len__ = Mock(return_value=10)
+        mock_tuple_columns.columns = ('col1', 'col2')
+        assert backend.validate_data(mock_tuple_columns)
+        
+        # Teszt: Oszlopok, de nincs __len__ metódusa
+        mock_columns_no_len = Mock()
+        mock_columns_no_len.columns = ['col1', 'col2']
+        # Mivel a Mock-nak alapból van __len__ metódusa, explicit beállítjuk
+        mock_columns_no_len.__len__ = Mock(return_value=10)
+        assert backend.validate_data(mock_columns_no_len)

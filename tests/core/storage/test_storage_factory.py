@@ -27,7 +27,22 @@ class TestStorageFactory:
         """Teszteli a storage típus regisztrálását."""
         # Mock storage osztály létrehozása
         class MockStorage(StorageInterface):
-            pass
+            def save_object(self, obj: object, path: str) -> None:
+                pass
+            def load_object(self, path: str) -> object:
+                return {}
+            def save_dataframe(self, df: object, path: str, **kwargs: object) -> None:
+                pass
+            def load_dataframe(self, path: str, **kwargs: object) -> object:
+                return {}
+            def delete(self, path: str) -> None:
+                pass
+            def exists(self, path: str) -> bool:
+                return True
+            def list_dir(self, path: str) -> list[str]:
+                return []
+            def get_metadata(self, path: str) -> dict[str, object]:
+                return {}
 
         mock_storage_class = MockStorage
 
@@ -92,6 +107,22 @@ class TestStorageFactory:
         class FailingStorage(StorageInterface):
             def __init__(self, **kwargs: object) -> None:
                 raise TypeError("Test error")
+            def save_object(self, obj: object, path: str) -> None:
+                pass
+            def load_object(self, path: str) -> object:
+                return {}
+            def save_dataframe(self, df: object, path: str, **kwargs: object) -> None:
+                pass
+            def load_dataframe(self, path: str, **kwargs: object) -> object:
+                return {}
+            def delete(self, path: str) -> None:
+                pass
+            def exists(self, path: str) -> bool:
+                return True
+            def list_dir(self, path: str) -> list[str]:
+                return []
+            def get_metadata(self, path: str) -> dict[str, object]:
+                return {}
 
         StorageFactory.register_storage("failing", FailingStorage)
 
@@ -104,10 +135,26 @@ class TestStorageFactory:
         class UnexpectedErrorStorage(StorageInterface):
             def __init__(self, **kwargs: object) -> None:
                 raise RuntimeError("Unexpected error")
+            def save_object(self, obj: object, path: str) -> None:
+                pass
+            def load_object(self, path: str) -> object:
+                return {}
+            def save_dataframe(self, df: object, path: str, **kwargs: object) -> None:
+                pass
+            def load_dataframe(self, path: str, **kwargs: object) -> object:
+                return {}
+            def delete(self, path: str) -> None:
+                pass
+            def exists(self, path: str) -> bool:
+                return True
+            def list_dir(self, path: str) -> list[str]:
+                return []
+            def get_metadata(self, path: str) -> dict[str, object]:
+                return {}
 
         StorageFactory.register_storage("unexpected", UnexpectedErrorStorage)
 
-        with pytest.raises(StorageError, match="Nem sikerült létrehozni a storage példányt"):
+        with pytest.raises(StorageError, match="Váratlan hiba"):
             StorageFactory.get_storage("unexpected", base_path=str(tmp_path))
 
     def test_get_storage_default_base_path(self) -> None:
