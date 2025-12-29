@@ -1,239 +1,131 @@
-# ZeroMQ EventBus Implementáció
+# core/events/implementations/zeromq_bus.py
 
-## Áttekintés
+EventBus implementáció ZeroMQ-val és asyncio-val.
 
-A ZeroMQ EventBus az EventBus Interface aszinkron implementációja, amely a ZeroMQ PUB/SUB mintázatát használja az események hatékony továbbítására. A rendszer teljesítményre és skálázhatóságra lett optimalizálva.
+Ez a modul biztosítja az eseményvezérelt architektúra magját, lehetővé téve
+a komponensek közötti laza csatolást Pub/Sub mintázattal.
 
-## Osztály
+Author: Neural AI Next Team
+Version: 1.0.0
 
-```python
-class EventBus(EventBusInterface, metaclass=SingletonMeta)
-```
+## Osztályok
 
-## Jellemzők
+### `EventBus`
 
-- **Aszinkron működés:** Minden művelet aszinkron, nem blokkolja a fő szálat
-- **Singleton minta:** Az EventBus egyetlen példányban létezik az alkalmazásban
-- **ZeroMQ PUB/SUB:** Hatékony eseménytovábbítás TCP vagy inproc transporttal
-- **Pydantic modellek:** Típusbiztos események validációval
-- **JSON szerializáció:** Platformfüggetlen adatcsere
-- **Context Manager:** Aszinkron context manager támogatás
+ZeroMQ alapú aszinkron eseménybusz.
 
-## Inicializálás
+    Ez az osztály biztosítja az események közzétételét és feliratkozást
+    a rendszer különböző komponensei számára. A ZeroMQ PUB/SUB mintázatot használja.
 
-### Alapértelmezett inicializálás
+    A specifikációban említett asyncio.Queue-s megvalósítás helyett egyből
+    ZeroMQ-t használunk a teljesítmény és a skálázhatóság érdekében.
 
-```python
-from neural_ai.core.events.factory import EventBusFactory
+    Attributes:
+        config: Az EventBus konfigurációja
+        _context: ZeroMQ kontextus
+        _publisher: Publisher socket
+        _subscribers: Feliratkozók szótára event_type -> callback lista
+        _running: Futási állapot jelzője
 
-bus = EventBusFactory.create()
-```
 
-### Egyéni konfigurációval
+## Függvények
 
-```python
-from neural_ai.core.events.factory import EventBusFactory
-from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
+### `config`
 
-config = EventBusConfig(
-    pub_port=6666,
-    sub_port=6667,
-    use_inproc=True  # Teszteléshez
-)
+Visszaadja az EventBus konfigurációját.
 
-bus = EventBusFactory.create(config)
-```
+### `__init__`
 
-### Külső ZMQ kontextussal
+Inicializálja az EventBus-t.
 
-```python
-import zmq.asyncio
+        Args:
+            config: EventBus konfiguráció (opcionális)
 
-context = zmq.asyncio.Context()
-config = EventBusConfig(zmq_context=context)
+### `start`
 
-bus = EventBusFactory.create(config)
-```
+Elindítja az EventBus-t és létrehozza a socketeket.
 
-## Használat
+### `stop`
 
-### Esemény közzététele
+Leállítja az EventBus-t és felszabadítja az erőforrásokat.
 
-```python
-from neural_ai.core.events.interfaces.event_models import MarketDataEvent
-from datetime import datetime, timezone
+### `publish`
 
-# EventBus létrehozása és indítása
-bus = await EventBusFactory.create_and_start()
+Esemény közzététele a buszon.
 
-# Esemény létrehozása
-event = MarketDataEvent(
-    symbol="EURUSD",
-    timestamp=datetime.now(timezone.utc),
-    bid=1.0850,
-    ask=1.0852,
-    source="jforex"
-)
+        Args:
+            event_type: Az esemény típusa (pl. 'market_data', 'trade')
+            event: Az esemény objektum (Pydantic BaseModel)
 
-# Esemény közzététele
-await bus.publish("market_data", event)
-```
+        Raises:
+            EventBusError: Ha az EventBus nincs elindítva
+            PublishError: Ha a publisher socket nincs inicializálva
 
-### Feliratkozás eseményekre
+### `subscribe`
 
-```python
-async def handle_market_data(event: MarketDataEvent) -> None:
-    """Callback függvény a market data események kezelésére."""
-    print(f"Market data received: {event.symbol}")
-    print(f"Bid: {event.bid}, Ask: {event.ask}")
+Feliratkozás eseménytípusra.
 
-# Feliratkozás az eseményre
-bus.subscribe("market_data", handle_market_data)
-```
+        Args:
+            event_type: Az esemény típusa, amire feliratkozunk
+            callback: A callback függvény, amely az eseményt fogadja
 
-### Aszinkron Context Manager
+        Note:
+            A callback-nek aszinkronnak kell lennie (async def)
 
-```python
-async with EventBus() as bus:
-    # EventBus itt elindul
-    event = MarketDataEvent(...)
-    await bus.publish("market_data", event)
-    # EventBus itt leáll
-```
+### `unsubscribe`
 
-### Események fogadása végtelen ciklusban
+Leiratkozás eseménytípusról.
 
-```python
-import asyncio
+        Args:
+            event_type: Az esemény típusa
+            callback: A callback függvény, amelyet eltávolítunk
 
-async def main():
-    bus = await EventBusFactory.create_and_start()
-    
-    # Feliratkozás
-    async def handle_event(event):
-        print(f"Event received: {event}")
-    
-    bus.subscribe("market_data", handle_event)
-    
-    # Események fogadása
-    await bus.run_forever()
+### `_dispatch_event`
 
-asyncio.run(main())
-```
+Esemény továbbítása a feliratkozóknak.
 
-## Architektúra
+        Args:
+            event_type: Az esemény típusa
+            event_data: Az esemény adatai
 
-### Publisher/Subscriber minta
+### `_deserialize_event`
 
-A ZeroMQ EventBus a PUB/SUB mintázatot követi:
+Deserializálja az eseményt a megfelelő Pydantic modellbe.
 
-1. **Publisher:** Az EventBus létrehozza a publisher sockettet, amely a megadott porton bind-ol
-2. **Subscriber:** A `run_forever()` metódus létrehozza a subscriber sockettet, amely connect-ol a publisherhez
-3. **Témakörök:** Minden eseménytípushoz tartozik egy témakör (topic)
-4. **Üzenet formátum:** `[topic, json_data]` multipart üzenetek
+        Args:
+            event_type: Az esemény típusa
+            event_data: Az esemény adatai
 
-### Adatfolyam
+        Returns:
+            A deserializált esemény objektum vagy None ha hiba történt
 
-```
-┌─────────────┐         ┌──────────────┐         ┌─────────────┐
-│  Publisher  │────────>│  ZeroMQ Bus  │────────>│ Subscribers │
-│  (Component)│         │  (PUB/SUB)   │         │ (Callbacks) │
-└─────────────┘         └──────────────┘         └─────────────┘
-```
+### `run_forever`
 
-### Szerializáció
+Eseménybusz örök futás (blokkoló).
 
-Az események a következő lépéseken mennek át:
+        Ez a metódus egy végtelen ciklusban fogadja az eseményeket
+        és továbbítja azokat a feliratkozóknak.
 
-1. **Pydantic modell:** Az esemény Pydantic objektumként érkezik
-2. **JSON konverzió:** `model_dump_json()` metódussal JSON formátumba konvertálódik
-3. **Meta adatok:** Hozzáadódik az `_event_type` és `_timestamp` mező
-4. **UTF-8 kódolás:** A JSON string UTF-8 byte array-é konvertálódik
-5. **ZeroMQ küldés:** Multipart üzenetként továbbítódik
+        Note:
+            Ez egy blokkoló metódus, csak teszteléshez vagy külön task-ként használd
 
-### Deszerializáció
+### `__aenter__`
 
-A fogadó oldalon a fordított folyamat zajlik:
+Aszinkron context manager.
 
-1. **ZeroMQ fogadás:** Multipart üzenet érkezik
-2. **JSON dekódolás:** UTF-8 string-é konvertálódik
-3. **Meta adatok eltávolítása:** Az `_` prefixű mezők eltávolítása
-4. **Pydantic modell:** A megfelelő Pydantic osztályba deszerializálás
-5. **Callback hívás:** Az esemény továbbítása a feliratkozóknak
+        Returns:
+            Az EventBus példány
 
-## Hibakezelés
+### `__aexit__`
 
-### EventBusError
+Aszinkron context manager lezárás.
 
-Az EventBus általános hibáit jelzi.
+        Args:
+            exc_type: A kivétel típusa (ha volt kivétel)
+            exc_val: A kivétel objektum (ha volt kivétel)
+            exc_tb: A traceback objektum (ha volt kivétel)
 
-**Okok:**
-- EventBus nincs elindítva
-- EventBus már fut
 
-### PublishError
+---
 
-A közzétételi hibákat jelzi.
-
-**Okok:**
-- Publisher socket nincs inicializálva
-- Hálózati hiba
-
-### Callback hibák
-
-Ha egy callback hibát dob, az nem befolyásolja a többi callback-et. A hiba csak logolásra kerül.
-
-## Tesztelés
-
-A ZeroMQ EventBus implementáció kiterjedt tesztelésen esett át, különös figyelemmel a ZMQ mocking-ra.
-
-### Tesztelt területek
-
-- **Inicializálás:** Alapértelmezett, egyéni konfiguráció, külső ZMQ kontextus
-- **Indítás/Leállítás:** Sikeres indítás, többszöri indítás, leállítás, hibakezelés
-- **Közzététel:** Sikeres közzététel, hibakezelés, nincs publisher
-- **Feliratkozás:** Új eseménytípus, több callback, leiratkozás
-- **Context Manager:** Aszinkron context manager működése
-- **Deszerializáció:** Különböző eseménytípusok, hibás adatok
-- **Továbbítás:** Sikeres továbbítás, nincs feliratkozó, callback hiba
-
-### ZMQ Mocking
-
-A tesztek során a ZeroMQ-t teljesen mock-oljuk, hogy ne nyissunk valódi socketeket:
-
-```python
-@patch("zmq.asyncio.Context")
-def test_example(self, mock_context_class):
-    mock_context = MagicMock()
-    mock_socket = AsyncMock()
-    mock_context.socket.return_value = mock_socket
-    mock_context_class.return_value = mock_context
-    
-    # Teszt logika...
-```
-
-**Tesztfájl:** [`tests/core/events/implementations/test_zeromq_bus.py`](../../../../tests/core/events/implementations/test_zeromq_bus.py)
-
-**Coverage:** 78%
-
-## Teljesítmény
-
-A ZeroMQ EventBus a következő teljesítménybeli előnyökkel rendelkezik:
-
-- **Alacsony késleltetés:** ZeroMQ optimalizált üzenetküldést biztosít
-- **Magas átviteli sebesség:** Több ezer esemény/másodperc
-- **Aszinkron működés:** Nem blokkolja a fő szálat
-- **Hatékony szerializáció:** JSON formátum gyors feldolgozással
-
-## Korlátozások
-
-- **Singleton minta:** Csak egy EventBus példány lehet az alkalmazásban
-- `run_forever()` blokkoló: Végtelen ciklusban fut, csak külön task-ként használható
-- **ZeroMQ függőség:** Szükséges a `pyzmq` csomag telepítése
-
-## Kapcsolódó dokumentáció
-
-- [EventBus Interface](../interfaces/event_bus_interface.md)
-- [EventBus Factory](../factory.md)
-- [Event Modellek](../interfaces/event_models.md)
-- [Event Kivételek](../exceptions/event_error.md)
+**Forrásfájl:** [`core/events/implementations/zeromq_bus.py`](../../../neural_ai/core/events/implementations/zeromq_bus.py)

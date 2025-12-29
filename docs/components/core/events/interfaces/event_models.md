@@ -1,172 +1,141 @@
-# Event Modellek
+# core/events/interfaces/event_models.py
 
-## Áttekintés
+Esemény modellek a Neural AI Next rendszerhez.
 
-Az Event Modellek Pydantic BaseModel osztályok, amelyek az események adatszerkezetét definiálják. Minden eseménytípushoz tartozik egy dedikált modell, amely biztosítja az adatok validitását és szerializálhatóságát.
+Ez a modul definiálja az összes eseménytípust, amelyek az EventBus-on keresztül
+áramlanak a rendszerben. Minden esemény Pydantic BaseModel-ből származik,
+biztosítva a típusbiztosságot és a validációt.
 
-## Eseménytípusok
+Author: Neural AI Next Team
+Version: 1.0.0
 
-### `EventType` Enum
+## Osztályok
 
-Az eseménytípusokat definiáló enumeráció.
+### `EventType`
 
-**Értékek:**
-- `MARKET_DATA`: Piaci adatok eseménye
-- `TRADE`: Kereskedési esemény
-- `SIGNAL`: Jelzés esemény
-- `SYSTEM_LOG`: Rendszer napló esemény
-- `ORDER`: Rendelés esemény
-- `POSITION`: Pozíció esemény
-
-## Esemény Modellek
+Eseménytípusok enumerációja.
 
 ### `MarketDataEvent`
 
-Piaci adatokat tartalmazó esemény.
+Piaci adat esemény.
 
-**Attribútumok:**
-- `symbol` (str): A pénzpár szimbóluma (pl. "EURUSD")
-- `timestamp` (datetime): Az esemény időbélyege
-- `bid` (float): A vételi ár
-- `ask` (float): Az eladási ár
-- `source` (str): Az adat forrása (pl. "jforex", "dukascopy")
-- `volume` (int, opcionális): A kereskedési volumen
+    Ez az esemény akkor jön létre, amikor új piaci adat érkezik
+    a collectoroktól (JForex, MT5, IBKR).
 
-**Validáció:**
-- `bid` és `ask` pozitív számok
-- `source` nem lehet üres string
-
-**Példa:**
-```python
-from neural_ai.core.events.interfaces.event_models import MarketDataEvent
-from datetime import datetime, timezone
-
-event = MarketDataEvent(
-    symbol="EURUSD",
-    timestamp=datetime.now(timezone.utc),
-    bid=1.0850,
-    ask=1.0852,
-    source="jforex",
-    volume=100000
-)
-```
+    Attributes:
+        symbol: A pénzpár szimbóluma (pl. 'EURUSD')
+        timestamp: Az esemény időbélyege
+        bid: A bid ár
+        ask: Az ask ár
+        volume: A volumen (opcionális)
+        source: Az adat forrása ('jforex', 'mt5', 'ibkr')
 
 ### `TradeEvent`
 
 Kereskedési esemény.
 
-**Attribútumok:**
-- `trade_id` (str): A kereskedés egyedi azonosítója
-- `symbol` (str): A pénzpár szimbóluma
-- `direction` (str): A kereskedés iránya ("BUY" vagy "SELL")
-- `price` (float): A kereskedési ár
-- `volume` (float): A kereskedési volumen
-- `timestamp` (datetime): Az esemény időbélyege
-- `strategy_id` (str, opcionális): A stratégia azonosítója
+    Ez az esemény akkor jön létre, amikor egy kereskedés végrehajtódik.
 
-**Validáció:**
-- `direction` csak "BUY" vagy "SELL" lehet
-- `price` és `volume` pozitív számok
+    Attributes:
+        symbol: A pénzpár szimbóluma
+        timestamp: A kereskedés időbélyege
+        direction: A kereskedés iránya ('BUY' vagy 'SELL')
+        price: A végrehajtási ár
+        volume: A kereskedés volumene (lotban)
+        order_id: A rendelés egyedi azonosítója
+        strategy_id: A stratégiát azonosító ID (opcionális)
 
 ### `SignalEvent`
 
 Jelzés esemény.
 
-**Attribútumok:**
-- `signal_id` (str): A jelzés egyedi azonosítója
-- `symbol` (str): A pénzpár szimbóluma
-- `signal_type` (str): A jelzés típusa ("LONG", "SHORT", "EXIT")
-- `confidence` (float): A jelzés megbízhatósága (0.0-1.0)
-- `timestamp` (datetime): Az esemény időbélyege
-- `entry_prices` (Optional[Dict[str, float]]): Belépési árak
-- `stop_loss` (Optional[float]): Stop loss ár
-- `take_profit` (Optional[float]): Take profit ár
+    Ez az esemény akkor jön létre, amikor a Strategy Engine jelzést generál.
 
-**Validáció:**
-- `signal_type` csak "LONG", "SHORT" vagy "EXIT" lehet
-- `confidence` 0.0 és 1.0 között kell legyen
+    Attributes:
+        symbol: A pénzpár szimbóluma
+        timestamp: A jelzés időbélyege
+        signal_type: A jelzés típusa (pl. 'ENTRY_LONG', 'EXIT_SHORT')
+        confidence: A jelzés megbízhatósága (0.0 - 1.0)
+        strategy_id: A stratégiát azonosító ID
+        price: Az aktuális ár (opcionális)
+        target_price: A célár (opcionális)
+        stop_loss: Stop loss ár (opcionális)
 
 ### `SystemLogEvent`
 
-Rendszer napló esemény.
+Rendszer log esemény.
 
-**Attribútumok:**
-- `level` (str): A naplózási szint ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
-- `message` (str): A napló üzenet
-- `timestamp` (datetime): Az esemény időbélyege
-- `component` (str): A komponens neve
-- `extra_data` (Optional[Dict[str, Any]]): További adatok
+    Ez az esemény a rendszer különböző komponenseinek log üzeneteit tartalmazza.
 
-**Validáció:**
-- `level` csak a felsorolt értékek egyike lehet
+    Attributes:
+        timestamp: A log időbélyege
+        level: A log szintje ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+        component: A komponens neve, amely generálta a logot
+        message: A log üzenet
+        extra_data: További adatok (opcionális)
 
 ### `OrderEvent`
 
 Rendelés esemény.
 
-**Attribútumok:**
-- `order_id` (str): A rendelés egyedi azonosítója
-- `symbol` (str): A pénzpár szimbóluma
-- `order_type` (str): A rendelés típusa ("MARKET", "LIMIT", "STOP")
-- `direction` (str): A rendelés iránya ("BUY" vagy "SELL")
-- `volume` (float): A rendelési volumen
-- `price` (Optional[float]): A rendelési ár (limit/stop esetén)
-- `status` (str): A rendelés állapota ("PENDING", "FILLED", "CANCELLED", "REJECTED")
-- `timestamp` (datetime): Az esemény időbélyege
+    Ez az esemény akkor jön létre, amikor új rendelést helyezünk vagy
+    egy létező rendelés állapota megváltozik.
 
-**Validáció:**
-- `order_type` és `status` csak a felsorolt értékek egyike lehet
+    Attributes:
+        order_id: A rendelés egyedi azonosítója
+        timestamp: Az esemény időbélyege
+        symbol: A pénzpár szimbóluma
+        order_type: A rendelés típusa ('MARKET', 'LIMIT', 'STOP')
+        direction: A rendelés iránya ('BUY' vagy 'SELL')
+        volume: A rendelés volumene
+        price: A rendelés ára (opcionális limit/stop rendeléseknél)
+        status: A rendelés állapota ('PENDING', 'FILLED', 'CANCELLED', 'REJECTED')
 
 ### `PositionEvent`
 
 Pozíció esemény.
 
-**Attribútumok:**
-- `position_id` (str): A pozíció egyedi azonosítója
-- `symbol` (str): A pénzpár szimbóluma
-- `direction` (str): A pozíció iránya ("LONG" vagy "SHORT")
-- `volume` (float): A pozíció mérete
-- `entry_price` (float): A belépési ár
-- `current_price` (float): Az aktuális ár
-- `status` (str): A pozíció állapota ("OPEN", "CLOSED", "PENDING")
-- `profit_loss` (Optional[float]): A nyereség/veszteség
-- `timestamp` (datetime): Az esemény időbélyege
+    Ez az esemény akkor jön létre, amikor pozíció nyílik vagy zárul.
 
-**Validáció:**
-- `direction` és `status` csak a felsorolt értékek egyike lehet
+    Attributes:
+        position_id: A pozíció egyedi azonosítója
+        timestamp: Az esemény időbélyege
+        symbol: A pénzpár szimbóluma
+        direction: A pozíció iránya ('LONG' vagy 'SHORT')
+        volume: A pozíció volumene
+        entry_price: A belépési ár
+        current_price: Az aktuális ár
+        profit_loss: A nyereség/veszteség (opcionális)
+        status: A pozíció állapota ('OPEN', 'CLOSED')
 
-## Szerializáció és Deszerializáció
 
-Az események automatikusan szerializálhatók JSON formátumba a `model_dump_json()` metódussal, és deszerializálhatók a `model_validate_json()` metódussal.
+## Függvények
 
-**Példa:**
-```python
-import json
-from neural_ai.core.events.interfaces.event_models import MarketDataEvent
+### `validate_source`
 
-# Szerializáció
-event = MarketDataEvent(...)
-json_data = event.model_dump_json()
+Validálja a forrást.
 
-# Deszerializáció
-event_dict = json.loads(json_data)
-restored_event = MarketDataEvent(**event_dict)
-```
+### `validate_direction`
 
-## Tesztelés
+Validálja a pozíció irányát.
 
-Az összes esemény modell teljes tesztlefedettséggel rendelkezik. A tesztek a következőket ellenőrzik:
-- Érvényes adatokkal történő létrehozás
-- Hiányzó opcionális mezők kezelése
-- Érvénytelen adatokra dobott validációs hibák
-- Szerializáció és deszerializáció helyessége
+### `validate_signal_type`
 
-**Tesztfájl:** [`tests/core/events/interfaces/test_event_models.py`](../../../../tests/core/events/interfaces/test_event_models.py)
+Validálja a jelzés típusát.
 
-**Coverage:** 99%
+### `validate_level`
 
-## Kapcsolódó dokumentáció
+Validálja a log szintjét.
 
-- [EventBus Interface](event_bus_interface.md)
-- [EventBus Factory](../factory.md)
-- [ZeroMQ EventBus Implementáció](../implementations/zeromq_bus.md)
+### `validate_order_type`
+
+Validálja a rendelés típusát.
+
+### `validate_status`
+
+Validálja a pozíció állapotát.
+
+
+---
+
+**Forrásfájl:** [`core/events/interfaces/event_models.py`](../../../neural_ai/core/events/interfaces/event_models.py)

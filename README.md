@@ -64,6 +64,25 @@ All development is guided by the **System Specifications** in [`docs/planning/sp
 4. **[Data Warehouse](docs/planning/specs/04_data_warehouse.md)** - Parquet Storage & Resampling
 5. **[Collectors Strategy](docs/planning/specs/05_collectors_strategy.md)** - JForex Bi5 + Java Bridge + MT5
 
+### 📚 Component Documentation
+
+**Auto-Generated API Documentation** from source code with docstrings:
+
+- **[Components Overview](docs/components/)** - Complete API documentation for all core modules
+- **Mirror Structure:** Documentation follows the exact same structure as the source code
+- **Source Links:** Each documentation file links back to the original source file
+- **Auto-Updated:** Run `python scripts/generate_docs.py` to regenerate documentation
+
+**Core Modules:**
+- [Base Architecture](docs/components/core/base/index.md) - DI Container, Factory, Interfaces
+- [Configuration](docs/components/core/config/index.md) - Dynamic & YAML Config
+- [Logging](docs/components/core/logger/index.md) - Structured Logging System
+- [Storage](docs/components/core/storage/index.md) - Parquet & File Storage
+- [Database](docs/components/core/db/index.md) - SQLAlchemy ORM
+- [Events](docs/components/core/events/index.md) - ZeroMQ Event Bus
+- [System](docs/components/core/system/index.md) - Health Monitoring
+- [Utilities](docs/components/core/utils/index.md) - Helper Functions
+
 ### 🧠 AI Models
 
 The system implements a **hierarchical AI architecture** for multi-timeframe analysis:
@@ -85,6 +104,23 @@ The system implements a **hierarchical AI architecture** for multi-timeframe ana
 - **[Unified Development Guide](docs/development/unified_development_guide.md)** - Pylance Strict, Hungarian Docstrings
 - **[Core Dependencies](docs/development/core_dependencies.md)** - DI Container, Factory Pattern, NullObject
 - **[Task Tree Dashboard](docs/development/TASK_TREE.md)** - Real-time project status and telemetry
+- **[Architecture Standards](docs/development/architecture_standards.md)** - Module structure & naming conventions
+
+### 📖 Documentation Generation
+
+The system includes an **automated documentation generator** that extracts docstrings from source code:
+
+```bash
+# Generate/update all component documentation
+python scripts/generate_docs.py
+```
+
+**Features:**
+- ✅ Extracts module, class, and function docstrings using AST
+- ✅ Creates mirror documentation structure in `docs/components/`
+- ✅ Generates index files for each directory
+- ✅ Links back to source files for easy navigation
+- ✅ Supports Hungarian docstrings (as per project standards)
 
 ---
 
@@ -219,26 +255,66 @@ Edit [`.env`](.env.example) to configure:
 
 ## 🏗️ Project Structure
 
-```
-neural_ai/core/` - Core Components
+### 📚 Core Components Documentation
 
-### Base Architecture
-- **[`base/container.py`](neural_ai/core/base/container.py)** - Dependency Injection Container
-- **[`base/factory.py`](neural_ai/core/base/factory.py)** - Abstract Factory Pattern
-- **[`base/interfaces.py`](neural_ai/core/base/interfaces.py)** - Component Interfaces
-- **[`base/singleton.py`](neural_ai/core/base/singleton.py)** - Singleton Metaclass
+A teljes rendszer dokumentációja a forráskódból automatikusan generálva. Minden komponenshez tartozik részletes API dokumentáció a [`docs/components/`](docs/components/) mappában.
 
-### Configuration
-- **[`config/implementations/config_manager_factory.py`](neural_ai/core/config/implementations/config_manager_factory.py)** - Config Factory
-- **[`config/implementations/yaml_config_manager.py`](neural_ai/core/config/implementations/yaml_config_manager.py)** - YAML Config Manager
+#### 🏛️ Base Architecture
+- **[Base Components Overview](docs/components/core/base/index.md)** - DI Container, Factory, Interfaces
+  - [`factory.py`](docs/components/core/base/factory.md) - Abstract Factory Pattern
+  - [`implementations/`](docs/components/core/base/implementations/index.md) - DI Container, Component Bundle, Singleton, Lazy Loader
+  - [`interfaces/`](docs/components/core/base/interfaces/index.md) - Component & Container Interfaces
+  - [`exceptions/`](docs/components/core/base/exceptions/index.md) - Base Error Classes
 
-### Logging
-- **[`logger/implementations/logger_factory.py`](neural_ai/core/logger/implementations/logger_factory.py)** - Logger Factory
-- **[`logger/formatters/logger_formatters.py`](neural_ai/core/logger/formatters/logger_formatters.py)** - Log Formatters
+#### ⚙️ Configuration System
+- **[Configuration Overview](docs/components/core/config/index.md)** - Dynamic & YAML Config Managers
+  - [`factory.py`](docs/components/core/config/factory.md) - Config Factory
+  - [`implementations/`](docs/components/core/config/implementations/index.md) - Dynamic & YAML Config Managers
+  - [`interfaces/`](docs/components/core/config/interfaces/index.md) - Config, Async Config & Factory Interfaces
+  - [`exceptions/`](docs/components/core/config/exceptions/index.md) - Configuration Errors
 
-### Storage
-- **[`storage/implementations/storage_factory.py`](neural_ai/core/storage/implementations/storage_factory.py)** - Storage Factory
-- **[`storage/implementations/file_storage.py`](neural_ai/core/storage/implementations/file_storage.py)** - File Storage
+#### 📝 Logging Framework
+- **[Logging Overview](docs/components/core/logger/index.md)** - Structured Logging System
+  - [`factory.py`](docs/components/core/logger/factory.md) - Logger Factory
+  - [`implementations/`](docs/components/core/logger/implementations/index.md) - Colored, Default & Rotating File Loggers
+  - [`interfaces/`](docs/components/core/logger/interfaces/index.md) - Logger & Factory Interfaces
+  - [`formatters/`](docs/components/core/logger/formatters/index.md) - Log Formatters
+  - [`exceptions/`](docs/components/core/logger/exceptions/index.md) - Logging Errors
+
+#### 💾 Storage System
+- **[Storage Overview](docs/components/core/storage/index.md)** - Parquet & File Storage
+  - [`factory.py`](docs/components/core/storage/factory.md) - Storage Factory
+  - [`implementations/`](docs/components/core/storage/implementations/index.md) - File & Parquet Storage
+  - [`interfaces/`](docs/components/core/storage/interfaces/index.md) - Storage & Factory Interfaces
+  - [`backends/`](docs/components/core/storage/backends/index.md) - Polars, Pandas & Base Backends
+  - [`exceptions/`](docs/components/core/storage/exceptions/index.md) - Storage Errors
+
+#### 🗄️ Database Layer
+- **[Database Overview](docs/components/core/db/index.md)** - SQLAlchemy ORM & Models
+  - [`factory.py`](docs/components/core/db/factory.md) - Database Factory
+  - [`implementations/`](docs/components/core/db/implementations/index.md) - Models, Model Base & SQLAlchemy Session
+  - [`exceptions/`](docs/components/core/db/exceptions/index.md) - Database Errors
+
+#### 📡 Event System
+- **[Event System Overview](docs/components/core/events/index.md)** - ZeroMQ Event Bus
+  - [`factory.py`](docs/components/core/events/factory.md) - Event Bus Factory
+  - [`implementations/`](docs/components/core/events/implementations/index.md) - ZeroMQ Event Bus
+  - [`interfaces/`](docs/components/core/events/interfaces/index.md) - Event Bus Interface & Event Models
+  - [`exceptions/`](docs/components/core/events/exceptions/index.md) - Event Errors
+
+#### 🖥️ System Monitoring
+- **[System Overview](docs/components/core/system/index.md)** - Health Monitoring
+  - [`factory.py`](docs/components/core/system/factory.md) - System Factory
+  - [`implementations/`](docs/components/core/system/implementations/index.md) - Health Monitor
+  - [`interfaces/`](docs/components/core/system/interfaces/index.md) - Health Interface
+
+#### 🛠️ Utilities
+- **[Utilities Overview](docs/components/core/utils/index.md)** - Helper Functions & Hardware Info
+  - [`factory.py`](docs/components/core/utils/factory.md) - Utils Factory
+  - [`decorators.py`](docs/components/core/utils/decorators.md) - Utility Decorators
+  - [`implementations/`](docs/components/core/utils/implementations/index.md) - Hardware Info
+  - [`interfaces/`](docs/components/core/utils/interfaces/index.md) - Hardware Interface
+  - [`exceptions/`](docs/components/core/utils/exceptions/index.md) - Utility Errors
 
 ---
 

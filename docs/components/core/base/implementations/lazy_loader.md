@@ -1,282 +1,102 @@
-# LazyLoader és lazy_property
+# core/base/implementations/lazy_loader.py
 
-## Áttekintés
+Lustatöltés (lazy loading) segédeszközök.
 
-A `LazyLoader` egy lustatöltő (lazy loading) segédeszköz, amely lehetővé teszi, hogy a drága erőforrások csak akkor töltődjenek be, amikor valóban szükség van rájuk. A `lazy_property` dekorátor pedig property-k lusta betöltését teszi lehetővé.
+Ez a modul a lustatöltés mechanizmust valósítja meg, amely lehetővé teszi,
+hogy a drága erőforrások csak akkor töltődjenek be, amikor valóban szükség van rájuk.
+Ez jelentősen javítja az alkalmazás indítási idejét és a memóriahasználatot.
 
-## LazyLoader
+## Osztályok
 
-### Leírás
+### `LazyLoader`
 
-A `LazyLoader[T]` egy generikus osztály, amely drága erőforrások lusta betöltését valósítja meg. Ez jelentősen javítja az alkalmazás indítási idejét és a memóriahasználatot.
+Drága erőforrások lustatöltője.
 
-### Jellemzők
+    Ez az osztály lehetővé teszi, hogy a drága erőforrások (pl. konfigurációk,
+    adatbázis kapcsolatok, nagy adathalmazok) csak akkor töltődjenek be,
+    amikor valóban szükség van rájuk.
 
-- **Lusta betöltés**: Az erőforrás csak az első hozzáféréskor töltődik be.
-- **Gyorsítótár**: A betöltött erőforrás gyorsítótárba kerül, a későbbi hozzáféréskor már onnan jön.
-- **Szálbiztonság**: RLock-ot használ, így többszálú környezetben is biztonságosan használható.
-- **Resetelhetőség**: Az erőforrás újratölthető a `reset()` metódussal.
+    A lustatöltés szálbiztos, így többszálú környezetben is biztonságosan
+    használható.
 
-### Metódusok
 
-- `__init__(loader_func: Callable[[], T]) -> None`: Inicializálja a lustatöltőt a betöltő függvénnyel.
-- `__call__() -> T`: Visszaadja a betöltött erőforrást. Ha még nincs betöltve, meghívja a betöltő függvényt.
-- `is_loaded: bool`: Property, amely ellenőrzi, hogy az erőforrás betöltve van-e.
-- `reset() -> None`: Visszaállítja a betöltőt az alaphelyzetbe, lehetővé téve az újratöltést.
+## Függvények
 
-### Példa
+### `__init__`
 
-```python
-from neural_ai.core.base.implementations.lazy_loader import LazyLoader
-import time
+Inicializálja a lustatöltőt.
 
-# Drága erőforrás létrehozása
-def load_expensive_data() -> list[int]:
-    print("Loading expensive data...")
-    time.sleep(2)  # Szimuláljuk a drága műveletet
-    return [1, 2, 3, 4, 5]
+        Args:
+            loader_func: A függvény, amely betölti az erőforrást.
+                Ennek a függvénynek vissza kell térnie a betöltött erőforrással.
 
-# Lusta betöltő létrehozása
-data_loader = LazyLoader(load_expensive_data)
+### `_load`
 
-# Még nem töltődött be
-print(data_loader.is_loaded)  # False
+Betölti az erőforrást, ha még nincs betöltve.
 
-# Első hozzáférés - most töltődik be (2 másodperc)
-data = data_loader()
-print(data)  # [1, 2, 3, 4, 5]
-print(data_loader.is_loaded)  # True
+        Returns:
+            A betöltött erőforrás.
 
-# További hozzáférés - már gyorsítótárból jön (azonnal)
-data2 = data_loader()
-print(data2)  # [1, 2, 3, 4, 5]
-assert data is data2  # Ugyanaz az objektum
+        Note:
+            Ez egy belső metódus, általában nem kell közvetlenül használni.
+            Ehelyett használd a __call__ metódust.
 
-# Resetelés
-data_loader.reset()
-print(data_loader.is_loaded)  # False
+### `__call__`
 
-# Újratöltés
-data3 = data_loader()  # Ismét 2 másodperc
-```
+Visszaadja a betöltött erőforrást.
 
-### Szálbiztonság
+        Ha az erőforrás még nincs betöltve, először meghívja a betöltő függvényt.
 
-A `LazyLoader` szálbiztos, ami azt jelenti, hogy több szál egyidejű hozzáférésénél is csak egyszer hívódik meg a betöltő függvény:
+        Returns:
+            A betöltött erőforrás.
 
-```python
-import threading
-from neural_ai.core.base.implementations.lazy_loader import LazyLoader
+### `is_loaded`
 
-results = []
-loader = LazyLoader(lambda: f"loaded_in_{threading.current_thread().name}")
+Ellenőrzi, hogy az erőforrás betöltve van-e.
 
-def access_loader():
-    results.append(loader())
+        Returns:
+            True, ha az erőforrás betöltve van, egyébként False.
 
-threads = []
-for i in range(5):
-    t = threading.Thread(target=access_loader)
-    threads.append(t)
-    t.start()
+### `reset`
 
-for t in threads:
-    t.join()
+Visszaállítja a betöltőt az alaphelyzetbe.
 
-# Minden szál ugyanazt az értéket kapta
-assert all(r == results[0] for r in results)
-```
+        Ez kiüríti a betöltött erőforrást, lehetővé téve az újratöltést.
+        Hasznos lehet tesztelés során vagy ha újra szeretnénk tölteni
+        az erőforrást.
 
-## lazy_property dekorátor
+### `lazy_property`
 
-### Leírás
+Dekorátor lustatöltésű property-k létrehozásához.
 
-A `lazy_property` dekorátor egy olyan property-t hoz létre, amelynek értéke csak az első hozzáféréskor számolódik ki, majd gyorsítótárba kerül.
+    Ez a dekorátor egy olyan property-t hoz létre, amelynek értéke csak
+    az első hozzáféréskor számolódik ki, majd gyorsítótárba kerül.
+    A későbbi hozzáférések már a gyorsítótárazott értéket adják vissza.
 
-### Jellemzők
+    Args:
+        func: A függvény, amely kiszámolja a property értékét.
 
-- **Egyszer számol**: A property értéke csak egyszer számolódik ki.
-- **Automatikus gyorsítótár**: A kiszámolt érték automatikusan gyorsítótárba kerül.
-- **Példányszintű**: Minden példánynak saját gyorsítótára van.
+    Returns:
+        Egy property objektum lustatöltéssel.
 
-### Példa
+    Példa:
+        >>> class DataProcessor:
+        ...     def __init__(self, data):
+        ...         self._data = data
+        ...     @lazy_property
+        ...     def processed_data(self):
+        ...         # Ez a kód csak egyszer fut le
+        ...         return [x * 2 for x in self._data]
+        >>> processor = DataProcessor([1, 2, 3])
+        >>> # A processed_data még nincs kiszámolva
+        >>> result = processor.processed_data  # Most fut le először
+        >>> result2 = processor.processed_data  # Már gyorsítótárból jön
 
-```python
-from neural_ai.core.base.implementations.lazy_loader import lazy_property
+### `wrapper`
 
-class DataProcessor:
-    def __init__(self, data: list[int]):
-        self._data = data
-        self.computation_count = 0
+Nincs docstring.
 
-    @lazy_property
-    def processed_data(self) -> list[int]:
-        """Drága számítás - csak egyszer fut le."""
-        print("Computing processed data...")
-        self.computation_count += 1
-        return [x * 2 for x in self._data]
 
-# Használat
-processor = DataProcessor([1, 2, 3])
+---
 
-print(processor.computation_count)  # 0
-
-# Első hozzáférés - kiszámol
-result1 = processor.processed_data  # "Computing processed data..."
-print(result1)  # [2, 4, 6]
-print(processor.computation_count)  # 1
-
-# További hozzáférés - már gyorsítótárból
-result2 = processor.processed_data  # Nincs üzenet
-print(result2)  # [2, 4, 6]
-print(processor.computation_count)  # 1 (nem nőtt)
-
-assert result1 is result2  # Ugyanaz az objektum
-```
-
-### Különböző példányok
-
-```python
-class DataProcessor:
-    def __init__(self, name: str):
-        self.name = name
-
-    @lazy_property
-    def expensive_value(self) -> str:
-        return f"{self.name}_computed"
-
-# Különböző példányoknak külön a gyorsítótár
-proc1 = DataProcessor("A")
-proc2 = DataProcessor("B")
-
-val1 = proc1.expensive_value  # "A_computed"
-val2 = proc2.expensive_value  # "B_computed"
-
-assert val1 != val2
-```
-
-### Komplex objektumok
-
-```python
-class DataProcessor:
-    def __init__(self, data: list[int]):
-        self.data = data
-
-    @lazy_property
-    def statistics(self) -> dict[str, float]:
-        """Komplex objektum gyorsítótárazása."""
-        return {
-            "sum": sum(self.data),
-            "avg": sum(self.data) / len(self.data),
-            "min": min(self.data),
-            "max": max(self.data)
-        }
-
-processor = DataProcessor([10, 20, 30, 40, 50])
-stats = processor.statistics
-
-print(stats)
-# {'sum': 150, 'avg': 30.0, 'min': 10, 'max': 50}
-```
-
-## Használati területek
-
-### Konfiguráció betöltés
-
-```python
-from neural_ai.core.base.implementations.lazy_loader import LazyLoader
-import yaml
-
-def load_config() -> dict:
-    with open("config.yml", "r") as f:
-        return yaml.safe_load(f)
-
-config_loader = LazyLoader(load_config)
-
-# A konfiguráció csak akkor töltődik be, ha valóban szükség van rá
-def get_setting(key: str):
-    config = config_loader()
-    return config.get(key)
-```
-
-### Adatbázis kapcsolat
-
-```python
-from sqlalchemy import create_engine
-from neural_ai.core.base.implementations.lazy_loader import LazyLoader
-
-def create_db_engine():
-    print("Connecting to database...")
-    return create_engine("sqlite:///mydb.db")
-
-db_loader = LazyLoader(create_db_engine)
-
-# A kapcsolat csak az első lekérdezéskor jön létre
-def query_data():
-    engine = db_loader()
-    with engine.connect() as conn:
-        return conn.execute("SELECT * FROM users")
-```
-
-### Nagy adathalmazok betöltése
-
-```python
-import pandas as pd
-from neural_ai.core.base.implementations.lazy_loader import LazyLoader
-
-def load_large_dataset() -> pd.DataFrame:
-    print("Loading large dataset...")
-    return pd.read_parquet("large_data.parquet")
-
-dataset_loader = LazyLoader(load_large_dataset)
-
-# Az adatok csak akkor töltődnek be, ha valóban szükség van rájuk
-def process_data():
-    df = dataset_loader()
-    return df.groupby("category").mean()
-```
-
-## Tesztelés
-
-A modul tesztelése a `tests/core/base/implementations/test_lazy_loader.py` fájlban található. A tesztek 100% statement coverage-t érnek el, és minden metódust, property-t és szálbiztonságot is tesztelnek.
-
-### Teszt példa
-
-```python
-from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
-from unittest.mock import MagicMock
-
-def test_lazy_loading():
-    mock_value = MagicMock()
-    loader_func = MagicMock(return_value=mock_value)
-    loader = LazyLoader(loader_func)
-    
-    # Még nem hívódott meg
-    assert not loader.is_loaded
-    
-    # Első hozzáférés
-    result = loader()
-    assert result is mock_value
-    assert loader.is_loaded
-    loader_func.assert_called_once()
-    
-    # További hozzáférés
-    result2 = loader()
-    assert result2 is mock_value
-    loader_func.assert_called_once()  # Még mindig csak egyszer
-```
-
-## Teljesítmény előnyök
-
-A lusta betöltés főbb előnyei:
-
-1. **Gyorsabb indítás**: Az alkalmazás gyorsabban indul, mert nem tölt be mindent azonnal.
-2. **Kisebb memóriahasználat**: Csak a ténylegesen használt erőforrások töltődnek be.
-3. **Jobb felhasználói élmény**: Az alkalmazás válaszkészsége javul.
-4. **Erőforrás takarékosság**: Csak a szükséges erőforrásokat használja.
-
-## Korlátozások
-
-- **Nem megfelelő mindenhol**: Olyan erőforrásoknál, amelyekre azonnal szükség van, nem érdemes lusta betöltést használni.
-- **Hiba kezelés**: A betöltő függvény hibát dobhat, ezt kezelni kell.
-- **Élettartam**: A lusta betöltő élettartama alatt a betöltött erőforrás a memóriában marad.
+**Forrásfájl:** [`core/base/implementations/lazy_loader.py`](../../../neural_ai/core/base/implementations/lazy_loader.py)

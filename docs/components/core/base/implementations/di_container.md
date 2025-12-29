@@ -1,129 +1,147 @@
-# DIContainer és LazyComponent
+# core/base/implementations/di_container.py
 
-## Áttekintés
+Dependency injection konténer implementáció.
 
-A `DIContainer` egy egyszerű dependency injection konténer, amely kezeli a komponensek közötti függőségeket és biztosítja azok megfelelő inicializálását. A `LazyComponent` egy wrapper osztály, amely lusta (lazy) betöltést valósít meg.
+## Osztályok
 
-## LazyComponent
+### `LazyComponent`
 
-### Leírás
+Lusta betöltésű komponensek wrapper osztálya.
 
-A `LazyComponent[T]` egy generikus osztály, amely lusta betöltést biztosít. Ez azt jelenti, hogy a komponens csak akkor jön létre, amikor először használják.
+    Ez az osztály biztosítja a komponensek lusta (lazy) betöltését,
+    ami azt jelenti, hogy a komponens csak akkor jön létre, amikor
+    először használják.
 
-### Metódusok
+### `DIContainer`
 
-- `__init__(factory_func: Callable[[], T]) -> None`: Inicializálja a lusta komponenst a megadott factory függvénnyel.
-- `get() -> T`: Lekéri a komponens példányt (lusta betöltéssel). Ha még nincs betöltve, meghívja a factory függvényt.
-- `is_loaded: bool`: Property, amely ellenőrzi, hogy a komponens betöltődött-e már.
+Egyszerű dependency injection konténer.
 
-### Példa
+    A konténer kezeli a komponensek közötti függőségeket és biztosítja
+    azok megfelelő inicializálását.
 
-```python
-from neural_ai.core.base.implementations.di_container import LazyComponent
-from unittest.mock import MagicMock
 
-# Factory függvény létrehozása
-def create_expensive_service() -> MagicMock:
-    print("Creating expensive service...")
-    return MagicMock()
+## Függvények
 
-# Lazy component létrehozása
-lazy_service = LazyComponent(create_expensive_service)
+### `__init__`
 
-# Még nem hívódott meg a factory
-print(lazy_service.is_loaded)  # False
+Konténer inicializálása.
 
-# Első hozzáférés - most hívódik meg a factory
-service = lazy_service.get()
-print(lazy_service.is_loaded)  # True
+### `get`
 
-# További hozzáférés - már nem hívódik meg a factory
-service2 = lazy_service.get()
-assert service is service2  # Ugyanaz a példány
-```
+Komponens példány lekérése (lusta betöltés támogatással).
 
-## DIContainer
+        Args:
+            component_name: A lekérendő komponens neve
 
-### Leírás
+        Returns:
+            A komponens példánya
 
-A `DIContainer` egy dependency injection konténer, amely támogatja a példányok, factory-k és lusta komponensek regisztrációját és feloldását.
+        Raises:
+            ComponentNotFoundError: Ha a komponens nem található
 
-### Metódusok
+### `is_loaded`
 
-#### Regisztráció
+Ellenőrzi, hogy a komponens betöltődött-e már.
 
-- `register_instance(interface: InterfaceT, instance: InterfaceT) -> None`: Példány regisztrálása a konténerben.
-- `register_factory(interface: InterfaceT, factory: Callable[[], InterfaceT]) -> None`: Factory függvény regisztrálása.
-- `register_lazy(component_name: str, factory_func: Callable[[], T]) -> None`: Lusta betöltésű komponens regisztrálása.
-- `register(component_name: str, instance: object) -> None`: Komponens példány regisztrálása névvel.
+        Returns:
+            True, ha a komponens már betöltődött, egyébként False
 
-#### Feloldás
+### `register_instance`
 
-- `resolve(interface: InterfaceT) -> InterfaceT | None`: Függőség feloldása interfész alapján.
-- `get(component_name: str) -> object`: Komponens példány lekérése név alapján (lusta betöltés támogatással).
+Példány regisztrálása a konténerben.
 
-#### Egyéb
+        Args:
+            interface: Az interfész típusa
+            instance: Az interfészt megvalósító példány
 
-- `get_lazy_components() -> dict[str, bool]`: Lekéri az összes lusta komponens státuszát.
-- `preload_components(component_names: list[str]) -> None`: Előtölti a megadott komponenseket.
-- `clear() -> None`: Kiüríti a konténert.
-- `get_memory_usage() -> dict[str, int | dict[str, int]]`: Lekéri a memóriahasználat statisztikáit.
+### `register_factory`
 
-### Példa
+Factory függvény regisztrálása a konténerben.
 
-```python
-from neural_ai.core.base.implementations.di_container import DIContainer
-from unittest.mock import MagicMock
+        Args:
+            interface: Az interfész típusa
+            factory: Az interfész implementációját létrehozó factory függvény
 
-# Konténer létrehozása
-container = DIContainer()
+### `resolve`
 
-# Példány regisztrálása
-logger = MagicMock()
-container.register_instance(type(logger), logger)
+Függőség feloldása.
 
-# Factory regisztrálása
-def create_config() -> MagicMock:
-    return MagicMock()
+        Args:
+            interface: Az interfész típusa
 
-container.register_factory(MagicMock, create_config)
+        Returns:
+            Az interfészhez tartozó példány vagy None
 
-# Lusta komponens regisztrálása
-def create_expensive_service() -> MagicMock:
-    print("Creating expensive service...")
-    return MagicMock()
+### `register_lazy`
 
-container.register_lazy("expensive_service", create_expensive_service)
+Lusta betöltésű komponens regisztrálása.
 
-# Feloldás
-resolved_logger = container.resolve(type(logger))
-resolved_config = container.resolve(MagicMock)
-resolved_service = container.get("expensive_service")  # Most jön létre
+        Args:
+            component_name: A komponens neve
+            factory_func: A komponenst létrehozó függvény
 
-# Memóriahasználat lekérdezése
-stats = container.get_memory_usage()
-print(f"Total instances: {stats['total_instances']}")
-```
+        Raises:
+            ValueError: Ha a komponens név érvénytelen vagy a factory
+                függvény nem hívható
 
-## Szálbiztonság
+### `get_lazy_components`
 
-A `LazyComponent` szálbiztos, RLock-ot használ a kritikus szakaszok védelmére. Ez biztosítja, hogy többszálú környezetben is csak egyszer hívódjon meg a factory függvény.
+Get status of all lazy components.
 
-## DI Kompatibilitás
+        Returns:
+            A dictionary where keys are component names and values
+            indicate whether the component has been loaded
 
-A konténer ellenőrzi a singleton mintát a `_verify_singleton` metódussal:
+### `preload_components`
 
-1. **`_initialized` flag**: Minden példánynak rendelkeznie kell ezzel a flag-gel, és True értéket kell tartalmaznia.
-2. **`_instance` class variable**: A singleton osztályoknak rendelkezniük kell ezzel a class változóval.
+Preload specific components.
 
-Ha ezek a feltételek nem teljesülnek, a konténer figyelmeztetést ad ki.
+        Args:
+            component_names: List of component names to preload
 
-## Hibakezelés
+### `clear`
 
-- `ValueError`: Érvénytelen komponensnév vagy factory függvény esetén.
-- `ComponentNotFoundError`: Nem létező komponens lekérésekor.
-- `SingletonViolationError`: Singleton minta megsértése esetén.
+Clear the container.
 
-## Tesztelés
+### `_verify_singleton`
 
-A modul tesztelése a `tests/core/base/implementations/test_di_container.py` fájlban található. A tesztek 100% statement coverage-t érnek el.
+Verify that the instance follows singleton pattern.
+
+        Args:
+            instance: The instance to verify
+            component_name: The name of the component
+
+        Raises:
+            UserWarning: If singleton pattern is not properly implemented
+
+### `_enforce_singleton`
+
+Enforce singleton pattern by preventing duplicate registration.
+
+        Args:
+            component_name: The name of the component
+            instance: The instance being registered
+
+        Raises:
+            SingletonViolationError: If singleton pattern is violated
+
+### `register`
+
+Komponens példány regisztrálása.
+
+        Args:
+            component_name: A komponens neve
+            instance: A regisztrálandó példány
+
+        Raises:
+            ValueError: Ha a component_name érvénytelen vagy az instance None
+            SingletonViolationError: Ha a singleton minta megsértésre kerül
+
+### `get_memory_usage`
+
+Get memory usage statistics.
+
+
+---
+
+**Forrásfájl:** [`core/base/implementations/di_container.py`](../../../neural_ai/core/base/implementations/di_container.py)

@@ -1,173 +1,158 @@
-# CoreComponents
+# core/base/implementations/component_bundle.py
 
-## Áttekintés
+Core komponensek gyűjtemény.
 
-A `CoreComponents` osztály az alap komponensek gyűjteménye lusta betöltéssel. Ez az osztály egy egységes interfészt biztosít a rendszer alap komponenseinek eléréséhez, és automatikusan kezeli a függőségeket a mögöttes DI konténer segítségével.
+## Osztályok
 
-## Komponensek
+### `CoreComponents`
 
-Az osztály a következő komponenseket támogatja:
+Alap komponensek lusta betöltéssel.
 
-- **config**: Konfiguráció kezelő (`ConfigManagerInterface`)
-- **logger**: Naplózó komponens (`LoggerInterface`)
-- **storage**: Tároló komponens (`StorageInterface`)
-- **database**: Adatbázis komponens (`DatabaseManager`)
-- **event_bus**: Esemény busz (`EventBusInterface`)
-- **hardware**: Hardver információ (`HardwareInterface`)
 
-## Inicializálás
+## Függvények
 
-### Konténerrel
+### `__init__`
 
-```python
-from neural_ai.core.base.implementations.component_bundle import CoreComponents
-from neural_ai.core.base.implementations.di_container import DIContainer
+Alap komponensek inicializálása.
 
-# Létező konténer használata
-container = DIContainer()
-components = CoreComponents(container)
-```
+        Args:
+            container: Egy függőséginjektáló konténer példány.
+                       Ha nincs megadva, új konténert hoz létre.
 
-### Konténer nélkül
+### `config`
 
-```python
-# Új konténer létrehozása automatikusan
-components = CoreComponents()
-```
+Konfiguráció kezelő komponens lekérése.
 
-## Komponens elérés
+        Returns:
+            A konfiguráció kezelő példánya, vagy None ha nincs regisztrálva.
 
-Minden komponens property-n keresztül érhető el, amely lusta betöltést használ:
+### `logger`
 
-```python
-# Konfiguráció elérése
-config = components.config
-if config:
-    value = config.get("key")
+Naplózó komponens lekérése.
 
-# Logger elérése
-logger = components.logger
-if logger:
-    logger.info("Hello World")
+        Returns:
+            A naplózó példánya, vagy None ha nincs regisztrálva.
 
-# Storage elérése
-storage = components.storage
-if storage:
-    storage.save_dataframe(df, "data.parquet")
-```
+### `storage`
 
-## Komponens beállítás (teszteléshez)
+Tároló komponens lekérése.
 
-A komponenseket manuálisan is be lehet állítani, főleg tesztelés céljából:
+        Returns:
+            A tároló példánya, vagy None ha nincs regisztrálva.
 
-```python
-from unittest.mock import MagicMock
+### `database`
 
-# Mock komponensek létrehozása
-mock_config = MagicMock()
-mock_logger = MagicMock()
-mock_storage = MagicMock()
+Adatbázis komponens lekérése.
 
-# Komponensek beállítása
-components.set_config(mock_config)
-components.set_logger(mock_logger)
-components.set_storage(mock_storage)
-```
+        Returns:
+            Az adatbázis példánya, vagy None ha nincs regisztrálva.
 
-## Komponens ellenőrzés
+### `event_bus`
 
-### Egyéni ellenőrzés
+Esemény busz komponens lekérése.
 
-```python
-# Egyes komponensek ellenőrzése
-has_config = components.has_config()  # True/False
-has_logger = components.has_logger()
-has_storage = components.has_storage()
-# stb.
-```
+        Returns:
+            Az esemény busz példánya, vagy None ha nincs regisztrálva.
 
-### Teljes validálás
+### `hardware`
 
-```python
-# Minden komponens ellenőrzése
-is_valid = components.validate()  # True, ha minden komponens megvan
-```
+Hardver információ komponens lekérése.
 
-A `validate()` metódus ellenőrzi, hogy minden szükséges komponens (config, logger, storage, database, event_bus, hardware) elérhető-e.
+        Returns:
+            A hardver információ példánya, vagy None ha nincs regisztrálva.
 
-## Példa: Teljes használat
+### `set_config`
 
-```python
-from neural_ai.core.base.implementations.component_bundle import CoreComponents
-from neural_ai.core.base.factory import CoreComponentFactory
-import tempfile
+Beállítja a konfiguráció komponenst (csak teszteléshez).
 
-# Komponensek létrehozása
-with tempfile.TemporaryDirectory() as temp_dir:
-    components = CoreComponentFactory.create_components(
-        config_path=f"{temp_dir}/config.yml",
-        log_path=f"{temp_dir}/app.log",
-        storage_path=f"{temp_dir}/storage"
-    )
+        Args:
+            config: A konfiguráció kezelő implementáció példánya.
 
-    # Komponensek használata
-    if components.has_config():
-        config = components.config
-        app_name = config.get("app_name")
+### `set_logger`
 
-    if components.has_logger():
-        logger = components.logger
-        logger.info(f"Application started: {app_name}")
+Beállítja a naplózó komponenst (csak teszteléshez).
 
-    if components.has_storage():
-        storage = components.storage
-        # Adatok mentése
-        # storage.save_dataframe(df, "data.parquet")
+        Args:
+            logger: A naplózó implementáció példánya.
 
-    # Validálás
-    if components.validate():
-        print("All components are ready!")
-    else:
-        print("Some components are missing!")
-```
+### `set_storage`
 
-## Függőség kezelés
+Beállítja a tároló komponenst (csak teszteléshez).
 
-A `CoreComponents` a mögöttes `DIContainer`-t használja a függőségek kezelésére. A komponensek property-ként vannak elérhetővé téve, és csak akkor töltődnek be, amikor először használják őket (lusta betöltés).
+        Args:
+            storage: A tároló implementáció példánya.
 
-## Tesztelés
+### `set_database`
 
-A modul tesztelése a `tests/core/base/implementations/test_component_bundle.py` fájlban található. A tesztek 100% statement coverage-t érnek el, és minden komponens lekérdezését, beállítását és validálását tesztelik.
+Beállítja az adatbázis komponenst (csak teszteléshez).
 
-### Teszt példa
+        Args:
+            database: Az adatbázis implementáció példánya.
 
-```python
-from neural_ai.core.base.implementations.component_bundle import CoreComponents
-from unittest.mock import MagicMock
+### `set_event_bus`
 
-def test_component_access():
-    components = CoreComponents()
-    
-    # Kezdetben nincs komponens
-    assert components.config is None
-    assert not components.has_config()
-    
-    # Komponens beállítása
-    mock_config = MagicMock()
-    components.set_config(mock_config)
-    
-    # Most már elérhető
-    assert components.config is mock_config
-    assert components.has_config()
-```
+Beállítja az esemény busz komponenst (csak teszteléshez).
 
-## DI Konténer integráció
+        Args:
+            event_bus: Az esemény busz implementáció példánya.
 
-A `CoreComponents` osztály a `CoreComponentFactory`-vel együttműködve biztosítja a komponensek egységes létrehozását és kezelését. A factory a konténerbe regisztrálja a komponenseket, majd a `CoreComponents` ezeket lusta betöltéssel éri el.
+### `set_hardware`
 
-Ez a megoldás lehetővé teszi:
+Beállítja a hardver információ komponenst (csak teszteléshez).
 
-1. **Modularitást**: Minden komponens függetlenül fejleszthető és tesztelhető.
-2. **Lusta betöltést**: A drága erőforrások csak akkor töltődnek be, amikor szükség van rájuk.
-3. **DI-t**: A függőségek injektálhatók, ami tesztelhetőséget biztosít.
-4. **Egységes interfészt**: Minden komponens ugyanúgy érhető el property-n keresztül.
+        Args:
+            hardware: A hardver információ implementáció példánya.
+
+### `has_config`
+
+Ellenőrzi, hogy van-e config komponens.
+
+        Returns:
+            bool: True ha van config komponens, False ha nincs
+
+### `has_logger`
+
+Ellenőrzi, hogy van-e logger komponens.
+
+        Returns:
+            bool: True ha van logger komponens, False ha nincs
+
+### `has_storage`
+
+Ellenőrzi, hogy van-e storage komponens.
+
+        Returns:
+            bool: True ha van storage komponens, False ha nincs
+
+### `has_database`
+
+Ellenőrzi, hogy van-e database komponens.
+
+        Returns:
+            bool: True ha van database komponens, False ha nincs
+
+### `has_event_bus`
+
+Ellenőrzi, hogy van-e event_bus komponens.
+
+        Returns:
+            bool: True ha van event_bus komponens, False ha nincs
+
+### `has_hardware`
+
+Ellenőrzi, hogy van-e hardware komponens.
+
+        Returns:
+            bool: True ha van hardware komponens, False ha nincs
+
+### `validate`
+
+Ellenőrzi, hogy minden szükséges komponens megvan-e.
+
+        Returns:
+            bool: True ha minden komponens megvan, False ha valamelyik hiányzik
+
+
+---
+
+**Forrásfájl:** [`core/base/implementations/component_bundle.py`](../../../neural_ai/core/base/implementations/component_bundle.py)

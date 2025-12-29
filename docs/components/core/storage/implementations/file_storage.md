@@ -1,332 +1,240 @@
-# FileStorage
+# core/storage/implementations/file_storage.py
 
-## Áttekintés
+FileStorage implementáció.
 
-A `FileStorage` osztály fájlrendszer alapú tárolási megoldást nyújt, támogatva a különböző adatformátumokat (CSV, Excel, JSON) és Python objektumokat. Az osztály a [`StorageInterface`](../../interfaces/storage_interface.md) interfészt implementálja.
+A modulban található:
+    - FileStorage: Fájlrendszer alapú storage implementáció
 
-## Osztály leírás
+## Osztályok
 
-**Teljes név**: `neural_ai.core.storage.implementations.file_storage.FileStorage`
+### `FileStorage`
 
-**Interfész**: `StorageInterface`
+Fájlrendszer alapú storage implementáció.
 
-## Főbb jellemzők
 
-- **Támogatott DataFrame formátumok**: CSV, Excel
-- **Támogatott objektum formátumok**: JSON
-- **Atomi írás**: Temp fájllal és átnevezéssel biztosított
-- **Jogosultság ellenőrzés**: Olvasási és írási jogosultságok ellenőrzése
-- **Lemezterület ellenőrzés**: Szükséges lemezterület ellenőrzése mentés előtt
-- **Hibatűrő**: Robusztus hibakezelés IO műveletekhez
+## Függvények
 
-## Inicializálás
+### `__init__`
 
-```python
-from neural_ai.core.storage.implementations.file_storage import FileStorage
-from pathlib import Path
+Inicializálja a FileStorage példányt.
 
-# Alapértelmezett útvonallal
-storage = FileStorage()
+        Args:
+            base_path: Alap könyvtár útvonala
+            logger: Logger példány (opcionális)
+            **kwargs: További paraméterek (pl. hardware), amiket figyelmen kívül hagyunk.
 
-# Egyéni útvonallal
-storage = FileStorage(base_path="/path/to/data")
+### `_setup_format_handlers`
 
-# Loggerrel
-from neural_ai.core.logger.factory import LoggerFactory
-logger = LoggerFactory.get_logger()
-storage = FileStorage(base_path="/data", logger=logger)
-```
+Beállítja a formátum kezelőket.
 
-**Paraméterek:**
-- `base_path`: Alap könyvtár útvonala (alapértelmezett: aktuális könyvtár)
-- `logger`: Logger példány (opcionális)
-- `**kwargs`: További paraméterek (figyelmen kívül hagyva)
+### `save_csv`
 
-## Metódusok
+Nincs docstring.
 
-### Adatmentés és betöltés
+### `load_csv`
 
-#### `save_dataframe()`
+Nincs docstring.
 
-DataFrame mentése különböző formátumokban.
+### `save_excel`
 
-```python
-def save_dataframe(
-    self,
-    df: pd.DataFrame,
-    path: str,
-    fmt: str | None = None,
-    **kwargs: Any,
-) -> None
-```
+Nincs docstring.
 
-**Példák:**
+### `load_excel`
 
-```python
-import pandas as pd
+Nincs docstring.
 
-df = pd.DataFrame({'id': [1, 2, 3], 'name': ['a', 'b', 'c']})
+### `save_json`
 
-# CSV mentés
-storage.save_dataframe(df, "data.csv")
+Nincs docstring.
 
-# Excel mentés
-storage.save_dataframe(df, "data.xlsx")
+### `load_json`
 
-# Egyéni paraméterekkel
-storage.save_dataframe(df, "data.csv", sep=';', index=False)
-```
+Nincs docstring.
 
-#### `load_dataframe()`
+### `_check_disk_space`
 
-DataFrame betöltése fájlból.
+Check if there's enough disk space for the operation.
 
-```python
-def load_dataframe(
-    self,
-    path: str,
-    fmt: str | None = None,
-    **kwargs: Any,
-) -> pd.DataFrame
-```
+        Args:
+            file_path: The target file path
+            required_bytes: Required bytes for the operation
 
-**Példák:**
+        Raises:
+            InsufficientDiskSpaceError: If there's not enough disk space
 
-```python
-# CSV betöltés
-df = storage.load_dataframe("data.csv")
+### `_check_permissions`
 
-# Excel betöltés
-df = storage.load_dataframe("data.xlsx")
+Ellenőrzi a fájl/könyvtár jogosultságokat.
 
-# Oszlopok szűrése
-df = storage.load_dataframe("data.csv", usecols=['id', 'name'])
-```
+        Args:
+            file_path: A célfájl útvonala
+            check_write: Ha True, ellenőrzi az írási jogosultságot is
 
-#### `save_object()`
+        Raises:
+            PermissionDeniedError: Ha a jogosultságok nem megfelelőek
+            StorageIOError: Ha az útvonal ellenőrzése sikertelen
 
-Python objektum mentése JSON formátumban.
+### `get_storage_info`
 
-```python
-def save_object(
-    self,
-    obj: Any,
-    path: str,
-    fmt: str | None = None,
-    **kwargs: Any,
-) -> None
-```
+Get storage information for a directory.
 
-**Példák:**
+        Args:
+            directory: The directory path to check
 
-```python
-# Szótár mentése
-config = {'key': 'value', 'number': 42}
-storage.save_object(config, "config.json")
+        Returns:
+            Dict[str, Any]: Storage information including total, used, and free space
 
-# Lista mentése
-data = [1, 2, 3, 4, 5]
-storage.save_object(data, "data.json")
+        Raises:
+            StorageIOError: If unable to get storage information
 
-# Egyéni formázással
-storage.save_object(config, "config.json", indent=2)
-```
+### `_get_full_path`
 
-#### `load_object()`
+Teljes útvonal előállítása.
 
-Python objektum betöltése JSON fájlból.
+        Args:
+            path: Relatív vagy abszolút útvonal
 
-```python
-def load_object(
-    self,
-    path: str,
-    fmt: str | None = None,
-    **kwargs: Any,
-) -> Any
-```
+        Returns:
+            Path: Teljes útvonal
 
-**Példák:**
+### `_atomic_write`
 
-```python
-# Objektum betöltése
-config = storage.load_object("config.json")
-data = storage.load_object("data.json")
-```
+Atomi fájlírás temp fájllal és átnevezéssel.
 
-### Fájlműveletek
+        Args:
+            file_path: A célfájl útvonala
+            content: Az írandó tartalom (str, bytes, DataFrame, vagy bármilyen objektum)
+            mode: Fájl mód ('w' vagy 'wb')
+            fmt: Formátum ('json', 'csv', 'excel', stb.)
+            **kwargs: További paraméterek a formátum-specifikus mentéshez
 
-#### `exists()`
+        Raises:
+            StorageWriteError: Ha az írás sikertelen
+            StorageFormatError: Ha a formátum nem támogatott
+            InsufficientDiskSpaceError: Ha nincs elég lemezterület
+            PermissionDeniedError: Ha nincs megfelelő jogosultság
 
-Ellenőrzi, hogy egy fájl vagy könyvtár létezik-e.
+### `save_dataframe`
 
-```python
-def exists(self, path: str) -> bool
-```
+Menti a DataFrame objektumot.
 
-**Példa:**
-```python
-if storage.exists("data.csv"):
-    print("A fájl létezik")
-```
+        Args:
+            df: A mentendő DataFrame
+            path: A mentés útvonala
+            fmt: A mentés formátuma (ha None, akkor a kiterjesztésből)
+            **kwargs: További formátum-specifikus paraméterek
 
-#### `get_metadata()`
+        Raises:
+            StorageFormatError: Ha a formátum nem támogatott
+            StorageIOError: Ha a mentés sikertelen
+            InsufficientDiskSpaceError: Ha nincs elég lemezterület
+            PermissionDeniedError: Ha nincs írási jogosultság
 
-Fájl vagy könyvtár metaadatainak lekérdezése.
+### `load_dataframe`
 
-```python
-def get_metadata(self, path: str) -> dict[str, Any]
-```
+Betölti a DataFrame objektumot.
 
-**Visszatérési érték:**
-```python
-{
-    'size': 1024,  # Fájlméret bájtban
-    'created': datetime(...),  # Létrehozás ideje
-    'modified': datetime(...),  # Módosítás ideje
-    'accessed': datetime(...),  # Utolsó hozzáférés ideje
-    'is_file': True,  # Fájl-e
-    'is_dir': False   # Könyvtár-e
-}
-```
-
-**Példa:**
-```python
-metadata = storage.get_metadata("data.csv")
-print(f"Méret: {metadata['size']} bájt")
-print(f"Létrehozva: {metadata['created']}")
-```
+        Args:
+            path: A betöltendő fájl útvonala
+            fmt: A fájl formátuma (ha None, akkor a kiterjesztésből)
+            **kwargs: További formátum-specifikus paraméterek
 
-#### `delete()`
+        Returns:
+            pd.DataFrame: A betöltött DataFrame
 
-Fájl vagy üres könyvtár törlése.
+        Raises:
+            StorageNotFoundError: Ha a fájl nem található
+            StorageFormatError: Ha a formátum nem támogatott
+            StorageIOError: Ha a betöltés sikertelen
+            PermissionDeniedError: Ha nincs olvasási jogosultság
 
-```python
-def delete(self, path: str) -> None
-```
+### `save_object`
 
-**Példa:**
-```python
-storage.delete("temp.csv")
-```
+Menti a Python objektumot.
 
-#### `list_dir()`
+        Args:
+            obj: A mentendő objektum
+            path: A mentés útvonala
+            fmt: A mentés formátuma (ha None, akkor a kiterjesztésből)
+            **kwargs: További formátum-specifikus paraméterek
 
-Könyvtár tartalmának listázása.
+        Raises:
+            StorageFormatError: Ha a formátum nem támogatott
+            StorageSerializationError: Ha az objektum nem szerializálható
+            StorageIOError: Ha a mentés sikertelen
+            InsufficientDiskSpaceError: Ha nincs elég lemezterület
+            PermissionDeniedError: Ha nincs írási jogosultság
 
-```python
-def list_dir(
-    self,
-    path: str,
-    pattern: str | None = None,
-) -> Sequence[Path]
-```
+### `load_object`
 
-**Példák:**
+Betölti a Python objektumot.
 
-```python
-# Összes fájl listázása
-files = storage.list_dir("data")
+        Args:
+            path: A betöltendő fájl útvonala
+            fmt: A fájl formátuma (ha None, akkor a kiterjesztésből)
+            **kwargs: További formátum-specifikus paraméterek
 
-# Csak CSV fájlok
-csv_files = storage.list_dir("data", pattern="*.csv")
+        Returns:
+            Any: A betöltött objektum
 
-# Minden fájl és alkönyvtár
-all_items = storage.list_dir("data", pattern="*")
-```
+        Raises:
+            StorageNotFoundError: Ha a fájl nem található
+            StorageFormatError: Ha a formátum nem támogatott
+            StorageSerializationError: Ha az objektum nem deszerializálható
+            StorageIOError: Ha a betöltés sikertelen
+            PermissionDeniedError: Ha nincs olvasási jogosultság
 
-### Tároló információk
+### `exists`
 
-#### `get_storage_info()`
+Ellenőrzi az útvonal létezését.
 
-Tároló információk lekérdezése (összes, használt és szabad terület).
+        Args:
+            path: Az ellenőrizendő útvonal
 
-```python
-def get_storage_info(self, directory: str | Path) -> dict[str, Any]
-```
+        Returns:
+            bool: True, ha létezik, False ha nem
 
-**Visszatérési érték:**
-```python
-{
-    'total_space_gb': 500.0,    # Összes terület GB-ban
-    'used_space_gb': 250.0,     # Használt terület GB-ban
-    'free_space_gb': 250.0,     # Szabad terület GB-ban
-    'free_space_percent': 50.0  # Szabad terület százalékban
-}
-```
+### `get_metadata`
 
-**Példa:**
-```python
-info = storage.get_storage_info("/data")
-print(f"Szabad terület: {info['free_space_gb']:.2f} GB")
-```
+Lekéri a fájl vagy könyvtár metaadatait.
 
-## Hibakezelés
+        Args:
+            path: A fájl vagy könyvtár útvonala
 
-A `FileStorage` robusztus hibakezelést valósít meg:
+        Returns:
+            Dict[str, Any]: A metaadatok
 
-### Kivételek
+        Raises:
+            StorageNotFoundError: Ha a fájl nem található
+            StorageIOError: Ha a lekérés sikertelen
 
-- **`StorageNotFoundError`**: Fájl vagy könyvtár nem található
-- **`StorageFormatError`**: Nem támogatott formátum
-- **`StorageIOError`**: IO művelet sikertelen
-- **`StorageSerializationError`**: Szerializációs hiba
-- **`InsufficientDiskSpaceError`**: Nincs elég lemezterület
-- **`PermissionDeniedError`**: Nincs megfelelő jogosultság
+### `delete`
 
-### Példa hibakezelésre
+Törli a megadott fájlt vagy könyvtárat.
 
-```python
-from neural_ai.core.storage.exceptions import (
-    StorageNotFoundError,
-    StorageIOError
-)
+        Args:
+            path: A törlendő útvonal
 
-try:
-    df = storage.load_dataframe("nonexistent.csv")
-except StorageNotFoundError as e:
-    print(f"Fájl nem található: {e}")
-except StorageIOError as e:
-    print(f"IO hiba: {e}")
-```
+        Raises:
+            StorageNotFoundError: Ha a fájl nem található
+            StorageIOError: Ha a törlés sikertelen
 
-## Belső működés
+### `list_dir`
 
-### Formátum kezelők
+Listázza egy könyvtár tartalmát.
 
-A `FileStorage` dinamikusan regisztrálja a formátum kezelőket:
+        Args:
+            path: A könyvtár útvonala
+            pattern: Szűrő minta a fájlnevekre
 
-- **DataFrame formátumok**: CSV, Excel
-- **Objektum formátumok**: JSON
+        Returns:
+            Sequence[Path]: A könyvtár tartalma Path objektumokként
 
-Minden formátumhoz tartozik egy `save` és egy `load` függvény.
+        Raises:
+            StorageNotFoundError: Ha a könyvtár nem található
+            StorageIOError: Ha a listázás sikertelen
 
-### Atomi írás
 
-A mentési műveletek atomiak, temp fájl használatával:
+---
 
-1. Tartalom írása temp fájlba
-2. Temp fájl átnevezése a célfájl névre
-3. Ha bármilyen hiba történik, a temp fájl törlődik
-
-### Biztonsági ellenőrzések
-
-- **Jogosultság ellenőrzés**: Olvasási/írási jogosultságok ellenőrzése
-- **Lemezterület ellenőrzés**: Szükséges terület ellenőrzése (10% pufferrel)
-- **Útvonal ellenőrzés**: Relatív és abszolút útvonalak kezelése
-
-## Teljesítmény
-
-- **Gyorsítás**: Formátum-specifikus optimalizációk
-- **Memóriakezelés**: Hatékony DataFrame kezelés
-- **Párhuzamosság**: Biztonságos több szálból való használatra
-
-## Tesztelés
-
-A `FileStorage`-t a [`tests/core/storage/implementations/test_file_storage.py`](../../../tests/core/storage/implementations/test_file_storage.py) teszteli, amely lefedi:
-
-- Alapvető mentési és betöltési műveletek
-- Hibakezelés és érvényesítés
-- Formátum specifikus műveletek
-- Fájlműveletek (létezés, metaadatok, törlés, listázás)
-- Biztonsági ellenőrzések
-- Tároló információk lekérdezése
+**Forrásfájl:** [`core/storage/implementations/file_storage.py`](../../../neural_ai/core/storage/implementations/file_storage.py)

@@ -1,97 +1,65 @@
-# EventBus Factory
+# core/events/factory.py
 
-## Áttekintés
+EventBus factory a Neural AI Next rendszerhez.
 
-Az EventBus Factory az eseménybusz létrehozásáért felelős statikus osztály. A factory mintát követve biztosítja az EventBus példányok egységes és konfigurálható létrehozását.
+Ez a modul biztosítja az EventBus létrehozását a konfiguráció alapján.
+A factory mintázatot követi, lehetővé téve a különböző EventBus implementációk
+egyszerű cseréjét.
 
-## Osztály
+Author: Neural AI Next Team
+Version: 1.0.0
 
-```python
-class EventBusFactory
-```
+## Osztályok
 
-## Metódusok
+### `EventBusFactory`
 
-### `create(config: Optional[EventBusConfig] = None) -> EventBusInterface`
+EventBus factory osztály.
 
-Létrehoz egy új EventBus példányt a megadott konfigurációval.
+    Ez az osztály felelős az EventBus példányok létrehozásáért.
+    Jelenleg csak a ZeroMQ-s implementációt támogatja, de a jövőben
+    más implementációk is hozzáadhatók (pl. Redis, Kafka, stb.).
 
-**Paraméterek:**
-- `config` (EventBusConfig, opcionális): Az EventBus konfigurációja. Ha nincs megadva, az alapértelmezett konfigurációt használja.
 
-**Visszatérési érték:**
-- `EventBusInterface`: Az új EventBus példány
+## Függvények
 
-**Példa:**
-```python
-from neural_ai.core.events.factory import EventBusFactory
-from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
+### `create`
 
-# Alapértelmezett konfigurációval
-bus = EventBusFactory.create()
+Létrehozza az EventBus példányt.
 
-# Egyéni konfigurációval
-config = EventBusConfig(pub_port=6666, sub_port=6667, use_inproc=True)
-bus = EventBusFactory.create(config)
-```
+        Args:
+            config: EventBus konfiguráció (opcionális)
 
-### `create_and_start(config: Optional[EventBusConfig] = None) -> EventBusInterface`
+        Returns:
+            EventBusInterface: Az EventBus példány
 
-Létrehoz egy új EventBus példányt és elindítja azt.
+        Note:
+            Jelenleg csak a ZeroMQ-s implementációt támogatja.
 
-**Paraméterek:**
-- `config` (EventBusConfig, opcionális): Az EventBus konfigurációja.
+### `create_and_start`
 
-**Visszatérési érték:**
-- `EventBusInterface`: Az elindított EventBus példány
+Létrehozza és elindítja az EventBus példányt.
 
-**Példa:**
-```python
-from neural_ai.core.events.factory import EventBusFactory
+        Args:
+            config: EventBus konfiguráció (opcionális)
 
-# Létrehozás és indítás egy lépésben
-bus = await EventBusFactory.create_and_start()
-```
+        Returns:
+            EventBusInterface: Az elindított EventBus példány
 
-### `create_from_config(config_manager: ConfigManagerInterface, config_key: str = "events") -> EventBusInterface`
+### `create_from_config`
 
-Létrehoz egy EventBus példányt a konfigurációs managerből betöltött beállításokkal.
+Létrehozza az EventBus példányt konfigurációkezelő alapján.
 
-**Paraméterek:**
-- `config_manager` (ConfigManagerInterface): A konfigurációs manager
-- `config_key` (str, opcionális): A konfigurációs kulcs (alapértelmezett: "events")
+        Args:
+            config_manager: Konfigurációkezelő, amelyből az EventBus beállításokat olvassuk
 
-**Visszatérési érték:**
-- `EventBusInterface`: Az új EventBus példány
+        Returns:
+            EventBusInterface: Az EventBus példány
 
-**Példa:**
-```python
-from neural_ai.core.events.factory import EventBusFactory
-from neural_ai.core.config.factory import ConfigFactory
+        Note:
+            A metódus biztonságosan kezeli a konfiguráció hiányát,
+            alapértelmezett értékeket használva.
 
-# Konfigurációs manager létrehozása
-config_manager = ConfigFactory.create_yaml_config_manager("configs/events.yaml")
 
-# EventBus létrehozása a konfigurációból
-bus = EventBusFactory.create_from_config(config_manager, "events")
-```
+---
 
-## Tesztelés
-
-A factory teljes tesztlefedettséggel rendelkezik. A tesztek a következőket ellenőrzik:
-- Alapértelmezett EventBus létrehozás
-- Egyéni konfigurációval történő létrehozás
-- Factory metódusok statikus jellege
-- Konfigurációs managerből történő létrehozás
-- Hibakezelés érvénytelen konfiguráció esetén
-
-**Tesztfájl:** [`tests/core/events/test_factory.py`](../../../tests/core/events/test_factory.py)
-
-**Coverage:** 100%
-
-## Kapcsolódó dokumentáció
-
-- [EventBus Interface](interfaces/event_bus_interface.md)
-- [ZeroMQ EventBus Implementáció](implementations/zeromq_bus.md)
-- [Event Modellek](interfaces/event_models.md)
-- [Event Kivételek](exceptions/event_error.md)
+**Forrásfájl:** [`core/events/factory.py`](../../../neural_ai/core/events/factory.py)

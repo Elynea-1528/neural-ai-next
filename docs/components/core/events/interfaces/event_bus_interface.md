@@ -1,134 +1,95 @@
-# EventBus Interface
+# core/events/interfaces/event_bus_interface.py
 
-## Áttekintés
+EventBus interfész a Neural AI Next rendszerhez.
 
-Az EventBus Interface az eseményvezérelt architektúra magját definiálja. Egy egységes interfészt biztosít az események közzétételére és feliratkozására, lehetővé téve a komponensek közötti laza csatolást.
+Ez a modul definiálja az EventBus interfészt, amely biztosítja
+az eseményvezérelt architektúra alapjait.
 
-## Interfész
+Author: Neural AI Next Team
+Version: 1.0.0
 
-```python
-class EventBusInterface(ABC)
-```
-
-## Konfiguráció
+## Osztályok
 
 ### `EventBusConfig`
 
-Az EventBus konfigurációját leíró adat osztály.
+EventBus konfiguráció.
 
-**Attribútumok:**
-- `zmq_context` (Optional[Any]): Külső ZeroMQ kontextus (opcionális)
-- `pub_port` (int): Publisher port (alapértelmezett: 5555)
-- `sub_port` (int): Subscriber port (alapértelmezett: 5556)
-- `use_inproc` (bool): Inproc transport használata teszteléshez (alapértelmezett: False)
+    Attributes:
+        zmq_context: ZeroMQ kontextus (opcionális, létrejön ha nincs megadva)
+        pub_port: Publisher port (alapértelmezett: 5555)
+        sub_port: Subscriber port (alapértelmezett: 5556)
+        use_inproc: Használjon inproc transportot teszteléshez (alapértelmezett: False)
 
-**Példa:**
-```python
-from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
+### `EventBusInterface`
 
-# Alapértelmezett konfiguráció
-config = EventBusConfig()
+EventBus interfész.
 
-# Egyéni konfiguráció
-config = EventBusConfig(
-    pub_port=6666,
-    sub_port=6667,
-    use_inproc=True
-)
-```
+    Ez az interfész definiálja az eseménybusz alapvető műveleteit:
+    - Események közzététele
+    - Feliratkozás eseményekre
+    - Leiratkozás eseményekről
+    - Bus indítása és leállítása
 
-## Metódusok
 
-### `@property config() -> EventBusConfig`
+## Függvények
+
+### `config`
 
 Visszaadja az EventBus konfigurációját.
 
-### `async start() -> None`
+        Returns:
+            Az EventBus konfigurációja
 
-Elindítja az EventBus-t és létrehozza a szükséges socketeket.
+### `start`
 
-**Kivételek:**
-- `EventBusError`: Ha az EventBus már fut
+Elindítja az EventBus-t és létrehozza a socketeket.
 
-### `async stop() -> None`
+### `stop`
 
 Leállítja az EventBus-t és felszabadítja az erőforrásokat.
 
-### `async publish(event_type: str, event: BaseModel) -> None`
+### `publish`
 
 Esemény közzététele a buszon.
 
-**Paraméterek:**
-- `event_type` (str): Az esemény típusa (pl. 'market_data', 'trade')
-- `event` (BaseModel): Az esemény objektum (Pydantic modell)
+        Args:
+            event_type: Az esemény típusa (pl. 'market_data', 'trade')
+            event: Az esemény objektum (Pydantic BaseModel)
 
-**Kivételek:**
-- `EventBusError`: Ha az EventBus nincs elindítva
-- `PublishError`: Ha a publisher socket nincs inicializálva
+        Raises:
+            EventBusError: Ha az EventBus nincs elindítva
+            PublishError: Ha a publisher socket nincs inicializálva
 
-**Példa:**
-```python
-from neural_ai.core.events.interfaces.event_models import MarketDataEvent
-from datetime import datetime, timezone
-
-event = MarketDataEvent(
-    symbol="EURUSD",
-    timestamp=datetime.now(timezone.utc),
-    bid=1.0850,
-    ask=1.0852,
-    source="jforex"
-)
-
-await bus.publish("market_data", event)
-```
-
-### `subscribe(event_type: str, callback: EventCallback) -> None`
+### `subscribe`
 
 Feliratkozás eseménytípusra.
 
-**Paraméterek:**
-- `event_type` (str): Az esemény típusa
-- `callback` (EventCallback): A callback függvény, amely az eseményt fogadja
+        Args:
+            event_type: Az esemény típusa, amire feliratkozunk
+            callback: A callback függvény, amely az eseményt fogadja
 
-**Megjegyzés:** A callback-nek aszinkronnak kell lennie (async def)
+        Note:
+            A callback-nek aszinkronnak kell lennie (async def)
 
-**Példa:**
-```python
-async def handle_market_data(event: MarketDataEvent) -> None:
-    print(f"Received market data: {event.symbol} {event.bid}")
-
-bus.subscribe("market_data", handle_market_data)
-```
-
-### `unsubscribe(event_type: str, callback: EventCallback) -> None`
+### `unsubscribe`
 
 Leiratkozás eseménytípusról.
 
-**Paraméterek:**
-- `event_type` (str): Az esemény típusa
-- `callback` (EventCallback): A callback függvény, amelyet eltávolítunk
+        Args:
+            event_type: Az esemény típusa
+            callback: A callback függvény, amelyet eltávolítunk
 
-### `async run_forever() -> None`
+### `run_forever`
 
-Eseménybusz örök futás (blokkoló metódus). Végtelen ciklusban fogadja az eseményeket és továbbítja azokat a feliratkozóknak.
+Eseménybusz örök futás (blokkoló).
 
-**Megjegyzés:** Ez egy blokkoló metódus, csak teszteléshez vagy külön task-ként használd.
+        Ez a metódus egy végtelen ciklusban fogadja az eseményeket
+        és továbbítja azokat a feliratkozóknak.
 
-## Tesztelés
+        Note:
+            Ez egy blokkoló metódus, csak teszteléshez vagy külön task-ként használd
 
-Az interfész teljes tesztlefedettséggel rendelkezik. A tesztek a következőket ellenőrzik:
-- Konfiguráció alapértelmezett és egyéni értékei
-- Konfiguráció megváltoztathatatlansága
-- Interfész absztrakt metódusainak jelenléte
-- Metódusok aláírásainak helyessége
 
-**Tesztfájl:** [`tests/core/events/interfaces/test_event_bus_interface.py`](../../../../tests/core/events/interfaces/test_event_bus_interface.py)
+---
 
-**Coverage:** 79%
-
-## Kapcsolódó dokumentáció
-
-- [EventBus Factory](../factory.md)
-- [ZeroMQ EventBus Implementáció](../implementations/zeromq_bus.md)
-- [Event Modellek](event_models.md)
-- [Event Kivételek](../exceptions/event_error.md)
+**Forrásfájl:** [`core/events/interfaces/event_bus_interface.py`](../../../neural_ai/core/events/interfaces/event_bus_interface.py)
