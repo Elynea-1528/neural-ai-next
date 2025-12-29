@@ -1,0 +1,72 @@
+# Collectors Configuration
+# Configuration for data collectors (JForex, MT5, IBKR)
+
+# JForex Collector Configuration
+jforex:
+  # Enable/disable JForex collector
+  enabled: true
+  
+  # Dukascopy base URL
+  base_url: "https://www.dukascopy.com/datafeed"
+  
+  # Download settings
+  download:
+    # Timeout in seconds
+    timeout: 30
+    
+    # Maximum number of retry attempts
+    max_retries: 3
+    
+    # Delay between retries in seconds
+    retry_delay: 2
+    
+    # Chunk size for downloads (bytes)
+    chunk_size: 8192
+  
+  # Logging settings
+  logging:
+    # Log level: DEBUG, INFO, WARNING, ERROR
+    level: "INFO"
+    
+    # Log format: json, text
+    format: "json"
+  
+  # Trading symbols to collect
+  symbols:
+    - "EURUSD"
+    - "GBPUSD"
+    - "USDJPY"
+    - "AUDUSD"
+    - "USDCAD"
+    - "EURGBP"
+    - "EURJPY"
+    - "GBPJPY"
+    - "XAUUSD"  # Gold
+  
+  # Date range for data collection
+  date_range:
+    # Start date (YYYY-MM-DD)
+    start: "2003-01-01"
+    
+    # End date (YYYY-MM-DD)
+    end: "2025-12-31"
+  
+  # Rate limiting settings
+  rate_limiting:
+    # Maximum concurrent downloads
+    max_concurrent: 5
+    
+    # Delay between requests (seconds)
+    request_delay: 0.5
+  
+  # Circuit breaker settings
+  circuit_breaker:
+    # Failure threshold before opening circuit
+    failure_threshold: 5
+    
+    # Recovery timeout in seconds
+    recovery_timeout: 60
+    
+    # Expected exception types (don't count as failures)
+    expected_exceptions:
+      - "DataNotAvailableError"

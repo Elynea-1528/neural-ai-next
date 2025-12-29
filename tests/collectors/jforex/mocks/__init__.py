@@ -1,0 +1,1 @@
+"""JForex Collector test mocks."""
