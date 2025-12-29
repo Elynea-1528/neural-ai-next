@@ -5,7 +5,15 @@ import struct
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+import aiohttp
 from tenacity import retry, stop_after_attempt, wait_exponential
+
+from neural_ai.collectors.jforex.exceptions.jforex_error import (
+    DataNotAvailableError,
+    DecodeError,
+    DownloadError,
+)
+from neural_ai.collectors.jforex.interfaces.tick_data import TickData
 
 if TYPE_CHECKING:
     import aiohttp
@@ -46,6 +54,9 @@ class Bi5Downloader:
         self._config = config
         self._http_client = http_client
         self._base_url = config.get("jforex.base_url", "https://www.dukascopy.com/datafeed")
+        if not self._base_url:
+            self._base_url = "https://www.dukascopy.com/datafeed"
+            self._logger.warning("jforex_base_url_not_set", _message="Using default Dukascopy URL")
 
     def _build_url(self, symbol: str, date: datetime) -> str:
         """Build Dukascopy .bi5 download URL.
@@ -114,6 +125,11 @@ class Bi5Downloader:
         Raises:
             DecodeError: If decompression or unpacking fails
         """
+        # Check for empty file before attempting decompression
+        if not data or len(data) == 0:
+            self._logger.warning("bi5_empty_file_received", symbol=symbol, date=date.isoformat())
+            return []  # Return empty list instead of crashing
+        
         try:
             # LZMA decompression
             decompressed = lzma.decompress(data)
@@ -133,8 +149,24 @@ class Bi5Downloader:
                 offset = i * record_size
                 record = decompressed[offset : offset + record_size]
 
-                # Big-endian unpack: unsigned int, float, float
-                timestamp_delta, ask, bid = struct.unpack(">Iff", record)
+                # Big-endian unpack: unsigned int, unsigned int, unsigned int
+                # Dukascopy stores prices as integers (multiplied by 100,000)
+                timestamp_delta, ask_int, bid_int = struct.unpack(">III", record)
+                
+                # Convert integer prices to floats
+                ask = ask_int / 100000.0
+                bid = bid_int / 100000.0
+
+                # Skip records with invalid prices (0.0, negative, or unreasonable)
+                if bid <= 0.0 or ask <= 0.0 or bid > 100.0 or ask > 100.0:
+                    self._logger.warning(
+                        "bi5_invalid_price_skipped",
+                        symbol=symbol,
+                        record_index=i,
+                        bid=bid,
+                        ask=ask
+                    )
+                    continue
 
                 # Calculate actual timestamp
                 timestamp_ms = base_timestamp + timestamp_delta

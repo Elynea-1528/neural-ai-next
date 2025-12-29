@@ -35,10 +35,14 @@ class JForexFactory:
         import aiohttp
         
         # Get JForex configuration
-        jforex_config = config.get("jforex", {})
+        try:
+            jforex_config = config.get("jforex", {}) or {}
+        except (KeyError, ValueError, AttributeError):
+            jforex_config = {}
         
         # Create HTTP client with timeout
-        timeout = aiohttp.ClientTimeout(total=jforex_config.get("timeout", 30))
+        timeout_value = jforex_config.get("timeout", 30) if jforex_config else 30
+        timeout = aiohttp.ClientTimeout(total=timeout_value)
         http_client = aiohttp.ClientSession(timeout=timeout)
         
         # Create downloader instance
