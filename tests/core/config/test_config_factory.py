@@ -289,3 +289,119 @@ class TestConfigManagerFactory:
         assert result is not None
         assert isinstance(result, ConfigManagerInterface)
         assert result.get("test_key") == "test_value"
+
+    def test_register_manager_should_normalize_extension(self) -> None:
+        """Teszteli, hogy a register_manager normalizálja a kiterjesztést (88. sor)."""
+        # Given
+        from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager
+        extension_without_dot = "normalize"
+
+        # When
+        # Regisztráljuk a kiterjesztést pont nélkül
+        ConfigManagerFactory.register_manager(extension_without_dot, YAMLConfigManager)
+
+        # Then
+        # A kiterjesztésnek ponttal kell szerepelnie a támogatottak között
+        assert ".normalize" in ConfigManagerFactory.get_supported_extensions()
+
+    def test_register_manager_should_validate_extension_not_empty(self) -> None:
+        """Teszteli, hogy a register_manager ellenőrzi az üres kiterjesztést (88. sor)."""
+        # Given
+        from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager
+        empty_extension = ""
+
+        # When / Then
+        with pytest.raises(ValueError):
+            ConfigManagerFactory.register_manager(empty_extension, YAMLConfigManager)
+
+    def test_register_manager_should_validate_manager_is_type(self) -> None:
+        """Teszteli, hogy a register_manager ellenőrzi a típus érvényességét (91. sor)."""
+        # Given
+        not_a_class = "string_not_a_class"
+
+        # When / Then
+        with pytest.raises(TypeError):
+            ConfigManagerFactory.register_manager(".test", not_a_class)  # type: ignore
+
+    def test_register_manager_should_validate_interface_implementation(self) -> None:
+        """Teszteli, hogy a register_manager ellenőrzi az interfész implementációt (97. sor)."""
+        # Given
+        class NotAConfigManager:
+            """Olyan osztály, ami nem implementálja a ConfigManagerInterface-t."""
+            pass
+
+        # When / Then
+        with pytest.raises(TypeError):
+            ConfigManagerFactory.register_manager(".test", NotAConfigManager)  # type: ignore
+
+    def test_register_async_manager_should_validate_manager_type_not_empty(self) -> None:
+        """Teszteli, hogy a register_async_manager ellenőrzi az üres típust (119. sor)."""
+        # Given
+        from neural_ai.core.config.implementations.dynamic_config_manager import DynamicConfigManager
+        empty_type = ""
+
+        # When / Then
+        with pytest.raises(ValueError):
+            ConfigManagerFactory.register_async_manager(empty_type, DynamicConfigManager)
+
+    def test_register_async_manager_should_validate_async_manager_is_type(self) -> None:
+        """Teszteli, hogy a register_async_manager ellenőrzi a típus érvényességét (125. sor)."""
+        # Given
+        not_a_class = "string_not_a_class"
+
+        # When / Then
+        with pytest.raises(TypeError):
+            ConfigManagerFactory.register_async_manager("test", not_a_class)  # type: ignore
+
+    def test_get_manager_with_explicit_type_should_normalize_type(self) -> None:
+        """Teszteli, hogy a get_manager normalizálja az explicit típust (161. sor)."""
+        # Given
+        filename: str = "tests/core/config/test_config.xyz"
+        manager_type_without_dot = "yaml"
+
+        # When
+        result: ConfigManagerInterface = ConfigManagerFactory.get_manager(
+            filename, manager_type=manager_type_without_dot
+        )
+
+        # Then
+        assert result is not None
+        assert isinstance(result, ConfigManagerInterface)
+        assert result.get("test_key") == "test_value"
+
+    def test_register_async_manager_should_validate_async_interface_implementation(self) -> None:
+        """Teszteli, hogy a register_async_manager ellenőrzi az interfész implementációt (125. sor)."""
+        # Given
+        class NotAnAsyncConfigManager:
+            """Olyan osztály, ami nem implementálja az AsyncConfigManagerInterface-t."""
+            pass
+
+        # When / Then
+        with pytest.raises(TypeError):
+            ConfigManagerFactory.register_async_manager("test", NotAnAsyncConfigManager)  # type: ignore
+
+    def test_get_manager_with_explicit_type_should_handle_dot_prefix(self) -> None:
+        """Teszteli, hogy a get_manager kezeli a ponttal kezdődő explicit típust (161. sor)."""
+        # Given
+        filename: str = "tests/core/config/test_config.xyz"
+        manager_type_with_dot = ".yaml"
+
+        # When
+        result: ConfigManagerInterface = ConfigManagerFactory.get_manager(
+            filename, manager_type=manager_type_with_dot
+        )
+
+        # Then
+        assert result is not None
+        assert isinstance(result, ConfigManagerInterface)
+        assert result.get("test_key") == "test_value"
+
+    def test_get_manager_with_explicit_type_should_raise_error_for_invalid_type(self) -> None:
+        """Teszteli, hogy a get_manager hibát dob érvénytelen explicit típus esetén (161. sor)."""
+        # Given
+        filename: str = "tests/core/config/test_config.xyz"
+        invalid_manager_type = "invalid"
+
+        # When / Then
+        with pytest.raises(ConfigLoadError):
+            ConfigManagerFactory.get_manager(filename, manager_type=invalid_manager_type)

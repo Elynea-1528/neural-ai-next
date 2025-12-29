@@ -326,6 +326,21 @@ class TestOrderEvent:
             )
         assert "Érvénytelen rendelés típus" in str(exc_info.value)
 
+    def test_order_event_invalid_direction(self) -> None:
+        """Teszteli az érvénytelen irányt."""
+        with pytest.raises(ValidationError) as exc_info:
+            OrderEvent(
+                order_id="order_123",
+                timestamp=datetime.now(UTC),
+                symbol="EURUSD",
+                order_type="MARKET",
+                direction="INVALID",
+                volume=0.01,
+                price=None,
+                status="PENDING",
+            )
+        assert "Érvénytelen irány" in str(exc_info.value)
+
     def test_order_event_invalid_status(self) -> None:
         """Teszteli az érvénytelen állapotot."""
         with pytest.raises(ValidationError) as exc_info:

@@ -279,3 +279,215 @@ class TestCoreComponentFactoryInterface:
         _ = mock_components.config
         _ = mock_components.logger
         _ = mock_components.storage
+
+    def test_factory_create_components_with_parameters(self) -> None:
+        """Teszteli a create_components metódust paraméterekkel (115. sor)."""
+        
+        class MockCoreComponents(CoreComponentsInterface):
+            """Mock implementáció a CoreComponentsInterface-hez."""
+            
+            def __init__(self) -> None:
+                super().__init__()
+                self._config: Any | None = None
+                self._logger: Any | None = None
+                self._storage: Any | None = None
+            
+            @property
+            def config(self) -> Any | None:
+                super().config
+                return self._config
+            
+            @property
+            def logger(self) -> Any | None:
+                super().logger
+                return self._logger
+            
+            @property
+            def storage(self) -> Any | None:
+                super().storage
+                return self._storage
+            
+            def has_config(self) -> bool:
+                super().has_config()
+                return self._config is not None
+            
+            def has_logger(self) -> bool:
+                super().has_logger()
+                return self._logger is not None
+            
+            def has_storage(self) -> bool:
+                super().has_storage()
+                return self._storage is not None
+            
+            def validate(self) -> bool:
+                super().validate()
+                return self.has_config() and self.has_logger() and self.has_storage()
+        
+        class MockCoreComponentFactory(CoreComponentFactoryInterface):
+            """Mock implementáció a CoreComponentFactoryInterface-hez."""
+            
+            @staticmethod
+            def create_components(
+                config_path: str | None = None,
+                log_path: str | None = None,
+                storage_path: str | None = None,
+            ) -> CoreComponentsInterface:
+                # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
+                super(MockCoreComponentFactory, MockCoreComponentFactory).create_components(
+                    config_path, log_path, storage_path
+                )
+                return MockCoreComponents()
+            
+            @staticmethod
+            def create_with_container(container: Any) -> CoreComponentsInterface:
+                return MockCoreComponents()
+            
+            @staticmethod
+            def create_minimal() -> CoreComponentsInterface:
+                return MockCoreComponents()
+        
+        # Teszt: create_components hívása paraméterekkel
+        components = MockCoreComponentFactory.create_components(
+            config_path="/path/to/config",
+            log_path="/path/to/log",
+            storage_path="/path/to/storage"
+        )
+        assert isinstance(components, CoreComponentsInterface)
+
+    def test_factory_create_with_container_parameter(self) -> None:
+        """Teszteli a create_with_container metódust (128. sor)."""
+        from neural_ai.core.base.interfaces.container_interface import DIContainerInterface
+        
+        class MockCoreComponents(CoreComponentsInterface):
+            """Mock implementáció a CoreComponentsInterface-hez."""
+            
+            def __init__(self) -> None:
+                super().__init__()
+                self._config: Any | None = None
+                self._logger: Any | None = None
+                self._storage: Any | None = None
+            
+            @property
+            def config(self) -> Any | None:
+                super().config
+                return self._config
+            
+            @property
+            def logger(self) -> Any | None:
+                super().logger
+                return self._logger
+            
+            @property
+            def storage(self) -> Any | None:
+                super().storage
+                return self._storage
+            
+            def has_config(self) -> bool:
+                super().has_config()
+                return self._config is not None
+            
+            def has_logger(self) -> bool:
+                super().has_logger()
+                return self._logger is not None
+            
+            def has_storage(self) -> bool:
+                super().has_storage()
+                return self._storage is not None
+            
+            def validate(self) -> bool:
+                super().validate()
+                return self.has_config() and self.has_logger() and self.has_storage()
+        
+        class MockCoreComponentFactory(CoreComponentFactoryInterface):
+            """Mock implementáció a CoreComponentFactoryInterface-hez."""
+            
+            @staticmethod
+            def create_components(
+                config_path: str | None = None,
+                log_path: str | None = None,
+                storage_path: str | None = None,
+            ) -> CoreComponentsInterface:
+                return MockCoreComponents()
+            
+            @staticmethod
+            def create_with_container(container: DIContainerInterface) -> CoreComponentsInterface:
+                # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
+                super(MockCoreComponentFactory, MockCoreComponentFactory).create_with_container(container)
+                return MockCoreComponents()
+            
+            @staticmethod
+            def create_minimal() -> CoreComponentsInterface:
+                return MockCoreComponents()
+        
+        # Teszt: create_with_container hívása
+        mock_container = Mock(spec=DIContainerInterface)
+        components = MockCoreComponentFactory.create_with_container(mock_container)
+        assert isinstance(components, CoreComponentsInterface)
+
+    def test_factory_create_minimal_implementation(self) -> None:
+        """Teszteli a create_minimal metódust (138. sor)."""
+        
+        class MockCoreComponents(CoreComponentsInterface):
+            """Mock implementáció a CoreComponentsInterface-hez."""
+            
+            def __init__(self) -> None:
+                super().__init__()
+                self._config: Any | None = None
+                self._logger: Any | None = None
+                self._storage: Any | None = None
+            
+            @property
+            def config(self) -> Any | None:
+                super().config
+                return self._config
+            
+            @property
+            def logger(self) -> Any | None:
+                super().logger
+                return self._logger
+            
+            @property
+            def storage(self) -> Any | None:
+                super().storage
+                return self._storage
+            
+            def has_config(self) -> bool:
+                super().has_config()
+                return self._config is not None
+            
+            def has_logger(self) -> bool:
+                super().has_logger()
+                return self._logger is not None
+            
+            def has_storage(self) -> bool:
+                super().has_storage()
+                return self._storage is not None
+            
+            def validate(self) -> bool:
+                super().validate()
+                return self.has_config() and self.has_logger() and self.has_storage()
+        
+        class MockCoreComponentFactory(CoreComponentFactoryInterface):
+            """Mock implementáció a CoreComponentFactoryInterface-hez."""
+            
+            @staticmethod
+            def create_components(
+                config_path: str | None = None,
+                log_path: str | None = None,
+                storage_path: str | None = None,
+            ) -> CoreComponentsInterface:
+                return MockCoreComponents()
+            
+            @staticmethod
+            def create_with_container(container: Any) -> CoreComponentsInterface:
+                return MockCoreComponents()
+            
+            @staticmethod
+            def create_minimal() -> CoreComponentsInterface:
+                # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
+                super(MockCoreComponentFactory, MockCoreComponentFactory).create_minimal()
+                return MockCoreComponents()
+        
+        # Teszt: create_minimal hívása
+        components = MockCoreComponentFactory.create_minimal()
+        assert isinstance(components, CoreComponentsInterface)

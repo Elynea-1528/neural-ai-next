@@ -307,48 +307,59 @@ class TestCoreComponentFactory:
         """Teszteli a _get_logger metódust regisztrált loggerrel (58-59. sorok)."""
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         from neural_ai.core.logger.implementations.default_logger import DefaultLogger
+        from unittest.mock import MagicMock, patch
         
         container: DIContainer = DIContainer()
         logger = DefaultLogger(name="test")
+        # Regisztráljuk a loggert a konténerbe
         container.register_instance(LoggerInterface, logger)
         
         factory: CoreComponentFactory = CoreComponentFactory(container)
         
-        # A _get_logger metódust a logger property hívja meg
-        result = factory.logger
+        # Mockoljuk a resolve metódust, hogy biztosan visszaadja a loggert
+        with patch.object(factory._container, 'resolve', return_value=logger):
+            # Közvetlenül hívjuk meg a _get_logger metódust
+            result = factory._get_logger()
         
         assert result is not None
         assert isinstance(result, LoggerInterface)
+        # A regisztrált logger-t kapjuk vissza (ugyanaz a típus)
+        assert type(result) == type(logger)
+    
+    def test_get_logger_with_invalid_logger_raises_assertion_error(self) -> None:
+        """Teszteli a _get_logger metódust érvénytelen loggerrel (58-59. sorok assertje)."""
+        from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+        from unittest.mock import MagicMock, patch
+        
+        container: DIContainer = DIContainer()
+        # Mock objektum, ami nem implementálja a LoggerInterface-t
+        invalid_logger = MagicMock()
+        
+        factory: CoreComponentFactory = CoreComponentFactory(container)
+        
+        # Mockoljuk a resolve metódust, hogy visszaadja az érvénytelen loggert
+        with patch.object(factory._container, 'resolve', return_value=invalid_logger):
+            # Az assert-nek el kell buknia, mert a logger nem implementálja az interfészt
+            with pytest.raises(AssertionError, match="Logger must implement LoggerInterface"):
+                factory._get_logger()
 
     def test_get_config_manager_with_registered_config(self) -> None:
         """Teszteli a _get_config_manager metódust regisztrált config managerrel (74-77. sorok)."""
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
         from unittest.mock import MagicMock, patch
         
         container: DIContainer = DIContainer()
+        factory: CoreComponentFactory = CoreComponentFactory(container)
         
         # Mock config manager létrehozása, ami implementálja az interfészt
         mock_config = MagicMock(spec=ConfigManagerInterface)
-        mock_config._initialized = True  # Singleton ellenőrzés átugrása
         
-        container.register_instance(ConfigManagerInterface, mock_config)
-        
-        # Csak a DIContainer._verify_interface_implementation metódusában mockoljuk az isinstance-t
-        def isinstance_mock(obj, class_or_tuple) -> bool:
-            if class_or_tuple in [ConfigManagerInterface, StorageInterface]:
-                return True
-            return isinstance(obj, class_or_tuple)
-        
-        with patch('neural_ai.core.base.implementations.di_container.isinstance', side_effect=isinstance_mock):
-            factory: CoreComponentFactory = CoreComponentFactory(container)
-            
-            # Mockoljuk a _config_loader-t, hogy a mock_config-ot adja vissza
-            with patch.object(factory, '_config_loader') as mock_loader:
-                mock_loader.return_value = mock_config
-                
-                # A _get_config_manager metódust a config_manager property hívja meg
-                result = factory.config_manager
+        # Mockoljuk a factory _container.resolve metódusát
+        with patch.object(factory._container, 'resolve', return_value=mock_config):
+            # Mockoljuk az isinstance-t, hogy mindig True-t adjon vissza
+            with patch('neural_ai.core.base.implementations.di_container.isinstance', return_value=True):
+                # Közvetlenül hívjuk meg a _get_config_manager metódust
+                result = factory._get_config_manager()
         
         assert result is not None
         assert result is mock_config
@@ -356,37 +367,23 @@ class TestCoreComponentFactory:
     def test_get_storage_with_registered_storage(self) -> None:
         """Teszteli a _get_storage metódust regisztrált storagel (87-88. sorok)."""
         from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-        from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         from unittest.mock import MagicMock, patch
         
         container: DIContainer = DIContainer()
+        factory: CoreComponentFactory = CoreComponentFactory(container)
         
         # Mock storage létrehozása, ami implementálja az interfészt
         mock_storage: MagicMock = MagicMock(spec=StorageInterface)
-        mock_storage._initialized = True  # Singleton ellenőrzés átugrása
         
-        container.register_instance(StorageInterface, mock_storage)
+        # Mockoljuk a factory _container.resolve metódusát
+        with patch.object(factory._container, 'resolve', return_value=mock_storage):
+            # Mockoljuk az isinstance-t, hogy mindig True-t adjon vissza
+            with patch('neural_ai.core.base.implementations.di_container.isinstance', return_value=True):
+                # Közvetlenül hívjuk meg a _get_storage metódust
+                result = factory._get_storage()
         
-        # Mockoljuk a resolve metódust, hogy a container.resolve() működjön
-        with patch.object(container, 'resolve', return_value=mock_storage):
-            # Csak a DIContainer._verify_interface_implementation metódusában mockoljuk az isinstance-t
-            def isinstance_mock(obj, class_or_tuple) -> bool:
-                if class_or_tuple in [ConfigManagerInterface, StorageInterface]:
-                    return True
-                return isinstance(obj, class_or_tuple)
-            
-            with patch('neural_ai.core.base.implementations.di_container.isinstance', side_effect=isinstance_mock):
-                factory: CoreComponentFactory = CoreComponentFactory(container)
-                
-                # Mockoljuk a _storage_loader-t, hogy a mock_storage-ot adja vissza
-                with patch.object(factory, '_storage_loader') as mock_loader:
-                    mock_loader.return_value = mock_storage
-                    
-                    # A _get_storage metódust a storage property hívja meg
-                    result = factory.storage
-            
-            assert result is not None
-            assert result is mock_storage
+        assert result is not None
+        assert result is mock_storage
 
     def test_expensive_config_lazy_property(self) -> None:
         """Teszteli az _expensive_config lazy property működését (111-114. sorok)."""

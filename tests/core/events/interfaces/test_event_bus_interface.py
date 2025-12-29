@@ -267,3 +267,160 @@ class TestEventBusInterface:
         # run_forever
         run_forever_sig = inspect.signature(EventBusInterface.run_forever)
         assert run_forever_sig.return_annotation is None
+
+    def test_config_property_has_docstring(self) -> None:
+        """Teszteli, hogy a config property-nek van docstringje."""
+        assert EventBusInterface.config.__doc__ is not None
+        assert "Visszaadja az EventBus konfigurációját" in EventBusInterface.config.__doc__
+
+    def test_start_method_has_docstring(self) -> None:
+        """Teszteli, hogy a start metódusnak van docstringje."""
+        assert EventBusInterface.start.__doc__ is not None
+        assert "Elindítja az EventBus-t" in EventBusInterface.start.__doc__
+
+    def test_stop_method_has_docstring(self) -> None:
+        """Teszteli, hogy a stop metódusnak van docstringje."""
+        assert EventBusInterface.stop.__doc__ is not None
+        assert "Leállítja az EventBus-t" in EventBusInterface.stop.__doc__
+
+    def test_publish_method_has_docstring(self) -> None:
+        """Teszteli, hogy a publish metódusnak van docstringje."""
+        assert EventBusInterface.publish.__doc__ is not None
+        assert "Esemény közzététele" in EventBusInterface.publish.__doc__
+
+    def test_subscribe_method_has_docstring(self) -> None:
+        """Teszteli, hogy a subscribe metódusnak van docstringje."""
+        assert EventBusInterface.subscribe.__doc__ is not None
+        assert "Feliratkozás eseménytípusra" in EventBusInterface.subscribe.__doc__
+
+    def test_unsubscribe_method_has_docstring(self) -> None:
+        """Teszteli, hogy az unsubscribe metódusnak van docstringje."""
+        assert EventBusInterface.unsubscribe.__doc__ is not None
+        assert "Leiratkozás eseménytípusról" in EventBusInterface.unsubscribe.__doc__
+
+    def test_run_forever_method_has_docstring(self) -> None:
+        """Teszteli, hogy a run_forever metódusnak van docstringje."""
+        assert EventBusInterface.run_forever.__doc__ is not None
+        assert "Eseménybusz örök futás" in EventBusInterface.run_forever.__doc__
+
+    def test_event_callback_type_alias(self) -> None:
+        """Teszteli az EventCallback típus aliast."""
+        from neural_ai.core.events.interfaces.event_bus_interface import EventCallback
+        from pydantic import BaseModel
+
+        # Ellenőrizzük, hogy a típus alias létezik
+        assert EventCallback is not None
+
+        # Egyszerű ellenőrzés, hogy callable-t vár-e
+        def sample_callback(event: BaseModel) -> None:
+            pass
+
+        # A típus alias használható
+        callback: EventCallback = sample_callback
+        assert callable(callback)
+
+    def test_event_bus_config_repr(self) -> None:
+        """Teszteli az EventBusConfig string reprezentációját."""
+        config = EventBusConfig()
+        repr_str = repr(config)
+        assert "EventBusConfig" in repr_str
+        assert "pub_port=5555" in repr_str
+        assert "sub_port=5556" in repr_str
+
+    def test_event_bus_config_str(self) -> None:
+        """Teszteli az EventBusConfig szöveges reprezentációját."""
+        config = EventBusConfig()
+        str_str = str(config)
+        assert "EventBusConfig" in str_str
+
+    def test_event_bus_config_equality(self) -> None:
+        """Teszteli az EventBusConfig egyenlőségét."""
+        config1 = EventBusConfig()
+        config2 = EventBusConfig()
+        assert config1 == config2
+
+    def test_event_bus_config_inequality(self) -> None:
+        """Teszteli az EventBusConfig egyenlőtlenségét."""
+        config1 = EventBusConfig(pub_port=5555)
+        config2 = EventBusConfig(pub_port=6666)
+        assert config1 != config2
+
+    def test_concrete_implementation_calls_pass_statements(self) -> None:
+        """Teszteli, hogy a konkrét implementációban a pass utasítások lefutnak."""
+        from pydantic import BaseModel
+
+        class TestEvent(BaseModel):
+            data: str = "test"
+
+        class ConcreteTestBus(ConcreteEventBus):
+            def __init__(self) -> None:
+                self._config = EventBusConfig()
+                self.started = False
+                self.stopped = False
+                self.published = False
+                self.subscribed = False
+                self.unsubscribed = False
+                self.ran = False
+
+            @property
+            def config(self) -> EventBusConfig:
+                """Visszaadja a konfigurációt."""
+                return self._config
+
+            async def start(self) -> None:
+                """Elindítja az EventBus-t."""
+                self.started = True
+
+            async def stop(self) -> None:
+                """Leállítja az EventBus-t."""
+                self.stopped = True
+
+            async def publish(self, event_type: str, event: BaseModel) -> None:
+                """Esemény közzététele."""
+                self.published = True
+
+            def subscribe(self, event_type: str, callback: Any) -> None:
+                """Feliratkozás eseménytípusra."""
+                self.subscribed = True
+
+            def unsubscribe(self, event_type: str, callback: Any) -> None:
+                """Leiratkozás eseménytípusról."""
+                self.unsubscribed = True
+
+            async def run_forever(self) -> None:
+                """Eseménybusz örök futás."""
+                self.ran = True
+
+        import asyncio
+
+        async def test_async_methods() -> None:
+            bus = ConcreteTestBus()
+            
+            # Teszteljük az összes metódust
+            await bus.start()
+            assert bus.started
+            
+            await bus.publish("test", TestEvent())
+            assert bus.published
+            
+            await bus.stop()
+            assert bus.stopped
+            
+            await bus.run_forever()
+            assert bus.ran
+
+        # Aszinkron metódusok tesztelése
+        asyncio.run(test_async_methods())
+
+        # Szinkron metódusok tesztelése
+        bus = ConcreteTestBus()
+        bus.subscribe("test", lambda e: None)  # type: ignore
+        assert bus.subscribed
+        
+        bus.unsubscribe("test", lambda e: None)  # type: ignore
+        assert bus.unsubscribed
+
+    def test_interface_cannot_be_instantiated_directly(self) -> None:
+        """Teszteli, hogy az interfész nem példányosítható közvetlenül."""
+        with pytest.raises(TypeError, match="abstract"):
+            EventBusInterface()  # type: ignore
