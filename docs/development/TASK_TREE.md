@@ -130,7 +130,7 @@
 | `factory.py` | `[🟡|❌|❌]` | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **0%** | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **0%** | ⭐⭐ | `🔴 PENDING` |
 | `interfaces/downloader_interface.py` | `[✅|➖|✅]` | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | ⭐ | `🟢 STABLE` |
 | `interfaces/tick_data.py` | `[✅|➖|✅]` | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | ⭐ | `🟢 STABLE` |
-| `implementations/bi5_downloader.py` | `[🟡|❌|❌]` | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **0%** | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **0%** | ⭐⭐⭐⭐ | `🔴 PENDING` |
+| `implementations/bi5_downloader.py` | `[✅|🟢|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **90%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **90%** | ⭐⭐⭐⭐ | `🟢 DONE` |
 | `exceptions/jforex_error.py` | `[✅|➖|✅]` | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | ⭐ | `🟢 STABLE` |
 
 ### 📋 CONFIGURATION FILES
