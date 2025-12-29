@@ -75,9 +75,9 @@ class TestBi5Downloader:
         return MagicMock()
     
     @pytest.fixture
-    def mock_event_bus(self) -> MagicMock:
+    def mock_event_bus(self) -> AsyncMock:
         """Create mock event bus."""
-        return MagicMock()
+        return AsyncMock()
     
     @pytest.fixture
     def mock_config(self) -> MagicMock:

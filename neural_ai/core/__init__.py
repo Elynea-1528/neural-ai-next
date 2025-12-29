@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface  # noqa: F401
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface  # noqa: F401
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface  # noqa: F401
+    from neural_ai.core.storage.services.market_data_persister import MarketDataPersister  # noqa: F401
     from neural_ai.core.system.interfaces.health_interface import (
         HealthMonitorInterface,  # noqa: F401
     )
@@ -101,6 +102,7 @@ def bootstrap_core(
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.factory import StorageFactory
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
     from neural_ai.core.system.factory import SystemComponentFactory
     from neural_ai.core.system.interfaces.health_interface import HealthMonitorInterface
     from neural_ai.core.utils.factory import HardwareFactory
@@ -175,8 +177,18 @@ def bootstrap_core(
     container.register_instance(HealthMonitorInterface, health_monitor)
     logger.debug("-> Health monitor regisztrálva")
     
+    # 8. MarketDataPersister inicializálása
+    logger.info("⏳ 9. MarketDataPersister indítása...")
+    market_data_persister = MarketDataPersister(
+        event_bus=event_bus,
+        storage=storage,
+        logger=logger
+    )
+    container.register_instance(MarketDataPersister, market_data_persister)
+    logger.debug("-> MarketDataPersister regisztrálva")
+    
     logger.info("✅ RENDSZER ÜZEMKÉSZ")
-
+    
     return CoreComponents(container=container)
 
 
