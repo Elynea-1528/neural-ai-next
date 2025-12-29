@@ -1,22 +1,22 @@
-# 🧠 Neural AI Next - Institutional Trading Ecosystem
+# 🧠 Neural AI Next - Intézményi Kereskedelem Ekozisztéma
 
-**Version:** 1.0.0 | **Status:** 🟡 Architecture Phase | **License:** Proprietary
-
----
-
-## 🎯 Vision & Mission
-
-**Neural AI Next** is an institutional-grade, event-driven trading ecosystem designed for high-frequency tick data processing (25+ years), real-time execution, and AI-powered strategy deployment. Built with **zero compromises** for reliability, scalability, and performance.
-
-**Philosophy:** *"Loose Coupling, High Cohesion"* - Every component is isolated, testable, and replaceable.
-
-**Focus:** Premium instruments only (EURUSD, XAUUSD, GBPUSD, USDJPY, USDCHF) - High Liquidity, Low Spread.
+**Verzió:** 1.0.0 | **Státusz:** 🟡 Architektúra Fázis | **Licenc:** Tulajdonosi
 
 ---
 
-## 🏗️ System Architecture
+## 🎯 Látomás & Küldetés
 
-### Event-Driven Core
+A **Neural AI Next** egy intézményi szintű, eseményvezérelt kereskedelmi ekozisztéma, amelyet nagyfrekvenciás tick adatfeldolgozásra (25+ év), valós idejű végrehajtásra és AI-alapú stratégia üzembe helyezésre terveztek. **Zéró kompromisszumokkal** épült a megbízhatóság, skálázhatóság és teljesítmény érdekében.
+
+**Filozófia:** *"Laza Csatolás, Magas Kohézió"* - Minden komponens izolált, tesztelhető és cserélhető.
+
+**Fókusz:** Prémium instrumentumok csak (EURUSD, XAUUSD, GBPUSD, USDJPY, USDCHF) - Magas likviditás, alacsony spread.
+
+---
+
+## 🏗️ Rendszerarchitektúra
+
+### Eseményvezérelt Mag
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -31,418 +31,418 @@
 │         └─────────────────┼─────────────────┘          │
 │                           ▼                            │
 │              ┌────────────────────────┐                │
-│              │   EVENT BUS (ZeroMQ)   │                │
+│              │   ESEMÉNY BUSZ (ZeroMQ)│                │
 │              └────────────┬───────────┘                │
 │                           │                            │
 │         ┌─────────────────┼─────────────────┐          │
 │         ▼                 ▼                 ▼          │
 │  ┌──────────┐    ┌──────────────┐    ┌──────────┐    │
-│  │ Parquet  │    │   Strategy   │    │   AI     │    │
-│  │ Storage  │    │   Engine     │    │  Models  │    │
+│  │ Parquet  │    │   Stratégia  │    │   AI     │    │
+│  │ Tároló   │    │   Motor      │    │  Modellek│    │
 │  └──────────┘    └──────────────┘    └──────────┘    │
 │                                                          │
 └─────────────────────────────────────────────────────────┘
 ```
 
-**Key Principles:**
-- **No Direct Calls:** Components communicate exclusively through events
-- **Database-First:** All state is persisted in SQL database
-- **Async Everywhere:** Python 3.12 + `asyncio` for maximum performance
-- **Big Data Ready:** Parquet storage for 25+ years of tick data
+**Kulcselvek:**
+- **Nincs Direkt Hívás:** A komponensek kizárólag eseményeken keresztül kommunikálnak
+- **Adatbázis Először:** Minden állapot SQL adatbázisban perzisztált
+- **Aszinkron Mindenhol:** Python 3.12 + `asyncio` a maximális teljesítményért
+- **Big Data Kész:** Parquet tároló 25+ év tick adathoz
 
 ---
 
-## 📚 Documentation Structure
+## 📚 Dokumentáció Szerkezete
 
-### 🗺️ Master Blueprint
+### 🗺️ Fő Tervrajz
 
-All development is guided by the **System Specifications** in [`docs/planning/specs/`](docs/planning/specs/):
+Minden fejlesztést a **Rendszer Specifikációk** irányítanak a [`docs/planning/specs/`](docs/planning/specs/) mappában:
 
-1. **[System Architecture](docs/planning/specs/01_system_architecture.md)** - Event-Driven Core Design
-2. **[Dynamic Configuration](docs/planning/specs/02_dynamic_configuration.md)** - Hybrid Config System (.env + SQL)
-3. **[Observability & Logging](docs/planning/specs/03_observability_logging.md)** - Structured Logging with `structlog`
-4. **[Data Warehouse](docs/planning/specs/04_data_warehouse.md)** - Parquet Storage & Resampling
-5. **[Collectors Strategy](docs/planning/specs/05_collectors_strategy.md)** - JForex Bi5 + Java Bridge + MT5
+1. **[Rendszerarchitektúra](docs/planning/specs/01_system_architecture.md)** - Eseményvezérelt Mag Tervezés
+2. **[Dinamikus Konfiguráció](docs/planning/specs/02_dynamic_configuration.md)** - Hibrid Konfigurációs Rendszer (.env + SQL)
+3. **[Megfigyelhetőség & Naplózás](docs/planning/specs/03_observability_logging.md)** - Strukturált Naplózás `structlog`-gal
+4. **[Adatraktár](docs/planning/specs/04_data_warehouse.md)** - Parquet Tároló & Újramintavételezés
+5. **[Gyűjtők Stratégia](docs/planning/specs/05_collectors_strategy.md)** - JForex Bi5 + Java Híd + MT5
 
-### 📚 Component Documentation
+### 📚 Komponens Dokumentáció
 
-**Auto-Generated API Documentation** from source code with docstrings:
+**Automatikusan Generált API Dokumentáció** a forráskódból docstring-ekkel:
 
-- **[Components Overview](docs/components/)** - Complete API documentation for all core modules
-- **Mirror Structure:** Documentation follows the exact same structure as the source code
-- **Source Links:** Each documentation file links back to the original source file
-- **Auto-Updated:** Run `python scripts/generate_docs.py` to regenerate documentation
+- **[Komponensek Áttekintése](docs/components/)** - Teljes API dokumentáció minden core modulhoz
+- **Tükörszerkezet:** A dokumentáció pontosan követi a forráskód szerkezetét
+- **Forráshivatkozások:** Minden dokumentációs fájl linkel vissza az eredeti forrásfájlra
+- **Automatikus Frissítés:** Futtasd a `python scripts/generate_docs.py` parancsot a dokumentáció újragenerálásához
 
-**Core Modules:**
-- [Base Architecture](docs/components/core/base/index.md) - DI Container, Factory, Interfaces
-- [Configuration](docs/components/core/config/index.md) - Dynamic & YAML Config
-- [Logging](docs/components/core/logger/index.md) - Structured Logging System
-- [Storage](docs/components/core/storage/index.md) - Parquet & File Storage
-- [Database](docs/components/core/db/index.md) - SQLAlchemy ORM
-- [Events](docs/components/core/events/index.md) - ZeroMQ Event Bus
-- [System](docs/components/core/system/index.md) - Health Monitoring
-- [Utilities](docs/components/core/utils/index.md) - Helper Functions
+**Core Modulok:**
+- [Alaparchitektúra](docs/components/core/base/index.md) - DI Konténer, Factory, Interfészek
+- [Konfiguráció](docs/components/core/config/index.md) - Dinamikus & YAML Konfig
+- [Naplózás](docs/components/core/logger/index.md) - Strukturált Naplózó Rendszer
+- [Tároló](docs/components/core/storage/index.md) - Parquet & Fájl Tároló
+- [Adatbázis](docs/components/core/db/index.md) - SQLAlchemy ORM
+- [Események](docs/components/core/events/index.md) - ZeroMQ Esemény Busz
+- [Rendszer](docs/components/core/system/index.md) - Egészségügyi Monitorozás
+- [Segédeszközök](docs/components/core/utils/index.md) - Segédfunkciók
 
-### 🧠 AI Models
+### 🧠 AI Modellek
 
-The system implements a **hierarchical AI architecture** for multi-timeframe analysis:
+A rendszer **hierarchikus AI architektúrát** valósít meg több időkeretű elemzéshez:
 
-- **[Hierarchical Model Structure](docs/models/hierarchical/structure.md)** - D1, H4, H1, M15, M5, M1 models
-- **Ensemble Learning** - Combines predictions from multiple timeframes
-- **PyTorch + Lightning** - CUDA-accelerated training and inference
+- **[Hierarchikus Modell Szerkezet](docs/models/hierarchical/structure.md)** - D1, H4, H1, M15, M5, M1 modellek
+- **Együttes Tanulás** - Több időkeretből származó előrejelzések kombinálása
+- **PyTorch + Lightning** - CUDA-gyorsított tanítás és inferencia
 
-### ⚙️ Data Processors
+### ⚙️ Adatfeldolgozók
 
-15-dimensional feature engineering for tick data:
+15-dimenziós feature engineering tick adatokhoz:
 
-- **[Dimension Processors Overview](docs/processors/dimensions/overview.md)** - D1-D15 feature extraction
-- **Real-time Processing** - On-the-fly feature calculation
-- **VectorBT Integration** - Backtesting and validation
+- **[Dimenzió Feldolgozók Áttekintése](docs/processors/dimensions/overview.md)** - D1-D15 feature extrakció
+- **Valós Idejű Feldolgozás** - Futás közbeni feature számítás
+- **VectorBT Integráció** - Backtesting és validáció
 
-### 🛠️ Development Guidelines
+### 🛠️ Fejlesztési Irányelvek
 
-- **[Unified Development Guide](docs/development/unified_development_guide.md)** - Pylance Strict, Hungarian Docstrings
-- **[Core Dependencies](docs/development/core_dependencies.md)** - DI Container, Factory Pattern, NullObject
-- **[Task Tree Dashboard](docs/development/TASK_TREE.md)** - Real-time project status and telemetry
-- **[Architecture Standards](docs/development/architecture_standards.md)** - Module structure & naming conventions
+- **[Egységes Fejlesztési Útmutató](docs/development/unified_development_guide.md)** - Pylance Strict, Magyar Docstring-ek
+- **[Core Függőségek](docs/development/core_dependencies.md)** - DI Konténer, Factory Pattern, NullObject
+- **[Feladatfa Vezérlőpult](docs/development/TASK_TREE.md)** - Valós idejű projekt státusz és telemetria
+- **[Architektúra Szabványok](docs/development/architecture_standards.md)** - Modulszerkezet & elnevezési konvenciók
 
-### 📖 Documentation Generation
+### 📖 Dokumentáció Generálás
 
-The system includes an **automated documentation generator** that extracts docstrings from source code:
+A rendszer tartalmaz egy **automatikus dokumentáció generátort**, amely kinyeri a docstring-eket a forráskódból:
 
 ```bash
-# Generate/update all component documentation
+# Generál/frissít minden komponens dokumentációt
 python scripts/generate_docs.py
 ```
 
-**Features:**
-- ✅ Extracts module, class, and function docstrings using AST
-- ✅ Creates mirror documentation structure in `docs/components/`
-- ✅ Generates index files for each directory
-- ✅ Links back to source files for easy navigation
-- ✅ Supports Hungarian docstrings (as per project standards)
+**Funkciók:**
+- ✅ Kinyeri a modul, osztály és függvény docstring-eket AST használatával
+- ✅ Létrehozza a tükördokumentáció szerkezetét a `docs/components/` mappában
+- ✅ Generál indexfájlokat minden könyvtárhoz
+- ✅ Visszahivatkozik a forrásfájlokra a könnyű navigációért
+- ✅ Támogatja a magyar docstring-eket (a projekt szabványai szerint)
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Gyors Indítás
 
-### Prerequisites
+### Előfeltételek
 
 - **Python:** 3.12+
 - **Conda:** Miniconda3
-- **CUDA:** 12.1 (for GPU acceleration)
-- **Java:** 11+ (for JForex Bridge)
+- **CUDA:** 12.1 (GPU gyorsításhoz)
+- **Java:** 11+ (JForex Hídhoz)
 
-### Installation
+### Telepítés
 
-**🚀 UNIFIED ZERO-TOUCH INSTALLER (RECOMMENDED)**
+**🚀 EGYSÉGES ZÉRÓ-BEÁLLÍTÁSÚ TELEPÍTŐ (AJÁNLOTT)**
 
-Run the unified installer that automatically detects hardware, installs dependencies, and sets up brokers:
+Futtasd az egységes telepítőt, amely automatikusan észleli a hardvert, telepíti a függőségeket és beállítja a brókereket:
 
 ```bash
-# 1. Clone the repository
+# 1. Klónozd a repository-t
 git clone https://github.com/your-org/neural-ai-next.git
 cd neural-ai-next
 
-# 2. Run the unified installer (automated everything!)
+# 2. Futtasd az egységes telepítőt (mindent automatikusan!)
 python scripts/install.py
 
-# 3. Activate the environment
+# 3. Aktiváld a környezetet
 conda activate neural-ai-next
 
-# 4. Configure environment (if needed)
+# 4. Konfiguráld a környezetet (ha szükséges)
 cp .env.example .env
-# Edit .env with your settings
+# Szerkeszd az .env fájlt a beállításaiddal
 
-# 5. Start the system
+# 5. Indítsd a rendszert
 python main.py
 ```
 
-**What the installer does automatically:**
-- ✅ Detects NVIDIA GPU and installs CUDA-enabled PyTorch
-- ✅ Checks AVX2 support and installs optimal data libraries (Polars/PyArrow or fastparquet)
-- ✅ Creates Conda environment with Python 3.12
-- ✅ Installs all dependencies (dev + trader + jupyter)
-- ✅ Downloads and launches broker installers (JForex4, TWS, MT5)
-- ✅ Sets up Wine prefix for MT5
+**Mit csinál a telepítő automatikusan:**
+- ✅ Észleli az NVIDIA GPU-t és telepíti a CUDA-kompatibilis PyTorch-ot
+- ✅ Ellenőrzi az AVX2 támogatást és telepíti az optimális adatkönyvtárakat (Polars/PyArrow vagy fastparquet)
+- ✅ Létrehozza a Conda környezetet Python 3.12-vel
+- ✅ Telepíti az összes függőséget (dev + trader + jupyter)
+- ✅ Letölti és elindítja a bróker telepítőket (JForex4, TWS, MT5)
+- ✅ Beállítja a Wine prefix-et MT5-höz
 
-**Manual Installation (Legacy)**
+**Kézi Telepítés (Örökölt)**
 
-If you prefer manual installation:
+Ha preferálod a kézi telepítést:
 
 ```bash
-# 1. Create environment
+# 1. Környezet létrehozása
 conda create -n neural-ai-next python=3.12 -y
 conda activate neural-ai-next
 
-# 2. Install PyTorch (GPU or CPU)
+# 2. PyTorch telepítése (GPU vagy CPU)
 conda install -y pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia  # GPU
-# OR
+# VAGY
 conda install -y pytorch torchvision torchaudio cpuonly -c pytorch  # CPU
 
-# 3. Install project dependencies
+# 3. Projekt függőségek telepítése
 pip install -e .[dev,trader,jupyter]
 
-# 4. Configure environment
+# 4. Környezet konfigurálása
 cp .env.example .env
-# Edit .env with your settings
+# Szerkeszd az .env fájlt a beállításaiddal
 
-# 5. Start the system
+# 5. Rendszer indítása
 python main.py
 ```
 
-### Configuration
+### Konfiguráció
 
-Edit [`.env`](.env.example) to configure:
+Szerkeszd az [`.env`](.env.example) fájlt a következők konfigurálásához:
 
-- **Database:** SQLite (dev) or PostgreSQL (prod)
-- **Brokers:** JForex, MT5, IBKR credentials
-- **Symbols:** Trading instrument list
-- **Logging:** Log level and output format
-- **API:** FastAPI server settings
+- **Adatbázis:** SQLite (fejlesztés) vagy PostgreSQL (éles)
+- **Brókerek:** JForex, MT5, IBKR hitelesítő adatok
+- **Szimbólumok:** Kereskedési instrumentum lista
+- **Naplózás:** Log szint és kimeneti formátum
+- **API:** FastAPI szerver beállítások
 
 ---
 
-## 🧪 Testing
+## 🧪 Tesztelés
 
 ```bash
-# Run all tests
+# Futtasd az összes tesztet
 /home/elynea/miniconda3/envs/neural-ai-next/bin/pytest
 
-# Run with coverage
+# Futtasd coverage-zel
 /home/elynea/miniconda3/envs/neural-ai-next/bin/pytest --cov=neural_ai --cov-report=html
 
-# Run specific test
+# Futtasd specifikus tesztet
 /home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/core/test_event_bus.py -v
 ```
 
 ---
 
-## 📊 Technology Stack
+## 📊 Technológiai Stack
 
-### Core Framework
-- **Python 3.12** - Modern async/await syntax
-- **Pydantic** - Data validation and settings management
-- **SQLAlchemy 2.0** - Async ORM with type safety
-- **FastAPI** - High-performance API server
+### Core Keretrendszer
+- **Python 3.12** - Modern async/await szintaxis
+- **Pydantic** - Adatvalidáció és beállításkezelés
+- **SQLAlchemy 2.0** - Async ORM típusbiztonsággal
+- **FastAPI** - Nagy teljesítményű API szerver
 
-### Data Processing
-- **Polars** - Blazing-fast DataFrame operations
-- **FastParquet** - Efficient columnar storage
-- **VectorBT Pro** - Backtesting and portfolio analysis
+### Adatfeldolgozás
+- **Polars** - Villámgyors DataFrame műveletek
+- **FastParquet** - Hatékony oszlopos tároló
+- **VectorBT Pro** - Backtesting és portfólió elemzés
 
 ### AI/ML
-- **PyTorch 2.5.1** - Deep learning framework
-- **Lightning 2.5.5** - Training orchestration
-- **CUDA 12.1** - GPU acceleration
+- **PyTorch 2.5.1** - Deep learning keretrendszer
+- **Lightning 2.5.5** - Tanítási orchestration
+- **CUDA 12.1** - GPU gyorsítás
 
-### Observability
-- **structlog** - Structured JSON logging
-- **OpenTelemetry** - Distributed tracing (planned)
-- **Prometheus** - Metrics collection (planned)
+### Megfigyelhetőség
+- **structlog** - Strukturált JSON naplózás
+- **OpenTelemetry** - Elosztott nyomkövetés (tervezett)
+- **Prometheus** - Metrikagyűjtés (tervezett)
 
-### Messaging
-- **ZeroMQ** - High-performance event bus
-- **WebSockets** - Real-time communication
-- **Redis** - Caching and pub/sub
+### Üzenetküldés
+- **ZeroMQ** - Nagy teljesítményű esemény busz
+- **WebSockets** - Valós idejű kommunikáció
+- **Redis** - Gyorsítótár és pub/sub
 
-### Brokers
-- **JForex** - Dukascopy (Bi5 + Java Bridge)
-- **MT5** - MetaTrader 5 (FastAPI integration)
+### Brókerek
+- **JForex** - Dukascopy (Bi5 + Java Híd)
+- **MT5** - MetaTrader 5 (FastAPI integráció)
 - **IBKR** - Interactive Brokers (TWS API)
 
 ---
 
-## 🏗️ Project Structure
+## 🏗️ Projekt Szerkezet
 
-### 📚 Core Components Documentation
+### 📚 Core Komponensek Dokumentációja
 
 A teljes rendszer dokumentációja a forráskódból automatikusan generálva. Minden komponenshez tartozik részletes API dokumentáció a [`docs/components/`](docs/components/) mappában.
 
-#### 🏛️ Base Architecture
-- **[Base Components Overview](docs/components/core/base/index.md)** - DI Container, Factory, Interfaces
+#### 🏛️ Alaparchitektúra
+- **[Alap Komponensek Áttekintése](docs/components/core/base/index.md)** - DI Konténer, Factory, Interfészek
   - [`factory.py`](docs/components/core/base/factory.md) - Abstract Factory Pattern
-  - [`implementations/`](docs/components/core/base/implementations/index.md) - DI Container, Component Bundle, Singleton, Lazy Loader
-  - [`interfaces/`](docs/components/core/base/interfaces/index.md) - Component & Container Interfaces
-  - [`exceptions/`](docs/components/core/base/exceptions/index.md) - Base Error Classes
+  - [`implementations/`](docs/components/core/base/implementations/index.md) - DI Konténer, Komponens Csomag, Singleton, Lusta Betöltő
+  - [`interfaces/`](docs/components/core/base/interfaces/index.md) - Komponens & Konténer Interfészek
+  - [`exceptions/`](docs/components/core/base/exceptions/index.md) - Alap Hiba Osztályok
 
-#### ⚙️ Configuration System
-- **[Configuration Overview](docs/components/core/config/index.md)** - Dynamic & YAML Config Managers
-  - [`factory.py`](docs/components/core/config/factory.md) - Config Factory
-  - [`implementations/`](docs/components/core/config/implementations/index.md) - Dynamic & YAML Config Managers
-  - [`interfaces/`](docs/components/core/config/interfaces/index.md) - Config, Async Config & Factory Interfaces
-  - [`exceptions/`](docs/components/core/config/exceptions/index.md) - Configuration Errors
+#### ⚙️ Konfigurációs Rendszer
+- **[Konfiguráció Áttekintése](docs/components/core/config/index.md)** - Dinamikus & YAML Konfig Manager
+  - [`factory.py`](docs/components/core/config/factory.md) - Konfigurációs Factory
+  - [`implementations/`](docs/components/core/config/implementations/index.md) - Dinamikus & YAML Konfig Manager
+  - [`interfaces/`](docs/components/core/config/interfaces/index.md) - Konfig, Async Konfig & Factory Interfészek
+  - [`exceptions/`](docs/components/core/config/exceptions/index.md) - Konfigurációs Hibák
 
-#### 📝 Logging Framework
-- **[Logging Overview](docs/components/core/logger/index.md)** - Structured Logging System
-  - [`factory.py`](docs/components/core/logger/factory.md) - Logger Factory
-  - [`implementations/`](docs/components/core/logger/implementations/index.md) - Colored, Default & Rotating File Loggers
-  - [`interfaces/`](docs/components/core/logger/interfaces/index.md) - Logger & Factory Interfaces
-  - [`formatters/`](docs/components/core/logger/formatters/index.md) - Log Formatters
-  - [`exceptions/`](docs/components/core/logger/exceptions/index.md) - Logging Errors
+#### 📝 Naplózó Keretrendszer
+- **[Naplózás Áttekintése](docs/components/core/logger/index.md)** - Strukturált Naplózó Rendszer
+  - [`factory.py`](docs/components/core/logger/factory.md) - Naplózó Factory
+  - [`implementations/`](docs/components/core/logger/implementations/index.md) - Színes, Alapértelmezett & Forgó Fájl Naplózók
+  - [`interfaces/`](docs/components/core/logger/interfaces/index.md) - Naplózó & Factory Interfészek
+  - [`formatters/`](docs/components/core/logger/formatters/index.md) - Napló Formázók
+  - [`exceptions/`](docs/components/core/logger/exceptions/index.md) - Naplózási Hibák
 
-#### 💾 Storage System
-- **[Storage Overview](docs/components/core/storage/index.md)** - Parquet & File Storage
-  - [`factory.py`](docs/components/core/storage/factory.md) - Storage Factory
-  - [`implementations/`](docs/components/core/storage/implementations/index.md) - File & Parquet Storage
-  - [`interfaces/`](docs/components/core/storage/interfaces/index.md) - Storage & Factory Interfaces
-  - [`backends/`](docs/components/core/storage/backends/index.md) - Polars, Pandas & Base Backends
-  - [`exceptions/`](docs/components/core/storage/exceptions/index.md) - Storage Errors
+#### 💾 Tároló Rendszer
+- **[Tároló Áttekintése](docs/components/core/storage/index.md)** - Parquet & Fájl Tároló
+  - [`factory.py`](docs/components/core/storage/factory.md) - Tároló Factory
+  - [`implementations/`](docs/components/core/storage/implementations/index.md) - Fájl & Parquet Tároló
+  - [`interfaces/`](docs/components/core/storage/interfaces/index.md) - Tároló & Factory Interfészek
+  - [`backends/`](docs/components/core/storage/backends/index.md) - Polars, Pandas & Alap Backend-ek
+  - [`exceptions/`](docs/components/core/storage/exceptions/index.md) - Tárolási Hibák
 
-#### 🗄️ Database Layer
-- **[Database Overview](docs/components/core/db/index.md)** - SQLAlchemy ORM & Models
-  - [`factory.py`](docs/components/core/db/factory.md) - Database Factory
-  - [`implementations/`](docs/components/core/db/implementations/index.md) - Models, Model Base & SQLAlchemy Session
-  - [`exceptions/`](docs/components/core/db/exceptions/index.md) - Database Errors
+#### 🗄️ Adatbázis Réteg
+- **[Adatbázis Áttekintése](docs/components/core/db/index.md)** - SQLAlchemy ORM & Modellek
+  - [`factory.py`](docs/components/core/db/factory.md) - Adatbázis Factory
+  - [`implementations/`](docs/components/core/db/implementations/index.md) - Modellek, Modell Alap & SQLAlchemy Session
+  - [`exceptions/`](docs/components/core/db/exceptions/index.md) - Adatbázis Hibák
 
-#### 📡 Event System
-- **[Event System Overview](docs/components/core/events/index.md)** - ZeroMQ Event Bus
-  - [`factory.py`](docs/components/core/events/factory.md) - Event Bus Factory
-  - [`implementations/`](docs/components/core/events/implementations/index.md) - ZeroMQ Event Bus
-  - [`interfaces/`](docs/components/core/events/interfaces/index.md) - Event Bus Interface & Event Models
-  - [`exceptions/`](docs/components/core/events/exceptions/index.md) - Event Errors
+#### 📡 Esemény Rendszer
+- **[Esemény Rendszer Áttekintése](docs/components/core/events/index.md)** - ZeroMQ Esemény Busz
+  - [`factory.py`](docs/components/core/events/factory.md) - Esemény Busz Factory
+  - [`implementations/`](docs/components/core/events/implementations/index.md) - ZeroMQ Esemény Busz
+  - [`interfaces/`](docs/components/core/events/interfaces/index.md) - Esemény Busz Interfész & Esemény Modellek
+  - [`exceptions/`](docs/components/core/events/exceptions/index.md) - Esemény Hibák
 
-#### 🖥️ System Monitoring
-- **[System Overview](docs/components/core/system/index.md)** - Health Monitoring
-  - [`factory.py`](docs/components/core/system/factory.md) - System Factory
-  - [`implementations/`](docs/components/core/system/implementations/index.md) - Health Monitor
-  - [`interfaces/`](docs/components/core/system/interfaces/index.md) - Health Interface
+#### 🖥️ Rendszer Monitorozás
+- **[Rendszer Áttekintése](docs/components/core/system/index.md)** - Egészségügyi Monitorozás
+  - [`factory.py`](docs/components/core/system/factory.md) - Rendszer Factory
+  - [`implementations/`](docs/components/core/system/implementations/index.md) - Egészségügyi Monitor
+  - [`interfaces/`](docs/components/core/system/interfaces/index.md) - Egészségügyi Interfész
 
-#### 🛠️ Utilities
-- **[Utilities Overview](docs/components/core/utils/index.md)** - Helper Functions & Hardware Info
-  - [`factory.py`](docs/components/core/utils/factory.md) - Utils Factory
-  - [`decorators.py`](docs/components/core/utils/decorators.md) - Utility Decorators
-  - [`implementations/`](docs/components/core/utils/implementations/index.md) - Hardware Info
-  - [`interfaces/`](docs/components/core/utils/interfaces/index.md) - Hardware Interface
-  - [`exceptions/`](docs/components/core/utils/exceptions/index.md) - Utility Errors
-
----
-
-## 📈 Development Phases
-
-### Phase 1: Core Infrastructure (85% Complete)
-- ✅ DI Container
-- ✅ Configuration System
-- ✅ Logging Framework
-- ✅ Base Interfaces
-- 🚧 Event Bus
-- 🔴 Database Layer
-- 🔴 Parquet Storage
-
-### Phase 2: Data Collectors (10% Complete)
-- 🔴 JForex Bi5 Downloader
-- 🔴 MT5 FastAPI Server
-- 🔴 Java-Python Bridge
-- 🔴 IBKR TWS Integration
-
-### Phase 3: AI/ML Pipeline (0% Complete)
-- 🔴 Hierarchical Models
-- 🔴 Feature Processors
-- 🔴 Training Pipeline
-- 🔴 Inference Engine
-
-### Phase 4: Strategy Engine (0% Complete)
-- 🔴 Backtesting Framework
-- 🔴 Risk Management
-- 🔴 Execution Engine
-- 🔴 Performance Monitoring
-
-**Overall Progress:** 35% [███████░░░░░░░░░░░░░]
+#### 🛠️ Segédeszközök
+- **[Segédeszközök Áttekintése](docs/components/core/utils/index.md)** - Segédfunkciók & Hardver Info
+  - [`factory.py`](docs/components/core/utils/factory.md) - Segédeszközök Factory
+  - [`decorators.py`](docs/components/core/utils/decorators.md) - Segédeszköz Dekorátorok
+  - [`implementations/`](docs/components/core/utils/implementations/index.md) - Hardver Info
+  - [`interfaces/`](docs/components/core/utils/interfaces/index.md) - Hardver Interfész
+  - [`exceptions/`](docs/components/core/utils/exceptions/index.md) - Segédeszköz Hibák
 
 ---
 
-## 🤝 Contributing
+## 📈 Fejlesztési Fázisok
 
-This is a proprietary institutional trading system. All contributions require:
+### Fázis 1: Core Infrastruktúra (85% Kész)
+- ✅ DI Konténer
+- ✅ Konfigurációs Rendszer
+- ✅ Naplózó Keretrendszer
+- ✅ Alap Interfészek
+- 🚧 Esemény Busz
+- 🔴 Adatbázis Réteg
+- 🔴 Parquet Tároló
 
-1. **Architecture Review** - All changes must align with specifications
-2. **100% Test Coverage** - No code merges without tests
-3. **Documentation** - Mirror documentation for every component
-4. **Code Review** - Senior architect approval required
+### Fázis 2: Adatgyűjtők (10% Kész)
+- 🔴 JForex Bi5 Letöltő
+- 🔴 MT5 FastAPI Szerver
+- 🔴 Java-Python Híd
+- 🔴 IBKR TWS Integráció
 
-### Development Workflow
+### Fázis 3: AI/ML Folyamat (0% Kész)
+- 🔴 Hierarchikus Modellek
+- 🔴 Feature Feldolgozók
+- 🔴 Tanítási Folyamat
+- 🔴 Inferencia Motor
+
+### Fázis 4: Stratégia Motor (0% Kész)
+- 🔴 Backtesting Keretrendszer
+- 🔴 Kockázatkezelés
+- 🔴 Végrehajtási Motor
+- 🔴 Teljesítmény Monitorozás
+
+**Összesített Haladás:** 35% [███████░░░░░░░░░░░░░]
+
+---
+
+## 🤝 Közreműködés
+
+Ez egy tulajdonosi intézményi kereskedelmi rendszer. Minden közreműködéshez szükséges:
+
+1. **Architektúra Felülvizsgálat** - Minden változtatásnak a specifikációkhoz kell igazodnia
+2. **100% Tesztlefedettség** - Nincs kód merge teszt nélkül
+3. **Dokumentáció** - Tükördokumentáció minden komponenshez
+4. **Kód Felülvizsgálat** - Szenior architekt jóváhagyása szükséges
+
+### Fejlesztési Munkafolyamat
 
 ```bash
-# 1. Create feature branch
+# 1. Hozz létre feature branch-et
 git checkout -b feature/your-feature
 
-# 2. Implement changes (follow specs)
-# 3. Write tests
-# 4. Update documentation (mirror structure)
-# 5. Run linter
+# 2. Implementáld a változtatásokat (kövesd a specifikációkat)
+# 3. Írj teszteket
+# 4. Frissítsd a dokumentációt (tükörszerkezet)
+# 5. Futtasd a lintet
 /home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check
 
-# 6. Run tests
+# 6. Futtasd a teszteket
 /home/elynea/miniconda3/envs/neural-ai-next/bin/pytest
 
-# 7. Commit (atomic commits required)
+# 7. Commit (atomic commit-ok kötelezőek)
 git add .
-git commit -m "feat(scope): description"
+git commit -m "feat(scope): leírás"
 
-# 8. Push and create PR
+# 8. Push és PR létrehozása
 git push origin feature/your-feature
 ```
 
 ---
 
-## ⚠️ Critical Rules (NO-GO ZONE)
+## ⚠️ Kritikus Szabályok (NO-GO ZÓNA)
 
-### 1. 🇭🇺 Language Protocol
-- **ALL** communication (Chat, Commit, Docstring, Comments) in **HUNGARIAN**
-- Exception: Code keywords (def, class, import) and technical terms
+### 1. 🇭🇺 Nyelvi Protokoll
+- **MINDEN** kommunikáció (Chat, Commit, Docstring, Kommentek) **MAGYARUL**
+- Kivétel: Kód kulcsszavak (def, class, import) és technikai kifejezések
 
-### 2. 🪞 Mirror Structure & Atomic Commit
-- Documentation MUST mirror code structure
-- **Every file change requires immediate `git commit`**
-- No commit = ❌ FAILED
+### 2. 🪞 Tükörszerkezet & Atomic Commit
+- A dokumentációnak tükröznie kell a kód szerkezetét
+- **Minden fájlváltoztatás azonnali `git commit`-ot igényel**
+- Nincs commit = ❌ SIKERTELEN
 
-### 3. 🐍 Technical Strictness
-- **JForex:** TILOS CSV! Only native .bi5 (LZMA) processing
-- **Storage:** TILOS CSV/JSON! Only partitioned Parquet
-- **Types:** TILOS `Any`! Strict type hints required
-- **Imports:** `if TYPE_CHECKING:` for circular dependencies
+### 3. 🐍 Technikai Szigorúság
+- **JForex:** TILOS CSV! Csak natív .bi5 (LZMA) feldolgozás
+- **Tároló:** TILOS CSV/JSON! Csak particionált Parquet
+- **Típusok:** TILOS `Any`! Szigorú típushints szükséges
+- **Importok:** `if TYPE_CHECKING:` körkörös függőségekhez
 
-### 4. 🧠 Memory Management
-- **NO CONDENSING!** Never compress context without explicit user instruction
-- Use the full 128k/200k token window
+### 4. 🧠 Memóriakezelés
+- **NINCS TÖMÖRÍTÉS!** Soha ne tömörítsd a kontextust kifejezett felhasználói utasítás nélkül
+- Használd ki a teljes 128k/200k token ablakot
 
-### 5. 🔍 Context Awareness
-- **TILOS** to generate files without reading related documentation!
-- README must link to `docs/models` and `docs/processors`
-
----
-
-## 📞 Support & Contact
-
-- **Architecture Questions:** See [System Specifications](docs/planning/specs/)
-- **AI Model Questions:** See [Hierarchical Structure](docs/models/hierarchical/structure.md)
-- **Processor Questions:** See [Dimension Overview](docs/processors/dimensions/overview.md)
-- **Development Questions:** See [Development Guide](docs/development/unified_development_guide.md)
+### 5. 🔍 Kontextus Tudatosság
+- **TILOS** fájlokat generálni a kapcsolódó dokumentáció elolvasása nélkül!
+- A README-nek linkelnie kell a `docs/models` és `docs/processors` fájlokat
 
 ---
 
-## 📄 License
+## 📞 Támogatás & Kapcsolat
 
-**Proprietary & Confidential** - Neural AI Next v1.0.0
-
-© 2025 Neural AI Next. All rights reserved.
+- **Architektúra Kérdések:** Lásd [Rendszer Specifikációk](docs/planning/specs/)
+- **AI Modell Kérdések:** Lásd [Hierarchikus Szerkezet](docs/models/hierarchical/structure.md)
+- **Feldolgozó Kérdések:** Lásd [Dimenzió Áttekintés](docs/processors/dimensions/overview.md)
+- **Fejlesztési Kérdések:** Lásd [Fejlesztési Útmutató](docs/development/unified_development_guide.md)
 
 ---
 
-## 🏆 Acknowledgments
+## 📄 Licenc
 
-Built with institutional-grade engineering practices:
-- Event-Driven Architecture
-- Dependency Injection
+**Tulajdonosi & Bizalmas** - Neural AI Next v1.0.0
+
+© 2025 Neural AI Next. Minden jog fenntartva.
+
+---
+
+## 🏆 Köszönetnyilvánítás
+
+Intézményi szintű mérnöki gyakorlatokkal építve:
+- Eseményvezérelt Architektúra
+- Függőség Injektálás
 - Factory Pattern
 - Strategy Pattern
 - Repository Pattern
 - NullObject Pattern
-- Lazy Loading
-- Singleton (where appropriate)
+- Lusta Betöltés
+- Singleton (ahol megfelelő)
 
 **Stack:** Python 3.12 | PyTorch 2.5.1 | Lightning 2.5.5 | VectorBT Pro | FastParquet | SQLAlchemy 2.0 | FastAPI | ZeroMQ
 
 ---
 
-**Status:** 🟡 Architecture Phase | **Last Updated:** 2025-12-24 | **Version:** 1.0.0
+**Státusz:** 🟡 Architektúra Fázis | **Utoljára Frissítve:** 2025-12-24 | **Verzió:** 1.0.0
