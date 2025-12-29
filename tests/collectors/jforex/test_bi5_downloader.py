@@ -53,8 +53,12 @@ class MockBi5DataGenerator:
             bid = base_price + (i * 0.00001)  # Slight upward trend
             ask = bid + 0.00010  # 1 pip spread
             
-            # Pack as big-endian: unsigned int, float, float
-            raw_data.extend(struct.pack('>Iff', timestamp_delta, ask, bid))
+            # Convert to integer format (multiplied by 100,000)
+            bid_int = int(bid * 100000)
+            ask_int = int(ask * 100000)
+            
+            # Pack as big-endian: unsigned int, unsigned int, unsigned int
+            raw_data.extend(struct.pack('>III', timestamp_delta, ask_int, bid_int))
         
         # LZMA compress
         compressed = lzma.compress(bytes(raw_data))
