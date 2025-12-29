@@ -3,6 +3,7 @@
 import tempfile
 from pathlib import Path
 from typing import Any
+from unittest.mock import Mock
 
 import pytest
 import yaml
@@ -524,3 +525,395 @@ class TestYAMLConfigManager:
             manager.save(filename=str(invalid_path))
         except ValueError as e:
             assert "Konfiguráció mentése sikertelen" in str(e)
+
+    def test_get_with_logger_debug(self, config_file: Path) -> None:
+        """Teszteli a get metódust logger debug üzenettel (sor 123-130)."""
+        # Mock logger létrehozása
+        mock_logger = Mock()
+        mock_logger.debug = Mock()
+        
+        manager = YAMLConfigManager(filename=str(config_file), logger=mock_logger)
+        
+        # Érték lekérése, ami triggereli a debug logot
+        value = manager.get("database", "host")
+        
+        assert value == "localhost"
+        # Ellenőrizzük, hogy a logger debug metódusa meghívásra került
+        mock_logger.debug.assert_called()
+
+    def test_set_nested_creates_intermediate_dicts(self) -> None:
+        """Teszteli, hogy a set létrehozza a köztes dictionary-ket (sor 169)."""
+        manager = YAMLConfigManager()
+        
+        # Mélyen beágyazott kulcs beállítása
+        manager.set("level1", "level2", "level3", value="deep_value")
+        
+        # Ellenőrizzük, hogy az összes köztes szint létezik
+        assert manager.get("level1", "level2", "level3") == "deep_value"
+        assert isinstance(manager.get("level1"), dict)
+        assert isinstance(manager.get("level1", "level2"), dict)
+
+    def test_load_with_incompatible_schema_version_warning(self, temp_dir: Path) -> None:
+        """Teszteli a betöltést inkompatibilis séma verzióval (sor 228-234)."""
+        # Mock logger létrehozása
+        mock_logger = Mock()
+        mock_logger.warning = Mock()
+        
+        # Konfigurációs fájl létrehozása inkompatibilis verzióval
+        config_path = temp_dir / "incompatible_version.yaml"
+        config_data = {
+            "_schema_version": "2.0",  # Eltérő verzió
+            "key": "value"
+        }
+        with open(config_path, "w", encoding="utf-8") as f:
+            yaml.dump(config_data, f)
+        
+        manager = YAMLConfigManager(logger=mock_logger)
+        manager.load(str(config_path))
+        
+        # Ellenőrizzük, hogy a warning metódus meghívásra került
+        mock_logger.warning.assert_called_once()
+        warning_message = mock_logger.warning.call_args[0][0]
+        assert "2.0" in warning_message
+        assert "1.0" in warning_message
+
+    def test_validate_dict_with_dict_value(self) -> None:
+        """Teszteli a _validate_dict metódust dictionary értékkel (sor 264-265)."""
+        manager = YAMLConfigManager()
+        manager.set("nested", value={"key": "value"})
+        
+        schema = {
+            "nested": {
+                "type": "dict",
+                "schema": {
+                    "key": {"type": "str"}
+                }
+            }
+        }
+        
+        is_valid, errors = manager.validate(schema)
+        assert is_valid is True
+        assert errors is None
+
+    def test_validate_type_with_none_value(self) -> None:
+        """Teszteli a _validate_type metódust None értékkel (sor 316)."""
+        manager = YAMLConfigManager()
+        # Ne állítsunk be értéket, hogy None legyen
+        
+        schema = {
+            "optional_field": {"type": "str", "optional": True}
+        }
+        
+        is_valid, errors = manager.validate(schema)
+        assert is_valid is True
+        assert errors is None
+
+    def test_validate_nested_dict_valid(self) -> None:
+        """Teszteli a _validate_nested metódust érvényes beágyazott dictionary-vel (sor 337-338)."""
+        manager = YAMLConfigManager()
+        manager.set("database", "settings", value={"host": "localhost", "port": 5432})
+        
+        schema = {
+            "database": {
+                "type": "dict",
+                "schema": {
+                    "settings": {
+                        "type": "dict",
+                        "schema": {
+                            "host": {"type": "str"},
+                            "port": {"type": "int"}
+                        }
+                    }
+                }
+            }
+        }
+        
+        is_valid, errors = manager.validate(schema)
+        assert is_valid is True
+        assert errors is None
+
+    def test_load_directory_logs_debug_messages(self, temp_dir: Path) -> None:
+        """Teszteli a load_directory debug log üzeneteit (sor 414)."""
+        # Mock logger létrehozása
+        mock_logger = Mock()
+        mock_logger.debug = Mock()
+        
+        # Konfigurációs mappa létrehozása
+        configs_dir = temp_dir / "configs"
+        configs_dir.mkdir()
+        
+        # YAML fájl létrehozása
+        with open(configs_dir / "test.yaml", "w", encoding="utf-8") as f:
+            yaml.dump({"key": "value"}, f)
+        
+        manager = YAMLConfigManager(logger=mock_logger)
+        manager.load_directory(str(configs_dir))
+        
+        # Ellenőrizzük, hogy a debug metódus meghívásra került
+        mock_logger.debug.assert_called()
+
+    def test_load_directory_system_yaml_special_handling(self, temp_dir: Path) -> None:
+        """Teszteli a system.yaml speciális kezelését (sor 430-431)."""
+        # Konfigurációs mappa létrehozása
+        configs_dir = temp_dir / "configs"
+        configs_dir.mkdir()
+        
+        # system.yaml létrehozása
+        system_config = {
+            "app_name": "TestApp",
+            "debug": True,
+            "version": "1.0"
+        }
+        with open(configs_dir / "system.yaml", "w", encoding="utf-8") as f:
+            yaml.dump(system_config, f)
+        
+        # Másik YAML fájl létrehozása, ami felülírná a gyökérben az app_name-t
+        other_config = {"app_name": "OtherApp"}
+        with open(configs_dir / "other.yaml", "w", encoding="utf-8") as f:
+            yaml.dump(other_config, f)
+        
+        manager = YAMLConfigManager()
+        manager.load_directory(str(configs_dir))
+        
+        # A system.yaml tartalma a gyökérbe is betöltődik
+        assert manager.get("app_name") == "TestApp"
+        assert manager.get("debug") is True
+        assert manager.get("version") == "1.0"
+        # A másik fájl tartalma namespaced módon is betöltődik
+        assert manager.get("other", "app_name") == "OtherApp"
+
+    def test_get_without_logger_no_debug(self, config_file: Path) -> None:
+        """Teszteli a get metódust logger nélkül (sor 123)."""
+        manager = YAMLConfigManager(filename=str(config_file), logger=None)
+        
+        # Érték lekérése logger nélkül
+        value = manager.get("database", "host")
+        
+        assert value == "localhost"
+
+    def test_set_creates_intermediate_dicts_edge_case(self) -> None:
+        """Teszteli a set metódust, amikor a köztes dictionary-ket kell létrehozni (sor 169)."""
+        manager = YAMLConfigManager()
+        
+        # Mélyen beágyazott struktúra létrehozása
+        manager.set("a", "b", "c", "d", value="value")
+        
+        # Ellenőrizzük az összes szintet
+        assert manager.get("a", "b", "c", "d") == "value"
+        assert isinstance(manager.get("a"), dict)
+        assert isinstance(manager.get("a", "b"), dict)
+        assert isinstance(manager.get("a", "b", "c"), dict)
+
+    def test_validate_dict_with_none_value(self) -> None:
+        """Teszteli a _validate_dict metódust None értékkel (sor 264-265)."""
+        manager = YAMLConfigManager()
+        # Ne állítsunk be értéket, hogy a konfiguráció üres legyen
+        
+        schema = {
+            "missing": {
+                "type": "dict",
+                "schema": {
+                    "nested": {"type": "str"}
+                }
+            }
+        }
+        
+        is_valid, errors = manager.validate(schema)
+        assert is_valid is False
+        assert errors is not None
+        assert "missing" in errors
+
+    def test_validate_type_with_no_type_specified(self) -> None:
+        """Teszteli a _validate_type metódust, ha nincs típus megadva (sor 316)."""
+        manager = YAMLConfigManager()
+        manager.set("key", value="value")
+        
+        schema = {
+            "key": {}  # Nincs type mező
+        }
+        
+        is_valid, errors = manager.validate(schema)
+        assert is_valid is True
+        assert errors is None
+
+    def test_validate_nested_without_schema(self) -> None:
+        """Teszteli a _validate_nested metódust, ha nincs schema megadva (sor 337-338)."""
+        manager = YAMLConfigManager()
+        manager.set("nested", value={"key": "value"})
+        
+        schema = {
+            "nested": {
+                "type": "dict"  # Nincs schema mező
+            }
+        }
+        
+        is_valid, errors = manager.validate(schema)
+        assert is_valid is True
+        assert errors is None
+
+    def test_load_directory_without_logger_no_debug(self, temp_dir: Path) -> None:
+        """Teszteli a load_directory-t logger nélkül (sor 414)."""
+        # Konfigurációs mappa létrehozása
+        configs_dir = temp_dir / "configs"
+        configs_dir.mkdir()
+        
+        # YAML fájl létrehozása
+        with open(configs_dir / "test.yaml", "w", encoding="utf-8") as f:
+            yaml.dump({"key": "value"}, f)
+        
+        manager = YAMLConfigManager(logger=None)
+        manager.load_directory(str(configs_dir))
+        
+        # Ellenőrizzük, hogy a betöltés sikeres volt-e
+        assert manager.get("test", "key") == "value"
+
+    def test_load_directory_system_yaml_no_overwrite(self, temp_dir: Path) -> None:
+        """Teszteli, hogy a system.yaml nem írja felül a meglévő kulcsokat (sor 430-431)."""
+        # Konfigurációs mappa létrehozása
+        configs_dir = temp_dir / "configs"
+        configs_dir.mkdir()
+        
+        # Először hozzunk létre egy másik fájlt, ami beállít egy értéket
+        other_config = {"app_name": "FirstApp"}
+        with open(configs_dir / "other.yaml", "w", encoding="utf-8") as f:
+            yaml.dump(other_config, f)
+        
+        # system.yaml létrehozása, ami megpróbálná felülírni az app_name-t
+        system_config = {
+            "app_name": "SystemApp",
+            "debug": True
+        }
+        with open(configs_dir / "system.yaml", "w", encoding="utf-8") as f:
+            yaml.dump(system_config, f)
+        
+        manager = YAMLConfigManager()
+        manager.load_directory(str(configs_dir))
+        
+        # A system.yaml hozzáadja a gyökérbe az app_name-t, mert az még nem létezik a gyökérben
+        # (az other.yaml csak az 'other' namespace alatt hozza létre)
+        assert manager.get("app_name") == "SystemApp"
+        assert manager.get("debug") is True
+        assert manager.get("other", "app_name") == "FirstApp"
+        assert manager.get("system", "app_name") == "SystemApp"
+
+    def test_get_returns_default_when_current_not_dict(self, config_file: Path) -> None:
+        """Teszteli a get metódust, amikor a köztes érték nem dictionary (sor 123)."""
+        manager = YAMLConfigManager(filename=str(config_file))
+        
+        # Állítsunk be egy nem dictionary értéket egy kulcs alá
+        manager.set("database", "host", value="localhost")
+        
+        # Ha a 'database' kulcs alatti érték nem dict, akkor a get visszaadja a defaultot
+        # Mivel a 'database' egy dict, de a 'host' egy string, ezért nem lehet tovább menni
+        # Ezt a sor 122-123 ellenőrzi
+        value = manager.get("database", "host", "nonexistent", default="default_value")
+        assert value == "default_value"
+
+    def test_set_raises_error_when_intermediate_not_dict(self) -> None:
+        """Teszteli a set metódust, amikor a köztes érték nem dictionary (sor 169)."""
+        manager = YAMLConfigManager()
+        
+        # Először állítsunk be egy egyszerű értéket
+        manager.set("key", value="not_a_dict")
+        
+        # Most próbáljunk beágyazott kulcsot beállítani
+        # Ez hibát kell, hogy dobjon, mert a 'key' nem dictionary
+        with pytest.raises(ValueError, match="Nem lehet beágyazott kulcsot beállítani nem dictionary értékben"):
+            manager.set("key", "nested", value="value")
+
+    def test_validate_dict_with_non_dict_value_error_path(self) -> None:
+        """Teszteli a _validate_dict hibautat nem dictionary értéknél (sor 264-265)."""
+        manager = YAMLConfigManager()
+        manager.set("key", value="not_a_dict")
+        
+        schema = {
+            "key": {
+                "type": "dict",
+                "schema": {"nested": {"type": "str"}}
+            }
+        }
+        
+        is_valid, errors = manager.validate(schema)
+        assert is_valid is False
+        assert errors is not None
+        assert "key" in errors
+        # A típusellenőrzés hamarabb fut, ezért azt az üzenetet kapjuk
+        assert "Érvénytelen típus, várt: dict" in errors["key"]
+
+    def test_validate_nested_with_non_dict_value_error_path(self) -> None:
+        """Teszteli a _validate_nested hibautat nem dictionary értéknél (sor 337-338)."""
+        manager = YAMLConfigManager()
+        manager.set("nested", value="not_a_dict")
+        
+        schema = {
+            "nested": {
+                "type": "dict",
+                "schema": {
+                    "inner": {"type": "str"}
+                }
+            }
+        }
+        
+        is_valid, errors = manager.validate(schema)
+        assert is_valid is False
+        assert errors is not None
+        assert "nested" in errors
+        # A típusellenőrzés hamarabb fut, ezért azt az üzenetet kapjuk
+        assert "Érvénytelen típus, várt: dict" in errors["nested"]
+
+    def test_load_directory_error_handling(self, temp_dir: Path) -> None:
+        """Teszteli a load_directory hibakezelését (sor 430-431)."""
+        # Konfigurációs mappa létrehozása
+        configs_dir = temp_dir / "configs"
+        configs_dir.mkdir()
+        
+        # Hozz létre egy érvénytelen YAML fájlt
+        invalid_yaml_path = configs_dir / "invalid.yaml"
+        with open(invalid_yaml_path, "w", encoding="utf-8") as f:
+            f.write("invalid: yaml: content: [")
+        
+        manager = YAMLConfigManager()
+        
+        # A betöltésnek hibát kell dobnia
+        with pytest.raises(ConfigLoadError, match="Konfigurációs mappa betöltése sikertelen"):
+            manager.load_directory(str(configs_dir))
+
+    def test_validate_dict_with_non_dict_no_type_specified(self) -> None:
+        """Teszteli a _validate_dict-et, ha nincs type megadva (sor 264-265)."""
+        from neural_ai.core.config.implementations.yaml_config_manager import ValidationContext
+        
+        manager = YAMLConfigManager()
+        
+        # Hívjuk meg közvetlenül a _validate_dict-et olyan kontextussal,
+        # ahol a value nem dict, és nincs type a sémában
+        ctx = ValidationContext(
+            path="key",
+            errors={},
+            value="not_a_dict",
+            schema={"schema": {"nested": {"type": "str"}}}
+        )
+        
+        manager._validate_dict(ctx)
+        
+        assert "key" in ctx.errors
+        assert "Dictionary típusú érték szükséges a validáláshoz" in ctx.errors["key"]
+
+    def test_validate_nested_with_non_dict_no_type_specified(self) -> None:
+        """Teszteli a _validate_nested-et, ha nincs type megadva (sor 337-338)."""
+        from neural_ai.core.config.implementations.yaml_config_manager import ValidationContext
+        
+        manager = YAMLConfigManager()
+        
+        # Hívjuk meg közvetlenül a _validate_nested-et olyan kontextussal,
+        # ahol a value nem dict, és a schema tartalmaz 'schema' kulcsot
+        ctx = ValidationContext(
+            path="nested",
+            errors={},
+            value="not_a_dict",
+            schema={"type": "dict", "schema": {"inner": {"type": "str"}}}
+        )
+        
+        manager._validate_nested(ctx)
+        
+        assert "nested" in ctx.errors
+        assert "Dictionary típusú érték szükséges" in ctx.errors["nested"]
