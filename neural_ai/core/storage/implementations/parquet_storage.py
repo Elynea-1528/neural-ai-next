@@ -350,9 +350,13 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             import polars as pl
 
             pl_data = cast(pl.DataFrame, data)
+            # Konvertáljuk a dátumokat nanosecond precision-re, hogy megfeleljenek a timestamp oszlopnak
+            start_ns = pl.lit(start_date).cast(pl.Datetime('ns'))
+            end_ns = pl.lit(end_date).cast(pl.Datetime('ns'))
+            
             # A filter metódus a Polars DataFrame-et adja vissza
             return pl_data.filter(
-                (pl.col("timestamp") >= start_date) & (pl.col("timestamp") <= end_date)
+                (pl.col("timestamp") >= start_ns) & (pl.col("timestamp") <= end_ns)
             )
         else:
             import pandas as pd
