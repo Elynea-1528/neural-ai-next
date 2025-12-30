@@ -17,6 +17,7 @@ from neural_ai.core import bootstrap_core
 
 # Körkörös importok elkerüléséhez
 if TYPE_CHECKING:
+    from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
@@ -37,29 +38,55 @@ async def main() -> None:
     """
     # Core komponensek inicializálása típusos változóval
     components: CoreComponents = bootstrap_core()
-
-    # Logger komponens lekérése és típusos cast
+    
+    # Komponensek lekérése
     logger: LoggerInterface | None = components.logger
-
-    if logger is not None:
-        logger.info("Rendszer indítása", extra={"version": "0.5.0"})
-
-    # Szolgáltatások indítása
     event_bus: EventBusInterface | None = components.event_bus
-    if event_bus is not None:
-        await event_bus.start()
-
     database: DatabaseManager | None = components.database
-    if database is not None:
-        await database.initialize()
+    live_feed: ILiveFeed | None = components.live_feed
 
-    if logger is not None:
-        logger.info("Rendszer fut, eseményekre vár")
+    try:
+        if logger is not None:
+            logger.info("Rendszer indítása", extra={"version": "0.5.0"})
 
-    # Örök futás (amíg nem jön Ctrl+C)
-    # A suppress elnyeli a CancelledError-t leálláskor
-    with suppress(asyncio.CancelledError):
-        await asyncio.Event().wait()
+        # Szolgáltatások indítása
+        if event_bus is not None:
+            await event_bus.start()
+
+        if database is not None:
+            await database.initialize()
+
+        # Live feed indítása (ha elérhető)
+        if live_feed is not None:
+            await live_feed.start()
+            if logger is not None:
+                logger.info("✅ JForex Live Feed elindítva")
+
+        if logger is not None:
+            logger.info("Rendszer fut, eseményekre vár")
+
+        # Örök futás (amíg nem jön Ctrl+C)
+        # A suppress elnyeli a CancelledError-t leálláskor
+        with suppress(asyncio.CancelledError):
+            await asyncio.Event().wait()
+    
+    finally:
+        # Szolgáltatások leállítása fordított sorrendben
+        if logger is not None:
+            logger.info("Rendszer leállítása...")
+        
+        if live_feed is not None:
+            await live_feed.stop()
+            if logger is not None:
+                logger.info("✅ JForex Live Feed leállítva")
+        
+        if event_bus is not None:
+            await event_bus.stop()
+            if logger is not None:
+                logger.info("✅ EventBus leállítva")
+        
+        if logger is not None:
+            logger.info("✅ Rendszer leállítva")
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ from neural_ai.core.utils.decorators import trace
 
 # Körkörös importok elkerüléséhez
 if TYPE_CHECKING:
+    from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
     from neural_ai.core.base.implementations.di_container import DIContainer
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
@@ -136,6 +137,20 @@ class CoreComponents:
         result = self._container.resolve(MarketDataPersister)
         return cast(Optional["MarketDataPersister"], result)
 
+    @property
+    def live_feed(self) -> Optional["ILiveFeed"]:
+        """Live feed komponens lekérése.
+
+        Returns:
+            A live feed példánya, vagy None ha nincs regisztrálva.
+        """
+        from typing import cast
+
+        from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
+
+        result = self._container.resolve(ILiveFeed)
+        return cast(Optional["ILiveFeed"], result)
+
     def set_config(self, config: "ConfigManagerInterface") -> None:
         """Beállítja a konfiguráció komponenst (csak teszteléshez).
 
@@ -206,6 +221,16 @@ class CoreComponents:
 
         self._container.register_instance(MarketDataPersister, persister)
 
+    def set_live_feed(self, live_feed: "ILiveFeed") -> None:
+        """Beállítja a live feed komponenst (csak teszteléshez).
+
+        Args:
+            live_feed: A live feed implementáció példánya.
+        """
+        from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
+
+        self._container.register_instance(ILiveFeed, live_feed)
+
     def has_config(self) -> bool:
         """Ellenőrzi, hogy van-e config komponens.
 
@@ -261,6 +286,14 @@ class CoreComponents:
             bool: True ha van persister komponens, False ha nincs
         """
         return self.persister is not None
+
+    def has_live_feed(self) -> bool:
+        """Ellenőrzi, hogy van-e live feed komponens.
+
+        Returns:
+            bool: True ha van live feed komponens, False ha nincs
+        """
+        return self.live_feed is not None
 
     @trace
     def validate(self) -> bool:

@@ -187,6 +187,19 @@ def bootstrap_core(
     container.register_instance(MarketDataPersister, market_data_persister)
     logger.debug("-> MarketDataPersister regisztrálva")
     
+    # 9. JForex Live Feed inicializálása (ha engedélyezve van)
+    logger.info("⏳ 10. JForex Live Feed ellenőrzése...")
+    live_conf = config.get("jforex_live") or {}
+    if live_conf.get("enabled", False):
+        from neural_ai.collectors.jforex.factory import JForexFactory
+        from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
+        
+        live_feed = JForexFactory.create_live_feed(config, logger, event_bus)
+        container.register_instance(ILiveFeed, live_feed)
+        logger.info("✅ JForex Live Feed inicializálva")
+    else:
+        logger.debug("-> JForex Live Feed nincs engedélyezve")
+    
     logger.info("✅ RENDSZER ÜZEMKÉSZ")
     
     return CoreComponents(container=container)
