@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 T = TypeVar("T")
@@ -121,6 +122,20 @@ class CoreComponents:
         result = self._container.resolve(HardwareInterface)
         return cast(Optional["HardwareInterface"], result)
 
+    @property
+    def persister(self) -> Optional["MarketDataPersister"]:
+        """Market data persister komponens lekérése.
+
+        Returns:
+            A market data persister példánya, vagy None ha nincs regisztrálva.
+        """
+        from typing import cast
+
+        from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
+
+        result = self._container.resolve(MarketDataPersister)
+        return cast(Optional["MarketDataPersister"], result)
+
     def set_config(self, config: "ConfigManagerInterface") -> None:
         """Beállítja a konfiguráció komponenst (csak teszteléshez).
 
@@ -181,6 +196,16 @@ class CoreComponents:
 
         self._container.register_instance(HardwareInterface, hardware)
 
+    def set_persister(self, persister: "MarketDataPersister") -> None:
+        """Beállítja a market data persister komponenst (csak teszteléshez).
+
+        Args:
+            persister: A market data persister implementáció példánya.
+        """
+        from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
+
+        self._container.register_instance(MarketDataPersister, persister)
+
     def has_config(self) -> bool:
         """Ellenőrzi, hogy van-e config komponens.
 
@@ -228,6 +253,14 @@ class CoreComponents:
             bool: True ha van hardware komponens, False ha nincs
         """
         return self.hardware is not None
+
+    def has_persister(self) -> bool:
+        """Ellenőrzi, hogy van-e persister komponens.
+
+        Returns:
+            bool: True ha van persister komponens, False ha nincs
+        """
+        return self.persister is not None
 
     @trace
     def validate(self) -> bool:

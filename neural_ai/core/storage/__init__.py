@@ -17,9 +17,11 @@ if TYPE_CHECKING:
     from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
     from neural_ai.core.storage.interfaces.factory_interface import StorageFactoryInterface
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
 
 from neural_ai.core.storage.factory import StorageFactory
 from neural_ai.core.storage.implementations import FileStorage, ParquetStorageService
+from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
 
 # Dinamikus verzióbetöltés a pyproject.toml-ból
 try:
@@ -41,6 +43,8 @@ __all__: Final[list[str]] = [
     "FileStorage",
     "ParquetStorageService",
     "StorageFactory",
+    # Szolgáltatások
+    "MarketDataPersister",
     # Interfészek
     "StorageInterface",
     "StorageFactoryInterface",

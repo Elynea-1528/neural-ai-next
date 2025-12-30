@@ -19,8 +19,9 @@ if TYPE_CHECKING:
     import aiohttp
     from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
     from neural_ai.collectors.jforex.interfaces.tick_data import TickData
-    from neural_ai.core.base.interfaces import IConfig, ILogger
-    from neural_ai.core.events.interfaces import IEventBus
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.collectors.jforex.exceptions.jforex_error import (
         DataNotAvailableError,
         DecodeError,
@@ -36,9 +37,9 @@ class Bi5Downloader:
 
     def __init__(
         self,
-        logger: "ILogger",
-        event_bus: "IEventBus",
-        config: "IConfig",
+        logger: "LoggerInterface",
+        event_bus: "EventBusInterface",
+        config: "ConfigManagerInterface",
         http_client: "aiohttp.ClientSession",
     ):
         """Initialize Bi5 downloader.

@@ -4,8 +4,9 @@ from typing import TYPE_CHECKING
 from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
 
 if TYPE_CHECKING:
-    from neural_ai.core.base.interfaces import IConfig, ILogger
-    from neural_ai.core.events.interfaces import IEventBus
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class JForexFactory:
@@ -16,9 +17,9 @@ class JForexFactory:
     
     @staticmethod
     def create_downloader(
-        config: "IConfig",
-        logger: "ILogger",
-        event_bus: "IEventBus"
+        config: "ConfigManagerInterface",
+        logger: "LoggerInterface",
+        event_bus: "EventBusInterface"
     ) -> IJForexDownloader:
         """Create a JForex downloader instance with DI.
         
