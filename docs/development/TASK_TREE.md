@@ -148,6 +148,33 @@
 
 ---
 
+## 🗂️ PHASE `[2.2]`: `[JFOREX LIVE BRIDGE - REAL-TIME DATA INTEGRATION]`
+
+**Goal:** `[Implement ZeroMQ bridge for real-time JForex data streaming and trading commands]` | **Token Budget:** `[~200k]` | **Complexity:** `[⭐⭐⭐⭐⭐]`
+
+### 🏗️ MODULE: `[collectors/jforex/live_bridge]`
+
+| File Path | Matrix `[S|T|D]` | Stmt Coverage | Brch Coverage | Complexity | Status |
+|-----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `implementations/live_feed.py` | `[🔴|❌|❌]` | `0%` | `0%` | ⭐⭐⭐⭐⭐ | `🔴 PENDING` |
+| `java/NeuralBridgeStrategy.java` | `[✅|❌|❌]` | `N/A` | `N/A` | ⭐⭐⭐⭐⭐ | `🟢 STABLE` |
+| `interfaces/live_provider_interface.py` | `[🟡|➖|❌]` | `0%` | `N/A` | ⭐⭐ | `🔴 PENDING` |
+| `interfaces/live_data_models.py` | `[🟡|➖|❌]` | `0%` | `N/A` | ⭐ | `🔴 PENDING` |
+
+### 📋 CONFIGURATION FILES
+
+| File Path | Status | Description |
+|-----------|:------:|:------------|
+| `configs/jforex_live.yaml` | `🔴 PENDING` | Live bridge configuration |
+
+### 📚 DOCUMENTATION
+
+| File Path | Status | Description |
+|-----------|:------:|:------------|
+| `docs/planning/phase2_2_jforex_live.md` | `🟢 STABLE` | Phase 2.2 detailed implementation plan |
+
+---
+
 ## 🔑 MATRIX DEFINITIONS
 
 ### `[S|T|D]` Components
