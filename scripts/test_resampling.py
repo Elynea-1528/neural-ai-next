@@ -63,11 +63,16 @@ class ResamplingDemo:
         self.hardware = HardwareFactory.get_hardware_interface()
 
         # Storage factory létrehozása Parquet tárolóval
+        # Megadjuk a helyes base_path-ot, ahol a tick adatok vannak
+        data_path = PROJECT_ROOT / "data" / "tick"
         self.storage = StorageFactory.get_storage(
             storage_type="parquet",
-            base_path=PROJECT_ROOT / "data",
+            base_path=str(data_path),
             hardware=self.hardware
         )
+        
+        print(f"{Fore.CYAN}ℹ️  Adat elérési út: {data_path.absolute()}")
+        print(f"{Fore.CYAN}ℹ️  Adat elérési út létezik: {data_path.exists()}\n")
 
         print(f"{Fore.GREEN}✅ Rendszer inicializálva")
         print(f"{Fore.GREEN}   - Hardware: {self.hardware.__class__.__name__}")
