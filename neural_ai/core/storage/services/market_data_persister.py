@@ -73,7 +73,7 @@ class MarketDataPersister:
     async def start(self) -> None:
         """Elindítja a MarketDataPersister szolgáltatást.
         
-        Feliratkozik a market_data topicra és elindítja a háttérfeladatot
+        Feliratkozás a market_data topicra és elindítja a háttérfeladatot
         az időzített flush-hoz.
         """
         if self.running:
@@ -87,6 +87,7 @@ class MarketDataPersister:
         from neural_ai.core.events.interfaces.event_bus_interface import EventCallback
         callback = cast(EventCallback, self.on_market_data)
         self.event_bus.subscribe("market_data", callback)
+        self.logger.info("✅ MarketDataPersister feliratkozva a market_data topicra")
         
         self.logger.info("MarketDataPersister elindítva")
         
@@ -120,6 +121,7 @@ class MarketDataPersister:
         Args:
             event: Egy MarketDataEvent VAGY MarketDataEvent-ek listája.
         """
+        self.logger.info(f"on_market_data called with event type: {type(event)}")
         new_events: list[MarketDataEvent] = []
 
         # 1. ESET: Lista (Batch) érkezett
@@ -188,8 +190,10 @@ class MarketDataPersister:
         
         Szimbólumonként csoportosítva konvertálja DataFrame-é és menti.
         """
+        self.logger.info(f"_flush_all_buffers called, buffer keys: {list(self.buffer.keys())}")
         if not any(self.buffer.values()):
             # Nincs mit kiüríteni
+            self.logger.info("Nincs mit kiüríteni, a buffer üres")
             return
 
         for symbol, events in self.buffer.items():
@@ -252,9 +256,11 @@ class MarketDataPersister:
             # Type cast to access store_tick_data if it exists
             from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
             if isinstance(self.storage, ParquetStorageService):
-                await self.storage.store_tick_data(symbol, df, date)  # type: ignore
+                self.logger.info(f"Tárolás ParquetStorageService-be: {symbol}, {date}, {len(df)} sor")
+                await self.storage.store_tick_data(symbol, df, date)
             else:
                 # Fallback: használjuk a save_dataframe metódust
+                self.logger.info(f"Tárolás save_dataframe-mal: {symbol}, {date}, {len(df)} sor")
                 path = f"/data/tick/{symbol}/{date.strftime('%Y/%m/%d')}/data.parquet"
                 kwargs: dict[str, Any] = {'symbol': symbol, 'date': date}
                 self.storage.save_dataframe(df, path, **kwargs)

@@ -50,30 +50,35 @@ async def download_historical_data(
     # Rendszer inicializálása
     print("⏳ Rendszer inicializálása...")
     try:
+        # Bootstrap a core komponensekkel
         core = bootstrap_core()
         logger = core.logger
         event_bus = core.event_bus
-        storage = core.storage
+        market_data_persister = core.persister  # A bootstrap már tartalmazza!
         
-        # EventBus indítása
+        # Biztonsági ellenőrzés: data/tick mappa létezik-e
+        data_dir = Path("data/tick")
+        data_dir.mkdir(parents=True, exist_ok=True)
+        print(f"   ✅ Data directory: {data_dir.absolute()}")
+        
+        # EventBus indítása (ELŐSZÖR!)
         if event_bus:
             await event_bus.start()
             if logger:
                 logger.info("EventBus elindítva")
+            
+            # FONTOS: EventBus event loop indítása külön task-ban!
+            asyncio.create_task(event_bus.run_forever())
+            if logger:
+                logger.info("EventBus event loop elindítva")
         
-        # MarketDataPersister létrehozása és indítása
-        from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
-        if event_bus and storage and logger:
-            market_data_persister = MarketDataPersister(
-                event_bus=event_bus,
-                storage=storage,
-                logger=logger
-            )
+        # FONTOS: MarketDataPersister explicit indítása (A DOWNLOADER ELŐTT!)
+        if market_data_persister:
             await market_data_persister.start()
             if logger:
                 logger.info("MarketDataPersister elindítva")
         else:
-            market_data_persister = None
+            print("⚠️  Figyelmeztetés: MarketDataPersister nem érhető el!")
         
     except Exception as e:
         print(f"❌ Hiba a rendszer inicializálásakor: {e}")
@@ -83,14 +88,17 @@ async def download_historical_data(
     try:
         if not core.config:
             raise RuntimeError("Config nincs elérhető")
+        if not logger:
+            raise RuntimeError("Logger nincs elérhető")
+        if not event_bus:
+            raise RuntimeError("EventBus nincs elérhető")
         
         downloader = JForexFactory.create_downloader(
             config=core.config,
             logger=logger,
             event_bus=event_bus
         )
-        if logger:
-            logger.info("Bi5Downloader létrehozva")
+        logger.info("Bi5Downloader létrehozva")
     except Exception as e:
         print(f"❌ Hiba a Bi5Downloader létrehozásakor: {e}")
         if event_bus:
@@ -175,20 +183,24 @@ async def download_historical_data(
     print(f"⚠️  Kihagyott órák: {skipped_downloads}")
     print()
     
-    # Rendszer leállítása
-    print("⏳ Rendszer leállítása...")
+    # KRITIKUS LÉPÉS: FLUSH ÉS STOP (EZ HIÁNYZOTT!)
+    print("⏳ Adatok véglegesítése (FORCE FLUSH)...")
     try:
+        # 1. MarketDataPersister leállítása (ez kiüríti a buffert)
         if market_data_persister:
             await market_data_persister.stop()
             if logger:
-                logger.info("MarketDataPersister leállítva")
+                logger.info("MarketDataPersister leállítva, buffer kiürítve")
+            print("   ✅ MarketDataPersister buffer kiürítve")
         
+        # 2. EventBus leállítása
         if event_bus:
             await event_bus.stop()
             if logger:
                 logger.info("EventBus leállítva")
+            print("   ✅ EventBus leállítva")
         
-        print("✅ Rendszer leállítva")
+        print("✅ Összes adat kiírva a lemezre!")
         
     except Exception as e:
         print(f"⚠️  Hiba a rendszer leállításakor: {e}")
