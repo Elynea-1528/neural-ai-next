@@ -131,12 +131,12 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         self._logger.info("EventBus leállítva")
 
     @trace
-    async def publish(self, event_type: str, event: "BaseModel") -> None:
+    async def publish(self, event_type: str, event: "BaseModel | list") -> None:
         """Esemény közzététele a buszon.
 
         Args:
             event_type: Az esemény típusa (pl. 'market_data', 'trade')
-            event: Az esemény objektum (Pydantic BaseModel)
+            event: Az esemény objektum (Pydantic BaseModel) VAGY események listája
 
         Raises:
             EventBusError: Ha az EventBus nincs elindítva
@@ -148,19 +148,23 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if self._publisher is None:
             raise PublishError("Publisher socket nincs inicializálva")
 
-        # Serializáljuk az eseményt JSON formátumba
-        # A model_dump_json() automatikusan kezeli a datetime objektumokat
-        event_dict = json.loads(event.model_dump_json())
-        event_dict["_event_type"] = event_type
-        event_dict["_timestamp"] = datetime.now(UTC).isoformat()
+        # Kezeljük a batch (lista) és az egyedi eseményeket is
+        events_to_publish = event if isinstance(event, list) else [event]
 
-        message = json.dumps(event_dict).encode("utf-8")
+        for evt in events_to_publish:
+            # Serializáljuk az eseményt JSON formátumba
+            # A model_dump_json() automatikusan kezeli a datetime objektumokat
+            event_dict = json.loads(evt.model_dump_json())
+            event_dict["_event_type"] = event_type
+            event_dict["_timestamp"] = datetime.now(UTC).isoformat()
 
-        # Küldjük az eseményt a megfelelő témakörbe
-        topic = event_type.encode("utf-8")
-        await self._publisher.send_multipart([topic, message])
+            message = json.dumps(event_dict).encode("utf-8")
 
-        self._logger.debug("Esemény közzétéve", event_type=event_type)
+            # Küldjük az eseményt a megfelelő témakörbe
+            topic = event_type.encode("utf-8")
+            await self._publisher.send_multipart([topic, message])
+
+        self._logger.debug("Esemény közzétéve", event_type=event_type, count=len(events_to_publish))
 
     @trace
     def subscribe(self, event_type: str, callback: EventCallback) -> None:

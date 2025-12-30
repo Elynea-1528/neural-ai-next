@@ -114,17 +114,47 @@ class MarketDataPersister:
         
         self.logger.info("MarketDataPersister leállítva")
 
-    async def on_market_data(self, event: MarketDataEvent) -> None:
-        """Fogadja a market data eventeket és bufferezi őket.
+    async def on_market_data(self, event: Any) -> None:
+        """Fogadja a market data eventeket (vagy batch listát) és bufferezi őket.
 
         Args:
-            event: A fogadott MarketDataEvent
+            event: Egy MarketDataEvent VAGY MarketDataEvent-ek listája.
         """
-        symbol = event.symbol
-        self.buffer[symbol].append(event)
+        new_events: list[MarketDataEvent] = []
+
+        # 1. ESET: Lista (Batch) érkezett
+        if isinstance(event, list):
+            # Type check: ensure all items are MarketDataEvent
+            for item in event:
+                if hasattr(item, "symbol"):
+                    new_events.append(cast(MarketDataEvent, item))
         
-        # Ellenőrizzük, hogy elértük-e a buffer méretkorlátot
+        # 2. ESET: Egyetlen Event érkezett
+        elif hasattr(event, "symbol"): # Pydantic model check
+            new_events = [cast(MarketDataEvent, event)]
+            
+        else:
+            self.logger.warning(f"unknown_event_format: {type(event)}")
+            return
+
+        if not new_events:
+            return
+
+        # Adatok hozzáadása a bufferhez
+        for ev in new_events:
+            # Biztonsági ellenőrzés, ha a listában nem eventek lennének
+            if not hasattr(ev, "symbol"):
+                continue
+            self.buffer[ev.symbol].append(ev)
+        
+        # Buffer méret ellenőrzése
         total_buffered = sum(len(events) for events in self.buffer.values())
+        
+        # Logolás (de csak okosan, nem dumpoljuk a teljes listát!)
+        self.logger.debug(
+            f"market_data_received: count={len(new_events)}, total_buffered={total_buffered}"
+        )
+
         if total_buffered >= self.buffer_size_limit:
             self.logger.info(f"Buffer méretkorlát elérve, kiürítés indítása, total_buffered={total_buffered}")
             await self._flush_all_buffers()
