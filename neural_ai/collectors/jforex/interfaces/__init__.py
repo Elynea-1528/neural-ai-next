@@ -1,7 +1,11 @@
-"""JForex Collector interfaces."""
+"""
+JForex Collector Interfaces.
 
-from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
+Ez a csomag tartalmazza a JForex adatgyűjtő komponensek interfészeit.
+"""
+
+from .live_interface import ILiveFeed
 
 __all__ = [
-    "IJForexDownloader",
+    'ILiveFeed',
 ]

@@ -1,0 +1,254 @@
+"""
+JForex Live Feed Tests.
+
+Ez a modul tartalmazza a JForexLiveFeed osztály tesztjeit.
+"""
+
+import asyncio
+import json
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+import zmq
+
+from neural_ai.collectors.jforex.implementations.live_feed import JForexLiveFeed
+from neural_ai.core.events.interfaces.event_models import MarketDataEvent
+
+
+class TestJForexLiveFeed:
+    """JForexLiveFeed osztály tesztjei."""
+    
+    @pytest.fixture
+    def mock_logger(self) -> MagicMock:
+        """Mock logger létrehozása."""
+        logger = MagicMock()
+        logger.info = MagicMock()
+        logger.warning = MagicMock()
+        logger.error = MagicMock()
+        logger.debug = MagicMock()
+        return logger
+    
+    @pytest.fixture
+    def mock_event_bus(self) -> AsyncMock:
+        """Mock event bus létrehozása."""
+        event_bus = AsyncMock()
+        event_bus.publish = AsyncMock()
+        return event_bus
+    
+    @pytest.fixture
+    def mock_config(self) -> MagicMock:
+        """Mock config létrehozása."""
+        config = MagicMock()
+        config.get.return_value = {
+            "enabled": True,
+            "host": "127.0.0.1",
+            "tick_port": 5555,
+            "command_port": 5556
+        }
+        return config
+    
+    @pytest.fixture
+    def live_feed(
+        self,
+        mock_logger: MagicMock,
+        mock_event_bus: AsyncMock,
+        mock_config: MagicMock
+    ) -> JForexLiveFeed:
+        """JForexLiveFeed példány létrehozása."""
+        return JForexLiveFeed(
+            logger=mock_logger,
+            event_bus=mock_event_bus,
+            config=mock_config
+        )
+    
+    @pytest.mark.asyncio
+    async def test_start_success(
+        self,
+        live_feed: JForexLiveFeed,
+        mock_logger: MagicMock
+    ) -> None:
+        """Teszteli a start metódus sikeres futását."""
+        with patch('zmq.asyncio.Context') as mock_context:
+            mock_socket = MagicMock()
+            mock_context.return_value.socket.return_value = mock_socket
+            
+            await live_feed.start()
+            
+            # Ellenőrizzük, hogy a socket létrejött és csatlakozott
+            mock_context.assert_called_once()
+            mock_socket.connect.assert_called_once_with("tcp://127.0.0.1:5555")
+            mock_socket.setsockopt_string.assert_called_once_with(
+                zmq.SUBSCRIBE, ""
+            )
+            
+            # Ellenőrizzük, hogy futási állapot beállításra került
+            assert live_feed.is_running() is True
+            assert live_feed._listen_task is not None
+            
+            # Naplózás ellenőrzése
+            mock_logger.info.assert_called()
+    
+    @pytest.mark.asyncio
+    async def test_start_when_already_running(
+        self,
+        live_feed: JForexLiveFeed,
+        mock_logger: MagicMock
+    ) -> None:
+        """Teszteli, hogy a start metódus figyelmeztet, ha már fut a feed."""
+        live_feed._running = True
+        
+        await live_feed.start()
+        
+        # Ellenőrizzük, hogy warning lett naplózva
+        mock_logger.warning.assert_called_once_with(
+            "jforex_live_feed_already_running"
+        )
+    
+    @pytest.mark.asyncio
+    async def test_stop_success(
+        self,
+        live_feed: JForexLiveFeed,
+        mock_logger: MagicMock
+    ) -> None:
+        """Teszteli a stop metódus sikeres futását."""
+        # Elindítjuk a feedet
+        with patch('zmq.asyncio.Context'):
+            await live_feed.start()
+        
+        # Leállítjuk
+        await live_feed.stop()
+        
+        # Ellenőrizzük, hogy leállt
+        assert live_feed.is_running() is False
+        assert live_feed._listen_task is None
+        assert live_feed._socket is None
+        assert live_feed._context is None
+        
+        # Naplózás ellenőrzése
+        mock_logger.info.assert_called()
+    
+    @pytest.mark.asyncio
+    async def test_stop_when_not_running(
+        self,
+        live_feed: JForexLiveFeed,
+        mock_logger: MagicMock
+    ) -> None:
+        """Teszteli, hogy a stop metódus nem csinál semmit, ha nem fut a feed."""
+        live_feed._running = False
+        
+        await live_feed.stop()
+        
+        # Ellenőrizzük, hogy nem volt naplózás
+        mock_logger.info.assert_not_called()
+    
+    @pytest.mark.asyncio
+    async def test_process_tick_data_success(
+        self,
+        live_feed: JForexLiveFeed,
+        mock_event_bus: AsyncMock,
+        mock_logger: MagicMock
+    ) -> None:
+        """Teszteli a tick adatok feldolgozását."""
+        # Tick adatok létrehozása
+        tick_data = {
+            "type": "TICK",
+            "symbol": "EURUSD",
+            "timestamp": "2025-01-01T12:00:00",
+            "bid": 1.10000,
+            "ask": 1.10010,
+            "volume": 1000
+        }
+        
+        await live_feed._process_tick_data(tick_data)
+        
+        # Ellenőrizzük, hogy az esemény publikálva lett
+        mock_event_bus.publish.assert_called_once()
+        call_args = mock_event_bus.publish.call_args
+        
+        # Az első argumentum a topic
+        assert call_args[0][0] == "market_data"
+        
+        # A második argumentum a MarketDataEvent
+        event = call_args[0][1]
+        assert isinstance(event, MarketDataEvent)
+        assert event.symbol == "EURUSD"
+        assert event.bid == 1.10000
+        assert event.ask == 1.10010
+        assert event.source == "jforex"
+    
+    @pytest.mark.asyncio
+    async def test_process_tick_data_error(
+        self,
+        live_feed: JForexLiveFeed,
+        mock_logger: MagicMock
+    ) -> None:
+        """Teszteli a hibakezelést tick adatok feldolgozásakor."""
+        # Érvénytelen tick adatok
+        invalid_data = {
+            "type": "TICK",
+            "symbol": "EURUSD",
+            "timestamp": "invalid_timestamp",  # Érvénytelen időbélyeg
+            "bid": "invalid_bid",  # Érvénytelen bid
+            "ask": 1.10010
+        }
+        
+        await live_feed._process_tick_data(invalid_data)
+        
+        # Ellenőrizzük, hogy hiba lett naplózva
+        mock_logger.error.assert_called_once()
+    
+    @pytest.mark.asyncio
+    async def test_listen_loop_processes_tick(
+        self,
+        live_feed: JForexLiveFeed,
+        mock_event_bus: AsyncMock
+    ) -> None:
+        """Teszteli, hogy a listen loop feldolgozza a tick üzeneteket."""
+        # Tick üzenet létrehozása
+        tick_message = json.dumps({
+            "type": "TICK",
+            "symbol": "EURUSD",
+            "timestamp": "2025-01-01T12:00:00",
+            "bid": 1.10000,
+            "ask": 1.10010,
+            "volume": 1000
+        })
+        
+        with patch.object(live_feed, '_socket') as mock_socket:
+            # Beállítjuk a socket recv_string metódusát
+            mock_socket.recv_string = AsyncMock(return_value=tick_message)
+            
+            # Indítjuk a listen loopot rövid időre
+            live_feed._running = True
+            task = asyncio.create_task(live_feed._listen_loop())
+            
+            # Várunk egy kicsit, hogy a loop feldolgozza az üzenetet
+            await asyncio.sleep(0.1)
+            
+            # Leállítjuk a loopot
+            live_feed._running = False
+            task.cancel()
+            
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+            
+            # Ellenőrizzük, hogy az esemény publikálva lett
+            mock_event_bus.publish.assert_called()
+    
+    def test_is_running_returns_correct_state(
+        self,
+        live_feed: JForexLiveFeed
+    ) -> None:
+        """Teszteli, hogy az is_running metódus helyes állapotot adja vissza."""
+        # Kezdetben nem fut
+        assert live_feed.is_running() is False
+        
+        # Futási állapot beállítása
+        live_feed._running = True
+        assert live_feed.is_running() is True
+        
+        # Visszaállítás
+        live_feed._running = False
+        assert live_feed.is_running() is False

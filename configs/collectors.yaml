@@ -70,3 +70,17 @@ jforex:
     # Expected exception types (don't count as failures)
     expected_exceptions:
       - "DataNotAvailableError"
+
+# JForex Live Feed Configuration
+jforex_live:
+  # Enable/disable JForex live feed
+  enabled: true
+  
+  # Host for ZMQ connection
+  host: "127.0.0.1"
+  
+  # Port for receiving tick data
+  tick_port: 5555
+  
+  # Port for sending commands
+  command_port: 5556

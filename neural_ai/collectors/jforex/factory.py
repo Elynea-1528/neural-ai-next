@@ -2,6 +2,7 @@
 
 from typing import TYPE_CHECKING
 from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
+from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -60,3 +61,53 @@ class JForexFactory:
         )
         
         return downloader
+    
+    @staticmethod
+    def create_live_feed(
+        config: "ConfigManagerInterface",
+        logger: "LoggerInterface",
+        event_bus: "EventBusInterface"
+    ) -> ILiveFeed:
+        """Create a JForex live feed instance with DI.
+        
+        Args:
+            config: Configuration manager instance
+            logger: Logger instance
+            event_bus: Event bus for publishing market data
+            
+        Returns:
+            JForex live feed instance implementing ILiveFeed
+        """
+        # Import here to avoid circular dependencies
+        from neural_ai.collectors.jforex.implementations.live_feed import JForexLiveFeed
+        
+        # Get JForex live configuration
+        try:
+            live_config = config.get("jforex_live", {}) or {}
+        except (KeyError, ValueError, AttributeError):
+            live_config = {}
+        
+        # Check if live feed is enabled
+        enabled = live_config.get("enabled", False) if live_config else False
+        
+        if not enabled:
+            logger.warning(
+                "jforex_live_feed_disabled",
+                _message="JForex live feed is disabled in configuration"
+            )
+        
+        # Create live feed instance
+        live_feed = JForexLiveFeed(
+            logger=logger,
+            event_bus=event_bus,
+            config=config
+        )
+        
+        logger.info(
+            "jforex_live_feed_created",
+            host=live_config.get("host", "127.0.0.1"),
+            tick_port=live_config.get("tick_port", 5555),
+            enabled=enabled
+        )
+        
+        return live_feed

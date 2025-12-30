@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+    // Dukascopy repo (ha publikus, ha nem, akkor lokális lib)
+    maven { url "https://www.dukascopy.com/client/jforexlib/publicrepo" }
+}
+
+dependencies {
+    implementation 'org.zeromq:jeromq:0.5.3'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    compileOnly 'com.dukascopy.api:JForex-API:2.13.53' // Vagy ami elérhető
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8

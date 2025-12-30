@@ -1,1 +1,1 @@
-"""JForex Collector tests."""
+"""JForex Collector Tests."""
