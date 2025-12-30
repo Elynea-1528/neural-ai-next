@@ -202,15 +202,40 @@ class TestBi5Downloader:
         downloader: Bi5Downloader,
         mock_http_client: MagicMock
     ) -> None:
-        """Test network error handling."""
-        # Setup network error
-        mock_http_client.get.side_effect = Exception("Network error")
+        """Test network error handling in _download_binary."""
+        # Setup network error using aiohttp.ClientError to trigger the correct exception handling
+        import aiohttp
+        mock_http_client.get.side_effect = aiohttp.ClientError("Network error")
         
         # Test that DownloadError is raised
         with pytest.raises(DownloadError):
             await downloader._download_binary("http://test.url")
         
         downloader._logger.error.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_download_tick_data_network_error(
+        self,
+        downloader: Bi5Downloader,
+        mock_http_client: MagicMock
+    ) -> None:
+        """Test network error handling in download_tick_data (with retry)."""
+        import aiohttp
+
+        # Setup network error that persists across retries
+        mock_http_client.get.side_effect = aiohttp.ClientError("Network error")
+        
+        date = datetime(2023, 12, 1, 10, 0, 0, tzinfo=timezone.utc)
+        
+        # Test that DownloadError is raised after retries are exhausted
+        # The retry decorator has reraise=True, so it re-raises the last exception
+        with pytest.raises(DownloadError):
+            await downloader.download_tick_data("EURUSD", date)
+        
+        # Verify that the error was logged
+        downloader._logger.error.assert_called()
+        # Verify that multiple attempts were made (due to retry)
+        assert mock_http_client.get.call_count > 1
     
     def test_process_bi5_data_success(self, downloader: Bi5Downloader) -> None:
         """Test successful .bi5 data processing."""
