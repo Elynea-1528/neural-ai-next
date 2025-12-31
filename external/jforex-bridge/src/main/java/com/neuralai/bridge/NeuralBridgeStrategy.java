@@ -8,7 +8,9 @@ import org.zeromq.ZMQ;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Neural AI Bridge Strategy for JForex 4.
@@ -52,19 +54,30 @@ public class NeuralBridgeStrategy implements IStrategy {
 
         console.getOut().println("Neural Bridge started - Ports: " + TICK_PORT + ", " + COMMAND_PORT);
 
+        // Feliratkozás az instrumentumokra
+        Set<Instrument> instruments = new HashSet<>();
+        instruments.add(Instrument.EURUSD);
+        instruments.add(Instrument.GBPUSD);
+        instruments.add(Instrument.USDJPY);
+        instruments.add(Instrument.XAUUSD);
+
+        context.setSubscribedInstruments(instruments, true);
+        console.getOut().println("Subscribed to instruments: " + instruments);
+
         // Parancsfigyelő szál indítása
         new Thread(this::commandListener).start();
     }
 
     @Override
     public void onTick(Instrument instrument, ITick tick) throws JFException {
-        // Csak a figyelt párokat küldjük (opcionális szűrés itt lehetne)
+        // Hangos debug log, hogy lássuk a bejövő tickeket
+        console.getOut().println("TICK: " + instrument + " " + tick.getBid());
         
         try {
             Map<String, Object> data = new HashMap<>();
             data.put("type", "TICK");
             // A Python 'EURUSD' formátumot vár, a JForex 'EUR/USD'-t ad. Cseréljük.
-            data.put("symbol", instrument.name().replace("/", "")); 
+            data.put("symbol", instrument.name().replace("/", ""));
             data.put("bid", tick.getBid());
             data.put("ask", tick.getAsk());
             data.put("timestamp", tick.getTime());
@@ -72,9 +85,6 @@ public class NeuralBridgeStrategy implements IStrategy {
 
             String json = gson.toJson(data);
             tickPublisher.send(json.getBytes(StandardCharsets.UTF_8), 0);
-            
-            // Debug log (kikapcsolható, ha túl sok)
-            // console.getOut().println("PUB: " + json);
             
         } catch (Exception e) {
             console.getErr().println("Error sending tick: " + e.getMessage());
