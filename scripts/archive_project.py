@@ -80,6 +80,8 @@ def main() -> None:
         "configs/",
         "logs/",
         "tests/",
+        "scripts/",
+        "external/jforex-bridge/src/main/java/com/neuralai/bridge/NeuralBridgeStrategy.java",
         "main.py",
         "README.md",
         "pyproject.toml",
