@@ -4,22 +4,30 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url "https://www.dukascopy.com/client/jforexlib/publicrepo" }
+    maven {
+        url "https://www.dukascopy.com/client/jforexlib/publicrepo"
+    }
 }
 
 dependencies {
+    // JeroMQ a kommunikációhoz
     implementation 'org.zeromq:jeromq:0.5.4'
+    
+    // JSON kezelés
     implementation 'com.google.code.gson:gson:2.10.1'
+    
+    // JForex API - Dinamikus verzióval (ez oldotta meg a build hibát)
     compileOnly 'com.dukascopy.api:JForex-API:2.13.+'
 }
 
-// Ez a varázslat: összegyűjti a JAR-okat egy helyre
+// Java 11 beállítása (JForex 4 standard)
+sourceCompatibility = 11
+targetCompatibility = 11
+
+// Függőségek másolása a telepítéshez
 task copyDependencies(type: Copy) {
     from configurations.runtimeClasspath
     into 'build/libs'
 }
 
 build.dependsOn copyDependencies
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
