@@ -10,7 +10,7 @@ A modul biztosítja a core komponensek megfelelő inicializálását és
 függőségi injektálását, elkerülve a körkörös függőségeket.
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
@@ -189,7 +189,8 @@ def bootstrap_core(
     
     # 9. JForex Live Feed inicializálása (ha engedélyezve van)
     logger.info("⏳ 10. JForex Live Feed ellenőrzése...")
-    live_conf = config.get("jforex_live") or {}
+    # Figyelem: A collectors.yaml tartalma a 'collectors' kulcs alatt van!
+    live_conf: dict[str, Any] = config.get("collectors", "jforex_live") or {}
     if live_conf.get("enabled", False):
         from neural_ai.collectors.jforex.factory import JForexFactory
         from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
