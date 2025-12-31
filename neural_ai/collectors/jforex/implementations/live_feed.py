@@ -184,7 +184,7 @@ class JForexLiveFeed(ILiveFeed):
                 message = await self._socket.recv_string()
                 
                 # 1. DIAGNOSZTIKA: Mit kaptunk?
-                print(f"DEBUG RAW RECV: {message}")
+                # print(f"DEBUG RAW RECV: {message}") # Kommentezve: konzol szemetelés elkerülése
 
                 # JSON dekódolás
                 tick_data = json.loads(message)
@@ -205,7 +205,7 @@ class JForexLiveFeed(ILiveFeed):
                     bid=float(tick_data["bid"]),
                     ask=float(tick_data["ask"]),
                     volume=None,
-                    source="jforex_live"
+                    source="jforex"
                 )
 
                 # 4. PUBLIKÁLÁS
