@@ -92,6 +92,11 @@ async def test_live_feed():
     try:
         await event_bus.start()
         print("   ✅ EventBus elindítva")
+        
+        # Háttérben elindítjuk a fogadó ciklust, hogy a subscribe működjön
+        asyncio.create_task(event_bus.run_forever())
+        print("   ✅ EventBus Listener Loop elindítva")
+        
     except Exception as e:
         print(f"   ❌ Hiba az EventBus indításkor: {e}")
         return
