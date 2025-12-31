@@ -5,4 +5,5 @@ Ez a mappa a(z) `neural_ai/collectors/jforex/implementations` modul dokumentáci
 ## Fájlok
 
 - [`collectors/jforex/implementations/bi5_downloader.py`](./collectors/jforex/implementations/bi5_downloader.md)
+- [`collectors/jforex/implementations/live_feed.py`](./collectors/jforex/implementations/live_feed.md)
 

@@ -61,6 +61,20 @@ Hardver információ komponens lekérése.
         Returns:
             A hardver információ példánya, vagy None ha nincs regisztrálva.
 
+### `persister`
+
+Market data persister komponens lekérése.
+
+        Returns:
+            A market data persister példánya, vagy None ha nincs regisztrálva.
+
+### `live_feed`
+
+Live feed komponens lekérése.
+
+        Returns:
+            A live feed példánya, vagy None ha nincs regisztrálva.
+
 ### `set_config`
 
 Beállítja a konfiguráció komponenst (csak teszteléshez).
@@ -103,6 +117,20 @@ Beállítja a hardver információ komponenst (csak teszteléshez).
         Args:
             hardware: A hardver információ implementáció példánya.
 
+### `set_persister`
+
+Beállítja a market data persister komponenst (csak teszteléshez).
+
+        Args:
+            persister: A market data persister implementáció példánya.
+
+### `set_live_feed`
+
+Beállítja a live feed komponenst (csak teszteléshez).
+
+        Args:
+            live_feed: A live feed implementáció példánya.
+
 ### `has_config`
 
 Ellenőrzi, hogy van-e config komponens.
@@ -144,6 +172,20 @@ Ellenőrzi, hogy van-e hardware komponens.
 
         Returns:
             bool: True ha van hardware komponens, False ha nincs
+
+### `has_persister`
+
+Ellenőrzi, hogy van-e persister komponens.
+
+        Returns:
+            bool: True ha van persister komponens, False ha nincs
+
+### `has_live_feed`
+
+Ellenőrzi, hogy van-e live feed komponens.
+
+        Returns:
+            bool: True ha van live feed komponens, False ha nincs
 
 ### `validate`
 

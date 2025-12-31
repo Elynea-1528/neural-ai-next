@@ -5,5 +5,6 @@ Ez a mappa a(z) `neural_ai/collectors/jforex/interfaces` modul dokumentációjá
 ## Fájlok
 
 - [`collectors/jforex/interfaces/downloader_interface.py`](./collectors/jforex/interfaces/downloader_interface.md)
+- [`collectors/jforex/interfaces/live_interface.py`](./collectors/jforex/interfaces/live_interface.md)
 - [`collectors/jforex/interfaces/tick_data.py`](./collectors/jforex/interfaces/tick_data.md)
 

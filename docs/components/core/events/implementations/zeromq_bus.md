@@ -55,7 +55,7 @@ Esemény közzététele a buszon.
 
         Args:
             event_type: Az esemény típusa (pl. 'market_data', 'trade')
-            event: Az esemény objektum (Pydantic BaseModel)
+            event: Az esemény objektum (Pydantic BaseModel) VAGY események listája
 
         Raises:
             EventBusError: Ha az EventBus nincs elindítva
