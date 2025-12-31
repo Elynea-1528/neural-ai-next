@@ -11,7 +11,7 @@ a szolgáltatások eléréséhez.
 import asyncio
 import sys
 from contextlib import suppress
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from neural_ai.core import bootstrap_core
 
@@ -40,6 +40,9 @@ async def main() -> None:
     # Core komponensek inicializálása típusos változóval
     components: CoreComponents = bootstrap_core()
     
+    # Háttér taskok nyilvántartása
+    loop_task: asyncio.Task | None = None
+    
     # Komponensek lekérése
     logger: LoggerInterface | None = components.logger
     event_bus: EventBusInterface | None = components.event_bus
@@ -54,6 +57,11 @@ async def main() -> None:
         # Szolgáltatások indítása
         if event_bus is not None:
             await event_bus.start()
+            
+            # A FOGADÓ CIKLUS INDÍTÁSA - Ez felelős azért, hogy a Persister megkapja az eseményeket!
+            loop_task = asyncio.create_task(event_bus.run_forever())
+            if logger is not None:
+                logger.info("✅ EventBus Listener Loop elindítva (Background Task)")
 
         if database is not None:
             await database.initialize()
