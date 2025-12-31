@@ -75,8 +75,10 @@ async def test_live_feed():
         nonlocal tick_count
         tick_count += 1
         timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
+        
+        # JAVÍTVA: .bid és .ask használata .bid_price és .ask_price helyett
         print(f"   📊 [{timestamp}] Tick #{tick_count}: {event.symbol} - "
-              f"Bid: {event.bid_price:.5f}, Ask: {event.ask_price:.5f}")
+              f"Bid: {event.bid:.5f}, Ask: {event.ask:.5f}")
     
     # 6. Feliratkozás az eseményre
     print("\n⏳ 3. Feliratkozás a market_data eseményre...")
