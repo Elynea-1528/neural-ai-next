@@ -149,11 +149,10 @@ class TestJForexLiveFeed:
         mock_logger: MagicMock
     ) -> None:
         """Teszteli a tick adatok feldolgozását."""
-        # Tick adatok létrehozása
+        # Tick adatok létrehozása (timestamp milliszekundumban)
         tick_data = {
-            "type": "TICK",
             "symbol": "EURUSD",
-            "timestamp": "2025-01-01T12:00:00",
+            "timestamp": 1735729200000,  # 2025-01-01 12:00:00 UTC milliszekundumban
             "bid": 1.10000,
             "ask": 1.10010,
             "volume": 1000
@@ -185,7 +184,6 @@ class TestJForexLiveFeed:
         """Teszteli a hibakezelést tick adatok feldolgozásakor."""
         # Érvénytelen tick adatok
         invalid_data = {
-            "type": "TICK",
             "symbol": "EURUSD",
             "timestamp": "invalid_timestamp",  # Érvénytelen időbélyeg
             "bid": "invalid_bid",  # Érvénytelen bid
@@ -204,35 +202,41 @@ class TestJForexLiveFeed:
         mock_event_bus: AsyncMock
     ) -> None:
         """Teszteli, hogy a listen loop feldolgozza a tick üzeneteket."""
-        # Tick üzenet létrehozása
+        # Tick üzenet létrehozása (timestamp milliszekundumban)
         tick_message = json.dumps({
-            "type": "TICK",
             "symbol": "EURUSD",
-            "timestamp": "2025-01-01T12:00:00",
+            "timestamp": 1735729200000,  # 2025-01-01 12:00:00 UTC milliszekundumban
             "bid": 1.10000,
             "ask": 1.10010,
             "volume": 1000
         })
         
         with patch.object(live_feed, '_socket') as mock_socket:
-            # Beállítjuk a socket recv_string metódusát
-            mock_socket.recv_string = AsyncMock(return_value=tick_message)
+            # Beállítjuk a socket recv_string metódusát, hogy egyszer adjon vissza üzenetet, majd dobjon CancelledErrort
+            call_count = 0
+            async def mock_recv():
+                nonlocal call_count
+                call_count += 1
+                if call_count == 1:
+                    return tick_message
+                else:
+                    raise asyncio.CancelledError()
             
-            # Indítjuk a listen loopot rövid időre
+            mock_socket.recv_string = mock_recv
+            
+            # Indítjuk a listen loopot
             live_feed._running = True
             task = asyncio.create_task(live_feed._listen_loop())
             
-            # Várunk egy kicsit, hogy a loop feldolgozza az üzenetet
-            await asyncio.sleep(0.1)
-            
-            # Leállítjuk a loopot
-            live_feed._running = False
-            task.cancel()
-            
+            # Várunk, hogy a loop feldolgozza az üzenetet, de max 1 másodpercig
             try:
-                await task
-            except asyncio.CancelledError:
+                await asyncio.wait_for(task, timeout=1.0)
+            except (asyncio.CancelledError, asyncio.TimeoutError):
                 pass
+            finally:
+                live_feed._running = False
+                if not task.done():
+                    task.cancel()
             
             # Ellenőrizzük, hogy az esemény publikálva lett
             mock_event_bus.publish.assert_called()

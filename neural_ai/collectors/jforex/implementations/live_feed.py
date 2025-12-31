@@ -182,8 +182,8 @@ class JForexLiveFeed(ILiveFeed):
         Háttérfolyamat a tickek folyamatos fogadásához.
         
         Ez a metódus egy végtelen ciklusban vár a ZMQ socketre érkező üzenetekre,
-        dekódolja a JSON adatokat, és létrehozza a MarketDataEvent-et, majd
-        publikálja az EventBus-on.
+        dekódolja a JSON adatokat, és továbbítja a `_process_tick_data` metódusnak
+        a teljes feldolgozásért és publikálásért.
         """
         print(f"DEBUG: ZMQ Receiver Loop start on port {self._tick_port}")
         
@@ -196,40 +196,16 @@ class JForexLiveFeed(ILiveFeed):
                 # Blokkoló hívás
                 message = await self._socket.recv_string()
                 
-                # 1. DIAGNOSZTIKA: Mit kaptunk?
-                # print(f"DEBUG RAW RECV: {message}") # Kommentezve: konzol szemetelés elkerülése
-
                 # JSON dekódolás
                 tick_data = json.loads(message)
 
-                # 2. KONVERZIÓ
-                # JForex timestamp ms-ben jön, Python sec-et vár
-                ts_ms = tick_data.get("timestamp")
-                if ts_ms:
-                    timestamp = datetime.fromtimestamp(ts_ms / 1000.0, tz=timezone.utc)
-                else:
-                    timestamp = datetime.now(timezone.utc)
-
-                # 3. EVENT LÉTREHOZÁS
-                from neural_ai.core.events.interfaces.event_models import MarketDataEvent
-                event = MarketDataEvent(
-                    symbol=tick_data["symbol"],
-                    timestamp=timestamp,
-                    bid=float(tick_data["bid"]),
-                    ask=float(tick_data["ask"]),
-                    volume=None,
-                    source="jforex"
-                )
-
-                # 4. PUBLIKÁLÁS
-                if self.event_bus:
-                    await self.event_bus.publish("market_data", event)
-                    # print(f"DEBUG: Published {event.symbol}")
+                # Tick adatok továbbítása a feldolgozó metódusnak
+                await self._process_tick_data(tick_data)
 
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                # 5. DIAGNOSZTIKA: Mi a baj?
+                # DIAGNOSZTIKA: Mi a baj?
                 import traceback
                 print("!!! CRITICAL LIVE FEED ERROR !!!")
                 traceback.print_exc()
@@ -237,18 +213,29 @@ class JForexLiveFeed(ILiveFeed):
                 self.logger.error("jforex_live_feed_listen_loop_error", error=str(e))
                 await asyncio.sleep(1)
     
-    async def _process_tick_data(self, data: dict) -> None:
+    async def _process_tick_data(self, data: dict[str, object]) -> None:
         """
         Feldolgozza a tick adatokat és publikálja az EventBus-on.
         
+        A `_listen_loop` metódusból kapja a már dekódolt JSON adatokat.
+        A timestamp milliszekundumban érkezik, ezért osztani kell 1000-el.
+        A bid/ask értékek már float-ként érkeznek, nem kell castolni.
+        
         Args:
-            data: A tick adatok dictionary-ben
+            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float)
         """
         try:
+            # Timestamp konverziója ms-ből datetime objektummá
+            ts_ms = data.get("timestamp")
+            if isinstance(ts_ms, (int, float)):
+                timestamp = datetime.fromtimestamp(ts_ms / 1000.0, tz=timezone.utc)
+            else:
+                timestamp = datetime.now(timezone.utc)
+
             # MarketDataEvent létrehozása
             event = MarketDataEvent(
-                symbol=data.get("symbol", ""),
-                timestamp=datetime.fromisoformat(data.get("timestamp", "")),
+                symbol=str(data.get("symbol", "")),
+                timestamp=timestamp,
                 bid=float(data.get("bid", 0.0)),
                 ask=float(data.get("ask", 0.0)),
                 volume=int(data.get("volume", 0)) if data.get("volume") else None,
@@ -268,8 +255,8 @@ class JForexLiveFeed(ILiveFeed):
             
         except Exception as e:
             self.logger.error(
-                "jforex_live_feed_process_tick_error: error=%s, raw_message=%s",
-                str(e),
-                str(data),
-                exc_info=True  # Teljes traceback kiírása
+                "jforex_live_feed_process_tick_error",
+                error=str(e),
+                raw_message=str(data),
+                exc_info=True
             )

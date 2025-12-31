@@ -119,20 +119,31 @@ Háttérfolyamat a tickek folyamatos fogadásához.
 **Működés:**
 1. Végtelen ciklusban vár a ZMQ socketre érkező üzenetekre
 2. JSON dekódolja a bejövő üzeneteket
-3. Ha az üzenet típusa "TICK", akkor feldolgozza a `_process_tick_data` metódussal
+3. Továbbítja a dekódolt adatokat a `_process_tick_data` metódusnak a teljes feldolgozásért
 4. Hibák esetén naplózza a hibát és vár 1 másodpercet
+
+**Refaktorálás (2025-12-31):**
+- Eltávolítottuk a duplikált Event gyártást
+- A metódus most csak a kommunikációért felelős, a feldolgozást a `_process_tick_data` végzi
 
 ### `_process_tick_data(data)` (privát)
 
 Feldolgozza a tick adatokat és publikálja az EventBus-on.
 
 **Paraméterek:**
-- `data` (dict): A tick adatok dictionary-ben
+- `data` (dict[str, object]): A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float)
 
 **Működés:**
-1. Létrehozza a `MarketDataEvent`-et a tick adatokból
-2. Publikálja az eseményt az EventBus-on a "market_data" topicra
-3. Hibák esetén naplózza a hibát
+1. Konvertálja a milliszekundumban érkező timestamp-et datetime objektummá
+2. Létrehozza a `MarketDataEvent`-et a tick adatokból
+3. Publikálja az eseményt az EventBus-on a "market_data" topicra
+4. Hibák esetén naplózza a hibát
+
+**Refaktorálás (2025-12-31):**
+- A metódus most a `_listen_loop`-ból kapja a már dekódolt JSON adatokat
+- Kezeli a milliszekundumban érkező timestamp-et (`datetime.fromtimestamp(ts_ms / 1000.0, tz=timezone.utc)`)
+- A bid/ask értékek már float-ként érkeznek, nem kell castolni
+- Egységesítette a tick feldolgozást, eltávolítva a duplikált kódot
 
 ## Használati példa
 
@@ -169,9 +180,8 @@ A Java Bridge a következő JSON formátumban küldi a tick adatokat:
 
 ```json
 {
-  "type": "TICK",
   "symbol": "EURUSD",
-  "timestamp": "2025-01-01T12:00:00.000Z",
+  "timestamp": 1704110400000,
   "bid": 1.10000,
   "ask": 1.10010,
   "volume": 1000
@@ -182,12 +192,13 @@ A Java Bridge a következő JSON formátumban küldi a tick adatokat:
 
 | Mező | Típus | Leírás |
 |------|-------|---------|
-| `type` | str | Üzenet típusa (jelenleg csak "TICK") |
 | `symbol` | str | A pénzpár szimbóluma (pl. "EURUSD") |
-| `timestamp` | str | Az időbélyeg ISO 8601 formátumban |
+| `timestamp` | int | Az időbélyeg milliszekundumban (Unix timestamp * 1000) |
 | `bid` | float | A bid ár |
 | `ask` | float | Az ask ár |
 | `volume` | int | A volumen (opcionális) |
+
+**Megjegyzés:** A refaktorálás után (2025-12-31) a `type` mezőt eltávolítottuk, mivel a `_listen_loop` most csak a JSON dekódolásért felelős, és a `_process_tick_data` kezeli a teljes feldolgozást.
 
 ## Hibakezelés
 
@@ -216,6 +227,29 @@ A `JForexLiveFeed` robusztus hibakezelést implementál:
 - A ZMQ context és socket élettartamát az osztály kezeli
 - Az EventBus-on történő publikálás nem blokkoló
 - A konfigurációból történő betöltés hibatűrő (alapértelmezett értékekkel)
+
+## Refaktorálás (2025-12-31)
+
+A `JForexLiveFeed` osztályt refaktoráltuk, hogy eltávolítsuk a duplikált kódot és egységesítsük a tick feldolgozást.
+
+### Változások
+
+1. **`_listen_loop` metódus:**
+   - Eltávolítottuk a manuális Event gyártást
+   - A metódus most csak JSON-t dekódol és hívja a `_process_tick_data`-t
+   - Egyszerűbb, olvashatóbb kód
+
+2. **`_process_tick_data` metódus:**
+   - Kezeli a milliszekundumban érkező timestamp-et
+   - A bid/ask értékek már float-ként érkeznek, nem kell castolni
+   - Típusosítottuk a `data` paramétert (`dict[str, object]`)
+
+### Előnyök
+
+- **Egyszerűség:** A `_listen_loop` csak kommunikál, a `_process_tick_data` csak feldolgoz
+- **Karbantarthatóság:** Nincs duplikált Event gyártás
+- **Típusbiztonság:** Jobb típusosítás a `dict[str, object]` használatával
+- **Teljesítmény:** Kevesebb művelet a tick feldolgozás során
 
 ## Kapcsolódó dokumentáció
 
