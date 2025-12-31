@@ -8,7 +8,7 @@ a Java Bridge-el (NeuralBridgeStrategy) való kommunikációhoz.
 import asyncio
 import json
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import zmq
 import zmq.asyncio
@@ -61,17 +61,30 @@ class JForexLiveFeed(ILiveFeed):
         self._running = False
         self._socket: zmq.asyncio.Socket | None = None
         self._context: zmq.asyncio.Context | None = None
-        self._listen_task: asyncio.Task | None = None
-        
-        # Konfiguráció betöltése
+        self._listen_task: asyncio.Task[None] | None = None
+         
+        # Konfiguráció betöltése (Helyes útvonal: collectors -> jforex_live)
         try:
-            live_config = config.get("jforex_live", {}) or {}
+            # Először próbáljuk a namespaced helyen
+            live_config = config.get("collectors", "jforex_live")
+            
+            # Ha ott nincs, próbáljuk a gyökérben (fallback)
+            if not live_config:
+                live_config = config.get("jforex_live")
+                
+            # Ha sehol nincs, üres dict
+            if not live_config:
+                live_config = {}
+                self.logger.warning("jforex_live_config_missing - Using defaults (5555)")
+            else:
+                self.logger.debug(f"jforex_live_config_loaded - config: {live_config}")
+                
         except (KeyError, ValueError, AttributeError):
             live_config = {}
-        
-        self._host = live_config.get("host", "127.0.0.1")
-        self._tick_port = live_config.get("tick_port", 5555)
-        self._command_port = live_config.get("command_port", 5556)
+         
+        self._host: str = cast(str, live_config.get("host", "127.0.0.1"))
+        self._tick_port: int = cast(int, live_config.get("tick_port", 5555))
+        self._command_port: int = cast(int, live_config.get("command_port", 5556))
     
     async def start(self) -> None:
         """
