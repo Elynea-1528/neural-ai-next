@@ -10,7 +10,7 @@ repositories {
 dependencies {
     implementation 'org.zeromq:jeromq:0.5.4'
     implementation 'com.google.code.gson:gson:2.10.1'
-    compileOnly 'com.dukascopy.api:JForex-API:2.13.53'
+    compileOnly 'com.dukascopy.api:JForex-API:2.13.+'
 }
 
 // Ez a varázslat: összegyűjti a JAR-okat egy helyre
