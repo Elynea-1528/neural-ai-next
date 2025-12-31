@@ -80,7 +80,7 @@ jforex_live:
   host: "127.0.0.1"
   
   # Port for receiving tick data
-  tick_port: 5555
+  tick_port: 5557
   
   # Port for sending commands
-  command_port: 5556
+  command_port: 5558

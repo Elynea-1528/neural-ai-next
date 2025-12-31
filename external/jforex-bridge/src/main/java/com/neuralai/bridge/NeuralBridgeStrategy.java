@@ -30,8 +30,8 @@ public class NeuralBridgeStrategy implements IStrategy {
     private Gson gson;
 
     // Konfiguráció
-    private static final int TICK_PORT = 5555;
-    private static final int COMMAND_PORT = 5556;
+    private static final int TICK_PORT = 5557;
+    private static final int COMMAND_PORT = 5558;
     private static final String BIND_ADDRESS = "tcp://*:";
 
     @Override
