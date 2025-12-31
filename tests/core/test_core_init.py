@@ -147,7 +147,7 @@ class TestBootstrapCore:
     def test_bootstrap_core_import_error(self, mock_di_container: MagicMock) -> None:
         """Teszteli a bootstrap_core függvényt import hiba esetén."""
         mock_di_container.side_effect = ImportError("Module not found")
-        
+
         with pytest.raises(ImportError):
             bootstrap_core()
 
@@ -157,20 +157,144 @@ class TestBootstrapCore:
             with patch("neural_ai.core.config.factory.ConfigManagerFactory") as mock_cfg_fact:
                 with patch("neural_ai.core.logger.factory.LoggerFactory") as mock_log_fact:
                     with patch("neural_ai.core.events.factory.EventBusFactory") as mock_evt_fact:
-                        with patch("neural_ai.core.storage.factory.StorageFactory") as mock_stor_fact:
-                            with patch("neural_ai.core.system.factory.SystemComponentFactory") as mock_sys_fact:
-                                with patch("neural_ai.core.utils.factory.HardwareFactory") as mock_hw_fact:
+                        with patch(
+                            "neural_ai.core.storage.factory.StorageFactory"
+                        ) as mock_stor_fact:
+                            with patch(
+                                "neural_ai.core.system.factory.SystemComponentFactory"
+                            ) as mock_sys_fact:
+                                with patch(
+                                    "neural_ai.core.utils.factory.HardwareFactory"
+                                ) as mock_hw_fact:
                                     # Mock beállítások
                                     mock_di.return_value = self.mock_container
                                     mock_cfg_fact.create_manager.return_value = self.mock_config
                                     mock_log_fact.get_logger.return_value = self.mock_logger
-                                    mock_evt_fact.create_from_config.return_value = self.mock_event_bus
+                                    mock_evt_fact.create_from_config.return_value = (
+                                        self.mock_event_bus
+                                    )
                                     mock_stor_fact.get_storage.return_value = self.mock_storage
-                                    mock_sys_fact.create_health_monitor.return_value = self.mock_health_monitor
+                                    mock_sys_fact.create_health_monitor.return_value = (
+                                        self.mock_health_monitor
+                                    )
                                     mock_hw_fact.get_hardware_info.return_value = self.mock_hardware
 
                                     result = bootstrap_core()
                                     assert isinstance(result, CoreComponents)
+
+    @patch("neural_ai.core.base.implementations.di_container.DIContainer")
+    @patch("neural_ai.core.config.factory.ConfigManagerFactory")
+    @patch("neural_ai.core.events.factory.EventBusFactory")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    @patch("neural_ai.core.storage.factory.StorageFactory")
+    @patch("neural_ai.core.system.factory.SystemComponentFactory")
+    @patch("neural_ai.core.utils.factory.HardwareFactory")
+    @patch("neural_ai.collectors.jforex.factory.JForexFactory")
+    def test_bootstrap_core_with_jforex_enabled(
+        self,
+        mock_jforex_factory: MagicMock,
+        mock_hardware_factory: MagicMock,
+        mock_system_factory: MagicMock,
+        mock_storage_factory: MagicMock,
+        mock_logger_factory: MagicMock,
+        mock_event_factory: MagicMock,
+        mock_config_factory: MagicMock,
+        mock_di_container: MagicMock,
+    ) -> None:
+        """Teszteli a bootstrap_core függvényt JForex Live Feed engedélyezés esetén.
+
+        Ez a teszt lefedi a 202. sort, ahol a JForex Live Feed opcionálisan inicializálódik.
+        """
+        # Mock beállítások
+        mock_di_container.return_value = self.mock_container
+        mock_hardware_factory.get_hardware_info.return_value = self.mock_hardware
+        mock_config_factory.create_manager.return_value = self.mock_config
+        mock_logger_factory.get_logger.return_value = self.mock_logger
+        mock_event_factory.create_from_config.return_value = self.mock_event_bus
+        mock_storage_factory.get_storage.return_value = self.mock_storage
+        mock_system_factory.create_health_monitor.return_value = self.mock_health_monitor
+
+        # Mock JForex Live Feed
+        mock_live_feed = MagicMock()
+        mock_jforex_factory.create_live_feed.return_value = mock_live_feed
+
+        # A konfigurációban engedélyezzük a JForex Live Feed-et
+        # A config.get("collectors", "jforex_live") hívásnak egy dict-et kell visszaadnia
+        # ami tartalmazza az "enabled": True párost
+        self.mock_config.get.return_value = {"enabled": True}
+
+        # Bootstrap hívás
+        result = bootstrap_core()
+
+        # Ellenőrzések
+        assert result is not None
+        assert isinstance(result, CoreComponents)
+
+        # Ellenőrizzük, hogy a JForexFactory.create_live_feed meghívódott
+        mock_jforex_factory.create_live_feed.assert_called_once_with(
+            self.mock_config, self.mock_logger, self.mock_event_bus
+        )
+
+        # Ellenőrizzük, hogy a live feed is regisztrálva lett a containerben
+        # A hívások száma most legalább 7 (az előző 6 + JForex Live Feed)
+        actual_calls = self.mock_container.register_instance.call_count
+        assert actual_calls >= 7
+
+    @patch("neural_ai.core.base.implementations.di_container.DIContainer")
+    @patch("neural_ai.core.config.factory.ConfigManagerFactory")
+    @patch("neural_ai.core.events.factory.EventBusFactory")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    @patch("neural_ai.core.storage.factory.StorageFactory")
+    @patch("neural_ai.core.system.factory.SystemComponentFactory")
+    @patch("neural_ai.core.utils.factory.HardwareFactory")
+    def test_bootstrap_core_with_jforex_disabled(
+        self,
+        mock_hardware_factory: MagicMock,
+        mock_system_factory: MagicMock,
+        mock_storage_factory: MagicMock,
+        mock_logger_factory: MagicMock,
+        mock_event_factory: MagicMock,
+        mock_config_factory: MagicMock,
+        mock_di_container: MagicMock,
+    ) -> None:
+        """Teszteli a bootstrap_core függvényt JForex Live Feed letiltás esetén.
+
+        Ez a teszt lefedi a 202. sort, ahol a JForex Live Feed nincs engedélyezve.
+        """
+        # Mock beállítások
+        mock_di_container.return_value = self.mock_container
+        mock_hardware_factory.get_hardware_info.return_value = self.mock_hardware
+        mock_config_factory.create_manager.return_value = self.mock_config
+        mock_logger_factory.get_logger.return_value = self.mock_logger
+        mock_event_factory.create_from_config.return_value = self.mock_event_bus
+        mock_storage_factory.get_storage.return_value = self.mock_storage
+        mock_system_factory.create_health_monitor.return_value = self.mock_health_monitor
+
+        # A konfigurációban letiltjuk a JForex Live Feed-et
+        # A config.get("collectors", "jforex_live") hívásnak egy dict-et kell visszaadnia
+        # ami tartalmazza az "enabled": False párost (vagy hiányzik az enabled kulcs)
+        self.mock_config.get.return_value = {"enabled": False}
+
+        # Bootstrap hívás
+        result = bootstrap_core()
+
+        # Ellenőrzések
+        assert result is not None
+        assert isinstance(result, CoreComponents)
+
+        # Ellenőrizzük, hogy a JForexFactory nem hívódott meg
+        # (nem volt importálva sem, de ez a lényeg, hogy az else ág futott)
+        # Ehelyett ellenőrizzük, hogy a logger.debug hívás történt-e meg a 202. sorban
+        # A mock_logger.debug-nak tartalmaznia kell a megfelelő üzenetet
+        self.mock_logger.debug.assert_called()
+        # Ellenőrizzük, hogy a "JForex Live Feed nincs engedélyezve"
+        # üzenet szerepel-e a hívások között
+        debug_calls = [
+            call
+            for call in self.mock_logger.debug.call_args_list
+            if "JForex Live Feed nincs engedélyezve" in str(call)
+        ]
+        assert len(debug_calls) > 0
 
 
 class TestGetCoreComponents:
@@ -209,15 +333,13 @@ class TestGetCoreComponents:
         mock_bootstrap.assert_called_once()
 
     @patch("neural_ai.core.bootstrap_core")
-    def test_get_core_components_returns_core_components(
-        self, mock_bootstrap: MagicMock
-    ) -> None:
+    def test_get_core_components_returns_core_components(self, mock_bootstrap: MagicMock) -> None:
         """Teszteli, hogy get_core_components CoreComponents példánnyal tér vissza."""
         mock_core = MagicMock(spec=CoreComponents)
         mock_bootstrap.return_value = mock_core
 
         result = get_core_components()
-        
+
         assert result == mock_core
         assert isinstance(result, CoreComponents)
 
@@ -255,10 +377,14 @@ class TestIntegration:
             from neural_ai.core import (
                 bootstrap_core,
                 get_core_components,
-                get_version,
                 get_schema_version,
+                get_version,
             )
-            assert True
+
+            assert bootstrap_core is not None
+            assert get_core_components is not None
+            assert get_schema_version is not None
+            assert get_version is not None
         except ImportError as e:
             pytest.fail(f"Import hiba: {e}")
 
