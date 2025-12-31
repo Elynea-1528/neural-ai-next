@@ -1,6 +1,17 @@
 # collectors/jforex/implementations/bi5_downloader.py
 
-Bi5 Downloader Implementation.
+Bi5 Downloader Implementation with Smart Recovery.
+
+## Smart Download Feature
+
+The Bi5Downloader now includes a smart recovery mechanism that prevents
+duplicate downloads when network interruptions occur:
+
+- **Storage Check**: Before downloading, checks if data already exists
+- **Metadata Validation**: Verifies file size to ensure data is complete
+- **Skip Logic**: If data exists and is not empty, skips download
+- **Recovery Mode**: Enables seamless recovery from network failures
+- **Logging**: Clear messages indicate when data is skipped
 
 ## Osztályok
 
@@ -22,6 +33,7 @@ Initialize Bi5 downloader.
             event_bus: Event bus for publishing market data
             config: Configuration manager
             http_client: HTTP client for downloads
+            storage: Storage interface for data persistence
 
 ### `_build_url`
 
@@ -33,6 +45,17 @@ Build Dukascopy .bi5 download URL.
 
         Returns:
             Complete download URL
+
+### `_build_storage_path`
+
+Build storage path for tick data.
+
+        Args:
+            symbol: Trading symbol
+            date: Date for which to store data
+
+        Returns:
+            Storage path string
 
 ### `_download_binary`
 
@@ -72,19 +95,30 @@ Publish tick data to EventBus.
 
 ### `download_tick_data`
 
-Download and decode tick data.
+Download and decode tick data with smart recovery check.
+
+        This method implements a smart downloader feature that checks if data
+        already exists in storage before attempting to download. If the data
+        exists and is not empty, it skips the download to avoid duplicates.
 
         Args:
             symbol: Trading symbol
             date: Date for which to download data
 
         Returns:
-            List of TickData objects
+            List of TickData objects (empty list if data already exists)
 
         Raises:
             DownloadError: If download fails
             DecodeError: If decoding fails
             DataNotAvailableError: If data not available
+
+        Smart Download Feature:
+            - Checks storage.exists(path) before download
+            - Verifies file size via storage.get_metadata()
+            - Skips download if file exists and is not empty
+            - Logs "Data already exists, skipping" message
+            - Prevents duplicate downloads during network recovery
 
 ### `validate_bi5_data`
 

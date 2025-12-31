@@ -17,16 +17,17 @@ from neural_ai.collectors.jforex.interfaces.tick_data import TickData
 
 if TYPE_CHECKING:
     import aiohttp
-    from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
-    from neural_ai.collectors.jforex.interfaces.tick_data import TickData
-    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
     from neural_ai.collectors.jforex.exceptions.jforex_error import (
         DataNotAvailableError,
         DecodeError,
         DownloadError,
     )
+    from neural_ai.collectors.jforex.interfaces.tick_data import TickData
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 
 class Bi5Downloader:
@@ -41,6 +42,7 @@ class Bi5Downloader:
         event_bus: "EventBusInterface",
         config: "ConfigManagerInterface",
         http_client: "aiohttp.ClientSession",
+        storage: "StorageInterface",
     ):
         """Initialize Bi5 downloader.
 
@@ -49,15 +51,17 @@ class Bi5Downloader:
             event_bus: Event bus for publishing market data
             config: Configuration manager
             http_client: HTTP client for downloads
+            storage: Storage interface for data persistence
         """
         self._logger = logger
         self._event_bus = event_bus
         self._config = config
         self._http_client = http_client
+        self._storage = storage
         self._base_url = config.get("jforex.base_url", "https://www.dukascopy.com/datafeed")
         if not self._base_url:
             self._base_url = "https://www.dukascopy.com/datafeed"
-            self._logger.warning("jforex_base_url_not_set", _message="Using default Dukascopy URL")
+            self._logger.warning("jforex_base_url_not_set", message="Using default Dukascopy URL")
 
     def _build_url(self, symbol: str, date: datetime) -> str:
         """Build Dukascopy .bi5 download URL.
@@ -81,6 +85,24 @@ class Bi5Downloader:
         )
 
         return url
+
+    def _build_storage_path(self, symbol: str, date: datetime) -> str:
+        """Build storage path for tick data.
+
+        Args:
+            symbol: Trading symbol
+            date: Date for which to store data
+
+        Returns:
+            Storage path string
+        """
+        # Format: data/jforex/{SYMBOL}/{YEAR}/{MONTH}/{DAY}/{HOUR}.parquet
+        path = (
+            f"data/jforex/{symbol.upper()}/"
+            f"{date.year}/{date.month:02d}/{date.day:02d}/"
+            f"{date.hour:02d}h_ticks.parquet"
+        )
+        return path
 
     async def _download_binary(self, url: str) -> bytes:
         """Download binary .bi5 data from Dukascopy.
@@ -130,7 +152,7 @@ class Bi5Downloader:
         if not data or len(data) == 0:
             self._logger.warning("bi5_empty_file_received", symbol=symbol, date=date.isoformat())
             return []  # Return empty list instead of crashing
-        
+
         try:
             # LZMA decompression
             decompressed = lzma.decompress(data)
@@ -153,7 +175,7 @@ class Bi5Downloader:
                 # Big-endian unpack: unsigned int, unsigned int, unsigned int
                 # Dukascopy stores prices as integers (multiplied by 100,000)
                 timestamp_delta, ask_int, bid_int = struct.unpack(">III", record)
-                
+
                 # Convert integer prices to floats
                 ask = ask_int / 100000.0
                 bid = bid_int / 100000.0
@@ -254,6 +276,34 @@ class Bi5Downloader:
             DataNotAvailableError: If data not available
         """
         self._logger.info("download_started", symbol=symbol, date=date.isoformat())
+
+        # Build storage path and check if data already exists
+        storage_path = self._build_storage_path(symbol, date)
+
+        if self._storage.exists(storage_path):
+            # Get metadata to check if file is not empty
+            try:
+                metadata = self._storage.get_metadata(storage_path)
+                file_size = metadata.get("size", 0)
+
+                if file_size > 0:
+                    self._logger.info(
+                        "data_already_exists",
+                        message=f"Data already exists at {storage_path}, skipping download",
+                        path=storage_path,
+                        size=file_size
+                    )
+                    return []  # Return empty list to indicate skip
+
+            except Exception as e:
+                self._logger.warning(
+                    "metadata_check_failed",
+                    message=(
+                        f"Failed to check metadata for {storage_path}, "
+                        "proceeding with download"
+                    ),
+                    error=str(e)
+                )
 
         # Build URL
         url = self._build_url(symbol, date)
