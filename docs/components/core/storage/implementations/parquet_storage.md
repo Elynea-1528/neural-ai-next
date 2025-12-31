@@ -9,6 +9,14 @@ particionálást használ a gyors lekérdezés érdekében.
 A szolgáltatás hardver-gyorsítást detektál és automatikusan kiválasztja a legoptimálisabb
 backend-et (PolarsBackend AVX2 támogatással, vagy PandasBackend kompatibilitási módban).
 
+## 🆕 Új funkcionalitások (v2.0.0)
+
+### Adatbiztonság növelése
+- **Egyedi fájlnevek:** A tároláskor minden fájl egyedi nevet kap (`tick_{timestamp}_{uuid}.parquet`)
+- **Adatfelülírás megelőzése:** Újraindításkor nem íródik felül a régi adat, hanem új fájl jön létre
+- **Deduplikáció:** Az olvasáskor automatikusan eltávolítja a duplikált bejegyzéseket
+- **Rendezés:** Az adatok timestamp szerint automatikusan rendezve kerülnek visszaadásra
+
 Author: Neural AI Next Team
 Version: 2.0.0
 
@@ -66,16 +74,21 @@ Elérési út generálása a megadott szimbólumhoz és dátumhoz.
         Args:
             symbol: A pénzpár szimbóluma (pl. 'EURUSD')
             date: A dátum
+            unique_id: Egyedi azonosító a fájlnévhez (opcionális)
 
         Returns:
-            A teljes elérési út a Parquet fájlhoz
+            A teljes elérési út a Parquet fájlhoz (egyedi fájlnévvel)
 
         Example:
             >>> service = ParquetStorageService()
             >>> date = datetime(2023, 12, 23)
             >>> path = service._get_path('EURUSD', date)
             >>> print(path)
-            /data/tick/EURUSD/tick/year=2023/month=12/day=23/data.parquet
+            /data/tick/EURUSD/tick/year=2023/month=12/day=23/tick_20231223_abc123.parquet
+        
+        Note:
+            A fájlnév formátuma: `tick_{YYYYMMDD}_{8 karakteres UUID}.parquet`
+            Ez biztosítja, hogy minden tárolás egyedi fájlt hozzon létre.
 
 ### `store_tick_data`
 
@@ -114,7 +127,7 @@ Tick adatok olvasása dátumtartományból.
             end_date: A záró dátum
 
         Returns:
-            A Tick adatokat tartalmazó DataFrame
+            A Tick adatokat tartalmazó DataFrame (deduplikálva és rendezve)
 
         Example:
             >>> from datetime import datetime, timedelta
@@ -125,6 +138,11 @@ Tick adatok olvasása dátumtartományból.
             >>>
             >>> data = await service.read_tick_data('EURUSD', start, end)
             >>> print(f"Loaded {len(data)} ticks")
+        
+        Note:
+            A metódus az összes `*.parquet` fájlt beolvassa a dátumtartományból,
+            majd automatikusan végrehajtja a deduplikációt (timestamp + source alapján)
+            és a timestamp szerinti rendezést.
 
 ### `_read_parquet_async`
 
@@ -145,6 +163,30 @@ DataFrame-ek összefűzése a backend típusának megfelelően.
 
         Returns:
             Az összefűzött DataFrame
+
+### `_deduplicate_data`
+
+Adatok deduplikációja timestamp + source alapján.
+
+        Args:
+            data: A deduplikálandó DataFrame
+
+        Returns:
+            A deduplikált DataFrame
+        
+        Note:
+            A deduplikáció a `timestamp` és `source` oszlopok kombinációja alapján történik.
+            Ha nincs `source` oszlop, akkor csak a `timestamp` alapján deduplikál.
+
+### `_sort_by_timestamp`
+
+DataFrame rendezése timestamp szerint.
+
+        Args:
+            data: A rendezendő DataFrame
+
+        Returns:
+            A rendezett DataFrame
 
 ### `_filter_by_timestamp`
 
@@ -188,6 +230,10 @@ Adatok checksum számítása integritás ellenőrzéshez.
             >>> service = ParquetStorageService()
             >>> checksum = await service.calculate_checksum('EURUSD', datetime.now())
             >>> print(f"Checksum: {checksum}")
+        
+        Note:
+            A checksum az összes fájlra vonatkozik az adott napon. Az összes fájlt
+            beolvassa, összefűzi, deduplikálja, rendezi, majd számol checksum-ot.
 
 ### `verify_data_integrity`
 
@@ -204,6 +250,10 @@ Adatintegritás ellenőrzése.
             >>> service = ParquetStorageService()
             >>> is_valid = await service.verify_data_integrity('EURUSD', datetime.now())
             >>> print(f"Data integrity: {is_valid}")
+        
+        Note:
+            Az integritás ellenőrzés mostantól az összes fájlra vonatkozik az adott napon.
+            Az összes fájlt beolvassa, összefűzi, deduplikálja és ellenőrzi a rendezettséget.
 
 ### `get_storage_stats`
 

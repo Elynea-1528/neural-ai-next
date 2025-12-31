@@ -108,18 +108,21 @@ class TestParquetStorageService:
         assert mock_hardware_without_avx2.has_avx2.called
 
     def test_get_path(self, temp_dir: Path, mock_hardware_with_avx2: MagicMock) -> None:
-        """Teszteli az elérési út generálást."""
+        """Teszteli az elérési út generálást egyedi fájlnévvel."""
         service = ParquetStorageService(
             base_path=str(temp_dir), hardware=mock_hardware_with_avx2
         )
         date = datetime(2023, 12, 23)
         path = service._get_path("EURUSD", date)
 
-        expected_path = (
+        # Az elérési útnak tartalmaznia kell a dátumot és egy UUID-t
+        expected_dir = (
             service.BASE_PATH / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23"
-            / "data.parquet"
         )
-        assert path == expected_path
+        assert path.parent == expected_dir
+        assert path.name.startswith("tick_20231223_")
+        assert path.name.endswith(".parquet")
+        assert len(path.name) == len("tick_20231223_") + 8 + len(".parquet")  # 8 karakteres UUID
 
     @pytest.mark.asyncio
     async def test_store_tick_data_pandas(
@@ -133,12 +136,17 @@ class TestParquetStorageService:
 
         await service.store_tick_data("EURUSD", sample_pandas_data, datetime(2023, 12, 23))
 
-        # Ellenőrizzük, hogy a fájl létrejött-e
-        expected_path = (
+        # Ellenőrizzük, hogy a fájl létrejött-e egyedi névvel
+        expected_dir = (
             temp_dir / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23"
-            / "data.parquet"
         )
-        assert expected_path.exists()
+        assert expected_dir.exists()
+        
+        # Ellenőrizzük, hogy van-e Parquet fájl a mappában
+        parquet_files = list(expected_dir.glob("*.parquet"))
+        assert len(parquet_files) == 1
+        assert parquet_files[0].name.startswith("tick_20231223_")
+        assert parquet_files[0].name.endswith(".parquet")
 
     @pytest.mark.asyncio
     async def test_store_tick_data_polars(
@@ -152,12 +160,17 @@ class TestParquetStorageService:
 
         await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
 
-        # Ellenőrizzük, hogy a fájl létrejött-e
-        expected_path = (
+        # Ellenőrizzük, hogy a fájl létrejött-e egyedi névvel
+        expected_dir = (
             temp_dir / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23"
-            / "data.parquet"
         )
-        assert expected_path.exists()
+        assert expected_dir.exists()
+        
+        # Ellenőrizzük, hogy van-e Parquet fájl a mappában
+        parquet_files = list(expected_dir.glob("*.parquet"))
+        assert len(parquet_files) == 1
+        assert parquet_files[0].name.startswith("tick_20231223_")
+        assert parquet_files[0].name.endswith(".parquet")
 
     @pytest.mark.asyncio
     async def test_store_empty_dataframe_raises_error(
@@ -255,7 +268,8 @@ class TestParquetStorageService:
             "EURUSD", datetime(2023, 12, 23), datetime(2023, 12, 25)
         )
 
-        assert len(result) == 9  # 3 nap × 3 sor
+        assert len(result) == 3  # 3 nap × 3 sor, de deduplikálva (mivel minden nap ugyanazok az adatok)
+        # A deduplikáció miatt csak az egyedi timestamp-ek maradnak meg
 
     @pytest.mark.asyncio
     async def test_read_tick_data_no_data(
@@ -444,3 +458,84 @@ class TestParquetStorageService:
         service = ParquetStorageService(hardware=mock_hardware_with_avx2)
 
         assert service.BASE_PATH == Path("/data/tick")
+
+    @pytest.mark.asyncio
+    async def test_store_multiple_files_same_day(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock,
+        sample_polars_data: pl.DataFrame
+    ) -> None:
+        """Teszteli, hogy több fájl is létrejöhet egy napon (nem írja felül a régit)."""
+        service = ParquetStorageService(
+            base_path=str(temp_dir), hardware=mock_hardware_with_avx2
+        )
+
+        # Két fájl tárolása ugyanarra a napra
+        await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
+        await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
+
+        # Ellenőrizzük, hogy két fájl van-e a mappában
+        expected_dir = (
+            temp_dir / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23"
+        )
+        parquet_files = list(expected_dir.glob("*.parquet"))
+        assert len(parquet_files) == 2
+
+    @pytest.mark.asyncio
+    async def test_read_with_deduplication(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock,
+        sample_polars_data: pl.DataFrame
+    ) -> None:
+        """Teszteli a deduplikációt olvasáskor."""
+        service = ParquetStorageService(
+            base_path=str(temp_dir), hardware=mock_hardware_with_avx2
+        )
+
+        # Két azonos adatokat tartalmazó fájl tárolása
+        await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
+        await service.store_tick_data("EURUSD", sample_polars_data, datetime(2023, 12, 23))
+
+        # Adatok olvasása (deduplikációval)
+        result = await service.read_tick_data(
+            "EURUSD", datetime(2023, 12, 23, 0, 0, 0), datetime(2023, 12, 23, 23, 59, 59)
+        )
+
+        # Ellenőrizzük, hogy a duplikátumok el lettek-e távolítva
+        assert len(result) == 3  # Csak az eredeti 3 sor marad
+        assert "timestamp" in result.columns
+        assert "bid" in result.columns
+        assert "ask" in result.columns
+
+    @pytest.mark.asyncio
+    async def test_read_with_sorting(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock
+    ) -> None:
+        """Teszteli a rendezettséget olvasáskor."""
+        service = ParquetStorageService(
+            base_path=str(temp_dir), hardware=mock_hardware_with_avx2
+        )
+
+        # Adatok létrehozása fordított sorrendben
+        reversed_data = pl.DataFrame(
+            {
+                "timestamp": [
+                    datetime(2023, 12, 23, 10, 2, 0),
+                    datetime(2023, 12, 23, 10, 1, 0),
+                    datetime(2023, 12, 23, 10, 0, 0),
+                ],
+                "bid": [1.1002, 1.1001, 1.1000],
+                "ask": [1.1004, 1.1003, 1.1002],
+                "volume": [1100, 1200, 1000],
+                "source": ["jforex", "jforex", "jforex"],
+            }
+        )
+
+        await service.store_tick_data("EURUSD", reversed_data, datetime(2023, 12, 23))
+
+        # Adatok olvasása
+        result = await service.read_tick_data(
+            "EURUSD", datetime(2023, 12, 23, 0, 0, 0), datetime(2023, 12, 23, 23, 59, 59)
+        )
+
+        # Ellenőrizzük, hogy rendezve vannak-e az adatok
+        timestamps = result["timestamp"].to_list()
+        assert timestamps == sorted(timestamps)

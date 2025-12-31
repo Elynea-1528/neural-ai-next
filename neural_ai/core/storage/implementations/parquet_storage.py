@@ -13,6 +13,7 @@ Version: 2.0.0
 
 import asyncio
 import hashlib
+import uuid
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -135,12 +136,13 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 logger.info(log_msg)
             logger.warning("Legacy CPU detected. Running in Compatibility Mode with PandasBackend.")
 
-    def _get_path(self, symbol: str, date: datetime) -> Path:
+    def _get_path(self, symbol: str, date: datetime, unique_id: str | None = None) -> Path:
         """Elérési út generálása a megadott szimbólumhoz és dátumhoz.
 
         Args:
             symbol: A pénzpár szimbóluma (pl. 'EURUSD')
             date: A dátum
+            unique_id: Egyedi azonosító a fájlnévhez (opcionális)
 
         Returns:
             A teljes elérési út a Parquet fájlhoz
@@ -150,8 +152,13 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             >>> date = datetime(2023, 12, 23)
             >>> path = service._get_path('EURUSD', date)
             >>> print(path)
-            /data/tick/EURUSD/tick/year=2023/month=12/day=23/data.parquet
+            /data/tick/EURUSD/tick/year=2023/month=12/day=23/tick_20231223_abc123.parquet
         """
+        if unique_id:
+            filename = f"tick_{date.strftime('%Y%m%d')}_{unique_id}.parquet"
+        else:
+            filename = f"tick_{date.strftime('%Y%m%d')}_{uuid.uuid4().hex[:8]}.parquet"
+
         return (
             self.BASE_PATH
             / symbol.upper()
@@ -159,7 +166,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             / f"year={date.year}"
             / f"month={date.month:02d}"
             / f"day={date.day:02d}"
-            / "data.parquet"
+            / filename
         )
 
     @trace
@@ -197,6 +204,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if missing_columns:
             raise ValueError(f"Missing required columns: {missing_columns}")
 
+        # Egyedi fájlnév generálása
         path = self._get_path(symbol, date)
         path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -237,12 +245,20 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         """
         paths: list[Path] = []
 
-        # Összes releváns fájl megtalálása
+        # Összes Parquet fájl megtalálása a dátumtartományban
         current_date = start_date
         while current_date <= end_date:
-            path = self._get_path(symbol, current_date)
-            if path.exists():
-                paths.append(path)
+            date_dir = (
+                self.BASE_PATH
+                / symbol.upper()
+                / "tick"
+                / f"year={current_date.year}"
+                / f"month={current_date.month:02d}"
+                / f"day={current_date.day:02d}"
+            )
+            if date_dir.exists():
+                # Összes .parquet fájl hozzáadása ebből a mappából
+                paths.extend(date_dir.glob("*.parquet"))
             current_date += timedelta(days=1)
 
         if not paths:
@@ -269,7 +285,15 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if dfs:
             result = self._concat_dataframes(dfs)
 
-            logger.debug(f"Rows before filter: {len(result)}")
+            logger.debug(f"Rows before deduplication: {len(result)}")
+
+            # Deduplikáció: egyedi sorok szűrése timestamp + source alapján
+            result = self._deduplicate_data(result)
+
+            logger.debug(f"Rows after deduplication: {len(result)}")
+
+            # Rendezés timestamp szerint
+            result = self._sort_by_timestamp(result)
 
             # Dátum szerinti szűrés (pontosabb)
             result = self._filter_by_timestamp(result, start_date, end_date)
@@ -330,6 +354,56 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
             return pd.concat(dfs, ignore_index=True)
 
+    def _deduplicate_data(self, data: Any) -> Any:
+        """Adatok deduplikációja timestamp + source alapján.
+
+        Args:
+            data: A deduplikálandó DataFrame
+
+        Returns:
+            A deduplikált DataFrame
+        """
+        if self.engine == "polars":
+            import polars as pl
+
+            pl_df = cast(pl.DataFrame, data)
+            # Deduplikáció: egyedi sorok szűrése timestamp + source alapján
+            # Ha nincs source oszlop, akkor csak timestamp alapján
+            if "source" in pl_df.columns:
+                return pl_df.unique(subset=["timestamp", "source"], maintain_order=False)
+            else:
+                return pl_df.unique(subset=["timestamp"], maintain_order=False)
+        else:
+            import pandas as pd
+
+            pd_df = cast(pd.DataFrame, data)
+            # Deduplikáció: egyedi sorok szűrése timestamp + source alapján
+            # Ha nincs source oszlop, akkor csak timestamp alapján
+            if "source" in pd_df.columns:
+                return pd_df.drop_duplicates(subset=["timestamp", "source"], keep="first")
+            else:
+                return pd_df.drop_duplicates(subset=["timestamp"], keep="first")
+
+    def _sort_by_timestamp(self, data: Any) -> Any:
+        """DataFrame rendezése timestamp szerint.
+
+        Args:
+            data: A rendezendő DataFrame
+
+        Returns:
+            A rendezett DataFrame
+        """
+        if self.engine == "polars":
+            import polars as pl
+
+            pl_df = cast(pl.DataFrame, data)
+            return pl_df.sort("timestamp")
+        else:
+            import pandas as pd
+
+            pd_df = cast(pd.DataFrame, data)
+            return pd_df.sort_values("timestamp").reset_index(drop=True)
+
     def _filter_by_timestamp(
         self,
         data: Any,
@@ -346,8 +420,9 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Returns:
             A szűrt DataFrame
         """
-        # Mivel az adatok már dátum particionálva vannak, és csak a megfelelő dátumú fájlokat töltjük be,
-        # a szűrés gyakorlatilag felesleges. Visszaadjuk az adatokat változatlanul.
+        # Mivel az adatok már dátum particionálva vannak, és csak a
+        # megfelelő dátumú fájlokat töltjük be, a szűrés gyakorlatilag
+        # felesleges. Visszaadjuk az adatokat változatlanul.
         # Ez elkerüli a datetime precision problémákat is.
         return data
 
@@ -390,31 +465,60 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             date: A dátum
 
         Returns:
-            A checksum SHA256 hash
+            A checksum SHA256 hash (az összes fájlra vonatkozik az adott napon)
 
         Example:
             >>> service = ParquetStorageService()
             >>> checksum = await service.calculate_checksum('EURUSD', datetime.now())
             >>> print(f"Checksum: {checksum}")
-        """
-        path = self._get_path(symbol, date)
 
-        if not path.exists():
+        Note:
+            A checksum mostantól az összes fájlra vonatkozik az adott napon,
+            nem csak egy specifikusra. Az összes fájl adatait összefűzi és
+            az egészre számol checksum-ot.
+        """
+        # Az adott nap mappájának elérési útja
+        date_dir = (
+            self.BASE_PATH
+            / symbol.upper()
+            / "tick"
+            / f"year={date.year}"
+            / f"month={date.month:02d}"
+            / f"day={date.day:02d}"
+        )
+
+        if not date_dir.exists():
+            return ""
+
+        # Összes Parquet fájl beolvasása
+        parquet_files = list(date_dir.glob("*.parquet"))
+        if not parquet_files:
             return ""
 
         try:
-            df = self.backend.read(str(path))
-            # Csak a fontos oszlopok alapján
+            # Összes fájl beolvasása és összefűzése
+            dfs = []
+            for file_path in parquet_files:
+                df = self.backend.read(str(file_path))
+                dfs.append(df)
+
+            # Összefűzés
+            combined_df = self._concat_dataframes(dfs)
+
+            # Deduplikáció és rendezés
+            combined_df = self._deduplicate_data(combined_df)
+            combined_df = self._sort_by_timestamp(combined_df)
+
+            # Csak a fontos oszlopok alapján checksum számítás
             if self.engine == "polars":
                 import polars as pl
-
-                pl_df = cast(pl.DataFrame, df)
+                pl_df = cast(pl.DataFrame, combined_df)
                 data_str = pl_df.select(["timestamp", "bid", "ask"]).write_csv()
             else:
                 import pandas as pd
-
-                pd_df = cast(pd.DataFrame, df)
+                pd_df = cast(pd.DataFrame, combined_df)
                 data_str = pd_df[["timestamp", "bid", "ask"]].to_csv(index=False)
+
             return hashlib.sha256(data_str.encode()).hexdigest()
         except Exception as e:
             logger.error(f"Failed to calculate checksum: {e}")
@@ -435,44 +539,68 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             >>> service = ParquetStorageService()
             >>> is_valid = await service.verify_data_integrity('EURUSD', datetime.now())
             >>> print(f"Data integrity: {is_valid}")
-        """
-        path = self._get_path(symbol, date)
 
-        if not path.exists():
+        Note:
+            Az integritás ellenőrzés mostantól az összes fájlra vonatkozik az adott napon.
+            Az összes fájlt beolvassa, összefűzi, deduplikálja és ellenőrzi a rendezettséget.
+        """
+        # Az adott nap mappájának elérési útja
+        date_dir = (
+            self.BASE_PATH
+            / symbol.upper()
+            / "tick"
+            / f"year={date.year}"
+            / f"month={date.month:02d}"
+            / f"day={date.day:02d}"
+        )
+
+        if not date_dir.exists():
+            return False
+
+        # Összes Parquet fájl beolvasása
+        parquet_files = list(date_dir.glob("*.parquet"))
+        if not parquet_files:
             return False
 
         try:
-            # Parquet fájl ellenőrzése a backend-en keresztül
-            df = self.backend.read(str(path))
+            # Összes fájl beolvasása és összefűzése
+            dfs = []
+            for file_path in parquet_files:
+                df = self.backend.read(str(file_path))
+                dfs.append(df)
+
+            # Összefűzés
+            combined_df = self._concat_dataframes(dfs)
 
             # Alapvető ellenőrzések
-            assert len(df) > 0, "Empty dataframe"
-            assert "timestamp" in df.columns, "Missing timestamp column"
-            assert "bid" in df.columns, "Missing bid column"
-            assert "ask" in df.columns, "Missing ask column"
+            assert len(combined_df) > 0, "Empty dataframe"
+            assert "timestamp" in combined_df.columns, "Missing timestamp column"
+            assert "bid" in combined_df.columns, "Missing bid column"
+            assert "ask" in combined_df.columns, "Missing ask column"
+
+            # Deduplikáció és rendezés
+            combined_df = self._deduplicate_data(combined_df)
+            combined_df = self._sort_by_timestamp(combined_df)
 
             # Rendezés ellenőrzése
             if self.engine == "polars":
                 import polars as pl
-
-                pl_df = cast(pl.DataFrame, df)
-                # Egyszerűbb ellenőrzés: csak azt nézzük, hogy a timestamp oszlop monoton növekvő-e
-                # A Polars Series-nek nincs is_monotonic_increasing property-je, ezért
-                # összehasonlítjuk az eredetit a rendezett változattal
+                pl_df = cast(pl.DataFrame, combined_df)
+                # Összehasonlítjuk az eredetit a rendezett változattal
                 sorted_timestamp = pl_df["timestamp"].sort()
                 is_sorted = (pl_df["timestamp"] == sorted_timestamp).all()
                 assert is_sorted, "Data not sorted by timestamp"
             else:
                 import pandas as pd
-
-                pd_df = cast(pd.DataFrame, df)
+                pd_df = cast(pd.DataFrame, combined_df)
                 assert pd_df["timestamp"].is_monotonic_increasing, "Data not sorted by timestamp"
 
             logger.info(
                 "Data integrity verified",
                 symbol=symbol,
                 date=date.isoformat(),
-                rows=len(df),
+                rows=len(combined_df),
+                files=len(parquet_files),
                 backend=self.backend.name,
             )
 
