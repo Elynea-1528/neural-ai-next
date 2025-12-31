@@ -26,8 +26,14 @@ def find_jforex_folder() -> Path:
     Raises:
         FileNotFoundError: Ha nem található JForex mappa
     """
-    # Lehetséges JForex mappa helyek
+    # Lehetséges JForex mappa helyek (JForex4 elsőbbséggel)
     possible_paths = [
+        # JForex4 prioritásban előrébb
+        Path.home() / "JForex4" / "Strategies",
+        Path.home() / "Documents" / "JForex4" / "Strategies",
+        Path.home() / "JForex4",
+        Path.home() / "Documents" / "JForex4",
+        # Régi JForex mappák (backward compatibility)
         Path.home() / "JForex" / "Strategies",
         Path.home() / "Documents" / "JForex" / "Strategies",
         Path.home() / "JForex",
