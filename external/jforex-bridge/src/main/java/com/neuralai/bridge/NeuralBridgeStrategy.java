@@ -29,6 +29,9 @@ public class NeuralBridgeStrategy implements IStrategy {
     private IHistory history;
     private Gson gson;
 
+    // Tick számláló statisztikákhoz
+    private Map<Instrument, Long> tickCounts;
+
     // Konfiguráció
     private static final int TICK_PORT = 5557;
     private static final int COMMAND_PORT = 5558;
@@ -53,6 +56,9 @@ public class NeuralBridgeStrategy implements IStrategy {
         this.commandReceiver.bind(BIND_ADDRESS + COMMAND_PORT);
 
         console.getOut().println("Neural Bridge started - Ports: " + TICK_PORT + ", " + COMMAND_PORT);
+
+        // Tick számláló inicializálása
+        this.tickCounts = new HashMap<>();
 
         // Feliratkozás az instrumentumokra
         Set<Instrument> instruments = new HashSet<>();
@@ -86,6 +92,15 @@ public class NeuralBridgeStrategy implements IStrategy {
             String json = gson.toJson(data);
             tickPublisher.send(json.getBytes(StandardCharsets.UTF_8), 0);
             
+            // Tick számláló frissítése
+            long count = tickCounts.getOrDefault(instrument, 0L);
+            tickCounts.put(instrument, count + 1);
+
+            // Opcionális: Minden 1000. ticknél logoljon egyet, hogy lássuk, hogy él
+            if ((count + 1) % 1000 == 0) {
+                console.getOut().println("STATS: Sent " + (count + 1) + " ticks for " + instrument);
+            }
+            
         } catch (Exception e) {
             console.getErr().println("Error sending tick: " + e.getMessage());
         }
@@ -115,6 +130,13 @@ public class NeuralBridgeStrategy implements IStrategy {
         if (tickPublisher != null) tickPublisher.close();
         if (commandReceiver != null) commandReceiver.close();
         if (context != null) context.term();
+        
+        // Statisztikák kiírása
+        console.getOut().println("=== BRIDGE SESSION STATISTICS ===");
+        for (Map.Entry<Instrument, Long> entry : tickCounts.entrySet()) {
+            console.getOut().println(">> " + entry.getKey() + ": " + entry.getValue() + " ticks sent.");
+        }
+        console.getOut().println("=================================");
         
         console.getOut().println("Neural Bridge stopped");
     }
