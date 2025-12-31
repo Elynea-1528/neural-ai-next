@@ -231,7 +231,8 @@ class JForexLiveFeed(ILiveFeed):
             
         except Exception as e:
             self.logger.error(
-                "jforex_live_feed_process_tick_error",
-                error=str(e),
-                data=data
+                "jforex_live_feed_process_tick_error: error=%s, raw_message=%s",
+                str(e),
+                str(data),
+                exc_info=True  # Teljes traceback kiírása
             )
