@@ -7,7 +7,7 @@ a Java Bridge-el (NeuralBridgeStrategy) való kommunikációhoz.
 
 import asyncio
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 import zmq
@@ -172,33 +172,57 @@ class JForexLiveFeed(ILiveFeed):
         dekódolja a JSON adatokat, és létrehozza a MarketDataEvent-et, majd
         publikálja az EventBus-on.
         """
+        print(f"DEBUG: ZMQ Receiver Loop start on port {self._tick_port}")
+        
         while self._running:
             try:
-                # Üzenet fogadása
-                msg = await self._socket.recv_string()
+                if self._socket is None:
+                    await asyncio.sleep(0.1)
+                    continue
+                    
+                # Blokkoló hívás
+                message = await self._socket.recv_string()
                 
+                # 1. DIAGNOSZTIKA: Mit kaptunk?
+                print(f"DEBUG RAW RECV: {message}")
+
                 # JSON dekódolás
-                data = json.loads(msg)
-                
-                # Csak TICK típusú üzeneteket dolgozunk fel
-                if data.get("type") == "TICK":
-                    await self._process_tick_data(data)
-                
+                tick_data = json.loads(message)
+
+                # 2. KONVERZIÓ
+                # JForex timestamp ms-ben jön, Python sec-et vár
+                ts_ms = tick_data.get("timestamp")
+                if ts_ms:
+                    timestamp = datetime.fromtimestamp(ts_ms / 1000.0, tz=timezone.utc)
+                else:
+                    timestamp = datetime.now(timezone.utc)
+
+                # 3. EVENT LÉTREHOZÁS
+                from neural_ai.core.events.interfaces.event_models import MarketDataEvent
+                event = MarketDataEvent(
+                    symbol=tick_data["symbol"],
+                    timestamp=timestamp,
+                    bid=float(tick_data["bid"]),
+                    ask=float(tick_data["ask"]),
+                    volume=None,
+                    source="jforex_live"
+                )
+
+                # 4. PUBLIKÁLÁS
+                if self.event_bus:
+                    await self.event_bus.publish("market_data", event)
+                    # print(f"DEBUG: Published {event.symbol}")
+
             except asyncio.CancelledError:
-                self.logger.info("jforex_live_feed_listen_loop_cancelled")
                 break
-            except json.JSONDecodeError as e:
-                self.logger.error(
-                    "jforex_live_feed_json_decode_error",
-                    error=str(e),
-                    message=msg
-                )
             except Exception as e:
-                self.logger.error(
-                    "jforex_live_feed_listen_loop_error",
-                    error=str(e)
-                )
-                await asyncio.sleep(1)  # Várunk egy kicsit a következő próbálkozás előtt
+                # 5. DIAGNOSZTIKA: Mi a baj?
+                import traceback
+                print("!!! CRITICAL LIVE FEED ERROR !!!")
+                traceback.print_exc()
+                
+                self.logger.error("jforex_live_feed_listen_loop_error", error=str(e))
+                await asyncio.sleep(1)
     
     async def _process_tick_data(self, data: dict) -> None:
         """
