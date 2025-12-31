@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
 
 
 async def main() -> None:
@@ -44,6 +45,7 @@ async def main() -> None:
     event_bus: EventBusInterface | None = components.event_bus
     database: DatabaseManager | None = components.database
     live_feed: ILiveFeed | None = components.live_feed
+    persister: MarketDataPersister | None = components.persister
 
     try:
         if logger is not None:
@@ -55,6 +57,11 @@ async def main() -> None:
 
         if database is not None:
             await database.initialize()
+        
+        # Adatmentő szolgálat indítása (Hogy ne vesszen el az adat!)
+        if persister:
+            await persister.start()
+            if logger: logger.info("✅ MarketDataPersister elindítva")
 
         # Live feed indítása (ha elérhető)
         if live_feed is not None:
@@ -74,6 +81,11 @@ async def main() -> None:
         # Szolgáltatások leállítása fordított sorrendben
         if logger is not None:
             logger.info("Rendszer leállítása...")
+
+        # ELŐSZÖR a Persistert állítjuk le, hogy kiírja a buffert!
+        if persister:
+            await persister.stop()
+            if logger: logger.info("✅ MarketDataPersister leállítva (Buffer kiírva)")
         
         if live_feed is not None:
             await live_feed.stop()
