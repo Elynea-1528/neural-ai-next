@@ -15,6 +15,7 @@ import java.util.Map;
  * Implements IStrategy to communicate with Python via ZeroMQ.
  */
 @RequiresFullAccess
+@Library("jeromq-0.5.4.jar|gson-2.10.1.jar")
 public class NeuralBridgeStrategy implements IStrategy {
 
     private ZMQ.Context context;
