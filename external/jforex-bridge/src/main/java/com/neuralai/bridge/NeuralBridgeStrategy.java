@@ -1,19 +1,18 @@
 package com.neuralai.bridge;
 
 import com.dukascopy.api.*;
-import org.zeromq.ZMQ;
+import com.dukascopy.api.IEngine.OrderCommand;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.zeromq.ZMQ;
+
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.nio.charset.StandardCharsets;
 
 /**
- * JForex Strategy for Neural AI Bridge.
- * Publishes tick data via ZeroMQ PUB socket and receives trading commands via REP socket.
- * 
- * @author Neural AI Team
- * @version 1.0.0
+ * Neural AI Bridge Strategy for JForex 4.
+ * Implements IStrategy to communicate with Python via ZeroMQ.
  */
 @RequiresFullAccess
 public class NeuralBridgeStrategy implements IStrategy {
@@ -21,153 +20,116 @@ public class NeuralBridgeStrategy implements IStrategy {
     private ZMQ.Context context;
     private ZMQ.Socket tickPublisher;
     private ZMQ.Socket commandReceiver;
-    private Gson gson;
 
     private IEngine engine;
     private IConsole console;
+    private IHistory history;
+    private Gson gson;
 
     // Konfiguráció
     private static final int TICK_PORT = 5555;
     private static final int COMMAND_PORT = 5556;
     private static final String BIND_ADDRESS = "tcp://*:";
 
-    /**
-     * Strategy start callback.
-     * Initializes ZeroMQ sockets and starts command listener thread.
-     * 
-     * @param context JForex context
-     * @throws JFException if initialization fails
-     */
     @Override
     public void onStart(IContext context) throws JFException {
         this.engine = context.getEngine();
         this.console = context.getConsole();
+        this.history = context.getHistory();
+        this.gson = new GsonBuilder().create();
 
-        // ZeroMQ kontextus inicializálása
+        // ZeroMQ Init
         this.context = ZMQ.context(1);
 
-        // Tick publisher socket (PUB)
+        // PUB Socket (Adat kifelé)
         this.tickPublisher = this.context.socket(ZMQ.PUB);
         this.tickPublisher.bind(BIND_ADDRESS + TICK_PORT);
 
-        // Command receiver socket (REP)
+        // REP Socket (Parancs befelé)
         this.commandReceiver = this.context.socket(ZMQ.REP);
         this.commandReceiver.bind(BIND_ADDRESS + COMMAND_PORT);
 
         console.getOut().println("Neural Bridge started - Ports: " + TICK_PORT + ", " + COMMAND_PORT);
 
-        // Gson inicializálása
-        this.gson = new GsonBuilder().create();
-
-        // Command listener indítása külön szálban
-        Thread commandThread = new Thread(this::commandListener, "command-listener");
-        commandThread.setDaemon(true);
-        commandThread.start();
+        // Parancsfigyelő szál indítása
+        new Thread(this::commandListener).start();
     }
 
-    /**
-     * Tick data callback.
-     * Publishes tick data to ZeroMQ PUB socket.
-     * 
-     * @param instrument Trading instrument
-     * @param tick Tick data
-     * @throws JFException if tick processing fails
-     */
     @Override
     public void onTick(Instrument instrument, ITick tick) throws JFException {
-        // Tick adatok gyűjtése Map-be
-        Map<String, Object> data = new HashMap<>();
-        data.put("type", "TICK");
-        data.put("symbol", instrument.name().replace("/", ""));
-        data.put("bid", tick.getBid());
-        data.put("ask", tick.getAsk());
-        data.put("timestamp", tick.getTime());
-        data.put("source", "jforex_live");
+        // Csak a figyelt párokat küldjük (opcionális szűrés itt lehetne)
+        
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("type", "TICK");
+            // A Python 'EURUSD' formátumot vár, a JForex 'EUR/USD'-t ad. Cseréljük.
+            data.put("symbol", instrument.name().replace("/", "")); 
+            data.put("bid", tick.getBid());
+            data.put("ask", tick.getAsk());
+            data.put("timestamp", tick.getTime());
+            data.put("source", "jforex");
 
-        // JSON szerializálás
-        String json = gson.toJson(data);
-
-        // Küldés a ZeroMQ PUB socketen
-        tickPublisher.send(json.getBytes(StandardCharsets.UTF_8), 0);
-
-        // Logolás JForex konzolra
-        console.getOut().println("PUB: " + json);
-    }
-
-    /**
-     * Command listener thread.
-     * Listens for trading commands on REP socket and responds.
-     */
-    private void commandListener() {
-        console.getOut().println("Command listener thread started");
-
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                // Parancs fogadása
-                byte[] request = commandReceiver.recv(0);
-                String command = new String(request, ZMQ.CHARSET);
-
-                console.getOut().println("Command received: " + command);
-
-                // Egyszerű válasz
-                String response = "OK: " + command;
-
-                // Válasz küldése
-                commandReceiver.send(response.getBytes(ZMQ.CHARSET), 0);
-
-            } catch (Exception e) {
-                console.getErr().println("Command processing error: " + e.getMessage());
-                String errorResponse = "ERROR: " + e.getMessage();
-                commandReceiver.send(errorResponse.getBytes(ZMQ.CHARSET), 0);
-            }
+            String json = gson.toJson(data);
+            tickPublisher.send(json.getBytes(StandardCharsets.UTF_8), 0);
+            
+            // Debug log (kikapcsolható, ha túl sok)
+            // console.getOut().println("PUB: " + json);
+            
+        } catch (Exception e) {
+            console.getErr().println("Error sending tick: " + e.getMessage());
         }
-
-        console.getOut().println("Command listener thread stopped");
     }
 
-    /**
-     * Strategy stop callback.
-     * Closes ZeroMQ sockets and terminates context.
-     * 
-     * @throws JFException if cleanup fails
-     */
+    // A JForex API megköveteli az onBar implementálását, még ha üres is.
+    // JForex 4 esetén az aláírás: onBar(Instrument, Period, IBar, IBar)
+    @Override
+    public void onBar(Instrument instrument, Period period, IBar askBar, IBar bidBar) throws JFException {
+        // Jelenleg nem használjuk a bar adatokat, csak a tickeket
+    }
+
+    @Override
+    public void onMessage(IMessage message) throws JFException {
+        // Itt kapjuk meg a visszajelzést a brókertől (pl. ORDER_FILLED)
+        // Ezt később továbbíthatjuk a Pythonnak
+    }
+
+    @Override
+    public void onAccount(IAccount account) throws JFException {
+        // Számlaadatok változása
+    }
+
     @Override
     public void onStop() throws JFException {
-        // Socket-ek lezárása
-        if (tickPublisher != null) {
-            tickPublisher.close();
-        }
-        if (commandReceiver != null) {
-            commandReceiver.close();
-        }
-        if (context != null) {
-            context.term();
-        }
-
+        // Takarítás
+        if (tickPublisher != null) tickPublisher.close();
+        if (commandReceiver != null) commandReceiver.close();
+        if (context != null) context.term();
+        
         console.getOut().println("Neural Bridge stopped");
     }
 
-    /**
-     * Account callback (not used).
-     */
-    @Override
-    public void onAccount(IAccount account) throws JFException {
-        // Not implemented
-    }
+    // --- Belső metódusok ---
 
-    /**
-     * Message callback (not used).
-     */
-    @Override
-    public void onMessage(IMessage message) throws JFException {
-        // Not implemented
-    }
+    private void commandListener() {
+        while (!Thread.currentThread().isInterrupted() && context != null) {
+            try {
+                // Blokkoló hívás, várja a parancsot a Pythontól
+                byte[] request = commandReceiver.recv(0);
+                if (request == null) break; 
 
-    /**
-     * Stop loss callback (not used).
-     */
-    @Override
-    public void onStopLoss(ITradeOrder order) throws JFException {
-        // Not implemented
+                String jsonRequest = new String(request, StandardCharsets.UTF_8);
+                console.getOut().println("CMD Received: " + jsonRequest);
+
+                // TODO: Itt dolgozzuk fel a Trade parancsot (SubmitOrder)
+                // Egyelőre csak visszhangozzuk
+                
+                String response = "{\"status\": \"RECEIVED\"}";
+                commandReceiver.send(response.getBytes(StandardCharsets.UTF_8), 0);
+
+            } catch (Exception e) {
+                console.getErr().println("Command Listener Error: " + e.getMessage());
+                break;
+            }
+        }
     }
 }
