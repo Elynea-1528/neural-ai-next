@@ -87,8 +87,17 @@ async def test_live_feed():
         print(f"   ❌ Hiba a feliratkozáskor: {e}")
         return
     
-    # 7. Live feed indítása
-    print("\n⏳ 4. Live Feed indítása...")
+    # 7. EventBus indítása
+    print("\n⏳ 4. EventBus indítása...")
+    try:
+        await event_bus.start()
+        print("   ✅ EventBus elindítva")
+    except Exception as e:
+        print(f"   ❌ Hiba az EventBus indításkor: {e}")
+        return
+
+    # 8. Live feed indítása
+    print("\n⏳ 5. Live Feed indítása...")
     try:
         await live_feed.start()
         print("   ✅ Live Feed elindítva")
