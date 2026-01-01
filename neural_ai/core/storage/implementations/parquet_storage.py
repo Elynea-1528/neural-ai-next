@@ -63,7 +63,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         compression: str = "snappy",
         hardware: "HardwareInterface | None" = None,
         logger: "LoggerInterface | None" = None,  # <--- EZ HIÁNYZOTT
-        **kwargs: Any,                            # <--- ÉS EZ A BIZTONSÁGÉRT
+        **kwargs: Any,  # <--- ÉS EZ A BIZTONSÁGÉRT
     ) -> None:
         """Inicializálja a ParquetStorageService-t backend selectorral.
 
@@ -512,10 +512,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             # Csak a fontos oszlopok alapján checksum számítás
             if self.engine == "polars":
                 import polars as pl
+
                 pl_df = cast(pl.DataFrame, combined_df)
                 data_str = pl_df.select(["timestamp", "bid", "ask"]).write_csv()
             else:
                 import pandas as pd
+
                 pd_df = cast(pd.DataFrame, combined_df)
                 data_str = pd_df[["timestamp", "bid", "ask"]].to_csv(index=False)
 
@@ -585,6 +587,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             # Rendezés ellenőrzése
             if self.engine == "polars":
                 import polars as pl
+
                 pl_df = cast(pl.DataFrame, combined_df)
                 # Összehasonlítjuk az eredetit a rendezett változattal
                 sorted_timestamp = pl_df["timestamp"].sort()
@@ -592,6 +595,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 assert is_sorted, "Data not sorted by timestamp"
             else:
                 import pandas as pd
+
                 pd_df = cast(pd.DataFrame, combined_df)
                 assert pd_df["timestamp"].is_monotonic_increasing, "Data not sorted by timestamp"
 
@@ -668,8 +672,8 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         from datetime import datetime
 
         # Alapértelmezett dátum a mai nap
-        date = kwargs.get('date', datetime.now())
-        symbol = kwargs.get('symbol', 'DEFAULT')
+        date = kwargs.get("date", datetime.now())
+        symbol = kwargs.get("symbol", "DEFAULT")
 
         # Aszinkron hívás szinkron wrapper-ben
         try:
@@ -695,9 +699,9 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         from datetime import datetime, timedelta
 
         # Dátumtartomány kinyerése a path-ból vagy kwargs-ból
-        start_date = kwargs.get('start_date', datetime.now() - timedelta(days=1))
-        end_date = kwargs.get('end_date', datetime.now())
-        symbol = kwargs.get('symbol', 'DEFAULT')
+        start_date = kwargs.get("start_date", datetime.now() - timedelta(days=1))
+        end_date = kwargs.get("end_date", datetime.now())
+        symbol = kwargs.get("symbol", "DEFAULT")
 
         try:
             loop = asyncio.get_event_loop()
@@ -716,9 +720,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             result = asyncio.run(self.read_tick_data(symbol, start_date, end_date))
 
         # Konvertálás pandas DataFrame-re ha szükséges
+        import pandas as pd
+
         if not isinstance(result, pd.DataFrame):
             try:
                 import polars as pl
+
                 if isinstance(result, pl.DataFrame):
                     result = result.to_pandas()
             except ImportError:
@@ -732,9 +739,10 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
         """
         import pickle
+
         full_path = self._get_full_path(path)
         full_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(full_path, 'wb') as f:
+        with open(full_path, "wb") as f:
             pickle.dump(obj, f)
 
     def load_object(self, path: str, **kwargs: Any) -> object:
@@ -743,8 +751,9 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
         """
         import pickle
+
         full_path = self._get_full_path(path)
-        with open(full_path, 'rb') as f:
+        with open(full_path, "rb") as f:
             return pickle.load(f)
 
     def exists(self, path: str) -> bool:
@@ -756,6 +765,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         full_path = self._get_full_path(path)
         if not full_path.exists():
             from neural_ai.core.storage.exceptions import StorageNotFoundError
+
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
 
         stat = full_path.stat()
@@ -778,6 +788,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             full_path.unlink()
         else:
             import shutil
+
             shutil.rmtree(full_path)
 
     def list_dir(self, path: str, pattern: str | None = None) -> Sequence[Path]:

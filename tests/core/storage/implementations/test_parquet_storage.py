@@ -483,3 +483,299 @@ class TestParquetStorageService:
         # Ellenőrizzük, hogy rendezve vannak-e az adatok
         timestamps = result["timestamp"].to_list()
         assert timestamps == sorted(timestamps)
+
+
+class TestParquetStorageAdapterMethods:
+    """ParquetStorage adapter metódusok tesztek (StorageInterface)."""
+
+    def setup_method(self) -> None:
+        """Teszt metódus előtti beállítás - Singleton cache törlése."""
+        from neural_ai.core.base.implementations.singleton import SingletonMeta
+
+        SingletonMeta._instances.clear()
+
+    @pytest.fixture
+    def temp_dir(self) -> Path:
+        """Ideiglenes könyvtár létrehozása a tesztekhez."""
+        tmpdir = tempfile.mkdtemp()
+        yield Path(tmpdir)
+        shutil.rmtree(tmpdir)
+
+    @pytest.fixture
+    def mock_hardware_with_avx2(self) -> MagicMock:
+        """Mockolt HardwareInterface AVX2 támogatással."""
+        hardware = MagicMock()
+        hardware.has_avx2.return_value = True
+        return hardware
+
+    @pytest.fixture
+    def sample_pandas_data(self) -> pd.DataFrame:
+        """Minta Pandas DataFrame létrehozása."""
+        return pd.DataFrame(
+            {
+                "timestamp": [
+                    datetime(2023, 12, 23, 10, 0, 0),
+                    datetime(2023, 12, 23, 10, 1, 0),
+                    datetime(2023, 12, 23, 10, 2, 0),
+                ],
+                "bid": [1.1000, 1.1001, 1.1002],
+                "ask": [1.1002, 1.1003, 1.1004],
+                "source": ["jforex", "jforex", "jforex"],
+            }
+        )
+
+    @pytest.fixture
+    def storage_service(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock
+    ) -> ParquetStorageService:
+        """ParquetStorageService példány létrehozása."""
+        return ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware_with_avx2)
+
+    def test_adapter_save_object(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a save_object adapter metódust."""
+        test_obj = {"key": "value", "number": 42}
+        storage_service.save_object(test_obj, "test_object.pkl")
+
+        # Ellenőrizzük, hogy létrejött-e a fájl
+        assert storage_service.exists("test_object.pkl")
+
+    def test_adapter_load_object(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a load_object adapter metódust."""
+        test_obj = {"key": "value", "number": 42}
+        storage_service.save_object(test_obj, "test_object.pkl")
+
+        loaded = storage_service.load_object("test_object.pkl")
+        assert loaded == test_obj
+
+    def test_adapter_exists(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli az exists adapter metódust."""
+        # Először nem létezik
+        assert not storage_service.exists("test_exists.txt")
+
+        # Hozzunk létre egy fájlt
+        storage_service.save_object({"test": "data"}, "test_exists.pkl")
+        assert storage_service.exists("test_exists.pkl")
+
+    def test_adapter_delete(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a delete adapter metódust."""
+        # Hozzunk létre egy fájlt
+        storage_service.save_object({"test": "data"}, "test_delete.pkl")
+        assert storage_service.exists("test_delete.pkl")
+
+        # Töröljük
+        storage_service.delete("test_delete.pkl")
+        assert not storage_service.exists("test_delete.pkl")
+
+    def test_adapter_get_metadata(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a get_metadata adapter metódust."""
+        storage_service.save_object({"test": "data"}, "test_metadata.pkl")
+
+        metadata = storage_service.get_metadata("test_metadata.pkl")
+        assert "size" in metadata
+        assert "is_file" in metadata
+        assert metadata["is_file"] is True
+
+    def test_adapter_list_dir(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a list_dir adapter metódust."""
+        # Hozzunk létre néhány fájlt
+        storage_service.save_object({"test": "data1"}, "dir1/file1.pkl")
+        storage_service.save_object({"test": "data2"}, "dir1/file2.pkl")
+
+        files = storage_service.list_dir("dir1")
+        assert len(files) == 2
+        filenames = [f.name for f in files]
+        assert "file1.pkl" in filenames
+        assert "file2.pkl" in filenames
+
+    def test_smart_filename_uniqueness(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock
+    ) -> None:
+        """Teszteli, hogy a _get_path egyedi fájlneveket generál."""
+        service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware_with_avx2)
+        date = datetime(2023, 12, 23)
+
+        # Generáljunk több fájlnevet ugyanarra a napra
+        paths = []
+        for _ in range(10):
+            path = service._get_path("EURUSD", date)
+            paths.append(path)
+
+        # Ellenőrizzük, hogy minden név egyedi
+        filenames = [p.name for p in paths]
+        assert len(set(filenames)) == len(filenames)  # Minden név egyedi
+
+        # Ellenőrizzük a formátumot
+        for filename in filenames:
+            assert filename.startswith("tick_20231223_")
+            assert filename.endswith(".parquet")
+            # UUID rész 8 karakter hosszú
+            uuid_part = filename.split("_")[-1].replace(".parquet", "")
+            assert len(uuid_part) == 8
+            assert uuid_part.isalnum()  # Csak alfanumerikus karakterek
+
+    def test_adapter_save_object_with_nested_path(
+        self, storage_service: ParquetStorageService
+    ) -> None:
+        """Teszteli a save_object adapter metódust beágyazott útvonallal."""
+        test_obj = {"key": "nested", "value": 123}
+        storage_service.save_object(test_obj, "subdir/nested/test_object.pkl")
+
+        # Ellenőrizzük, hogy létrejött-e a fájl a beágyazott útvonalon
+        assert storage_service.exists("subdir/nested/test_object.pkl")
+
+    def test_adapter_load_object_not_found(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a load_object hibakezelését, ha a fájl nem létezik."""
+        # Nem létező fájl betöltése hibát okoz
+        with pytest.raises(FileNotFoundError):
+            storage_service.load_object("nonexistent.pkl")
+
+    def test_adapter_exists_for_directory(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli az exists metódust könyvtárra."""
+        # Könyvtár létezésének ellenőrzése
+        storage_service.save_object({"test": "data"}, "test_dir/file.pkl")
+        assert storage_service.exists("test_dir")
+
+    def test_adapter_delete_directory(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a delete metódust könyvtárra."""
+        # Könyvtár létrehozása fájllal
+        storage_service.save_object({"test": "data"}, "delete_dir/file.pkl")
+        assert storage_service.exists("delete_dir")
+
+        # Könyvtár törlése
+        storage_service.delete("delete_dir")
+        assert not storage_service.exists("delete_dir")
+
+    def test_adapter_delete_not_found(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a delete hibakezelését, ha a fájl nem létezik."""
+        from neural_ai.core.storage.exceptions import StorageNotFoundError
+
+        # Nem létező fájl törlése hibát okoz
+        with pytest.raises(StorageNotFoundError):
+            storage_service.delete("nonexistent.pkl")
+
+    def test_adapter_get_metadata_for_directory(
+        self, storage_service: ParquetStorageService
+    ) -> None:
+        """Teszteli a get_metadata metódust könyvtárra."""
+        storage_service.save_object({"test": "data"}, "metadata_dir/file.pkl")
+
+        metadata = storage_service.get_metadata("metadata_dir")
+        assert "size" in metadata
+        assert "is_dir" in metadata
+        assert metadata["is_dir"] is True
+
+    def test_adapter_get_metadata_not_found(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a get_metadata hibakezelését, ha a fájl nem létezik."""
+        from neural_ai.core.storage.exceptions import StorageNotFoundError
+
+        # Nem létező fájl metaadatainak lekérdezése hibát okoz
+        with pytest.raises(StorageNotFoundError):
+            storage_service.get_metadata("nonexistent.pkl")
+
+    def test_adapter_list_dir_with_pattern(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a list_dir metódust glob patternmel."""
+        # Hozzunk létre néhány fájlt
+        storage_service.save_object({"test": "data1"}, "pattern_dir/file1.pkl")
+        storage_service.save_object({"test": "data2"}, "pattern_dir/file2.txt")
+        storage_service.save_object({"test": "data3"}, "pattern_dir/file3.pkl")
+
+        # Csak .pkl fájlok listázása
+        files = storage_service.list_dir("pattern_dir", pattern="*.pkl")
+        assert len(files) == 2
+        filenames = [f.name for f in files]
+        assert "file1.pkl" in filenames
+        assert "file3.pkl" in filenames
+        assert "file2.txt" not in filenames
+
+    def test_adapter_list_dir_not_found(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a list_dir hibakezelését, ha a könyvtár nem létezik."""
+        from neural_ai.core.storage.exceptions import StorageNotFoundError
+
+        # Nem létező könyvtár listázása hibát okoz
+        with pytest.raises(StorageNotFoundError):
+            storage_service.list_dir("nonexistent_dir")
+
+    def test_adapter_list_dir_on_file(self, storage_service: ParquetStorageService) -> None:
+        """Teszteli a list_dir hibakezelését, ha az útvonal fájl."""
+        from neural_ai.core.storage.exceptions import StorageIOError
+
+        # Fájlon való listázás hibát okoz
+        storage_service.save_object({"test": "data"}, "list_test/file.pkl")
+        with pytest.raises(StorageIOError):
+            storage_service.list_dir("list_test/file.pkl")
+
+    def test_smart_filename_with_custom_unique_id(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock
+    ) -> None:
+        """Teszteli, hogy a _get_path egyedi azonosítóval generál fájlnevet."""
+        service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware_with_avx2)
+        date = datetime(2023, 12, 23)
+
+        # Egyedi azonosítóval generálunk fájlnevet
+        custom_id = "custom123"
+        path = service._get_path("EURUSD", date, unique_id=custom_id)
+
+        # Ellenőrizzük a formátumot
+        assert path.name == f"tick_20231223_{custom_id}.parquet"
+
+    def test_smart_filename_path_structure(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock
+    ) -> None:
+        """Teszteli, hogy a _get_path helyes útvonalszerkezetet generál."""
+        service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware_with_avx2)
+        date = datetime(2023, 12, 23)
+
+        path = service._get_path("EURUSD", date)
+
+        # Ellenőrizzük az útvonalszerkezetet
+        assert path.parent.name == "day=23"
+        assert path.parent.parent.name == "month=12"
+        assert path.parent.parent.parent.name == "year=2023"
+        assert path.parent.parent.parent.parent.name == "tick"
+        assert path.parent.parent.parent.parent.parent.name == "EURUSD"
+        assert path.parent.parent.parent.parent.parent.parent == temp_dir
+
+    def test_adapter_save_dataframe_sync(
+        self, storage_service: ParquetStorageService, sample_pandas_data: pd.DataFrame
+    ) -> None:
+        """Teszteli a save_dataframe adapter metódust szinkron hívásra."""
+        storage_service.save_dataframe(
+            sample_pandas_data,
+            "test_dataframe.parquet",
+            symbol="EURUSD",
+            date=datetime(2023, 12, 23),
+        )
+
+        # Ellenőrizzük, hogy létrejött-e a fájl
+        date_dir = (
+            storage_service.BASE_PATH / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23"
+        )
+        assert date_dir.exists()
+        parquet_files = list(date_dir.glob("*.parquet"))
+        assert len(parquet_files) >= 1
+
+    def test_adapter_load_dataframe_sync(
+        self, storage_service: ParquetStorageService, sample_pandas_data: pd.DataFrame
+    ) -> None:
+        """Teszteli a load_dataframe adapter metódust szinkron hívásra."""
+        # Először mentünk egy DataFrame-et
+        storage_service.save_dataframe(
+            sample_pandas_data,
+            "test_dataframe.parquet",
+            symbol="EURUSD",
+            date=datetime(2023, 12, 23),
+        )
+
+        # Majd betöltjük
+        result = storage_service.load_dataframe(
+            "test_dataframe.parquet",
+            symbol="EURUSD",
+            start_date=datetime(2023, 12, 23),
+            end_date=datetime(2023, 12, 23, 23, 59, 59),
+        )
+
+        # Ellenőrizzük az eredményt
+        assert len(result) == 3
+        assert "timestamp" in result.columns
+        assert "bid" in result.columns
+        assert "ask" in result.columns
