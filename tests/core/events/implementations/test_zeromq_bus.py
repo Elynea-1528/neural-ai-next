@@ -976,3 +976,208 @@ class TestEventBusRunForever:
 
         # Ellenőrizzük, hogy az inproc URL lett volna használva
         mock_socket.connect.assert_called_once_with("inproc://eventbus_pub")
+
+
+class TestEventBusErrorHandling:
+    """EventBus hiba kezelés tesztek a lefedettség növelésére."""
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_publish_error_zmq_exception(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a publish során fellépő ZMQError kezelését."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockold a send_multipart-ot, hogy ZMQError-t dobjon
+        import zmq
+
+        mock_socket.send_multipart.side_effect = zmq.ZMQError("Connection lost")
+
+        bus = EventBus()
+        await bus.start()
+
+        event = MarketDataEvent(
+            symbol="EURUSD",
+            timestamp=datetime.now(UTC),
+            bid=1.0850,
+            ask=1.0852,
+            source="jforex",
+            volume=100000,
+        )
+
+        # A ZMQError-t el kell kapni és logolni kell, nem szabad összeomlást okoznia
+        # A teszt sikeres, ha nem dob kivételt
+        await bus.publish("market_data", event)
+
+        # Ellenőrizzük, hogy a send_multipart meghívódott
+        mock_socket.send_multipart.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_publish_error_general_exception(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a publish során fellépő általános kivétel kezelését."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockold a send_multipart-ot, hogy általános kivételt dobjon
+        mock_socket.send_multipart.side_effect = RuntimeError("Unexpected error")
+
+        bus = EventBus()
+        await bus.start()
+
+        event = MarketDataEvent(
+            symbol="EURUSD",
+            timestamp=datetime.now(UTC),
+            bid=1.0850,
+            ask=1.0852,
+            source="jforex",
+            volume=100000,
+        )
+
+        # Az általános kivételt is el kell kapni és logolni kell
+        await bus.publish("market_data", event)
+
+        # Ellenőrizzük, hogy a send_multipart meghívódott
+        mock_socket.send_multipart.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_publish_error_with_callback(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a publish hibakezelését callbackkel együtt."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        import zmq
+
+        mock_socket.send_multipart.side_effect = zmq.ZMQError("Connection lost")
+
+        bus = EventBus()
+        await bus.start()
+
+        # Adjunk hozzá egy callback-et, hogy teszteljük a teljes hibakezelési láncot
+        callback = AsyncMock()
+        bus.subscribe("market_data", callback)
+
+        event = MarketDataEvent(
+            symbol="EURUSD",
+            timestamp=datetime.now(UTC),
+            bid=1.0850,
+            ask=1.0852,
+            source="jforex",
+            volume=100000,
+        )
+
+        # A hiba ellenére a rendszernek stabilan kell maradnia
+        await bus.publish("market_data", event)
+
+        # Ellenőrizzük, hogy a send_multipart meghívódott
+        mock_socket.send_multipart.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_subscribe_error_setsockopt_exception(
+        self, mock_context_class: MagicMock
+    ) -> None:
+        """Teszteli a subscribe során fellépő setsockopt hiba kezelését."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockold a setsockopt-ot, hogy ZMQError-t dobjon
+        import zmq
+
+        mock_socket.setsockopt.side_effect = zmq.ZMQError("Invalid option")
+        # Mockold a recv_multipart-et, hogy azonnal CancelledError-t dobjon
+        mock_socket.recv_multipart.side_effect = asyncio.CancelledError()
+
+        bus = EventBus()
+        await bus.start()
+
+        # A hiba ellenére a run_forever-nek stabilan kell futnia
+        bus._running = True
+
+        # A run_forever CancelledError-t fog dobni, ezt el kell kapni
+        with pytest.raises(asyncio.CancelledError):
+            await bus.run_forever()
+
+        # Ellenőrizzük, hogy a setsockopt meghívódott
+        mock_socket.setsockopt.assert_called()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_subscribe_error_setsockopt_general_exception(
+        self, mock_context_class: MagicMock
+    ) -> None:
+        """Teszteli a subscribe során fellépő általános setsockopt hiba kezelését."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockold a setsockopt-ot, hogy általános kivételt dobjon
+        mock_socket.setsockopt.side_effect = RuntimeError("Socket option error")
+        # Mockold a recv_multipart-et, hogy azonnal CancelledError-t dobjon
+        mock_socket.recv_multipart.side_effect = asyncio.CancelledError()
+
+        bus = EventBus()
+        await bus.start()
+
+        # A hiba ellenére a run_forever-nek stabilan kell futnia
+        bus._running = True
+
+        with pytest.raises(asyncio.CancelledError):
+            await bus.run_forever()
+
+        # Ellenőrizzük, hogy a setsockopt meghívódott
+        mock_socket.setsockopt.assert_called()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_start_error_socket_bind_failure(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a socket bind hiba kezelését az indításkor."""
+        mock_context = MagicMock()
+        mock_socket = MagicMock()  # Ne AsyncMock, mert a bind szinkron
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockold a bind-et, hogy ZMQError-t dobjon (bind szinkron metódus!)
+        import zmq
+
+        mock_socket.bind.side_effect = zmq.ZMQError("Address already in use")
+
+        bus = EventBus()
+
+        # A bind hiba ellenére a rendszernek kezelnie kell a kivételt
+        # és EventBusError-t kell dobnia
+        with pytest.raises(EventBusError, match="Nem sikerült elindítani"):
+            await bus.start()
+
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_stop_error_socket_close_failure(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a socket close hiba kezelését a leállításkor."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        # Mockold a close-ot, hogy kivételt dobjon
+        import zmq
+
+        mock_socket.close.side_effect = zmq.ZMQError("Socket already closed")
+
+        bus = EventBus()
+        await bus.start()
+
+        # A close hiba ellenére a leállításnak folytatódnia kell
+        await bus.stop()
+
+        assert bus._running is False
+        mock_socket.close.assert_called_once()

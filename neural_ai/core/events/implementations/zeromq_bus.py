@@ -103,14 +103,21 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             # TCP transport éles használathoz
             pub_url = f"tcp://*:{self.config.pub_port}"
 
-        self._publisher.bind(pub_url)
-        self._logger.info("Publisher bind-olva", pub_url=pub_url)
+        try:
+            self._publisher.bind(pub_url)
+            self._logger.info("Publisher bind-olva", pub_url=pub_url)
 
-        # Kis várakozás, hogy a bind teljesüljön
-        await asyncio.sleep(0.1)
+            # Kis várakozás, hogy a bind teljesüljön
+            await asyncio.sleep(0.1)
 
-        self._running = True
-        self._logger.info("EventBus elindítva")
+            self._running = True
+            self._logger.info("EventBus elindítva")
+        except Exception as e:
+            self._logger.error("Nem sikerült elindítani az EventBus-t", error=str(e), exc_info=True)
+            # Zárjuk be a socketet, ha a bind sikertelen volt
+            self._publisher.close()
+            self._publisher = None
+            raise EventBusError(f"Nem sikerült elindítani az EventBus-t: {str(e)}") from e
 
     @trace
     async def stop(self) -> None:
@@ -162,7 +169,18 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
             # Küldjük az eseményt a megfelelő témakörbe
             topic = event_type.encode("utf-8")
-            await self._publisher.send_multipart([topic, message])
+
+            try:
+                await self._publisher.send_multipart([topic, message])
+            except Exception as e:
+                self._logger.error(
+                    "Hiba az esemény közzétételekor",
+                    error=str(e),
+                    event_type=event_type,
+                    exc_info=True,
+                )
+                # A hiba el van kapva és logolva, de nem dobjuk tovább,
+                # hogy a rendszer stabil maradjon
 
         self._logger.debug("Esemény közzétéve", event_type=event_type, count=len(events_to_publish))
 
