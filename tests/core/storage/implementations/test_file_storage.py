@@ -8,18 +8,22 @@ import shutil
 import tempfile
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
 
 from neural_ai.core.base.exceptions import (
+    InsufficientDiskSpaceError,
     PermissionDeniedError,
+    StorageWriteError,
 )
 from neural_ai.core.storage.exceptions import (
     StorageFormatError,
     StorageIOError,
     StorageNotFoundError,
+    StorageSerializationError,
 )
 from neural_ai.core.storage.implementations.file_storage import FileStorage
 
@@ -333,3 +337,347 @@ class TestFileStorage:
         # Betöltjük (nincs specifikus kwargs a JSON-hoz, de átadhatunk)
         loaded = storage.load_object("test_kwargs.json")
         assert loaded == sample_object
+
+    def test_check_disk_space_sufficient(self, storage: FileStorage, temp_dir: Path) -> None:
+        """Teszteli a lemezterület ellenőrzését elegendő terület esetén."""
+        test_file = temp_dir / "disk_test.txt"
+        # Ez nem szabad, hogy hibát dobjon
+        storage._check_disk_space(test_file, 1024)
+
+    def test_check_disk_space_insufficient(self, storage: FileStorage, temp_dir: Path) -> None:
+        """Teszteli a lemezterület ellenőrzését elégtelen terület esetén."""
+        test_file = temp_dir / "disk_test.txt"
+        # Nagyon nagy méretet kérünk (1 TB), hogy biztosan ne férjen rá
+        with pytest.raises(InsufficientDiskSpaceError):
+            storage._check_disk_space(test_file, 1024 * 1024 * 1024 * 1024)
+
+    def test_check_disk_space_os_error(
+        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli a lemezterület ellenőrzését OS hiba esetén."""
+        test_file = temp_dir / "disk_test.txt"
+
+        def mock_statvfs(path: Path) -> None:
+            raise OSError("Mocked OS error")
+
+        # Monkey patch-eljük az os.statvfs-t
+        import os as os_module
+
+        monkeypatch.setattr(os_module, "statvfs", mock_statvfs)
+
+        with pytest.raises(StorageIOError, match="Failed to check disk space"):
+            storage._check_disk_space(test_file, 1024)
+
+    def test_check_permissions_write_denied(self, storage: FileStorage, temp_dir: Path) -> None:
+        """Teszteli a jogosultság ellenőrzését írási jog nélkül."""
+        test_dir = temp_dir / "readonly_dir"
+        test_dir.mkdir()
+        test_file = test_dir / "test.txt"
+
+        # Állítsuk be csak olvashatóra a könyvtárat
+        test_dir.chmod(0o444)
+
+        with pytest.raises(PermissionDeniedError, match="No write permission"):
+            storage._check_permissions(test_file, check_write=True)
+
+        # Visszaállítjuk az eredeti jogosultságot
+        test_dir.chmod(0o755)
+
+    def test_check_permissions_read_denied(self, storage: FileStorage, temp_dir: Path) -> None:
+        """Teszteli a jogosultság ellenőrzését olvasási jog nélkül."""
+        test_file = temp_dir / "no_read.txt"
+        test_file.write_text("test")
+        test_file.chmod(0o000)  # Semmilyen jogosultság
+
+        with pytest.raises(PermissionDeniedError, match="No read permission"):
+            storage._check_permissions(test_file, check_write=False)
+
+        # Visszaállítjuk az eredeti jogosultságot
+        test_file.chmod(0o644)
+
+    def test_check_permissions_parent_not_exists(
+        self, storage: FileStorage, temp_dir: Path
+    ) -> None:
+        """Teszteli a jogosultság ellenőrzését nem létező szülőkönyvtár esetén."""
+        test_file = temp_dir / "nonexistent_dir" / "test.txt"
+
+        with pytest.raises(PermissionDeniedError, match="Parent directory does not exist"):
+            storage._check_permissions(test_file, check_write=True)
+
+    def test_get_storage_info_os_error(
+        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli a tároló információk lekérdezését OS hiba esetén."""
+
+        def mock_statvfs(path: Path) -> None:
+            raise OSError("Mocked OS error")
+
+        # Monkey patch-eljük az os.statvfs-t
+        import os as os_module
+
+        monkeypatch.setattr(os_module, "statvfs", mock_statvfs)
+
+        with pytest.raises(StorageIOError, match="Failed to get storage info"):
+            storage.get_storage_info(temp_dir)
+
+    def test_atomic_write_bytes(self, storage: FileStorage) -> None:
+        """Teszteli az atomi írást bytes tartalommal (bináris mód)."""
+        test_file = storage._get_full_path("atomic_bytes.bin")
+        content = b"binary content"
+
+        # Bináris tartalmat közvetlenül írunk a temp fájlba
+        temp_path = test_file.with_suffix(test_file.suffix + ".tmp")
+        temp_path.write_bytes(content)
+        temp_path.replace(test_file)
+
+        assert test_file.exists()
+        assert test_file.read_bytes() == content
+
+    def test_atomic_write_string(self, storage: FileStorage) -> None:
+        """Teszteli az atomi írást string tartalommal (JSON formátum)."""
+        test_file = storage._get_full_path("atomic_string.json")
+        content = {"data": "string content"}
+
+        storage._atomic_write(test_file, content, mode="w", fmt="json")
+
+        assert test_file.exists()
+        # A JSON mentés során a tartalom JSON formátumban lesz elmentve
+        import json
+
+        loaded = json.loads(test_file.read_text())
+        assert loaded == content
+
+    def test_atomic_write_invalid_format(self, storage: FileStorage) -> None:
+        """Teszteli az atomi írást érvénytelen formátummal."""
+        test_file = storage._get_full_path("atomic_invalid.txt")
+
+        with pytest.raises(StorageFormatError, match="Nem támogatott formátum"):
+            storage._atomic_write(test_file, "content", fmt="invalid_format")
+
+    def test_atomic_write_os_error_save(
+        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli az atomi írást OS hiba esetén a mentés során."""
+        test_file = temp_dir / "atomic_error.txt"
+
+        def mock_open(*args: Any, **kwargs: Any) -> None:
+            raise OSError("Mocked OS error")
+
+        # Monkey patch-eljük az open-t
+        import builtins
+
+        monkeypatch.setattr(builtins, "open", mock_open)
+
+        with pytest.raises(StorageWriteError, match="Failed to write temporary file"):
+            storage._atomic_write(test_file, "content", fmt="json")
+
+    def test_save_dataframe_format_detection_failure(self, storage: FileStorage) -> None:
+        """Teszteli a DataFrame mentését formátum meghatározási hiba esetén."""
+        df = pd.DataFrame({"a": [1, 2, 3]})
+
+        with pytest.raises(StorageFormatError, match="Nem sikerült meghatározni"):
+            storage.save_dataframe(df, "test_no_extension")
+
+    def test_save_dataframe_excel_format_detection(
+        self, storage: FileStorage, sample_dataframe: pd.DataFrame
+    ) -> None:
+        """Teszteli a DataFrame mentését Excel formátum automatikus felismerésével."""
+        pytest.importorskip("openpyxl")
+
+        # .xlsx kiterjesztésből automatikusan excel formátumot kell felismernie
+        storage.save_dataframe(sample_dataframe, "test_auto.xlsx")
+        assert storage.exists("test_auto.xlsx")
+
+    def test_save_dataframe_disk_space_check_failure(
+        self, storage: FileStorage, sample_dataframe: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli a DataFrame mentését lemezterület ellenőrzési hiba esetén."""
+
+        # Mock-oljuk a df.memory_usage-t, hogy nagyon nagy méretet adjon vissza
+        # Ez kiváltja a _check_disk_space hívást a save_dataframe-en belül
+        def mock_memory_usage(*args: Any, **kwargs: Any) -> Any:
+            # Adjunk vissza egy Series-t, ami 1 TB méretet jelent
+            return pd.Series(
+                [1024 * 1024 * 1024 * 1024] * len(sample_dataframe.columns),
+                index=sample_dataframe.columns,
+            )
+
+        monkeypatch.setattr(sample_dataframe, "memory_usage", mock_memory_usage)
+
+        # Most a save_dataframe-nek kivételt kell dobnia, mert a lemezterület ellenőrzés
+        # észlelni fogja, hogy nincs elég hely
+        with pytest.raises((InsufficientDiskSpaceError, StorageIOError)):
+            storage.save_dataframe(sample_dataframe, "test.csv")
+
+    def test_save_dataframe_io_error(
+        self, storage: FileStorage, sample_dataframe: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli a DataFrame mentését IO hiba esetén."""
+
+        def mock_mkdir(*args: Any, **kwargs: Any) -> None:
+            raise OSError("Mocked IO error")
+
+        monkeypatch.setattr(Path, "mkdir", mock_mkdir)
+
+        with pytest.raises(StorageIOError, match="Hiba a DataFrame mentése során"):
+            storage.save_dataframe(sample_dataframe, "test.csv")
+
+    def test_load_dataframe_format_detection_failure(self, storage: FileStorage) -> None:
+        """Teszteli a DataFrame betöltését formátum meghatározási hiba esetén."""
+        test_file = storage._get_full_path("test_no_extension")
+        test_file.write_text("dummy")
+
+        with pytest.raises(StorageFormatError, match="Nem sikerült meghatározni"):
+            storage.load_dataframe("test_no_extension")
+
+    def test_load_dataframe_excel_format_detection(
+        self, storage: FileStorage, sample_dataframe: pd.DataFrame
+    ) -> None:
+        """Teszteli a DataFrame betöltését Excel formátum automatikus felismerésével."""
+        pytest.importorskip("openpyxl")
+
+        storage.save_dataframe(sample_dataframe, "test_auto_load.xlsx")
+        loaded = storage.load_dataframe("test_auto_load.xlsx")
+        assert len(loaded) == 3
+
+    def test_load_dataframe_io_error(
+        self, storage: FileStorage, sample_dataframe: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli a DataFrame betöltését IO hiba esetén."""
+        storage.save_dataframe(sample_dataframe, "test_io.csv")
+
+        def mock_read_csv(*args: Any, **kwargs: Any) -> None:
+            raise OSError("Mocked IO error")
+
+        monkeypatch.setattr(pd, "read_csv", mock_read_csv)
+
+        with pytest.raises(StorageIOError, match="Hiba a DataFrame betöltése során"):
+            storage.load_dataframe("test_io.csv")
+
+    def test_save_object_format_detection_failure(self, storage: FileStorage) -> None:
+        """Teszteli az objektum mentését formátum meghatározási hiba esetén."""
+        obj = {"key": "value"}
+
+        with pytest.raises(StorageFormatError, match="Nem sikerült meghatározni"):
+            storage.save_object(obj, "test_no_extension")
+
+    def test_save_object_serialization_error(
+        self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli az objektum mentését szerializációs hiba esetén."""
+
+        # Olyan objektumot hozunk létre, amit nem lehet JSON-ba szerializálni
+        class NonSerializable:
+            pass
+
+        obj = NonSerializable()
+
+        with pytest.raises(StorageSerializationError, match="nem szerializálható"):
+            storage.save_object(obj, "test.json")
+
+    def test_save_object_io_error(
+        self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli az objektum mentését IO hiba esetén."""
+
+        def mock_mkdir(*args: Any, **kwargs: Any) -> None:
+            raise OSError("Mocked IO error")
+
+        monkeypatch.setattr(Path, "mkdir", mock_mkdir)
+
+        with pytest.raises(StorageIOError, match="Hiba az objektum mentése során"):
+            storage.save_object({"key": "value"}, "test.json")
+
+    def test_load_object_format_detection_failure(self, storage: FileStorage) -> None:
+        """Teszteli az objektum betöltését formátum meghatározási hiba esetén."""
+        test_file = storage._get_full_path("test_no_extension")
+        test_file.write_text("dummy")
+
+        with pytest.raises(StorageFormatError, match="Nem sikerült meghatározni"):
+            storage.load_object("test_no_extension")
+
+    def test_load_object_deserialization_error(self, storage: FileStorage) -> None:
+        """Teszteli az objektum betöltését deszerializációs hiba esetén."""
+        test_file = storage._get_full_path("invalid.json")
+        test_file.write_text("{invalid json}")
+
+        with pytest.raises(StorageIOError):
+            storage.load_object("invalid.json")
+
+    def test_load_object_os_error(
+        self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli az objektum betöltését OS hiba esetén."""
+        storage.save_object({"key": "value"}, "test_os.json")
+
+        def mock_open(*args: Any, **kwargs: Any) -> None:
+            raise OSError("Mocked OS error")
+
+        import builtins
+
+        monkeypatch.setattr(builtins, "open", mock_open)
+
+        with pytest.raises(StorageIOError, match="Hiba az objektum betöltése során"):
+            storage.load_object("test_os.json")
+
+    def test_get_metadata_os_error(
+        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli a metaadatok lekérdezését OS hiba esetén."""
+        test_file = temp_dir / "meta_error.txt"
+        test_file.write_text("test")
+
+        def mock_stat(*args: Any, **kwargs: Any) -> None:
+            raise OSError("Mocked OS error")
+
+        monkeypatch.setattr(Path, "stat", mock_stat)
+
+        with pytest.raises(StorageIOError, match="Hiba a metaadatok lekérése során"):
+            storage.get_metadata("meta_error.txt")
+
+    def test_delete_directory(self, storage: FileStorage) -> None:
+        """Teszteli a könyvtár törlését."""
+        test_dir = storage._get_full_path("delete_dir")
+        test_dir.mkdir(parents=True)
+
+        assert storage.exists("delete_dir")
+        storage.delete("delete_dir")
+        assert not storage.exists("delete_dir")
+
+    def test_delete_io_error(
+        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli a fájl törlését IO hiba esetén."""
+        test_file = temp_dir / "delete_error.txt"
+        test_file.write_text("test")
+
+        def mock_unlink(*args: Any, **kwargs: Any) -> None:
+            raise OSError("Mocked IO error")
+
+        monkeypatch.setattr(Path, "unlink", mock_unlink)
+
+        with pytest.raises(StorageIOError, match="Hiba a törlés során"):
+            storage.delete("delete_error.txt")
+
+    def test_list_dir_not_directory(self, storage: FileStorage) -> None:
+        """Teszteli a könyvtár listázását, ha az útvonal nem könyvtár."""
+        test_file = storage._get_full_path("not_a_dir.txt")
+        test_file.write_text("test")
+
+        with pytest.raises(StorageIOError, match="nem könyvtár"):
+            storage.list_dir("not_a_dir.txt")
+
+    def test_list_dir_glob_error(
+        self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Teszteli a könyvtár listázását glob hiba esetén."""
+        test_dir = storage._get_full_path("glob_error_dir")
+        test_dir.mkdir(parents=True)
+
+        def mock_glob(*args: Any, **kwargs: Any) -> None:
+            raise Exception("Mocked glob error")
+
+        monkeypatch.setattr(Path, "glob", mock_glob)
+
+        with pytest.raises(StorageIOError, match="Hiba a könyvtár listázása során"):
+            storage.list_dir("glob_error_dir")
