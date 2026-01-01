@@ -194,6 +194,16 @@ class Bi5Downloader(IJForexDownloader):
                 timestamp_ms = base_timestamp + timestamp_delta
                 timestamp = datetime.fromtimestamp(timestamp_ms / 1000, tz=UTC)
 
+                # Szigorú időszűrés: csak a kért óra adatait engedélyezzük
+                if not (
+                    timestamp.year == date.year
+                    and timestamp.month == date.month
+                    and timestamp.day == date.day
+                    and timestamp.hour == date.hour
+                ):
+                    # A rekord nem tartozik ehhez az órához, kihagyjuk
+                    continue
+
                 # Create TickData object
                 tick = TickData(
                     timestamp=timestamp,
@@ -377,3 +387,13 @@ class Bi5Downloader(IJForexDownloader):
             current += timedelta(days=1)
 
         return dates
+
+    async def close(self) -> None:
+        """Bezárja a HTTP klienst.
+
+        Ez a metódus biztosítja, hogy a letöltés végén ne maradjanak
+        nyitott kapcsolatok, ami a 'Unclosed client session' hibát okozná.
+        """
+        if self._http_client and not self._http_client.closed:
+            await self._http_client.close()
+            self._logger.debug("http_client_closed")

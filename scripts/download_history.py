@@ -58,13 +58,14 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
         print(f"   ✅ Data directory: {data_dir.absolute()}")
 
         # EventBus indítása (ELŐSZÖR!)
+        bus_task = None
         if event_bus:
             await event_bus.start()
             if logger:
                 logger.info("EventBus elindítva")
 
-            # FONTOS: EventBus event loop indítása külön task-ban!
-            asyncio.create_task(event_bus.run_forever())
+            # FONTOS: EventBus event loop indítása külön task-ban és elmentése!
+            bus_task = asyncio.create_task(event_bus.run_forever())
             if logger:
                 logger.info("EventBus event loop elindítva")
 
@@ -182,24 +183,39 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
     print(f"⚠️  Kihagyott órák: {skipped_downloads}")
     print()
 
-    # KRITIKUS LÉPÉS: FLUSH ÉS STOP (EZ HIÁNYZOTT!)
-    print("⏳ Adatok véglegesítése (FORCE FLUSH)...")
+    # KRITIKUS LÉPÉS: BIZTONSÁGOS LEÁLLÍTÁSI SZEKVENCIA
+    print("⏳ Rendszer leállítása (CLEANUP)...")
     try:
-        # 1. MarketDataPersister leállítása (ez kiüríti a buffert)
+        # 1. Először a Downloader-t zárjuk be (hálózat)
+        if "downloader" in locals():
+            await downloader.close()
+            if logger:
+                logger.info("Bi5Downloader lezárva")
+            print("   ✅ Bi5Downloader lezárva")
+
+        # 2. Aztán a Perzisztálót (hogy kiírja a maradékot)
         if market_data_persister:
             await market_data_persister.stop()
             if logger:
                 logger.info("MarketDataPersister leállítva, buffer kiürítve")
             print("   ✅ MarketDataPersister buffer kiürítve")
 
-        # 2. EventBus leállítása
+        # 3. Végül az EventBus-t és a Task-ot
         if event_bus:
             await event_bus.stop()
             if logger:
                 logger.info("EventBus leállítva")
             print("   ✅ EventBus leállítva")
 
-        print("✅ Összes adat kiírva a lemezre!")
+        if bus_task:
+            bus_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await bus_task
+            if logger:
+                logger.info("EventBus task leállítva")
+            print("   ✅ EventBus task leállítva")
+
+        print("✅ Összes erőforrás tisztán lezárva!")
 
     except Exception as e:
         print(f"⚠️  Hiba a rendszer leállításakor: {e}")
