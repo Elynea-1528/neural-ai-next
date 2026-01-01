@@ -23,6 +23,7 @@ def reset_singleton():
     """Singleton reset minden teszt előtt."""
     # Mentsük el az eredeti _instances szótárt
     from neural_ai.core.base.implementations.singleton import SingletonMeta
+
     original_instances = getattr(SingletonMeta, "_instances", {}).copy()
 
     yield
@@ -245,6 +246,53 @@ class TestEventBusPublish:
         with pytest.raises(PublishError, match="Publisher socket nincs inicializálva"):
             await bus.publish("market_data", event)
 
+    @pytest.mark.asyncio
+    @patch("zmq.asyncio.Context")
+    async def test_publish_batch_events(self, mock_context_class: MagicMock) -> None:
+        """Teszteli a batch (lista) események közzétételét."""
+        mock_context = MagicMock()
+        mock_socket = AsyncMock()
+        mock_context.socket.return_value = mock_socket
+        mock_context_class.return_value = mock_context
+
+        bus = EventBus()
+        await bus.start()
+
+        # Hozzunk létre több eseményt egy listában
+        events = [
+            MarketDataEvent(
+                symbol="EURUSD",
+                timestamp=datetime.now(UTC),
+                bid=1.0850,
+                ask=1.0852,
+                source="jforex",
+                volume=100000,
+            ),
+            MarketDataEvent(
+                symbol="GBPUSD",
+                timestamp=datetime.now(UTC),
+                bid=1.2700,
+                ask=1.2702,
+                source="jforex",
+                volume=80000,
+            ),
+        ]
+
+        await bus.publish("market_data", events)
+
+        # Ellenőrizzük, hogy mindkét eseményt elküldte-e
+        assert mock_socket.send_multipart.await_count == 2
+
+        # Ellenőrizzük az első eseményt
+        args1 = mock_socket.send_multipart.await_args_list[0][0][0]
+        assert len(args1) == 2
+        assert args1[0] == b"market_data"
+
+        # Ellenőrizzük a második eseményt
+        args2 = mock_socket.send_multipart.await_args_list[1][0][0]
+        assert len(args2) == 2
+        assert args2[0] == b"market_data"
+
 
 class TestEventBusSubscribeUnsubscribe:
     """EventBus feliratkozás és leiratkozás tesztek."""
@@ -308,9 +356,7 @@ class TestEventBusSubscribeUnsubscribe:
         bus.unsubscribe("market_data", callback)
 
     @patch("zmq.asyncio.Context")
-    def test_unsubscribe_non_existing_event_type(
-        self, mock_context_class: MagicMock
-    ) -> None:
+    def test_unsubscribe_non_existing_event_type(self, mock_context_class: MagicMock) -> None:
         """Teszteli a nem létező eseménytípus lemondását."""
         mock_context = MagicMock()
         mock_context_class.return_value = mock_context
@@ -367,9 +413,7 @@ class TestEventBusDeserialization:
         assert result.bid == 1.0850
 
     @patch("zmq.asyncio.Context")
-    def test_deserialize_unknown_event_type(
-        self, mock_context_class: MagicMock
-    ) -> None:
+    def test_deserialize_unknown_event_type(self, mock_context_class: MagicMock) -> None:
         """Teszteli az ismeretlen eseménytípus deszerializációját."""
         mock_context = MagicMock()
         mock_context_class.return_value = mock_context
@@ -428,9 +472,7 @@ class TestEventBusDispatch:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_dispatch_event_no_subscribers(
-        self, mock_context_class: MagicMock
-    ) -> None:
+    async def test_dispatch_event_no_subscribers(self, mock_context_class: MagicMock) -> None:
         """Teszteli az esemény továbbítást feliratkozók nélkül."""
         mock_context = MagicMock()
         mock_context_class.return_value = mock_context
@@ -451,9 +493,7 @@ class TestEventBusDispatch:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_dispatch_event_callback_error(
-        self, mock_context_class: MagicMock
-    ) -> None:
+    async def test_dispatch_event_callback_error(self, mock_context_class: MagicMock) -> None:
         """Teszteli a callback hibát."""
         mock_context = MagicMock()
         mock_context_class.return_value = mock_context
@@ -500,6 +540,7 @@ class TestEventBusDeserializationAdditional:
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import TradeEvent
+
         assert isinstance(result, TradeEvent)
         assert result.order_id == "ord_12345"
 
@@ -522,6 +563,7 @@ class TestEventBusDeserializationAdditional:
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import SignalEvent
+
         assert isinstance(result, SignalEvent)
         assert result.strategy_id == "strat_001"
 
@@ -543,6 +585,7 @@ class TestEventBusDeserializationAdditional:
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import SystemLogEvent
+
         assert isinstance(result, SystemLogEvent)
         assert result.level == "INFO"
 
@@ -568,6 +611,7 @@ class TestEventBusDeserializationAdditional:
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import OrderEvent
+
         assert isinstance(result, OrderEvent)
         assert result.order_id == "ord_001"
 
@@ -593,6 +637,7 @@ class TestEventBusDeserializationAdditional:
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import PositionEvent
+
         assert isinstance(result, PositionEvent)
         assert result.position_id == "pos_001"
 
@@ -662,7 +707,9 @@ class TestEventBusDispatchExceptionHandling:
 
         # Mockoljuk a _deserialize_event-et, hogy dobjon egy kivételt
         # ami a külső try-except blokkban lesz elkapva
-        with patch.object(bus, '_deserialize_event', side_effect=Exception("Deszerializálási hiba")):
+        with patch.object(
+            bus, "_deserialize_event", side_effect=Exception("Deszerializálási hiba")
+        ):
             # Nem dob hibát, csak logol (219-220. sorok)
             await bus._dispatch_event("market_data", event_data)
 
@@ -685,6 +732,7 @@ class TestEventBusRunForever:
         # Mockoljuk a recv_multipart-et, hogy adjon vissza egy érvényes üzenetet
         # majd a második hívásnál dobjon asyncio.CancelledError-t a ciklusból való kilépéshez
         call_count = 0
+
         async def recv_multipart_side_effect():
             nonlocal call_count
             call_count += 1
@@ -721,11 +769,12 @@ class TestEventBusRunForever:
 
         # Mockoljuk a recv_multipart-et, hogy timeout-ot okozzon, majd CancelledError-t
         call_count = 0
+
         async def recv_multipart_side_effect():
             nonlocal call_count
             call_count += 1
             if call_count <= 3:
-                raise asyncio.TimeoutError()
+                raise TimeoutError()
             else:
                 raise asyncio.CancelledError()
 
@@ -766,6 +815,7 @@ class TestEventBusRunForever:
         # Mockoljuk a recv_multipart-et, hogy adjon vissza egy érvényes üzenetet
         # majd a második hívásnál dobjon asyncio.CancelledError-t
         call_count = 0
+
         async def recv_multipart_side_effect():
             nonlocal call_count
             call_count += 1
@@ -794,9 +844,7 @@ class TestEventBusRunForever:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_run_forever_invalid_message_format(
-        self, mock_context_class: MagicMock
-    ) -> None:
+    async def test_run_forever_invalid_message_format(self, mock_context_class: MagicMock) -> None:
         """Teszteli az érvénytelen üzenet formátum kezelését."""
         mock_context = MagicMock()
         mock_socket = AsyncMock()
@@ -806,6 +854,7 @@ class TestEventBusRunForever:
         # Mockoljuk a recv_multipart-et, hogy adjon vissza érvénytelen üzenetet
         # majd a második hívásnál dobjon asyncio.CancelledError-t
         call_count = 0
+
         async def recv_multipart_side_effect():
             nonlocal call_count
             call_count += 1
@@ -839,6 +888,7 @@ class TestEventBusRunForever:
         # Mockoljuk a recv_multipart-et, hogy adjon vissza érvénytelen JSON-t
         # majd a második hívásnál dobjon asyncio.CancelledError-t
         call_count = 0
+
         async def recv_multipart_side_effect():
             nonlocal call_count
             call_count += 1
@@ -877,6 +927,7 @@ class TestEventBusRunForever:
         # Mockoljuk a recv_multipart-et, hogy dobjon egy általános kivételt
         # majd a második hívásnál dobjon asyncio.CancelledError-t
         call_count = 0
+
         async def recv_multipart_side_effect():
             nonlocal call_count
             call_count += 1

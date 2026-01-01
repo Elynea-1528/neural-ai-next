@@ -42,20 +42,14 @@ class TestFileStorage:
     @pytest.fixture
     def sample_dataframe(self) -> pd.DataFrame:
         """Minta DataFrame létrehozása."""
-        return pd.DataFrame({
-            'id': [1, 2, 3],
-            'name': ['Alice', 'Bob', 'Charlie'],
-            'age': [25, 30, 35]
-        })
+        return pd.DataFrame(
+            {"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"], "age": [25, 30, 35]}
+        )
 
     @pytest.fixture
     def sample_object(self) -> dict[str, object]:
         """Minta Python objektum létrehozása."""
-        return {
-            'key': 'value',
-            'number': 42,
-            'nested': {'inner': 'data'}
-        }
+        return {"key": "value", "number": 42, "nested": {"inner": "data"}}
 
     def test_init_default_path(self) -> None:
         """Teszteli az alapértelmezett útvonal beállítását."""
@@ -105,9 +99,11 @@ class TestFileStorage:
         # Betöltjük és ellenőrizzük az adatokat
         loaded = storage.load_dataframe("test.csv")
         assert len(loaded) == 3
-        assert list(loaded.columns) == ['id', 'name', 'age']
+        assert list(loaded.columns) == ["id", "name", "age"]
 
-    def test_save_dataframe_excel(self, storage: FileStorage, sample_dataframe: pd.DataFrame) -> None:
+    def test_save_dataframe_excel(
+        self, storage: FileStorage, sample_dataframe: pd.DataFrame
+    ) -> None:
         """Teszteli a DataFrame mentését Excel formátumban."""
         # Ellenőrizzük, hogy az openpyxl csomag telepítve van-e
         pytest.importorskip("openpyxl")
@@ -121,7 +117,9 @@ class TestFileStorage:
         loaded = storage.load_dataframe("test.xlsx")
         assert len(loaded) == 3
 
-    def test_save_dataframe_invalid_format(self, storage: FileStorage, sample_dataframe: pd.DataFrame) -> None:
+    def test_save_dataframe_invalid_format(
+        self, storage: FileStorage, sample_dataframe: pd.DataFrame
+    ) -> None:
         """Teszteli a DataFrame mentését érvénytelen formátumban."""
         with pytest.raises(StorageFormatError, match="Nem támogatott DataFrame formátum"):
             storage.save_dataframe(sample_dataframe, "test.invalid")
@@ -142,7 +140,9 @@ class TestFileStorage:
         loaded = storage.load_object("test.json")
         assert loaded == sample_object
 
-    def test_save_object_invalid_format(self, storage: FileStorage, sample_object: dict[str, object]) -> None:
+    def test_save_object_invalid_format(
+        self, storage: FileStorage, sample_object: dict[str, object]
+    ) -> None:
         """Teszteli a Python objektum mentését érvénytelen formátumban."""
         with pytest.raises(StorageFormatError, match="Nem támogatott objektum formátum"):
             storage.save_object(sample_object, "test.invalid")
@@ -168,11 +168,11 @@ class TestFileStorage:
 
         metadata = storage.get_metadata("meta_test.txt")
 
-        assert metadata['size'] > 0
-        assert metadata['is_file'] is True
-        assert metadata['is_dir'] is False
-        assert isinstance(metadata['created'], datetime)
-        assert isinstance(metadata['modified'], datetime)
+        assert metadata["size"] > 0
+        assert metadata["is_file"] is True
+        assert metadata["is_dir"] is False
+        assert isinstance(metadata["created"], datetime)
+        assert isinstance(metadata["modified"], datetime)
 
     def test_get_metadata_not_found(self, storage: FileStorage) -> None:
         """Teszteli a metaadatok lekérdezését nem létező fájlból."""
@@ -238,13 +238,15 @@ class TestFileStorage:
         """Teszteli a tároló információk lekérdezését."""
         info = storage.get_storage_info(storage._base_path)
 
-        assert 'total_space_gb' in info
-        assert 'used_space_gb' in info
-        assert 'free_space_gb' in info
-        assert 'free_space_percent' in info
-        assert isinstance(info['free_space_percent'], float)
+        assert "total_space_gb" in info
+        assert "used_space_gb" in info
+        assert "free_space_gb" in info
+        assert "free_space_percent" in info
+        assert isinstance(info["free_space_percent"], float)
 
-    def test_atomic_write_json(self, storage: FileStorage, sample_object: dict[str, object]) -> None:
+    def test_atomic_write_json(
+        self, storage: FileStorage, sample_object: dict[str, object]
+    ) -> None:
         """Teszteli az atomi írást JSON formátumban."""
         test_file = storage._get_full_path("atomic_test.json")
         storage._atomic_write(test_file, sample_object, fmt="json")
@@ -256,7 +258,9 @@ class TestFileStorage:
         loaded = json.loads(test_file.read_text())
         assert loaded == sample_object
 
-    def test_atomic_write_dataframe(self, storage: FileStorage, sample_dataframe: pd.DataFrame) -> None:
+    def test_atomic_write_dataframe(
+        self, storage: FileStorage, sample_dataframe: pd.DataFrame
+    ) -> None:
         """Teszteli az atomi írást DataFrame-mel."""
         test_file = storage._get_full_path("atomic_df.csv")
         storage._atomic_write(test_file, sample_dataframe, fmt="csv")
@@ -270,15 +274,62 @@ class TestFileStorage:
 
     def test_setup_format_handlers(self, storage: FileStorage) -> None:
         """Teszteli a formátum kezelők beállítását."""
-        assert 'csv' in storage._DATAFRAME_FORMATS
-        assert 'excel' in storage._DATAFRAME_FORMATS
-        assert 'json' in storage._OBJECT_FORMATS
+        assert "csv" in storage._DATAFRAME_FORMATS
+        assert "excel" in storage._DATAFRAME_FORMATS
+        assert "json" in storage._OBJECT_FORMATS
 
         # Ellenőrizzük, hogy a kezelők rendelkeznek save és load metódusokkal
         for fmt in storage._DATAFRAME_FORMATS:
-            assert 'save' in storage._DATAFRAME_FORMATS[fmt]
-            assert 'load' in storage._DATAFRAME_FORMATS[fmt]
+            assert "save" in storage._DATAFRAME_FORMATS[fmt]
+            assert "load" in storage._DATAFRAME_FORMATS[fmt]
 
         for fmt in storage._OBJECT_FORMATS:
-            assert 'save' in storage._OBJECT_FORMATS[fmt]
-            assert 'load' in storage._OBJECT_FORMATS[fmt]
+            assert "save" in storage._OBJECT_FORMATS[fmt]
+            assert "load" in storage._OBJECT_FORMATS[fmt]
+
+    def test_save_dataframe_with_kwargs(
+        self, storage: FileStorage, sample_dataframe: pd.DataFrame
+    ) -> None:
+        """Teszteli a DataFrame mentését **kwargs paraméterekkel."""
+        # CSV mentés egyéni elválasztóval
+        storage.save_dataframe(sample_dataframe, "test_semicolon.csv", sep=";")
+
+        # Betöltjük és ellenőrizzük, hogy a pontosvesszős formátum működik
+        loaded = storage.load_dataframe("test_semicolon.csv", sep=";")
+        assert len(loaded) == 3
+        assert list(loaded.columns) == ["id", "name", "age"]
+
+    def test_load_dataframe_with_kwargs(
+        self, storage: FileStorage, sample_dataframe: pd.DataFrame
+    ) -> None:
+        """Teszteli a DataFrame betöltését **kwargs paraméterekkel."""
+        # Először mentünk egy CSV-t
+        storage.save_dataframe(sample_dataframe, "test_kwargs.csv")
+
+        # Betöltjük egyéni paraméterekkel (pl. csak bizonyos oszlopok)
+        loaded = storage.load_dataframe("test_kwargs.csv", usecols=["id", "name"])
+        assert len(loaded.columns) == 2
+        assert "age" not in loaded.columns
+
+    def test_save_object_with_kwargs(
+        self, storage: FileStorage, sample_object: dict[str, object]
+    ) -> None:
+        """Teszteli a Python objektum mentését **kwargs paraméterekkel."""
+        # JSON mentés egyéni indentációval
+        storage.save_object(sample_object, "test_indent.json", indent=4)
+
+        # Ellenőrizzük, hogy a fájl létrejött és formázott-e
+        test_file = storage._get_full_path("test_indent.json")
+        content = test_file.read_text()
+        assert "    " in content  # 4 spaces indent
+
+    def test_load_object_with_kwargs(
+        self, storage: FileStorage, sample_object: dict[str, object]
+    ) -> None:
+        """Teszteli a Python objektum betöltését **kwargs paraméterekkel."""
+        # Először mentünk egy JSON-t
+        storage.save_object(sample_object, "test_kwargs.json")
+
+        # Betöltjük (nincs specifikus kwargs a JSON-hoz, de átadhatunk)
+        loaded = storage.load_object("test_kwargs.json")
+        assert loaded == sample_object
