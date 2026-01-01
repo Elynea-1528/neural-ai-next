@@ -183,7 +183,8 @@ class Bi5Downloader(IJForexDownloader):
                 bid = bid_int / 100000.0
 
                 # Skip records with invalid prices (0.0, negative, or unreasonable)
-                if bid <= 0.0 or ask <= 0.0 or bid > 100.0 or ask > 100.0:
+                # Note: Upper limit removed as some currency pairs (e.g., USD/JPY, EUR/TRY) can exceed 100.0
+                if bid <= 0.0 or ask <= 0.0:
                     self._logger.warning(
                         "bi5_invalid_price_skipped", symbol=symbol, record_index=i, bid=bid, ask=ask
                     )

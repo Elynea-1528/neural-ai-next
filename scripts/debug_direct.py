@@ -7,10 +7,10 @@ import aiohttp
 # KONFIGURÁCIÓ
 SYMBOL = "EURUSD"
 YEAR = 2024
-MONTH = 0  # Január (0-tól indexelve a JForex szerint)
-DAY = 4
+MONTH = 1  # Február (0-tól indexelve a JForex szerint: 00 = Jan, 01 = Feb)
+DAY = 14
 HOUR = 10
-BASE_URL = "https://datafeed.dukascopy.com/datafeed"
+BASE_URL = "https://datafeed.dukascopy.com/datafeed"  # Vagy a configban lévő URL
 
 
 async def test_direct_download():
@@ -51,7 +51,13 @@ async def test_direct_download():
                             td, ask, bid = struct.unpack(">III", first_record)
                             print(f"Első Tick RAW: {td}, {ask}, {bid}")
                             print(f"Első Tick ÁR: Ask={ask / 100000:.5f}, Bid={bid / 100000:.5f}")
-                            print("✅ SIKER: Az adatok validak és olvashatók.")
+
+                            if ask / 100000 > 100 or bid / 100000 > 100:
+                                print("❌ ÁR HIBA: Túl magas!")
+                            elif ask == 0 or bid == 0:
+                                print("❌ ÁR HIBA: Nulla!")
+                            else:
+                                print("✅ SIKER: Az adatok validak és olvashatók.")
 
                     except Exception as e:
                         print(f"❌ Dekódolási hiba: {e}")
