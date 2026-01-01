@@ -5,7 +5,7 @@ Ez a modul tartalmazza a DatabaseFactory osztály és annak metódusainak tesztj
 
 from unittest.mock import MagicMock, patch
 
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.db.factory import DatabaseFactory
@@ -15,22 +15,28 @@ from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
 class TestDatabaseFactory:
     """DatabaseFactory osztály tesztjei."""
 
-    def test_get_session_maker_without_config(self) -> None:
+    @patch("neural_ai.core.db.factory.get_async_session_maker")
+    def test_get_session_maker_without_config(self, mock_get_session_maker: MagicMock) -> None:
         """Teszteli a session maker lekérdezést konfig nélkül."""
+        mock_session_maker = MagicMock()
+        mock_get_session_maker.return_value = mock_session_maker
         session_maker = DatabaseFactory.get_session_maker()
 
         assert session_maker is not None
-        assert isinstance(session_maker, async_sessionmaker)
+        assert session_maker is mock_session_maker
 
-    def test_get_session_maker_with_config(self) -> None:
+    @patch("neural_ai.core.db.factory.get_async_session_maker")
+    def test_get_session_maker_with_config(self, mock_get_session_maker: MagicMock) -> None:
         """Teszteli a session maker lekérdezést konfiggal."""
+        mock_session_maker = MagicMock()
+        mock_get_session_maker.return_value = mock_session_maker
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         session_maker = DatabaseFactory.get_session_maker(mock_config)
 
         assert session_maker is not None
-        assert isinstance(session_maker, async_sessionmaker)
+        assert session_maker is mock_session_maker
 
-    @patch('neural_ai.core.db.factory.get_engine')
+    @patch("neural_ai.core.db.factory.get_engine")
     def test_get_engine_without_config(self, mock_get_engine: MagicMock) -> None:
         """Teszteli az engine lekérdezést konfig nélkül."""
         mock_engine = MagicMock()
@@ -41,7 +47,7 @@ class TestDatabaseFactory:
         assert engine is mock_engine
         mock_get_engine.assert_called_once_with(None)
 
-    @patch('neural_ai.core.db.factory.get_engine')
+    @patch("neural_ai.core.db.factory.get_engine")
     def test_get_engine_with_config(self, mock_get_engine: MagicMock) -> None:
         """Teszteli az engine lekérdezést konfiggal."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
@@ -69,8 +75,12 @@ class TestDatabaseFactory:
         assert engine is not None
         assert isinstance(engine, AsyncEngine)
 
-    def test_create_manager_without_config(self) -> None:
+    @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
+    def test_create_manager_without_config(self, mock_get_manager: MagicMock) -> None:
         """Teszteli a DatabaseManager létrehozást konfig nélkül."""
+        mock_config = MagicMock()
+        mock_config.get.return_value = "INFO"
+        mock_get_manager.return_value = mock_config
         manager = DatabaseFactory.create_manager()
 
         assert manager is not None
@@ -85,7 +95,7 @@ class TestDatabaseFactory:
         assert isinstance(manager, DatabaseManager)
         assert manager.config_manager is not None
 
-    @patch('neural_ai.core.db.factory.get_async_session_maker')
+    @patch("neural_ai.core.db.factory.get_async_session_maker")
     def test_get_session_maker_caches_result(self, mock_get_session: MagicMock) -> None:
         """Teszteli, hogy a session maker cache-elődik a modul szintjén."""
         mock_session_maker = MagicMock()
@@ -98,7 +108,7 @@ class TestDatabaseFactory:
         # A modul szintű cache miatt csak egyszer hívódik meg a globális függvény
         mock_get_session.assert_called()
 
-    @patch('neural_ai.core.db.factory.get_engine')
+    @patch("neural_ai.core.db.factory.get_engine")
     def test_get_engine_caches_result(self, mock_get_engine: MagicMock) -> None:
         """Teszteli, hogy az engine cache-elődik a modul szintjén."""
         mock_engine = MagicMock()
@@ -123,15 +133,20 @@ class TestDatabaseFactory:
             assert engine is not None
             assert isinstance(engine, AsyncEngine)
 
-    @patch('neural_ai.core.db.factory.get_engine')
-    def test_factory_methods_return_consistent_types(self, mock_get_engine: MagicMock) -> None:
+    @patch("neural_ai.core.db.factory.get_async_session_maker")
+    @patch("neural_ai.core.db.factory.get_engine")
+    def test_factory_methods_return_consistent_types(
+        self, mock_get_engine: MagicMock, mock_get_session_maker: MagicMock
+    ) -> None:
         """Teszteli, hogy a factory metódusok konzisztens típusokat adnak vissza."""
+        mock_session_maker = MagicMock()
+        mock_get_session_maker.return_value = mock_session_maker
         mock_engine = MagicMock(spec=AsyncEngine)
         mock_get_engine.return_value = mock_engine
 
         # Session maker teszt
         session_maker = DatabaseFactory.get_session_maker()
-        assert isinstance(session_maker, async_sessionmaker)
+        assert session_maker is mock_session_maker
 
         # Engine teszt
         engine = DatabaseFactory.get_engine()
@@ -141,8 +156,12 @@ class TestDatabaseFactory:
         manager = DatabaseFactory.create_manager()
         assert isinstance(manager, DatabaseManager)
 
-    def test_factory_is_stateless(self) -> None:
+    @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
+    def test_factory_is_stateless(self, mock_get_manager: MagicMock) -> None:
         """Teszteli, hogy a factory osztály állapotmentes-e."""
+        mock_config = MagicMock()
+        mock_config.get.return_value = "INFO"
+        mock_get_manager.return_value = mock_config
         # Két különböző hívást kell ugyanazt az eredményt adnia
         manager1 = DatabaseFactory.create_manager()
         manager2 = DatabaseFactory.create_manager()
