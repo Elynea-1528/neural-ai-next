@@ -11,7 +11,7 @@ a szolgáltatások eléréséhez.
 import asyncio
 import sys
 from contextlib import suppress
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from neural_ai.core import bootstrap_core
 
@@ -39,10 +39,10 @@ async def main() -> None:
     """
     # Core komponensek inicializálása típusos változóval
     components: CoreComponents = bootstrap_core()
-    
+
     # Háttér taskok nyilvántartása
     loop_task: asyncio.Task | None = None
-    
+
     # Komponensek lekérése
     logger: LoggerInterface | None = components.logger
     event_bus: EventBusInterface | None = components.event_bus
@@ -57,7 +57,7 @@ async def main() -> None:
         # Szolgáltatások indítása
         if event_bus is not None:
             await event_bus.start()
-            
+
             # A FOGADÓ CIKLUS INDÍTÁSA - Ez felelős azért, hogy a Persister megkapja az eseményeket!
             loop_task = asyncio.create_task(event_bus.run_forever())
             if logger is not None:
@@ -65,11 +65,12 @@ async def main() -> None:
 
         if database is not None:
             await database.initialize()
-        
+
         # Adatmentő szolgálat indítása (Hogy ne vesszen el az adat!)
         if persister:
             await persister.start()
-            if logger: logger.info("✅ MarketDataPersister elindítva")
+            if logger:
+                logger.info("✅ MarketDataPersister elindítva")
 
         # Live feed indítása (ha elérhető)
         if live_feed is not None:
@@ -84,7 +85,7 @@ async def main() -> None:
         # A suppress elnyeli a CancelledError-t leálláskor
         with suppress(asyncio.CancelledError):
             await asyncio.Event().wait()
-    
+
     finally:
         # Szolgáltatások leállítása fordított sorrendben
         if logger is not None:
@@ -93,18 +94,19 @@ async def main() -> None:
         # ELŐSZÖR a Persistert állítjuk le, hogy kiírja a buffert!
         if persister:
             await persister.stop()
-            if logger: logger.info("✅ MarketDataPersister leállítva (Buffer kiírva)")
-        
+            if logger:
+                logger.info("✅ MarketDataPersister leállítva (Buffer kiírva)")
+
         if live_feed is not None:
             await live_feed.stop()
             if logger is not None:
                 logger.info("✅ JForex Live Feed leállítva")
-        
+
         if event_bus is not None:
             await event_bus.stop()
             if logger is not None:
                 logger.info("✅ EventBus leállítva")
-        
+
         if logger is not None:
             logger.info("✅ Rendszer leállítva")
 
