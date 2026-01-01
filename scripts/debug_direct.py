@@ -1,6 +1,12 @@
+#!/usr/bin/env python3
+"""Direct download test script for A/B testing against system pipeline.
+
+This script downloads .bi5 data directly from Dukascopy for a full day (00-23h)
+and sums the total number of ticks for validation against the system pipeline.
+"""
+
 import asyncio
 import lzma
-import struct
 
 import aiohttp
 
@@ -9,64 +15,74 @@ SYMBOL = "EURUSD"
 YEAR = 2024
 MONTH = 1  # Február (0-tól indexelve a JForex szerint: 00 = Jan, 01 = Feb)
 DAY = 14
-HOUR = 10
 BASE_URL = "https://datafeed.dukascopy.com/datafeed"  # Vagy a configban lévő URL
 
 
-async def test_direct_download():
-    # 1. URL Összerakása (A kódod logikája szerint)
-    # Figyelem: A hónap itt 00-11, a nap 01-31
-    url = f"{BASE_URL}/{SYMBOL}/{YEAR}/{MONTH:02d}/{DAY:02d}/{HOUR:02d}h_ticks.bi5"
+async def download_and_count_hour(session: aiohttp.ClientSession, hour: int) -> int:
+    """Letölti és megszámolja a tick-eket egy adott órához.
 
-    print("--- DIREKT TESZT ---")
-    print(f"Cél: {SYMBOL} {YEAR}-{MONTH + 1:02d}-{DAY:02d} {HOUR}:00")
-    print(f"URL: {url}")
-    print("-" * 30)
+    Args:
+        session: HTTP session
+        hour: Az óra (0-23)
+
+    Returns:
+        A tick-ek száma az adott órában
+    """
+    # URL összerakása
+    url = f"{BASE_URL}/{SYMBOL}/{YEAR}/{MONTH:02d}/{DAY:02d}/{hour:02d}h_ticks.bi5"
+
+    try:
+        async with session.get(url) as response:
+            if response.status == 200:
+                content = await response.read()
+
+                if len(content) == 0:
+                    print(f"   Óra {hour:02d}: Üres fájl")
+                    return 0
+
+                try:
+                    # Dekódolás
+                    decompressed = lzma.decompress(content)
+
+                    # Tick-ek számolása (12 bájt per tick)
+                    count = len(decompressed) // 12
+
+                    print(f"   Óra {hour:02d}: {count} tick")
+                    return count
+
+                except Exception as e:
+                    print(f"   Óra {hour:02d}: Dekódolási hiba - {e}")
+                    return 0
+            else:
+                print(f"   Óra {hour:02d}: Nincs adat (HTTP {response.status})")
+                return 0
+
+    except Exception as e:
+        print(f"   Óra {hour:02d}: Hálózati hiba - {e}")
+        return 0
+
+
+async def test_full_day_download():
+    """Letölti a teljes nap adatait (00-23h) és összegzi a tick-eket."""
+    print("=" * 60)
+    print("🧪 DIREKT LETÖLTŐ TESZT (CONTROL GROUP)")
+    print("=" * 60)
+    print(f"Cél: {SYMBOL} {YEAR}-{MONTH + 1:02d}-{DAY:02d} (teljes nap)")
+    print(f"URL alap: {BASE_URL}")
+    print("-" * 60)
+
+    total_ticks = 0
 
     async with aiohttp.ClientSession() as session:
-        try:
-            async with session.get(url) as response:
-                print(f"HTTP Státusz: {response.status}")
+        # Minden óra letöltése (0-23)
+        for hour in range(24):
+            count = await download_and_count_hour(session, hour)
+            total_ticks += count
 
-                if response.status == 200:
-                    content = await response.read()
-                    print(f"Letöltött méret: {len(content)} bájt")
-
-                    if len(content) == 0:
-                        print("❌ A fájl üres!")
-                        return
-
-                    try:
-                        # 2. Dekódolás
-                        decompressed = lzma.decompress(content)
-                        print(f"Kicsomagolt méret: {len(decompressed)} bájt")
-
-                        # 3. Első tick kiolvasása
-                        # Formátum: >III (timestamp_delta, ask_int, bid_int)
-                        count = len(decompressed) // 12
-                        print(f"Tickek száma: {count}")
-
-                        if count > 0:
-                            first_record = decompressed[0:12]
-                            td, ask, bid = struct.unpack(">III", first_record)
-                            print(f"Első Tick RAW: {td}, {ask}, {bid}")
-                            print(f"Első Tick ÁR: Ask={ask / 100000:.5f}, Bid={bid / 100000:.5f}")
-
-                            if ask / 100000 > 100 or bid / 100000 > 100:
-                                print("❌ ÁR HIBA: Túl magas!")
-                            elif ask == 0 or bid == 0:
-                                print("❌ ÁR HIBA: Nulla!")
-                            else:
-                                print("✅ SIKER: Az adatok validak és olvashatók.")
-
-                    except Exception as e:
-                        print(f"❌ Dekódolási hiba: {e}")
-                else:
-                    print("❌ Nem 200 OK a válasz.")
-
-        except Exception as e:
-            print(f"❌ Hálózati hiba: {e}")
+    print("-" * 60)
+    print(f"=== TOTAL TICKS FOR {YEAR}-{MONTH + 1:02d}-{DAY:02d}: {total_ticks} ===")
+    print("=" * 60)
 
 
 if __name__ == "__main__":
-    asyncio.run(test_direct_download())
+    asyncio.run(test_full_day_download())

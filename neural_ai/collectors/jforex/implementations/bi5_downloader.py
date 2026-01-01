@@ -163,10 +163,8 @@ class Bi5Downloader(IJForexDownloader):
             record_size = 12
             num_records = len(decompressed) // record_size
 
-            # Base timestamp: start of the day in milliseconds
-            base_timestamp = (
-                int(date.replace(hour=0, minute=0, second=0, microsecond=0).timestamp()) * 1000
-            )
+            # Base timestamp: start of the HOUR in milliseconds (FIX: keep the hour!)
+            base_timestamp = int(date.replace(minute=0, second=0, microsecond=0).timestamp()) * 1000
 
             ticks: list[TickData] = []
 
@@ -202,6 +200,11 @@ class Bi5Downloader(IJForexDownloader):
                     and timestamp.hour == date.hour
                 ):
                     # A rekord nem tartozik ehhez az órához, kihagyjuk
+                    continue
+
+                # Szigorú validáció: a timestamp órájának meg kell egyeznie a fájl órájával
+                if timestamp.hour != date.hour:
+                    # A rekord órája nem egyezik, kihagyjuk
                     continue
 
                 # Create TickData object

@@ -15,6 +15,7 @@ Version: 1.0.0
 import argparse
 import asyncio
 import sys
+from contextlib import suppress
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -186,27 +187,7 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
     # KRITIKUS LÉPÉS: BIZTONSÁGOS LEÁLLÍTÁSI SZEKVENCIA
     print("⏳ Rendszer leállítása (CLEANUP)...")
     try:
-        # 1. Először a Downloader-t zárjuk be (hálózat)
-        if "downloader" in locals():
-            await downloader.close()
-            if logger:
-                logger.info("Bi5Downloader lezárva")
-            print("   ✅ Bi5Downloader lezárva")
-
-        # 2. Aztán a Perzisztálót (hogy kiírja a maradékot)
-        if market_data_persister:
-            await market_data_persister.stop()
-            if logger:
-                logger.info("MarketDataPersister leállítva, buffer kiürítve")
-            print("   ✅ MarketDataPersister buffer kiürítve")
-
-        # 3. Végül az EventBus-t és a Task-ot
-        if event_bus:
-            await event_bus.stop()
-            if logger:
-                logger.info("EventBus leállítva")
-            print("   ✅ EventBus leállítva")
-
+        # 1. Először állítsuk le az EventBus task-ot
         if bus_task:
             bus_task.cancel()
             with suppress(asyncio.CancelledError):
@@ -214,6 +195,27 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
             if logger:
                 logger.info("EventBus task leállítva")
             print("   ✅ EventBus task leállítva")
+
+        # 2. Aztán a Downloader-t zárjuk be (hálózat)
+        if "downloader" in locals():
+            await downloader.close()
+            if logger:
+                logger.info("Bi5Downloader lezárva")
+            print("   ✅ Bi5Downloader lezárva")
+
+        # 3. Aztán a Perzisztálót (hogy kiírja a maradékot)
+        if market_data_persister:
+            await market_data_persister.stop()
+            if logger:
+                logger.info("MarketDataPersister leállítva, buffer kiürítve")
+            print("   ✅ MarketDataPersister buffer kiürítve")
+
+        # 4. Végül az EventBus-t
+        if event_bus:
+            await event_bus.stop()
+            if logger:
+                logger.info("EventBus leállítva")
+            print("   ✅ EventBus leállítva")
 
         print("✅ Összes erőforrás tisztán lezárva!")
 

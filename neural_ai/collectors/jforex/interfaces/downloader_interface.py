@@ -60,3 +60,12 @@ class IJForexDownloader(ABC):
             True if data is valid, False otherwise
         """
         pass
+
+    @abstractmethod
+    async def close(self) -> None:
+        """Close the downloader and release resources.
+
+        This method ensures that all network connections are properly closed
+        and resources are released when the downloader is no longer needed.
+        """
+        pass
