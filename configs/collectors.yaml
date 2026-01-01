@@ -36,11 +36,7 @@ jforex:
     - "EURUSD"
     - "GBPUSD"
     - "USDJPY"
-    - "AUDUSD"
-    - "USDCAD"
-    - "EURGBP"
-    - "EURJPY"
-    - "GBPJPY"
+    - "USDCHF"
     - "XAUUSD"  # Gold
   
   # Date range for data collection

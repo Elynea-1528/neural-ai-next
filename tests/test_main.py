@@ -27,12 +27,16 @@ class TestMain:
         mock_logger = MagicMock()
         mock_event_bus = AsyncMock()
         mock_database = AsyncMock()
+        mock_persister = AsyncMock()
+        mock_live_feed = AsyncMock()
 
         # Mock CoreComponents létrehozása
         mock_components = MagicMock()
         mock_components.logger = mock_logger
         mock_components.event_bus = mock_event_bus
         mock_components.database = mock_database
+        mock_components.persister = mock_persister
+        mock_components.live_feed = mock_live_feed
 
         with patch("main.bootstrap_core", return_value=mock_components):
             # Feladat létrehozása a main függvény futtatásához
@@ -60,11 +64,15 @@ class TestMain:
         # Mock objektumok létrehozása logger nélkül
         mock_event_bus = AsyncMock()
         mock_database = AsyncMock()
+        mock_persister = AsyncMock()
+        mock_live_feed = AsyncMock()
 
         mock_components = MagicMock()
         mock_components.logger = None
         mock_components.event_bus = mock_event_bus
         mock_components.database = mock_database
+        mock_components.persister = mock_persister
+        mock_components.live_feed = mock_live_feed
 
         with patch("main.bootstrap_core", return_value=mock_components):
             task = asyncio.create_task(main())
@@ -87,11 +95,15 @@ class TestMain:
         """
         mock_logger = MagicMock()
         mock_database = AsyncMock()
+        mock_persister = AsyncMock()
+        mock_live_feed = AsyncMock()
 
         mock_components = MagicMock()
         mock_components.logger = mock_logger
         mock_components.event_bus = None
         mock_components.database = mock_database
+        mock_components.persister = mock_persister
+        mock_components.live_feed = mock_live_feed
 
         with patch("main.bootstrap_core", return_value=mock_components):
             task = asyncio.create_task(main())
@@ -114,11 +126,15 @@ class TestMain:
         """
         mock_logger = MagicMock()
         mock_event_bus = AsyncMock()
+        mock_persister = AsyncMock()
+        mock_live_feed = AsyncMock()
 
         mock_components = MagicMock()
         mock_components.logger = mock_logger
         mock_components.event_bus = mock_event_bus
         mock_components.database = None
+        mock_components.persister = mock_persister
+        mock_components.live_feed = mock_live_feed
 
         with patch("main.bootstrap_core", return_value=mock_components):
             task = asyncio.create_task(main())
@@ -154,6 +170,8 @@ class TestMain:
         mock_components.logger = MagicMock()
         mock_components.event_bus = AsyncMock()
         mock_components.database = AsyncMock()
+        mock_components.persister = AsyncMock()
+        mock_components.live_feed = AsyncMock()
 
         with patch("main.bootstrap_core", return_value=mock_components):
             task = asyncio.create_task(main())
