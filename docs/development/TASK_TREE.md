@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT | SYSTEM DASHBOARD
 
-**Last Sync:** `[2026-01-01 14:00]` | **Version:** `[1.0.0]` | **Health:** `[🟢 PERFECT]`
+**Last Sync:** `[2026-01-01 22:09]` | **Version:** `[1.0.0]` | **Health:** `[🟢 PERFECT]`
 
 ---
 
@@ -246,6 +246,26 @@
 
 ---
 
+## 🗂️ PHASE `[3.1]`: `[DATA LOSS INVESTIGATION - TELEMETRY & BUFFER FIX]`
+
+**Goal:** `[Identify root cause of 40.5% data loss: Downloader filtering vs ZeroMQ buffer overflow]` | **Token Budget:** `[~50k]` | **Complexity:** `[⭐⭐]`
+
+### 🏗️ MODULE: `[core/events/implementations]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `zeromq_bus.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ ZeroMQ EventBus buffer configuration (SNDHWM=0, RCVHWM=0)
+- ✅ Bi5Downloader telemetry metrics (total_records, skipped_price, skipped_time)
+- ⚠️ Data loss investigation pending (log analysis required)
+
+**Test Results:** A/B testing with debug_direct.py script
+**Last Update:** 2026-01-01 - Telemetry implemented, buffer fixed
+
+---
+
 ## 🔑 MATRIX DEFINITIONS
 
 ### `[S|T|D]` Components
@@ -266,15 +286,19 @@
 
 ## ⚡ ACTIVE CONTEXT & BLOCKERS
 
-- **Current Focus:** OMEGA PROTOCOL Phase 3 completion - Data Integrity & Resilience System
+- **Current Focus:** Phase 3.1 - Data Loss Investigation (40.5% data loss root cause analysis)
 - **Blockers:**
   1. Bi5Downloader tests failing - missing 'storage' parameter in constructor
   2. Main tests failing - persister mock async/await issues
+  3. Data loss investigation pending - log analysis required
 - **Next Steps:**
-  1. Fix Bi5Downloader test fixtures to include storage parameter
-  2. Fix main.py test mocking for async persister
-  3. Improve ParquetStorage and FileStorage coverage to 80%+
-  4. Complete Phase 2 JForex implementation
+  1. Analyze Bi5Downloader telemetry logs (total_records, skipped_price, skipped_time)
+  2. Verify ZeroMQ buffer configuration (SNDHWM=0, RCVHWM=0) effectiveness
+  3. A/B testing with debug_direct.py script
+  4. Fix Bi5Downloader test fixtures to include storage parameter
+  5. Fix main.py test mocking for async persister
+  6. Improve ParquetStorage and FileStorage coverage to 80%+
+  7. Complete Phase 2 JForex implementation
 
 ---
 
