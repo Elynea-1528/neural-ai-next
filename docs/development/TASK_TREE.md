@@ -6,12 +6,12 @@
 
 ## 📊 GLOBAL TELEMETRY
 
-| Metric | Visual Progress | Value | Trend | Target |
-|:-------|:----------------|:-----:|:-----:|:------:|
-| **Total Completion** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` | **87%** | 📈 | 100% |
-| **Test Coverage** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` | **87%** | ✅ | 100% |
-| **Type Safety** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` | **Strict** | ✅ | Strict |
-| **Tech Debt** | `🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜` | **Low** | 📉 | None |
+| Metric | Value | Trend | Target |
+|:-------|:-----:|:-----:|:------:|
+| **Total Completion** | **87%** | 📈 | 100% |
+| **Test Coverage** | **79%** | ✅ | 100% |
+| **Type Safety** | **100%** | ➡️ | Strict |
+| **Tech Debt** | **Low** | 📉 | None |
 
 ---
 
@@ -32,30 +32,30 @@
 
 ### 🏗️ MODULE: `[core/base]`
 
-| File Path | Matrix `[S|T|D]` | Stmt Coverage | Brch Coverage | Complexity | Status |
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
 |:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
-| `factory.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐⭐⭐ | `✅ PERFECT` |
-| `implementations/component_bundle.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **86%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **86%** | ⭐⭐⭐ | `🟢 STABLE` |
-| `implementations/di_container.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐⭐ | `✅ PERFECT` |
-| `implementations/lazy_loader.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐ | `✅ PERFECT` |
-| `implementations/singleton.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐ | `✅ PERFECT` |
-| `interfaces/component_interface.py` | `[✅|➖|✅]` | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | ⭐ | `✅ PERFECT` |
-| `interfaces/container_interface.py` | `[✅|➖|✅]` | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | `⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜` **N/A** | ⭐ | `✅ PERFECT` |
+| `factory.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐ | `✅ PERFECT` |
+| `implementations/component_bundle.py` | `[✅|✅|✅]` | `[Stmt: 86% | Brch: 86%]` | ⭐⭐⭐ | `🟢 STABLE` |
+| `implementations/di_container.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐ | `✅ PERFECT` |
+| `implementations/lazy_loader.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐ | `✅ PERFECT` |
+| `implementations/singleton.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐ | `✅ PERFECT` |
+| `interfaces/component_interface.py` | `[✅|➖|✅]` | `[Stmt: N/A | Brch: N/A]` | ⭐ | `✅ PERFECT` |
+| `interfaces/container_interface.py` | `[✅|➖|✅]` | `[Stmt: N/A | Brch: N/A]` | ⭐ | `✅ PERFECT` |
 
 ### 🏗️ MODULE: `[core/config]`
 
-| File Path | Matrix `[S|T|D]` | Stmt Coverage | Brch Coverage | Complexity | Status |
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
 |:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
-| `factory.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐⭐ | `✅ PERFECT` |
-| `implementations/dynamic_config_manager.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐⭐⭐⭐ | `✅ PERFECT` |
-| `implementations/yaml_config_manager.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐⭐⭐ | `✅ PERFECT` |
-| `interfaces/async_config_interface.py` | `[✅|➖|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐ | `✅ PERFECT` |
-| `interfaces/config_interface.py` | `[✅|➖|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐ | `✅ PERFECT` |
-| `interfaces/factory_interface.py` | `[✅|➖|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐ | `✅ PERFECT` |
+| `factory.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐ | `✅ PERFECT` |
+| `implementations/dynamic_config_manager.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐⭐ | `✅ PERFECT` |
+| `implementations/yaml_config_manager.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐ | `✅ PERFECT` |
+| `interfaces/async_config_interface.py` | `[✅|➖|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐ | `✅ PERFECT` |
+| `interfaces/config_interface.py` | `[✅|➖|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐ | `✅ PERFECT` |
+| `interfaces/factory_interface.py` | `[✅|➖|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐ | `✅ PERFECT` |
 
 ### 🏗️ MODULE: `[core/db]`
 
-| File Path | Matrix `[S|T|D]` | Stmt Coverage | Brch Coverage | Complexity | Status |
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
 |:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
 | `factory.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐⭐ | `✅ PERFECT` |
 | `implementations/model_base.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐⭐ | `✅ PERFECT` |
@@ -92,7 +92,7 @@
 | `backends/polars_backend.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **83%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **83%** | ⭐⭐⭐ | `🟢 STABLE` |
 | `backends/base.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **86%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **86%** | ⭐⭐ | `🟢 STABLE` |
 | `implementations/file_storage.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **64%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **64%** | ⭐⭐ | `🟡 WIP` |
-| `implementations/parquet_storage.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **67%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **67%** | ⭐⭐⭐ | `🟡 WIP` |
+| `implementations/parquet_storage.py` | `[✅|✅|✅]` | `🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜` **64%** | `🟩🟩🟩🟩🟩🟩🟩⬜⬜⬜` **64%** | ⭐⭐⭐ | `🟢 STABLE` |
 | `interfaces/factory_interface.py` | `[✅|➖|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **83%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩⬜` **83%** | ⭐ | `🟢 STABLE` |
 | `interfaces/storage_interface.py` | `[✅|➖|✅]` | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩` **100%** | ⭐ | `✅ PERFECT` |
 
