@@ -1,0 +1,1 @@
+"""JForex interfaces tests."""

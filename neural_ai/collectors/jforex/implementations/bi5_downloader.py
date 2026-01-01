@@ -13,6 +13,7 @@ from neural_ai.collectors.jforex.exceptions.jforex_error import (
     DecodeError,
     DownloadError,
 )
+from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
 from neural_ai.collectors.jforex.interfaces.tick_data import TickData
 
 if TYPE_CHECKING:
@@ -23,6 +24,7 @@ if TYPE_CHECKING:
         DecodeError,
         DownloadError,
     )
+    from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
     from neural_ai.collectors.jforex.interfaces.tick_data import TickData
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
@@ -30,7 +32,7 @@ if TYPE_CHECKING:
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 
-class Bi5Downloader:
+class Bi5Downloader(IJForexDownloader):
     """JForex Bi5 data downloader implementation.
 
     Downloads and decodes Dukascopy's native .bi5 tick data format.
@@ -183,11 +185,7 @@ class Bi5Downloader:
                 # Skip records with invalid prices (0.0, negative, or unreasonable)
                 if bid <= 0.0 or ask <= 0.0 or bid > 100.0 or ask > 100.0:
                     self._logger.warning(
-                        "bi5_invalid_price_skipped",
-                        symbol=symbol,
-                        record_index=i,
-                        bid=bid,
-                        ask=ask
+                        "bi5_invalid_price_skipped", symbol=symbol, record_index=i, bid=bid, ask=ask
                     )
                     continue
 
@@ -291,7 +289,7 @@ class Bi5Downloader:
                         "data_already_exists",
                         message=f"Data already exists at {storage_path}, skipping download",
                         path=storage_path,
-                        size=file_size
+                        size=file_size,
                     )
                     return []  # Return empty list to indicate skip
 
@@ -299,10 +297,9 @@ class Bi5Downloader:
                 self._logger.warning(
                     "metadata_check_failed",
                     message=(
-                        f"Failed to check metadata for {storage_path}, "
-                        "proceeding with download"
+                        f"Failed to check metadata for {storage_path}, proceeding with download"
                     ),
-                    error=str(e)
+                    error=str(e),
                 )
 
         # Build URL

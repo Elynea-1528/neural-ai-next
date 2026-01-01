@@ -1,0 +1,1 @@
+"""JForex exceptions tests."""
