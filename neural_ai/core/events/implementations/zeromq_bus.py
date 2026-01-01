@@ -80,7 +80,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             self._context = self.config.zmq_context
             self._own_context = False
 
-        self._publisher: zmq.Socket | None = None
+        self._publisher: zmq.asyncio.Socket | None = None
         self._subscribers: dict[str, list[EventCallback]] = {}
         self._running = False
         self._logger = structlog.get_logger(self.__class__.__name__)
@@ -95,6 +95,10 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
         # Publisher socket létrehozása
         self._publisher = self._context.socket(self._zmq.PUB)
+
+        # Végtelen buffer méretek beállítása a teljesítmény érdekében
+        self._publisher.setsockopt(self._zmq.SNDHWM, 0)  # Végtelen küldési buffer
+        self._publisher.setsockopt(self._zmq.RCVHWM, 0)  # Végtelen fogadási buffer
 
         if self.config.use_inproc:
             # Inproc transport teszteléshez
@@ -138,7 +142,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         self._logger.info("EventBus leállítva")
 
     @trace
-    async def publish(self, event_type: str, event: "BaseModel | list") -> None:
+    async def publish(self, event_type: str, event: "BaseModel | list[BaseModel]") -> None:
         """Esemény közzététele a buszon.
 
         Args:
@@ -171,6 +175,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             topic = event_type.encode("utf-8")
 
             try:
+                # Az asyncio socket send_multipart metódusa awaitable
                 await self._publisher.send_multipart([topic, message])
             except Exception as e:
                 self._logger.error(
@@ -214,7 +219,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                 self._subscribers[event_type].remove(callback)
                 self._logger.info("Leiratkozás", event_type=event_type)
 
-    async def _dispatch_event(self, event_type: str, event_data: dict[str, "Any"]) -> None:
+    async def _dispatch_event(self, event_type: str, event_data: dict[str, Any]) -> None:
         """Esemény továbbítása a feliratkozóknak.
 
         Args:
@@ -242,7 +247,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)
 
     def _deserialize_event(
-        self, event_type: str, event_data: dict[str, "Any"]
+        self, event_type: str, event_data: dict[str, Any]
     ) -> Optional["BaseModel"]:
         """Deserializálja az eseményt a megfelelő Pydantic modellbe.
 

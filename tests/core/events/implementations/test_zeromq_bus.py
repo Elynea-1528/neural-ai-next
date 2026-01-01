@@ -756,7 +756,8 @@ class TestEventBusRunForever:
 
         # Ellenőrizzük, hogy a socket metódusok meghívást kaptak-e
         mock_socket.connect.assert_called_once()
-        mock_socket.setsockopt.assert_called_once()
+        # A setsockopt-ot 3-szor hívják meg: SNDHWM, RCVHWM (start-ban), SUBSCRIBE (run_forever-ben)
+        assert mock_socket.setsockopt.call_count == 3
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
