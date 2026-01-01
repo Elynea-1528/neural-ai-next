@@ -21,7 +21,9 @@ if TYPE_CHECKING:
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface  # noqa: F401
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface  # noqa: F401
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface  # noqa: F401
-    from neural_ai.core.storage.services.market_data_persister import MarketDataPersister  # noqa: F401
+    from neural_ai.core.storage.services.market_data_persister import (
+        MarketDataPersister,  # noqa: F401
+    )
     from neural_ai.core.system.interfaces.health_interface import (
         HealthMonitorInterface,  # noqa: F401
     )
@@ -110,7 +112,7 @@ def bootstrap_core(
 
     # DI container létrehozása
     container = DIContainer()
-    
+
     # Ideiglenes logger a bootstrap folyamat elejéhez
     print("🚀 Neural AI Next - Rendszer indítása...")
 
@@ -129,7 +131,7 @@ def bootstrap_core(
     # Alap logger példány létrehozása
     logger = LoggerFactory.get_logger(name="NeuralAI.Bootstrap", logger_type="default")
     container.register_instance(LoggerInterface, logger)
-    
+
     # Visszajelzés az előző lépésekről
     logger.info("🚀 Rendszer indítása...")
     logger.debug("✅ 1. Hardver: Detektálva")
@@ -157,36 +159,32 @@ def bootstrap_core(
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
     logger.info("⏳ 7. Storage indítása...")
-    storage_conf = config.get("storage") or {} # Szekció lekérése
-    storage_type = storage_conf.get("type", "file") # Típus (file/parquet)
+    storage_conf = config.get("storage") or {}  # Szekció lekérése
+    storage_type = storage_conf.get("type", "file")  # Típus (file/parquet)
 
     storage = StorageFactory.get_storage(
         storage_type=storage_type,
         base_path=storage_conf.get("base_path"),
         logger=logger,
-        hardware=hardware
+        hardware=hardware,
     )
     container.register_instance(StorageInterface, storage)
     logger.debug(f"-> Storage engine: {storage_type}")
 
     # 7. Rendszer monitorozás inicializálása
     logger.info("⏳ 8. Rendszer monitorozás indítása...")
-    health_monitor = SystemComponentFactory.create_health_monitor(
-        name="core", logger=logger
-    )
+    health_monitor = SystemComponentFactory.create_health_monitor(name="core", logger=logger)
     container.register_instance(HealthMonitorInterface, health_monitor)
     logger.debug("-> Health monitor regisztrálva")
-    
+
     # 8. MarketDataPersister inicializálása
     logger.info("⏳ 9. MarketDataPersister indítása...")
     market_data_persister = MarketDataPersister(
-        event_bus=event_bus,
-        storage=storage,
-        logger=logger
+        event_bus=event_bus, storage=storage, logger=logger, buffer_size_limit=50_000
     )
     container.register_instance(MarketDataPersister, market_data_persister)
     logger.debug("-> MarketDataPersister regisztrálva")
-    
+
     # 9. JForex Live Feed inicializálása (ha engedélyezve van)
     logger.info("⏳ 10. JForex Live Feed ellenőrzése...")
     # Figyelem: A collectors.yaml tartalma a 'collectors' kulcs alatt van!
@@ -194,15 +192,15 @@ def bootstrap_core(
     if live_conf.get("enabled", False):
         from neural_ai.collectors.jforex.factory import JForexFactory
         from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
-        
+
         live_feed = JForexFactory.create_live_feed(config, logger, event_bus)
         container.register_instance(ILiveFeed, live_feed)
         logger.info("✅ JForex Live Feed inicializálva")
     else:
         logger.debug("-> JForex Live Feed nincs engedélyezve")
-    
+
     logger.info("✅ RENDSZER ÜZEMKÉSZ")
-    
+
     return CoreComponents(container=container)
 
 

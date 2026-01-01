@@ -199,20 +199,22 @@ class Bi5Downloader(IJForexDownloader):
                 timestamp = datetime.fromtimestamp(timestamp_ms / 1000, tz=UTC)
 
                 # Időszűrés: csak a kért óra adatait engedélyezzük
-                if timestamp.hour != date.hour:
-                    skipped_time += 1
-                    # Logoljuk az első 5 időszűrési hibát warning szinten
-                    if time_filter_warning_count < 5:
-                        self._logger.warning(
-                            "bi5_time_filter_skipped",
-                            symbol=symbol,
-                            record_index=i,
-                            expected_hour=date.hour,
-                            actual_hour=timestamp.hour,
-                            timestamp=timestamp.isoformat(),
-                        )
-                        time_filter_warning_count += 1
-                    continue
+                # FONTOS: A Dukascopy néha tartalmaz tick-eket a következő órából is
+                # Ezt a kódot kommenteltük ki, hogy ne vesszenek el adatok
+                # if timestamp.hour != date.hour:
+                #     skipped_time += 1
+                #     # Logoljuk az első 5 időszűrési hibát warning szinten
+                #     if time_filter_warning_count < 5:
+                #         self._logger.warning(
+                #             "bi5_time_filter_skipped",
+                #             symbol=symbol,
+                #             record_index=i,
+                #             expected_hour=date.hour,
+                #             actual_hour=timestamp.hour,
+                #             timestamp=timestamp.isoformat(),
+                #         )
+                #         time_filter_warning_count += 1
+                #     continue
 
                 # Create TickData object
                 tick = TickData(
