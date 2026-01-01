@@ -168,7 +168,16 @@ class Bi5Downloader(IJForexDownloader):
 
             ticks: list[TickData] = []
 
+            # Metrikaváltozók a statisztikákhoz
+            total_records = 0
+            skipped_price = 0
+            skipped_time = 0
+            valid_ticks = 0
+            time_filter_warning_count = 0
+
             for i in range(num_records):
+                total_records += 1
+
                 offset = i * record_size
                 record = decompressed[offset : offset + record_size]
 
@@ -180,31 +189,29 @@ class Bi5Downloader(IJForexDownloader):
                 ask = ask_int / 100000.0
                 bid = bid_int / 100000.0
 
-                # Skip records with invalid prices (0.0, negative, or unreasonable)
-                # Note: Upper limit removed as some currency pairs (e.g., USD/JPY, EUR/TRY) can exceed 100.0
+                # Ár szűrés: csak a nullánál nagyobb árakat fogadjuk el
                 if bid <= 0.0 or ask <= 0.0:
-                    self._logger.warning(
-                        "bi5_invalid_price_skipped", symbol=symbol, record_index=i, bid=bid, ask=ask
-                    )
+                    skipped_price += 1
                     continue
 
                 # Calculate actual timestamp
                 timestamp_ms = base_timestamp + timestamp_delta
                 timestamp = datetime.fromtimestamp(timestamp_ms / 1000, tz=UTC)
 
-                # Szigorú időszűrés: csak a kért óra adatait engedélyezzük
-                if not (
-                    timestamp.year == date.year
-                    and timestamp.month == date.month
-                    and timestamp.day == date.day
-                    and timestamp.hour == date.hour
-                ):
-                    # A rekord nem tartozik ehhez az órához, kihagyjuk
-                    continue
-
-                # Szigorú validáció: a timestamp órájának meg kell egyeznie a fájl órájával
+                # Időszűrés: csak a kért óra adatait engedélyezzük
                 if timestamp.hour != date.hour:
-                    # A rekord órája nem egyezik, kihagyjuk
+                    skipped_time += 1
+                    # Logoljuk az első 5 időszűrési hibát warning szinten
+                    if time_filter_warning_count < 5:
+                        self._logger.warning(
+                            "bi5_time_filter_skipped",
+                            symbol=symbol,
+                            record_index=i,
+                            expected_hour=date.hour,
+                            actual_hour=timestamp.hour,
+                            timestamp=timestamp.isoformat(),
+                        )
+                        time_filter_warning_count += 1
                     continue
 
                 # Create TickData object
@@ -217,6 +224,18 @@ class Bi5Downloader(IJForexDownloader):
                 )
 
                 ticks.append(tick)
+                valid_ticks += 1
+
+            # Statisztika logolása
+            self._logger.info(
+                "bi5_chunk_stats",
+                symbol=symbol,
+                date=date.isoformat(),
+                total=total_records,
+                valid=valid_ticks,
+                time_skip=skipped_time,
+                price_skip=skipped_price,
+            )
 
             self._logger.debug(
                 "bi5_decode_success", symbol=symbol, date=date.isoformat(), num_ticks=len(ticks)
