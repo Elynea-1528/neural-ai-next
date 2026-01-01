@@ -20,17 +20,14 @@ Version: 1.0.0
 import asyncio
 import sys
 from datetime import timedelta
-from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
-# A projekt gyökérkönyvtárának hozzáadása a Python path-hoz
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Importok a saját modulokból
 
 # Importok a TYPE_CHECKING blokkban
 if TYPE_CHECKING:
     import polars as pl
-    from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
+
 
 import colorama
 from colorama import Fore, Style
@@ -39,8 +36,7 @@ from colorama import Fore, Style
 colorama.init(autoreset=True)
 
 # Importok a saját modulokból
-from neural_ai.core.storage.factory import StorageFactory
-from neural_ai.core.utils.factory import HardwareFactory
+from neural_ai.core import bootstrap_core
 
 
 class ResamplingDemo:
@@ -55,31 +51,24 @@ class ResamplingDemo:
 
         Létrehozza a szükséges factory-kat és inicializálja a tárolót.
         """
-        print(f"\n{Fore.CYAN}{'='*80}")
+        print(f"\n{Fore.CYAN}{'=' * 80}")
         print(f"{Fore.CYAN}🚀 TICK -> OHLCV RESAMPLING DEMO")
-        print(f"{Fore.CYAN}{'='*80}{Style.RESET_ALL}\n")
+        print(f"{Fore.CYAN}{'=' * 80}{Style.RESET_ALL}\n")
 
-        # Hardware factory létrehozása
-        self.hardware = HardwareFactory.get_hardware_interface()
+        # Bootstrap core komponensek
+        core = bootstrap_core()
 
-        # Storage factory létrehozása Parquet tárolóval
-        # Megadjuk a helyes base_path-ot, ahol a tick adatok vannak
-        data_path = PROJECT_ROOT / "data" / "tick"
-        self.storage = StorageFactory.get_storage(
-            storage_type="parquet",
-            base_path=str(data_path),
-            hardware=self.hardware
-        )
-        
-        print(f"{Fore.CYAN}ℹ️  Adat elérési út: {data_path.absolute()}")
-        print(f"{Fore.CYAN}ℹ️  Adat elérési út létezik: {data_path.exists()}\n")
+        # Komponensek kinyerése
+        self.storage = core.storage
+        self.hardware = core.hardware
 
         print(f"{Fore.GREEN}✅ Rendszer inicializálva")
         print(f"{Fore.GREEN}   - Hardware: {self.hardware.__class__.__name__}")
         print(f"{Fore.GREEN}   - Storage: {self.storage.__class__.__name__}")
-        
+
         # Type cast to access backend-specific attributes
         from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
+
         if isinstance(self.storage, ParquetStorageService):
             print(f"{Fore.GREEN}   - Backend: {self.storage.backend.name}\n")
         else:
@@ -97,18 +86,21 @@ class ResamplingDemo:
         """
         try:
             # 1. DISCOVERY: Elérhető dátumok lekérdezése
-            print(f"{Fore.YELLOW}{'─'*80}")
+            print(f"{Fore.YELLOW}{'─' * 80}")
             print(f"{Fore.YELLOW}🔍 1. FÁZIS: DÁTUMOK FELFEDEZÉSE")
-            print(f"{Fore.YELLOW}{'─'*80}{Style.RESET_ALL}\n")
+            print(f"{Fore.YELLOW}{'─' * 80}{Style.RESET_ALL}\n")
 
             from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
+
             storage = cast(ParquetStorageService, self.storage)
-            
+
             available_dates = await storage.get_available_dates("EURUSD")
 
             if not available_dates:
                 print(f"{Fore.RED}❌ Hiba: Nincsenek elérhető dátumok az EURUSD szimbólumhoz!")
-                print(f"{Fore.RED}   Kérjük, először töltsön le adatokat a scripts/download_history.py szkripttel.\n")
+                print(
+                    f"{Fore.RED}   Kérjük, először töltsön le adatokat a scripts/download_history.py szkripttel.\n"
+                )
                 return
 
             print(f"{Fore.GREEN}✅ Elérhető dátumok megtalálva: {len(available_dates)} nap\n")
@@ -120,16 +112,18 @@ class ResamplingDemo:
             print(f"\n{Fore.CYAN}📅 Kiválasztott dátum: {first_date.strftime('%Y-%m-%d')}\n")
 
             # 2. LOAD: Tick adatok betöltése
-            print(f"{Fore.YELLOW}{'─'*80}")
+            print(f"{Fore.YELLOW}{'─' * 80}")
             print(f"{Fore.YELLOW}📂 2. FÁZIS: TICK ADATOK BETÖLTÉSE")
-            print(f"{Fore.YELLOW}{'─'*80}{Style.RESET_ALL}\n")
+            print(f"{Fore.YELLOW}{'─' * 80}{Style.RESET_ALL}\n")
 
             start_date = first_date
             end_date = start_date + timedelta(days=1)
 
             print(f"{Fore.CYAN}⏳ Betöltés folyamatban...")
-            print(f"   - Szimbólum: EURUSD")
-            print(f"   - Dátumtartomány: {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}\n")
+            print("   - Szimbólum: EURUSD")
+            print(
+                f"   - Dátumtartomány: {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}\n"
+            )
 
             tick_data = await storage.read_tick_data("EURUSD", start_date, end_date)
 
@@ -139,22 +133,23 @@ class ResamplingDemo:
 
             print(f"{Fore.GREEN}✅ Tick adatok sikeresen betöltve")
             print(f"   - Sorok száma: {len(tick_data):,}")
-            
+
             # Convert to Polars for timestamp operations
             import polars as pl
+
             if not isinstance(tick_data, pl.DataFrame):
                 pl_data = pl.from_pandas(tick_data)
             else:
                 pl_data = tick_data
-            
+
             timestamp_min = pl_data["timestamp"].min()
             timestamp_max = pl_data["timestamp"].max()
             print(f"   - Időtartomány: {timestamp_min} - {timestamp_max}\n")
 
             # 3. RESAMPLE: OHLCV konverzió
-            print(f"{Fore.YELLOW}{'─'*80}")
+            print(f"{Fore.YELLOW}{'─' * 80}")
             print(f"{Fore.YELLOW}🔄 3. FÁZIS: OHLCV KONVERZIÓ (RESAMPLING)")
-            print(f"{Fore.YELLOW}{'─'*80}{Style.RESET_ALL}\n")
+            print(f"{Fore.YELLOW}{'─' * 80}{Style.RESET_ALL}\n")
 
             # 3.1 M1 (1 perces) resampling
             print(f"{Fore.CYAN}🕐 3.1 M1 (1 perces) OHLCV generálása...")
@@ -167,20 +162,22 @@ class ResamplingDemo:
             print(f"{Fore.GREEN}✅ H1 OHLCV kész: {len(ohlcv_h1)} sor\n")
 
             # 4. DISPLAY: Eredmények megjelenítése
-            print(f"{Fore.YELLOW}{'─'*80}")
+            print(f"{Fore.YELLOW}{'─' * 80}")
             print(f"{Fore.YELLOW}📊 4. FÁZIS: EREDMÉNYEK MEGJELENÍTÉSE")
-            print(f"{Fore.YELLOW}{'─'*80}{Style.RESET_ALL}\n")
+            print(f"{Fore.YELLOW}{'─' * 80}{Style.RESET_ALL}\n")
 
             self._display_ohlcv_data(ohlcv_m1, "M1 (1 perces)", 5)
             print()
             self._display_ohlcv_data(ohlcv_h1, "H1 (1 órás)", 5)
 
             # 5. EXPORT: CSV fájlba mentés
-            print(f"{Fore.YELLOW}{'─'*80}")
+            print(f"{Fore.YELLOW}{'─' * 80}")
             print(f"{Fore.YELLOW}💾 5. FÁZIS: EXPORTÁLÁS CSV FÁJLBA")
-            print(f"{Fore.YELLOW}{'─'*80}{Style.RESET_ALL}\n")
+            print(f"{Fore.YELLOW}{'─' * 80}{Style.RESET_ALL}\n")
 
-            output_dir = PROJECT_ROOT / "output"
+            from pathlib import Path
+
+            output_dir = Path("output")
             output_dir.mkdir(exist_ok=True)
 
             output_file_m1 = output_dir / "test_candles_m1.csv"
@@ -197,9 +194,9 @@ class ResamplingDemo:
             print(f"{Fore.GREEN}✅ H1 exportálás kész\n")
 
             # Összefoglaló
-            print(f"{Fore.CYAN}{'='*80}")
+            print(f"{Fore.CYAN}{'=' * 80}")
             print(f"{Fore.CYAN}✅ DEMO SIKERESEN BEFEJEZVE!")
-            print(f"{Fore.CYAN}{'='*80}{Style.RESET_ALL}\n")
+            print(f"{Fore.CYAN}{'=' * 80}{Style.RESET_ALL}\n")
             print(f"{Fore.GREEN}📈 Összefoglaló:")
             print(f"   - Betöltött tick-ek: {len(tick_data):,}")
             print(f"   - M1 gyertya: {len(ohlcv_m1):,}")
@@ -208,11 +205,12 @@ class ResamplingDemo:
             print(f"   - Kimeneti könyvtár: {output_dir}\n")
 
         except Exception as e:
-            print(f"\n{Fore.RED}{'='*80}")
+            print(f"\n{Fore.RED}{'=' * 80}")
             print(f"{Fore.RED}❌ HIBA TÖRTÉNT!")
-            print(f"{Fore.RED}{'='*80}{Style.RESET_ALL}\n")
+            print(f"{Fore.RED}{'=' * 80}{Style.RESET_ALL}\n")
             print(f"{Fore.RED}Hibaüzenet: {str(e)}\n")
             import traceback
+
             print(f"{Fore.RED}Traceback:")
             traceback.print_exc()
             print()
@@ -233,18 +231,20 @@ class ResamplingDemo:
         import polars as pl
 
         # A "varázslat" magja: group_by_dynamic + aggregáció
-        ohlcv = df.group_by_dynamic("timestamp", every=timeframe).agg([
-            # Open: az első bid ár az időkeretben
-            pl.col("bid").first().alias("open"),
-            # High: a legmagasabb bid ár az időkeretben
-            pl.col("bid").max().alias("high"),
-            # Low: a legalacsonyabb bid ár az időkeretben
-            pl.col("bid").min().alias("low"),
-            # Close: az utolsó bid ár az időkeretben
-            pl.col("bid").last().alias("close"),
-            # Volume: tick-ek száma az időkeretben
-            pl.col("bid").count().alias("ticks")
-        ])
+        ohlcv = df.group_by_dynamic("timestamp", every=timeframe).agg(
+            [
+                # Open: az első bid ár az időkeretben
+                pl.col("bid").first().alias("open"),
+                # High: a legmagasabb bid ár az időkeretben
+                pl.col("bid").max().alias("high"),
+                # Low: a legalacsonyabb bid ár az időkeretben
+                pl.col("bid").min().alias("low"),
+                # Close: az utolsó bid ár az időkeretben
+                pl.col("bid").last().alias("close"),
+                # Volume: tick-ek száma az időkeretben
+                pl.col("bid").count().alias("ticks"),
+            ]
+        )
 
         return ohlcv
 
@@ -257,23 +257,25 @@ class ResamplingDemo:
             rows: A megjelenítendő sorok száma
         """
         print(f"{Fore.MAGENTA}📊 {title} OHLCV adatok (első {rows} sor):")
-        print(f"{Fore.MAGENTA}{'─'*80}{Style.RESET_ALL}\n")
+        print(f"{Fore.MAGENTA}{'─' * 80}{Style.RESET_ALL}\n")
 
         # Fejléc
-        print(f"{Fore.CYAN}{'Időbélyeg':<25} {'Open':<12} {'High':<12} {'Low':<12} {'Close':<12} {'Ticks':<10}")
-        print(f"{Fore.CYAN}{'─'*80}{Style.RESET_ALL}")
+        print(
+            f"{Fore.CYAN}{'Időbélyeg':<25} {'Open':<12} {'High':<12} {'Low':<12} {'Close':<12} {'Ticks':<10}"
+        )
+        print(f"{Fore.CYAN}{'─' * 80}{Style.RESET_ALL}")
 
         # Adatok - első N sor kiválasztása és iterálás
         df_head = df.head(rows)
         for i in range(len(df_head)):
             row = df_head[i]
             # Polars Series-ből érték kinyerése .item() metódussal
-            timestamp = row['timestamp'].item()
-            open_price = row['open'].item()
-            high_price = row['high'].item()
-            low_price = row['low'].item()
-            close_price = row['close'].item()
-            ticks = row['ticks'].item()
+            timestamp = row["timestamp"].item()
+            open_price = row["open"].item()
+            high_price = row["high"].item()
+            low_price = row["low"].item()
+            close_price = row["close"].item()
+            ticks = row["ticks"].item()
 
             # Színezés az ár változás alapján
             if close_price > open_price:
@@ -283,8 +285,10 @@ class ResamplingDemo:
             else:
                 color = Fore.YELLOW  # Változatlan
 
-            print(f"{color}{str(timestamp):<25} {open_price:<12.5f} {high_price:<12.5f} "
-                  f"{low_price:<12.5f} {close_price:<12.5f} {ticks:<10,}{Style.RESET_ALL}")
+            print(
+                f"{color}{str(timestamp):<25} {open_price:<12.5f} {high_price:<12.5f} "
+                f"{low_price:<12.5f} {close_price:<12.5f} {ticks:<10,}{Style.RESET_ALL}"
+            )
 
 
 async def main() -> None:
@@ -310,5 +314,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\n{Fore.RED}❌ Váratlan hiba: {str(e)}{Style.RESET_ALL}\n")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
