@@ -355,7 +355,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             return pd.concat(dfs, ignore_index=True)
 
     def _deduplicate_data(self, data: Any) -> Any:
-        """Adatok deduplikációja timestamp + source alapján.
+        """Adatok deduplikációja timestamp + bid + ask alapján.
 
         Args:
             data: A deduplikálandó DataFrame
@@ -367,22 +367,16 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             import polars as pl
 
             pl_df = cast(pl.DataFrame, data)
-            # Deduplikáció: egyedi sorok szűrése timestamp + source alapján
-            # Ha nincs source oszlop, akkor csak timestamp alapján
-            if "source" in pl_df.columns:
-                return pl_df.unique(subset=["timestamp", "source"], maintain_order=False)
-            else:
-                return pl_df.unique(subset=["timestamp"], maintain_order=False)
+            # Deduplikáció: egyedi sorok szűrése timestamp + bid + ask alapján
+            # Ez megőrzi az azonos időbélyegű, de eltérő árú tick-eket (intra-millisecond ticks)
+            return pl_df.unique(subset=["timestamp", "bid", "ask"], maintain_order=False)
         else:
             import pandas as pd
 
             pd_df = cast(pd.DataFrame, data)
-            # Deduplikáció: egyedi sorok szűrése timestamp + source alapján
-            # Ha nincs source oszlop, akkor csak timestamp alapján
-            if "source" in pd_df.columns:
-                return pd_df.drop_duplicates(subset=["timestamp", "source"], keep="first")
-            else:
-                return pd_df.drop_duplicates(subset=["timestamp"], keep="first")
+            # Deduplikáció: egyedi sorok szűrése timestamp + bid + ask alapján
+            # Ez megőrzi az azonos időbélyegű, de eltérő árú tick-eket (intra-millisecond ticks)
+            return pd_df.drop_duplicates(subset=["timestamp", "bid", "ask"], keep="first")
 
     def _sort_by_timestamp(self, data: Any) -> Any:
         """DataFrame rendezése timestamp szerint.

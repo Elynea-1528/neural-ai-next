@@ -484,6 +484,111 @@ class TestParquetStorageService:
         timestamps = result["timestamp"].to_list()
         assert timestamps == sorted(timestamps)
 
+    @pytest.mark.asyncio
+    async def test_deduplication_timestamp_bid_ask_polars(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock
+    ) -> None:
+        """Teszteli az új deduplikáció logikát (timestamp + bid + ask) Polars backendgel."""
+        service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware_with_avx2)
+
+        # Adatok létrehozása azonos időbélyeggel, de eltérő bid/ask értékekkel
+        # Ez teszteli az intra-millisecond ticks megtartását
+        data_with_intra_ticks = pl.DataFrame(
+            {
+                "timestamp": [
+                    datetime(2023, 12, 23, 10, 0, 0, 100000),  # 100 microsec
+                    datetime(2023, 12, 23, 10, 0, 0, 100000),  # Ugyanaz az idő, de más bid/ask
+                    datetime(2023, 12, 23, 10, 0, 0, 200000),  # Másik tick
+                    datetime(2023, 12, 23, 10, 0, 0, 200000),  # Duplikátum (ugyanaz a bid/ask is)
+                    datetime(2023, 12, 23, 10, 1, 0),
+                ],
+                "bid": [1.1000, 1.1001, 1.1002, 1.1002, 1.1003],  # Második sor más bid
+                "ask": [1.1002, 1.1003, 1.1004, 1.1004, 1.1005],  # Második sor más ask
+                "volume": [1000, 1100, 1200, 1200, 1300],
+                "source": ["jforex", "jforex", "jforex", "jforex", "jforex"],
+            }
+        )
+
+        await service.store_tick_data("EURUSD", data_with_intra_ticks, datetime(2023, 12, 23))
+
+        # Adatok olvasása
+        result = await service.read_tick_data(
+            "EURUSD", datetime(2023, 12, 23, 0, 0, 0), datetime(2023, 12, 23, 23, 59, 59)
+        )
+
+        # Ellenőrizzük az új deduplikáció logikát:
+        # - 1. sor: timestamp=10:00:00.1, bid=1.1000, ask=1.1002 (egyedi)
+        # - 2. sor: timestamp=10:00:00.1, bid=1.1001, ask=1.1003 (egyedi, mert más bid/ask)
+        # - 3. sor: timestamp=10:00:00.2, bid=1.1002, ask=1.1004 (egyedi)
+        # - 4. sor: timestamp=10:00:00.2, bid=1.1002, ask=1.1004 (DUPLIKÁTUM, törlődik)
+        # - 5. sor: timestamp=10:01:00.0, bid=1.1003, ask=1.1005 (egyedi)
+        # Összesen 4 egyedi sor marad (mert a 3. és 4. sor teljesen megegyezik)
+        assert len(result) == 4, f"Expected 4 rows, got {len(result)}"
+
+        # Ellenőrizzük, hogy a megfelelő sorok maradtak-e meg
+        bids = result["bid"].to_list()
+        asks = result["ask"].to_list()
+
+        # Az első két sornak meg kell maradnia (azonos idő, de eltérő bid/ask)
+        assert bids[0] == 1.1000 and asks[0] == 1.1002
+        assert bids[1] == 1.1001 and asks[1] == 1.1003
+
+        # A harmadik sor is megmarad (egyedi idő)
+        assert bids[2] == 1.1002 and asks[2] == 1.1004
+
+        # A negyedik sor is megmarad (egyedi idő)
+        assert bids[3] == 1.1003 and asks[3] == 1.1005
+
+    @pytest.mark.skip(reason="FastParquet kompatibilitási hiba Pandas/NumPy kombinációval")
+    @pytest.mark.asyncio
+    async def test_deduplication_timestamp_bid_ask_pandas(
+        self, temp_dir: Path, mock_hardware_without_avx2: MagicMock
+    ) -> None:
+        """Teszteli az új deduplikáció logikát (timestamp + bid + ask) Pandas backendgel."""
+        service = ParquetStorageService(
+            base_path=str(temp_dir), hardware=mock_hardware_without_avx2
+        )
+
+        # Adatok létrehozása azonos időbélyeggel, de eltérő bid/ask értékekkel
+        data_with_intra_ticks = pd.DataFrame(
+            {
+                "timestamp": [
+                    datetime(2023, 12, 23, 10, 0, 0, 100000),  # 100 microsec
+                    datetime(2023, 12, 23, 10, 0, 0, 100000),  # Ugyanaz az idő, de más bid/ask
+                    datetime(2023, 12, 23, 10, 0, 0, 200000),  # Másik tick
+                    datetime(2023, 12, 23, 10, 0, 0, 200000),  # Duplikátum (ugyanaz a bid/ask is)
+                    datetime(2023, 12, 23, 10, 1, 0),
+                ],
+                "bid": [1.1000, 1.1001, 1.1002, 1.1002, 1.1003],
+                "ask": [1.1002, 1.1003, 1.1004, 1.1004, 1.1005],
+                "source": ["jforex", "jforex", "jforex", "jforex", "jforex"],
+            }
+        )
+
+        await service.store_tick_data("EURUSD", data_with_intra_ticks, datetime(2023, 12, 23))
+
+        # Adatok olvasása
+        result = await service.read_tick_data(
+            "EURUSD", datetime(2023, 12, 23, 0, 0, 0), datetime(2023, 12, 23, 23, 59, 59)
+        )
+
+        # Ugyanaz az ellenőrzés, mint a Polars tesztben
+        assert len(result) == 4, f"Expected 4 rows, got {len(result)}"
+
+        # Ellenőrizzük, hogy a megfelelő sorok maradtak-e meg
+        bids = result["bid"].tolist()
+        asks = result["ask"].tolist()
+
+        # Az első két sor megmarad (azonos idő, de eltérő bid/ask)
+        assert bids[0] == 1.1000 and asks[0] == 1.1002
+        assert bids[1] == 1.1001 and asks[1] == 1.1003
+
+        # A harmadik sor is megmarad
+        assert bids[2] == 1.1002 and asks[2] == 1.1004
+
+        # A negyedik sor is megmarad
+        assert bids[3] == 1.1003 and asks[3] == 1.1005
+
 
 class TestParquetStorageAdapterMethods:
     """ParquetStorage adapter metódusok tesztek (StorageInterface)."""
