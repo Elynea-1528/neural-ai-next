@@ -82,14 +82,12 @@ Process and decode .bi5 binary data.
         - Időbélyeg számítás (base_timestamp + delta)
         - Szűrés:
           - Ár szűrés: csak pozitív bid/ask árak (bid <= 0.0 or ask <= 0.0 esetén kihagyás)
-          - Idő szűrés: csak a kért órához tartozó tick-ek (timestamp.hour != date.hour esetén kihagyás)
+          - Idő szűrés: NINCS (eltávolítva a timestamp.hour != date.hour ellenőrzés)
         - Metrikák gyűjtése:
           - `total_records`: Összes feldolgozott rekord
           - `skipped_price`: Ár szűrés miatt kihagyott rekordok
-          - `skipped_time`: Idő szűrés miatt kihagyott rekordok
           - `valid_ticks`: Érvényes tick-ek száma
         - Statisztika logolás: `bi5_chunk_stats` (INFO szint)
-        - Először 5 időszűrési hiba logolása (WARNING szint)
 
 ### `_publish_ticks`
 

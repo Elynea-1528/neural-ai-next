@@ -163,17 +163,18 @@ class Bi5Downloader(IJForexDownloader):
             record_size = 12
             num_records = len(decompressed) // record_size
 
-            # Base timestamp: start of the HOUR in milliseconds (FIX: keep the hour!)
-            base_timestamp = int(date.replace(minute=0, second=0, microsecond=0).timestamp()) * 1000
+            # Base timestamp: start of the DAY (midnight) in milliseconds
+            # A .bi5 fájlban lévő delta mindig éjféltől számítódik
+            base_timestamp = (
+                int(date.replace(hour=0, minute=0, second=0, microsecond=0).timestamp()) * 1000
+            )
 
             ticks: list[TickData] = []
 
             # Metrikaváltozók a statisztikákhoz
             total_records = 0
             skipped_price = 0
-            skipped_time = 0
             valid_ticks = 0
-            time_filter_warning_count = 0
 
             for i in range(num_records):
                 total_records += 1
@@ -198,24 +199,6 @@ class Bi5Downloader(IJForexDownloader):
                 timestamp_ms = base_timestamp + timestamp_delta
                 timestamp = datetime.fromtimestamp(timestamp_ms / 1000, tz=UTC)
 
-                # Időszűrés: csak a kért óra adatait engedélyezzük
-                # FONTOS: A Dukascopy néha tartalmaz tick-eket a következő órából is
-                # Ezt a kódot kommenteltük ki, hogy ne vesszenek el adatok
-                # if timestamp.hour != date.hour:
-                #     skipped_time += 1
-                #     # Logoljuk az első 5 időszűrési hibát warning szinten
-                #     if time_filter_warning_count < 5:
-                #         self._logger.warning(
-                #             "bi5_time_filter_skipped",
-                #             symbol=symbol,
-                #             record_index=i,
-                #             expected_hour=date.hour,
-                #             actual_hour=timestamp.hour,
-                #             timestamp=timestamp.isoformat(),
-                #         )
-                #         time_filter_warning_count += 1
-                #     continue
-
                 # Create TickData object
                 tick = TickData(
                     timestamp=timestamp,
@@ -235,7 +218,6 @@ class Bi5Downloader(IJForexDownloader):
                 date=date.isoformat(),
                 total=total_records,
                 valid=valid_ticks,
-                time_skip=skipped_time,
                 price_skip=skipped_price,
             )
 
