@@ -10,7 +10,7 @@ Version: 1.0.0
 
 import asyncio
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
 import structlog
@@ -62,17 +62,19 @@ class MarketDataPersister:
         self.storage = storage
         self.logger = logger if logger else structlog.get_logger()
         self.buffer_size_limit = buffer_size_limit
-        
+
         # Buffer szimbólumonként csoportosítva
         self.buffer: dict[str, list[MarketDataEvent]] = defaultdict(list)
-        self.current_hour = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+        self.current_hour = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
         self.running = False
-        
-        self.logger.info(f"MarketDataPersister inicializálva, buffer_size_limit={buffer_size_limit}")
+
+        self.logger.info(
+            f"MarketDataPersister inicializálva, buffer_size_limit={buffer_size_limit}"
+        )
 
     async def start(self) -> None:
         """Elindítja a MarketDataPersister szolgáltatást.
-        
+
         Feliratkozás a market_data topicra és elindítja a háttérfeladatot
         az időzített flush-hoz.
         """
@@ -81,38 +83,55 @@ class MarketDataPersister:
             return
 
         self.running = True
-        
+
         # Feliratkozás a market_data topicra
         # Type cast to satisfy the interface
         from neural_ai.core.events.interfaces.event_bus_interface import EventCallback
+
         callback = cast(EventCallback, self.on_market_data)
         self.event_bus.subscribe("market_data", callback)
         self.logger.info("✅ MarketDataPersister feliratkozva a market_data topicra")
-        
+
         self.logger.info("MarketDataPersister elindítva")
-        
+
         # Háttérfeladat indítása időzített flush-hoz
         asyncio.create_task(self._periodic_flush_task())
 
     async def stop(self) -> None:
         """Leállítja a MarketDataPersister szolgáltatást.
-        
+
         Kiüríti a maradék buffert és leiratkozik az eventekről.
         """
         if not self.running:
+            self.logger.warning("MarketDataPersister már leállt vagy nem is futott")
             return
 
         self.running = False
-        
-        # Leiratkozás
-        # Type cast to satisfy the interface
+
+        self.logger.info("MarketDataPersister leállítás indítása...")
+
+        # Először leiratkozás, hogy ne jöjjenek új eventek
         from neural_ai.core.events.interfaces.event_bus_interface import EventCallback
+
         callback = cast(EventCallback, self.on_market_data)
         self.event_bus.unsubscribe("market_data", callback)
-        
-        # Maradék buffer kiürítése
+        self.logger.info("Leiratkozva a market_data topicról")
+
+        # Maradék buffer kiürítése (FONTOS: várjuk meg a befejezését!)
+        self.logger.info(
+            f"Maradék buffer kiürítése... Buffer állapot: {dict((k, len(v)) for k, v in self.buffer.items())}"
+        )
         await self._flush_all_buffers()
-        
+
+        # Ellenőrizzük, hogy tényleg kiürült-e a buffer
+        total_remaining = sum(len(events) for events in self.buffer.values())
+        if total_remaining > 0:
+            self.logger.warning(
+                f"Buffer kiürítése után is maradt {total_remaining} event a bufferben!"
+            )
+        else:
+            self.logger.info("Buffer sikeresen kiürítve")
+
         self.logger.info("MarketDataPersister leállítva")
 
     async def on_market_data(self, event: Any) -> None:
@@ -130,11 +149,11 @@ class MarketDataPersister:
             for item in event:
                 if hasattr(item, "symbol"):
                     new_events.append(cast(MarketDataEvent, item))
-        
+
         # 2. ESET: Egyetlen Event érkezett
-        elif hasattr(event, "symbol"): # Pydantic model check
+        elif hasattr(event, "symbol"):  # Pydantic model check
             new_events = [cast(MarketDataEvent, event)]
-            
+
         else:
             self.logger.warning(f"unknown_event_format: {type(event)}")
             return
@@ -148,32 +167,34 @@ class MarketDataPersister:
             if not hasattr(ev, "symbol"):
                 continue
             self.buffer[ev.symbol].append(ev)
-        
+
         # Buffer méret ellenőrzése
         total_buffered = sum(len(events) for events in self.buffer.values())
-        
+
         # Logolás (de csak okosan, nem dumpoljuk a teljes listát!)
         self.logger.debug(
             f"market_data_received: count={len(new_events)}, total_buffered={total_buffered}"
         )
 
         if total_buffered >= self.buffer_size_limit:
-            self.logger.info(f"Buffer méretkorlát elérve, kiürítés indítása, total_buffered={total_buffered}")
+            self.logger.info(
+                f"Buffer méretkorlát elérve, kiürítés indítása, total_buffered={total_buffered}"
+            )
             await self._flush_all_buffers()
 
     async def _periodic_flush_task(self) -> None:
         """Háttérfeladat az időzített buffer kiürítéshez.
-        
+
         Minden órában ellenőrzi, hogy új óra kezdődött-e,
         és ha igen, kiüríti a buffert.
         """
         while self.running:
             try:
                 await asyncio.sleep(60)  # Minden percben ellenőriz
-                
-                now = datetime.now(timezone.utc)
+
+                now = datetime.now(UTC)
                 current_hour = now.replace(minute=0, second=0, microsecond=0)
-                
+
                 if current_hour > self.current_hour:
                     # Új óra kezdődött, kiürítjük a buffert
                     self.logger.info(
@@ -181,34 +202,41 @@ class MarketDataPersister:
                     )
                     await self._flush_all_buffers()
                     self.current_hour = current_hour
-                    
+
             except Exception as e:
                 self.logger.error(f"Hiba a periodikus flush során: {e}")
 
     async def _flush_all_buffers(self) -> None:
         """Kiüríti az összes buffert és elmenti a tárolóba.
-        
+
         Szimbólumonként csoportosítva konvertálja DataFrame-é és menti.
         """
         self.logger.info(f"_flush_all_buffers called, buffer keys: {list(self.buffer.keys())}")
+
+        # Részletes buffer állapot logolása
+        buffer_stats = {symbol: len(events) for symbol, events in self.buffer.items() if events}
+        self.logger.info(f"Buffer statisztika: {buffer_stats}")
+
         if not any(self.buffer.values()):
             # Nincs mit kiüríteni
             self.logger.info("Nincs mit kiüríteni, a buffer üres")
             return
 
+        total_saved = 0
         for symbol, events in self.buffer.items():
             if events:
                 try:
+                    self.logger.info(f"Buffer kiürítése {symbol} szimbólumhoz: {len(events)} event")
                     await self._flush_symbol_buffer(symbol, events)
+                    total_saved += len(events)
+                    self.logger.info(f"{symbol} buffer kiürítve: {len(events)} event elmentve")
                 except Exception as e:
-                    self.logger.error(
-                        f"Hiba a buffer kiürítésekor {symbol} szimbólumhoz: {e}"
-                    )
-        
+                    self.logger.error(f"Hiba a buffer kiürítésekor {symbol} szimbólumhoz: {e}")
+
         # Buffer ürítése
         self.buffer.clear()
-        
-        self.logger.info("Összes buffer kiürítve")
+
+        self.logger.info(f"Összes buffer kiürítve. Összesen {total_saved} event lett elmentve.")
 
     async def _flush_symbol_buffer(self, symbol: str, events: list[MarketDataEvent]) -> None:
         """Kiüríti egy adott szimbólum bufferét.
@@ -222,7 +250,7 @@ class MarketDataPersister:
 
         # Eventek dátum szerinti csoportosítása
         events_by_date: dict[datetime, list[MarketDataEvent]] = defaultdict(list)
-        
+
         for event in events:
             # Dátum kinyerése (csak dátum rész, óra-perc-másodperc nélkül)
             event_date = event.timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -233,10 +261,7 @@ class MarketDataPersister:
             await self._save_events_to_storage(symbol, date_events, date)
 
     async def _save_events_to_storage(
-        self,
-        symbol: str,
-        events: list[MarketDataEvent],
-        date: datetime
+        self, symbol: str, events: list[MarketDataEvent], date: datetime
     ) -> None:
         """Elmenti az eventeket a tárolóba.
 
@@ -251,24 +276,27 @@ class MarketDataPersister:
         try:
             # DataFrame létrehozása az eventekből
             df = self._convert_events_to_dataframe(events)
-            
+
             # Tárolás a Parquet tárolóban
             # Type cast to access store_tick_data if it exists
             from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
+
             if isinstance(self.storage, ParquetStorageService):
-                self.logger.info(f"Tárolás ParquetStorageService-be: {symbol}, {date}, {len(df)} sor")
+                self.logger.info(
+                    f"Tárolás ParquetStorageService-be: {symbol}, {date}, {len(df)} sor"
+                )
                 await self.storage.store_tick_data(symbol, df, date)
             else:
                 # Fallback: használjuk a save_dataframe metódust
                 self.logger.info(f"Tárolás save_dataframe-mal: {symbol}, {date}, {len(df)} sor")
                 path = f"/data/tick/{symbol}/{date.strftime('%Y/%m/%d')}/data.parquet"
-                kwargs: dict[str, Any] = {'symbol': symbol, 'date': date}
+                kwargs: dict[str, Any] = {"symbol": symbol, "date": date}
                 self.storage.save_dataframe(df, path, **kwargs)
-            
+
             self.logger.info(
                 f"Tick adatok elmentve, symbol={symbol}, date={date.strftime('%Y-%m-%d')}, rows={len(events)}"
             )
-            
+
         except Exception as e:
             self.logger.error(
                 f"Hiba az adatok mentésekor, symbol={symbol}, date={date.strftime('%Y-%m-%d')}, error={str(e)}"
@@ -286,40 +314,40 @@ class MarketDataPersister:
         """
         try:
             import pandas as pd
-            
+
             # Adatok előkészítése
             data: dict[str, list[Any]] = {
-                'timestamp': [e.timestamp for e in events],
-                'bid': [e.bid for e in events],
-                'ask': [e.ask for e in events],
-                'volume': [e.volume for e in events],
-                'source': [e.source for e in events]
+                "timestamp": [e.timestamp for e in events],
+                "bid": [e.bid for e in events],
+                "ask": [e.ask for e in events],
+                "volume": [e.volume for e in events],
+                "source": [e.source for e in events],
             }
-            
+
             df = pd.DataFrame(data)
-            
+
             # Rendezés időbélyeg szerint
-            df = df.sort_values('timestamp').reset_index(drop=True)
-            
+            df = df.sort_values("timestamp").reset_index(drop=True)
+
             return df
-            
+
         except ImportError:
             # Ha pandas nincs telepítve, próbáljuk meg Polars-t
             try:
                 import polars as pl
-                
+
                 data: dict[str, list[Any]] = {
-                    'timestamp': [e.timestamp for e in events],
-                    'bid': [e.bid for e in events],
-                    'ask': [e.ask for e in events],
-                    'volume': [e.volume for e in events],
-                    'source': [e.source for e in events]
+                    "timestamp": [e.timestamp for e in events],
+                    "bid": [e.bid for e in events],
+                    "ask": [e.ask for e in events],
+                    "volume": [e.volume for e in events],
+                    "source": [e.source for e in events],
                 }
-                
+
                 df = pl.DataFrame(data)
-                df = df.sort('timestamp')
-                
+                df = df.sort("timestamp")
+
                 return df
-                
+
             except ImportError:
                 raise RuntimeError("Sem pandas, sem polars nincs telepítve")
