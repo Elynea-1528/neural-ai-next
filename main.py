@@ -21,8 +21,8 @@ if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+    from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
 
 
 async def main() -> None:

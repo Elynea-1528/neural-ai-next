@@ -1,8 +1,8 @@
-default_level: "DEBUG"
+default_level: "INFO"
 handlers:
   console:
     enabled: true
-    level: "DEBUG"
+    level: "INFO"
     colored: true  # Structlog ConsoleRenderer
   file:
     enabled: true
@@ -15,7 +15,7 @@ handlers:
 loggers:
   neural_ai: { level: "DEBUG", propagate: true }
   # Nyomkövetési logger a tracing üzenetek konfigurálható kezeléséhez
-  neural_ai.trace: { level: "DEBUG" }
+  neural_ai.trace: { level: "WARNING" }
   # Külső zajszűrés
   aiosqlite: { level: "WARNING" }
   asyncio: { level: "WARNING" }

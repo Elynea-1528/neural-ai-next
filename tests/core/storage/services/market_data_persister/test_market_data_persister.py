@@ -13,7 +13,7 @@ import pytest
 from pydantic import BaseModel
 
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent
-from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
+from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
 
 
 class MockMarketDataEvent(BaseModel):

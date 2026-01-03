@@ -51,6 +51,7 @@ class PolarsDataFrame:
 
             # Frissítsük a modul szintű változókat is a teszteléshez
             import neural_ai.core.storage.backends.polars_backend as pb_module
+
             pb_module.polars = pl
             pb_module.pyarrow = pa
             pb_module.pq = pq
@@ -139,10 +140,25 @@ class PolarsBackend(StorageBackend):
             partition_by = kwargs.get("partition_by", None)
 
             # Polars DataFrame konvertálás, ha szükséges
-            if not isinstance(data, self._polars_wrapper.pl.DataFrame):
-                pl_df = self._polars_wrapper.pl.DataFrame(data)
-            else:
-                pl_df = data
+            try:
+                # Debug log a bejövő adat típusáról
+                logger.debug(f"Data type: {type(data)}")
+
+                # Ha már Polars DataFrame, használjuk közvetlenül
+                if isinstance(data, self._polars_wrapper.pl.DataFrame):
+                    pl_df = data
+                else:
+                    # Egyébként konvertáljuk Polars DataFrame-re
+                    # Először próbáljuk meg a to_pandas() metódussal, ha van
+                    if hasattr(data, "to_pandas"):
+                        pd_df = data.to_pandas()
+                        pl_df = self._polars_wrapper.pl.DataFrame(pd_df)
+                    else:
+                        # Ha nincs to_pandas() metódus, próbáljuk közvetlenül
+                        pl_df = self._polars_wrapper.pl.DataFrame(data)
+            except Exception as e:
+                logger.error(f"DataFrame conversion failed: {e}")
+                raise ValueError(f"Invalid DataFrame data: {e}")
 
             # Írás particionálással vagy anélkül
             if partition_by:
@@ -306,14 +322,14 @@ class PolarsBackend(StorageBackend):
             existing_cols = None
             new_cols = None
 
-            if hasattr(existing, 'columns') and callable(existing.columns):
+            if hasattr(existing, "columns") and callable(existing.columns):
                 existing_cols = set(existing.columns())
-            elif hasattr(existing, 'columns'):
+            elif hasattr(existing, "columns"):
                 existing_cols = set(existing.columns)
 
-            if hasattr(new, 'columns') and callable(new.columns):
+            if hasattr(new, "columns") and callable(new.columns):
                 new_cols = set(new.columns())
-            elif hasattr(new, 'columns'):
+            elif hasattr(new, "columns"):
                 new_cols = set(new.columns)
 
             # Ha valamelyik oszlophalmaz None, akkor nem kompatibilis

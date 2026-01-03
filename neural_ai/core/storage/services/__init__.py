@@ -7,7 +7,7 @@ Author: Neural AI Next Team
 Version: 1.0.0
 """
 
-from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
+from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
 
 __all__ = [
     "MarketDataPersister",

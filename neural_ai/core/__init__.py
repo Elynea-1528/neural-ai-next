@@ -19,11 +19,11 @@ if TYPE_CHECKING:
     )
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager  # noqa: F401
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface  # noqa: F401
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface  # noqa: F401
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface  # noqa: F401
-    from neural_ai.core.storage.services.market_data_persister import (
+    from neural_ai.core.ingestion.market_data_persister import (
         MarketDataPersister,  # noqa: F401
     )
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface  # noqa: F401
+    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface  # noqa: F401
     from neural_ai.core.system.interfaces.health_interface import (
         HealthMonitorInterface,  # noqa: F401
     )
@@ -100,11 +100,11 @@ def bootstrap_core(
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.factory import EventBusFactory
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+    from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
     from neural_ai.core.logger.factory import LoggerFactory
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.factory import StorageFactory
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-    from neural_ai.core.storage.services.market_data_persister import MarketDataPersister
     from neural_ai.core.system.factory import SystemComponentFactory
     from neural_ai.core.system.interfaces.health_interface import HealthMonitorInterface
     from neural_ai.core.utils.factory import HardwareFactory

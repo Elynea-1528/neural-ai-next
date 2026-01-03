@@ -204,45 +204,15 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if missing_columns:
             raise ValueError(f"Missing required columns: {missing_columns}")
 
-        # READ-MODIFY-WRITE logika a duplikált fájlok elkerülésére
+        # APPEND-ONLY logika: minden adat egyedi fájlba kerül mentésre
+        # Ez biztosítja a 100%-os adatmentést, a deduplikációt olvasáskor végezzük
 
-        # READ: Meglévő adatok beolvasása
-        existing_data = await self._read_existing_data_for_date(symbol, date)
-
-        # MODIFY: Összefűzés és deduplikáció
-        if len(existing_data) > 0:
-            # Szűrjük a meglévő adatokat is csak a szükséges oszlopokra
-            existing_data_filtered = self._filter_columns(existing_data)
-            data_filtered = self._filter_columns(data)
-            combined_data = self._concat_dataframes([existing_data_filtered, data_filtered])
-            combined_data = self._deduplicate_data(combined_data)
-            combined_data = self._sort_by_timestamp(combined_data)
-            data_to_write = combined_data
-        else:
-            data_to_write = self._filter_columns(data)
-
-        # WRITE: Újramentés egyetlen fájlba
-        # Először töröljük a meglévő fájlokat az adott dátumra
-        date_dir = (
-            self.BASE_PATH
-            / symbol.upper()
-            / "tick"
-            / f"year={date.year}"
-            / f"month={date.month:02d}"
-            / f"day={date.day:02d}"
-        )
-
-        if date_dir.exists():
-            import shutil
-
-            shutil.rmtree(date_dir)
-
-        # Új fájl létrehozása
+        # Új fájl létrehozása egyedi azonosítóval
         path = self._get_path(symbol, date)
         path.parent.mkdir(parents=True, exist_ok=True)
 
         # Adatok tárolása a kiválasztott backend-en keresztül
-        self.backend.write(data_to_write, str(path), compression=self.compression)
+        self.backend.write(data, str(path), compression=self.compression)
 
         logger.info(
             "Tick data stored successfully",
