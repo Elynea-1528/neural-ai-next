@@ -80,6 +80,11 @@ Tick adatok tárolása particionált Parquet formátumban.
 **Kivételek:**
 - `ValueError`: Ha a DataFrame üres vagy nem tartalmazza a szükséges oszlopokat
 
+**Megvalósítás:**
+- **Append-only logika**: Minden adat egyedi fájlba kerül mentésre, nincs read-modify-write művelet
+- Ez biztosítja a 100%-os adatmentést, a deduplikációt olvasáskor végezzük
+- Automatikusan generált egyedi fájlnév (UUID 8 karakterrel)
+
 ### `read_tick_data`
 
 Tick adatok olvasása dátumtartományból.
@@ -283,3 +288,7 @@ A szolgáltatás a következő kivételeket dobhatja:
 
 - **v2.0.0**: Hardver-gyorsítás detekció, automatikus backend kiválasztás
 - **2026.01.02**: Deduplikáció módosítása timestamp + bid + ask alapúra
+- **2026.01.03**: Append-only logika bevezetése - a `_read_existing_data_for_date` metódus eltávolítva
+  - Minden adat egyedi fájlba kerül mentésre, nincs read-modify-write művelet
+  - 100%-os adatmentés garantálása
+  - Deduplikáció csak olvasáskor történik
