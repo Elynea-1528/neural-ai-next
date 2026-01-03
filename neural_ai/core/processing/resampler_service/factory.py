@@ -3,10 +3,10 @@
 from typing import TYPE_CHECKING
 
 from neural_ai.core.base.implementations.di_container import DIContainer
-from neural_ai.core.storage.services.resampler_service.implementations.resampler_service import (
+from neural_ai.core.processing.resampler_service.implementations.resampler_service import (
     ResamplerService,
 )
-from neural_ai.core.storage.services.resampler_service.interfaces.resampler_interface import (
+from neural_ai.core.processing.resampler_service.interfaces.resampler_interface import (
     ResamplerInterface,
 )
 
@@ -51,6 +51,7 @@ class ResamplerServiceFactory:
         except Exception:
             # Ha nem létezik, létrehozzuk és regisztráljuk
             from neural_ai.core.storage.factory import StorageFactory
+
             storage = StorageFactory.get_storage(storage_type="parquet")
             instance = cls.create(storage=storage)
             container.register(component_name, instance)
