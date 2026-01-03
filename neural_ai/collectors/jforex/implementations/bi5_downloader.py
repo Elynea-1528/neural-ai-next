@@ -234,11 +234,9 @@ class Bi5Downloader(IJForexDownloader):
             record_size, unpack_format = self._detect_format(decompressed)
             num_records = len(decompressed) // record_size
 
-            # Base timestamp: start of the DAY (midnight) in milliseconds
-            # A .bi5 fájlban lévő delta mindig éjféltől számítódik
-            base_timestamp = (
-                int(date.replace(hour=0, minute=0, second=0, microsecond=0).timestamp()) * 1000
-            )
+            # Base timestamp: start of the HOUR in milliseconds
+            # A .bi5 fájlban lévő delta mindig az adott óra elejétől számítódik
+            base_timestamp = int(date.replace(minute=0, second=0, microsecond=0).timestamp()) * 1000
 
             ticks: list[TickData] = []
 
@@ -309,6 +307,8 @@ class Bi5Downloader(IJForexDownloader):
                     symbol=symbol.upper(),
                     bid=round(bid, 5),  # Forex prices to 5 decimal places
                     ask=round(ask, 5),
+                    ask_volume=ask_vol if record_size == 20 else None,
+                    bid_volume=bid_vol if record_size == 20 else None,
                     source="jforex",
                 )
 
@@ -362,7 +362,11 @@ class Bi5Downloader(IJForexDownloader):
                     timestamp=tick.timestamp,
                     bid=tick.bid,
                     ask=tick.ask,
-                    volume=None,  # JForex .bi5 doesn't include volume
+                    volume=(tick.ask_volume + tick.bid_volume)
+                    if (tick.ask_volume is not None and tick.bid_volume is not None)
+                    else None,
+                    ask_volume=tick.ask_volume,
+                    bid_volume=tick.bid_volume,
                     source=tick.source,
                 )
                 for tick in batch

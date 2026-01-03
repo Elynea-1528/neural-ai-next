@@ -1,165 +1,289 @@
-# collectors/jforex/implementations/bi5_downloader.py
+# Bi5 Downloader Implementation
 
-Bi5 Downloader Implementation.
+## Áttekintés
 
-## Osztályok
+A `Bi5Downloader` osztály a Dukascopy .bi5 tick adatok letöltését és dekódolását végzi. Ez a natív bináris formátum LZMA tömörítéssel és két lehetséges rekordformátummal (12 vagy 20 bájtos) rendelkezik.
 
-### `Bi5Downloader`
+## Architektúra
 
-JForex Bi5 data downloader implementation.
+### Osztálystruktúra
 
-    Downloads and decodes Dukascopy's native .bi5 tick data format.
+```python
+class Bi5Downloader(IJForexDownloader)
+```
 
+- **Interfész**: [`IJForexDownloader`](../interfaces/downloader_interface.md)
+- **Bővítmény**: `IJForexDownloader` interfész
+- **Dependency Injection**: Logger, EventBus, Config, HTTP Client, Storage
 
-## Függvények
+### Főbb metódusok
 
-### `__init__`
+#### `__init__`
 
-Initialize Bi5 downloader.
+```python
+def __init__(
+    self,
+    logger: "LoggerInterface",
+    event_bus: "EventBusInterface",
+    config: "ConfigManagerInterface",
+    http_client: "aiohttp.ClientSession",
+    storage: "StorageInterface",
+)
+```
 
-        Args:
-            logger: Logger instance
-            event_bus: Event bus for publishing market data
-            config: Configuration manager
-            http_client: HTTP client for downloads
-            storage: Storage interface for data persistence
+Konstruktor, amely beállítja a függőségeket és a Dukascopy alap URL-t.
 
-### `_build_url`
+#### `_build_url`
 
-Build Dukascopy .bi5 download URL.
+```python
+def _build_url(self, symbol: str, date: datetime) -> str
+```
 
-        Args:
-            symbol: Trading symbol (e.g., 'EURUSD')
-            date: Date for which to download data
+Létrehozza a Dukascopy .bi5 letöltési URL-t a következő formátumban:
+`{BASE_URL}/{SYMBOL}/{YEAR}/{MONTH_00}/{DAY_00}/{HOUR_00}h_ticks.bi5`
 
-        Returns:
-            Complete download URL
+**Fontos**: A hónap 0-indexelt (00-11), ezért `date.month - 1` értéket használja.
 
-### `_build_storage_path`
+#### `_build_storage_path`
 
-Build storage path for tick data.
+```python
+def _build_storage_path(self, symbol: str, date: datetime) -> str
+```
 
-        Args:
-            symbol: Trading symbol
-            date: Date for which to store data
+Létrehozza a tárolási útvonalat Parquet fájlhoz:
+`data/jforex/{SYMBOL}/{YEAR}/{MONTH}/{DAY}/{HOUR}.parquet`
 
-        Returns:
-            Storage path string
+#### `_download_binary`
 
-### `_download_binary`
+```python
+async def _download_binary(self, url: str) -> bytes
+```
 
-Download binary .bi5 data from Dukascopy.
+Letölti a bináris .bi5 adatokat a Dukascopy szerverről.
 
-        Args:
-            url: Complete download URL
+- **404 hibát** (`DataNotAvailableError`) dob, ha nincs adat (hétvége, ünnep)
+- **Hálózati hibát** (`DownloadError`) dob, ha a letöltés sikertelen
 
-        Returns:
-            Raw .bi5 binary data
+#### `_detect_format`
 
-        Raises:
-            DataNotAvailableError: If server returns 404 (weekend/holiday)
-            DownloadError: If network error occurs
+```python
+def _detect_format(self, decompressed: bytes) -> tuple[int, str]
+```
 
-### `_detect_format`
+Dinamikusan detektálja a .bi5 rekordformátumot:
 
-Detect .bi5 record format dynamically.
+- **12 bájtos formátum**: `timestamp_delta, ask, bid` (alapértelmezett)
+- **20 bájtos formátum**: `timestamp_delta, ask, bid, ask_vol, bid_vol`
 
-        Args:
-            decompressed: Decompressed .bi5 binary data
+Heurisztikát alkalmaz a formátum meghatározásához:
+- Ellenőrzi, hogy a dekompresszált adat hossza osztható-e 20-szal
+- Validálja az első néhány rekordot (volume és delta értékek)
+- Ha valid, 20 bájtos formátumot használ, különben 12 bájtost
 
-        Returns:
-            Tuple of (record_size, unpack_format)
+#### `_process_bi5_data`
 
-        Raises:
-            DecodeError: If format detection fails
+```python
+def _process_bi5_data(self, data: bytes, symbol: str, date: datetime) -> list["TickData"]
+```
+
+Feldolgozza és dekódolja a .bi5 bináris adatokat.
+
+**Kritikus részlet - `base_timestamp` számítás:**
+
+```python
+# Helyes implementáció (2026.01.03-tól)
+base_timestamp = (
+    int(date.replace(minute=0, second=0, microsecond=0).timestamp()) * 1000
+)
+```
+
+**Korábbi hiba (javítva):**
+
+```python
+# HIBÁS: Az óra információ elveszett!
+base_timestamp = (
+    int(date.replace(hour=0, minute=0, second=0, microsecond=0).timestamp()) * 1000
+)
+```
+
+**A hiba jelentősége:**
+- A Dukascopy .bi5 fájljai **óránkénti** darabokban érkeznek
+- Minden fájl egy adott órához tartozik (pl. 10:00-10:59:59)
+- A `timestamp_delta` mindig az adott óra elejétől (pl. 10:00:00) számítódik
+- A régi kód az óra értékét nullázta ki (`hour=0`), ami helytelen timestamp-et eredményezett
+- A javított kód megtartja az óra értékét, csak a perc, másodperc és mikroszekundum értékeket nullázza ki
+
+**Feldolgozási lépések:**
+
+1.  **LZMA dekompresszió**
+2.  **Formátumdetektálás** (`_detect_format`)
+3.  **Base timestamp számítás** (az óra eleje milliszekundumban)
+4.  **Rekordok feldolgozása**:
+    - Dinamikus unpakolás a detektált formátum alapján
+    - Ár konverzió (integer → float, osztás 100000-rel)
+    - Ár validáció (csak pozitív árak)
+    - Timestamp delta validáció (nem lehet negatív)
+    - Dátum egyezés ellenőrzése
+5.  **TickData objektumok létrehozása**
+6.  **Statisztikák logolása**
+
+#### `_publish_ticks`
+
+```python
+async def _publish_ticks(self, ticks: list["TickData"]) -> None
+```
+
+Közzéteszi a tick adatokat az EventBus-on, 1000-es batch-ekben.
+
+#### `download_tick_data`
+
+```python
+async def download_tick_data(self, symbol: str, date: datetime) -> list["TickData"]
+```
+
+Letölti és dekódolja a tick adatokat egy adott szimbólumra és dátumra.
+
+- **Storage ellenőrzés**: Ha az adatok már léteznek, kihagyja a letöltést
+- **Letöltés**: `_download_binary`
+- **Feldolgozás**: `_process_bi5_data`
+- **Közzététel**: `_publish_ticks`
+- **Újrapróbálkozás**: 3 próbálkozás exponenciális várakozással
+
+#### `validate_bi5_data`
+
+```python
+def validate_bi5_data(self, data: bytes) -> bool
+```
+
+Validálja a .bi5 adatok integritását (méret, LZMA dekompresszió, rekordok száma).
+
+#### `get_available_dates`
+
+```python
+async def get_available_dates(
+    self, symbol: str, start_date: datetime, end_date: datetime
+) -> list[datetime]
+```
+
+Visszaadja az elérhető dátumokat egy adott tartományban (jelenleg placeholder implementáció).
+
+#### `close`
+
+```python
+async def close(self) -> None
+```
+
+Bezárja a HTTP klienst, hogy elkerülje a "Unclosed client session" hibát.
+
+## Adatfolyam
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant Bi5Downloader
+    participant Dukascopy
+    participant EventBus
+    participant Storage
+
+    App->>Bi5Downloader: download_tick_data(symbol, date)
+    Bi5Downloader->>Bi5Downloader: _build_storage_path()
+    Bi5Downloader->>Storage: exists(path)
+    Storage-->>Bi5Downloader: true/false
+    
+    alt Data exists
+        Bi5Downloader-->>App: return []
+    else Data not exists
+        Bi5Downloader->>Bi5Downloader: _build_url()
+        Bi5Downloader->>Dukascopy: GET {url}
+        Dukascopy-->>Bi5Downloader: binary .bi5 data
         
-        Metódus működése:
-        - Alapértelmezett: 12 bájtos formátum (timestamp_delta, ask, bid)
-        - Heurisztika: ha a hossz osztható 20-szal, ellenőrizzük a 20 bájtos formátumot
-        - Smart Check: elemzi az első néhány rekordot
-          - Volume validáció: 0 és 100M között kell lennie
-          - Delta validáció: 0 és 3,600,000 között kell lennie (max 1 óra)
-        - Visszatérés a detektált formátummal (12 vagy 20 bájt)
+        alt Download failed
+            Dukascopy-->>Bi5Downloader: 404 or error
+            Bi5Downloader-->>App: raise DataNotAvailableError/DownloadError
+        else Download success
+            Bi5Downloader->>Bi5Downloader: _process_bi5_data()
+            Bi5Downloader->>Bi5Downloader: LZMA decompress
+            Bi5Downloader->>Bi5Downloader: _detect_format()
+            Bi5Downloader->>Bi5Downloader: Decode records
+            Bi5Downloader->>Bi5Downloader: Calculate timestamps
+            
+            Bi5Downloader->>EventBus: publish(market_data, ticks)
+            Bi5Downloader->>Storage: save(ticks)
+            Bi5Downloader-->>App: return ticks
+        end
+    end
+```
 
-### `_process_bi5_data`
+## Hibakezelés
 
-Process and decode .bi5 binary data with dynamic format detection.
+### Kivételek
 
-        Args:
-            data: Raw .bi5 binary data (LZMA compressed)
-            symbol: Trading symbol
-            date: Date for which data was downloaded
+- **`DataNotAvailableError`**: Nincs adat a szerveren (404 válasz)
+- **`DownloadError`**: Hálózati hiba vagy szerverhiba
+- **`DecodeError`**: LZMA dekompresszió vagy struktúra feldolgozási hiba
 
-        Returns:
-            List of TickData objects
+### Logolás
 
-        Raises:
-            DecodeError: If decompression or unpacking fails
+A osztály átfogó logolást végez a műveletekről:
+
+- `bi5_download_success`: Sikeres letöltés
+- `bi5_data_not_available`: Nincs adat (404)
+- `bi5_download_failed`: Hálózati hiba
+- `bi5_format_detected`: Formátum detektálás eredménye
+- `bi5_decode_success`: Sikeres dekódolás
+- `bi5_chunk_stats`: Feldolgozási statisztikák
+- `bi5_date_mismatch`: Dátum egyezésellenőrzés hibája
+
+## Használati példa
+
+```python
+import asyncio
+from datetime import datetime
+import aiohttp
+
+from neural_ai.collectors.jforex.factory import JForexFactory
+from neural_ai.core.config.factory import ConfigFactory
+from neural_ai.core.events.factory import EventFactory
+from neural_ai.core.logger.factory import LoggerFactory
+from neural_ai.core.storage.factory import StorageFactory
+
+async def main():
+    # Inicializálás
+    logger = LoggerFactory.create()
+    config = ConfigFactory.create()
+    event_bus = EventBusFactory.create()
+    storage = StorageFactory.create()
+    
+    async with aiohttp.ClientSession() as http_client:
+        # Bi5Downloader létrehozása
+        downloader = JForexFactory.create_bi5_downloader(
+            logger=logger,
+            event_bus=event_bus,
+            config=config,
+            http_client=http_client,
+            storage=storage
+        )
         
-        Metódus működése:
-        - LZMA dekompresszió végrehajtása
-        - Dinamikus formátumfelismerés a `_detect_format` metódussal
-        - Bináris adatok feldolgozása (12 vagy 20 bájtos rekordok)
-        - Ár konverzió (integer -> float, osztás 100000-rel)
-        - Időbélyeg számítás (base_timestamp + delta)
-        - Szűrés:
-          - Ár szűrés: csak pozitív bid/ask árak (bid <= 0.0 or ask <= 0.0 esetén kihagyás)
-          - Dátum validáció: timestamp_delta nem lehet negatív
-          - Dátum egyezés: timestamp.date() == date.date()
-        - Metrikák gyűjtése:
-          - `total_records`: Összes feldolgozott rekord
-          - `skipped_price`: Ár szűrés miatt kihagyott rekordok
-          - `valid_ticks`: Érvényes tick-ek száma
-          - `record_size`: Detektált rekord méret (12 vagy 20)
-        - Statisztika logolás: `bi5_chunk_stats` (INFO szint)
-        - Volume adatok logolása (ha 20 bájtos formátum)
+        # Adatok letöltése
+        try:
+            ticks = await downloader.download_tick_data(
+                symbol="EURUSD",
+                date=datetime(2024, 1, 15, 10)  # 2024.01.15. 10:00
+            )
+            print(f"Letöltve {len(ticks)} tick")
+        except Exception as e:
+            print(f"Hiba: {e}")
+        finally:
+            await downloader.close()
 
-### `_publish_ticks`
+if __name__ == "__main__":
+    asyncio.run(main())
+```
 
-Publish tick data to EventBus.
+## Jegyzetek
 
-        Args:
-            ticks: List of TickData objects to publish
-
-### `download_tick_data`
-
-Download and decode tick data.
-
-        Args:
-            symbol: Trading symbol
-            date: Date for which to download data
-
-        Returns:
-            List of TickData objects
-
-        Raises:
-            DownloadError: If download fails
-            DecodeError: If decoding fails
-            DataNotAvailableError: If data not available
-
-### `validate_bi5_data`
-
-Validate .bi5 data integrity.
-
-        Args:
-            data: Raw .bi5 data bytes
-
-        Returns:
-            True if data is valid
-
-### `get_available_dates`
-
-Get list of available dates.
-
-        Args:
-            symbol: Trading symbol
-            start_date: Start of date range
-            end_date: End of date range
-
-        Returns:
-            List of datetime objects
-
-
----
-
-**Forrásfájl:** [`collectors/jforex/implementations/bi5_downloader.py`](../../../neural_ai/collectors/jforex/implementations/bi5_downloader.py)
+- A Dukascopy .bi5 fájljai óránkénti bontásban érkeznek
+- A `base_timestamp` mindig az adott óra elejétől kell számoljon
+- A formátumdetektálás automatikusan kezeli a 12 és 20 bájtos rekordokat
+- A letöltött adatok automatikusan elmentésre kerülnek Parquet formátumban
+- Az EventBus-on keresztül valós idejű tick adatok is elérhetők

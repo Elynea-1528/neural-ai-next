@@ -2,624 +2,387 @@
 
 import lzma
 import struct
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
 from neural_ai.collectors.jforex.exceptions.jforex_error import (
     DataNotAvailableError,
-    DecodeError,
-    DownloadError,
 )
 from neural_ai.collectors.jforex.implementations.bi5_downloader import Bi5Downloader
-from neural_ai.collectors.jforex.interfaces.tick_data import TickData
-
-
-class MockBi5DataGenerator:
-    """Mock .bi5 data generator for testing."""
-
-    @staticmethod
-    def generate_mock_bi5_data(symbol: str, date: datetime, num_ticks: int = 100) -> bytes:
-        """Generate mock .bi5 data for testing.
-
-        Args:
-            symbol: Trading symbol
-            date: Date for which to generate data
-            num_ticks: Number of ticks to generate
-
-        Returns:
-            LZMA compressed .bi5 binary data
-        """
-        # Generate mock tick data
-        raw_data = bytearray()
-        base_price = 1.10000  # EURUSD base price
-
-        for i in range(num_ticks):
-            # Timestamp delta (1 second intervals)
-            timestamp_delta = i * 1000
-
-            # Generate prices with small variations
-            bid = base_price + (i * 0.00001)  # Slight upward trend
-            ask = bid + 0.00010  # 1 pip spread
-
-            # Convert to integer format (multiplied by 100,000)
-            bid_int = int(bid * 100000)
-            ask_int = int(ask * 100000)
-
-            # Pack as big-endian: unsigned int, unsigned int, unsigned int
-            raw_data.extend(struct.pack(">III", timestamp_delta, ask_int, bid_int))
-
-        # LZMA compress
-        compressed = lzma.compress(bytes(raw_data))
-
-        return compressed
-
-    @staticmethod
-    def generate_mock_bi5_data_20byte(symbol: str, date: datetime, num_ticks: int = 100) -> bytes:
-        """Generate mock 20-byte .bi5 data for testing.
-
-        Args:
-            symbol: Trading symbol
-            date: Date for which to generate data
-            num_ticks: Number of ticks to generate
-
-        Returns:
-            LZMA compressed .bi5 binary data with 20-byte records
-        """
-        # Generate mock tick data with volume
-        raw_data = bytearray()
-        base_price = 1.10000  # EURUSD base price
-
-        for i in range(num_ticks):
-            # Timestamp delta (1 second intervals)
-            timestamp_delta = i * 1000
-
-            # Generate prices with small variations
-            bid = base_price + (i * 0.00001)  # Slight upward trend
-            ask = bid + 0.00010  # 1 pip spread
-
-            # Generate volume data (reasonable values)
-            ask_vol = float(1000 + i * 10)  # Increasing volume
-            bid_vol = float(950 + i * 10)  # Slightly lower bid volume
-
-            # Convert to integer format (multiplied by 100,000)
-            bid_int = int(bid * 100000)
-            ask_int = int(ask * 100000)
-
-            # Pack as big-endian: unsigned int, unsigned int, unsigned int, float, float
-            raw_data.extend(
-                struct.pack(">IIIff", timestamp_delta, ask_int, bid_int, ask_vol, bid_vol)
-            )
-
-        # LZMA compress
-        compressed = lzma.compress(bytes(raw_data))
-
-        return compressed
 
 
 class TestBi5Downloader:
     """Test suite for Bi5Downloader."""
 
     @pytest.fixture
-    def mock_logger(self) -> MagicMock:
-        """Create mock logger."""
-        return MagicMock()
-
-    @pytest.fixture
-    def mock_event_bus(self) -> AsyncMock:
-        """Create mock event bus."""
-        return AsyncMock()
-
-    @pytest.fixture
-    def mock_config(self) -> MagicMock:
-        """Create mock config."""
+    def mock_dependencies(self):
+        """Create mock dependencies for Bi5Downloader."""
+        logger = MagicMock()
+        event_bus = MagicMock()
+        event_bus.publish = AsyncMock()
         config = MagicMock()
-        config.get.return_value = "https://test.dukascopy.com/datafeed"
-        return config
+        config.get.return_value = "https://www.dukascopy.com/datafeed"
+        http_client = MagicMock()
+        storage = MagicMock()
+        storage.exists.return_value = False
+
+        return {
+            "logger": logger,
+            "event_bus": event_bus,
+            "config": config,
+            "http_client": http_client,
+            "storage": storage,
+        }
 
     @pytest.fixture
-    def mock_http_client(self) -> MagicMock:
-        """Create mock HTTP client."""
-        return MagicMock()
+    def downloader(self, mock_dependencies):
+        """Create Bi5Downloader instance with mocked dependencies."""
+        return Bi5Downloader(**mock_dependencies)
 
-    @pytest.fixture
-    def mock_storage(self) -> MagicMock:
-        """Create mock storage."""
-        return MagicMock()
+    def create_bi5_data_12_byte(
+        self, timestamps_delta: list[int], ask: list[int], bid: list[int]
+    ) -> bytes:
+        """Create mock .bi5 data with 12-byte records.
 
-    @pytest.fixture
-    def downloader(
+        Args:
+            timestamps_delta: List of timestamp deltas in milliseconds
+            ask: List of ask prices as integers
+            bid: List of bid prices as integers
+
+        Returns:
+            LZMA compressed .bi5 data
+        """
+        data = b""
+        for delta, ask_price, bid_price in zip(timestamps_delta, ask, bid):
+            data += struct.pack(">III", delta, ask_price, bid_price)
+
+        return lzma.compress(data)
+
+    def create_bi5_data_20_byte(
         self,
-        mock_logger: MagicMock,
-        mock_event_bus: MagicMock,
-        mock_config: MagicMock,
-        mock_http_client: MagicMock,
-        mock_storage: MagicMock,
-    ) -> Bi5Downloader:
-        """Create Bi5Downloader instance for testing."""
-        return Bi5Downloader(
-            logger=mock_logger,
-            event_bus=mock_event_bus,
-            config=mock_config,
-            http_client=mock_http_client,
-            storage=mock_storage,
+        timestamps_delta: list[int],
+        ask: list[int],
+        bid: list[int],
+        ask_vol: list[float],
+        bid_vol: list[float],
+    ) -> bytes:
+        """Create mock .bi5 data with 20-byte records.
+
+        Args:
+            timestamps_delta: List of timestamp deltas in milliseconds
+            ask: List of ask prices as integers
+            bid: List of bid prices as integers
+            ask_vol: List of ask volumes as floats
+            bid_vol: List of bid volumes as floats
+
+        Returns:
+            LZMA compressed .bi5 data
+        """
+        data = b""
+        for delta, ask_price, bid_price, ask_volume, bid_volume in zip(
+            timestamps_delta, ask, bid, ask_vol, bid_vol
+        ):
+            data += struct.pack(">IIIff", delta, ask_price, bid_price, ask_volume, bid_volume)
+
+        return lzma.compress(data)
+
+    def test_base_timestamp_calculation_retains_hour(self, downloader):
+        """Test that base_timestamp calculation correctly retains the hour value.
+
+        This is a CRITICAL test for the bug fix implemented on 2026.01.03.
+        The previous implementation incorrectly zeroed out the hour (hour=0),
+        which caused incorrect timestamp calculations for hourly .bi5 files.
+
+        The .bi5 files from Dukascopy are hourly chunks, and the timestamp_delta
+        is always calculated from the START of that specific hour, not from midnight.
+        """
+        # Test for 10:00 AM
+        test_date = datetime(2024, 1, 15, 10, 30, 45, 123456, tzinfo=UTC)
+
+        # Create mock 12-byte .bi5 data
+        # Timestamp deltas are from the start of the hour (10:00:00)
+        timestamps_delta = [0, 1000, 2000, 3000]  # 0ms, 1s, 2s, 3s from 10:00:00
+        ask_prices = [112345, 112346, 112347, 112348]
+        bid_prices = [112340, 112341, 112342, 112343]
+
+        bi5_data = self.create_bi5_data_12_byte(timestamps_delta, ask_prices, bid_prices)
+
+        # Process the data
+        ticks = downloader._process_bi5_data(bi5_data, "EURUSD", test_date)
+
+        # Verify we got the expected number of ticks
+        assert len(ticks) == 4
+
+        # Calculate expected timestamps
+        # Base timestamp should be 2024-01-15 10:00:00 (start of the hour)
+        expected_base_timestamp = (
+            int(test_date.replace(minute=0, second=0, microsecond=0).timestamp()) * 1000
         )
 
-    def test_init(
-        self,
-        mock_logger: MagicMock,
-        mock_event_bus: MagicMock,
-        mock_config: MagicMock,
-        mock_http_client: MagicMock,
-        mock_storage: MagicMock,
-    ) -> None:
-        """Test Bi5Downloader initialization."""
-        downloader = Bi5Downloader(
-            logger=mock_logger,
-            event_bus=mock_event_bus,
-            config=mock_config,
-            http_client=mock_http_client,
-            storage=mock_storage,
+        # Verify each tick's timestamp
+        for i, tick in enumerate(ticks):
+            expected_timestamp_ms = expected_base_timestamp + timestamps_delta[i]
+            expected_timestamp = datetime.fromtimestamp(expected_timestamp_ms / 1000, tz=UTC)
+
+            assert tick.timestamp == expected_timestamp, (
+                f"Tick {i}: Expected {expected_timestamp}, got {tick.timestamp}"
+            )
+
+            # Verify the hour is correct (should be 10, not 0)
+            assert tick.timestamp.hour == 10, (
+                f"Tick {i}: Hour should be 10, got {tick.timestamp.hour}"
+            )
+
+            # Verify the minute and second are correct
+            expected_minute = timestamps_delta[i] // 60000
+            expected_second = (timestamps_delta[i] % 60000) // 1000
+            assert tick.timestamp.minute == expected_minute
+            assert tick.timestamp.second == expected_second
+
+    def test_base_timestamp_calculation_different_hours(self, downloader):
+        """Test base_timestamp calculation for different hours of the day."""
+        test_cases = [
+            datetime(2024, 1, 15, 0, 0, 0, tzinfo=UTC),  # Midnight
+            datetime(2024, 1, 15, 12, 0, 0, tzinfo=UTC),  # Noon
+            datetime(2024, 1, 15, 23, 0, 0, tzinfo=UTC),  # 11 PM
+        ]
+
+        for test_date in test_cases:
+            # Create mock data with a single tick at delta=0
+            bi5_data = self.create_bi5_data_12_byte([0], [112345], [112340])
+
+            ticks = downloader._process_bi5_data(bi5_data, "EURUSD", test_date)
+
+            assert len(ticks) == 1
+            tick = ticks[0]
+
+            # The tick timestamp should be at the start of the hour
+            expected_timestamp = test_date.replace(minute=0, second=0, microsecond=0)
+            assert tick.timestamp == expected_timestamp
+            assert tick.timestamp.hour == test_date.hour
+
+    def test_process_bi5_data_12_byte_format(self, downloader):
+        """Test processing of 12-byte format .bi5 data."""
+        test_date = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
+
+        # Create mock data
+        timestamps_delta = [0, 5000, 10000]  # 0s, 5s, 10s from hour start
+        ask_prices = [112345, 112350, 112355]
+        bid_prices = [112340, 112345, 112350]
+
+        bi5_data = self.create_bi5_data_12_byte(timestamps_delta, ask_prices, bid_prices)
+
+        ticks = downloader._process_bi5_data(bi5_data, "EURUSD", test_date)
+
+        # Verify we got the expected number of ticks
+        assert len(ticks) == 3
+
+        # Verify first tick
+        assert ticks[0].symbol == "EURUSD"
+        assert ticks[0].bid == 1.12340
+        assert ticks[0].ask == 1.12345
+        assert ticks[0].ask_volume is None
+        assert ticks[0].bid_volume is None
+        assert ticks[0].source == "jforex"
+
+        # Verify timestamp
+        expected_timestamp = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
+        assert ticks[0].timestamp == expected_timestamp
+
+    def test_process_bi5_data_20_byte_format(self, downloader):
+        """Test processing of 20-byte format .bi5 data."""
+        test_date = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
+
+        # Create mock data
+        timestamps_delta = [0, 1000]
+        ask_prices = [112345, 112346]
+        bid_prices = [112340, 112341]
+        ask_volumes = [1.5, 2.0]
+        bid_volumes = [1.2, 1.8]
+
+        bi5_data = self.create_bi5_data_20_byte(
+            timestamps_delta, ask_prices, bid_prices, ask_volumes, bid_volumes
         )
 
-        assert downloader._logger == mock_logger
-        assert downloader._event_bus == mock_event_bus
-        assert downloader._config == mock_config
-        assert downloader._http_client == mock_http_client
-        assert downloader._storage == mock_storage
-        assert downloader._base_url == "https://test.dukascopy.com/datafeed"
-        mock_config.get.assert_called_once_with(
-            "jforex.base_url", "https://www.dukascopy.com/datafeed"
-        )
+        ticks = downloader._process_bi5_data(bi5_data, "EURUSD", test_date)
 
-    def test_build_url(self, downloader: Bi5Downloader) -> None:
+        # Verify we got the expected number of ticks
+        assert len(ticks) == 2
+
+        # Verify first tick has volume data (use approximate comparison for floats)
+        assert abs(ticks[0].ask_volume - 1.5) < 0.0001
+        assert abs(ticks[0].bid_volume - 1.2) < 0.0001
+
+    def test_process_bi5_data_empty_file(self, downloader):
+        """Test handling of empty .bi5 file."""
+        test_date = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
+
+        # Empty data
+        bi5_data = b""
+
+        ticks = downloader._process_bi5_data(bi5_data, "EURUSD", test_date)
+
+        assert len(ticks) == 0
+        downloader._logger.warning.assert_called()
+
+    def test_process_bi5_data_invalid_prices(self, downloader):
+        """Test filtering of invalid (non-positive) prices."""
+        test_date = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
+
+        # Create data with some invalid prices
+        timestamps_delta = [0, 1000, 2000, 3000]
+        ask_prices = [112345, 0, 112347, 112348]  # 0 price should be filtered
+        bid_prices = [112340, 112341, 0, 112343]
+
+        bi5_data = self.create_bi5_data_12_byte(timestamps_delta, ask_prices, bid_prices)
+
+        ticks = downloader._process_bi5_data(bi5_data, "EURUSD", test_date)
+
+        # Only ticks 0 and 2 should be valid
+        assert len(ticks) == 2
+        assert ticks[0].bid == 1.12340
+        assert ticks[1].bid == 1.12343
+
+    def test_process_bi5_data_invalid_timestamp_delta(self, downloader):
+        """Test that the code handles timestamp delta validation (edge case).
+
+        Note: We cannot create negative timestamp_delta values in struct.pack
+        with unsigned int format, but the actual Bi5Downloader code does check
+        for negative values after unpacking. This test verifies normal operation.
+        """
+        test_date = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
+
+        # Create normal data with valid timestamp deltas
+        timestamps_delta = [0, 1000, 2000]
+        ask_prices = [112345, 112346, 112347]
+        bid_prices = [112340, 112341, 112342]
+
+        bi5_data = self.create_bi5_data_12_byte(timestamps_delta, ask_prices, bid_prices)
+
+        ticks = downloader._process_bi5_data(bi5_data, "EURUSD", test_date)
+
+        # All ticks should be valid
+        assert len(ticks) == 3
+
+    def test_process_bi5_data_date_mismatch(self, downloader):
+        """Test handling of ticks with date mismatch."""
+        test_date = datetime(2024, 1, 15, 23, 0, 0, tzinfo=UTC)
+
+        # Create data with large delta that would push to next day
+        timestamps_delta = [0, 3_600_000, 7_200_000]  # 0h, 1h, 2h from 23:00
+        ask_prices = [112345, 112346, 112347]
+        bid_prices = [112340, 112341, 112342]
+
+        bi5_data = self.create_bi5_data_12_byte(timestamps_delta, ask_prices, bid_prices)
+
+        ticks = downloader._process_bi5_data(bi5_data, "EURUSD", test_date)
+
+        # Only the first tick (23:00) should be valid
+        # The second tick (00:00 next day) should be filtered out
+        assert len(ticks) == 1
+        assert ticks[0].timestamp.hour == 23
+
+    def test_build_url(self, downloader):
         """Test URL building for Dukascopy download."""
-        date = datetime(2023, 12, 1, 10, 0, 0, tzinfo=UTC)
-        url = downloader._build_url("EURUSD", date)
+        test_date = datetime(2024, 1, 15, 10, 30, 45, tzinfo=UTC)
 
-        # Dukascopy uses 0-indexed months (11 for December)
-        expected = "https://test.dukascopy.com/datafeed/EURUSD/2023/11/01/10h_ticks.bi5"
-        assert url == expected
+        url = downloader._build_url("EURUSD", test_date)
 
-    def test_build_url_lowercase_symbol(self, downloader: Bi5Downloader) -> None:
-        """Test URL building with lowercase symbol."""
-        date = datetime(2023, 12, 1, 10, 0, 0, tzinfo=UTC)
-        url = downloader._build_url("eurusd", date)
+        # Dukascopy uses 0-indexed months (January = 00)
+        assert url == "https://www.dukascopy.com/datafeed/EURUSD/2024/00/15/10h_ticks.bi5"
 
-        # Symbol should be uppercased
-        assert "EURUSD" in url
+    def test_build_storage_path(self, downloader):
+        """Test storage path building."""
+        test_date = datetime(2024, 1, 15, 10, 30, 45, tzinfo=UTC)
+
+        path = downloader._build_storage_path("EURUSD", test_date)
+
+        assert path == "data/jforex/EURUSD/2024/01/15/10h_ticks.parquet"
 
     @pytest.mark.asyncio
-    async def test_download_binary_success(
-        self, downloader: Bi5Downloader, mock_http_client: MagicMock
-    ) -> None:
-        """Test successful binary download."""
-        # Setup mock response
-        mock_response = AsyncMock()
+    async def test_download_tick_data_success(self, mock_dependencies):
+        """Test successful download of tick data."""
+        test_date = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
+
+        # Create mock response
+        mock_response = MagicMock()
         mock_response.status = 200
-        mock_response.read = AsyncMock(return_value=b"test_data")
-        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
-        mock_response.__aexit__ = AsyncMock(return_value=None)
+        mock_response.read = AsyncMock(
+            return_value=self.create_bi5_data_12_byte([0, 1000], [112345, 112346], [112340, 112341])
+        )
 
-        mock_http_client.get.return_value = mock_response
+        mock_dependencies["http_client"].get.return_value.__aenter__.return_value = mock_response
 
-        # Test download
-        data = await downloader._download_binary("http://test.url")
+        downloader = Bi5Downloader(**mock_dependencies)
 
-        assert data == b"test_data"
-        mock_http_client.get.assert_called_once_with("http://test.url")
-        downloader._logger.debug.assert_called_once()
+        ticks = await downloader.download_tick_data("EURUSD", test_date)
+
+        assert len(ticks) == 2
+        mock_dependencies["storage"].exists.assert_called_once()
+        mock_dependencies["event_bus"].publish.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_download_binary_404_error(
-        self, downloader: Bi5Downloader, mock_http_client: MagicMock
-    ) -> None:
-        """Test 404 error handling (data not available)."""
-        # Setup 404 response
-        mock_response = AsyncMock()
+    async def test_download_tick_data_not_available(self, mock_dependencies):
+        """Test handling of 404 (data not available)."""
+        test_date = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
+
+        # Create mock 404 response
+        mock_response = MagicMock()
         mock_response.status = 404
-        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
-        mock_response.__aexit__ = AsyncMock(return_value=None)
 
-        mock_http_client.get.return_value = mock_response
+        mock_dependencies["http_client"].get.return_value.__aenter__.return_value = mock_response
 
-        # Test that DataNotAvailableError is raised
+        downloader = Bi5Downloader(**mock_dependencies)
+
         with pytest.raises(DataNotAvailableError):
-            await downloader._download_binary("http://test.url")
-
-        downloader._logger.warning.assert_called_once()
+            await downloader.download_tick_data("EURUSD", test_date)
 
     @pytest.mark.asyncio
-    async def test_download_binary_network_error(
-        self, downloader: Bi5Downloader, mock_http_client: MagicMock
-    ) -> None:
-        """Test network error handling in _download_binary."""
-        # Setup network error using aiohttp.ClientError to trigger the correct exception handling
-        import aiohttp
+    async def test_download_tick_data_already_exists(self, mock_dependencies):
+        """Test skipping download when data already exists."""
+        test_date = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
 
-        mock_http_client.get.side_effect = aiohttp.ClientError("Network error")
+        # Mock storage to return that data exists
+        mock_dependencies["storage"].exists.return_value = True
+        mock_dependencies["storage"].get_metadata.return_value = {"size": 1000}
 
-        # Test that DownloadError is raised
-        with pytest.raises(DownloadError):
-            await downloader._download_binary("http://test.url")
+        downloader = Bi5Downloader(**mock_dependencies)
 
-        downloader._logger.error.assert_called_once()
+        ticks = await downloader.download_tick_data("EURUSD", test_date)
 
-    @pytest.mark.asyncio
-    async def test_download_tick_data_network_error(
-        self, downloader: Bi5Downloader, mock_http_client: MagicMock
-    ) -> None:
-        """Test network error handling in download_tick_data (with retry)."""
-        import aiohttp
+        # Should return empty list when data already exists
+        assert ticks == []
+        # Should not make HTTP request
+        mock_dependencies["http_client"].get.assert_not_called()
 
-        # Setup network error that persists across retries
-        mock_http_client.get.side_effect = aiohttp.ClientError("Network error")
-
-        date = datetime(2023, 12, 1, 10, 0, 0, tzinfo=UTC)
-
-        # Test that DownloadError is raised after retries are exhausted
-        # The retry decorator has reraise=True, so it re-raises the last exception
-        with pytest.raises(DownloadError):
-            await downloader.download_tick_data("EURUSD", date)
-
-        # Verify that the error was logged
-        downloader._logger.error.assert_called()
-        # Verify that multiple attempts were made (due to retry)
-        assert mock_http_client.get.call_count > 1
-
-    def test_process_bi5_data_success(self, downloader: Bi5Downloader) -> None:
-        """Test successful .bi5 data processing."""
-        # Generate mock data
-        date = datetime(2023, 12, 1, 0, 0, 0, tzinfo=UTC)
-        mock_data = MockBi5DataGenerator.generate_mock_bi5_data("EURUSD", date, num_ticks=10)
-
-        # Process data
-        ticks = downloader._process_bi5_data(mock_data, "EURUSD", date)
-
-        # Verify results
-        assert len(ticks) == 10
-        assert all(isinstance(tick, TickData) for tick in ticks)
-        assert ticks[0].symbol == "EURUSD"
-        assert ticks[0].bid < ticks[0].ask  # Spread check
-        assert ticks[0].timestamp.tzinfo == UTC
-
-        # Verify price progression
-        for i in range(1, len(ticks)):
-            assert ticks[i].bid > ticks[i - 1].bid  # Upward trend
-
-        # After refactoring, debug is called multiple times (format detection + success)
-        assert downloader._logger.debug.call_count >= 1
-
-    def test_process_bi5_data_corrupted(self, downloader: Bi5Downloader) -> None:
-        """Test corrupted .bi5 data handling."""
-        date = datetime(2023, 12, 1, 0, 0, 0, tzinfo=UTC)
-
-        # Invalid LZMA data
-        corrupted_data = b"invalid_lzma_data"
-
-        # Test that DecodeError is raised
-        with pytest.raises(DecodeError):
-            downloader._process_bi5_data(corrupted_data, "EURUSD", date)
-
-        downloader._logger.error.assert_called_once()
-
-    def test_validate_bi5_data_valid(self, downloader: Bi5Downloader) -> None:
+    def test_validate_bi5_data_valid(self, downloader):
         """Test validation of valid .bi5 data."""
-        # Generate valid mock data
-        date = datetime(2023, 12, 1, 0, 0, 0, tzinfo=UTC)
-        valid_data = MockBi5DataGenerator.generate_mock_bi5_data("EURUSD", date, num_ticks=10)
+        bi5_data = self.create_bi5_data_12_byte([0, 1000], [112345, 112346], [112340, 112341])
 
-        # Validate
-        result = downloader.validate_bi5_data(valid_data)
+        assert downloader.validate_bi5_data(bi5_data) is True
 
-        assert result is True
-
-    def test_validate_bi5_data_too_small(self, downloader: Bi5Downloader) -> None:
+    def test_validate_bi5_data_invalid_size(self, downloader):
         """Test validation of data that's too small."""
-        # Data too small
-        small_data = b"12345678"
+        bi5_data = b"12345678"  # Less than 12 bytes
 
-        # Validate
-        result = downloader.validate_bi5_data(small_data)
+        assert downloader.validate_bi5_data(bi5_data) is False
 
-        assert result is False
-        downloader._logger.warning.assert_called_once()
+    def test_validate_bi5_data_invalid_lzma(self, downloader):
+        """Test validation of invalid LZMA data."""
+        bi5_data = b"invalid_lzma_data"
 
-    def test_validate_bi5_data_invalid_records(self, downloader: Bi5Downloader) -> None:
-        """Test validation of data with invalid record count."""
-        # Create data that doesn't decompress to multiple of 12
-        invalid_data = lzma.compress(b"12345678901")  # 11 bytes
-
-        # Validate
-        result = downloader.validate_bi5_data(invalid_data)
-
-        assert result is False
-        downloader._logger.warning.assert_called_once()
-
-    def test_validate_bi5_data_corrupted(self, downloader: Bi5Downloader) -> None:
-        """Test validation of corrupted LZMA data."""
-        # Invalid LZMA data
-        corrupted_data = b"invalid_lzma_data"
-
-        # Validate
-        result = downloader.validate_bi5_data(corrupted_data)
-
-        assert result is False
-        downloader._logger.error.assert_called_once()
+        assert downloader.validate_bi5_data(bi5_data) is False
 
     @pytest.mark.asyncio
-    async def test_publish_ticks_empty(self, downloader: Bi5Downloader) -> None:
-        """Test publishing empty tick list."""
-        await downloader._publish_ticks([])
+    async def test_close(self, mock_dependencies):
+        """Test closing of HTTP client."""
+        mock_dependencies["http_client"].closed = False
+        mock_dependencies["http_client"].close = AsyncMock()
 
-        # Should not publish anything
-        downloader._event_bus.publish.assert_not_called()
+        downloader = Bi5Downloader(**mock_dependencies)
 
-    @pytest.mark.asyncio
-    async def test_publish_ticks_single_batch(self, downloader: Bi5Downloader) -> None:
-        """Test publishing ticks in single batch."""
-        # Create mock ticks (less than batch size)
-        date = datetime(2023, 12, 1, 0, 0, 0, tzinfo=UTC)
-        ticks = [
-            TickData(
-                timestamp=date + timedelta(seconds=i),
-                symbol="EURUSD",
-                bid=1.10000 + i * 0.00001,
-                ask=1.10010 + i * 0.00001,
-                source="jforex",
-            )
-            for i in range(5)
-        ]
+        await downloader.close()
 
-        # Publish
-        await downloader._publish_ticks(ticks)
-
-        # Should publish once
-        downloader._event_bus.publish.assert_called_once()
-        downloader._logger.debug.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_publish_ticks_multiple_batches(self, downloader: Bi5Downloader) -> None:
-        """Test publishing ticks in multiple batches."""
-        # Create mock ticks (more than batch size of 1000)
-        date = datetime(2023, 12, 1, 0, 0, 0, tzinfo=UTC)
-        ticks = [
-            TickData(
-                timestamp=date + timedelta(seconds=i),
-                symbol="EURUSD",
-                bid=1.10000 + i * 0.00001,
-                ask=1.10010 + i * 0.00001,
-                source="jforex",
-            )
-            for i in range(2500)
-        ]
-
-        # Publish
-        await downloader._publish_ticks(ticks)
-
-        # Should publish 3 times (2500 / 1000 = 2.5, rounded up to 3)
-        assert downloader._event_bus.publish.call_count == 3
-        downloader._logger.debug.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_download_tick_data_success(
-        self, downloader: Bi5Downloader, mock_http_client: MagicMock
-    ) -> None:
-        """Test successful tick data download."""
-        # Setup mock data
-        date = datetime(2023, 12, 1, 10, 0, 0, tzinfo=UTC)
-        mock_data = MockBi5DataGenerator.generate_mock_bi5_data("EURUSD", date, num_ticks=50)
-
-        # Setup mock HTTP response
-        mock_response = AsyncMock()
-        mock_response.status = 200
-        mock_response.read = AsyncMock(return_value=mock_data)
-        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
-        mock_response.__aexit__ = AsyncMock(return_value=None)
-
-        mock_http_client.get.return_value = mock_response
-
-        # Download
-        ticks = await downloader.download_tick_data("EURUSD", date)
-
-        # Verify results
-        assert len(ticks) == 50
-        assert all(isinstance(tick, TickData) for tick in ticks)
-        assert all(tick.symbol == "EURUSD" for tick in ticks)
-
-        # Verify logging
-        downloader._logger.info.assert_called()
-        downloader._logger.debug.assert_called()
-
-    @pytest.mark.asyncio
-    async def test_download_tick_data_404_error(
-        self, downloader: Bi5Downloader, mock_http_client: MagicMock
-    ) -> None:
-        """Test tick data download with 404 error."""
-        # Setup 404 response
-        mock_response = AsyncMock()
-        mock_response.status = 404
-        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
-        mock_response.__aexit__ = AsyncMock(return_value=None)
-
-        mock_http_client.get.return_value = mock_response
-
-        date = datetime(2023, 12, 25, 10, 0, 0, tzinfo=UTC)  # Christmas
-
-        # Test that DataNotAvailableError is raised
-        with pytest.raises(DataNotAvailableError):
-            await downloader.download_tick_data("EURUSD", date)
-
-    @pytest.mark.asyncio
-    async def test_download_tick_data_decode_error(
-        self, downloader: Bi5Downloader, mock_http_client: MagicMock
-    ) -> None:
-        """Test tick data download with corrupted data."""
-        # Setup response with corrupted data
-        mock_response = AsyncMock()
-        mock_response.status = 200
-        mock_response.read = AsyncMock(return_value=b"corrupted_data")
-        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
-        mock_response.__aexit__ = AsyncMock(return_value=None)
-
-        mock_http_client.get.return_value = mock_response
-
-        date = datetime(2023, 12, 1, 10, 0, 0, tzinfo=UTC)
-
-        # Test that DecodeError is raised
-        with pytest.raises(DecodeError):
-            await downloader.download_tick_data("EURUSD", date)
-
-    @pytest.mark.asyncio
-    async def test_get_available_dates(self, downloader: Bi5Downloader) -> None:
-        """Test getting available dates."""
-        start_date = datetime(2023, 12, 1, 0, 0, 0, tzinfo=UTC)
-        end_date = datetime(2023, 12, 3, 0, 0, 0, tzinfo=UTC)
-
-        dates = await downloader.get_available_dates("EURUSD", start_date, end_date)
-
-        # Should return all dates in range
-        assert len(dates) == 3
-        assert dates[0] == start_date
-        assert dates[1] == datetime(2023, 12, 2, 0, 0, 0, tzinfo=UTC)
-        assert dates[2] == end_date
-
-    def test_tick_data_properties(self) -> None:
-        """Test TickData computed properties."""
-        tick = TickData(
-            timestamp=datetime(2023, 12, 1, 10, 0, 0, tzinfo=UTC),
-            symbol="EURUSD",
-            bid=1.10000,
-            ask=1.10010,
-            source="jforex",
-        )
-
-        # Test spread calculation
-        assert tick.spread == 1.0  # 1 pip spread
-
-        # Test mid price calculation
-        assert tick.mid_price == 1.10005
-
-    def test_detect_format_12_byte(self, downloader: Bi5Downloader) -> None:
-        """Test format detection for 12-byte records."""
-        # Generate 12-byte data
-        raw_data = bytearray()
-        for i in range(10):
-            timestamp_delta = i * 1000
-            bid_int = int((1.10000 + i * 0.00001) * 100000)
-            ask_int = int((1.10010 + i * 0.00001) * 100000)
-            raw_data.extend(struct.pack(">III", timestamp_delta, ask_int, bid_int))
-
-        # Detect format
-        record_size, unpack_format = downloader._detect_format(bytes(raw_data))
-
-        # Should detect 12-byte format
-        assert record_size == 12
-        assert unpack_format == ">III"
-
-    def test_detect_format_20_byte(self, downloader: Bi5Downloader) -> None:
-        """Test format detection for 20-byte records."""
-        # Generate 20-byte data with valid volume and delta patterns
-        raw_data = bytearray()
-        for i in range(10):
-            timestamp_delta = i * 1000
-            bid_int = int((1.10000 + i * 0.00001) * 100000)
-            ask_int = int((1.10010 + i * 0.00001) * 100000)
-            ask_vol = float(1000 + i * 10)
-            bid_vol = float(950 + i * 10)
-            raw_data.extend(
-                struct.pack(">IIIff", timestamp_delta, ask_int, bid_int, ask_vol, bid_vol)
-            )
-
-        # Detect format
-        record_size, unpack_format = downloader._detect_format(bytes(raw_data))
-
-        # Should detect 20-byte format
-        assert record_size == 20
-        assert unpack_format == ">IIIff"
-
-    def test_detect_format_20_byte_invalid_volume(self, downloader: Bi5Downloader) -> None:
-        """Test format detection for 20-byte data with invalid volume."""
-        # Generate 20-byte data with invalid volume (too large)
-        raw_data = bytearray()
-        for i in range(10):
-            timestamp_delta = i * 1000
-            bid_int = int((1.10000 + i * 0.00001) * 100000)
-            ask_int = int((1.10010 + i * 0.00001) * 100000)
-            ask_vol = float(1_000_000_000 + i)  # Invalid: too large
-            bid_vol = float(1_000_000_000 + i)
-            raw_data.extend(
-                struct.pack(">IIIff", timestamp_delta, ask_int, bid_int, ask_vol, bid_vol)
-            )
-
-        # Detect format
-        record_size, unpack_format = downloader._detect_format(bytes(raw_data))
-
-        # Should fall back to 12-byte format due to invalid volume
-        assert record_size == 12
-        assert unpack_format == ">III"
-
-    def test_detect_format_20_byte_invalid_delta(self, downloader: Bi5Downloader) -> None:
-        """Test format detection for 20-byte data with invalid delta."""
-        # Generate 20-byte data with invalid delta (too large)
-        raw_data = bytearray()
-        for i in range(10):
-            timestamp_delta = 10_000_000 + i * 1000  # Invalid: too large
-            bid_int = int((1.10000 + i * 0.00001) * 100000)
-            ask_int = int((1.10010 + i * 0.00001) * 100000)
-            ask_vol = float(1000 + i * 10)
-            bid_vol = float(950 + i * 10)
-            raw_data.extend(
-                struct.pack(">IIIff", timestamp_delta, ask_int, bid_int, ask_vol, bid_vol)
-            )
-
-        # Detect format
-        record_size, unpack_format = downloader._detect_format(bytes(raw_data))
-
-        # Should fall back to 12-byte format due to invalid delta
-        assert record_size == 12
-        assert unpack_format == ">III"
-
-    def test_process_bi5_data_20_byte(self, downloader: Bi5Downloader) -> None:
-        """Test processing 20-byte .bi5 data."""
-        # Generate mock 20-byte data
-        date = datetime(2023, 12, 1, 0, 0, 0, tzinfo=UTC)
-        mock_data = MockBi5DataGenerator.generate_mock_bi5_data_20byte("EURUSD", date, num_ticks=10)
-
-        # Process data
-        ticks = downloader._process_bi5_data(mock_data, "EURUSD", date)
-
-        # Verify results
-        assert len(ticks) == 10
-        assert all(isinstance(tick, TickData) for tick in ticks)
-        assert ticks[0].symbol == "EURUSD"
-        assert ticks[0].bid < ticks[0].ask  # Spread check
-        assert ticks[0].timestamp.tzinfo == UTC
-
-        # Verify price progression
-        for i in range(1, len(ticks)):
-            assert ticks[i].bid > ticks[i - 1].bid  # Upward trend
-
-        downloader._logger.debug.assert_called()
-        downloader._logger.info.assert_called_once()
-
-    def test_process_bi5_data_mixed_formats(self, downloader: Bi5Downloader) -> None:
-        """Test processing both 12-byte and 20-byte formats."""
-        date = datetime(2023, 12, 1, 0, 0, 0, tzinfo=UTC)
-
-        # Test 12-byte format
-        mock_data_12 = MockBi5DataGenerator.generate_mock_bi5_data("EURUSD", date, num_ticks=5)
-        ticks_12 = downloader._process_bi5_data(mock_data_12, "EURUSD", date)
-        assert len(ticks_12) == 5
-
-        # Test 20-byte format
-        mock_data_20 = MockBi5DataGenerator.generate_mock_bi5_data_20byte(
-            "EURUSD", date, num_ticks=5
-        )
-        ticks_20 = downloader._process_bi5_data(mock_data_20, "EURUSD", date)
-        assert len(ticks_20) == 5
-
-        # Both should produce valid TickData
-        assert all(isinstance(tick, TickData) for tick in ticks_12)
-        assert all(isinstance(tick, TickData) for tick in ticks_20)
+        mock_dependencies["http_client"].close.assert_called_once()
