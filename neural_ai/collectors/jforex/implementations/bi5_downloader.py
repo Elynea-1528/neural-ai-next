@@ -122,7 +122,9 @@ class Bi5Downloader(IJForexDownloader):
         try:
             async with self._http_client.get(url) as response:
                 if response.status == 404:
-                    self._logger.warning("bi5_data_not_available", url=url, reason="404_not_found")
+                    self._logger.warning(
+                        f"bi5_data_not_available: {url}", url=url, reason="404_not_found"
+                    )
                     raise DataNotAvailableError(f"No data available at {url}")
 
                 response.raise_for_status()
@@ -136,8 +138,77 @@ class Bi5Downloader(IJForexDownloader):
             self._logger.error("bi5_download_failed", url=url, error=str(e))
             raise DownloadError(f"Failed to download {url}: {e}") from e
 
+    def _detect_format(self, decompressed: bytes) -> tuple[int, str]:
+        """Detect .bi5 record format dynamically.
+
+        Analyzes the decompressed data to determine if it uses 12-byte or 20-byte records.
+        Uses heuristics to distinguish between the two formats.
+
+        Args:
+            decompressed: Decompressed .bi5 binary data
+
+        Returns:
+            Tuple of (record_size, unpack_format)
+
+        Raises:
+            DecodeError: If format detection fails
+        """
+        # Alapértelmezett: 12 bájtos formátum (timestamp_delta, ask, bid)
+        record_size = 12
+        unpack_format = ">III"
+
+        # Heurisztika: ha a hossz osztható 20-szal, ellenőrizzük a 20 bájtos formátumot
+        if len(decompressed) % 20 == 0:
+            self._logger.debug("bi5_20_byte_candidate_detected", total_bytes=len(decompressed))
+
+            # Smart Check: elemzzük az első néhány rekordot
+            try:
+                # Az első rekord elemzése 20 bájtosként
+                if len(decompressed) >= 40:  # Legalább 2 rekord kell a validációhoz
+                    # Első rekord: delta, ask, bid, ask_vol, bid_vol
+                    first_record = decompressed[0:20]
+                    delta1, ask1, bid1, ask_vol1, bid_vol1 = struct.unpack(">IIIff", first_record)
+
+                    # Második rekord első 4 bájtja (delta)
+                    second_record = decompressed[20:24]
+                    (delta2,) = struct.unpack(">I", second_record)
+
+                    # Validáció: volume és delta értékek ellenőrzése
+                    # Volume-oknak "normális" float-nak kell lenniük (0 és 100M között)
+                    # Delta-nak kis egész számnak kell lenniük (0 és 3600000 között, azaz 1 óra)
+                    is_valid_volume = (
+                        0.0 <= ask_vol1 <= 100_000_000.0 and 0.0 <= bid_vol1 <= 100_000_000.0
+                    )
+                    is_valid_delta = 0 <= delta1 <= 3_600_000 and 0 <= delta2 <= 3_600_000
+
+                    if is_valid_volume and is_valid_delta:
+                        # A delta2 - delta1 különbségnek is ésszerűnek kell lenni
+                        delta_diff = abs(delta2 - delta1)
+                        if delta_diff <= 1000:  # Maximum 1 másodperc különbség
+                            record_size = 20
+                            unpack_format = ">IIIff"
+                            self._logger.debug(
+                                "bi5_20_byte_format_confirmed",
+                                reason="valid_volume_and_delta_pattern",
+                            )
+
+            except struct.error as e:
+                self._logger.debug(
+                    "bi5_20_byte_validation_failed", error=str(e), fallback="using_12_byte_format"
+                )
+                # Hiba esetén marad a 12 bájtos alapértelmezett
+
+        self._logger.debug(
+            "bi5_format_detected",
+            record_size=record_size,
+            unpack_format=unpack_format,
+            total_bytes=len(decompressed),
+        )
+
+        return record_size, unpack_format
+
     def _process_bi5_data(self, data: bytes, symbol: str, date: datetime) -> list["TickData"]:
-        """Process and decode .bi5 binary data.
+        """Process and decode .bi5 binary data with dynamic format detection.
 
         Args:
             data: Raw .bi5 binary data (LZMA compressed)
@@ -159,8 +230,8 @@ class Bi5Downloader(IJForexDownloader):
             # LZMA decompression
             decompressed = lzma.decompress(data)
 
-            # Process records (12 bytes each: 4 bytes timestamp_delta + 4 bytes ask + 4 bytes bid)
-            record_size = 12
+            # Dinamikus formátumfelismerés
+            record_size, unpack_format = self._detect_format(decompressed)
             num_records = len(decompressed) // record_size
 
             # Base timestamp: start of the DAY (midnight) in milliseconds
@@ -182,9 +253,25 @@ class Bi5Downloader(IJForexDownloader):
                 offset = i * record_size
                 record = decompressed[offset : offset + record_size]
 
-                # Big-endian unpack: unsigned int, unsigned int, unsigned int
-                # Dukascopy stores prices as integers (multiplied by 100,000)
-                timestamp_delta, ask_int, bid_int = struct.unpack(">III", record)
+                # Dinamikus unpakolás a detektált formátum alapján
+                if record_size == 20:
+                    # 20 bájtos formátum: delta, ask, bid, ask_vol, bid_vol
+                    timestamp_delta, ask_int, bid_int, ask_vol, bid_vol = struct.unpack(
+                        unpack_format, record
+                    )
+
+                    # Logoljuk a volume adatokat, ha érdekesek
+                    if i < 5:  # Csak az első 5 rekordot logoljuk
+                        self._logger.debug(
+                            "bi5_20_byte_record_detected",
+                            record_index=i,
+                            ask_volume=ask_vol,
+                            bid_volume=bid_vol,
+                        )
+
+                else:
+                    # 12 bájtos formátum: delta, ask, bid
+                    timestamp_delta, ask_int, bid_int = struct.unpack(unpack_format, record)
 
                 # Convert integer prices to floats
                 ask = ask_int / 100000.0
@@ -195,9 +282,26 @@ class Bi5Downloader(IJForexDownloader):
                     skipped_price += 1
                     continue
 
+                # Dátum validáció: a timestamp_delta nem lehet negatív
+                if timestamp_delta < 0:
+                    self._logger.warning(
+                        "bi5_invalid_timestamp_delta", record_index=i, delta=timestamp_delta
+                    )
+                    continue
+
                 # Calculate actual timestamp
                 timestamp_ms = base_timestamp + timestamp_delta
                 timestamp = datetime.fromtimestamp(timestamp_ms / 1000, tz=UTC)
+
+                # Dátum egyezés ellenőrzése
+                if timestamp.date() != date.date():
+                    self._logger.warning(
+                        "bi5_date_mismatch",
+                        record_index=i,
+                        expected=date.date().isoformat(),
+                        actual=timestamp.date().isoformat(),
+                    )
+                    continue
 
                 # Create TickData object
                 tick = TickData(
@@ -219,6 +323,7 @@ class Bi5Downloader(IJForexDownloader):
                 total=total_records,
                 valid=valid_ticks,
                 price_skip=skipped_price,
+                record_size=record_size,
             )
 
             self._logger.debug(

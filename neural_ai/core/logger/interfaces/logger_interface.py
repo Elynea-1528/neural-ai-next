@@ -1,8 +1,7 @@
 """Logger interfész definíció a naplózási rendszer számára."""
 
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
-from typing import TYPE_CHECKING, AnyStr, Optional
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -21,7 +20,7 @@ class LoggerInterface(ABC):
         self,
         name: str,
         config: Optional["ConfigManagerInterface"] = None,
-        **kwargs: Mapping[str, AnyStr],
+        **kwargs: object,
     ) -> None:
         """Logger inicializálása.
 
@@ -33,7 +32,7 @@ class LoggerInterface(ABC):
         pass
 
     @abstractmethod
-    def debug(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+    def debug(self, message: str, **kwargs: object) -> None:
         """Debug szintű üzenet naplózása.
 
         Részletes hibakeresési információk naplózására szolgál, amelyek általában
@@ -46,7 +45,7 @@ class LoggerInterface(ABC):
         pass
 
     @abstractmethod
-    def info(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+    def info(self, message: str, **kwargs: object) -> None:
         """Információs szintű üzenet naplózása.
 
         Általános információk naplózására szolgál, amelyek a rendszer normál
@@ -59,7 +58,7 @@ class LoggerInterface(ABC):
         pass
 
     @abstractmethod
-    def warning(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+    def warning(self, message: str, **kwargs: object) -> None:
         """Figyelmeztető szintű üzenet naplózása.
 
         Olyan helyzetek naplózására szolgál, amelyek nem kritikusak, de
@@ -72,7 +71,7 @@ class LoggerInterface(ABC):
         pass
 
     @abstractmethod
-    def error(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+    def error(self, message: str, **kwargs: object) -> None:
         """Hiba szintű üzenet naplózása.
 
         Hibák naplózására szolgál, amelyek befolyásolják a rendszer működését,
@@ -85,7 +84,7 @@ class LoggerInterface(ABC):
         pass
 
     @abstractmethod
-    def critical(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+    def critical(self, message: str, **kwargs: object) -> None:
         """Kritikus szintű üzenet naplózása.
 
         Súlyos hibák naplózására szolgál, amelyek alkalmazásleállást okozhatnak.

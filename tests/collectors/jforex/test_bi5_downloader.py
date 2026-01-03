@@ -55,6 +55,48 @@ class MockBi5DataGenerator:
 
         return compressed
 
+    @staticmethod
+    def generate_mock_bi5_data_20byte(symbol: str, date: datetime, num_ticks: int = 100) -> bytes:
+        """Generate mock 20-byte .bi5 data for testing.
+
+        Args:
+            symbol: Trading symbol
+            date: Date for which to generate data
+            num_ticks: Number of ticks to generate
+
+        Returns:
+            LZMA compressed .bi5 binary data with 20-byte records
+        """
+        # Generate mock tick data with volume
+        raw_data = bytearray()
+        base_price = 1.10000  # EURUSD base price
+
+        for i in range(num_ticks):
+            # Timestamp delta (1 second intervals)
+            timestamp_delta = i * 1000
+
+            # Generate prices with small variations
+            bid = base_price + (i * 0.00001)  # Slight upward trend
+            ask = bid + 0.00010  # 1 pip spread
+
+            # Generate volume data (reasonable values)
+            ask_vol = float(1000 + i * 10)  # Increasing volume
+            bid_vol = float(950 + i * 10)  # Slightly lower bid volume
+
+            # Convert to integer format (multiplied by 100,000)
+            bid_int = int(bid * 100000)
+            ask_int = int(ask * 100000)
+
+            # Pack as big-endian: unsigned int, unsigned int, unsigned int, float, float
+            raw_data.extend(
+                struct.pack(">IIIff", timestamp_delta, ask_int, bid_int, ask_vol, bid_vol)
+            )
+
+        # LZMA compress
+        compressed = lzma.compress(bytes(raw_data))
+
+        return compressed
+
 
 class TestBi5Downloader:
     """Test suite for Bi5Downloader."""
@@ -246,7 +288,8 @@ class TestBi5Downloader:
         for i in range(1, len(ticks)):
             assert ticks[i].bid > ticks[i - 1].bid  # Upward trend
 
-        downloader._logger.debug.assert_called_once()
+        # After refactoring, debug is called multiple times (format detection + success)
+        assert downloader._logger.debug.call_count >= 1
 
     def test_process_bi5_data_corrupted(self, downloader: Bi5Downloader) -> None:
         """Test corrupted .bi5 data handling."""
@@ -457,3 +500,126 @@ class TestBi5Downloader:
 
         # Test mid price calculation
         assert tick.mid_price == 1.10005
+
+    def test_detect_format_12_byte(self, downloader: Bi5Downloader) -> None:
+        """Test format detection for 12-byte records."""
+        # Generate 12-byte data
+        raw_data = bytearray()
+        for i in range(10):
+            timestamp_delta = i * 1000
+            bid_int = int((1.10000 + i * 0.00001) * 100000)
+            ask_int = int((1.10010 + i * 0.00001) * 100000)
+            raw_data.extend(struct.pack(">III", timestamp_delta, ask_int, bid_int))
+
+        # Detect format
+        record_size, unpack_format = downloader._detect_format(bytes(raw_data))
+
+        # Should detect 12-byte format
+        assert record_size == 12
+        assert unpack_format == ">III"
+
+    def test_detect_format_20_byte(self, downloader: Bi5Downloader) -> None:
+        """Test format detection for 20-byte records."""
+        # Generate 20-byte data with valid volume and delta patterns
+        raw_data = bytearray()
+        for i in range(10):
+            timestamp_delta = i * 1000
+            bid_int = int((1.10000 + i * 0.00001) * 100000)
+            ask_int = int((1.10010 + i * 0.00001) * 100000)
+            ask_vol = float(1000 + i * 10)
+            bid_vol = float(950 + i * 10)
+            raw_data.extend(
+                struct.pack(">IIIff", timestamp_delta, ask_int, bid_int, ask_vol, bid_vol)
+            )
+
+        # Detect format
+        record_size, unpack_format = downloader._detect_format(bytes(raw_data))
+
+        # Should detect 20-byte format
+        assert record_size == 20
+        assert unpack_format == ">IIIff"
+
+    def test_detect_format_20_byte_invalid_volume(self, downloader: Bi5Downloader) -> None:
+        """Test format detection for 20-byte data with invalid volume."""
+        # Generate 20-byte data with invalid volume (too large)
+        raw_data = bytearray()
+        for i in range(10):
+            timestamp_delta = i * 1000
+            bid_int = int((1.10000 + i * 0.00001) * 100000)
+            ask_int = int((1.10010 + i * 0.00001) * 100000)
+            ask_vol = float(1_000_000_000 + i)  # Invalid: too large
+            bid_vol = float(1_000_000_000 + i)
+            raw_data.extend(
+                struct.pack(">IIIff", timestamp_delta, ask_int, bid_int, ask_vol, bid_vol)
+            )
+
+        # Detect format
+        record_size, unpack_format = downloader._detect_format(bytes(raw_data))
+
+        # Should fall back to 12-byte format due to invalid volume
+        assert record_size == 12
+        assert unpack_format == ">III"
+
+    def test_detect_format_20_byte_invalid_delta(self, downloader: Bi5Downloader) -> None:
+        """Test format detection for 20-byte data with invalid delta."""
+        # Generate 20-byte data with invalid delta (too large)
+        raw_data = bytearray()
+        for i in range(10):
+            timestamp_delta = 10_000_000 + i * 1000  # Invalid: too large
+            bid_int = int((1.10000 + i * 0.00001) * 100000)
+            ask_int = int((1.10010 + i * 0.00001) * 100000)
+            ask_vol = float(1000 + i * 10)
+            bid_vol = float(950 + i * 10)
+            raw_data.extend(
+                struct.pack(">IIIff", timestamp_delta, ask_int, bid_int, ask_vol, bid_vol)
+            )
+
+        # Detect format
+        record_size, unpack_format = downloader._detect_format(bytes(raw_data))
+
+        # Should fall back to 12-byte format due to invalid delta
+        assert record_size == 12
+        assert unpack_format == ">III"
+
+    def test_process_bi5_data_20_byte(self, downloader: Bi5Downloader) -> None:
+        """Test processing 20-byte .bi5 data."""
+        # Generate mock 20-byte data
+        date = datetime(2023, 12, 1, 0, 0, 0, tzinfo=UTC)
+        mock_data = MockBi5DataGenerator.generate_mock_bi5_data_20byte("EURUSD", date, num_ticks=10)
+
+        # Process data
+        ticks = downloader._process_bi5_data(mock_data, "EURUSD", date)
+
+        # Verify results
+        assert len(ticks) == 10
+        assert all(isinstance(tick, TickData) for tick in ticks)
+        assert ticks[0].symbol == "EURUSD"
+        assert ticks[0].bid < ticks[0].ask  # Spread check
+        assert ticks[0].timestamp.tzinfo == UTC
+
+        # Verify price progression
+        for i in range(1, len(ticks)):
+            assert ticks[i].bid > ticks[i - 1].bid  # Upward trend
+
+        downloader._logger.debug.assert_called()
+        downloader._logger.info.assert_called_once()
+
+    def test_process_bi5_data_mixed_formats(self, downloader: Bi5Downloader) -> None:
+        """Test processing both 12-byte and 20-byte formats."""
+        date = datetime(2023, 12, 1, 0, 0, 0, tzinfo=UTC)
+
+        # Test 12-byte format
+        mock_data_12 = MockBi5DataGenerator.generate_mock_bi5_data("EURUSD", date, num_ticks=5)
+        ticks_12 = downloader._process_bi5_data(mock_data_12, "EURUSD", date)
+        assert len(ticks_12) == 5
+
+        # Test 20-byte format
+        mock_data_20 = MockBi5DataGenerator.generate_mock_bi5_data_20byte(
+            "EURUSD", date, num_ticks=5
+        )
+        ticks_20 = downloader._process_bi5_data(mock_data_20, "EURUSD", date)
+        assert len(ticks_20) == 5
+
+        # Both should produce valid TickData
+        assert all(isinstance(tick, TickData) for tick in ticks_12)
+        assert all(isinstance(tick, TickData) for tick in ticks_20)

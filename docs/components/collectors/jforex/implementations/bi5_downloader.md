@@ -60,9 +60,30 @@ Download binary .bi5 data from Dukascopy.
             DataNotAvailableError: If server returns 404 (weekend/holiday)
             DownloadError: If network error occurs
 
+### `_detect_format`
+
+Detect .bi5 record format dynamically.
+
+        Args:
+            decompressed: Decompressed .bi5 binary data
+
+        Returns:
+            Tuple of (record_size, unpack_format)
+
+        Raises:
+            DecodeError: If format detection fails
+        
+        Metódus működése:
+        - Alapértelmezett: 12 bájtos formátum (timestamp_delta, ask, bid)
+        - Heurisztika: ha a hossz osztható 20-szal, ellenőrizzük a 20 bájtos formátumot
+        - Smart Check: elemzi az első néhány rekordot
+          - Volume validáció: 0 és 100M között kell lennie
+          - Delta validáció: 0 és 3,600,000 között kell lennie (max 1 óra)
+        - Visszatérés a detektált formátummal (12 vagy 20 bájt)
+
 ### `_process_bi5_data`
 
-Process and decode .bi5 binary data.
+Process and decode .bi5 binary data with dynamic format detection.
 
         Args:
             data: Raw .bi5 binary data (LZMA compressed)
@@ -77,17 +98,21 @@ Process and decode .bi5 binary data.
         
         Metódus működése:
         - LZMA dekompresszió végrehajtása
-        - Bináris adatok feldolgozása (12 bájtos rekordok)
+        - Dinamikus formátumfelismerés a `_detect_format` metódussal
+        - Bináris adatok feldolgozása (12 vagy 20 bájtos rekordok)
         - Ár konverzió (integer -> float, osztás 100000-rel)
         - Időbélyeg számítás (base_timestamp + delta)
         - Szűrés:
           - Ár szűrés: csak pozitív bid/ask árak (bid <= 0.0 or ask <= 0.0 esetén kihagyás)
-          - Idő szűrés: NINCS (eltávolítva a timestamp.hour != date.hour ellenőrzés)
+          - Dátum validáció: timestamp_delta nem lehet negatív
+          - Dátum egyezés: timestamp.date() == date.date()
         - Metrikák gyűjtése:
           - `total_records`: Összes feldolgozott rekord
           - `skipped_price`: Ár szűrés miatt kihagyott rekordok
           - `valid_ticks`: Érvényes tick-ek száma
+          - `record_size`: Detektált rekord méret (12 vagy 20)
         - Statisztika logolás: `bi5_chunk_stats` (INFO szint)
+        - Volume adatok logolása (ha 20 bájtos formátum)
 
 ### `_publish_ticks`
 
