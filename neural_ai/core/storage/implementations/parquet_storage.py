@@ -204,12 +204,45 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if missing_columns:
             raise ValueError(f"Missing required columns: {missing_columns}")
 
-        # Egyedi fájlnév generálása
+        # READ-MODIFY-WRITE logika a duplikált fájlok elkerülésére
+
+        # READ: Meglévő adatok beolvasása
+        existing_data = await self._read_existing_data_for_date(symbol, date)
+
+        # MODIFY: Összefűzés és deduplikáció
+        if len(existing_data) > 0:
+            # Szűrjük a meglévő adatokat is csak a szükséges oszlopokra
+            existing_data_filtered = self._filter_columns(existing_data)
+            data_filtered = self._filter_columns(data)
+            combined_data = self._concat_dataframes([existing_data_filtered, data_filtered])
+            combined_data = self._deduplicate_data(combined_data)
+            combined_data = self._sort_by_timestamp(combined_data)
+            data_to_write = combined_data
+        else:
+            data_to_write = self._filter_columns(data)
+
+        # WRITE: Újramentés egyetlen fájlba
+        # Először töröljük a meglévő fájlokat az adott dátumra
+        date_dir = (
+            self.BASE_PATH
+            / symbol.upper()
+            / "tick"
+            / f"year={date.year}"
+            / f"month={date.month:02d}"
+            / f"day={date.day:02d}"
+        )
+
+        if date_dir.exists():
+            import shutil
+
+            shutil.rmtree(date_dir)
+
+        # Új fájl létrehozása
         path = self._get_path(symbol, date)
         path.parent.mkdir(parents=True, exist_ok=True)
 
         # Adatok tárolása a kiválasztott backend-en keresztül
-        self.backend.write(data, str(path), compression=self.compression)
+        self.backend.write(data_to_write, str(path), compression=self.compression)
 
         logger.info(
             "Tick data stored successfully",
@@ -321,6 +354,70 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
         return result
 
+    async def _read_existing_data_for_date(self, symbol: str, date: datetime) -> Any:
+        """Meglévő adatok beolvasása egy adott dátumra.
+
+        Args:
+            symbol: A pénzpár szimbóluma
+            date: A dátum
+
+        Returns:
+            A meglévő adatokat tartalmazó DataFrame (deduplikálva)
+        """
+        date_dir = (
+            self.BASE_PATH
+            / symbol.upper()
+            / "tick"
+            / f"year={date.year}"
+            / f"month={date.month:02d}"
+            / f"day={date.day:02d}"
+        )
+
+        if not date_dir.exists():
+            if self.engine == "polars":
+                import polars as pl
+
+                return pl.DataFrame()
+            else:
+                import pandas as pd
+
+                return pd.DataFrame()
+
+        # Összes fájl beolvasása és összefűzése
+        parquet_files = list(date_dir.glob("*.parquet"))
+        if not parquet_files:
+            if self.engine == "polars":
+                import polars as pl
+
+                return pl.DataFrame()
+            else:
+                import pandas as pd
+
+                return pd.DataFrame()
+
+        try:
+            dfs = []
+            for file_path in parquet_files:
+                df = self.backend.read(str(file_path))
+                dfs.append(df)
+
+            if dfs:
+                combined = self._concat_dataframes(dfs)
+                logger.debug(f"Meglévő adatok oszlopai: {combined.columns}, sorok: {len(combined)}")
+                # Ne végezzünk deduplikációt itt, hagyjuk a store_tick_data-nak
+                return combined
+        except Exception as e:
+            logger.warning(f"Failed to read existing data for {symbol} on {date}: {e}")
+
+        if self.engine == "polars":
+            import polars as pl
+
+            return pl.DataFrame()
+        else:
+            import pandas as pd
+
+            return pd.DataFrame()
+
     async def _read_parquet_async(self, path: Path) -> Any:
         """Aszinkron Parquet olvasás.
 
@@ -366,17 +463,128 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if self.engine == "polars":
             import polars as pl
 
-            pl_df = cast(pl.DataFrame, data)
-            # Deduplikáció: egyedi sorok szűrése timestamp + bid + ask alapján
-            # Ez megőrzi az azonos időbélyegű, de eltérő árú tick-eket (intra-millisecond ticks)
-            return pl_df.unique(subset=["timestamp", "bid", "ask"], maintain_order=False)
+            try:
+                # Ha már Polars DataFrame, használjuk közvetlenül
+                if isinstance(data, pl.DataFrame):
+                    pl_df = data
+                else:
+                    # Egyébként próbáljuk meg konvertálni
+                    # Először próbáljuk meg a to_pandas() metódussal, ha van
+                    if hasattr(data, "to_pandas"):
+                        pd_df = data.to_pandas()
+                        pl_df = pl.DataFrame(pd_df)
+                    else:
+                        # Ha nincs to_pandas() metódus, próbáljuk közvetlenül
+                        pl_df = pl.DataFrame(data)
+
+                # Csak a szükséges oszlopokat választjuk ki a deduplikációhoz
+                # Ez biztosítja, hogy ne legyen oszlop szélesség hiba
+                available_columns = [
+                    col
+                    for col in ["timestamp", "bid", "ask", "volume", "source"]
+                    if col in pl_df.columns
+                ]
+                pl_df_selected = pl_df.select(available_columns)
+
+                # Deduplikáció: egyedi sorok szűrése timestamp + bid + ask alapján
+                # Ez megőrzi az azonos időbélyegű, de eltérő árú tick-eket (intra-millisecond ticks)
+                deduplicated = pl_df_selected.unique(
+                    subset=["timestamp", "bid", "ask"], maintain_order=False
+                )
+                return deduplicated
+            except Exception as e:
+                # Ha bármi hiba történik, adjuk vissza az eredeti adatot
+                logger.warning(f"Deduplikáció sikertelen, visszaadom az eredeti adatot: {e}")
+                return data
         else:
             import pandas as pd
 
-            pd_df = cast(pd.DataFrame, data)
-            # Deduplikáció: egyedi sorok szűrése timestamp + bid + ask alapján
-            # Ez megőrzi az azonos időbélyegű, de eltérő árú tick-eket (intra-millisecond ticks)
-            return pd_df.drop_duplicates(subset=["timestamp", "bid", "ask"], keep="first")
+            try:
+                # Ha már Pandas DataFrame, használjuk közvetlenül
+                if isinstance(data, pd.DataFrame):
+                    pd_df = data
+                else:
+                    # Egyébként próbáljuk meg konvertálni
+                    # Először próbáljuk meg a to_pandas() metódussal, ha van
+                    if hasattr(data, "to_pandas"):
+                        pd_df = data.to_pandas()
+                    else:
+                        # Ha nincs to_pandas() metódus, próbáljuk közvetlenül
+                        pd_df = pd.DataFrame(data)
+
+                # Csak a szükséges oszlopokat választjuk ki a deduplikációhoz
+                # Ez biztosítja, hogy ne legyen oszlop szélesség hiba
+                available_columns = [
+                    col
+                    for col in ["timestamp", "bid", "ask", "volume", "source"]
+                    if col in pd_df.columns
+                ]
+                pd_df_selected = pd_df[available_columns]
+
+                # Deduplikáció: egyedi sorok szűrése timestamp + bid + ask alapján
+                # Ez megőrzi az azonos időbélyegű, de eltérő árú tick-eket (intra-millisecond ticks)
+                return pd_df_selected.drop_duplicates(
+                    subset=["timestamp", "bid", "ask"], keep="first"
+                )
+            except Exception as e:
+                # Ha bármi hiba történik, adjuk vissza az eredeti adatot
+                logger.warning(f"Deduplikáció sikertelen, visszaadom az eredeti adatot: {e}")
+                return data
+
+    def _filter_columns(self, data: Any) -> Any:
+        """DataFrame oszlopainak szűrése csak a szükségesekre.
+
+        Args:
+            data: A szűrendő DataFrame
+
+        Returns:
+            A szűrt DataFrame csak a szükséges oszlopokkal
+        """
+        if self.engine == "polars":
+            import polars as pl
+
+            try:
+                if isinstance(data, pl.DataFrame):
+                    pl_df = data
+                else:
+                    if hasattr(data, "to_pandas"):
+                        pd_df = data.to_pandas()
+                        pl_df = pl.DataFrame(pd_df)
+                    else:
+                        pl_df = pl.DataFrame(data)
+
+                # Csak a szükséges oszlopokat választjuk ki
+                available_columns = [
+                    col
+                    for col in ["timestamp", "bid", "ask", "volume", "source"]
+                    if col in pl_df.columns
+                ]
+                return pl_df.select(available_columns)
+            except Exception as e:
+                logger.warning(f"Oszlop szűrés sikertelen, visszaadom az eredeti adatot: {e}")
+                return data
+        else:
+            import pandas as pd
+
+            try:
+                if isinstance(data, pd.DataFrame):
+                    pd_df = data
+                else:
+                    if hasattr(data, "to_pandas"):
+                        pd_df = data.to_pandas()
+                    else:
+                        pd_df = pd.DataFrame(data)
+
+                # Csak a szükséges oszlopokat választjuk ki
+                available_columns = [
+                    col
+                    for col in ["timestamp", "bid", "ask", "volume", "source"]
+                    if col in pd_df.columns
+                ]
+                return pd_df[available_columns]
+            except Exception as e:
+                logger.warning(f"Oszlop szűrés sikertelen, visszaadom az eredeti adatot: {e}")
+                return data
 
     def _sort_by_timestamp(self, data: Any) -> Any:
         """DataFrame rendezése timestamp szerint.
