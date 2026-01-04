@@ -98,11 +98,11 @@ class Bi5Downloader(IJForexDownloader):
         Returns:
             Storage path string
         """
-        # Format: data/jforex/{SYMBOL}/{YEAR}/{MONTH}/{DAY}/{HOUR}.parquet
+        # Format: data/tick/{SYMBOL}/tick/year={YYYY}/month={MM}/day={DD}/tick_{YYYY}{MM}{DD}_{HH}0000.parquet
         path = (
-            f"data/jforex/{symbol.upper()}/"
-            f"{date.year}/{date.month:02d}/{date.day:02d}/"
-            f"{date.hour:02d}h_ticks.parquet"
+            f"data/tick/{symbol.upper()}/tick/"
+            f"year={date.year}/month={date.month:02d}/day={date.day:02d}/"
+            f"tick_{date.year}{date.month:02d}{date.day:02d}_{date.hour:02d}0000.parquet"
         )
         return path
 
@@ -154,10 +154,11 @@ class Bi5Downloader(IJForexDownloader):
             DecodeError: If format detection fails
         """
         # Alapértelmezett: 12 bájtos formátum (timestamp_delta, ask, bid)
+        is_divisible_12 = len(decompressed) % 12 == 0
         record_size = 12
         unpack_format = ">III"
 
-        # Heurisztika: ha a hossz osztható 20-szal, ellenőrizzük a 20 bájtos formátumot
+        # Ha a hossz osztható 20-szal, ellenőrizzük a 20 bájtos formátumot
         if len(decompressed) % 20 == 0:
             self._logger.debug("bi5_20_byte_candidate_detected", total_bytes=len(decompressed))
 
@@ -173,15 +174,22 @@ class Bi5Downloader(IJForexDownloader):
                     second_record = decompressed[20:24]
                     (delta2,) = struct.unpack(">I", second_record)
 
-                    # Validáció: volume és delta értékek ellenőrzése
-                    # Volume-oknak "normális" float-nak kell lenniük (0 és 100M között)
-                    # Delta-nak kis egész számnak kell lenniük (0 és 3600000 között, azaz 1 óra)
+                    # SZIGORÍTOTT VALIDÁCIÓ: Zajszűrés
+                    # Egy valós volumen nem lehet "infinitezimálisan" kicsi lebegőpontos zaj.
+                    # A float(int) konverzió gyakran eredményez pl. 1.4e-43 értéket.
+                    is_noise_ask = 0.0 < abs(ask_vol1) < 0.001
+                    is_noise_bid = 0.0 < abs(bid_vol1) < 0.001
+
+                    # Volume és delta értékek ellenőrzése
                     is_valid_volume = (
-                        0.0 <= ask_vol1 <= 100_000_000.0 and 0.0 <= bid_vol1 <= 100_000_000.0
+                        (ask_vol1 == 0.0 or ask_vol1 > 0.001)
+                        and (bid_vol1 == 0.0 or bid_vol1 > 0.001)
+                        and ask_vol1 <= 100_000_000.0
+                        and bid_vol1 <= 100_000_000.0
                     )
                     is_valid_delta = 0 <= delta1 <= 3_600_000 and 0 <= delta2 <= 3_600_000
 
-                    if is_valid_volume and is_valid_delta:
+                    if is_valid_volume and is_valid_delta and not is_noise_ask and not is_noise_bid:
                         # A delta2 - delta1 különbségnek is ésszerűnek kell lenni
                         delta_diff = abs(delta2 - delta1)
                         if delta_diff <= 1000:  # Maximum 1 másodperc különbség
@@ -291,13 +299,14 @@ class Bi5Downloader(IJForexDownloader):
                 timestamp_ms = base_timestamp + timestamp_delta
                 timestamp = datetime.fromtimestamp(timestamp_ms / 1000, tz=UTC)
 
-                # Dátum egyezés ellenőrzése
+                # Dátum validáció: a timestamp a kért dátum napján belül kell legyen
+                # Megengedjük, hogy az óra végén lévő tick-ek a következő órába essenek
                 if timestamp.date() != date.date():
                     self._logger.warning(
                         "bi5_date_mismatch",
                         record_index=i,
-                        expected=date.date().isoformat(),
-                        actual=timestamp.date().isoformat(),
+                        expected=f"{date.date().isoformat()}",
+                        actual=f"{timestamp.date().isoformat()} {timestamp.hour:02d}:{timestamp.minute:02d}",
                     )
                     continue
 
@@ -344,8 +353,11 @@ class Bi5Downloader(IJForexDownloader):
         Args:
             ticks: List of TickData objects to publish
         """
-        if not ticks:
+        if not ticks or not self._event_bus:
+            self._logger.warning("_publish_ticks: nincs tick vagy event_bus")
             return
+
+        self._logger.info(f"_publish_ticks: {len(ticks)} tick publikálása")
 
         # Import MarketDataEvent here to avoid circular imports
         from neural_ai.core.events.interfaces.event_models import MarketDataEvent
@@ -372,8 +384,9 @@ class Bi5Downloader(IJForexDownloader):
                 for tick in batch
             ]
 
-            # Publish batch
-            await self._event_bus.publish("market_data", events)
+            # Publish each event individually
+            for event in events:
+                await self._event_bus.publish("market_data", event)
 
         self._logger.debug(
             "ticks_published",

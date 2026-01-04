@@ -75,10 +75,27 @@ Dinamikusan detektálja a .bi5 rekordformátumot:
 - **12 bájtos formátum**: `timestamp_delta, ask, bid` (alapértelmezett)
 - **20 bájtos formátum**: `timestamp_delta, ask, bid, ask_vol, bid_vol`
 
-Heurisztikát alkalmaz a formátum meghatározásához:
+**Kritikus javítás (2026.01.04):**
+
+A metódus mostantól szigorúbb validációt alkalmaz a 20 bájtos formátum detektálásához, hogy elkerülje a téves detektálást:
+
+**Új prioritási logika:**
+1.  **Alapértelmezett**: Ha a hossz osztható 12-vel, akkor 12 bájtos formátum (még akkor is, ha osztható 20-szal)
+2.  **Szigorú 20-as teszt**: Csak akkor váltson 20 bájtosra, ha:
+    - A hossz osztható 20-szal
+    - A volumen értékek **értelmezhetőek** (nem "zajszemét")
+
+**Zajszűrés:**
+- Egy valós volumen nem lehet "infinitezimálisan" kicsi lebegőpontos érték
+- A float(int) konverzió gyakran eredményez pl. 1.4e-43 értéket (zaj)
+- A metódus elutasítja az ilyen értékeket, és visszaesik a 12 bájtos alapértelmezettre
+
+**Validáció lépései:**
 - Ellenőrzi, hogy a dekompresszált adat hossza osztható-e 20-szal
-- Validálja az első néhány rekordot (volume és delta értékek)
-- Ha valid, 20 bájtos formátumot használ, különben 12 bájtost
+- Kiolvassa az első rekord volumen értékeit
+- Ellenőrzi, hogy a volumenek nem zajszemét-e (`< 0.001`)
+- Validálja a volume és delta értékeket (0 és 100M között, illetve 0 és 1 óra között)
+- Ha minden valid, 20 bájtos formátumot használ, különben 12 bájtost
 
 #### `_process_bi5_data`
 

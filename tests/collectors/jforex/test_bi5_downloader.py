@@ -386,3 +386,95 @@ class TestBi5Downloader:
         await downloader.close()
 
         mock_dependencies["http_client"].close.assert_called_once()
+
+    def test_detect_format_12_byte_default(self, downloader):
+        """Test that 12-byte format is the default when both 12 and 20 are divisible."""
+        # Create 12-byte data (3 records = 36 bytes, also divisible by 20)
+        timestamps_delta = [0, 1000, 2000]
+        ask_prices = [112345, 112346, 112347]
+        bid_prices = [112340, 112341, 112342]
+
+        bi5_data = self.create_bi5_data_12_byte(timestamps_delta, ask_prices, bid_prices)
+        decompressed = lzma.decompress(bi5_data)
+
+        # A 36 bájtos adat osztható 12-vel és 20-szal is
+        # De a 12 bájtosnak kell lennie az alapértelmezettnek
+        record_size, unpack_format = downloader._detect_format(decompressed)
+
+        assert record_size == 12
+        assert unpack_format == ">III"
+
+    def test_detect_format_20_byte_with_valid_volumes(self, downloader):
+        """Test that 20-byte format is detected when volumes are valid."""
+        # Create 20-byte data with realistic volumes
+        timestamps_delta = [0, 1000]
+        ask_prices = [112345, 112346]
+        bid_prices = [112340, 112341]
+        ask_volumes = [1.5, 2.0]  # Realistic volumes
+        bid_volumes = [1.2, 1.8]
+
+        bi5_data = self.create_bi5_data_20_byte(
+            timestamps_delta, ask_prices, bid_prices, ask_volumes, bid_volumes
+        )
+        decompressed = lzma.decompress(bi5_data)
+
+        record_size, unpack_format = downloader._detect_format(decompressed)
+
+        assert record_size == 20
+        assert unpack_format == ">IIIff"
+
+    def test_detect_format_20_byte_rejects_noise_volumes(self, downloader):
+        """Test that 20-byte format is rejected when volumes are noise (very small floats)."""
+        # Create 20-byte data with noise volumes (like from integer misinterpretation)
+        timestamps_delta = [0, 1000]
+        ask_prices = [112345, 112346]
+        bid_prices = [112340, 112341]
+        # Very small volumes that are likely noise from integer->float conversion
+        ask_volumes = [1.4e-43, 2.0e-43]
+        bid_volumes = [1.2e-43, 1.8e-43]
+
+        bi5_data = self.create_bi5_data_20_byte(
+            timestamps_delta, ask_prices, bid_prices, ask_volumes, bid_volumes
+        )
+        decompressed = lzma.decompress(bi5_data)
+
+        # Should fall back to 12-byte format due to noise detection
+        record_size, unpack_format = downloader._detect_format(decompressed)
+
+        assert record_size == 12
+        assert unpack_format == ">III"
+
+    def test_detect_format_20_byte_rejects_zero_volumes(self, downloader):
+        """Test that 20-byte format is accepted with zero volumes."""
+        # Create 20-byte data with zero volumes (valid case)
+        timestamps_delta = [0, 1000]
+        ask_prices = [112345, 112346]
+        bid_prices = [112340, 112341]
+        ask_volumes = [0.0, 0.0]
+        bid_volumes = [0.0, 0.0]
+
+        bi5_data = self.create_bi5_data_20_byte(
+            timestamps_delta, ask_prices, bid_prices, ask_volumes, bid_volumes
+        )
+        decompressed = lzma.decompress(bi5_data)
+
+        record_size, unpack_format = downloader._detect_format(decompressed)
+
+        # Zero volumes are valid, should detect as 20-byte
+        assert record_size == 20
+        assert unpack_format == ">IIIff"
+
+    def test_detect_format_12_byte_only(self, downloader):
+        """Test that 12-byte format is detected when data is only divisible by 12."""
+        # Create 12-byte data (2 records = 24 bytes, NOT divisible by 20)
+        timestamps_delta = [0, 1000]
+        ask_prices = [112345, 112346]
+        bid_prices = [112340, 112341]
+
+        bi5_data = self.create_bi5_data_12_byte(timestamps_delta, ask_prices, bid_prices)
+        decompressed = lzma.decompress(bi5_data)
+
+        record_size, unpack_format = downloader._detect_format(decompressed)
+
+        assert record_size == 12
+        assert unpack_format == ">III"
