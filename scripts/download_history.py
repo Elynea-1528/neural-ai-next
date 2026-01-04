@@ -235,8 +235,16 @@ async def _save_ticks_direct(
         # Technikai 'volume' oszlop hozzáadása
         df = df.with_columns((pl.col("ask_volume") + pl.col("bid_volume")).alias("volume"))
 
+        # Dátum formázása a fájlnévhez
+        date_str = date.strftime("%Y%m%d")
+        time_suffix = date.strftime("%H0000")
+
         # DIRECT STORAGE: Az adatokat közvetlenül a storage.store_tick_data-val mentjük
-        await storage.store_tick_data(symbol, df, date)
+        await storage.store_tick_data(
+            df=df, symbol=symbol, date=date_str, datasource="jforex", unique_id=time_suffix
+        )
+
+        print(f"   ✅ {len(ticks)} tick mentve -> {symbol}_{date_str}_{time_suffix}.parquet")
 
         if logger:
             logger.debug(
