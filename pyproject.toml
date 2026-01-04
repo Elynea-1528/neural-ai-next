@@ -96,10 +96,20 @@ jupyter = [
     "tensorboard>=2.14.0",
 ]
 
+ui = [
+    "streamlit>=1.30.0",
+    "plotly>=5.18.0",
+    "streamlit-aggrid",
+    "watchdog",
+    "tensorboard",
+    "torchinfo",
+]
+
 full = [
     "neural-ai-next[dev]",
     "neural-ai-next[trader]",
     "neural-ai-next[jupyter]",
+    "neural-ai-next[ui]",
 ]
 
 [project.urls]
