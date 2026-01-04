@@ -237,7 +237,7 @@ async def _save_ticks_direct(
 
         # Dátum formázása a fájlnévhez
         date_str = date.strftime("%Y%m%d")
-        time_suffix = date.strftime("%H0000")
+        time_suffix = date.strftime("%H")
 
         # DIRECT STORAGE: Az adatokat közvetlenül a storage.store_tick_data-val mentjük
         await storage.store_tick_data(symbol=symbol, data=df, date=date, unique_id=time_suffix)
