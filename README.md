@@ -155,7 +155,11 @@ cp .env.example .env
 # Szerkeszd az .env fájlt a beállításaiddal
 
 # 5. Indítsd a rendszert
-python main.py
+python main.py live                    # Live mód
+# VAGY
+python main.py dashboard               # Dashboard
+# VAGY
+python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20  # Adatletöltés
 ```
 
 **Mit csinál a telepítő automatikusan:**
@@ -188,7 +192,11 @@ cp .env.example .env
 # Szerkeszd az .env fájlt a beállításaiddal
 
 # 5. Rendszer indítása
-python main.py
+python main.py live                    # Live mód
+# VAGY
+python main.py dashboard               # Dashboard
+# VAGY
+python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20  # Adatletöltés
 ```
 
 ### Konfiguráció
@@ -315,6 +323,16 @@ A teljes rendszer dokumentációja a forráskódból automatikusan generálva. M
   - [`implementations/`](docs/components/core/utils/implementations/index.md) - Hardver Info
   - [`interfaces/`](docs/components/core/utils/interfaces/index.md) - Hardver Interfész
   - [`exceptions/`](docs/components/core/utils/exceptions/index.md) - Segédeszköz Hibák
+
+#### 🖥️ UI Komponensek
+- **[UI Architektúra](docs/components/ui/architecture.md)** - UI réteg architektúrája
+- **[Streamlit Dashboard](docs/components/ui/streamlit_app.md)** - Streamlit Dashboard Alkalmazás
+  - [`streamlit_app.py`](neural_ai/ui/streamlit_app.py) - Fő Streamlit alkalmazás
+  - [`app.py`](neural_ai/ui/app.py) - UI alkalmazás mag
+  - [`factory.py`](neural_ai/ui/factory.py) - UI szolgáltatások factory-ja
+  - [`services/`](neural_ai/ui/services/) - UI szolgáltatások
+  - [`interfaces/`](neural_ai/ui/interfaces/) - UI interfészek
+  - [`pages/`](neural_ai/ui/pages/) - Streamlit oldalak
 
 ---
 

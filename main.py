@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Neural AI Next - Unified CLI Entry Point.
 
-Ez a modul a rendszer központi belépési pontja, amely egyesíti a live módot
-és a történelmi adatok letöltését egy egységes CLI felületen keresztül.
+Ez a modul a rendszer központi belépési pontja, amely egyesíti a live módot,
+a történelmi adatok letöltését és a dashboard-t egy egységes CLI felületen keresztül.
 
 Használat:
     python main.py live                    # Live mód indítása
     python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20
+    python main.py dashboard               # Dashboard indítása
+    python main.py dashboard --host 0.0.0.0 --port 8501 --server.headless True
 """
 
 import argparse
@@ -43,9 +45,6 @@ async def run_live_mode() -> None:
     # Core komponensek inicializálása típusos változóval
     components: CoreComponents = bootstrap_core()
 
-    # Háttér taskok nyilvántartása
-    loop_task: asyncio.Task[None] | None = None
-
     # Komponensek lekérése
     logger: LoggerInterface | None = components.logger
     event_bus: EventBusInterface | None = components.event_bus
@@ -62,7 +61,7 @@ async def run_live_mode() -> None:
             await event_bus.start()
 
             # A FOGADÓ CIKLUS INDÍTÁSA - Ez felelős azért, hogy a Persister megkapja az eseményeket!
-            loop_task = asyncio.create_task(event_bus.run_forever())
+            asyncio.create_task(event_bus.run_forever())
             if logger is not None:
                 logger.info("✅ EventBus Listener Loop elindítva (Background Task)")
 
@@ -133,6 +132,60 @@ async def run_download_mode(symbol: str, start_date: datetime, end_date: datetim
     await download_historical_data(symbol, start_date, end_date)
 
 
+def run_dashboard_mode(host: str, port: int, headless: bool) -> None:
+    """Dashboard indítása Streamlit-en keresztül.
+
+    Args:
+        host: A szerver hosztja (pl. 'localhost' vagy '0.0.0.0')
+        port: A szerver portja (pl. 8501)
+        headless: Ha True, headless módban fut (nincs browser automatikus megnyitása)
+    """
+    import shutil
+    import subprocess
+
+    # Ellenőrizzük, hogy a streamlit telepítve van-e
+    if shutil.which("streamlit") is None:
+        print("❌ Hiba: A Streamlit nincs telepítve!")
+        print("   Telepítsd a következő paranccsal:")
+        print("   pip install streamlit>=1.30.0")
+        sys.exit(1)
+
+    # Streamlit parancs összeállítása
+    streamlit_cmd = [
+        "streamlit",
+        "run",
+        "neural_ai/ui/streamlit_app.py",
+        "--server.address",
+        host,
+        "--server.port",
+        str(port),
+    ]
+
+    # Headless mód hozzáadása, ha kérték
+    if headless:
+        streamlit_cmd.extend(["--server.headless", "true"])
+
+    print("=" * 60)
+    print("🧠 NEURAL AI NEXT - DASHBOARD")
+    print("=" * 60)
+    print(f"🌐 Hoszt: {host}")
+    print(f"🚪 Port: {port}")
+    print(f"👻 Headless: {'Igen' if headless else 'Nem'}")
+    print()
+    print("⏳ Dashboard indítása...")
+    print()
+
+    try:
+        # Streamlit indítása
+        subprocess.run(streamlit_cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Hiba a Streamlit indításakor: {e}")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n🛑 Dashboard leállítva.")
+        sys.exit(0)
+
+
 def parse_arguments() -> argparse.Namespace:
     """Argumentumok feldolgozása.
 
@@ -146,14 +199,15 @@ def parse_arguments() -> argparse.Namespace:
 Példák:
   %(prog)s live
   %(prog)s download --symbol EURUSD --start 2024-03-20 --end 2024-03-20
-  %(prog)s download --symbol GBPUSD --start 2024-01-01 --end 2024-01-31
+  %(prog)s dashboard
+  %(prog)s dashboard --host 0.0.0.0 --port 8501 --headless
         """,
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Parancsok")
 
     # Live parancs
-    live_parser = subparsers.add_parser("live", help="Live mód indítása")
+    subparsers.add_parser("live", help="Live mód indítása")
 
     # Download parancs
     download_parser = subparsers.add_parser("download", help="Történelmi adatok letöltése")
@@ -165,6 +219,23 @@ Példák:
     )
     download_parser.add_argument(
         "--end", type=str, required=True, help="A letöltés záró dátuma (YYYY-MM-DD formátumban)"
+    )
+
+    # Dashboard parancs
+    dashboard_parser = subparsers.add_parser("dashboard", help="Dashboard indítása")
+    dashboard_parser.add_argument(
+        "--host",
+        type=str,
+        default="localhost",
+        help="A szerver hosztja (alapértelmezett: localhost)",
+    )
+    dashboard_parser.add_argument(
+        "--port", type=int, default=8501, help="A szerver portja (alapértelmezett: 8501)"
+    )
+    dashboard_parser.add_argument(
+        "--headless",
+        action="store_true",
+        help="Headless mód (nincs browser automatikus megnyitása)",
     )
 
     return parser.parse_args()
@@ -228,12 +299,24 @@ def main() -> None:
             print(f"❌ Váratlan hiba: {e}")
             sys.exit(1)
 
+    elif args.command == "dashboard":
+        # Dashboard indítása
+        try:
+            run_dashboard_mode(args.host, args.port, args.headless)
+        except KeyboardInterrupt:
+            print("\n🛑 Dashboard leállítva.")
+        except Exception as e:
+            print(f"❌ Váratlan hiba: {e}")
+            sys.exit(1)
+
     else:
-        print("❌ Érvénytelen parancs. Használd 'live' vagy 'download' parancsot.")
+        print("❌ Érvénytelen parancs. Használd 'live', 'download' vagy 'dashboard' parancsot.")
         print("   Példa: python main.py live")
         print(
             "   Példa: python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20"
         )
+        print("   Példa: python main.py dashboard")
+        print("   Példa: python main.py dashboard --host 0.0.0.0 --port 8501 --headless")
         sys.exit(1)
 
 
