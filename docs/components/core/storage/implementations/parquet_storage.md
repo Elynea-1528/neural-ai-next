@@ -76,6 +76,7 @@ Tick adatok tárolása particionált Parquet formátumban.
 - `symbol`: A pénzpár szimbóluma
 - `data`: A Tick adatokat tartalmazó DataFrame
 - `date`: A dátum, ami alapján a particionálás történik
+- `unique_id`: Egyedi azonosító a fájlnévhez (opcionális)
 
 **Kivételek:**
 - `ValueError`: Ha a DataFrame üres vagy nem tartalmazza a szükséges oszlopokat
@@ -83,7 +84,8 @@ Tick adatok tárolása particionált Parquet formátumban.
 **Megvalósítás:**
 - **Append-only logika**: Minden adat egyedi fájlba kerül mentésre, nincs read-modify-write művelet
 - Ez biztosítja a 100%-os adatmentést, a deduplikációt olvasáskor végezzük
-- Automatikusan generált egyedi fájlnév (UUID 8 karakterrel)
+- Ha `unique_id` meg van adva, a fájlnév tartalmazza ezt az azonosítót
+- Egyébként automatikusan generált időbélyeggel készül a fájlnév (Live mód)
 
 ### `read_tick_data`
 

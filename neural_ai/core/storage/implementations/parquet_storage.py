@@ -171,13 +171,16 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         )
 
     @trace
-    async def store_tick_data(self, symbol: str, data: Any, date: datetime) -> None:
+    async def store_tick_data(
+        self, symbol: str, data: Any, date: datetime, unique_id: str | None = None
+    ) -> None:
         """Tick adatok tárolása particionált Parquet formátumban.
 
         Args:
             symbol: A pénzpár szimbóluma
             data: A Tick adatokat tartalmazó DataFrame
             date: A dátum, ami alapján a particionálás történik
+            unique_id: Egyedi azonosító a fájlnévhez (opcionális)
 
         Raises:
             ValueError: Ha a DataFrame üres vagy nem tartalmazza a szükséges oszlopokat
@@ -212,7 +215,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         # Ez biztosítja a 100%-os adatmentést, a deduplikációt olvasáskor végezzük
 
         # Új fájl létrehozása egyedi azonosítóval
-        path = self._get_path(symbol, date)
+        path = self._get_path(symbol, date, unique_id=unique_id)
         path.parent.mkdir(parents=True, exist_ok=True)
 
         # Adatok tárolása a kiválasztott backend-en keresztül

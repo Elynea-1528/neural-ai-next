@@ -106,17 +106,23 @@ class TestParquetStorageService:
         assert mock_hardware_without_avx2.has_avx2.called
 
     def test_get_path(self, temp_dir: Path, mock_hardware_with_avx2: MagicMock) -> None:
-        """Teszteli az elérési út generálást egyedi fájlnévvel."""
+        """Teszteli az elérési út generálást egyedi fájlnévvel (Live mód, időbélyeggel)."""
         service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware_with_avx2)
         date = datetime(2023, 12, 23)
         path = service._get_path("EURUSD", date)
 
-        # Az elérési útnak tartalmaznia kell a dátumot és egy UUID-t
+        # Az elérési útnak tartalmaznia kell a dátumot és egy időbélyeget (Live mód)
         expected_dir = service.BASE_PATH / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23"
         assert path.parent == expected_dir
         assert path.name.startswith("tick_20231223_")
         assert path.name.endswith(".parquet")
-        assert len(path.name) == len("tick_20231223_") + 8 + len(".parquet")  # 8 karakteres UUID
+        # A fájlnév formátuma: tick_YYYYMMDD_HHMMSS_microsec.parquet
+        # Pl: tick_20231223_165941_484906.parquet
+        name_parts = path.name.replace(".parquet", "").split("_")
+        assert len(name_parts) == 4  # ['tick', '20231223', '165941', '484906']
+        assert len(name_parts[2]) == 6  # Az óra-perc-másodperc rész 6 karakter
+        assert len(name_parts[3]) == 6  # A mikroszekundum rész 6 karakter
+        assert name_parts[2].isdigit() and name_parts[3].isdigit()  # Csak számjegyek
 
     @pytest.mark.skip(reason="FastParquet kompatibilitási hiba Pandas/NumPy kombinációval")
     @pytest.mark.asyncio
@@ -161,6 +167,27 @@ class TestParquetStorageService:
         assert len(parquet_files) == 1
         assert parquet_files[0].name.startswith("tick_20231223_")
         assert parquet_files[0].name.endswith(".parquet")
+
+    @pytest.mark.asyncio
+    async def test_store_tick_data_with_unique_id(
+        self, temp_dir: Path, mock_hardware_with_avx2: MagicMock, sample_polars_data: pl.DataFrame
+    ) -> None:
+        """Teszteli a Polars DataFrame tárolását egyedi azonosítóval."""
+        service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware_with_avx2)
+        custom_id = "test12345"
+
+        await service.store_tick_data(
+            "EURUSD", sample_polars_data, datetime(2023, 12, 23), unique_id=custom_id
+        )
+
+        # Ellenőrizzük, hogy a fájl létrejött-e a megadott egyedi azonosítóval
+        expected_dir = temp_dir / "EURUSD" / "tick" / "year=2023" / "month=12" / "day=23"
+        assert expected_dir.exists()
+
+        # Ellenőrizzük a fájlnevet
+        parquet_files = list(expected_dir.glob("*.parquet"))
+        assert len(parquet_files) == 1
+        assert parquet_files[0].name == f"tick_20231223_{custom_id}.parquet"
 
     @pytest.mark.asyncio
     async def test_store_empty_dataframe_raises_error(
@@ -411,7 +438,7 @@ class TestParquetStorageService:
         """Teszteli az alapértelmezett útvonal beállítását."""
         service = ParquetStorageService(hardware=mock_hardware_with_avx2)
 
-        assert service.BASE_PATH == Path("/data/tick")
+        assert service.BASE_PATH == Path("data/tick")
 
     @pytest.mark.asyncio
     async def test_store_multiple_files_same_day(
@@ -701,7 +728,7 @@ class TestParquetStorageAdapterMethods:
     def test_smart_filename_uniqueness(
         self, temp_dir: Path, mock_hardware_with_avx2: MagicMock
     ) -> None:
-        """Teszteli, hogy a _get_path egyedi fájlneveket generál."""
+        """Teszteli, hogy a _get_path egyedi fájlneveket generál (Live mód, időbélyeggel)."""
         service = ParquetStorageService(base_path=str(temp_dir), hardware=mock_hardware_with_avx2)
         date = datetime(2023, 12, 23)
 
@@ -715,14 +742,17 @@ class TestParquetStorageAdapterMethods:
         filenames = [p.name for p in paths]
         assert len(set(filenames)) == len(filenames)  # Minden név egyedi
 
-        # Ellenőrizzük a formátumot
+        # Ellenőrizzük a formátumot (Live mód: tick_YYYYMMDD_HHMMSS_microsec.parquet)
         for filename in filenames:
             assert filename.startswith("tick_20231223_")
             assert filename.endswith(".parquet")
-            # UUID rész 8 karakter hosszú
-            uuid_part = filename.split("_")[-1].replace(".parquet", "")
-            assert len(uuid_part) == 8
-            assert uuid_part.isalnum()  # Csak alfanumerikus karakterek
+            # A fájlnév formátuma: tick_YYYYMMDD_HHMMSS_microsec.parquet
+            # Pl: tick_20231223_165941_484906.parquet
+            name_parts = filename.replace(".parquet", "").split("_")
+            assert len(name_parts) == 4  # ['tick', '20231223', '165941', '484906']
+            assert len(name_parts[2]) == 6  # Az óra-perc-másodperc rész 6 karakter
+            assert len(name_parts[3]) == 6  # A mikroszekundum rész 6 karakter
+            assert name_parts[2].isdigit() and name_parts[3].isdigit()  # Csak számjegyek
 
     def test_adapter_save_object_with_nested_path(
         self, storage_service: ParquetStorageService
