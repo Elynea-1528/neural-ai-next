@@ -240,9 +240,7 @@ async def _save_ticks_direct(
         time_suffix = date.strftime("%H0000")
 
         # DIRECT STORAGE: Az adatokat közvetlenül a storage.store_tick_data-val mentjük
-        await storage.store_tick_data(
-            df=df, symbol=symbol, date=date_str, datasource="jforex", unique_id=time_suffix
-        )
+        await storage.store_tick_data(symbol=symbol, data=df, date=date, unique_id=time_suffix)
 
         print(f"   ✅ {len(ticks)} tick mentve -> {symbol}_{date_str}_{time_suffix}.parquet")
 
