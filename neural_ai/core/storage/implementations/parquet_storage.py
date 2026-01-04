@@ -78,7 +78,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             logger: A naplózásért felelős interfész (opcionális)
             **kwargs: További opcionális paraméterek
         """
-        self.BASE_PATH = Path(base_path) if base_path else Path("/data/tick")
+        self.BASE_PATH = Path(base_path) if base_path else Path("data/tick")
         self.engine = "fastparquet"
         self.compression = compression
         self.backend: StorageBackend
@@ -196,6 +196,9 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             >>> service = ParquetStorageService()
             >>> await service.store_tick_data('EURUSD', data, datetime.now())
         """
+        # Logger biztonság: ha nincs logger, használjuk a globálisat
+        log = self.logger if self.logger else logger
+
         if len(data) == 0:
             raise ValueError("Cannot store empty DataFrame")
 
@@ -212,17 +215,28 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         path.parent.mkdir(parents=True, exist_ok=True)
 
         # Adatok tárolása a kiválasztott backend-en keresztül
-        self.backend.write(data, str(path), compression=self.compression)
+        try:
+            self.backend.write(data, str(path), compression=self.compression)
 
-        logger.info(
-            "Tick data stored successfully",
-            symbol=symbol,
-            date=date.isoformat(),
-            rows=len(data),
-            path=str(path),
-            size_mb=path.stat().st_size / (1024 * 1024),
-            backend=self.backend.name,
-        )
+            log.info(
+                "Tick data stored successfully",
+                symbol=symbol,
+                date=date.isoformat(),
+                rows=len(data),
+                path=str(path),
+                size_mb=path.stat().st_size / (1024 * 1024),
+                backend=self.backend.name,
+            )
+        except Exception as e:
+            log.error(
+                "Failed to store tick data",
+                symbol=symbol,
+                date=date.isoformat(),
+                path=str(path),
+                error=str(e),
+                error_type=type(e).__name__,
+            )
+            raise  # Tovább dobjuk a hibát, hogy a hívó is tudjon róla
 
     @trace
     async def read_tick_data(self, symbol: str, start_date: datetime, end_date: datetime) -> Any:
@@ -387,7 +401,15 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 # Ez biztosítja, hogy ne legyen oszlop szélesség hiba
                 available_columns = [
                     col
-                    for col in ["timestamp", "bid", "ask", "volume", "source"]
+                    for col in [
+                        "timestamp",
+                        "bid",
+                        "ask",
+                        "volume",
+                        "ask_volume",
+                        "bid_volume",
+                        "source",
+                    ]
                     if col in pl_df.columns
                 ]
                 pl_df_selected = pl_df.select(available_columns)
@@ -422,7 +444,15 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 # Ez biztosítja, hogy ne legyen oszlop szélesség hiba
                 available_columns = [
                     col
-                    for col in ["timestamp", "bid", "ask", "volume", "source"]
+                    for col in [
+                        "timestamp",
+                        "bid",
+                        "ask",
+                        "volume",
+                        "ask_volume",
+                        "bid_volume",
+                        "source",
+                    ]
                     if col in pd_df.columns
                 ]
                 pd_df_selected = pd_df[available_columns]
@@ -462,7 +492,15 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 # Csak a szükséges oszlopokat választjuk ki
                 available_columns = [
                     col
-                    for col in ["timestamp", "bid", "ask", "volume", "source"]
+                    for col in [
+                        "timestamp",
+                        "bid",
+                        "ask",
+                        "volume",
+                        "ask_volume",
+                        "bid_volume",
+                        "source",
+                    ]
                     if col in pl_df.columns
                 ]
                 return pl_df.select(available_columns)
@@ -484,7 +522,15 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 # Csak a szükséges oszlopokat választjuk ki
                 available_columns = [
                     col
-                    for col in ["timestamp", "bid", "ask", "volume", "source"]
+                    for col in [
+                        "timestamp",
+                        "bid",
+                        "ask",
+                        "volume",
+                        "ask_volume",
+                        "bid_volume",
+                        "source",
+                    ]
                     if col in pd_df.columns
                 ]
                 return pd_df[available_columns]

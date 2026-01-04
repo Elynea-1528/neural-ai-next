@@ -41,7 +41,7 @@ class Bi5Downloader(IJForexDownloader):
     def __init__(
         self,
         logger: "LoggerInterface",
-        event_bus: "EventBusInterface",
+        event_bus: "EventBusInterface | None",
         config: "ConfigManagerInterface",
         http_client: "aiohttp.ClientSession",
         storage: "StorageInterface",
@@ -154,63 +154,34 @@ class Bi5Downloader(IJForexDownloader):
             DecodeError: If format detection fails
         """
         # Alapértelmezett: 12 bájtos formátum (timestamp_delta, ask, bid)
-        is_divisible_12 = len(decompressed) % 12 == 0
         record_size = 12
         unpack_format = ">III"
 
-        # Ha a hossz osztható 20-szal, ellenőrizzük a 20 bájtos formátumot
+        # Ha osztható 20-szal, megvizsgáljuk, hogy TÉNYLEG volumen-e
         if len(decompressed) % 20 == 0:
-            self._logger.debug("bi5_20_byte_candidate_detected", total_bytes=len(decompressed))
-
-            # Smart Check: elemzzük az első néhány rekordot
+            is_valid_20 = False
             try:
-                # Az első rekord elemzése 20 bájtosként
-                if len(decompressed) >= 40:  # Legalább 2 rekord kell a validációhoz
-                    # Első rekord: delta, ask, bid, ask_vol, bid_vol
-                    first_record = decompressed[0:20]
-                    delta1, ask1, bid1, ask_vol1, bid_vol1 = struct.unpack(">IIIff", first_record)
+                # Megnézzük az első rekordot
+                # >IIIff = Delta(int), Ask(int), Bid(int), AskVol(float), BidVol(float)
+                _, _, _, ask_vol, bid_vol = struct.unpack(">IIIff", decompressed[0:20])
 
-                    # Második rekord első 4 bájtja (delta)
-                    second_record = decompressed[20:24]
-                    (delta2,) = struct.unpack(">I", second_record)
+                # ZAJ SZŰRÉS: (A manuális_letöltő.py-ból másolva)
+                # Egy valódi volumen float nem lehet extrém kicsi (pl 1e-40), hacsak nem nulla.
+                # És nem lehet extrém nagy sem.
+                valid_ask_vol = (ask_vol == 0) or (0.001 < ask_vol < 1000000000)
+                valid_bid_vol = (bid_vol == 0) or (0.001 < bid_vol < 1000000000)
 
-                    # SZIGORÍTOTT VALIDÁCIÓ: Zajszűrés
-                    # Egy valós volumen nem lehet "infinitezimálisan" kicsi lebegőpontos zaj.
-                    # A float(int) konverzió gyakran eredményez pl. 1.4e-43 értéket.
-                    is_noise_ask = 0.0 < abs(ask_vol1) < 0.001
-                    is_noise_bid = 0.0 < abs(bid_vol1) < 0.001
+                if valid_ask_vol and valid_bid_vol:
+                    is_valid_20 = True
+            except:
+                pass
 
-                    # Volume és delta értékek ellenőrzése
-                    is_valid_volume = (
-                        (ask_vol1 == 0.0 or ask_vol1 > 0.001)
-                        and (bid_vol1 == 0.0 or bid_vol1 > 0.001)
-                        and ask_vol1 <= 100_000_000.0
-                        and bid_vol1 <= 100_000_000.0
-                    )
-                    is_valid_delta = 0 <= delta1 <= 3_600_000 and 0 <= delta2 <= 3_600_000
+            if is_valid_20:
+                record_size = 20
+                unpack_format = ">IIIff"
 
-                    if is_valid_volume and is_valid_delta and not is_noise_ask and not is_noise_bid:
-                        # A delta2 - delta1 különbségnek is ésszerűnek kell lenni
-                        delta_diff = abs(delta2 - delta1)
-                        if delta_diff <= 1000:  # Maximum 1 másodperc különbség
-                            record_size = 20
-                            unpack_format = ">IIIff"
-                            self._logger.debug(
-                                "bi5_20_byte_format_confirmed",
-                                reason="valid_volume_and_delta_pattern",
-                            )
-
-            except struct.error as e:
-                self._logger.debug(
-                    "bi5_20_byte_validation_failed", error=str(e), fallback="using_12_byte_format"
-                )
-                # Hiba esetén marad a 12 bájtos alapértelmezett
-
-        self._logger.debug(
-            "bi5_format_detected",
-            record_size=record_size,
-            unpack_format=unpack_format,
-            total_bytes=len(decompressed),
+        self._logger.info(
+            f"bi5_format_detected: record_size={record_size}, unpack_format={unpack_format}, total_bytes={len(decompressed)}"
         )
 
         return record_size, unpack_format
@@ -244,6 +215,7 @@ class Bi5Downloader(IJForexDownloader):
 
             # Base timestamp: start of the HOUR in milliseconds
             # A .bi5 fájlban lévő delta mindig az adott óra elejétől számítódik
+            # A manuális_letöltő.py-ból: date.replace(minute=0, second=0, microsecond=0)
             base_timestamp = int(date.replace(minute=0, second=0, microsecond=0).timestamp()) * 1000
 
             ticks: list[TickData] = []
@@ -252,6 +224,10 @@ class Bi5Downloader(IJForexDownloader):
             total_records = 0
             skipped_price = 0
             valid_ticks = 0
+
+            # Inicializáljuk a volume változókat, hogy elkerüljük a Pylance hibát
+            ask_vol = 0.0
+            bid_vol = 0.0
 
             for i in range(num_records):
                 total_records += 1
@@ -262,6 +238,7 @@ class Bi5Downloader(IJForexDownloader):
                 # Dinamikus unpakolás a detektált formátum alapján
                 if record_size == 20:
                     # 20 bájtos formátum: delta, ask, bid, ask_vol, bid_vol
+                    # A manuális_letöltő.py-ból: delta, ask_int, bid_int, ask_vol, bid_vol
                     timestamp_delta, ask_int, bid_int, ask_vol, bid_vol = struct.unpack(
                         unpack_format, record
                     )
@@ -278,6 +255,8 @@ class Bi5Downloader(IJForexDownloader):
                 else:
                     # 12 bájtos formátum: delta, ask, bid
                     timestamp_delta, ask_int, bid_int = struct.unpack(unpack_format, record)
+                    ask_vol = 0.0
+                    bid_vol = 0.0
 
                 # Convert integer prices to floats
                 ask = ask_int / 100000.0
@@ -354,7 +333,7 @@ class Bi5Downloader(IJForexDownloader):
             ticks: List of TickData objects to publish
         """
         if not ticks or not self._event_bus:
-            self._logger.warning("_publish_ticks: nincs tick vagy event_bus")
+            # Ha nincs EventBus (Direct Storage Mode), egyszerűen visszatérünk
             return
 
         self._logger.info(f"_publish_ticks: {len(ticks)} tick publikálása")

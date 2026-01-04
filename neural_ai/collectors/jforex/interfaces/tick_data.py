@@ -15,6 +15,8 @@ class TickData:
         symbol: Trading symbol (e.g., 'EURUSD')
         bid: Bid price (5 decimal places for forex)
         ask: Ask price (5 decimal places for forex)
+        ask_volume: Ask volume (optional, for 20-byte format)
+        bid_volume: Bid volume (optional, for 20-byte format)
         source: Data source identifier (default: 'jforex')
     """
 
@@ -22,6 +24,8 @@ class TickData:
     symbol: str
     bid: float
     ask: float
+    ask_volume: float | None = None
+    bid_volume: float | None = None
     source: str = "jforex"
 
     @property

@@ -97,6 +97,9 @@ class MarketDataPersister:
         # Háttérfeladat indítása időzített flush-hoz
         asyncio.create_task(self._periodic_flush_task())
 
+        # EventBus fogyasztó task indítása
+        asyncio.create_task(self.event_bus.run_forever())
+
     async def stop(self) -> None:
         """Leállítja a MarketDataPersister szolgáltatást.
 
@@ -116,6 +119,10 @@ class MarketDataPersister:
         callback = cast(EventCallback, self.on_market_data)
         self.event_bus.unsubscribe("market_data", callback)
         self.logger.info("Leiratkozva a market_data topicról")
+
+        # Várunk 2 másodpercet, hogy a ZMQ-nak legyen ideje kiüríteni a bejövő csövet
+        await asyncio.sleep(2.0)
+        self.logger.info("ZMQ buffer kiürítési idő letelt")
 
         # Maradék buffer kiürítése (FONTOS: védett try-except blokk!)
         buffer_before = {k: len(v) for k, v in self.buffer.items() if v}
@@ -306,8 +313,10 @@ class MarketDataPersister:
             )
 
         except Exception as e:
+            import traceback
+
             self.logger.error(
-                f"Hiba az adatok mentésekor, symbol={symbol}, date={date.strftime('%Y-%m-%d')}, error={str(e)}"
+                f"Hiba az adatok mentésekor, symbol={symbol}, date={date.strftime('%Y-%m-%d')}, error={str(e)}, traceback={traceback.format_exc()}"
             )
             raise
 
@@ -334,6 +343,8 @@ class MarketDataPersister:
                         "bid": [e.bid for e in events],
                         "ask": [e.ask for e in events],
                         "volume": [e.volume for e in events],
+                        "ask_volume": [e.ask_volume for e in events],
+                        "bid_volume": [e.bid_volume for e in events],
                         "source": [e.source for e in events],
                     }
 
@@ -356,6 +367,8 @@ class MarketDataPersister:
                         "bid": [e.bid for e in events],
                         "ask": [e.ask for e in events],
                         "volume": [e.volume for e in events],
+                        "ask_volume": [e.ask_volume for e in events],
+                        "bid_volume": [e.bid_volume for e in events],
                         "source": [e.source for e in events],
                     }
 
@@ -378,6 +391,8 @@ class MarketDataPersister:
                     "bid": [e.bid for e in events],
                     "ask": [e.ask for e in events],
                     "volume": [e.volume for e in events],
+                    "ask_volume": [e.ask_volume for e in events],
+                    "bid_volume": [e.bid_volume for e in events],
                     "source": [e.source for e in events],
                 }
 

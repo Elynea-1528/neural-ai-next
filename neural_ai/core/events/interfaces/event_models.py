@@ -37,7 +37,9 @@ class MarketDataEvent(BaseModel):
         timestamp: Az esemény időbélyege
         bid: A bid ár
         ask: Az ask ár
-        volume: A volumen (opcionális)
+        volume: A volumen (opcionális, kompatibilitás miatt)
+        ask_volume: Ask volumen (opcionális)
+        bid_volume: Bid volumen (opcionális)
         source: Az adat forrása ('jforex', 'mt5', 'ibkr')
     """
 
@@ -47,7 +49,9 @@ class MarketDataEvent(BaseModel):
     timestamp: datetime = Field(..., description="Az esemény időbélyege")
     bid: float = Field(..., description="A bid ár", gt=0)
     ask: float = Field(..., description="Az ask ár", gt=0)
-    volume: int | None = Field(None, description="A volumen", ge=0)
+    volume: float | None = Field(None, description="A volumen (kompatibilitás miatt)")
+    ask_volume: float | None = Field(None, description="Ask volumen")
+    bid_volume: float | None = Field(None, description="Bid volumen")
     source: str = Field(..., description="Az adat forrása")
 
     @field_validator("source")

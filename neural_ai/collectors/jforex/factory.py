@@ -22,8 +22,8 @@ class JForexFactory:
     def create_downloader(
         config: "ConfigManagerInterface",
         logger: "LoggerInterface",
-        event_bus: "EventBusInterface",
-        storage: "StorageInterface"
+        event_bus: "EventBusInterface | None",
+        storage: "StorageInterface",
     ) -> IJForexDownloader:
         """Create a JForex downloader instance with DI.
 
@@ -58,21 +58,16 @@ class JForexFactory:
             event_bus=event_bus,
             config=config,
             http_client=http_client,
-            storage=storage
+            storage=storage,
         )
 
-        logger.info(
-            "jforex_downloader_created",
-            base_url=jforex_config.get("base_url", "default")
-        )
+        logger.info("jforex_downloader_created", base_url=jforex_config.get("base_url", "default"))
 
         return downloader
 
     @staticmethod
     def create_live_feed(
-        config: "ConfigManagerInterface",
-        logger: "LoggerInterface",
-        event_bus: "EventBusInterface"
+        config: "ConfigManagerInterface", logger: "LoggerInterface", event_bus: "EventBusInterface"
     ) -> ILiveFeed:
         """Create a JForex live feed instance with DI.
 
@@ -99,21 +94,17 @@ class JForexFactory:
         if not enabled:
             logger.warning(
                 "jforex_live_feed_disabled",
-                _message="JForex live feed is disabled in configuration"
+                _message="JForex live feed is disabled in configuration",
             )
 
         # Create live feed instance
-        live_feed = JForexLiveFeed(
-            logger=logger,
-            event_bus=event_bus,
-            config=config
-        )
+        live_feed = JForexLiveFeed(logger=logger, event_bus=event_bus, config=config)
 
         logger.info(
             "jforex_live_feed_created",
             host=live_config.get("host", "127.0.0.1"),
             tick_port=live_config.get("tick_port", 5555),
-            enabled=enabled
+            enabled=enabled,
         )
 
         return live_feed
