@@ -117,6 +117,23 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
         day_ticks = 0
 
         while current_hour <= end_hour:
+            # SMART RESUME: Ellenőrizzük, hogy a fájl már létezik-e
+            expected_path = (
+                Path("data/tick")
+                / symbol.upper()
+                / "tick"
+                / f"year={current_hour.year}"
+                / f"month={current_hour.month:02d}"
+                / f"day={current_hour.day:02d}"
+                / f"tick_{current_hour.strftime('%Y%m%d')}_{current_hour.strftime('%H')}.parquet"
+            )
+
+            if expected_path.exists() and expected_path.stat().st_size > 1000:
+                print(f"      ⏭️  SKIPPING: Adat már létezik -> {expected_path.name}")
+                current_hour += timedelta(hours=1)
+                skipped_downloads += 1
+                continue
+
             try:
                 print(
                     f"   📥 [{day_count}/{total_days}] Letöltés: "
