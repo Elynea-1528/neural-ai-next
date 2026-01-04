@@ -140,19 +140,11 @@ def run_dashboard_mode(host: str, port: int, headless: bool) -> None:
         port: A szerver portja (pl. 8501)
         headless: Ha True, headless módban fut (nincs browser automatikus megnyitása)
     """
-    import shutil
     import subprocess
 
-    # Ellenőrizzük, hogy a streamlit telepítve van-e
-    if shutil.which("streamlit") is None:
-        print("❌ Hiba: A Streamlit nincs telepítve!")
-        print("   Telepítsd a következő paranccsal:")
-        print("   pip install streamlit>=1.30.0")
-        sys.exit(1)
-
-    # Streamlit parancs összeállítása
+    # Streamlit parancs összeállítása a conda környezet abszolút útvonalával
     streamlit_cmd = [
-        "streamlit",
+        "/home/elynea/miniconda3/envs/neural-ai-next/bin/streamlit",
         "run",
         "neural_ai/ui/streamlit_app.py",
         "--server.address",
