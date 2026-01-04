@@ -1,16 +1,19 @@
-"""Neural AI Next - Fő indító szkript.
+#!/usr/bin/env python3
+"""Neural AI Next - Unified CLI Entry Point.
 
-Ez a modul tartalmazza az alkalmazás fő belépési pontját, amely felelős a core
-komponensek inicializálásáért és az alkalmazás életciklusának kezeléséért.
+Ez a modul a rendszer központi belépési pontja, amely egyesíti a live módot
+és a történelmi adatok letöltését egy egységes CLI felületen keresztül.
 
-A szkript követi a Dependency Injection (DI) elvet, kizárólag interfészeken
-keresztül kommunikál a komponensekkel, és a CoreComponents bundle-t használja
-a szolgáltatások eléréséhez.
+Használat:
+    python main.py live                    # Live mód indítása
+    python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20
 """
 
+import argparse
 import asyncio
 import sys
 from contextlib import suppress
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from neural_ai.core import bootstrap_core
@@ -25,8 +28,8 @@ if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
-async def main() -> None:
-    """Fő alkalmazás belépési pont.
+async def run_live_mode() -> None:
+    """Live mód indítása - az eredeti main logika.
 
     Ez a függvény felelős az alkalmazás teljes életciklusáért:
     1. Core komponensek inicializálása
@@ -41,7 +44,7 @@ async def main() -> None:
     components: CoreComponents = bootstrap_core()
 
     # Háttér taskok nyilvántartása
-    loop_task: asyncio.Task | None = None
+    loop_task: asyncio.Task[None] | None = None
 
     # Komponensek lekérése
     logger: LoggerInterface | None = components.logger
@@ -111,15 +114,128 @@ async def main() -> None:
             logger.info("✅ Rendszer leállítva")
 
 
-if __name__ == "__main__":
+async def run_download_mode(symbol: str, start_date: datetime, end_date: datetime) -> None:
+    """Történelmi adatok letöltése a megadott tartományban.
+
+    Args:
+        symbol: A pénzpár szimbóluma (pl. 'EURUSD')
+        start_date: A letöltés kezdő dátuma
+        end_date: A letöltés záró dátuma
+    """
+    # Importáljuk a download_historical_data függvényt a scripts modulból
+    from scripts.download_history import download_historical_data
+
+    print("=" * 60)
+    print("🧠 NEURAL AI NEXT - TÖRTÉNELMI ADAT LETÖLTŐ (CLI MODE)")
+    print("=" * 60)
+    print()
+
+    await download_historical_data(symbol, start_date, end_date)
+
+
+def parse_arguments() -> argparse.Namespace:
+    """Argumentumok feldolgozása.
+
+    Returns:
+        A feldolgozott argumentumok
+    """
+    parser = argparse.ArgumentParser(
+        description="Neural AI Next - Unified CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Példák:
+  %(prog)s live
+  %(prog)s download --symbol EURUSD --start 2024-03-20 --end 2024-03-20
+  %(prog)s download --symbol GBPUSD --start 2024-01-01 --end 2024-01-31
+        """,
+    )
+
+    subparsers = parser.add_subparsers(dest="command", help="Parancsok")
+
+    # Live parancs
+    live_parser = subparsers.add_parser("live", help="Live mód indítása")
+
+    # Download parancs
+    download_parser = subparsers.add_parser("download", help="Történelmi adatok letöltése")
+    download_parser.add_argument(
+        "--symbol", type=str, required=True, help="A pénzpár szimbóluma (pl. EURUSD)"
+    )
+    download_parser.add_argument(
+        "--start", type=str, required=True, help="A letöltés kezdő dátuma (YYYY-MM-DD formátumban)"
+    )
+    download_parser.add_argument(
+        "--end", type=str, required=True, help="A letöltés záró dátuma (YYYY-MM-DD formátumban)"
+    )
+
+    return parser.parse_args()
+
+
+def parse_date(date_str: str) -> datetime:
+    """Dátum string parse-olása.
+
+    Args:
+        date_str: Dátum string (YYYY-MM-DD formátumban)
+
+    Returns:
+        A parse-olt dátum UTC időzónával
+    """
     try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        # Ez kapja el a Ctrl+C-t a legfelső szinten
-        pass
-    except Exception as e:
-        # Globális hiba kezelése
-        print(f"CRITICAL SYSTEM ERROR: {e}")
+        return datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=UTC)
+    except ValueError as e:
+        raise ValueError(
+            f"Érvénytelen dátum formátum: {date_str}. Használd az YYYY-MM-DD formátumot."
+        ) from e
+
+
+def main() -> None:
+    """Főprogram."""
+    args = parse_arguments()
+
+    if args.command == "live":
+        try:
+            asyncio.run(run_live_mode())
+        except KeyboardInterrupt:
+            print("\n🛑 Rendszer leállítva.")
+        except Exception as e:
+            print(f"❌ Váratlan hiba: {e}")
+            sys.exit(1)
+
+    elif args.command == "download":
+        # Dátumok parse-olása
+        try:
+            start_date = parse_date(args.start)
+            end_date = parse_date(args.end).replace(hour=23, minute=59, second=59)
+        except ValueError as e:
+            print(f"❌ {e}")
+            sys.exit(1)
+
+        # Ellenőrzések
+        if start_date > end_date:
+            print("❌ A kezdő dátum nem lehet későbbi, mint a záró dátum")
+            sys.exit(1)
+
+        if start_date > datetime.now(UTC):
+            print("❌ A kezdő dátum nem lehet a jövőben")
+            sys.exit(1)
+
+        # Letöltés indítása
+        try:
+            asyncio.run(run_download_mode(args.symbol.upper(), start_date, end_date))
+        except KeyboardInterrupt:
+            print("\n⚠️  Letöltés megszakítva a felhasználó által")
+            sys.exit(130)
+        except Exception as e:
+            print(f"❌ Váratlan hiba: {e}")
+            sys.exit(1)
+
+    else:
+        print("❌ Érvénytelen parancs. Használd 'live' vagy 'download' parancsot.")
+        print("   Példa: python main.py live")
+        print(
+            "   Példa: python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20"
+        )
         sys.exit(1)
-    finally:
-        print("\n🛑 Rendszer leállítva.")
+
+
+if __name__ == "__main__":
+    main()

@@ -88,6 +88,10 @@ public class NeuralBridgeStrategy implements IStrategy {
             data.put("ask", tick.getAsk());
             data.put("timestamp", tick.getTime());
             data.put("source", "jforex");
+            
+            // Volume adatok hozzáadása a JForex Tester kompatibilitásért
+            data.put("ask_volume", tick.getAskVolume());
+            data.put("bid_volume", tick.getBidVolume());
 
             String json = gson.toJson(data);
             tickPublisher.send(json.getBytes(StandardCharsets.UTF_8), 0);

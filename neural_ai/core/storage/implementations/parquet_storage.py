@@ -13,7 +13,6 @@ Version: 2.0.0
 
 import asyncio
 import hashlib
-import uuid
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -157,7 +156,9 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if unique_id:
             filename = f"tick_{date.strftime('%Y%m%d')}_{unique_id}.parquet"
         else:
-            filename = f"tick_{date.strftime('%Y%m%d')}_{uuid.uuid4().hex[:8]}.parquet"
+            # Live módhoz: ÓraPercMsp_Micsec
+            ts_str = datetime.now().strftime("%H%M%S_%f")
+            filename = f"tick_{date.strftime('%Y%m%d')}_{ts_str}.parquet"
 
         return (
             self.BASE_PATH
