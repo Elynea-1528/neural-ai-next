@@ -6,11 +6,12 @@ az adatok betöltését, szűrését és kezelését végzi Big Data támogatás
 
 import asyncio
 from collections.abc import Generator
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import pandas as pd
+import polars as pl
 
 from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
 
@@ -259,7 +260,7 @@ class DataService(DataServiceInterface):
         if start > end:
             raise ValueError("A kezdő dátum nem lehet későbbi, mint a záró dátum")
 
-        if start > datetime.now():
+        if start > datetime.now(UTC):
             raise ValueError("A kezdő dátum nem lehet a jövőben")
 
         # CoreBridge-en keresztül lekérjük a Bi5Downloader komponenst
@@ -276,6 +277,18 @@ class DataService(DataServiceInterface):
         downloader = cast(IJForexDownloader, downloader)
 
         try:
+            # Storage komponens lekérése a mentéshez
+            storage = self._bridge.get_component("parquet_storage")
+            if storage is None:
+                raise RuntimeError("A ParquetStorage komponens nem érhető el a mentéshez")
+
+            # Típus ellenőrzés (futási időben)
+            from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+            if not isinstance(storage, StorageInterface):
+                raise RuntimeError("A storage komponens nem implementálja a StorageInterface-t")
+            storage = cast(StorageInterface, storage)
+
             # Dátumok iterálása és adatok letöltése
             current_date = start
             total_records = 0
@@ -286,8 +299,47 @@ class DataService(DataServiceInterface):
                 try:
                     # Tick adatok letöltése az adott napra
                     tick_data = await downloader.download_tick_data(symbol, current_date)
-                    total_records += len(tick_data)
-                    successful_dates += 1
+
+                    if tick_data:
+                        total_records += len(tick_data)
+
+                        # Tick adatok konvertálása Polars DataFrame-re
+                        tick_dicts = [
+                            {
+                                "timestamp": tick.timestamp,
+                                "bid": tick.bid,
+                                "ask": tick.ask,
+                                "ask_volume": tick.ask_volume
+                                if tick.ask_volume is not None
+                                else 0.0,
+                                "bid_volume": tick.bid_volume
+                                if tick.bid_volume is not None
+                                else 0.0,
+                                "source": tick.source,
+                            }
+                            for tick in tick_data
+                        ]
+
+                        df = pl.DataFrame(tick_dicts)
+
+                        # Technikai 'volume' oszlop hozzáadása
+                        df = df.with_columns(
+                            (pl.col("ask_volume") + pl.col("bid_volume")).alias("volume")
+                        )
+
+                        # Adatok mentése a storage-ba (óra szintű unique_id-vel)
+                        unique_id = f"{current_date.hour:02d}"
+                        await storage.store_tick_data(
+                            symbol=symbol, data=df, date=current_date, unique_id=unique_id
+                        )
+
+                        successful_dates += 1
+                    else:
+                        print(
+                            f"Figyelmeztetés: Nincsenek adatok a(z) {current_date.date()} dátumra."
+                        )
+                        failed_dates += 1
+
                 except Exception as e:
                     print(
                         f"Figyelmeztetés: Nem sikerült letölteni az adatokat "
