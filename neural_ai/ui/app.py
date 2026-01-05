@@ -1,11 +1,10 @@
-"""
-UI Main Application - A felhasználói felület fő alkalmazása.
+"""UI Main Application - A felhasználói felület fő alkalmazása.
 
 Ez a modul implementálja a UI alkalmazás fő belépési pontját,
 amely összekapcsolja az összes UI komponenst.
 """
 
-from typing import Dict, Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 from neural_ai.ui.core_bridge import CoreBridge
 from neural_ai.ui.factory import UIServiceFactory
@@ -16,36 +15,31 @@ if TYPE_CHECKING:
 
 
 class UIApplication:
-    """
-    UI Application - A felhasználói felület fő alkalmazása.
-    
+    """UI Application - A felhasználói felület fő alkalmazása.
+
     Ez az osztály felelős a teljes UI rendszer inicializálásáért és
     működtetéséért, összekapcsolva az összes komponenst.
     """
 
     def __init__(
-        self,
-        config: Optional[Dict[str, Any]] = None,
-        logger: Optional["LoggerInterface"] = None
+        self, config: dict[str, Any] | None = None, logger: Optional["LoggerInterface"] = None
     ) -> None:
-        """
-        A UI alkalmazás inicializálása.
-        
+        """A UI alkalmazás inicializálása.
+
         Args:
             config: Konfigurációs beállítások
             logger: Logger példány
         """
         self._config = config or {}
         self._logger = logger
-        self._bridge: Optional[CoreBridge] = None
-        self._factory: Optional[UIServiceFactory] = None
-        self._navigation: Optional[NavigationServiceInterface] = None
+        self._bridge: CoreBridge | None = None
+        self._factory: UIServiceFactory | None = None
+        self._navigation: NavigationServiceInterface | None = None
         self._running: bool = False
 
     def initialize(self) -> bool:
-        """
-        Az alkalmazás inicializálása.
-        
+        """Az alkalmazás inicializálása.
+
         Returns:
             bool: True, ha sikeres az inicializálás
         """
@@ -78,9 +72,7 @@ class UIApplication:
             return False
 
     def run(self) -> None:
-        """
-        Az alkalmazás indítása.
-        """
+        """Az alkalmazás indítása."""
         if not self._factory or not self._navigation:
             raise RuntimeError("Alkalmazás nincs inicializálva")
 
@@ -94,9 +86,7 @@ class UIApplication:
         print("UI alkalmazás fut...")
 
     def stop(self) -> None:
-        """
-        Az alkalmazás leállítása.
-        """
+        """Az alkalmazás leállítása."""
         self._running = False
 
         if self._logger:
@@ -104,10 +94,9 @@ class UIApplication:
 
         print("UI alkalmazás leállítva")
 
-    def get_navigation_service(self) -> NavigationServiceInterface:
-        """
-        Navigation Service lekérdezése.
-        
+    def get_navigation_service(self) -> "NavigationServiceInterface":
+        """Navigation Service lekérdezése.
+
         Returns:
             NavigationServiceInterface: A Navigation Service példány
         """
@@ -117,9 +106,8 @@ class UIApplication:
         return self._navigation
 
     def get_factory(self) -> UIServiceFactory:
-        """
-        UI Service Factory lekérdezése.
-        
+        """UI Service Factory lekérdezése.
+
         Returns:
             UIServiceInterface: Az UI Service Factory példány
         """
@@ -130,9 +118,8 @@ class UIApplication:
 
     @property
     def is_running(self) -> bool:
-        """
-        Az alkalmazás futási állapotát ellenőrző property.
-        
+        """Az alkalmazás futási állapotát ellenőrző property.
+
         Returns:
             bool: True, ha az alkalmazás fut, egyébként False
         """
@@ -140,9 +127,8 @@ class UIApplication:
 
     @property
     def is_initialized(self) -> bool:
-        """
-        Az alkalmazás inicializáltságát ellenőrző property.
-        
+        """Az alkalmazás inicializáltságát ellenőrző property.
+
         Returns:
             bool: True, ha az alkalmazás inicializálva van, egyébként False
         """
