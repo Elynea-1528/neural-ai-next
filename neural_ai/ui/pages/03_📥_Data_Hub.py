@@ -34,33 +34,38 @@ class DataHubPage(PageInterface):
 
     def render(self) -> None:
         """Az oldal megjelenítése Streamlit segítségével."""
-        st.title(self._title)
+        try:
+            st.title(self._title)
 
-        # Adatszolgáltatás lekérdezése a factory-n keresztül
-        if self._data_service is None:
-            from neural_ai.ui.factory import UIServiceFactory
+            # Adatszolgáltatás lekérdezése a factory-n keresztül
+            if self._data_service is None:
+                from neural_ai.ui.factory import UIServiceFactory
 
-            factory = UIServiceFactory()
-            if not factory.is_initialized:
-                st.error("A UI Service Factory nincs inicializálva")
-                return
+                factory = UIServiceFactory()
+                if not factory.is_initialized:
+                    st.error("A UI Service Factory nincs inicializálva")
+                    return
 
-            self._data_service = factory.get_data_service()
+                self._data_service = factory.get_data_service()
 
-        # Oldalsáv menü
-        menu_options = [
-            "Adatok listázása",
-            "Történelmi adatok letöltése",
-            "Adatok exportálása",
-        ]
-        selected_menu = st.sidebar.selectbox("Menü", menu_options)
+            # Oldalsáv menü
+            menu_options = [
+                "Adatok listázása",
+                "Történelmi adatok letöltése",
+                "Adatok exportálása",
+            ]
+            selected_menu = st.sidebar.selectbox("Menü", menu_options)
 
-        if selected_menu == "Adatok listázása":
-            self._render_data_listing()
-        elif selected_menu == "Történelmi adatok letöltése":
-            self._render_download_history()
-        elif selected_menu == "Adatok exportálása":
-            self._render_data_export()
+            if selected_menu == "Adatok listázása":
+                self._render_data_listing()
+            elif selected_menu == "Történelmi adatok letöltése":
+                self._render_download_history()
+            elif selected_menu == "Adatok exportálása":
+                self._render_data_export()
+
+        except Exception as e:
+            st.error("Váratlan hiba történt a Data Hub oldal megjelenítése során.")
+            st.exception(e)
 
     def _render_data_listing(self) -> None:
         """Elérhető adatok listázásának megjelenítése."""
