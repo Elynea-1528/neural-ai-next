@@ -1,67 +1,67 @@
-"""
-Data Service implementáció.
+"""Data Service implementáció.
 
 Ez a modul implementálja az adatkezelési szolgáltatást, amely
 az adatok betöltését, szűrését és kezelését végzi Big Data támogatással.
 """
 
-from typing import Dict, Any, List, Optional, Generator
-from typing import TYPE_CHECKING
+import asyncio
+from collections.abc import Generator
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, cast
+
+import pandas as pd
 
 from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
 
 if TYPE_CHECKING:
+    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 
 
 class DataService(DataServiceInterface):
-    """
-    Data Service - Adatkezelésért felelős.
-    
+    """Data Service - Adatkezelésért felelős.
+
     Ez az osztály implementálja az adatok lekérdezését és kezelését
     végző metódusokat, Big Data támogatással és chunkolással.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface") -> None:
-        """
-        A Data Service inicializálása.
-        
+        """A Data Service inicializálása.
+
         Args:
-            bridge: A backend bridge példány
+            bridge: A backend bridge példány, amelyen keresztül elérjük a
+                backend komponenseket (Bi5Downloader, ParquetStorage)
         """
         self._bridge = bridge
-        self._data_sources: Dict[str, Dict[str, str]] = {
+        self._data_sources: dict[str, dict[str, str]] = {
             "tick_data": {
                 "name": "Tick Adatok",
                 "description": "Valós idejű tick adatok",
-                "format": "parquet"
+                "format": "parquet",
             },
             "ohlc_data": {
                 "name": "OHLC Adatok",
                 "description": "Nyitó, magas, alacsony, záró adatok",
-                "format": "parquet"
+                "format": "parquet",
             },
             "market_data": {
                 "name": "Piaci Adatok",
                 "description": "Általános piaci adatok",
-                "format": "parquet"
-            }
+                "format": "parquet",
+            },
         }
 
     def load_data(
-        self,
-        source: str,
-        filters: Optional[Dict[str, Any]] = None,
-        chunk_size: int = 10000
-    ) -> Generator[List[Dict[str, Any]], None, None]:
-        """
-        Adatok aszinkron betöltése chunkokban.
-        
+        self, source: str, filters: dict[str, Any] | None = None, chunk_size: int = 10000
+    ) -> Generator[list[dict[str, Any]], None, None]:
+        """Adatok aszinkron betöltése chunkokban.
+
         Args:
             source: Az adatforrás azonosítója
             filters: Szűrőfeltételek
             chunk_size: A chunkok mérete
-            
+
         Yields:
             List[Dict[str, Any]]: Adat chunkok
         """
@@ -71,36 +71,36 @@ class DataService(DataServiceInterface):
         # Mock adatok generálása
         # Valós implementációban itt a backend API-t hívnánk meg
         mock_data = self._generate_mock_data(source, filters)
-        
+
         # Adatok chunkolása
         for i in range(0, len(mock_data), chunk_size):
-            chunk = mock_data[i:i + chunk_size]
+            chunk = mock_data[i : i + chunk_size]
             yield chunk
 
-    def get_data_sources(self) -> List[Dict[str, str]]:
-        """
-        Elérhető adatforrások lekérdezése.
-        
+    def get_data_sources(self) -> list[dict[str, str]]:
+        """Elérhető adatforrások lekérdezése.
+
         Returns:
             List[Dict[str, str]]: Az adatforrások listája
         """
-        sources = []
+        sources: list[dict[str, str]] = []
         for source_id, info in self._data_sources.items():
-            sources.append({
-                "id": source_id,
-                "name": info["name"],
-                "description": info["description"],
-                "format": info["format"]
-            })
+            sources.append(
+                {
+                    "id": source_id,
+                    "name": info["name"],
+                    "description": info["description"],
+                    "format": info["format"],
+                }
+            )
         return sources
 
-    def get_data_info(self, source: str) -> Dict[str, Any]:
-        """
-        Adatforrás információk lekérdezése.
-        
+    def get_data_info(self, source: str) -> dict[str, Any]:
+        """Adatforrás információk lekérdezése.
+
         Args:
             source: Az adatforrás azonosítója
-            
+
         Returns:
             Dict[str, Any]: Az adatforrás metaadatai
         """
@@ -115,109 +115,93 @@ class DataService(DataServiceInterface):
             "format": info["format"],
             "size": "2.5 GB",  # Mock adat
             "records": 15000000,  # Mock adat
-            "last_updated": "2026-01-04T19:00:00Z"
+            "last_updated": "2026-01-04T19:00:00Z",
         }
 
     def apply_filters(
-        self,
-        data: List[Dict[str, Any]],
-        filters: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
-        """
-        Szűrők alkalmazása adatokra.
-        
+        self, data: list[dict[str, Any]], filters: dict[str, Any]
+    ) -> list[dict[str, Any]]:
+        """Szűrők alkalmazása adatokra.
+
         Args:
             data: A szűrendő adatok
             filters: A alkalmazandó szűrők
-            
+
         Returns:
             List[Dict[str, Any]]: A szűrt adatok
         """
         filtered_data = data.copy()
-        
+
         for key, value in filters.items():
             if isinstance(value, (int, float, str)):
-                filtered_data = [
-                    item for item in filtered_data
-                    if item.get(key) == value
-                ]
+                filtered_data = [item for item in filtered_data if item.get(key) == value]
             elif isinstance(value, dict):
                 # Támogatás tartomány szűrésre
                 if "min" in value:
                     filtered_data = [
-                        item for item in filtered_data
-                        if item.get(key, 0) >= value["min"]
+                        item for item in filtered_data if item.get(key, 0) >= value["min"]
                     ]
                 if "max" in value:
                     filtered_data = [
-                        item for item in filtered_data
-                        if item.get(key, float('inf')) <= value["max"]
+                        item
+                        for item in filtered_data
+                        if item.get(key, float("inf")) <= value["max"]
                     ]
-        
+
         return filtered_data
 
-    def export_data(
-        self,
-        data: List[Dict[str, Any]],
-        format: str,
-        destination: str
-    ) -> bool:
-        """
-        Adatok exportálása különböző formátumokba.
-        
+    def export_data(self, data: list[dict[str, Any]], format: str, destination: str) -> bool:
+        """Adatok exportálása különböző formátumokba.
+
         Args:
             data: Az exportálandó adatok
             format: A célformátum (parquet, csv, json)
             destination: A cél útvonal
-            
+
         Returns:
             bool: True, ha sikeres az exportálás
         """
         supported_formats = ["parquet", "csv", "json"]
-        
+
         if format not in supported_formats:
             raise ValueError(f"Nem támogatott formátum: {format}")
-        
+
         if not data:
             return False
 
         # Valós implementációban itt tényleges exportálást végeznénk
         # Most csak szimuláljuk a műveletet
         print(f"Exportálás {len(data)} rekord {format} formátumban ide: {destination}")
-        
+
         return True
 
     def _generate_mock_data(
-        self,
-        source: str,
-        filters: Optional[Dict[str, Any]] = None
-    ) -> List[Dict[str, Any]]:
-        """
-        Mock adatok generálása teszteléshez.
-        
+        self, source: str, filters: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
+        """Mock adatok generálása teszteléshez.
+
         Args:
             source: Az adatforrás azonosítója
             filters: Szűrőfeltételek
-            
+
         Returns:
             List[Dict[str, Any]]: A generált mock adatok
         """
         import random
-        from datetime import datetime, timedelta
-        
-        data = []
+
+        data: list[dict[str, Any]] = []
         base_time = datetime.now()
-        
+
         for i in range(1000):
             timestamp = base_time - timedelta(minutes=i)
-            
+
             if source == "tick_data":
-                item = {
+                item: dict[str, Any] = {
                     "timestamp": timestamp.isoformat(),
                     "symbol": "EURUSD",
                     "bid": 1.0850 + random.uniform(-0.001, 0.001),
                     "ask": 1.0852 + random.uniform(-0.001, 0.001),
-                    "volume": random.randint(1, 100)
+                    "volume": random.randint(1, 100),
                 }
             elif source == "ohlc_data":
                 item = {
@@ -227,20 +211,267 @@ class DataService(DataServiceInterface):
                     "high": 1.0860 + random.uniform(-0.002, 0.002),
                     "low": 1.0840 + random.uniform(-0.002, 0.002),
                     "close": 1.0855 + random.uniform(-0.002, 0.002),
-                    "volume": random.randint(1000, 10000)
+                    "volume": random.randint(1000, 10000),
                 }
             else:
                 item = {
                     "timestamp": timestamp.isoformat(),
                     "symbol": "EURUSD",
                     "price": 1.0850 + random.uniform(-0.001, 0.001),
-                    "volume": random.randint(1, 1000)
+                    "volume": random.randint(1, 1000),
                 }
-            
+
             data.append(item)
-        
+
         # Szűrők alkalmazása
         if filters:
             data = self.apply_filters(data, filters)
-        
+
         return data
+
+    async def download_history(self, symbol: str, start: datetime, end: datetime) -> dict[str, Any]:
+        """Történelmi adatok letöltése aszinkron módon.
+
+        Ez a metódus a CoreBridge-en keresztül eléri a Bi5Downloader-t,
+        és valós adatletöltést végez a Dukascopy .bi5 formátumból.
+
+        Args:
+            symbol: A szimbólum (pl. 'EURUSD')
+            start: A kezdő dátum
+            end: A záró dátum
+
+        Returns:
+            dict[str, Any]: A letöltött adatok metaadatai és az adatok
+                - symbol: A letöltött szimbólum
+                - start_date: Kezdő dátum ISO formátumban
+                - end_date: Záró dátum ISO formátumban
+                - status: Letöltési állapot ('downloaded', 'failed', 'partial')
+                - records: Letöltött rekordok száma
+                - size_mb: Letöltött adatok mérete MB-ban
+                - format: Az adatformátum ('parquet')
+                - path: A tárolási útvonal
+
+        Raises:
+            ValueError: Ha a dátumtartomány érvénytelen
+            RuntimeError: Ha a letöltés sikertelen
+        """
+        # Dátumtartomány ellenőrzése
+        if start > end:
+            raise ValueError("A kezdő dátum nem lehet későbbi, mint a záró dátum")
+
+        if start > datetime.now():
+            raise ValueError("A kezdő dátum nem lehet a jövőben")
+
+        # CoreBridge-en keresztül lekérjük a Bi5Downloader komponenst
+        downloader = self._bridge.get_component("bi5_downloader")
+        if downloader is None:
+            raise RuntimeError("A Bi5Downloader komponens nem érhető el")
+
+        # Típus ellenőrzés (futási időben)
+        from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
+
+        if not isinstance(downloader, IJForexDownloader):
+            raise RuntimeError("A komponens nem implementálja az IJForexDownloader interfészt")
+
+        downloader = cast(IJForexDownloader, downloader)
+
+        try:
+            # Dátumok iterálása és adatok letöltése
+            current_date = start
+            total_records = 0
+            successful_dates = 0
+            failed_dates = 0
+
+            while current_date <= end:
+                try:
+                    # Tick adatok letöltése az adott napra
+                    tick_data = await downloader.download_tick_data(symbol, current_date)
+                    total_records += len(tick_data)
+                    successful_dates += 1
+                except Exception as e:
+                    print(
+                        f"Figyelmeztetés: Nem sikerült letölteni az adatokat "
+                        f"a(z) {current_date.date()} dátumra: {e}"
+                    )
+                    failed_dates += 1
+
+                current_date += timedelta(days=1)
+
+            # Állapot meghatározása
+            total_days = (end - start).days + 1
+            if failed_dates == 0:
+                status = "downloaded"
+            elif successful_dates > 0:
+                status = "partial"
+            else:
+                status = "failed"
+
+            # Átlagos méret becslése (kb 300 byte per tick)
+            estimated_size_mb = (total_records * 300) / (1024 * 1024)
+
+            return {
+                "symbol": symbol,
+                "start_date": start.isoformat(),
+                "end_date": end.isoformat(),
+                "status": status,
+                "records": total_records,
+                "size_mb": round(estimated_size_mb, 2),
+                "format": "parquet",
+                "path": f"/data/tick/{symbol}/{start.year}/{start.month:02d}/",
+                "successful_dates": successful_dates,
+                "failed_dates": failed_dates,
+                "total_days": total_days,
+            }
+
+        except Exception as e:
+            raise RuntimeError(f"Adatletöltés sikertelen: {str(e)}") from e
+
+    def list_available_data(self, symbol: str | None = None) -> pd.DataFrame:
+        """Elérhető adatok listázása DataFrame formátumban.
+
+        Ez a metódus a CoreBridge-en keresztül eléri a ParquetStorage-t,
+        és valós adatokról állít össze listát.
+
+        Args:
+            symbol: Opcionális szimbólum szűréshez
+
+        Returns:
+            pd.DataFrame: Az elérhető adatok DataFrame-je, amely tartalmazza:
+                - source_id: Az adatforrás azonosítója
+                - name: Az adatforrás neve
+                - description: Leírás
+                - format: Az adatformátum
+                - size_gb: Méret GB-ban
+                - records: Rekordok száma
+                - last_updated: Utolsó frissítés időpontja
+                - available_dates: Elérhető dátumok száma
+        """
+        # CoreBridge-en keresztül lekérjük a Storage komponenst
+        storage = self._bridge.get_component("parquet_storage")
+        if storage is None:
+            raise RuntimeError("A ParquetStorage komponens nem érhető el")
+
+        # Típus ellenőrzés
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+        if not isinstance(storage, StorageInterface):
+            raise RuntimeError("A komponens nem implementálja a StorageInterface-t")
+
+        storage = cast(StorageInterface, storage)
+
+        try:
+            data_records: list[dict[str, Any]] = []
+
+            # Szimbólumok meghatározása
+            symbols = [symbol] if symbol else ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"]
+
+            for sym in symbols:
+                # Storage statisztikák lekérdezése
+                stats = asyncio.run(self._get_storage_stats_async(storage, sym))
+
+                # Típus konverziók a statisztikákhoz
+                total_files = int(stats.get("total_files", 0)) if stats.get("total_files", 0) else 0
+                size_gb = float(stats.get("size_gb", 0.0)) if stats.get("size_gb", 0.0) else 0.0
+                available_dates = (
+                    int(stats.get("available_dates", 0)) if stats.get("available_dates", 0) else 0
+                )
+
+                if total_files > 0:
+                    for source_id, info in self._data_sources.items():
+                        data_records.append(
+                            {
+                                "source_id": source_id,
+                                "symbol": sym,
+                                "name": info["name"],
+                                "description": info["description"],
+                                "format": info["format"],
+                                "size_gb": round(size_gb, 2),
+                                "records": total_files * 10000,  # Becslés
+                                "last_updated": datetime.now().isoformat(),
+                                "available_dates": available_dates,
+                                "total_files": total_files,
+                            }
+                        )
+
+            return pd.DataFrame(data_records)
+
+        except Exception as e:
+            raise RuntimeError(f"Adatok listázása sikertelen: {str(e)}") from e
+
+    async def _get_storage_stats_async(
+        self, storage: "StorageInterface", symbol: str
+    ) -> dict[str, Any]:
+        """Segédfüggvény a storage statisztikák aszinkron lekérdezéséhez.
+
+        Args:
+            storage: A storage interfész példány
+            symbol: A szimbólum
+
+        Returns:
+            dict[str, Any]: A statisztikák
+        """
+        try:
+            # ParquetStorageService specifikus metódus használata, ha elérhető
+            if hasattr(storage, "get_storage_stats"):
+                stats_method = storage.get_storage_stats
+                # Ha async metódus
+                if asyncio.iscoroutinefunction(stats_method):
+                    result = await stats_method(symbol)
+                    return cast(dict[str, Any], result)
+                else:
+                    # Ha szinkron metódus, futtatás executorban
+                    loop = asyncio.get_event_loop()
+                    result = await loop.run_in_executor(None, stats_method, symbol)
+                    return cast(dict[str, Any], result)
+            else:
+                # Alap statisztikák, ha a metódus nem elérhető
+                return {
+                    "total_files": 0,
+                    "size_gb": 0.0,
+                    "available_dates": 0,
+                }
+        except Exception:
+            # Hibaelnyelés, hogy a UI ne akadjon le
+            return {
+                "total_files": 0,
+                "size_gb": 0.0,
+                "available_dates": 0,
+            }
+
+    def get_storage_path(self) -> Path:
+        """Az adattárolási útvonal lekérdezése.
+
+        Ez a metódus a CoreBridge-en keresztül eléri a ParquetStorage-t,
+        és a tényleges tárolási útvonalat adja vissza.
+
+        Returns:
+            Path: Az adattárolási útvonal
+
+        Raises:
+            RuntimeError: Ha a storage komponens nem érhető el
+        """
+        # CoreBridge-en keresztül lekérjük a Storage komponenst
+        storage = self._bridge.get_component("parquet_storage")
+        if storage is None:
+            raise RuntimeError("A ParquetStorage komponens nem érhető el")
+
+        # Típus ellenőrzés
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+        if not isinstance(storage, StorageInterface):
+            raise RuntimeError("A komponens nem implementálja a StorageInterface-t")
+
+        storage = cast(StorageInterface, storage)
+
+        try:
+            # Ha a storage-nak van BASE_PATH attribútuma
+            if hasattr(storage, "BASE_PATH"):
+                base_path = storage.BASE_PATH
+                if isinstance(base_path, (str, Path)):
+                    return Path(base_path)
+
+            # Alapértelmezett útvonal, ha nem sikerül lekérni
+            return Path("/data/tick")
+
+        except Exception as e:
+            raise RuntimeError(f"Tárolási útvonal lekérdezése sikertelen: {str(e)}") from e
