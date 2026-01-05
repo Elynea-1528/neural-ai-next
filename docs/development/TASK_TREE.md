@@ -313,6 +313,7 @@
 |-----------|:----------------:|:--------------|:--------------|:----------:|:------:|
 | `docs/planning/specs/06_user_interface.md` | `[✅|➖|✅]` | `[Stmt: N/A | Brch: N/A]` | ⭐ | `✅ PERFECT` |
 | `neural_ai/ui/streamlit_app.py` | `[✅|✅|✅]` | `Stmt: 85%, Brch: 85%` | ⭐⭐⭐ | `🟢 STABLE` |
+| `neural_ai/ui/services/data_service.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐ | `✅ PERFECT` |
 | `main.py` (dashboard command) | `[✅|✅|✅]` | `Stmt: 95%, Brch: 95%` | ⭐⭐ | `🟢 STABLE` |
 | `pyproject.toml` (ui dependencies) | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐ | `✅ PERFECT` |
 
