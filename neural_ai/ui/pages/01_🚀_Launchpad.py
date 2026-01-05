@@ -1,27 +1,25 @@
-"""
-Launchpad Page - Az alkalmazás indítólapja.
+"""Launchpad Page - Az alkalmazás indítólapja.
 
 Ez a modul implementálja a fő indítólapot, amely a rendszer
 áttekintését és gyors elérést nyújt a különböző funkciókhoz.
 """
 
-from typing import Dict, Any, Optional
-from neural_ai.ui.interfaces.page_interface import PageInterface
+from typing import Any
+
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
+from neural_ai.ui.interfaces.page_interface import PageInterface
 
 
 class LaunchpadPage(PageInterface):
-    """
-    Launchpad Page - Az alkalmazás indítólapja.
-    
+    """Launchpad Page - Az alkalmazás indítólapja.
+
     Ez az osztály implementálja a fő indítólapot, amely a rendszer
     áttekintését és gyors elérést biztosít a különböző funkciókhoz.
     """
 
     def __init__(self, bridge: CoreBridgeInterface, **kwargs: Any) -> None:
-        """
-        A Launchpad oldal inicializálása.
-        
+        """A Launchpad oldal inicializálása.
+
         Args:
             bridge: A backend bridge példány
             **kwargs: További paraméterek
@@ -31,9 +29,8 @@ class LaunchpadPage(PageInterface):
         self._title = "🚀 Launchpad"
 
     def render(self) -> str:
-        """
-        Az oldal tartalmának renderelése.
-        
+        """Az oldal tartalmának renderelése.
+
         Returns:
             str: A renderelt tartalom
         """
@@ -75,10 +72,9 @@ class LaunchpadPage(PageInterface):
         """
         return content
 
-    def on_navigate_to(self, params: Optional[Dict[str, Any]] = None) -> None:
-        """
-        Akció, amikor az oldalra navigálnak.
-        
+    def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+        """Akció, amikor az oldalra navigálnak.
+
         Args:
             params: Navigációs paraméterek
         """
@@ -86,16 +82,13 @@ class LaunchpadPage(PageInterface):
         print(f"Navigálva a(z) {self._title} oldalra")
 
     def on_navigate_from(self) -> None:
-        """
-        Akció, amikor elnavigálnak az oldalról.
-        """
+        """Akció, amikor elnavigálnak az oldalról."""
         print(f"Elnavigálva a(z) {self._title} oldalról")
 
     @property
     def title(self) -> str:
-        """
-        Az oldal címét visszaadó property.
-        
+        """Az oldal címét visszaadó property.
+
         Returns:
             str: Az oldal címe
         """
@@ -103,10 +96,18 @@ class LaunchpadPage(PageInterface):
 
     @property
     def is_loaded(self) -> bool:
-        """
-        Az oldal betöltöttségi állapotát ellenőrző property.
-        
+        """Az oldal betöltöttségi állapotát ellenőrző property.
+
         Returns:
             bool: True, ha az oldal betöltött, egyébként False
         """
         return self._loaded
+
+
+# Indító blokk az oldal aktiválásához
+if __name__ == "__main__":
+    from neural_ai.ui.core_bridge import CoreBridge
+
+    bridge = CoreBridge()
+    page = LaunchpadPage(bridge)
+    print(page.render())

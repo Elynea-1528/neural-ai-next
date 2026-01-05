@@ -276,3 +276,12 @@ class DataHubPage(PageInterface):
             bool: True, ha az oldal betöltődött, egyébként False
         """
         return self._loaded
+
+
+# Indító blokk az oldal aktiválásához
+if __name__ == "__main__":
+    from neural_ai.ui.core_bridge import CoreBridge
+
+    bridge = CoreBridge()
+    page = DataHubPage(bridge)
+    page.render()
