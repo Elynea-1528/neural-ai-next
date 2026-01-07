@@ -295,57 +295,83 @@ class DataService(DataServiceInterface):
             successful_dates = 0
             failed_dates = 0
 
+            # Külső ciklus: Napok
             while current_date <= end:
-                try:
-                    # Tick adatok letöltése az adott napra
-                    tick_data = await downloader.download_tick_data(symbol, current_date)
+                day_ticks = 0
+                day_successful_hours = 0
+                day_failed_hours = 0
 
-                    if tick_data:
-                        total_records += len(tick_data)
+                # Belső ciklus: Órák (0-23)
+                for hour in range(24):
+                    # Az aktuális óra időpontjának beállítása
+                    target_time = current_date.replace(hour=hour, minute=0, second=0, microsecond=0)
 
-                        # Tick adatok konvertálása Polars DataFrame-re
-                        tick_dicts = [
-                            {
-                                "timestamp": tick.timestamp,
-                                "bid": tick.bid,
-                                "ask": tick.ask,
-                                "ask_volume": tick.ask_volume
-                                if tick.ask_volume is not None
-                                else 0.0,
-                                "bid_volume": tick.bid_volume
-                                if tick.bid_volume is not None
-                                else 0.0,
-                                "source": tick.source,
-                            }
-                            for tick in tick_data
-                        ]
+                    # Ha a target_time túlmegy a kért végdátum óráján, akkor break
+                    if target_time > end:
+                        break
 
-                        df = pl.DataFrame(tick_dicts)
+                    try:
+                        # Tick adatok letöltése az adott órára
+                        tick_data = await downloader.download_tick_data(symbol, target_time)
 
-                        # Technikai 'volume' oszlop hozzáadása
-                        df = df.with_columns(
-                            (pl.col("ask_volume") + pl.col("bid_volume")).alias("volume")
-                        )
+                        if tick_data:
+                            total_records += len(tick_data)
+                            day_ticks += len(tick_data)
+                            day_successful_hours += 1
 
-                        # Adatok mentése a storage-ba (óra szintű unique_id-vel)
-                        unique_id = f"{current_date.hour:02d}"
-                        await storage.store_tick_data(
-                            symbol=symbol, data=df, date=current_date, unique_id=unique_id
-                        )
+                            # Tick adatok konvertálása Polars DataFrame-re
+                            tick_dicts = [
+                                {
+                                    "timestamp": tick.timestamp,
+                                    "bid": tick.bid,
+                                    "ask": tick.ask,
+                                    "ask_volume": tick.ask_volume
+                                    if tick.ask_volume is not None
+                                    else 0.0,
+                                    "bid_volume": tick.bid_volume
+                                    if tick.bid_volume is not None
+                                    else 0.0,
+                                    "source": tick.source,
+                                }
+                                for tick in tick_data
+                            ]
 
-                        successful_dates += 1
-                    else:
+                            df = pl.DataFrame(tick_dicts)
+
+                            # Technikai 'volume' oszlop hozzáadása
+                            df = df.with_columns(
+                                (pl.col("ask_volume") + pl.col("bid_volume")).alias("volume")
+                            )
+
+                            # Adatok mentése a storage-ba (óra szintű unique_id-vel)
+                            unique_id = f"{hour:02d}"
+                            await storage.store_tick_data(
+                                symbol=symbol, data=df, date=target_time, unique_id=unique_id
+                            )
+                        else:
+                            day_failed_hours += 1
+
+                    except Exception as e:
                         print(
-                            f"Figyelmeztetés: Nincsenek adatok a(z) {current_date.date()} dátumra."
+                            f"Figyelmeztetés: Nem sikerült letölteni az adatokat "
+                            f"a(z) {target_time} időpontra: {e}"
                         )
-                        failed_dates += 1
+                        day_failed_hours += 1
 
-                except Exception as e:
-                    print(
-                        f"Figyelmeztetés: Nem sikerült letölteni az adatokat "
-                        f"a(z) {current_date.date()} dátumra: {e}"
-                    )
+                # Nap statisztikája
+                if day_successful_hours > 0:
+                    successful_dates += 1
+                    msg = f"✅ Nap összesítve ({current_date.date()}): "
+                    msg += f"{day_successful_hours} óra, {day_ticks} tick"
+                    print(msg)
+                else:
+                    print(f"⚠️  Nap összesítve ({current_date.date()}): Nincs elérhető adat")
                     failed_dates += 1
+
+                if day_failed_hours > 0:
+                    msg = f"❌ Nap összesítve ({current_date.date()}): "
+                    msg += f"{day_failed_hours} óra sikertelen"
+                    print(msg)
 
                 current_date += timedelta(days=1)
 
@@ -415,7 +441,7 @@ class DataService(DataServiceInterface):
             data_records: list[dict[str, Any]] = []
 
             # Szimbólumok meghatározása
-            symbols = [symbol] if symbol else ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"]
+            symbols = [symbol] if symbol else ["EURUSD", "GBPUSD", "USDJPY", "USDCHF", "XAUUSD"]
 
             for sym in symbols:
                 # Storage statisztikák lekérdezése
@@ -527,3 +553,42 @@ class DataService(DataServiceInterface):
 
         except Exception as e:
             raise RuntimeError(f"Tárolási útvonal lekérdezése sikertelen: {str(e)}") from e
+
+    def get_configured_symbols(self) -> list[str]:
+        """Konfigurált szimbólumok lekérdezése.
+
+        A metódus eléri a konfigurációt a CoreBridge-en keresztül, és kiolvassa
+        a JForex collectorhoz tartozó szimbólumokat. Ha a konfiguráció üres vagy
+        hiba történik a lekérdezés során, akkor egy alapértelmezett szimbólumlistát
+        ad vissza.
+
+        Returns:
+            list[str]: A konfigurált szimbólumok listája. Alapértelmezett esetben
+                ["EURUSD"]-t ad vissza, ha a konfigurációból nem sikerül
+                lekérdezni a szimbólumokat.
+
+        Examples:
+            >>> data_service = DataService(bridge)
+            >>> symbols = data_service.get_configured_symbols()
+            >>> print(symbols)
+            ['EURUSD', 'GBPUSD', 'USDJPY']
+        """
+        try:
+            # Konfiguráció elérése a CoreBridge-en keresztül
+            config = self._bridge.core.config
+            if config is None:
+                return ["EURUSD"]
+
+            # Szimbólumok kiolvasása a konfigurációból
+            symbols = config.get("collectors", "jforex", "symbols")
+
+            # Ellenőrzés, hogy a symbols egy lista-e és nem üres
+            if isinstance(symbols, list) and symbols:
+                return symbols
+            else:
+                # Fallback, ha üres vagy nem lista
+                return ["EURUSD"]
+
+        except Exception:
+            # Fallback, ha bármilyen hiba történik
+            return ["EURUSD"]

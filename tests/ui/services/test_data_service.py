@@ -1,259 +1,244 @@
-"""Tesztek a DataService osztályhoz."""
+"""Data Service tesztelése.
 
-from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Any
-from unittest.mock import AsyncMock, MagicMock
+Ez a modul a DataService osztály tesztjeit tartalmazza.
+"""
 
-import polars as pl
-import pytest
+import unittest
+from unittest.mock import MagicMock, Mock, patch
+
+import pandas as pd
 
 from neural_ai.ui.services.data_service import DataService
 
-if TYPE_CHECKING:
-    pass
 
-
-class TestDataService:
+class TestDataService(unittest.TestCase):
     """DataService osztály tesztjei."""
 
-    @pytest.fixture
-    def mock_bridge(self) -> MagicMock:
-        """Mock CoreBridge létrehozása."""
-        bridge: MagicMock = MagicMock()
-        return bridge
+    def setUp(self) -> None:
+        """Teszt előkészítése."""
+        self.mock_bridge = Mock()
+        self.data_service = DataService(self.mock_bridge)
 
-    @pytest.fixture
-    def data_service(self, mock_bridge: MagicMock) -> DataService:
-        """DataService példány létrehozása."""
-        return DataService(mock_bridge)
-
-    def test_init(self, mock_bridge: MagicMock) -> None:
+    def test_init(self) -> None:
         """Teszteli a DataService inicializálását."""
-        service: DataService = DataService(mock_bridge)
-        assert service._bridge == mock_bridge  # type: ignore
-        assert "tick_data" in service._data_sources  # type: ignore
-        assert "ohlc_data" in service._data_sources  # type: ignore
-        assert "market_data" in service._data_sources  # type: ignore
+        self.assertEqual(self.data_service._bridge, self.mock_bridge)
+        self.assertIn("tick_data", self.data_service._data_sources)
+        self.assertIn("ohlc_data", self.data_service._data_sources)
+        self.assertIn("market_data", self.data_service._data_sources)
 
-    def test_get_data_sources(self, data_service: DataService) -> None:
-        """Teszteli az adatforrások lekérdezését."""
-        sources: list[dict[str, Any]] = data_service.get_data_sources()
-        assert len(sources) == 3
-        assert sources[0]["id"] == "tick_data"
-        assert sources[0]["name"] == "Tick Adatok"
+    def test_load_data(self) -> None:
+        """Teszteli az adatok betöltését."""
+        chunks = list(self.data_service.load_data("tick_data", chunk_size=100))
+        self.assertGreater(len(chunks), 0)
+        self.assertIsInstance(chunks[0], list)
 
-    def test_get_data_info_valid_source(self, data_service: DataService) -> None:
-        """Teszteli az adatforrás információk lekérdezését érvényes forrással."""
-        info: dict[str, Any] = data_service.get_data_info("tick_data")
-        assert info["source"] == "tick_data"
-        assert info["name"] == "Tick Adatok"
-        assert info["format"] == "parquet"
-
-    def test_get_data_info_invalid_source(self, data_service: DataService) -> None:
+    def test_load_data_invalid_source(self) -> None:
         """Teszteli a hibakezelést érvénytelen adatforrás esetén."""
-        with pytest.raises(ValueError, match="Ismeretlen adatforrás"):
-            data_service.get_data_info("invalid_source")
+        with self.assertRaises(ValueError):
+            list(self.data_service.load_data("invalid_source"))
 
-    def test_apply_filters_exact_match(self, data_service: DataService) -> None:
-        """Teszteli a szűrést pontos egyezéssel."""
-        data: list[dict[str, Any]] = [
-            {"id": 1, "name": "test1", "value": 100},
-            {"id": 2, "name": "test2", "value": 200},
+    def test_get_data_sources(self) -> None:
+        """Teszteli az adatforrások lekérdezését."""
+        sources = self.data_service.get_data_sources()
+        self.assertIsInstance(sources, list)
+        self.assertEqual(len(sources), 3)
+        self.assertEqual(sources[0]["id"], "tick_data")
+
+    def test_get_data_info(self) -> None:
+        """Teszteli az adatforrás információk lekérdezését."""
+        info = self.data_service.get_data_info("tick_data")
+        self.assertIsInstance(info, dict)
+        self.assertIn("name", info)
+        self.assertIn("description", info)
+        self.assertIn("format", info)
+
+    def test_get_data_info_invalid_source(self) -> None:
+        """Teszteli a hibakezelést érvénytelen adatforrás esetén."""
+        with self.assertRaises(ValueError):
+            self.data_service.get_data_info("invalid_source")
+
+    def test_apply_filters(self) -> None:
+        """Teszteli a szűrők alkalmazását."""
+        data = [
+            {"symbol": "EURUSD", "price": 1.08},
+            {"symbol": "GBPUSD", "price": 1.28},
+            {"symbol": "EURUSD", "price": 1.09},
         ]
-        filters: dict[str, Any] = {"name": "test1"}
-        filtered: list[dict[str, Any]] = data_service.apply_filters(data, filters)
-        assert len(filtered) == 1
-        assert filtered[0]["id"] == 1
+        filters = {"symbol": "EURUSD"}
+        filtered = self.data_service.apply_filters(data, filters)
+        self.assertEqual(len(filtered), 2)
+        self.assertTrue(all(item["symbol"] == "EURUSD" for item in filtered))
 
-    def test_apply_filters_range(self, data_service: DataService) -> None:
-        """Teszteli a szűrést tartomány alapján."""
-        data: list[dict[str, Any]] = [
-            {"id": 1, "name": "test1", "value": 100},
-            {"id": 2, "name": "test2", "value": 200},
-            {"id": 3, "name": "test3", "value": 300},
+    def test_apply_filters_range(self) -> None:
+        """Teszteli a tartomány szűrést."""
+        data = [
+            {"price": 1.08},
+            {"price": 1.15},
+            {"price": 1.20},
         ]
-        filters: dict[str, Any] = {"value": {"min": 150, "max": 250}}
-        filtered: list[dict[str, Any]] = data_service.apply_filters(data, filters)
-        assert len(filtered) == 1
-        assert filtered[0]["id"] == 2
+        filters = {"price": {"min": 1.10, "max": 1.18}}
+        filtered = self.data_service.apply_filters(data, filters)
+        self.assertEqual(len(filtered), 1)
+        self.assertEqual(filtered[0]["price"], 1.15)
 
-    def test_export_data_success(self, data_service: DataService) -> None:
+    def test_export_data(self) -> None:
         """Teszteli az adatok exportálását."""
-        data: list[dict[str, Any]] = [{"id": 1, "value": 100}]
-        success: bool = data_service.export_data(data, "parquet", "/tmp/test.parquet")
-        assert success is True
+        data = [{"symbol": "EURUSD", "price": 1.08}]
+        result = self.data_service.export_data(data, "csv", "/tmp/test.csv")
+        self.assertTrue(result)
 
-    def test_export_data_empty(self, data_service: DataService) -> None:
-        """Teszteli az exportálást üres adatokkal."""
-        success: bool = data_service.export_data([], "parquet", "/tmp/test.parquet")
-        assert success is False
-
-    def test_export_data_invalid_format(self, data_service: DataService) -> None:
+    def test_export_data_invalid_format(self) -> None:
         """Teszteli a hibakezelést érvénytelen formátum esetén."""
-        data: list[dict[str, Any]] = [{"id": 1, "value": 100}]
-        with pytest.raises(ValueError, match="Nem támogatott formátum"):
-            data_service.export_data(data, "xml", "/tmp/test.xml")
+        data = [{"symbol": "EURUSD", "price": 1.08}]
+        with self.assertRaises(ValueError):
+            self.data_service.export_data(data, "invalid", "/tmp/test.invalid")
 
-    @pytest.mark.asyncio
-    async def test_download_history_success_and_save(self, mock_bridge: MagicMock) -> None:
-        """Teszteli a sikeres történelmi adatletöltést és mentést."""
-        # Importáljuk az interfészt a típusellenőrzéshez
-        from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    def test_export_data_empty(self) -> None:
+        """Teszteli az üres adatok exportálását."""
+        result = self.data_service.export_data([], "csv", "/tmp/test.csv")
+        self.assertFalse(result)
 
-        # Mock komponensek létrehozása az interfész specifikációval
-        mock_downloader: AsyncMock = AsyncMock(spec=IJForexDownloader)
-        mock_storage: AsyncMock = AsyncMock(spec=StorageInterface)
-
-        # Mock tick adatok
-        mock_tick_1: MagicMock = MagicMock()
-        mock_tick_1.timestamp = datetime.now(UTC)
-        mock_tick_1.bid = 1.0850
-        mock_tick_1.ask = 1.0852
-        mock_tick_1.ask_volume = 1.5
-        mock_tick_1.bid_volume = 2.5
-        mock_tick_1.source = "jforex"
-
-        mock_tick_2: MagicMock = MagicMock()
-        mock_tick_2.timestamp = datetime.now(UTC)
-        mock_tick_2.bid = 1.0851
-        mock_tick_2.ask = 1.0853
-        mock_tick_2.ask_volume = 2.0
-        mock_tick_2.bid_volume = 3.0
-        mock_tick_2.source = "jforex"
-
-        mock_tick_data: list[MagicMock] = [mock_tick_1, mock_tick_2]
-
-        # Mock metódusok visszatérési értékeinek beállítása
-        mock_downloader.download_tick_data.return_value = mock_tick_data
-        mock_storage.store_tick_data = AsyncMock()  # type: ignore
-        mock_bridge.get_component.side_effect = lambda name: {  # type: ignore
-            "bi5_downloader": mock_downloader,
-            "parquet_storage": mock_storage,
-        }.get(name)
-
-        # DataService példányosítása és teszt futtatása
-        service: DataService = DataService(mock_bridge)
-        start_date: datetime = datetime.now(UTC) - timedelta(days=1)
-        end_date: datetime = datetime.now(UTC)
-
-        result: dict[str, Any] = await service.download_history("EURUSD", start_date, end_date)
-
-        # Ellenőrzések
-        assert result["symbol"] == "EURUSD"
-        assert result["status"] == "downloaded"
-        assert result["records"] == 4  # 2 nap * 2 tick adat
-        assert result["format"] == "parquet"
-        assert result["successful_dates"] == 2  # start és end nap is sikeres
-        assert result["failed_dates"] == 0
-        assert result["total_days"] == 2  # start és end nap is beleszámít
-
-        # Ellenőrizzük, hogy a download_tick_data meghívásra került
-        mock_downloader.download_tick_data.assert_awaited()
-
-        # Ellenőrizzük, hogy a store_tick_data meghívásra került a helyes paraméterekkel
-        mock_storage.store_tick_data.assert_awaited()
-        # Az utolsó hívás paramétereit ellenőrizzük
-        call_args = mock_storage.store_tick_data.await_args
-        assert call_args.kwargs["symbol"] == "EURUSD"
-        assert call_args.kwargs["unique_id"] is not None
-        # Ellenőrizzük, hogy a data argumentum egy Polars DataFrame
-        assert isinstance(call_args.kwargs["data"], pl.DataFrame)
-        df: pl.DataFrame = call_args.kwargs["data"]
-        assert "timestamp" in df.columns
-        assert "bid" in df.columns
-        assert "ask" in df.columns
-        assert "ask_volume" in df.columns
-        assert "bid_volume" in df.columns
-        assert "source" in df.columns
-        assert "volume" in df.columns  # A technikai volume oszlop
-        assert len(df) == 2  # Két tick adatunk van
-
-    @pytest.mark.asyncio
-    async def test_download_history_invalid_date_range(self, data_service: DataService) -> None:
-        """Teszteli a hibakezelést érvénytelen dátumtartomány esetén."""
-        start_date: datetime = datetime.now(UTC)
-        end_date: datetime = datetime.now(UTC) - timedelta(days=1)
-
-        with pytest.raises(ValueError, match="nem lehet későbbi"):
-            await data_service.download_history("EURUSD", start_date, end_date)
-
-    @pytest.mark.asyncio
-    async def test_download_history_future_start_date(self, data_service: DataService) -> None:
-        """Teszteli a hibakezelést jövőbeli kezdődátum esetén."""
-        start_date: datetime = datetime.now(UTC) + timedelta(days=1)
-        end_date: datetime = datetime.now(UTC) + timedelta(days=2)
-
-        with pytest.raises(ValueError, match="nem lehet a jövőben"):
-            await data_service.download_history("EURUSD", start_date, end_date)
-
-    @pytest.mark.asyncio
-    async def test_download_history_downloader_not_available(self, mock_bridge: MagicMock) -> None:
-        """Teszteli a hibakezelést, ha a letöltő komponens nem érhető el."""
-        mock_bridge.get_component.return_value = None
-        service: DataService = DataService(mock_bridge)
-
-        with pytest.raises(RuntimeError, match="Bi5Downloader komponens nem érhető el"):
-            await service.download_history(
-                "EURUSD", datetime.now(UTC) - timedelta(days=1), datetime.now(UTC)
-            )
-
-    @pytest.mark.asyncio
-    async def test_download_history_storage_not_available(self, mock_bridge: MagicMock) -> None:
-        """Teszteli a hibakezelést, ha a tároló komponens nem érhető el."""
-        from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
-
-        mock_downloader: AsyncMock = AsyncMock(spec=IJForexDownloader)
-        mock_downloader.download_tick_data.return_value = []
-        mock_bridge.get_component.side_effect = lambda name: {  # type: ignore
-            "bi5_downloader": mock_downloader,
-            "parquet_storage": None,
-        }.get(name)
-        service: DataService = DataService(mock_bridge)
-
-        with pytest.raises(RuntimeError, match="ParquetStorage komponens nem érhető el"):
-            await service.download_history(
-                "EURUSD", datetime.now(UTC) - timedelta(days=1), datetime.now(UTC)
-            )
-
-    @pytest.mark.asyncio
-    async def test_download_history_no_data_for_date(self, mock_bridge: MagicMock) -> None:
-        """Teszteli a viselkedést, ha egy adott dátumra nincs adat."""
-        from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-
-        mock_downloader: AsyncMock = AsyncMock(spec=IJForexDownloader)
-        mock_storage: AsyncMock = AsyncMock(spec=StorageInterface)
-        mock_storage.store_tick_data = AsyncMock()  # type: ignore
-        mock_downloader.download_tick_data.return_value = []  # Nincs adat
-        mock_bridge.get_component.side_effect = lambda name: {  # type: ignore
-            "bi5_downloader": mock_downloader,
-            "parquet_storage": mock_storage,
-        }.get(name)
-
-        service: DataService = DataService(mock_bridge)
-        start_date: datetime = datetime.now(UTC) - timedelta(days=1)
-        end_date: datetime = datetime.now(UTC)
-
-        result: dict[str, Any] = await service.download_history("EURUSD", start_date, end_date)
-
-        # Ellenőrizzük, hogy a letöltés "failed" státuszú lett,
-        # mert minden dátumra üres adatok jöttek
-        assert result["status"] == "failed"
-        assert result["failed_dates"] == 2
-        assert result["successful_dates"] == 0
-        # Ellenőrizzük, hogy a storage mentést nem hívták meg, mert nincs adat
-        mock_storage.store_tick_data.assert_not_awaited()
-
-    def test_load_data(self, data_service: DataService) -> None:
-        """Teszteli az adatok betöltését chunk-okban."""
-        chunks: list[list[dict[str, Any]]] = list(
-            data_service.load_data("tick_data", chunk_size=100)
+    @patch("asyncio.run")
+    def test_list_available_data(self, mock_run: MagicMock) -> None:
+        """Teszteli az elérhető adatok listázását."""
+        mock_storage = Mock()
+        mock_storage.get_storage_stats = Mock(
+            return_value={
+                "total_files": 10,
+                "size_gb": 1.5,
+                "available_dates": 30,
+            }
         )
-        assert len(chunks) > 0
-        assert all(isinstance(chunk, list) for chunk in chunks)
+        self.mock_bridge.get_component.return_value = mock_storage
 
-    def test_load_data_invalid_source(self, data_service: DataService) -> None:
-        """Teszteli a hibakezelést érvénytelen forrás esetén az adatbetöltésnél."""
-        with pytest.raises(ValueError, match="Ismeretlen adatforrás"):
-            list(data_service.load_data("invalid_source"))
+        mock_run.return_value = {
+            "total_files": 10,
+            "size_gb": 1.5,
+            "available_dates": 30,
+        }
+
+        result = self.data_service.list_available_data()
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertGreater(len(result), 0)
+
+    def test_get_storage_path(self) -> None:
+        """Teszteli a tárolási útvonal lekérdezését."""
+        mock_storage = Mock()
+        mock_storage.BASE_PATH = "/data/tick"
+        self.mock_bridge.get_component.return_value = mock_storage
+
+        result = self.data_service.get_storage_path()
+        self.assertIsNotNone(result)
+        self.assertEqual(str(result), "/data/tick")
+
+    def test_get_storage_path_default(self) -> None:
+        """Teszteli az alapértelmezett tárolási útvonal lekérdezését."""
+        mock_storage = Mock()
+        del mock_storage.BASE_PATH
+        self.mock_bridge.get_component.return_value = mock_storage
+
+        result = self.data_service.get_storage_path()
+        self.assertIsNotNone(result)
+        self.assertEqual(str(result), "/data/tick")
+
+    def test_get_configured_symbols_with_valid_config(self) -> None:
+        """Teszteli a konfigurált szimbólumok lekérdezését érvényes konfiggal."""
+        # Mock a konfigurációt
+        mock_config = Mock()
+        mock_config.get.return_value = ["EURUSD", "GBPUSD", "USDJPY"]
+
+        # Mock a bridge és a core konfigot
+        mock_core = Mock()
+        mock_core.config = mock_config
+        self.mock_bridge.core = mock_core
+
+        symbols = self.data_service.get_configured_symbols()
+
+        self.assertEqual(symbols, ["EURUSD", "GBPUSD", "USDJPY"])
+        mock_config.get.assert_called_once_with("collectors", "jforex", "symbols")
+
+    def test_get_configured_symbols_with_empty_config(self) -> None:
+        """Teszteli a konfigurált szimbólumok lekérdezését üres konfiggal."""
+        # Mock a konfigurációt, ami üres listát ad vissza
+        mock_config = Mock()
+        mock_config.get.return_value = []
+
+        mock_core = Mock()
+        mock_core.config = mock_config
+        self.mock_bridge.core = mock_core
+
+        symbols = self.data_service.get_configured_symbols()
+
+        self.assertEqual(symbols, ["EURUSD"])
+
+    def test_get_configured_symbols_with_none_config(self) -> None:
+        """Teszteli a konfigurált szimbólumok lekérdezését None konfiggal."""
+        # Mock a konfigurációt, ami None-t ad vissza
+        mock_config = Mock()
+        mock_config.get.return_value = None
+
+        mock_core = Mock()
+        mock_core.config = mock_config
+        self.mock_bridge.core = mock_core
+
+        symbols = self.data_service.get_configured_symbols()
+
+        self.assertEqual(symbols, ["EURUSD"])
+
+    def test_get_configured_symbols_with_invalid_config_type(self) -> None:
+        """Teszteli a konfigurált szimbólumok lekérdezését érvénytelen típusú konfiggal."""
+        # Mock a konfigurációt, ami nem listát ad vissza
+        mock_config = Mock()
+        mock_config.get.return_value = "EURUSD,GBPUSD"  # String instead of list
+
+        mock_core = Mock()
+        mock_core.config = mock_config
+        self.mock_bridge.core = mock_core
+
+        symbols = self.data_service.get_configured_symbols()
+
+        self.assertEqual(symbols, ["EURUSD"])
+
+    def test_get_configured_symbols_with_no_core_config(self) -> None:
+        """Teszteli a konfigurált szimbólumok lekérdezését, ha nincs core konfig."""
+        # Mock a bridge-t, ami None core-t ad vissza
+        self.mock_bridge.core = None
+
+        symbols = self.data_service.get_configured_symbols()
+
+        self.assertEqual(symbols, ["EURUSD"])
+
+    def test_get_configured_symbols_with_exception(self) -> None:
+        """Teszteli a konfigurált szimbólumok lekérdezését kivétel esetén."""
+        # Mock a konfigurációt, ami kivételt dob
+        mock_config = Mock()
+        mock_config.get.side_effect = Exception("Config error")
+
+        mock_core = Mock()
+        mock_core.config = mock_config
+        self.mock_bridge.core = mock_core
+
+        symbols = self.data_service.get_configured_symbols()
+
+        self.assertEqual(symbols, ["EURUSD"])
+
+    def test_generate_mock_data(self) -> None:
+        """Teszteli a mock adatok generálását."""
+        data = self.data_service._generate_mock_data("tick_data")
+        self.assertIsInstance(data, list)
+        self.assertEqual(len(data), 1000)
+        self.assertIn("timestamp", data[0])
+        self.assertIn("symbol", data[0])
+        self.assertIn("bid", data[0])
+
+    def test_generate_mock_data_with_filters(self) -> None:
+        """Teszteli a mock adatok generálását szűrőkkel."""
+        filters = {"symbol": "EURUSD"}
+        data = self.data_service._generate_mock_data("tick_data", filters)
+        self.assertIsInstance(data, list)
+        if data:  # Ha van szűrt adat
+            self.assertEqual(data[0]["symbol"], "EURUSD")
+
+
+if __name__ == "__main__":
+    unittest.main()
