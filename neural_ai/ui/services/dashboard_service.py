@@ -1,13 +1,16 @@
-"""
-Dashboard Service implementáció.
+"""Dashboard Service implementáció.
 
 Ez a modul implementálja a dashboard szolgáltatást, amely
 a fő irányítópult adatait és állapotát kezeli.
 """
 
-from typing import Dict, Any, List, Callable
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
+from neural_ai.core.system.interfaces.health_interface import (
+    ComponentStatus,
+    SystemHealth,
+)
 from neural_ai.ui.interfaces.dashboard_service_interface import DashboardServiceInterface
 
 if TYPE_CHECKING:
@@ -15,34 +18,35 @@ if TYPE_CHECKING:
 
 
 class DashboardService(DashboardServiceInterface):
-    """
-    Dashboard Service - Fő irányítópult kezeléséért felelős.
-    
+    """Dashboard Service - Fő irányítópult kezeléséért felelős.
+
     Ez az osztály implementálja a dashboard adatok lekérdezését és
     kezelését végző metódusokat.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface") -> None:
-        """
-        A Dashboard Service inicializálása.
-        
+        """A Dashboard Service inicializálása.
+
         Args:
             bridge: A backend bridge példány
         """
         self._bridge = bridge
-        self._cached_data: Dict[str, Any] = {}
-        self._subscribers: List[Callable[[Dict[str, Any]], None]] = []
+        self._cached_data: dict[str, Any] = {}
+        self._subscribers: list[Callable[[dict[str, Any]], None]] = []
 
-    def get_system_overview(self) -> Dict[str, Any]:
-        """
-        Rendszer áttekintő adatok lekérdezése.
-        
+    def get_system_overview(self) -> dict[str, Any]:
+        """Rendszer áttekintő adatok lekérdezése.
+
         Returns:
             Dict[str, Any]: A rendszer aktuális állapota
         """
+        # Gyorsítótár ellenőrzése
+        if "overview" in self._cached_data:
+            return self._cached_data["overview"]
+
         # Lekérdezzük a rendszerinformációt a bridgen keresztül
         system_info = self._bridge.get_system_info()
-        
+
         overview = {
             "system_info": system_info,
             "last_update": "2026-01-04T19:13:00Z",
@@ -51,45 +55,62 @@ class DashboardService(DashboardServiceInterface):
                 "database": "OK",
                 "event_bus": "OK",
                 "collectors": "OK",
-                "processors": "OK"
-            }
+                "processors": "OK",
+            },
         }
-        
+
         self._cached_data["overview"] = overview
         return overview
 
-    def get_health_status(self) -> Dict[str, str]:
-        """
-        Rendszer egészségügyi állapotának lekérdezése.
-        
-        Returns:
-            Dict[str, str]: A komponensek állapota (OK/ERROR/WARNING)
-        """
-        health_status = {
-            "core": "OK",
-            "database": "OK",
-            "event_bus": "OK",
-            "collectors": "WARNING",
-            "processors": "OK",
-            "storage": "OK",
-            "ui": "OK"
-        }
-        
-        # Valós implementációban a bridgen keresztül ellenőriznénk
-        # az egyes komponensek állapotát
-        
-        self._cached_data["health"] = health_status
-        return health_status
+    def get_health_status(self) -> dict[str, str]:
+        """Rendszer egészségügyi állapotának lekérdezése.
 
-    def get_performance_metrics(self) -> Dict[str, float]:
+        A metódus a valós HealthMonitor komponenst kérdezi le a backend
+        rendszerből, és leképezi a komponens állapotokat UI-barát formátumba.
+
+        Returns:
+            Dict[str, str]: A komponensek állapota (OK/WARNING/ERROR/CRITICAL/UNKNOWN)
         """
-        Teljesítmény metrikák lekérdezése.
-        
+        # Fallback, ha a bridge vagy a health monitor nem elérhető
+        if not self._bridge.core or not self._bridge.core.health_monitor:
+            return {"system": "UNKNOWN"}
+
+        # Valós lekérdezés a HealthMonitor-ból
+        health: SystemHealth = self._bridge.core.health_monitor.check_health()
+
+        # Mapping (ComponentHealth -> UI String)
+        status_map: dict[str, str] = {}
+        for comp in health.components:
+            # Enum to String mapping
+            if comp.status == ComponentStatus.HEALTHY:
+                status_str = "OK"
+            elif comp.status == ComponentStatus.WARNING:
+                status_str = "WARNING"
+            elif comp.status == ComponentStatus.CRITICAL:
+                status_str = "ERROR"
+            elif comp.status == ComponentStatus.UNKNOWN:
+                status_str = "UNKNOWN"
+            elif comp.status == ComponentStatus.OFFLINE:
+                status_str = "OFFLINE"
+            else:
+                status_str = "UNKNOWN"
+
+            status_map[comp.name] = status_str
+
+        # Hozzáadjuk a rendszer általános állapotát is
+        status_map["system"] = health.overall_status.value.upper()
+
+        self._cached_data["health"] = status_map
+        return status_map
+
+    def get_performance_metrics(self) -> dict[str, float]:
+        """Teljesítmény metrikák lekérdezése.
+
         Returns:
             Dict[str, float]: A rendszer teljesítményadatok
         """
         system_info = self._bridge.get_system_info()
-        
+
         if "resources" in system_info:
             resources = system_info["resources"]
             metrics = {
@@ -97,8 +118,8 @@ class DashboardService(DashboardServiceInterface):
                 "memory_usage": resources.get("memory_usage", 0.0),
                 "disk_usage": resources.get("disk_usage", 0.0),
                 "network_io": 1234.5,  # Mock adat
-                "disk_io": 567.8,      # Mock adat
-                "response_time": 12.3   # Mock adat
+                "disk_io": 567.8,  # Mock adat
+                "response_time": 12.3,  # Mock adat
             }
         else:
             # Fallback mock adatok
@@ -108,16 +129,15 @@ class DashboardService(DashboardServiceInterface):
                 "disk_usage": 23.4,
                 "network_io": 1234.5,
                 "disk_io": 567.8,
-                "response_time": 12.3
+                "response_time": 12.3,
             }
-        
+
         self._cached_data["metrics"] = metrics
         return metrics
 
-    def get_recent_activities(self) -> List[Dict[str, Any]]:
-        """
-        Legutóbbi tevékenységek lekérdezése.
-        
+    def get_recent_activities(self) -> list[dict[str, Any]]:
+        """Legutóbbi tevékenységek lekérdezése.
+
         Returns:
             List[Dict[str, Any]]: A tevékenységek listája
         """
@@ -126,57 +146,50 @@ class DashboardService(DashboardServiceInterface):
                 "timestamp": "2026-01-04T19:10:00Z",
                 "type": "INFO",
                 "message": "Rendszer indítva",
-                "component": "core"
+                "component": "core",
             },
             {
                 "timestamp": "2026-01-04T19:11:00Z",
                 "type": "SUCCESS",
                 "message": "Adatbázis kapcsolat létrejött",
-                "component": "database"
+                "component": "database",
             },
             {
                 "timestamp": "2026-01-04T19:12:00Z",
                 "type": "WARNING",
                 "message": "Adatgyűjtő lelassult",
-                "component": "collectors"
+                "component": "collectors",
             },
             {
                 "timestamp": "2026-01-04T19:13:00Z",
                 "type": "INFO",
                 "message": "UI inicializálva",
-                "component": "ui"
-            }
+                "component": "ui",
+            },
         ]
-        
+
         self._cached_data["activities"] = activities
         return activities
 
     def refresh_data(self) -> None:
-        """
-        Dashboard adatok frissítése.
-        """
+        """Dashboard adatok frissítése."""
         # Töröljük a gyorsítótárazott adatokat
         self._cached_data.clear()
-        
-        # Értesítjük a feliratkozókat
-        self._notify_subscribers({
-            "type": "refresh",
-            "timestamp": "2026-01-04T19:13:00Z"
-        })
 
-    def subscribe_to_updates(self, callback: Callable[[Dict[str, Any]], None]) -> None:
-        """
-        Feliratkozás dashboard frissítésekre.
-        
+        # Értesítjük a feliratkozókat
+        self._notify_subscribers({"type": "refresh", "timestamp": "2026-01-04T19:13:00Z"})
+
+    def subscribe_to_updates(self, callback: Callable[[dict[str, Any]], None]) -> None:
+        """Feliratkozás dashboard frissítésekre.
+
         Args:
             callback: A hívandó callback függvény
         """
         self._subscribers.append(callback)
 
-    def _notify_subscribers(self, data: Dict[str, Any]) -> None:
-        """
-        Értesítés küldése a feliratkozóknak.
-        
+    def _notify_subscribers(self, data: dict[str, Any]) -> None:
+        """Értesítés küldése a feliratkozóknak.
+
         Args:
             data: Az értesítés adatai
         """

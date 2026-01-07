@@ -151,6 +151,20 @@ class CoreComponents:
         result = self._container.resolve(ILiveFeed)
         return cast(Optional["ILiveFeed"], result)
 
+    @property
+    def health_monitor(self) -> Optional["HealthMonitorInterface"]:
+        """Health monitor komponens lekérése.
+
+        Returns:
+            A health monitor példánya, vagy None ha nincs regisztrálva.
+        """
+        from typing import cast
+
+        from neural_ai.core.system.interfaces.health_interface import HealthMonitorInterface
+
+        result = self._container.resolve(HealthMonitorInterface)
+        return cast(Optional["HealthMonitorInterface"], result)
+
     def set_config(self, config: "ConfigManagerInterface") -> None:
         """Beállítja a konfiguráció komponenst (csak teszteléshez).
 
@@ -231,6 +245,16 @@ class CoreComponents:
 
         self._container.register_instance(ILiveFeed, live_feed)
 
+    def set_health_monitor(self, health_monitor: "HealthMonitorInterface") -> None:
+        """Beállítja a health monitor komponenst (csak teszteléshez).
+
+        Args:
+            health_monitor: A health monitor implementáció példánya.
+        """
+        from neural_ai.core.system.interfaces.health_interface import HealthMonitorInterface
+
+        self._container.register_instance(HealthMonitorInterface, health_monitor)
+
     def has_config(self) -> bool:
         """Ellenőrzi, hogy van-e config komponens.
 
@@ -295,6 +319,14 @@ class CoreComponents:
         """
         return self.live_feed is not None
 
+    def has_health_monitor(self) -> bool:
+        """Ellenőrzi, hogy van-e health monitor komponens.
+
+        Returns:
+            bool: True ha van health monitor komponens, False ha nincs
+        """
+        return self.health_monitor is not None
+
     @trace
     def validate(self) -> bool:
         """Ellenőrzi, hogy minden szükséges komponens megvan-e.
@@ -310,5 +342,6 @@ class CoreComponents:
                 self.has_database(),
                 self.has_event_bus(),
                 self.has_hardware(),
+                self.has_health_monitor(),
             ]
         )

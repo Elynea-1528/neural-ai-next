@@ -1,480 +1,332 @@
-"""DashboardService tesztelése.
+"""Dashboard Service tesztek."""
 
-Ez a tesztfájl a ui/services/dashboard_service.py komponensének unit tesztjeit tartalmazza.
-A tesztek a MVVM architektúra ViewModel rétegének helyes működését ellenőrzik.
-"""
-
-import sys
 from typing import Any
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock
 
-import pandas as pd
 import pytest
 
-# Path hozzáadása a UI modulokhoz
-sys.path.insert(0, "/home/elynea/Dokumentumok/neural-ai-next")
-
-
-# Importok a tesztelendő osztályokból
-# Mivel a ui.services még nem létezik, mock-oljuk a struktúrát
-class MockBaseService:
-    """Mock BaseService a teszteléshez."""
-
-    def __init__(self, logger, config):
-        self.logger = logger
-        self.config = config
-        self._init_session_state()
-
-    def _init_session_state(self):
-        """Session state inicializálása."""
-        pass
-
-    def get_session_data(self, key: str, default: Any = None) -> Any:
-        """Adatok lekérése a session state-ből."""
-        return default
-
-    def set_session_data(self, key: str, value: Any):
-        """Adatok mentése a session state-be."""
-        pass
-
-    def clear_session_data(self, key: str):
-        """Adatok törlése a session state-ből."""
-        pass
-
-
-class MockDashboardService(MockBaseService):
-    """Mock DashboardService a teszteléshez."""
-
-    def __init__(self, logger, config):
-        super().__init__(logger, config)
-
-    def get_system_health(self) -> dict[str, Any]:
-        """Rendszer állapotának lekérése."""
-        try:
-            health_monitor = self._get_health_monitor()
-            health_data = health_monitor.check_health()
-
-            return {
-                "cuda_status": "Available" if health_data.cuda_available else "Disabled",
-                "cuda_available": health_data.cuda_available,
-                "database_status": health_data.database.status,
-                "database_tables": health_data.database.table_count,
-                "config_status": health_data.config.status,
-                "config_entries": health_data.config.entry_count,
-                "active_collectors": health_data.collectors.active_count,
-                "total_collectors": health_data.collectors.total_count,
-            }
-        except Exception as e:
-            self.logger.error(f"Error getting system health: {e}")
-            return self._get_default_health_status()
-
-    def get_data_summary(self) -> dict[str, Any]:
-        """Adatok összegzésének lekérése."""
-        try:
-            data_bridge = self._get_data_bridge()
-            summary = data_bridge.get_data_summary()
-
-            symbols_df = pd.DataFrame(
-                [
-                    {
-                        "Symbol": s.name,
-                        "Records": s.record_count,
-                        "Start Date": s.start_date,
-                        "End Date": s.end_date,
-                        "Size (MB)": s.size_mb,
-                    }
-                    for s in summary.symbols
-                ]
-            )
-
-            return {
-                "total_records": summary.total_records,
-                "total_size_mb": summary.total_size_mb,
-                "symbols_count": summary.symbol_count,
-                "symbols_df": symbols_df,
-            }
-        except Exception as e:
-            self.logger.error(f"Error getting data summary: {e}")
-            return {
-                "total_records": 0,
-                "total_size_mb": 0.0,
-                "symbols_count": 0,
-                "symbols_df": pd.DataFrame(),
-            }
-
-    def create_data_volume_chart(self, data_info: dict[str, Any]) -> Any:
-        """Adatmennyiség chart létrehozása."""
-        if data_info["symbols_df"].empty:
-            # Mock Plotly figure
-            return MagicMock()
-
-        # Mock chart létrehozása
-        fig = MagicMock()
-        fig.update_layout = MagicMock(return_value=fig)
-        return fig
-
-    def _get_default_health_status(self) -> dict[str, Any]:
-        """Alapértelmezett health status."""
-        return {
-            "cuda_status": "Error",
-            "cuda_available": False,
-            "database_status": "Error",
-            "database_tables": 0,
-            "config_status": "Error",
-            "config_entries": 0,
-            "active_collectors": 0,
-            "total_collectors": 0,
-        }
-
-    def _get_health_monitor(self):
-        """Health monitor lekérése."""
-        # Mock health monitor
-        return MagicMock()
-
-    def _get_data_bridge(self):
-        """Data bridge lekérése."""
-        # Mock data bridge
-        return MagicMock()
+from neural_ai.core.system.interfaces.health_interface import (
+    ComponentHealth,
+    ComponentStatus,
+    HealthStatus,
+    SystemHealth,
+)
+from neural_ai.ui.services.dashboard_service import DashboardService
 
 
 class TestDashboardService:
-    """DashboardService osztály tesztjei."""
+    """Dashboard Service tesztek osztálya."""
 
     @pytest.fixture
-    def mock_logger(self):
-        """Mock logger fixture."""
-        logger = Mock()
-        logger.error = Mock()
-        return logger
+    def mock_bridge(self) -> MagicMock:
+        """Mock CoreBridge létrehozása."""
+        bridge = MagicMock()
+        bridge.core = MagicMock()
+        bridge.core.health_monitor = MagicMock()
+        return bridge
 
     @pytest.fixture
-    def mock_config(self):
-        """Mock config fixture."""
-        config = Mock()
-        config.get = Mock(return_value="1.0.0")
-        return config
+    def mock_system_health(self) -> SystemHealth:
+        """Mock SystemHealth létrehozása."""
+        components = [
+            ComponentHealth(
+                name="core",
+                status=ComponentStatus.HEALTHY,
+                message="Komponens egészséges",
+                timestamp=None,  # type: ignore
+            ),
+            ComponentHealth(
+                name="database",
+                status=ComponentStatus.WARNING,
+                message="Lassú válaszidő",
+                timestamp=None,  # type: ignore
+            ),
+            ComponentHealth(
+                name="storage",
+                status=ComponentStatus.CRITICAL,
+                message="Lemez megtelt",
+                timestamp=None,  # type: ignore
+            ),
+        ]
+        return SystemHealth(
+            overall_status=HealthStatus.DEGRADED,
+            message="Figyelmeztetés állapotú komponensek: 1",
+            timestamp=None,  # type: ignore
+            components=components,
+            system_metrics={"cpu_percent": 45.2},
+        )
 
-    @pytest.fixture
-    def dashboard_service(self, mock_logger, mock_config):
-        """DashboardService példány létrehozása."""
-        return MockDashboardService(logger=mock_logger, config=mock_config)
+    def test_init(self, mock_bridge: MagicMock) -> None:
+        """Teszteli a Dashboard Service inicializálását."""
+        service = DashboardService(mock_bridge)
 
-    def test_initialization(self, dashboard_service, mock_logger, mock_config):
-        """Teszteli a DashboardService inicializálását."""
-        assert dashboard_service.logger == mock_logger
-        assert dashboard_service.config == mock_config
-        assert dashboard_service.logger is not None
-        assert dashboard_service.config is not None
+        assert service._bridge == mock_bridge
+        assert service._cached_data == {}
+        assert service._subscribers == []
 
-    def test_get_system_health_success(self, dashboard_service, mock_logger):
-        """Teszteli a rendszer állapotának sikeres lekérését."""
-        # Mock health monitor létrehozása
-        mock_health_monitor = Mock()
-        mock_health_data = Mock()
+    def test_get_health_status_with_available_monitor(
+        self, mock_bridge: MagicMock, mock_system_health: SystemHealth
+    ) -> None:
+        """Teszteli az egészségügyi állapot lekérdezését, ha a monitor elérhető."""
+        # Mock a health monitor check_health metódusát
+        mock_bridge.core.health_monitor.check_health.return_value = mock_system_health
 
-        # Mock adatok beállítása
-        mock_health_data.cuda_available = True
-        mock_health_data.database.status = "OK"
-        mock_health_data.database.table_count = 10
-        mock_health_data.config.status = "Loaded"
-        mock_health_data.config.entry_count = 50
-        mock_health_data.collectors.active_count = 3
-        mock_health_data.collectors.total_count = 5
+        service = DashboardService(mock_bridge)
+        result = service.get_health_status()
 
-        mock_health_monitor.check_health.return_value = mock_health_data
+        # Ellenőrizzük, hogy a metódus meghívódott
+        mock_bridge.core.health_monitor.check_health.assert_called_once()
 
-        # Health monitor mockolása
-        with patch.object(
-            dashboard_service, "_get_health_monitor", return_value=mock_health_monitor
-        ):
-            result = dashboard_service.get_system_health()
+        # Ellenőrizzük az eredményt
+        expected = {
+            "core": "OK",
+            "database": "WARNING",
+            "storage": "ERROR",
+            "system": "DEGRADED",
+        }
+        assert result == expected
 
-            # Eredmények ellenőrzése
-            assert result["cuda_status"] == "Available"
-            assert result["cuda_available"] is True
-            assert result["database_status"] == "OK"
-            assert result["database_tables"] == 10
-            assert result["config_status"] == "Loaded"
-            assert result["config_entries"] == 50
-            assert result["active_collectors"] == 3
-            assert result["total_collectors"] == 5
+        # Ellenőrizzük, hogy a gyorsítótárba mentés megtörtént
+        assert service._cached_data["health"] == expected
 
-            # Logger hívás ellenőrzése (nem volt hiba)
-            mock_logger.error.assert_not_called()
+    def test_get_health_status_without_core(self, mock_bridge: MagicMock) -> None:
+        """Teszteli az egészségügyi állapot lekérdezését, ha a core nem elérhető."""
+        mock_bridge.core = None
 
-    def test_get_system_health_error(self, dashboard_service, mock_logger):
-        """Teszteli a rendszer állapotának lekérését hibás esetben."""
-        # Exception dobása a health monitorban
-        with patch.object(
-            dashboard_service, "_get_health_monitor", side_effect=Exception("Test error")
-        ):
-            result = dashboard_service.get_system_health()
+        service = DashboardService(mock_bridge)
+        result = service.get_health_status()
 
-            # Alapértelmezett értékek ellenőrzése
-            assert result["cuda_status"] == "Error"
-            assert result["cuda_available"] is False
-            assert result["database_status"] == "Error"
-            assert result["database_tables"] == 0
-            assert result["config_status"] == "Error"
-            assert result["config_entries"] == 0
-            assert result["active_collectors"] == 0
-            assert result["total_collectors"] == 0
+        expected = {"system": "UNKNOWN"}
+        assert result == expected
 
-            # Logger error hívás ellenőrzése
-            mock_logger.error.assert_called_once()
-            assert "Test error" in str(mock_logger.error.call_args)
+    def test_get_health_status_without_health_monitor(self, mock_bridge: MagicMock) -> None:
+        """Teszteli az egészségügyi állapot lekérdezését, ha a health monitor nem elérhető."""
+        mock_bridge.core.health_monitor = None
 
-    def test_get_data_summary_success(self, dashboard_service, mock_logger):
-        """Teszteli az adatok összegzésének sikeres lekérését."""
-        # Mock data bridge létrehozása
-        mock_data_bridge = Mock()
-        mock_summary = Mock()
+        service = DashboardService(mock_bridge)
+        result = service.get_health_status()
 
-        # Mock adatok beállítása
-        mock_symbol1 = Mock()
-        mock_symbol1.name = "EURUSD"
-        mock_symbol1.record_count = 1000
-        mock_symbol1.start_date = "2024-01-01"
-        mock_symbol1.end_date = "2024-01-31"
-        mock_symbol1.size_mb = 5.5
+        expected = {"system": "UNKNOWN"}
+        assert result == expected
 
-        mock_symbol2 = Mock()
-        mock_symbol2.name = "GBPUSD"
-        mock_symbol2.record_count = 2000
-        mock_symbol2.start_date = "2024-01-01"
-        mock_symbol2.end_date = "2024-01-31"
-        mock_symbol2.size_mb = 8.2
+    def test_get_health_status_all_status_types(self, mock_bridge: MagicMock) -> None:
+        """Teszteli az összes állapot típus leképezését."""
+        components = [
+            ComponentHealth(
+                name="healthy",
+                status=ComponentStatus.HEALTHY,
+                message="OK",
+                timestamp=None,  # type: ignore
+            ),
+            ComponentHealth(
+                name="warning",
+                status=ComponentStatus.WARNING,
+                message="WARNING",
+                timestamp=None,  # type: ignore
+            ),
+            ComponentHealth(
+                name="critical",
+                status=ComponentStatus.CRITICAL,
+                message="CRITICAL",
+                timestamp=None,  # type: ignore
+            ),
+            ComponentHealth(
+                name="unknown",
+                status=ComponentStatus.UNKNOWN,
+                message="UNKNOWN",
+                timestamp=None,  # type: ignore
+            ),
+            ComponentHealth(
+                name="offline",
+                status=ComponentStatus.OFFLINE,
+                message="OFFLINE",
+                timestamp=None,  # type: ignore
+            ),
+        ]
 
-        mock_summary.symbols = [mock_symbol1, mock_symbol2]
-        mock_summary.total_records = 3000
-        mock_summary.total_size_mb = 13.7
-        mock_summary.symbol_count = 2
+        system_health = SystemHealth(
+            overall_status=HealthStatus.OK,
+            message="Minden komponens egészséges",
+            timestamp=None,  # type: ignore
+            components=components,
+        )
 
-        mock_data_bridge.get_data_summary.return_value = mock_summary
+        mock_bridge.core.health_monitor.check_health.return_value = system_health
 
-        # Data bridge mockolása
-        with patch.object(dashboard_service, "_get_data_bridge", return_value=mock_data_bridge):
-            result = dashboard_service.get_data_summary()
+        service = DashboardService(mock_bridge)
+        result = service.get_health_status()
 
-            # Eredmények ellenőrzése
-            assert result["total_records"] == 3000
-            assert result["total_size_mb"] == 13.7
-            assert result["symbols_count"] == 2
-            assert isinstance(result["symbols_df"], pd.DataFrame)
-            assert len(result["symbols_df"]) == 2
-            assert result["symbols_df"]["Symbol"].tolist() == ["EURUSD", "GBPUSD"]
-            assert result["symbols_df"]["Records"].tolist() == [1000, 2000]
+        expected = {
+            "healthy": "OK",
+            "warning": "WARNING",
+            "critical": "ERROR",
+            "unknown": "UNKNOWN",
+            "offline": "OFFLINE",
+            "system": "OK",
+        }
+        assert result == expected
 
-            # Logger hívás ellenőrzése (nem volt hiba)
-            mock_logger.error.assert_not_called()
+    def test_get_system_overview(self, mock_bridge: MagicMock) -> None:
+        """Teszteli a rendszer áttekintő adatok lekérdezését."""
+        mock_system_info = {
+            "version": "6.0.0",
+            "status": "running",
+            "components": {"core": "OK", "database": "OK"},
+        }
+        mock_bridge.get_system_info.return_value = mock_system_info
 
-    def test_get_data_summary_error(self, dashboard_service, mock_logger):
-        """Teszteli az adatok összegzésének lekérését hibás esetben."""
-        # Exception dobása a data bridgeben
-        with patch.object(
-            dashboard_service, "_get_data_bridge", side_effect=Exception("Data error")
-        ):
-            result = dashboard_service.get_data_summary()
+        service = DashboardService(mock_bridge)
+        result = service.get_system_overview()
 
-            # Alapértelmezett értékek ellenőrzése
-            assert result["total_records"] == 0
-            assert result["total_size_mb"] == 0.0
-            assert result["symbols_count"] == 0
-            assert isinstance(result["symbols_df"], pd.DataFrame)
-            assert result["symbols_df"].empty
+        assert "system_info" in result
+        assert "last_update" in result
+        assert "components" in result
+        assert result["system_info"] == mock_system_info
 
-            # Logger error hívás ellenőrzése
-            mock_logger.error.assert_called_once()
-            assert "Data error" in str(mock_logger.error.call_args)
+        # Ellenőrizzük, hogy a gyorsítótárba mentés megtörtént
+        assert service._cached_data["overview"] == result
 
-    def test_create_data_volume_chart_with_data(self, dashboard_service):
-        """Teszteli a chart létrehozását adatokkal."""
-        # Teszt adatok létrehozása
-        data_info = {
-            "symbols_df": pd.DataFrame({"Symbol": ["EURUSD", "GBPUSD"], "Records": [1000, 2000]})
+    def test_get_performance_metrics_with_resources(self, mock_bridge: MagicMock) -> None:
+        """Teszteli a teljesítmény metrikák lekérdezését resources adatokkal."""
+        mock_system_info = {
+            "resources": {
+                "cpu_usage": 45.2,
+                "memory_usage": 67.8,
+                "disk_usage": 23.4,
+            }
+        }
+        mock_bridge.get_system_info.return_value = mock_system_info
+
+        service = DashboardService(mock_bridge)
+        result = service.get_performance_metrics()
+
+        assert result["cpu_usage"] == 45.2
+        assert result["memory_usage"] == 67.8
+        assert result["disk_usage"] == 23.4
+        assert "network_io" in result
+        assert "disk_io" in result
+        assert "response_time" in result
+
+        # Ellenőrizzük, hogy a gyorsítótárba mentés megtörtént
+        assert service._cached_data["metrics"] == result
+
+    def test_get_performance_metrics_without_resources(self, mock_bridge: MagicMock) -> None:
+        """Teszteli a teljesítmény metrikák lekérdezését resources adatok nélkül."""
+        mock_bridge.get_system_info.return_value = {}
+
+        service = DashboardService(mock_bridge)
+        result = service.get_performance_metrics()
+
+        # Ellenőrizzük, hogy a fallback értékeket használja
+        assert result["cpu_usage"] == 45.2
+        assert result["memory_usage"] == 67.8
+        assert result["disk_usage"] == 23.4
+
+    def test_get_recent_activities(self, mock_bridge: MagicMock) -> None:
+        """Teszteli a legutóbbi tevékenységek lekérdezését."""
+        service = DashboardService(mock_bridge)
+        result = service.get_recent_activities()
+
+        assert isinstance(result, list)
+        assert len(result) == 4
+
+        # Ellenőrizzük az első tevékenységet
+        first_activity = result[0]
+        assert first_activity["type"] == "INFO"
+        assert first_activity["message"] == "Rendszer indítva"
+        assert first_activity["component"] == "core"
+
+        # Ellenőrizzük, hogy a gyorsítótárba mentés megtörtént
+        assert service._cached_data["activities"] == result
+
+    def test_refresh_data(self, mock_bridge: MagicMock) -> None:
+        """Teszteli a dashboard adatok frissítését."""
+        service = DashboardService(mock_bridge)
+
+        # Töltsük fel a gyorsítótárat
+        service._cached_data = {
+            "overview": {"test": "data"},
+            "health": {"core": "OK"},
+            "metrics": {"cpu": 45.2},
+            "activities": [{"test": "activity"}],
         }
 
-        # Chart létrehozása
-        chart = dashboard_service.create_data_volume_chart(data_info)
+        # Mock a feliratkozókat
+        mock_callback = MagicMock()
+        service._subscribers = [mock_callback]
 
-        # Eredmény ellenőrzése
-        assert chart is not None
-        assert hasattr(chart, "update_layout")
+        service.refresh_data()
 
-    def test_create_data_volume_chart_empty_data(self, dashboard_service):
-        """Teszteli a chart létrehozását üres adatokkal."""
-        # Üres adatok
-        data_info = {"symbols_df": pd.DataFrame()}
+        # Ellenőrizzük, hogy a gyorsítótár kiürült
+        assert service._cached_data == {}
 
-        # Chart létrehozása
-        chart = dashboard_service.create_data_volume_chart(data_info)
+        # Ellenőrizzük, hogy a feliratkozókat értesítettük
+        mock_callback.assert_called_once()
+        call_args = mock_callback.call_args[0][0]
+        assert call_args["type"] == "refresh"
+        assert "timestamp" in call_args
 
-        # Eredmény ellenőrzése
-        assert chart is not None
+    def test_subscribe_to_updates(self, mock_bridge: MagicMock) -> None:
+        """Teszteli a feliratkozást dashboard frissítésekre."""
+        service = DashboardService(mock_bridge)
 
-    def test_get_default_health_status(self, dashboard_service):
-        """Teszteli az alapértelmezett health status lekérését."""
-        result = dashboard_service._get_default_health_status()
+        # Mock callback függvény
+        mock_callback = MagicMock()
 
-        # Alapértelmezett értékek ellenőrzése
-        assert result["cuda_status"] == "Error"
-        assert result["cuda_available"] is False
-        assert result["database_status"] == "Error"
-        assert result["database_tables"] == 0
-        assert result["config_status"] == "Error"
-        assert result["config_entries"] == 0
-        assert result["active_collectors"] == 0
-        assert result["total_collectors"] == 0
+        service.subscribe_to_updates(mock_callback)
 
-    def test_session_state_methods(self, dashboard_service):
-        """Teszteli a session state metódusokat."""
-        # get_session_data
-        result = dashboard_service.get_session_data("test_key", "default_value")
-        assert result == "default_value"
+        # Ellenőrizzük, hogy a feliratkozó hozzáadásra került
+        assert len(service._subscribers) == 1
+        assert service._subscribers[0] == mock_callback
 
-        # set_session_data (csak ellenőrizzük, hogy nem dob hibát)
-        dashboard_service.set_session_data("test_key", "test_value")
+    def test_notify_subscribers(self, mock_bridge: MagicMock) -> None:
+        """Teszteli a feliratkozók értesítését."""
+        service = DashboardService(mock_bridge)
 
-        # clear_session_data (csak ellenőrizzük, hogy nem dob hibát)
-        dashboard_service.clear_session_data("test_key")
+        # Mock callback függvények
+        mock_callback1 = MagicMock()
+        mock_callback2 = MagicMock()
+        service._subscribers = [mock_callback1, mock_callback2]
 
-    def test_logger_and_config_access(self, dashboard_service, mock_logger, mock_config):
-        """Teszteli a logger és config elérését."""
-        # Logger ellenőrzése
-        assert dashboard_service.logger == mock_logger
-        assert hasattr(dashboard_service.logger, "error")
+        test_data = {"type": "test", "data": "test_value"}
+        service._notify_subscribers(test_data)
 
-        # Config ellenőrzése
-        assert dashboard_service.config == mock_config
-        assert hasattr(dashboard_service.config, "get")
+        # Ellenőrizzük, hogy minden feliratkozót értesítettünk
+        mock_callback1.assert_called_once_with(test_data)
+        mock_callback2.assert_called_once_with(test_data)
 
-    def test_type_hints_compliance(self, dashboard_service):
-        """Teszteli a type hints kompatibilitást."""
-        # A get_system_health Dict[str, Any] típust ad vissza
-        result = dashboard_service.get_system_health()
-        assert isinstance(result, dict)
+    def test_notify_subscribers_with_exception(self, mock_bridge: MagicMock) -> None:
+        """Teszteli a feliratkozók értesítését, ha egy callback hibát dob."""
+        service = DashboardService(mock_bridge)
 
-        # A get_data_summary Dict[str, Any] típust ad vissza
-        result = dashboard_service.get_data_summary()
-        assert isinstance(result, dict)
-        assert "symbols_df" in result
-        assert isinstance(result["symbols_df"], pd.DataFrame)
+        # Mock callback, ami hibát dob
+        def failing_callback(data: dict[str, Any]) -> None:
+            raise ValueError("Test error")
 
+        mock_callback = MagicMock()
+        service._subscribers = [failing_callback, mock_callback]
 
-class TestDashboardServiceIntegration:
-    """Integrációs tesztek a DashboardService-hez."""
+        # A metódusnak nem szabad hibát dobnia, még ha egy callback hibás is
+        test_data = {"type": "test"}
+        service._notify_subscribers(test_data)
 
-    @pytest.fixture
-    def service_with_mocks(self):
-        """Service létrehozása mock komponensekkel."""
-        logger = Mock()
-        config = Mock()
-        service = MockDashboardService(logger, config)
-        return service, logger, config
+        # Ellenőrizzük, hogy a második callback még mindig meghívódott
+        mock_callback.assert_called_once_with(test_data)
 
-    def test_full_health_check_workflow(self, service_with_mocks):
-        """Teszteli a teljes health check workflow-t."""
-        service, logger, config = service_with_mocks
+    def test_cached_data_persistence(self, mock_bridge: MagicMock) -> None:
+        """Teszteli, hogy az adatok tényleg gyorsítótárazásra kerülnek."""
+        mock_bridge.get_system_info.return_value = {"test": "data"}
 
-        # Mock health monitor
-        mock_health_monitor = Mock()
-        mock_health_data = Mock()
-        mock_health_data.cuda_available = True
-        mock_health_data.database.status = "OK"
-        mock_health_data.database.table_count = 15
-        mock_health_data.config.status = "Loaded"
-        mock_health_data.config.entry_count = 100
-        mock_health_data.collectors.active_count = 5
-        mock_health_data.collectors.total_count = 8
+        service = DashboardService(mock_bridge)
 
-        mock_health_monitor.check_health.return_value = mock_health_data
+        # Első hívás
+        result1 = service.get_system_overview()
 
-        with patch.object(service, "_get_health_monitor", return_value=mock_health_monitor):
-            # Health check végrehajtása
-            result = service.get_system_health()
+        # Módosítjuk a mock-ot, hogy lássuk, a második hívás nem használja
+        mock_bridge.get_system_info.return_value = {"different": "data"}
 
-            # Eredmények ellenőrzése
-            assert result["cuda_status"] == "Available"
-            assert result["database_tables"] == 15
-            assert result["config_entries"] == 100
-            assert result["active_collectors"] == 5
-            assert result["total_collectors"] == 8
+        # Második hívás - a gyorsítótárazott adatot kell visszaadnia
+        result2 = service.get_system_overview()
 
-            # Logger nem lett hívva hibával
-            logger.error.assert_not_called()
-
-    def test_error_handling_in_workflow(self, service_with_mocks):
-        """Teszteli a hibakezelést a workflow-ban."""
-        service, logger, config = service_with_mocks
-
-        # Exception dobása
-        with patch.object(
-            service, "_get_health_monitor", side_effect=Exception("Integration error")
-        ):
-            result = service.get_system_health()
-
-            # Alapértelmezett értékek
-            assert result["cuda_status"] == "Error"
-            assert result["database_status"] == "Error"
-
-            # Logger hívás ellenőrzése
-            logger.error.assert_called_once()
-
-
-class TestDashboardServiceEdgeCases:
-    """Edge case tesztek a DashboardService-hez."""
-
-    @pytest.fixture
-    def edge_case_service(self):
-        """Service létrehozása edge case teszteléshez."""
-        logger = Mock()
-        config = Mock()
-        return MockDashboardService(logger, config)
-
-    def test_health_monitor_returns_none(self, edge_case_service):
-        """Teszteli, ha a health monitor None-t ad vissza."""
-        with patch.object(edge_case_service, "_get_health_monitor", return_value=None):
-            result = edge_case_service.get_system_health()
-
-            # Alapértelmezett értékek
-            assert result["cuda_status"] == "Error"
-            assert result["database_status"] == "Error"
-
-    def test_data_bridge_returns_empty_summary(self, edge_case_service):
-        """Teszteli, ha a data bridge üres összegzést ad vissza."""
-        mock_data_bridge = Mock()
-        mock_summary = Mock()
-        mock_summary.symbols = []
-        mock_summary.total_records = 0
-        mock_summary.total_size_mb = 0.0
-        mock_summary.symbol_count = 0
-
-        mock_data_bridge.get_data_summary.return_value = mock_summary
-
-        with patch.object(edge_case_service, "_get_data_bridge", return_value=mock_data_bridge):
-            result = edge_case_service.get_data_summary()
-
-            # Üres adatok ellenőrzése
-            assert result["total_records"] == 0
-            assert result["symbols_count"] == 0
-            assert result["symbols_df"].empty
-
-    def test_chart_creation_with_missing_columns(self, edge_case_service):
-        """Teszteli a chart létrehozását hiányzó oszlopokkal."""
-        # Hiányos adatok
-        data_info = {
-            "symbols_df": pd.DataFrame(
-                {
-                    "Symbol": ["EURUSD"]  # Hiányzik a Records oszlop
-                }
-            )
-        }
-
-        # Chart létrehozása (nem szabad hibát dobnia)
-        chart = edge_case_service.create_data_volume_chart(data_info)
-        assert chart is not None
-
-
-# Teszt futtatása
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+        assert result1 == result2
+        assert result1["system_info"]["test"] == "data"
