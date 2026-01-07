@@ -1,16 +1,16 @@
 """Data Hub Page - Adatkezelő központ."""
 
 import asyncio
-from datetime import datetime
+from datetime import UTC, datetime, time
 from typing import TYPE_CHECKING, Any
 
 import streamlit as st
 
-from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
 
 if TYPE_CHECKING:
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
+    from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
 
 
 class DataHubPage(PageInterface):
@@ -68,13 +68,35 @@ class DataHubPage(PageInterface):
             st.exception(e)
 
     def _render_data_listing(self) -> None:
-        """Elérhető adatok listázásának megjelenítése."""
+        """Elérhető adatok listázásának megjelenítése.
+
+        A metódus lekéri a konfigurált szimbólumokat a DataService segítségével,
+        és legördülő menüben felajánlja azokat szűréshez. Ezután a kiválasztott
+        szűrővel listázza az elérhető adatokat.
+
+        A metódus a következőket jeleníti meg:
+        - Szimbólum szűrő legördülő menü
+        - Adatok frissítése gomb
+        - Az elérhető adatok DataFrame táblázatban
+        - Összesítő metrikák (összes rekord, méret, adatforrások)
+        """
         st.header("📊 Elérhető adatok listázása")
+
+        # Szimbólumok lekérése a DataService-ből
+        if self._data_service is None:
+            st.error("Adatszolgáltatás nem érhető el")
+            return
+
+        try:
+            symbols = self._data_service.get_configured_symbols()
+        except Exception as e:
+            st.error(f"Hiba történt a szimbólumok lekérdezése során: {e}")
+            symbols = ["EURUSD"]  # Fallback érték
 
         # Szimbólum szűrés
         symbol_filter = st.selectbox(
             "Szimbólum szűrése",
-            options=[None, "EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"],
+            options=[None] + symbols,
             format_func=lambda x: "Összes" if x is None else x,
         )
 
@@ -115,8 +137,30 @@ class DataHubPage(PageInterface):
                 st.error(f"Hiba történt az adatok betöltése során: {str(e)}")
 
     def _render_download_history(self) -> None:
-        """Történelmi adatok letöltésének megjelenítése."""
+        """Történelmi adatok letöltésének megjelenítése.
+
+        A metódus lekéri a konfigurált szimbólumokat a DataService segítségével,
+        és legördülő menüben felajánlja azokat a felhasználónak. Ezután dátum
+        tartományt kér be, és indítja el a történelmi adatok letöltését.
+
+        A metódus a következőket jeleníti meg:
+        - Szimbólum választó legördülő menü
+        - Kezdő és záró dátum választók
+        - Letöltés indítása gomb
+        - Letöltési eredmények és statisztikák
+        """
         st.header("📥 Történelmi adatok letöltése")
+
+        # Szimbólumok lekérése a DataService-ből
+        if self._data_service is None:
+            st.error("Adatszolgáltatás nem érhető el")
+            return
+
+        try:
+            symbols = self._data_service.get_configured_symbols()
+        except Exception as e:
+            st.error(f"Hiba történt a szimbólumok lekérdezése során: {e}")
+            symbols = ["EURUSD"]  # Fallback érték
 
         # Bemeneti mezők
         col1, col2 = st.columns(2)
@@ -124,7 +168,7 @@ class DataHubPage(PageInterface):
         with col1:
             symbol = st.selectbox(
                 "Szimbólum",
-                options=["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"],
+                options=symbols,
             )
 
         with col2:
@@ -152,8 +196,8 @@ class DataHubPage(PageInterface):
                         return
 
                     # Aszinkron letöltés indítása
-                    start_dt = datetime.combine(start_date, datetime.min.time())
-                    end_dt = datetime.combine(end_date, datetime.min.time())
+                    start_dt = datetime.combine(start_date, time.min).replace(tzinfo=UTC)
+                    end_dt = datetime.combine(end_date, time.max).replace(tzinfo=UTC)
 
                     # Aszinkron metódus futtatása
                     loop = asyncio.new_event_loop()

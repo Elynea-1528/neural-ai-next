@@ -53,6 +53,13 @@ class TestDataHubPage:
         }
         service.load_data.return_value = iter([{"data": "chunk1"}, {"data": "chunk2"}])
         service.export_data.return_value = True
+        service.get_configured_symbols.return_value = [
+            "EURUSD",
+            "GBPUSD",
+            "USDJPY",
+            "AUDUSD",
+            "USDCAD",
+        ]
         return service
 
     @pytest.fixture

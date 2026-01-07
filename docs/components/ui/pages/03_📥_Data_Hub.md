@@ -1,12 +1,12 @@
-# Data Hub Page - Adatkezelő központ
+# 📥 Data Hub Oldal
 
 ## Áttekintés
 
-A Data Hub Page a Neural AI Next rendszer adatkezelő felületét biztosítja. Ez az oldal felelős az adatok listázásáért, történelmi adatok letöltéséért és adatok exportálásáért a DataService segítségével, amely a UIServiceFactory-n keresztül érhető el.
+A Data Hub oldal a Neural AI Next rendszer adatkezelő központja. Ez az oldal felelős az adatok listázásáért, történelmi adatok letöltéséért és az adatok exportálásáért a DataService segítségével.
 
 ## Architektúra
 
-### Osztálystruktúra
+### Osztály: `DataHubPage`
 
 ```python
 class DataHubPage(PageInterface):
@@ -17,12 +17,11 @@ class DataHubPage(PageInterface):
     """
 ```
 
-### Függőségek
+### Főbb jellemzők
 
-- **PageInterface**: Az oldal alapinterfésze
-- **DataServiceInterface**: Az adatszolgáltatás interfésze
-- **CoreBridgeInterface**: A backend bridge interfésze
-- **UIServiceFactory**: A UI szolgáltatások gyártója
+- **Cím**: "📥 Data Hub"
+- **Interfész**: `PageInterface`
+- **Szolgáltatás**: `DataServiceInterface`
 
 ## Metódusok
 
@@ -34,54 +33,106 @@ A Data Hub oldal inicializálása.
 - `bridge`: A CoreBridge példány, amelyen keresztül elérjük a backendet
 - `**kwargs`: További opcionális argumentumok
 
+**Inicializálás:**
+- `_bridge`: A CoreBridge példány
+- `_loaded`: Az oldal betöltöttségi állapota (kezdetben False)
+- `_title`: Az oldal címe ("📥 Data Hub")
+- `_data_service`: A DataService példány (kezdetben None)
+
 ### `render() -> None`
 
 Az oldal megjelenítése Streamlit segítségével.
 
-Ez a metódus felelős a felhasználói felület létrehozásáért, amely három fő szekciót tartalmaz:
-1. Adatok listázása
-2. Történelmi adatok letöltése
-3. Adatok exportálása
+**Funkciók:**
+1. Oldalcím megjelenítése
+2. UIServiceFactory inicializálás ellenőrzése
+3. DataService lekérése a factory-ből
+4. Oldalsáv menü megjelenítése:
+   - Adatok listázása
+   - Történelmi adatok letöltése
+   - Adatok exportálása
+5. Kiválasztott menüpont megjelenítése
+
+**Hibakezelés:**
+- Ha a factory nincs inicializálva, hibaüzenet jelenik meg
+- Váratlan hibák esetén hibaüzenet és kivétel részletei
 
 ### `_render_data_listing() -> None`
 
 Elérhető adatok listázásának megjelenítése.
 
-Ez a metódus a következőket végzi:
-- Szimbólum szűrést biztosít a felhasználónak
-- A DataService `list_available_data()` metódusát használja az adatok lekérdezéséhez
-- DataFrame formátumban jeleníti meg az adatokat
-- Összesítő információkat szolgáltat (összes rekord, méret, adatforrások)
+**Funkciók:**
+1. Szimbólumok lekérése a DataService `get_configured_symbols()` metódusával
+2. Szimbólum szűrő legördülő menü megjelenítése
+3. "Adatok frissítése" gomb
+4. Adatok betöltése a DataService `list_available_data()` metódusával
+5. Eredmények megjelenítése DataFrame táblázatban
+6. Összesítő metrikák:
+   - Összes rekord
+   - Összes méret (GB)
+   - Adatforrások száma
+
+**Hibakezelés:**
+- Ha a DataService nem érhető el, hibaüzenet jelenik meg
+- Ha a szimbólumok lekérdezése sikertelen, fallback értékkel működik tovább
+- Ha nincsenek elérhető adatok, figyelmeztető üzenet jelenik meg
 
 ### `_render_download_history() -> None`
 
 Történelmi adatok letöltésének megjelenítése.
 
-Ez a metódus a következőket végzi:
-- Bemeneti mezőket jelenít meg (szimbólum, dátumtartomány)
-- A DataService `download_history()` metódusát használja az adatok letöltéséhez
-- Aszinkron módon végzi a letöltést
-- Eredményeket jelenít meg (sikeres/ sikertelen letöltések, méretek)
+**Funkciók:**
+1. Szimbólumok lekérése a DataService `get_configured_symbols()` metódusával
+2. Szimbólum választó legördülő menü
+3. Kezdő és záró dátum választók
+4. "Letöltés indítása" gomb
+5. Aszinkron letöltés indítása a DataService `download_history()` metódusával
+6. Eredmények megjelenítése:
+   - Letöltött rekordok száma
+   - Letöltött adatok mérete (MB)
+   - Letöltési státusz
+   - Részletes információk (expanderekben)
+
+**Hibakezelés:**
+- Dátumtartomány ellenőrzése (kezdő dátum nem lehet későbbi, mint a záró dátum)
+- Ha a DataService nem érhető el, hibaüzenet jelenik meg
+- Részleges letöltés esetén figyelmeztető üzenet a sikertelen napokkal
+- Sikertelen letöltés esetén hibaüzenet
 
 ### `_render_data_export() -> None`
 
 Adatok exportálásának megjelenítése.
 
-Ez a metódus a következőket végzi:
-- Exportálási beállításokat jelenít meg (formátum, forrás, cél)
-- A DataService `load_data()` és `export_data()` metódusait használja
-- Chunkolással tölti be az adatokat a memóriahatékony működés érdekében
+**Funkciók:**
+1. Export formátum választása (parquet, csv, json)
+2. Adatforrás választása (tick_data, ohlc_data, market_data)
+3. Cél útvonal megadása
+4. "Exportálás indítása" gomb
+5. Adatok betöltése chunkokban a DataService `load_data()` metódusával
+6. Exportálás a DataService `export_data()` metódusával
+7. Eredmények megjelenítése
 
-### `on_navigate_to(params: Optional[dict[str, Any]] = None) -> None`
+**Hibakezelés:**
+- Ha a DataService nem érhető el, hibaüzenet jelenik meg
+- Ha nincsenek exportálandó adatok, figyelmeztető üzenet jelenik meg
+- Sikertelen exportálás esetén hibaüzenet
+
+### `on_navigate_to(params: dict[str, Any] | None = None) -> None`
 
 Az oldalra navigáláskor meghívott metódus.
 
 **Paraméterek:**
 - `params`: Opcionális navigációs paraméterek
 
+**Funkció:**
+- Beállítja az oldal betöltöttségi állapotát True-ra
+
 ### `on_navigate_from() -> None`
 
 Az oldalról navigáláskor meghívott metódus.
+
+**Funkció:**
+- Jelenleg üres metódus
 
 ### `title: str` (property)
 
@@ -97,104 +148,80 @@ Az oldal betöltöttségi állapota.
 **Visszatérési érték:**
 - `bool`: True, ha az oldal betöltődött, egyébként False
 
-## DataService integráció
+## Refaktorálási változások
 
-A Data Hub Page a következő DataService metódusokat használja:
+### 2026-01-07
 
-### `list_available_data(symbol: str | None = None) -> pd.DataFrame`
+A Data Hub oldalt refaktoráltuk, hogy a beégetett szimbólumlistákat lecserélje dinamikus, konfigurációból lekérdezett szimbólumokra.
 
-Elérhető adatok listázása DataFrame formátumban.
+#### Változások:
 
-**Paraméterek:**
-- `symbol`: Opcionális szimbólum szűréshez
+1. **`_render_data_listing()` metódus:**
+   - **Régi:** Beégetett szimbólumlista: `["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"]`
+   - **Új:** Dinamikus szimbólumlista a `data_service.get_configured_symbols()` hívással
+   - **Előny:** A szimbólumok mostantól a konfigurációból jönnek, rugalmasabb és konfigurálhatóbb
 
-**Visszatérési érték:**
-- `pd.DataFrame`: Az elérhető adatok DataFrame-je
+2. **`_render_download_history()` metódus:**
+   - **Régi:** Beégetett szimbólumlista: `["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"]`
+   - **Új:** Dinamikus szimbólumlista a `data_service.get_configured_symbols()` hívással
+   - **Előny:** A letöltési opciók mostantól a ténylegesen konfigurált szimbólumokat tartalmazzák
 
-### `download_history(symbol: str, start: datetime, end: datetime) -> dict[str, Any]`
+3. **Dokumentáció fejlesztés:**
+   - Magyar Google Style docstring-ek hozzáadása minden metódushoz
+   - Részletes leírás a metódusok funkcióiról és hibakezeléséről
 
-Történelmi adatok letöltése aszinkron módon.
+4. **Típusbiztonság:**
+   - A `_data_service` típusa mostantól `DataServiceInterface | None`
+   - A `DataServiceInterface`-hez hozzáadva a `get_configured_symbols()` metódus
+   - `TYPE_CHECKING` blokk használata a körkörös importok elkerülésére
 
-**Paraméterek:**
-- `symbol`: A szimbólum (pl. 'EURUSD')
-- `start`: A kezdő dátum
-- `end`: A záró dátum
+5. **Hibakezelés:**
+   - Fallback mechanizmus: ha a szimbólumok lekérdezése sikertelen, a rendszer `["EURUSD"]` értékkel folytatja
+   - Felhasználóbarát hibaüzenetek megjelenítése
 
-**Visszatérési érték:**
-- `dict[str, Any]`: A letöltés eredménye és metaadatok
-
-### `load_data(source: str, filters: dict[str, Any] | None = None, chunk_size: int = 10000) -> Generator[list[dict[str, Any]], None, None]`
-
-Adatok aszinkron betöltése chunkokban.
-
-**Paraméterek:**
-- `source`: Az adatforrás azonosítója
-- `filters`: Szűrőfeltételek
-- `chunk_size`: A chunkok mérete
-
-**Visszatérési érték:**
-- `Generator`: Adat chunkok generátora
-
-### `export_data(data: list[dict[str, Any]], format: str, destination: str) -> bool`
-
-Adatok exportálása különböző formátumokba.
-
-**Paraméterek:**
-- `data`: Az exportálandó adatok
-- `format`: A célformátum (parquet, csv, json)
-- `destination`: A cél útvonal
-
-**Visszatérési érték:**
-- `bool`: True, ha sikeres az exportálás
-
-## Factory használata
-
-A Data Hub Page a UIServiceFactory segítségével éri el a DataService-t:
+## Használati példa
 
 ```python
-from neural_ai.ui.factory import UIServiceFactory
+from neural_ai.ui.core_bridge import CoreBridge
+from neural_ai.ui.pages.data_hub_page import DataHubPage
 
-factory = UIServiceFactory()
-if not factory.is_initialized:
-    st.error("A UI Service Factory nincs inicializálva")
-    return
+# CoreBridge létrehozása
+bridge = CoreBridge()
 
-self._data_service = factory.get_data_service()
-```
-
-Ez biztosítja a Dependency Injection elvét, és lehetővé teszi a lazyloadingot és a tesztelhetőséget.
-
-## Big Data támogatás
-
-A Data Hub Page Big Data támogatással rendelkezik:
-
-- **Chunkolás**: Az adatok kis darabokban történő betöltése
-- **Aszinkron működés**: A letöltések nem blokkolják a felhasználói felületet
-- **Parquet formátum**: Hatékony bináris adattárolás
-- **Streamelés**: Nagy adatmennyiségek feldolgozása memóriahatékonyan
-
-## Hibakezelés
-
-Az oldal szilárd hibakezeléssel rendelkezik:
-
-- Factory inicializálás ellenőrzése
-- Dátumtartomány validáció
-- Hibaüzenetek megjelenítése a felhasználónak
-- Kivételek elkapása és felhasználóbarát üzenetekkel való helyettesítése
-
-## Példa használatra
-
-```python
-# Oldal létrehozása
-page = DataHubPage(bridge=core_bridge)
+# DataHubPage létrehozása
+page = DataHubPage(bridge)
 
 # Oldal megjelenítése
 page.render()
 ```
 
-## Kapcsolódó dokumentáció
+## Függőségek
 
-- [DataService](../services/data_service.md)
-- [DataServiceInterface](../interfaces/data_service_interface.md)
-- [UIServiceFactory](../factory.md)
-- [PageInterface](../interfaces/page_interface.md)
+- `neural_ai.ui.interfaces.page_interface.PageInterface`
+- `neural_ai.ui.interfaces.data_service_interface.DataServiceInterface`
+- `neural_ai.ui.interfaces.core_bridge_interface.CoreBridgeInterface`
+- `neural_ai.ui.factory.UIServiceFactory`
+- `streamlit`
+
+## Tesztelés
+
+A Data Hub oldal tesztelése a következőképpen történik:
+
+```bash
+# Ruff linter ellenőrzés
+ruff check neural_ai/ui/pages/03_📥_Data_Hub.py
+
+# Pytest teszt futtatása
+pytest tests/ui/pages/test_data_hub_page.py -v
+
+# Coverage ellenőrzés
+pytest tests/ui/pages/test_data_hub_page.py --cov=neural_ai.ui.pages.data_hub_page --cov-report=term-missing
+```
+
+## Jövőbeli fejlesztések
+
+- [ ] Több adatforrás támogatása
+- [ ] Speciális szűrők implementálása
+- [ ] Valós idejű adatfrissítés
+- [ ] Grafikonok és vizualizációk hozzáadása
+- [ ] Tömeges műveletek támogatása
