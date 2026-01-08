@@ -329,6 +329,37 @@
 
 **Last Update:** 2026-01-04 22:03 CET
 
+### 🗂️ PHASE `[6.1]`: `[UI REAL-TIME WIRING (CONFIG & HEALTH)]`
+
+**Goal:** `[Wire UI services to real Core system components for displaying actual system configuration and health status instead of mock data]` | **Token Budget:** `[~50k]` | **Complexity:** `[⭐⭐]`
+
+### 🏗️ MODULE: `[ui]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|-----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `neural_ai/ui/streamlit_app.py` | `[✅|✅|✅]` | `Stmt: 85%, Brch: 85%` | ⭐⭐⭐ | `🟢 STABLE` |
+| `neural_ai/ui/services/data_service.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐ | `✅ PERFECT` |
+| `neural_ai/ui/services/dashboard_service.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐ | `✅ PERFECT` |
+
+### 📄 UI PAGES
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|-----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `neural_ai/ui/pages/03_📥_Data_Hub.py` | `[✅|✅|✅]` | `Stmt: 95%, Brch: 95%` | ⭐⭐⭐ | `🟢 STABLE` |
+| `neural_ai/ui/pages/01_🚀_Launchpad.py` | `[✅|✅|✅]` | `Stmt: 95%, Brch: 95%` | ⭐⭐ | `🟢 STABLE` |
+
+**Features Implemented:**
+- ✅ DataService.get_configured_symbols() - Real config symbols from collectors.yaml
+- ✅ DashboardService.get_health_status() - Real HealthMonitor integration
+- ✅ streamlit_app.py - Real health status data in render_system_overview()
+- ✅ Data Hub page - Dynamic symbol dropdown from config
+- ✅ Launchpad page - Visual cards design with st.columns and st.container(border=True)
+- ✅ Manual validation - Dashboard restart and verification
+
+**Test Results:** All validations successful - real data displayed on dashboard
+
+**Last Update:** 2026-01-08 05:00 CET
+
 ---
 
 ## 🔑 MATRIX DEFINITIONS
