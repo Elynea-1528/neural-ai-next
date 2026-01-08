@@ -50,6 +50,9 @@ def render_header() -> None:
 def render_system_overview(app: UIApplication) -> None:
     """Rendszer áttekintő megjelenítése.
 
+    A valós rendszerállapotot jeleníti meg a DashboardService.get_health_status()
+    metódusból lekért adatok alapján.
+
     Args:
         app: A UI alkalmazás példány
     """
@@ -59,27 +62,41 @@ def render_system_overview(app: UIApplication) -> None:
         factory = app.get_factory()
         dashboard_service = factory.get_dashboard_service()
 
-        # Rendszer információk lekérdezése
-        overview = dashboard_service.get_system_overview()
+        # Rendszer egészségügyi állapot lekérdezése
+        health_status = dashboard_service.get_health_status()
 
-        # Kártyák létrehozása
+        # Kártyák létrehozása a valós állapotok alapján
         col1, col2, col3, col4 = st.columns(4)
 
+        # Core státusz
+        core_status = health_status.get("core", "UNKNOWN")
+        core_icon = "✅" if core_status == "OK" else "⚠️" if core_status == "WARNING" else "❌"
         with col1:
-            st.metric(label="Core", value="✅", delta="OK")
+            st.metric(label="Core", value=core_icon, delta=core_status)
 
+        # Database státusz
+        db_status = health_status.get("database", "UNKNOWN")
+        db_icon = "✅" if db_status == "OK" else "⚠️" if db_status == "WARNING" else "❌"
         with col2:
-            st.metric(label="Database", value="✅", delta="OK")
+            st.metric(label="Database", value=db_icon, delta=db_status)
 
+        # Event Bus státusz
+        event_status = health_status.get("event_bus", "UNKNOWN")
+        event_icon = "✅" if event_status == "OK" else "⚠️" if event_status == "WARNING" else "❌"
         with col3:
-            st.metric(label="Event Bus", value="✅", delta="OK")
+            st.metric(label="Event Bus", value=event_icon, delta=event_status)
 
+        # Collectors státusz
+        collector_status = health_status.get("collectors", "UNKNOWN")
+        collector_icon = (
+            "✅" if collector_status == "OK" else "⚠️" if collector_status == "WARNING" else "❌"
+        )
         with col4:
-            st.metric(label="Collectors", value="⚠️", delta="WARNING")
+            st.metric(label="Collectors", value=collector_icon, delta=collector_status)
 
         # Részletes információk
         with st.expander("Részletes információk", expanded=False):
-            st.json(overview)
+            st.json(health_status)
 
     except Exception as e:
         st.error(f"Hiba a rendszer információk lekérdezésekor: {e}")
@@ -260,6 +277,8 @@ def main() -> None:
         # Inicializálás
         if not app.initialize():
             st.error("Hiba az alkalmazás inicializálásakor!")
+            if app.init_error:
+                st.exception(app.init_error)
             st.stop()
 
         # Alkalmazás indítása
