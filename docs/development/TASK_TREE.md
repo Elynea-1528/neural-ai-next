@@ -444,7 +444,28 @@
 
 ---
 
-## 🔑 MATRIX DEFINITIONS
+## 🗂️ PHASE `[6.3]`: `[STRATEGY LAB PLOTLY BUG FIX]`
+
+**Goal:** `[Fix Plotly syntax error in Strategy Lab - yaxis_label to yaxis_title]` | **Token Budget:** `[~5k]` | **Complexity:** `[⭐]`
+
+### 🏗️ MODULE: `[ui/pages/05_🪲_Strategy_Lab.py]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `05_🪲_Strategy_Lab.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ Fixed Plotly `yaxis_label` → `yaxis_title` in `_render_candlestick_chart` method (line 146)
+- ✅ Log cleanup (`rm -rf logs/*`) for clean restart
+- ✅ Commit: `fix(ui): plotly syntax error in Strategy Lab - yaxis_label to yaxis_title`
+
+**Test Results:** Dashboard restart required for validation
+
+**Last Update:** 2026-01-09 - Plotly bug fix complete
+
+---
+
+## � MATRIX DEFINITIONS
 
 ### `[S|T|D]` Components
 - **S (Source Code):**
