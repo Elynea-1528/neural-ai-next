@@ -1,21 +1,19 @@
-# Download History Script
+# scripts/download_history.py
 
 ## Áttekintés
 
-A `download_history.py` script a Neural AI Next rendszer történelmi tick adatainak tömeges letöltésére szolgál a JForex adatforrásból. A script **Direct Storage Mode**-ban működik, ami azt jelenti, hogy a letöltött adatokat közvetlenül a ParquetStorageService segítségével menti, kikerülve az EventBus-t a maximális sebesség érdekében.
+Ez a script a Neural AI Next rendszer tömeges tick adat letöltő eszköze, amely lehetővé teszi a JForex adatforrásból történő tick adatok letöltését egy megadott dátumtartományban.
 
-## Funkciók
+**Verzió:** 2.0.0 (Direct Storage Mode)
 
-- **Tömeges adatletöltés**: Több évnyi tick adat letöltése egyetlen parancs kiadásával
-- **Óránkénti feldolgozás**: Az adatokat óránkénti részletekben dolgozza fel a JForex bi5 formátumának megfelelően
-- **Determinisztikus fájlnevek**: Az óra alapján generált időbélyeggel ellátott fájlnevek (pl. `EURUSD_20231223_150000.parquet`)
-- **Direct Storage**: Közvetlen mentés a Parquet tárolóba, magas teljesítmény érdekében
-- **Hibatűrés**: Automatikus hibakezelés és visszaállítás a hálózati problémák esetén
-- **Részletes naplózás**: Folyamatjelzés és statisztikák a letöltés folyamán
+## Fő jellemzők
+
+- **Direct Storage Mode:** A letöltött adatok közvetlenül a ParquetStorageService által kerülnek mentésre, kikerülve az EventBus-t a maximális sebesség érdekében.
+- **Smart Resume:** Intelligens folytatási mechanizmus, amely ellenőrzi a már letöltött adatokat és kihagyja az ismételt letöltéseket.
+- **Chunkolt feldolgozás:** Óránkénti adatletöltés a memória hatékony kezelése érdekében.
+- **Parquet formátum:** Az adatok particionált Parquet formátumban kerülnek mentésre.
 
 ## Használat
-
-### Alapvető használat
 
 ```bash
 python scripts/download_history.py --symbol EURUSD --start 2023-01-01 --end 2023-12-31
@@ -23,148 +21,63 @@ python scripts/download_history.py --symbol EURUSD --start 2023-01-01 --end 2023
 
 ### Paraméterek
 
-- `--symbol`: A pénzpár szimbóluma (pl. EURUSD, GBPUSD, stb.)
-- `--start`: A letöltés kezdő dátuma (YYYY-MM-DD formátumban)
-- `--end`: A letöltés záró dátuma (YYYY-MM-DD formátumban)
+| Paraméter | Típus | Kötelező | Leírás |
+|-----------|-------|----------|--------|
+| `--symbol` | string | Igen | A pénzpár szimbóluma (pl. EURUSD) |
+| `--start` | string | Igen | Kezdő dátum (YYYY-MM-DD formátumban) |
+| `--end` | string | Igen | Záró dátum (YYYY-MM-DD formátumban) |
 
-### Példa
+## Architektúra
 
-```bash
-# Letöltés 1 nap adataira
-python scripts/download_history.py --symbol EURUSD --start 2024-03-20 --end 2024-03-20
+### Fő komponensek
 
-# Letöltés 1 hónap adataira
-python scripts/download_history.py --symbol GBPUSD --start 2024-01-01 --end 2024-01-31
+1. **Bootstrap Core:** A rendszer inicializálása a core komponensekkel (logger, storage, config)
+2. **JForexFactory:** A Bi5Downloader példányosítása
+3. **Direct Storage:** Közvetlen adatmentés a Polars és ParquetStorageService használatával
 
-# Letöltés 1 év adataira
-python scripts/download_history.py --symbol XAUUSD --start 2023-01-01 --end 2023-12-31
-```
+### Smart Resume logika
 
-## Működési elv
-
-### 1. Inicializálás
-
-A script először inicializálja a Neural AI Next core rendszert:
-- Konfiguráció betöltése
-- Logger létrehozása
-- ParquetStorageService inicializálása
-- Bi5Downloader létrehozása (EventBus nélkül)
-
-### 2. Adatletöltés
-
-A letöltés naponként és óránként történik:
-
-1. **Napok feldolgozása**: A script végigmegy az összes napon a kezdő és záró dátum között
-2. **Órák feldolgozása**: Minden napon belül 0-tól 23 óráig minden órát letölt
-3. **Tick adatok letöltése**: A Bi5Downloader segítségével letölti az adott órához tartozó tick adatokat
-4. **Közvetlen mentés**: Az adatokat azonnal menti a Parquet tárolóba
-
-### 3. Mentési folyamat
-
-A `_save_ticks_direct` függvény végzi az adatok mentését:
+A Smart Resume mechanizmus ellenőrzi, hogy van-e már letöltött parquet fájl az adott óra mappában:
 
 ```python
-async def _save_ticks_direct(
-    storage: "StorageInterface",
-    symbol: str,
-    ticks: list,
-    date: datetime,
-    logger: "LoggerInterface | None" = None,
-) -> None:
-    """Tick adatok közvetlen mentése a storage-ba (Direct Storage Mode)."""
+hour_dir = Path(
+    f"data/tick/{symbol.upper()}/tick/year={current_hour.year}/"
+    f"month={current_hour.month:02d}/day={current_hour.day:02d}"
+)
+
+if hour_dir.exists() and any(hour_dir.glob("*.parquet")):
+    # Skip, mert már létezik adat
 ```
 
-**Lépések:**
-1. Tick adatok konvertálása Polars DataFrame-re
-2. Technikai 'volume' oszlop hozzáadása
-3. Dátum és idő formázása a fájlnévhez
-4. Mentés a storage-ba `unique_id` paraméterrel
+Ez biztosítja, hogy ha a storage időbélyeges nevet generál, akkor is felismerje a meglévő fájlokat.
 
-### 4. Fájlnevek formátuma
+## Adat struktúra
 
-A mentett fájlok neve determinisztikus, az óra alapján generált időbélyeget tartalmaz:
+A letöltött tick adatok a következő struktúrában kerülnek mentésre:
 
+```python
+{
+    "timestamp": datetime,  # Tick időbélyege
+    "bid": float,          # Bid ár
+    "ask": float,          # Ask ár
+    "ask_volume": float,   # Ask volumen
+    "bid_volume": float,   # Bid volumen
+    "volume": float,       # Összesített volumen
+    "source": str,         # Adatforrás
+}
 ```
-{SZIMBÓLUM}_{DÁTUM}_{ÓRA}0000.parquet
-```
 
-Példák:
-- `EURUSD_20240320_150000.parquet` (2024. március 20., 15:00 óra)
-- `GBPUSD_20240115_090000.parquet` (2024. január 15., 09:00 óra)
+## Tesztelés
 
-### 5. Statisztikák
+A scripthez tartozó tesztek a `tests/scripts/` mappában találhatók.
 
-A letöltés végén a script kiírja a statisztikákat:
-- Sikeres napok száma
-- Sikertelen napok száma
-- Kihagyott órák száma
-- Összes letöltött tick száma
-
-## Adatstruktúra
-
-A mentett Parquet fájlok a következő oszlopokat tartalmazzák:
-
-| Oszlop | Típus | Leírás |
-|--------|-------|---------|
-| timestamp | datetime | A tick időbélyege (UTC) |
-| bid | float | A bid ár |
-| ask | float | Az ask ár |
-| ask_volume | float | Az ask volumen |
-| bid_volume | float | A bid volumen |
-| source | string | Az adatforrás (jforex) |
-| volume | float | Technikai volumen (ask_volume + bid_volume) |
-
-## Hibakezelés
-
-A script a következő hibákat kezeli:
-
-- **DataNotAvailableError**: Az adott órához nem érhető el adat
-- **DownloadError**: Hálózati hiba a letöltés során
-- **DecodeError**: Hiba a bi5 adatok dekódolásakor
-- **Exception**: Váratlan hibák
-
-Minden hiba esetén a script naplózza a hibát és folytatja a következő órával.
-
-## Teljesítmény
-
-A Direct Storage Mode jelentős teljesítményjavulást nyújt:
-
-- **Gyorsabb mentés**: Az adatok közvetlenül a Parquet fájlba kerülnek
-- **Kisebb memóriahasználat**: Nincs szükség az adatok EventBus-on történő átvitelére
-- **Párhuzamos feldolgozás**: Több óra adatai párhuzamosan is feldolgozhatók
-
-## Kimenet
-
-A script részletes kimenetet nyújt a letöltés folyamán:
-
-```
-🚀 Történelmi adat letöltés indítása (DIRECT STORAGE MODE)...
-   Szimbólum: EURUSD
-   Dátumtartomány: 2024-03-20 - 2024-03-20
-
-📥 [1/1] Letöltés: 2024-03-20 00:00
-   ✅ 3,540 tick letöltve
-   ✅ 3,540 tick mentve -> EURUSD_20240320_000000.parquet
-
-...
-
-📊 LETÖLTÉS BEFEJEZVE - ÖSSZESÍTÉS
-✅ Sikeres napok: 1/1
-❌ Sikertelen napok: 0/1
-⚠️  Kihagyott órák: 0
-📈 Összes tick: 84,720
+```bash
+pytest tests/scripts/test_download_history.py -v
 ```
 
 ## Függőségek
 
-- `neural_ai.collectors.jforex`: JForex adatgyűjtő komponensek
-- `neural_ai.core.storage`: Parquet tároló szolgáltatás
-- `neural_ai.core.logger`: Naplózási rendszer
-- `polars`: Adatkeret kezelés
-- `asyncio`: Aszinkron műveletek
-
-## Kapcsolódó dokumentáció
-
-- [JForex Collector](../collectors/jforex/index.md)
-- [Parquet Storage](../core/storage/implementations/parquet_storage.md)
-- [System Architecture](../../planning/specs/01_system_architecture.md)
+- `neural_ai.collectors.jforex` - JForex adatgyűjtő
+- `neural_ai.core` - Core komponensek (logger, storage, config)
+- `polars` - DataFrame kezelés
+- `parquet` - Adatmentés

@@ -117,19 +117,15 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
         day_ticks = 0
 
         while current_hour <= end_hour:
-            # SMART RESUME: Ellenőrizzük, hogy a fájl már létezik-e
-            expected_path = (
-                Path("data/tick")
-                / symbol.upper()
-                / "tick"
-                / f"year={current_hour.year}"
-                / f"month={current_hour.month:02d}"
-                / f"day={current_hour.day:02d}"
-                / f"tick_{current_hour.strftime('%Y%m%d')}_{current_hour.strftime('%H')}.parquet"
+            # SMART RESUME: Ellenőrizzük, hogy van-e bármilyen parquet fájl az óra mappában
+            hour_dir = Path(
+                f"data/tick/{symbol.upper()}/tick/year={current_hour.year}/"
+                f"month={current_hour.month:02d}/day={current_hour.day:02d}"
             )
+            print(f"DEBUG: Checking path: {hour_dir} (Exists: {hour_dir.exists()})")
 
-            if expected_path.exists() and expected_path.stat().st_size > 1000:
-                print(f"      ⏭️  SKIPPING: Adat már létezik -> {expected_path.name}")
+            if hour_dir.exists() and any(hour_dir.glob("*.parquet")):
+                print(f"      ⏭️  SKIPPING: Adat már létezik -> {hour_dir.name}")
                 current_hour += timedelta(hours=1)
                 skipped_downloads += 1
                 continue
