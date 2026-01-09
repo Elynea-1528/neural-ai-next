@@ -188,6 +188,31 @@
 |-----------|:------:|:------------|
 | `docs/planning/phase2_2_jforex_live.md` | `🟢 STABLE` | Phase 2.2 detailed implementation plan |
 
+### ✅ SUB-TASK: `[JForex Bridge Configurable Input Parameters]`
+
+**Goal:** `[Make NeuralBridgeStrategy.java configurable via JForex UI with @Configurable annotations]` | **Token Budget:** `[~20k]` | **Complexity:** `[⭐⭐]`
+
+**Features Implemented:**
+- ✅ Added 5 boolean `@Configurable` fields for instrument selection (subEURUSD, subGBPUSD, subUSDJPY, subUSDCHF, subXAUUSD)
+- ✅ Added `tickPort` configurable integer field for ZMQ port configuration
+- ✅ Replaced hardcoded instrument list with dynamic Set<Instrument> based on boolean flags
+- ✅ Added warning if no instruments are selected
+- ✅ Replaced hardcoded TICK_PORT with configurable tickPort variable
+- ✅ Successfully deployed to JForex4/Strategies folder via deploy script
+
+**Files Modified:**
+- `external/jforex-bridge/src/main/java/com/neuralai/bridge/NeuralBridgeStrategy.java` - Configurable parameters added
+
+**Deployment Status:**
+- ✅ Gradle build successful
+- ✅ Files copied to JForex4/Strategies
+- ✅ JAR dependencies deployed
+
+**Next Steps:**
+- Manual validation: Restart JForex and verify configuration window appears with checkboxes
+
+**Last Update:** 2026-01-09 - JForex Bridge configurable parameters complete
+
 ---
 
 ## 🗂️ PHASE `[3]`: `[OMEGA PROTOCOL - DATA INTEGRITY & RESILIENCE SYSTEM]`

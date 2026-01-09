@@ -33,7 +33,24 @@ public class NeuralBridgeStrategy implements IStrategy {
     private Map<Instrument, Long> tickCounts;
 
     // Konfiguráció
-    private static final int TICK_PORT = 5557;
+    @Configurable("Subscribe EUR/USD")
+    public boolean subEURUSD = true;
+
+    @Configurable("Subscribe GBP/USD")
+    public boolean subGBPUSD = true;
+
+    @Configurable("Subscribe USD/JPY")
+    public boolean subUSDJPY = true;
+
+    @Configurable("Subscribe USD/CHF")
+    public boolean subUSDCHF = true;
+    
+    @Configurable("Subscribe XAU/USD")
+    public boolean subXAUUSD = true;
+
+    @Configurable("ZMQ Tick Port")
+    public int tickPort = 5557;
+
     private static final int COMMAND_PORT = 5558;
     private static final String BIND_ADDRESS = "tcp://*:";
 
@@ -49,26 +66,32 @@ public class NeuralBridgeStrategy implements IStrategy {
 
         // PUB Socket (Adat kifelé)
         this.tickPublisher = this.context.socket(ZMQ.PUB);
-        this.tickPublisher.bind(BIND_ADDRESS + TICK_PORT);
+        this.tickPublisher.bind(BIND_ADDRESS + tickPort);
 
         // REP Socket (Parancs befelé)
         this.commandReceiver = this.context.socket(ZMQ.REP);
         this.commandReceiver.bind(BIND_ADDRESS + COMMAND_PORT);
 
-        console.getOut().println("Neural Bridge started - Ports: " + TICK_PORT + ", " + COMMAND_PORT);
+        console.getOut().println("Neural Bridge started - Ports: " + tickPort + ", " + COMMAND_PORT);
 
         // Tick számláló inicializálása
         this.tickCounts = new HashMap<>();
 
-        // Feliratkozás az instrumentumokra
+        // Feliratkozás az instrumentumokra (dinamikus konfiguráció alapján)
         Set<Instrument> instruments = new HashSet<>();
-        instruments.add(Instrument.EURUSD);
-        instruments.add(Instrument.GBPUSD);
-        instruments.add(Instrument.USDJPY);
-        instruments.add(Instrument.XAUUSD);
-
-        context.setSubscribedInstruments(instruments, true);
-        console.getOut().println("Subscribed to instruments: " + instruments);
+        
+        if (subEURUSD) instruments.add(Instrument.EURUSD);
+        if (subGBPUSD) instruments.add(Instrument.GBPUSD);
+        if (subUSDJPY) instruments.add(Instrument.USDJPY);
+        if (subUSDCHF) instruments.add(Instrument.USDCHF);
+        if (subXAUUSD) instruments.add(Instrument.XAUUSD);
+        
+        if (instruments.isEmpty()) {
+            console.getErr().println("WARNING: No instruments selected!");
+        } else {
+            context.setSubscribedInstruments(instruments, true);
+            console.getOut().println("Subscribed to instruments: " + instruments);
+        }
 
         // Parancsfigyelő szál indítása
         new Thread(this::commandListener).start();
