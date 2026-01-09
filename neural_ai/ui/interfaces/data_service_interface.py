@@ -84,11 +84,24 @@ class DataServiceInterface(Protocol):
         """
         ...
 
+    def get_default_date_range(self) -> tuple[datetime, datetime]:
+        """Alapértelmezett dátumtartomány lekérdezése a konfigurációból.
+
+        A metódus kiolvassa a configból a dátumokat, és datetime objektumokká
+        konvertálja őket. Ha a konfiguráció üres vagy hiba történik, akkor
+        fallback értékeket használ.
+
+        Returns:
+            tuple[datetime, datetime]: A kezdő és záró dátum tuple-ben.
+                Fallback: (2020-01-01, ma)
+        """
+        ...
+
     async def download_history(self, symbol: str, start: datetime, end: datetime) -> dict[str, Any]:
         """Történelmi adatok letöltése aszinkron módon a Data Hub-ból.
 
         Args:
-            symbol: A szimbólum (pl. 'EURUSD')
+            symbol: A szimbólum (pl. 'EURUSD' vagy 'ALL' az összesre)
             start: A kezdő dátum
             end: A záró dátum
 

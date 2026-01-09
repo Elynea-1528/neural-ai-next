@@ -144,8 +144,8 @@ class DataHubPage(PageInterface):
         tartományt kér be, és indítja el a történelmi adatok letöltését.
 
         A metódus a következőket jeleníti meg:
-        - Szimbólum választó legördülő menü
-        - Kezdő és záró dátum választók
+        - Szimbólum választó legördülő menü (az "ALL" opcióval)
+        - Kezdő és záró dátum választók (alapértelmezett értékekkel a configból)
         - Letöltés indítása gomb
         - Letöltési eredmények és statisztikák
         """
@@ -162,25 +162,36 @@ class DataHubPage(PageInterface):
             st.error(f"Hiba történt a szimbólumok lekérdezése során: {e}")
             symbols = ["EURUSD"]  # Fallback érték
 
+        # Alapértelmezett dátumtartomány lekérése a configból
+        try:
+            default_start, default_end = self._data_service.get_default_date_range()
+            default_start_date = default_start.date()
+            default_end_date = default_end.date()
+        except Exception:
+            # Fallback, ha nem sikerül lekérni a configból
+            default_start_date = datetime.now().date().replace(day=1)
+            default_end_date = datetime.now().date()
+
         # Bemeneti mezők
         col1, col2 = st.columns(2)
 
         with col1:
+            # Szimbólum választó az "ALL" opcióval
             symbol = st.selectbox(
                 "Szimbólum",
-                options=symbols,
+                options=["ALL"] + symbols,
             )
 
         with col2:
             start_date = st.date_input(
                 "Kezdő dátum",
-                value=datetime.now().date().replace(day=1),
+                value=default_start_date,
                 max_value=datetime.now().date(),
             )
 
         end_date = st.date_input(
             "Záró dátum",
-            value=datetime.now().date(),
+            value=default_end_date,
             max_value=datetime.now().date(),
         )
 
@@ -190,7 +201,13 @@ class DataHubPage(PageInterface):
                 return
 
             try:
-                with st.spinner("Adatok letöltése folyamatban..."):
+                # Spinner üzenet testreszabása az "ALL" esetére
+                if symbol == "ALL":
+                    spinner_text = "Tömeges letöltés folyamatban... Ez eltarthat egy ideig."
+                else:
+                    spinner_text = "Adatok letöltése folyamatban..."
+
+                with st.spinner(spinner_text):
                     if self._data_service is None:
                         st.error("Adatszolgáltatás nem érhető el")
                         return

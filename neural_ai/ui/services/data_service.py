@@ -230,6 +230,47 @@ class DataService(DataServiceInterface):
 
         return data
 
+    def get_default_date_range(self) -> tuple[datetime, datetime]:
+        """Alapértelmezett dátumtartomány lekérdezése a konfigurációból.
+
+        A metódus kiolvassa a configból a `collectors.jforex.date_range.start` és
+        `end` értékeit, és datetime objektumokká konvertálja őket. Ha a konfiguráció
+        üres vagy hiba történik, akkor fallback értékeket használ.
+
+        Returns:
+            tuple[datetime, datetime]: A kezdő és záró dátum tuple-ben.
+                Fallback: (2020-01-01, ma)
+        """
+        try:
+            # Konfiguráció elérése a CoreBridge-en keresztül
+            config = self._bridge.core.config
+            if config is None:
+                # Fallback értékek, ha nincs konfiguráció
+                fallback_start = datetime(2020, 1, 1, tzinfo=UTC)
+                fallback_end = datetime.now(UTC)
+                return fallback_start, fallback_end
+
+            # Dátumok kiolvasása a konfigurációból
+            start_str = config.get("collectors", "jforex", "date_range", "start")
+            end_str = config.get("collectors", "jforex", "date_range", "end")
+
+            # Dátumok konvertálása
+            if start_str and end_str:
+                start_date = datetime.fromisoformat(start_str).replace(tzinfo=UTC)
+                end_date = datetime.fromisoformat(end_str).replace(tzinfo=UTC)
+                return start_date, end_date
+            else:
+                # Fallback, ha üres a konfiguráció
+                fallback_start = datetime(2020, 1, 1, tzinfo=UTC)
+                fallback_end = datetime.now(UTC)
+                return fallback_start, fallback_end
+
+        except Exception:
+            # Fallback, ha bármilyen hiba történik
+            fallback_start = datetime(2020, 1, 1, tzinfo=UTC)
+            fallback_end = datetime.now(UTC)
+            return fallback_start, fallback_end
+
     async def download_history(self, symbol: str, start: datetime, end: datetime) -> dict[str, Any]:
         """Történelmi adatok letöltése aszinkron módon.
 
@@ -237,13 +278,13 @@ class DataService(DataServiceInterface):
         és valós adatletöltést végez a Dukascopy .bi5 formátumból.
 
         Args:
-            symbol: A szimbólum (pl. 'EURUSD')
+            symbol: A szimbólum (pl. 'EURUSD' vagy 'ALL' az összesre)
             start: A kezdő dátum
             end: A záró dátum
 
         Returns:
             dict[str, Any]: A letöltött adatok metaadatai és az adatok
-                - symbol: A letöltött szimbólum
+                - symbol: A letöltött szimbólum (vagy 'ALL')
                 - start_date: Kezdő dátum ISO formátumban
                 - end_date: Záró dátum ISO formátumban
                 - status: Letöltési állapot ('downloaded', 'failed', 'partial')
@@ -251,6 +292,9 @@ class DataService(DataServiceInterface):
                 - size_mb: Letöltött adatok mérete MB-ban
                 - format: Az adatformátum ('parquet')
                 - path: A tárolási útvonal
+                - successful_dates: Sikeres napok száma
+                - failed_dates: Sikertelen napok száma
+                - total_days: Összes napok száma
 
         Raises:
             ValueError: Ha a dátumtartomány érvénytelen
@@ -262,6 +306,10 @@ class DataService(DataServiceInterface):
 
         if start > datetime.now(UTC):
             raise ValueError("A kezdő dátum nem lehet a jövőben")
+
+        # Ha "ALL" szimbólum van megadva, letöltjük az összes konfigurált szimbólumot
+        if symbol == "ALL":
+            return await self._download_all_symbols(start, end)
 
         # CoreBridge-en keresztül lekérjük a Bi5Downloader komponenst
         downloader = self._bridge.get_component("bi5_downloader")
@@ -403,6 +451,81 @@ class DataService(DataServiceInterface):
 
         except Exception as e:
             raise RuntimeError(f"Adatletöltés sikertelen: {str(e)}") from e
+
+    async def _download_all_symbols(self, start: datetime, end: datetime) -> dict[str, Any]:
+        """Összes konfigurált szimbólum letöltése.
+
+        Args:
+            start: A kezdő dátum
+            end: A záró dátum
+
+        Returns:
+            dict[str, Any]: Összesített letöltési eredmények
+        """
+        # Szimbólumok lekérése
+        symbols = self.get_configured_symbols()
+
+        if not symbols:
+            raise RuntimeError("Nincsenek konfigurált szimbólumok a letöltéshez")
+
+        # Összesített eredmények
+        all_results: list[dict[str, Any]] = []
+        total_records = 0
+        total_size_mb = 0.0
+        total_successful_dates = 0
+        total_failed_dates = 0
+
+        # Minden szimbólum letöltése
+        for symbol in symbols:
+            try:
+                # Rekurzív hívás a letöltésre
+                result = await self.download_history(symbol, start, end)
+                all_results.append(result)
+
+                # Statisztikák összegzése
+                total_records += result.get("records", 0)
+                total_size_mb += result.get("size_mb", 0.0)
+                total_successful_dates += result.get("successful_dates", 0)
+                total_failed_dates += result.get("failed_dates", 0)
+
+            except Exception as e:
+                print(f"Hiba történt a(z) {symbol} letöltése során: {e}")
+                # Sikertelen letöltés esetén is hozzáadjuk az eredményt
+                all_results.append(
+                    {
+                        "symbol": symbol,
+                        "status": "failed",
+                        "records": 0,
+                        "size_mb": 0.0,
+                        "successful_dates": 0,
+                        "failed_dates": (end - start).days + 1,
+                    }
+                )
+                total_failed_dates += (end - start).days + 1
+
+        # Állapot meghatározása
+        total_days = (end - start).days + 1
+        if total_failed_dates == 0:
+            status = "downloaded"
+        elif total_successful_dates > 0:
+            status = "partial"
+        else:
+            status = "failed"
+
+        return {
+            "symbol": "ALL",
+            "start_date": start.isoformat(),
+            "end_date": end.isoformat(),
+            "status": status,
+            "records": total_records,
+            "size_mb": round(total_size_mb, 2),
+            "format": "parquet",
+            "path": "/data/tick/",
+            "successful_dates": total_successful_dates,
+            "failed_dates": total_failed_dates,
+            "total_days": total_days,
+            "individual_results": all_results,
+        }
 
     def list_available_data(self, symbol: str | None = None) -> pd.DataFrame:
         """Elérhető adatok listázása DataFrame formátumban.
