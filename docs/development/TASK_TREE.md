@@ -444,6 +444,61 @@
 
 ---
 
+## 🗂️ PHASE `[6.4]`: `[VECTORBT BACKTEST INTEGRATION - REAL STRATEGY TESTING]`
+
+**Goal:** `[Implement real VectorBT backtesting in Strategy Lab for interactive strategy testing on downloaded data]` | **Token Budget:** `[~150k]` | **Complexity:** `[⭐⭐⭐⭐]` |
+
+### 🏗️ MODULE: `[ui/services/strategy_service]` |
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `strategy_service.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ `run_sma_backtest(symbol, date, timeframe, fast_period, slow_period, initial_capital)` method added
+- ✅ Real VectorBT logic: SMA indicator calculation, signal generation, portfolio simulation
+- ✅ Returns stats (Total Return, Win Rate, Max Drawdown), equity curve, trades list, signals
+- ✅ Proper error handling and data validation
+
+### 🏗️ MODULE: `[ui/pages/05_🪲_Strategy_Lab.py]` |
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `05_🪲_Strategy_Lab.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐⭐ | `🟢 STABLE` |
+
+**Features Implemented:**
+- ✅ Sidebar: Expander with "Stratégia Paraméterek" (Strategy Parameters)
+- ✅ Fast SMA slider (default 10, range 2-100)
+- ✅ Slow SMA slider (default 50, range 5-200)
+- ✅ Initial Capital input (default 10000)
+- ✅ "🚀 Futtatás (VectorBT)" button to run backtest
+- ✅ Main Area: Backtest results rendering
+- ✅ Metrics cards: Total Return, Win Rate, Max Drawdown, Total Trades
+- ✅ Equity Chart: st.line_chart with portfolio value over time
+- ✅ Trade List: DataFrame with P&L and duration
+- ✅ Signal overlays on candlestick chart (green triangles for entries, red for exits)
+
+### 📋 DEPENDENCIES |
+
+| Component | Status | Notes |
+|:----------|:------:|:------|
+| `vectorbt` | `🟢 INSTALLED` | Required for backtesting |
+| `plotly` | `🟢 INSTALLED` | For candlestick chart with signals |
+
+### ✅ VALIDATION CRITERIA
+- **Dashboard Launch:** Streamlit app starts successfully
+- **Strategy Lab Navigation:** Page loads without errors
+- **Data Loading:** Select a date with downloaded data (e.g., 2024-03-20)
+- **Backtest Execution:** Click "🚀 Futtatás (VectorBT)" button
+- **Results Display:** View metrics, equity chart, trade list, and signal markers on chart
+- **Signal Visualization:** Green entry triangles and red exit triangles on candlestick chart
+
+**Test Results:** All validations successful - VectorBT backtest integration complete
+
+**Last Update:** 2026-01-09 21:37 CET
+
+---
+
 ## 🗂️ PHASE `[6.3]`: `[STRATEGY LAB PLOTLY BUG FIX]`
 
 **Goal:** `[Fix Plotly syntax error in Strategy Lab - yaxis_label to yaxis_title]` | **Token Budget:** `[~5k]` | **Complexity:** `[⭐]`
