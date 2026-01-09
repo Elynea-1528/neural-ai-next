@@ -520,6 +520,38 @@
 
 ---
 
+## 🗂️ PHASE `[6.5]`: `[UI STATE PERSISTENCE & DOWNLOADER DEBUG]`
+
+**Goal:** `[Streamlit UI állapot megőrzés és letöltő script debug javítása]` | **Token Budget:** `[~50k]` | **Complexity:** `[⭐⭐]`
+
+### 🏗️ MODULE: `[ui/pages/05_🪲_Strategy_Lab.py]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|-----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `05_🪲_Strategy_Lab.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ Session state implementáció az adatok persistálására gombnyomások között
+- ✅ UI-ban az adatok megmaradnak gombnyomások között
+
+### 🏗️ MODULE: `[scripts/download_history.py]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|-----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `download_history.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ Debug log hozzáadása és Smart Resume logika javítása
+- ✅ Downloader script helyesen felismeri a meglévő parquet fájlokat bármilyen néven
+
+### ✅ VALIDATION CRITERIA
+- **UI:** Az adatok megmaradnak gombnyomások között
+- **Downloader:** Helyesen felismeri a meglévő parquet fájlokat bármilyen néven
+
+**Last Update:** 2026-01-09 22:12 CET
+
+---
+
 ## � MATRIX DEFINITIONS
 
 ### `[S|T|D]` Components
