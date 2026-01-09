@@ -100,8 +100,10 @@ class TestDataService(unittest.TestCase):
 
     @patch("asyncio.run")
     def test_list_available_data(self, mock_run: MagicMock) -> None:
-        """Teszteli az elérhető adatok listázását."""
-        mock_storage = Mock()
+        """Teszteli az elérhető adatok listázását (csak tick_data)."""
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+        mock_storage = Mock(spec=StorageInterface)
         mock_storage.get_storage_stats = Mock(
             return_value={
                 "total_files": 10,
@@ -120,10 +122,68 @@ class TestDataService(unittest.TestCase):
         result = self.data_service.list_available_data()
         self.assertIsInstance(result, pd.DataFrame)
         self.assertGreater(len(result), 0)
+        # Ellenőrzés: csak tick_data forrás van (nem ohlc_data vagy market_data)
+        self.assertTrue(all(row["source_id"] == "tick_data" for row in result.to_dict("records")))
+        # Ellenőrzés: rekord becslés 3530 (óránkénti átlag) * 10 fájl = 35300
+        self.assertEqual(result["records"].iloc[0], 35300)
+
+    @patch("asyncio.run")
+    def test_list_available_data_with_symbol(self, mock_run: MagicMock) -> None:
+        """Teszteli az elérhető adatok listázását egyedi szimbólummal."""
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+        mock_storage = Mock(spec=StorageInterface)
+        mock_storage.get_storage_stats = Mock(
+            return_value={
+                "total_files": 5,
+                "size_gb": 0.75,
+                "available_dates": 15,
+            }
+        )
+        self.mock_bridge.get_component.return_value = mock_storage
+
+        mock_run.return_value = {
+            "total_files": 5,
+            "size_gb": 0.75,
+            "available_dates": 15,
+        }
+
+        result = self.data_service.list_available_data(symbol="EURUSD")
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result["symbol"].iloc[0], "EURUSD")
+        self.assertEqual(result["records"].iloc[0], 5 * 3530)  # 17650
+
+    @patch("asyncio.run")
+    def test_list_available_data_no_files(self, mock_run: MagicMock) -> None:
+        """Teszteli az elérhető adatok listázását, ha nincs fájl."""
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+        mock_storage = Mock(spec=StorageInterface)
+        mock_storage.get_storage_stats = Mock(
+            return_value={
+                "total_files": 0,
+                "size_gb": 0.0,
+                "available_dates": 0,
+            }
+        )
+        self.mock_bridge.get_component.return_value = mock_storage
+
+        mock_run.return_value = {
+            "total_files": 0,
+            "size_gb": 0.0,
+            "available_dates": 0,
+        }
+
+        result = self.data_service.list_available_data()
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(len(result), 0)  # Nincs sor, mert nincs fájl
 
     def test_get_storage_path(self) -> None:
         """Teszteli a tárolási útvonal lekérdezését."""
-        mock_storage = Mock()
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+        mock_storage = Mock(spec=StorageInterface)
         mock_storage.BASE_PATH = "/data/tick"
         self.mock_bridge.get_component.return_value = mock_storage
 
@@ -133,7 +193,9 @@ class TestDataService(unittest.TestCase):
 
     def test_get_storage_path_default(self) -> None:
         """Teszteli az alapértelmezett tárolási útvonal lekérdezését."""
-        mock_storage = Mock()
+        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+
+        mock_storage = Mock(spec=StorageInterface)
         del mock_storage.BASE_PATH
         self.mock_bridge.get_component.return_value = mock_storage
 

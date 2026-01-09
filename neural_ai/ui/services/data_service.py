@@ -455,21 +455,23 @@ class DataService(DataServiceInterface):
                 )
 
                 if total_files > 0:
-                    for source_id, info in self._data_sources.items():
-                        data_records.append(
-                            {
-                                "source_id": source_id,
-                                "symbol": sym,
-                                "name": info["name"],
-                                "description": info["description"],
-                                "format": info["format"],
-                                "size_gb": round(size_gb, 2),
-                                "records": total_files * 10000,  # Becslés
-                                "last_updated": datetime.now().isoformat(),
-                                "available_dates": available_dates,
-                                "total_files": total_files,
-                            }
-                        )
+                    # Csak tick_data forrást vesszük fel, ha van fájl
+                    # OHLC és Market adatok ghost sorok nélkül
+                    info = self._data_sources["tick_data"]
+                    data_records.append(
+                        {
+                            "source_id": "tick_data",
+                            "symbol": sym,
+                            "name": info["name"],
+                            "description": info["description"],
+                            "format": info["format"],
+                            "size_gb": round(size_gb, 2),
+                            "records": total_files * 3530,  # Óránkénti átlagos tick becslés
+                            "last_updated": datetime.now().isoformat(),
+                            "available_dates": available_dates,
+                            "total_files": total_files,
+                        }
+                    )
 
             return pd.DataFrame(data_records)
 
