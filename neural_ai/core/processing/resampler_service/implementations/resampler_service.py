@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 import polars as pl
+import structlog
 
 from neural_ai.core.processing.resampler_service.exceptions.resampler_error import (
     DataLoadError,
@@ -33,6 +34,7 @@ class ResamplerService(ResamplerInterface):
             storage: A tárolási interfész példány (Dependency Injection)
         """
         self._storage = storage
+        self._logger = structlog.get_logger()
 
     async def resample(
         self, symbol: str, start: datetime, end: datetime, timeframe: str = "1m"
@@ -100,28 +102,37 @@ class ResamplerService(ResamplerInterface):
         Raises:
             DataLoadError: Ha hiba történik a betöltés során
         """
-        # FIXME: Ez egy ideiglenes implementáció
-        # A valós implementációban a StorageInterface-en keresztül kell betölteni az adatokat
-        # Jelenleg egy üres DataFrame-et adunk vissza a struktúra bemutatásához
+        try:
+            # Tick adatok betöltése a StorageInterface-en keresztül
+            # Dinamikusan hívjuk meg a read_tick_data metódust
+            read_method = getattr(self._storage, "read_tick_data", None)
+            if read_method is None:
+                raise DataLoadError(
+                    symbol=symbol,
+                    start=str(start),
+                    end=str(end),
+                    original_error=AttributeError("Storage does not support read_tick_data method"),
+                )
+            tick_data = await read_method(symbol, start, end)
 
-        # Példa adatok létrehozása (ez a rész kerüljön lecserélésre a valós adatokra)
-        import numpy as np
+            # Ellenőrizzük, hogy kaptunk-e adatot
+            if tick_data is None or len(tick_data) == 0:
+                self._logger.warning(
+                    "No tick data found for the specified range",
+                    symbol=symbol,
+                    start=start.isoformat(),
+                    end=end.isoformat(),
+                )
+                return pl.DataFrame()
 
-        date_range = pd.date_range(start=start, end=end, freq="1s")
-
-        tick_data = pl.DataFrame(
-            {
-                "timestamp": date_range,
-                "bid": np.random.uniform(1.05, 1.10, len(date_range)),
-                "ask": np.random.uniform(1.05, 1.10, len(date_range)),
-                "volume": np.random.randint(1, 100, len(date_range)),
-            }
-        )
-
-        return tick_data
+            return tick_data
+        except Exception as e:
+            raise DataLoadError(
+                symbol=symbol, start=str(start), end=str(end), original_error=e
+            ) from e
 
     def _convert_to_ohlcv(self, tick_data: pl.DataFrame, timeframe: str) -> pd.DataFrame:
-        """Tick adatok átalakítása OHLCV gyertyákká.
+        """Tick adatok átalakítása OHLCV gyertyákká Polars group_by_dynamic használatával.
 
         Args:
             tick_data: Polars DataFrame tick adatokkal
@@ -130,26 +141,84 @@ class ResamplerService(ResamplerInterface):
         Returns:
             Pandas DataFrame OHLCV gyertyákkal
         """
-        # Polars DataFrame konvertálása Pandas DataFrame-re
-        df = tick_data.to_pandas()
+        # Ellenőrizzük, hogy van-e adat
+        if tick_data.is_empty():
+            return pd.DataFrame(
+                columns=["open", "high", "low", "close", "volume", "bid_volume", "ask_volume"]
+            )
+
+        # Szükséges oszlopok ellenőrzése
+        required_columns = ["timestamp", "bid", "ask"]
+        missing_columns = [col for col in required_columns if col not in tick_data.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns for OHLCV conversion: {missing_columns}")
+
+        # Volume oszlopok kezelése (lehet volume, bid_volume, ask_volume)
+        volume_cols = []
+        if "volume" in tick_data.columns:
+            volume_cols.append("volume")
+        if "bid_volume" in tick_data.columns:
+            volume_cols.append("bid_volume")
+        if "ask_volume" in tick_data.columns:
+            volume_cols.append("ask_volume")
 
         # Átlagár számítása (bid és ask átlaga)
-        df["price"] = (df["bid"] + df["ask"]) / 2
+        tick_data = tick_data.with_columns(price=(pl.col("bid") + pl.col("ask")) / 2)
 
-        # Timestamp beállítása indexként (biztonságos verzió)
-        if not df.empty:
-            df.index = pd.to_datetime(df["timestamp"])
-            df = df.drop("timestamp", axis=1)
+        # Időkeret konvertálása Polars formátumba
+        timeframe_map = {
+            "1m": "1m",
+            "5m": "5m",
+            "15m": "15m",
+            "30m": "30m",
+            "1h": "1h",
+            "4h": "4h",
+            "1D": "1d",
+            "1W": "1w",
+            "1M": "1mo",
+        }
+        polars_timeframe = timeframe_map.get(timeframe, "1m")
 
-        # OHLCV aggregáció Pandas resample használatával
-        if not df.empty:
-            ohlcv = df["price"].resample(timeframe).ohlc()
-            volume = df["volume"].resample(timeframe).sum()
-            ohlcv["volume"] = volume
-        else:
-            # Üres DataFrame esetén
-            ohlcv = pd.DataFrame(columns=["open", "high", "low", "close", "volume"])
-            ohlcv.index = pd.DatetimeIndex([])
-            ohlcv.index.name = "timestamp"
+        # OHLCV aggregáció Polars group_by_dynamic használatával
+        # A timestamp oszlopot használjuk időalapú csoportosításhoz
+        ohlcv = (
+            tick_data.sort("timestamp")
+            .group_by_dynamic("timestamp", every=polars_timeframe)
+            .agg(
+                [
+                    pl.col("price").first().alias("open"),
+                    pl.col("price").max().alias("high"),
+                    pl.col("price").min().alias("low"),
+                    pl.col("price").last().alias("close"),
+                ]
+                + [pl.col(col).sum().alias(f"{col}_sum") for col in volume_cols]
+            )
+        )
 
-        return ohlcv
+        # Oszlopnevek normalizálása
+        ohlcv = ohlcv.rename(
+            {
+                "timestamp": "timestamp",
+                "open": "open",
+                "high": "high",
+                "low": "low",
+                "close": "close",
+            }
+        )
+
+        # Volume oszlopok átnevezése
+        for col in volume_cols:
+            if f"{col}_sum" in ohlcv.columns:
+                if col == "volume":
+                    ohlcv = ohlcv.rename({f"{col}_sum": "volume"})
+                elif col == "bid_volume":
+                    ohlcv = ohlcv.rename({f"{col}_sum": "bid_volume"})
+                elif col == "ask_volume":
+                    ohlcv = ohlcv.rename({f"{col}_sum": "ask_volume"})
+
+        # Konvertálás Pandas DataFrame-re és timestamp beállítása indexként
+        result_df = ohlcv.to_pandas()
+        if not result_df.empty:
+            result_df.index = pd.to_datetime(result_df["timestamp"])
+            result_df = result_df.drop("timestamp", axis=1)
+        return result_df
