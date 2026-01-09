@@ -25,11 +25,11 @@ class StrategyService(StrategyServiceInterface):
     tesztelését végző metódusokat.
     """
 
-    def __init__(self, bridge: "CoreBridgeInterface") -> None:
+    def __init__(self, bridge: "CoreBridgeInterface | None" = None) -> None:
         """A Strategy Service inicializálása.
 
         Args:
-            bridge: A backend bridge példány
+            bridge: A backend bridge példány (opcionális, backward compatibility)
         """
         self._bridge = bridge
         self._strategies: dict[str, dict[str, Any]] = {

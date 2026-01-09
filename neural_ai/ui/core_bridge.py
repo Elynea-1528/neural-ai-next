@@ -14,6 +14,8 @@ if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
+    from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
 
 class CoreBridge(metaclass=SingletonMeta):
@@ -21,19 +23,20 @@ class CoreBridge(metaclass=SingletonMeta):
 
     Ez az osztály biztosítja a kommunikációt a backend rendszerrel,
     inicializálja a core komponenseket, és lehetővé teszi a UI számára
-    a parquet_storage és bi5_downloader komponensek elérését.
+    a parquet_storage, bi5_downloader és strategy_service komponensek elérését.
     """
 
     def __init__(self) -> None:
         """A Core Bridge inicializálása."""
         self._core: CoreComponents | None = None
         self._connected: bool = False
+        self._strategy_service: StrategyServiceInterface | None = None
 
-    def get_instance(self) -> "CoreBridge":
+    def get_instance(self) -> "CoreBridgeInterface":
         """A Singleton példányt visszaadó metódus.
 
         Returns:
-            CoreBridge: A Singleton példány
+            CoreBridgeInterface: A Singleton példány
         """
         return self
 
@@ -51,12 +54,35 @@ class CoreBridge(metaclass=SingletonMeta):
         if self._core and self._core.logger:
             self._core.logger.info("Core Bridge inicializálva")
 
+        # Strategy Service inicializálása
+        self._initialize_strategy_service()
+
+    def _initialize_strategy_service(self) -> None:
+        """A Strategy Service inicializálása.
+
+        Létrehozza és regisztrálja a Strategy Service-t, amely
+        a kereskedési stratégiák kezeléséért felelős.
+        """
+        if not self._core:
+            return
+
+        try:
+            from neural_ai.ui.services.strategy_service import StrategyService
+
+            self._strategy_service = StrategyService(self)
+
+            if self._core.logger:
+                self._core.logger.debug("Strategy Service inicializálva")
+        except Exception as e:
+            if self._core.logger:
+                self._core.logger.error(f"Hiba a Strategy Service inicializálásakor: {e}")
+
     def get_component(self, component_type: str) -> Any | None:
         """Komponens lekérése a backend rendszerből.
 
         Args:
             component_type: A lekérdezni kívánt komponens típusa.
-                Támogatott típusok: 'parquet_storage', 'bi5_downloader'
+                Támogatott típusok: 'parquet_storage', 'bi5_downloader', 'strategy_service'
 
         Returns:
             Optional[Any]: A lekérdezett komponens vagy None, ha nem található
@@ -74,6 +100,8 @@ class CoreBridge(metaclass=SingletonMeta):
             return self._get_parquet_storage()
         elif component_type == "bi5_downloader":
             return self._get_bi5_downloader()
+        elif component_type == "strategy_service":
+            return self._get_strategy_service()
         else:
             if self._core.logger:
                 self._core.logger.warning(f"Ismeretlen komponens típus: {component_type}")
@@ -147,6 +175,23 @@ class CoreBridge(metaclass=SingletonMeta):
             if self._core.logger:
                 self._core.logger.error(f"Hiba a BI5 downloader létrehozásakor: {e}")
             return None
+
+    def _get_strategy_service(self) -> Optional["StrategyServiceInterface"]:
+        """Strategy Service komponens lekérése.
+
+        Returns:
+            Optional[StrategyServiceInterface]: A Strategy Service komponens vagy None
+        """
+        if not self._strategy_service:
+            self._initialize_strategy_service()
+
+        if self._core and self._core.logger:
+            if self._strategy_service:
+                self._core.logger.debug("Strategy Service komponens lekérve")
+            else:
+                self._core.logger.warning("Strategy Service komponens nem elérhető")
+
+        return self._strategy_service
 
     def send_command(self, command: str, params: dict[str, Any]) -> dict[str, Any]:
         """Parancs küldése a backend rendszernek.
