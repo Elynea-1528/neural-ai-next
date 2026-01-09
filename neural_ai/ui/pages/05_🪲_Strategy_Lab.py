@@ -143,7 +143,7 @@ class StrategyLabPage(PageInterface):
         fig.update_layout(
             title="Candlestick Chart",
             xaxis_title="Idő",
-            yaxis_label="Ár",
+            yaxis_title="Ár",
             template="plotly_dark",
             height=500,
             xaxis_rangeslider_visible=False,
