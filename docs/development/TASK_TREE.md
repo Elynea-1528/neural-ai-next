@@ -387,6 +387,63 @@
 
 ---
 
+## 🗂️ PHASE `[6.2]`: `[RESAMPLER & VISUALIZATION - DATA TO CANDLES]`
+
+**Goal:** `[Implement tick-to-OHLCV resampling and candlestick visualization in Strategy Lab UI]` | **Token Budget:** `[~100k]` | **Complexity:** `[⭐⭐⭐⭐]`
+
+### 🏗️ MODULE: `[core/processing/resampler_service]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `implementations/resampler_service.py` | `[✅|✅|✅]` | `Stmt: 87%, Brch: 87%` | ⭐⭐⭐ | `🟡 WIP` |
+
+**Features Implemented:**
+- ✅ Real `storage.read_tick_data()` integration replacing mock data
+- ✅ Polars `group_by_dynamic` for fast OHLCV resampling
+- ✅ Proper OHLCV aggregation: Open=first(bid), High=max(bid), Low=min(bid), Close=last(bid), Volume=sum(volume)
+- ✅ Bid/Ask Volume support: sum(bid_volume), sum(ask_volume)
+- ⚠️ UI integration pending
+
+### 🏗️ MODULE: `[ui/services/strategy_service]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `strategy_service.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐ | `🟡 WIP` |
+
+**Features Implemented:**
+- ✅ `get_candles(symbol, date, timeframe)` method added
+- ✅ ResamplerService integration via Factory
+- ✅ Proper error handling and data flow
+
+### 🏗️ MODULE: `[ui/pages/05_🪲_Strategy_Lab.py]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `05_🪲_Strategy_Lab.py` | `[✅|✅|✅]` | `Stmt: 85%, Brch: 85%` | ⭐⭐⭐ | `🔴 PENDING` |
+
+**Features Implemented:**
+- 🔴 Interactive sidebar with symbol/date/timeframe selectors
+- 🔴 Load & Visualize button
+- 🔴 Plotly candlestick chart in main area
+- 🔴 First 10 rows data table display
+
+### 📋 DEPENDENCIES
+
+| Component | Status | Notes |
+|:----------|:------:|:------|
+| `plotly` | `🟢 INSTALLED` | Available in UI dependencies |
+
+### ✅ VALIDATION CRITERIA
+- **Dashboard Launch:** Streamlit app starts successfully
+- **Strategy Lab Navigation:** Page loads without errors
+- **Data Loading:** 2024-03-20 EURUSD 1m data loads correctly
+- **Visualization:** Beautiful, zoomable candlestick chart appears
+- **Performance:** Fast rendering with reasonable load times
+
+**Last Update:** 2026-01-09 - Phase 6.2 planning complete
+
+---
+
 ## 🔑 MATRIX DEFINITIONS
 
 ### `[S|T|D]` Components
