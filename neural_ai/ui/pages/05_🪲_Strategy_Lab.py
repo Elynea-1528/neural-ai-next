@@ -38,14 +38,19 @@ class StrategyLabPage(PageInterface):
         self._title = "🪲 Strategy Lab"
         self._candles: DataFrame | None = None
 
-        # Session state inicializálása a backtesztekhez
+        # Session state inicializálása a backtesztekhez és gyertyákhoz
         if "backtest_result" not in st.session_state:
             st.session_state.backtest_result = None
+        if "candles" not in st.session_state:
+            st.session_state.candles = None
 
     def render(self) -> None:
         """A Strategy Lab oldal megjelenítése."""
         st.title(self._title)
         st.markdown("Kereskedési stratégiák létrehozása és tesztelése.")
+
+        # Session state szinkronizálása a local változókkal
+        self._candles = st.session_state.candles
 
         self._render_sidebar()
         self._render_main_area()
@@ -356,7 +361,7 @@ class StrategyLabPage(PageInterface):
                     result: DataFrame | None = asyncio.run(
                         strategy_service.get_candles(symbol, date_str, timeframe)
                     )
-                    self._candles = result
+                    st.session_state.candles = result
                     self._loaded = True
                     # Backtest eredmények törlése új adat betöltésekor
                     st.session_state.backtest_result = None
@@ -421,14 +426,14 @@ class StrategyLabPage(PageInterface):
         except Exception:
             return None
 
-    def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+    def on_navigate_to(self, params: "dict[str, Any] | None" = None) -> None:
         """Navigálás az oldalra.
 
         Args:
             params: Opcionális navigációs paraméterek
         """
         self._loaded = False
-        self._candles = None
+        st.session_state.candles = None
         st.session_state.backtest_result = None
 
     def on_navigate_from(self) -> None:

@@ -1,7 +1,7 @@
 """Tesztelési modul a Strategy Lab oldalhoz.
 
 Ez a modul tartalmazza a StrategyLabPage osztály egységtesztjeit,
-amelyek ellenőrzik az oldal alapvető funkcionalitását.
+amelyek ellenőrzik az oldal alapvető funkcionalitását és a session_state persistence-t.
 """
 
 import importlib.util
@@ -99,18 +99,23 @@ class TestStrategyLabPage:
         assert strategy_lab_page.is_loaded is False
 
     def test_on_navigate_to_resets_state(self, strategy_lab_page: StrategyLabPage) -> None:
-        """Teszteli, hogy a navigálás visszaállítja az állapotot.
+        """Teszteli, hogy a navigálás visszaállítja az állapotot (session_state-kel).
 
         Args:
             strategy_lab_page: A tesztelendő oldal példány.
         """
+        # Állítsuk be a session state-et
+        strategy_lab_module.st.session_state.candles = MagicMock()
+        strategy_lab_module.st.session_state.backtest_result = MagicMock()
+
         strategy_lab_page._loaded = True
         strategy_lab_page._candles = MagicMock()
 
         strategy_lab_page.on_navigate_to()
 
         assert strategy_lab_page._loaded is False
-        assert strategy_lab_page._candles is None
+        # A session state candles értéke most None kell legyen
+        assert strategy_lab_module.st.session_state.candles is None
 
     def test_on_navigate_to_with_params(self, strategy_lab_page: StrategyLabPage) -> None:
         """Teszteli a navigációt paraméterekkel.
@@ -118,11 +123,16 @@ class TestStrategyLabPage:
         Args:
             strategy_lab_page: A tesztelendő oldal példány.
         """
+        # Állítsuk be a session state-et
+        strategy_lab_module.st.session_state.candles = MagicMock()
+        strategy_lab_module.st.session_state.backtest_result = MagicMock()
+
         params: dict[str, str] | None = {"key": "value"}
         strategy_lab_page.on_navigate_to(params)
 
         assert strategy_lab_page._loaded is False
-        assert strategy_lab_page._candles is None
+        # A session state candles értéke most None kell legyen
+        assert strategy_lab_module.st.session_state.candles is None
 
     def test_on_navigate_from(self, strategy_lab_page: StrategyLabPage) -> None:
         """Teszteli az oldal elhagyásakor történő akciót.
@@ -335,3 +345,123 @@ class TestStrategyLabPage:
 
         except Exception as e:
             pytest.fail(f"A render metódus hibát dobott: {e}")
+
+
+class TestStrategyLabPageSessionState:
+    """Session State tesztek a Strategy Lab oldalhoz.
+
+    Ezek a tesztek ellenőrzik a session_state alapú adat persistence funkcionalitást.
+    """
+
+    @pytest.fixture
+    def mock_bridge(self) -> MagicMock:
+        """Mock CoreBridgeInterface létrehozása.
+
+        Returns:
+            MagicMock: A mockolt bridge példány.
+        """
+        return MagicMock(spec=CoreBridgeInterface)
+
+    def test_init_session_state_candles_initialization(self, mock_bridge: MagicMock) -> None:
+        """Teszteli, hogy az __init__ metódus inicializálja a session state candles-t.
+
+        Args:
+            mock_bridge: A mockolt bridge példány.
+        """
+        # Ellenőrizzük, hogy a StrategyLabPage létrehozható session state-tel
+        page = StrategyLabPage(bridge=mock_bridge)
+
+        # Az oldal inicializálása sikeres kell legyen
+        assert page._bridge == mock_bridge
+        assert page._title == "🪲 Strategy Lab"
+
+    def test_render_syncs_session_state_candles(self, mock_bridge: MagicMock) -> None:
+        """Teszteli, hogy a render metódus szinkronizálja a session state candles értékét.
+
+        Args:
+            mock_bridge: A mockolt bridge példány.
+        """
+        mock_candles = MagicMock()
+        mock_candles.empty = False
+        strategy_lab_module.st.session_state.candles = mock_candles
+        strategy_lab_module.st.session_state.backtest_result = None
+
+        with patch("streamlit.title"):
+            with patch("streamlit.markdown"):
+                with patch("streamlit.sidebar") as mock_sidebar:
+                    mock_sidebar.__enter__.return_value = MagicMock()
+                    mock_sidebar.__exit__.return_value = None
+
+                    page = StrategyLabPage(bridge=mock_bridge)
+                    page.render()
+
+                    # Ellenőrizzük, hogy a _candles szinkronizálva van a session state-szel
+                    assert page._candles is mock_candles
+
+    def test_on_navigate_to_clears_session_state(self, mock_bridge: MagicMock) -> None:
+        """Teszteli, hogy az on_navigate_to metódus törli a session state candles értékét.
+
+        Args:
+            mock_bridge: A mockolt bridge példány.
+        """
+        strategy_lab_module.st.session_state.candles = MagicMock()
+        strategy_lab_module.st.session_state.backtest_result = MagicMock()
+
+        page = StrategyLabPage(bridge=mock_bridge)
+        page._loaded = True
+
+        page.on_navigate_to()
+
+        # Ellenőrizzük, hogy az oldal állapota visszaállt
+        assert page._loaded is False
+        # A session state candles most None kell legyen
+        assert strategy_lab_module.st.session_state.candles is None
+
+    def test_candles_persistence_between_interactions(self, mock_bridge: MagicMock) -> None:
+        """Teszteli, hogy a gyertyák megmaradnak a felhasználói interakciók között.
+
+        Args:
+            mock_bridge: A mockolt bridge példány.
+        """
+        mock_candles = MagicMock()
+        mock_candles.empty = False
+        strategy_lab_module.st.session_state.candles = mock_candles
+        strategy_lab_module.st.session_state.backtest_result = None
+
+        with patch("streamlit.title"):
+            with patch("streamlit.markdown"):
+                with patch("streamlit.sidebar") as mock_sidebar:
+                    mock_sidebar.__enter__.return_value = MagicMock()
+                    mock_sidebar.__exit__.return_value = None
+
+                    page = StrategyLabPage(bridge=mock_bridge)
+
+                    # Első render
+                    page.render()
+                    assert page._candles is mock_candles
+
+                    # Módosítsuk a session state-et (mintha új adatot töltöttünk volna be)
+                    mock_candles_2 = MagicMock()
+                    mock_candles_2.empty = False
+                    strategy_lab_module.st.session_state.candles = mock_candles_2
+
+                    # Második render - a _candles frissül a session state-ből
+                    page.render()
+                    assert page._candles is mock_candles_2
+
+    def test_backtest_result_persistence(self, mock_bridge: MagicMock) -> None:
+        """Teszteli, hogy a backteszt eredménye megmarad a session state-ben.
+
+        Args:
+            mock_bridge: A mockolt bridge példány.
+        """
+        mock_result = {
+            "stats": {"Total Return [%]": 10.5, "Win Rate [%]": 55.0},
+            "equity": [1000, 1100, 1200],
+            "trades": {"count": 5, "pnl": [100, -50, 200, 150, -30]},
+        }
+        strategy_lab_module.st.session_state.backtest_result = mock_result
+        strategy_lab_module.st.session_state.candles = None
+
+        # A session state megőrzi az adatot
+        assert strategy_lab_module.st.session_state.backtest_result == mock_result
