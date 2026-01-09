@@ -38,6 +38,10 @@ class StrategyLabPage(PageInterface):
         self._title = "🪲 Strategy Lab"
         self._candles: DataFrame | None = None
 
+        # Session state inicializálása a backtesztekhez
+        if "backtest_result" not in st.session_state:
+            st.session_state.backtest_result = None
+
     def render(self) -> None:
         """A Strategy Lab oldal megjelenítése."""
         st.title(self._title)
@@ -82,14 +86,75 @@ class StrategyLabPage(PageInterface):
             ):
                 self._load_and_visualize(selected_symbol, selected_date, selected_timeframe)
 
+            st.divider()
+
+            # Stratégia paraméterek Expander
+            with st.expander("⚙️ Stratégia Paraméterek", expanded=False):
+                st.markdown("**SMA Kereszt Stratégia**")
+
+                fast_period = st.slider(
+                    "Fast SMA Periódus",
+                    min_value=2,
+                    max_value=100,
+                    value=10,
+                    step=1,
+                    help="A gyors mozgóátlag periódusa",
+                )
+
+                slow_period = st.slider(
+                    "Slow SMA Periódus",
+                    min_value=5,
+                    max_value=200,
+                    value=50,
+                    step=1,
+                    help="A lassú mozgóátlag periódusa",
+                )
+
+                initial_capital = st.number_input(
+                    "Kezdeti Tőke",
+                    min_value=100.0,
+                    value=10000.0,
+                    step=100.0,
+                    help="A backteszt kezdeti tőkéje",
+                )
+
+                # "🚀 Futtatás (VectorBT)" gomb
+                if st.button(
+                    "🚀 Futtatás (VectorBT)",
+                    type="primary",
+                    help="Elindítja a VectorBT backtesztet a kiválasztott paraméterekkel",
+                ):
+                    if self._candles is not None and not self._candles.empty:
+                        self._run_backtest(
+                            selected_symbol,
+                            selected_date.strftime("%Y-%m-%d"),
+                            selected_timeframe,
+                            fast_period,
+                            slow_period,
+                            initial_capital,
+                        )
+                    else:
+                        st.warning("Először töltsön be adatokat a 'Load & Visualize' gombbal!")
+
     def _render_main_area(self) -> None:
         """Fő terület megjelenítése diagrammal és táblázattal."""
         if self._candles is not None and not self._candles.empty:
             st.subheader("📈 Gyertya Diagram")
-            self._render_candlestick_chart()
+
+            # Backtest jelek átadása a chartnak, ha léteznek
+            signals = None
+            if st.session_state.backtest_result is not None:
+                signals = st.session_state.backtest_result.get("signals")
+
+            self._render_candlestick_chart(signals=signals)
 
             st.subheader("📋 Adatok")
             self._render_data_table()
+
+            # Backtest eredmények megjelenítése
+            if st.session_state.backtest_result is not None:
+                self._render_backtest_results()
+
         elif self._loaded and (self._candles is None or self._candles.empty):
             st.warning("Nincs elérhető adat a kiválasztott paraméterekhez.")
         else:
@@ -98,8 +163,63 @@ class StrategyLabPage(PageInterface):
                 "majd kattintson a 'Load & Visualize' gombra."
             )
 
-    def _render_candlestick_chart(self) -> None:
-        """Interaktív Plotly candlestick chart megjelenítése."""
+    def _render_backtest_results(self) -> None:
+        """Backtest eredmények megjelenítése."""
+        result = st.session_state.backtest_result
+
+        if "error" in result and result["error"]:
+            st.error(f"Backtest hiba: {result['error']}")
+            return
+
+        st.divider()
+        st.subheader("📊 Backteszt Eredmények")
+
+        stats = result.get("stats", {})
+        equity = result.get("equity", [])
+        trades = result.get("trades", {})
+
+        # 1. Metrikák megjelenítése
+        if stats:
+            col1, col2, col3, col4 = st.columns(4)
+
+            # VectorBT statisztikák normálása
+            total_return = stats.get("Total Return [%]", 0.0)
+            win_rate = stats.get("Win Rate [%]", 0.0)
+            max_drawdown = stats.get("Max Drawdown [%]", 0.0)
+            total_trades = stats.get("Total Trades", 0)
+
+            with col1:
+                st.metric(
+                    label="Total Return",
+                    value=f"{total_return:.2f}%",
+                    delta_color="normal" if total_return >= 0 else "inverse",
+                )
+            with col2:
+                st.metric(label="Win Rate", value=f"{win_rate:.2f}%")
+            with col3:
+                st.metric(label="Max Drawdown", value=f"{max_drawdown:.2f}%")
+            with col4:
+                st.metric(label="Összes Kereskedés", value=total_trades)
+
+        # 2. Equity Chart megjelenítése
+        if equity:
+            st.subheader("💰 Equity Görbe")
+            equity_df = {"Equity": equity}
+            st.line_chart(equity_df, height=300)
+
+        # 3. Trade List megjelenítése
+        if trades and trades.get("count", 0) > 0:
+            st.subheader("🔢 Kereskedések Listája")
+            st.write(f"**Összes kereskedés:** {trades.get('count', 0)}")
+
+            # P&L lista
+            pnl_list = trades.get("pnl", [])
+            if pnl_list:
+                trades_data = {"P&L": pnl_list, "Időtartam (bar)": trades.get("duration", [])}
+                st.dataframe(trades_data, use_container_width=True)
+
+    def _render_candlestick_chart(self, signals: dict[str, list[int]] | None = None) -> None:
+        """Interaktív Plotly candlestick chart megjelenítése jelekkel."""
         import plotly.graph_objects as go
 
         if self._candles is None or self._candles.empty:
@@ -138,6 +258,49 @@ class StrategyLabPage(PageInterface):
                 )
             ]
         )
+
+        # Belépési és kilépési jelek hozzáadása
+        if signals:
+            entries = signals.get("entries", [])
+            exits = signals.get("exits", [])
+
+            # Belépési jelek (zöld nyilak)
+            if entries:
+                entry_dates = [df["date"].iloc[i] for i in entries if i < len(df)]
+                entry_prices = [df["close"].iloc[i] for i in entries if i < len(df)]
+                fig.add_trace(
+                    go.Scatter(
+                        x=entry_dates,
+                        y=entry_prices,
+                        mode="markers",
+                        name="Belépés",
+                        marker={
+                            "symbol": "triangle-up",
+                            "size": 12,
+                            "color": "#00FF00",
+                            "line": {"width": 1, "color": "#00FF00"},
+                        },
+                    )
+                )
+
+            # Kilépési jelek (piros nyilak)
+            if exits:
+                exit_dates = [df["date"].iloc[i] for i in exits if i < len(df)]
+                exit_prices = [df["close"].iloc[i] for i in exits if i < len(df)]
+                fig.add_trace(
+                    go.Scatter(
+                        x=exit_dates,
+                        y=exit_prices,
+                        mode="markers",
+                        name="Kilépés",
+                        marker={
+                            "symbol": "triangle-down",
+                            "size": 12,
+                            "color": "#FF0000",
+                            "line": {"width": 1, "color": "#FF0000"},
+                        },
+                    )
+                )
 
         # Chart formázása
         fig.update_layout(
@@ -195,12 +358,57 @@ class StrategyLabPage(PageInterface):
                     )
                     self._candles = result
                     self._loaded = True
+                    # Backtest eredmények törlése új adat betöltésekor
+                    st.session_state.backtest_result = None
                     st.success(f"Sikeres betöltés: {symbol} - {date_str}")
                 else:
                     st.error("Strategy Service nem elérhető.")
             except Exception as e:
                 st.error(f"Hiba az adatok betöltésekor: {str(e)}")
                 self._candles = None
+
+    def _run_backtest(
+        self,
+        symbol: str,
+        date: str,
+        timeframe: str,
+        fast_period: int,
+        slow_period: int,
+        initial_capital: float,
+    ) -> None:
+        """VectorBT backteszt futtatása.
+
+        Args:
+            symbol: A kiválasztott szimbólum
+            date: A kiválasztott dátum
+            timeframe: A kiválasztott idősík
+            fast_period: A gyors SMA periódusa
+            slow_period: A lassú SMA periódusa
+            initial_capital: A kezdeti tőke
+        """
+        import asyncio
+
+        with st.spinner("Backteszt futtatása (VectorBT)..."):
+            try:
+                strategy_service = self._get_strategy_service()
+                if strategy_service is not None and hasattr(strategy_service, "run_sma_backtest"):
+                    result: dict[str, Any] = asyncio.run(
+                        strategy_service.run_sma_backtest(
+                            symbol,
+                            date,
+                            timeframe,
+                            fast_period,
+                            slow_period,
+                            initial_capital,
+                        )
+                    )
+                    st.session_state.backtest_result = result
+                    st.success("Backteszt befejezve!")
+                else:
+                    st.error("Strategy Service vagy a run_sma_backtest metódus nem elérhető.")
+            except Exception as e:
+                st.error(f"Hiba a backteszt futtatása közben: {str(e)}")
+                st.session_state.backtest_result = None
 
     def _get_strategy_service(self) -> "StrategyServiceInterface | None":
         """Strategy Service példány lekérése.
@@ -221,6 +429,7 @@ class StrategyLabPage(PageInterface):
         """
         self._loaded = False
         self._candles = None
+        st.session_state.backtest_result = None
 
     def on_navigate_from(self) -> None:
         """Navigálás az oldalról."""
