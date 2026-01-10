@@ -84,7 +84,7 @@ class ResamplerService(ResamplerInterface):
                 result_df = ohlcv_data.to_pandas()
                 if not result_df.empty:
                     result_df.index = pd.to_datetime(result_df["timestamp"])
-                    result_df = result_df.drop("timestamp", axis=1)
+                    result_df = result_df.drop(columns=["timestamp"])
                 return result_df
             elif return_type == "polars":
                 # Zero-Copy visszaadás natív Polars DataFrame-fel
@@ -153,24 +153,31 @@ class ResamplerService(ResamplerInterface):
             ) from e
 
     def _convert_to_ohlcv(self, tick_data: pl.DataFrame, timeframe: str) -> pl.DataFrame:
-        """Tick adatok átalakítása OHLCV gyertyákká Polars group_by_dynamic használatával.
+        """Tick adatok átalakítása kiterjesztett OHLCV gyertyákká.
 
         Args:
             tick_data: Polars DataFrame tick adatokkal
             timeframe: Az időkeret
 
         Returns:
-            Pandas DataFrame OHLCV gyertyákkal
+            Polars DataFrame kiterjesztett gyertyákkal (Bid/Mid OHLC, Spread, Real/Tick Volume)
         """
         # Ellenőrizzük, hogy van-e adat
         if tick_data.is_empty():
             return pl.DataFrame(
                 schema=[
                     "timestamp",
-                    "open",
-                    "high",
-                    "low",
-                    "close",
+                    "mid_open",
+                    "mid_high",
+                    "mid_low",
+                    "mid_close",
+                    "bid_open",
+                    "bid_high",
+                    "bid_low",
+                    "bid_close",
+                    "spread",
+                    "real_volume",
+                    "tick_volume",
                     "volume",
                     "bid_volume",
                     "ask_volume",
@@ -178,7 +185,7 @@ class ResamplerService(ResamplerInterface):
             )
 
         # Szükséges oszlopok ellenőrzése
-        required_columns = ["timestamp", "bid", "ask"]
+        required_columns = ["timestamp", "bid", "ask", "bid_volume", "ask_volume"]
         missing_columns = [col for col in required_columns if col not in tick_data.columns]
         if missing_columns:
             raise ValueError(f"Missing required columns for OHLCV conversion: {missing_columns}")
@@ -192,8 +199,8 @@ class ResamplerService(ResamplerInterface):
         if "ask_volume" in tick_data.columns:
             volume_cols.append("ask_volume")
 
-        # Átlagár számítása (bid és ask átlaga)
-        tick_data = tick_data.with_columns(price=(pl.col("bid") + pl.col("ask")) / 2)
+        # Mid ár számítása (bid és ask átlaga)
+        tick_data = tick_data.with_columns(mid_price=(pl.col("bid") + pl.col("ask")) / 2)
 
         # Időkeret konvertálása Polars formátumba
         timeframe_map = {
@@ -209,42 +216,37 @@ class ResamplerService(ResamplerInterface):
         }
         polars_timeframe = timeframe_map.get(timeframe, "1m")
 
-        # OHLCV aggregáció Polars group_by_dynamic használatával
-        # A timestamp oszlopot használjuk időalapú csoportosításhoz
+        # Kiterjesztett aggregáció Polars group_by_dynamic használatával
         ohlcv = (
             tick_data.sort("timestamp")
             .group_by_dynamic("timestamp", every=polars_timeframe)
             .agg(
                 [
-                    pl.col("price").first().alias("open"),
-                    pl.col("price").max().alias("high"),
-                    pl.col("price").min().alias("low"),
-                    pl.col("price").last().alias("close"),
+                    # Mid OHLC (középár)
+                    pl.col("mid_price").first().alias("mid_open"),
+                    pl.col("mid_price").max().alias("mid_high"),
+                    pl.col("mid_price").min().alias("mid_low"),
+                    pl.col("mid_price").last().alias("mid_close"),
+                    # Bid OHLC
+                    pl.col("bid").first().alias("bid_open"),
+                    pl.col("bid").max().alias("bid_high"),
+                    pl.col("bid").min().alias("bid_low"),
+                    pl.col("bid").last().alias("bid_close"),
+                    # Spread: átlag (ask - bid)
+                    (pl.col("ask") - pl.col("bid")).mean().alias("spread"),
+                    # Real Volume: bid_volume + ask_volume összeg
+                    (pl.col("bid_volume") + pl.col("ask_volume")).sum().alias("real_volume"),
+                    # Tick Volume: tick szám
+                    pl.len().alias("tick_volume"),
                 ]
                 + [pl.col(col).sum().alias(f"{col}_sum") for col in volume_cols]
             )
         )
 
-        # Oszlopnevek normalizálása
-        ohlcv = ohlcv.rename(
-            {
-                "timestamp": "timestamp",
-                "open": "open",
-                "high": "high",
-                "low": "low",
-                "close": "close",
-            }
-        )
-
         # Volume oszlopok átnevezése
         for col in volume_cols:
             if f"{col}_sum" in ohlcv.columns:
-                if col == "volume":
-                    ohlcv = ohlcv.rename({f"{col}_sum": "volume"})
-                elif col == "bid_volume":
-                    ohlcv = ohlcv.rename({f"{col}_sum": "bid_volume"})
-                elif col == "ask_volume":
-                    ohlcv = ohlcv.rename({f"{col}_sum": "ask_volume"})
+                ohlcv = ohlcv.rename({f"{col}_sum": col})
 
         # Natív Polars DataFrame visszaadás (Zero-Copy)
         return ohlcv

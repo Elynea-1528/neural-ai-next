@@ -57,14 +57,30 @@ A Polars `group_by_dynamic` használatával végzi el az aggregációt:
 
 ## Aggregáció specifikáció
 
+### Mid OHLC (Középár alapú)
 ```
-Open = first(bid)
-High = max(bid)
-Low = min(bid)
-Close = last(bid)
-Volume = sum(volume)
-Bid Volume = sum(bid_volume)
-Ask Volume = sum(ask_volume)
+Mid Open = first((bid + ask) / 2)
+Mid High = max((bid + ask) / 2)
+Mid Low = min((bid + ask) / 2)
+Mid Close = last((bid + ask) / 2)
+```
+
+### Bid OHLC (Bid ár alapú)
+```
+Bid Open = first(bid)
+Bid High = max(bid)
+Bid Low = min(bid)
+Bid Close = last(bid)
+```
+
+### Kiegészítő metrikák
+```
+Spread = mean(ask - bid)
+Real Volume = sum(bid_volume + ask_volume)
+Tick Volume = count()
+Volume = sum(volume)  # Ha elérhető
+Bid Volume = sum(bid_volume)  # Ha elérhető
+Ask Volume = sum(ask_volume)  # Ha elérhető
 ```
 
 ## Használat példa

@@ -47,6 +47,8 @@ class TestResamplerService:
                 "timestamp": date_range,
                 "bid": [1.05 + i * 0.001 for i in range(len(date_range))],
                 "ask": [1.051 + i * 0.001 for i in range(len(date_range))],
+                "bid_volume": [50 + i * 5 for i in range(len(date_range))],
+                "ask_volume": [50 + i * 5 for i in range(len(date_range))],
                 "volume": [100 + i * 10 for i in range(len(date_range))],
             }
         )
@@ -62,15 +64,21 @@ class TestResamplerService:
         start = datetime(2024, 1, 1, 12, 0, 0)
         end = datetime(2024, 1, 1, 12, 0, 10)
 
-        result = await resampler.resample(symbol="EURUSD", start=start, end=end, timeframe="1m")
+        result = await resampler.resample(
+            symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="polars"
+        )
 
         # Ellenőrzés
-        assert isinstance(result, pd.DataFrame)
+        assert isinstance(result, pl.DataFrame)
         assert len(result) > 0
-        assert "open" in result.columns
-        assert "high" in result.columns
-        assert "low" in result.columns
-        assert "close" in result.columns
+        assert "mid_open" in result.columns
+        assert "mid_high" in result.columns
+        assert "mid_low" in result.columns
+        assert "mid_close" in result.columns
+        assert "bid_open" in result.columns
+        assert "spread" in result.columns
+        assert "real_volume" in result.columns
+        assert "tick_volume" in result.columns
         assert "volume" in result.columns
 
     @pytest.mark.asyncio
@@ -125,11 +133,11 @@ class TestResamplerService:
 
         for timeframe in timeframes:
             result = await resampler.resample(
-                symbol="EURUSD", start=start, end=end, timeframe=timeframe
+                symbol="EURUSD", start=start, end=end, timeframe=timeframe, return_type="polars"
             )
 
-            assert isinstance(result, pd.DataFrame)
-            assert len(result.columns) == 5  # OHLCV
+            assert isinstance(result, pl.DataFrame)
+            assert len(result.columns) >= 9  # Kiterjesztett OHLCV metrikák
 
     def test_validate_timeframe_valid(self, resampler: ResamplerService):
         """Teszt érvényes időkeret validálását."""
@@ -145,14 +153,30 @@ class TestResamplerService:
             resampler._validate_timeframe("invalid_timeframe")
 
     def test_convert_to_ohlcv(self, resampler: ResamplerService, sample_tick_data: pl.DataFrame):
-        """Teszt OHLCV átalakítást."""
+        """Teszt kiterjesztett OHLCV átalakítást."""
         result = resampler._convert_to_ohlcv(sample_tick_data, "1m")
 
         # Ellenőrzés
-        assert isinstance(result, pd.DataFrame)
+        assert isinstance(result, pl.DataFrame)
         assert len(result) > 0
-        assert all(col in result.columns for col in ["open", "high", "low", "close", "volume"])
-        assert result.index.name == "timestamp" or result.index.name is None
+        expected_columns = [
+            "timestamp",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "bid_open",
+            "bid_high",
+            "bid_low",
+            "bid_close",
+            "spread",
+            "real_volume",
+            "tick_volume",
+            "volume",
+            "bid_volume",
+            "ask_volume",
+        ]
+        assert all(col in result.columns for col in expected_columns)
 
     def test_convert_to_ohlcv_empty_data(self, resampler: ResamplerService):
         """Teszt üres adatokkal."""
@@ -162,13 +186,15 @@ class TestResamplerService:
                 "timestamp": pl.Series([], dtype=pl.Datetime),
                 "bid": pl.Series([], dtype=pl.Float64),
                 "ask": pl.Series([], dtype=pl.Float64),
+                "bid_volume": pl.Series([], dtype=pl.Int64),
+                "ask_volume": pl.Series([], dtype=pl.Float64),
                 "volume": pl.Series([], dtype=pl.Int64),
             }
         )
 
         result = resampler._convert_to_ohlcv(empty_data, "1m")
 
-        assert isinstance(result, pd.DataFrame)
+        assert isinstance(result, pl.DataFrame)
         assert len(result) == 0
 
     @pytest.mark.asyncio
@@ -181,15 +207,28 @@ class TestResamplerService:
         start = datetime(2024, 1, 1, 12, 0, 0)
         end = datetime(2024, 1, 1, 12, 0, 10)
 
-        result = await resampler.resample(symbol="EURUSD", start=start, end=end, timeframe="1m")
+        result = await resampler.resample(
+            symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="polars"
+        )
 
         # Ellenőrzés, hogy az OHLCV értékek logikailag helyesek-e
-        for _, row in result.iterrows():
-            assert row["high"] >= row["low"], "High nem lehet kisebb mint Low"
-            assert row["open"] >= row["low"], "Open nem lehet kisebb mint Low"
-            assert row["close"] >= row["low"], "Close nem lehet kisebb mint Low"
-            assert row["high"] >= row["open"], "High nem lehet kisebb mint Open"
-            assert row["high"] >= row["close"], "High nem lehet kisebb mint Close"
+        for row in result.rows(named=True):
+            # Mid OHLC ellenőrzések
+            assert row["mid_high"] >= row["mid_low"], "Mid High nem lehet kisebb mint Mid Low"
+            assert row["mid_open"] >= row["mid_low"], "Mid Open nem lehet kisebb mint Mid Low"
+            assert row["mid_close"] >= row["mid_low"], "Mid Close nem lehet kisebb mint Mid Low"
+            assert row["mid_high"] >= row["mid_open"], "Mid High nem lehet kisebb mint Mid Open"
+            assert row["mid_high"] >= row["mid_close"], "Mid High nem lehet kisebb mint Mid Close"
+            # Bid OHLC ellenőrzések
+            assert row["bid_high"] >= row["bid_low"], "Bid High nem lehet kisebb mint Bid Low"
+            assert row["bid_open"] >= row["bid_low"], "Bid Open nem lehet kisebb mint Bid Low"
+            assert row["bid_close"] >= row["bid_low"], "Bid Close nem lehet kisebb mint Bid Low"
+            assert row["bid_high"] >= row["bid_open"], "Bid High nem lehet kisebb mint Bid Open"
+            assert row["bid_high"] >= row["bid_close"], "Bid High nem lehet kisebb mint Bid Close"
+            # Egyéb ellenőrzések
+            assert row["spread"] >= 0, "Spread nem lehet negatív"
+            assert row["real_volume"] >= 0, "Real Volume nem lehet negatív"
+            assert row["tick_volume"] >= 0, "Tick Volume nem lehet negatív"
             assert row["volume"] >= 0, "Volume nem lehet negatív"
 
 
