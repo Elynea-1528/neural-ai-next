@@ -1,3 +1,5 @@
+"""Processing Factory - Feldolgozási komponensek factory függvényei."""
+
 from neural_ai.core.processing.dimensions.d01_price.factory import D01PriceFactory
 from neural_ai.core.processing.implementations.time_alignment_service import TimeAlignmentService
 from neural_ai.core.processing.interfaces.dimension_processor_interface import IDimensionProcessor
