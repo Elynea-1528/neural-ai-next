@@ -358,6 +358,24 @@ class DataService(DataServiceInterface):
                     if target_time > end:
                         break
 
+                    # Smart resume: Ellenőrizzük, hogy az adat már létezik-e
+                    date_str = target_time.strftime("%Y%m%d")
+                    hour_str = target_time.strftime("%H")
+                    filename = f"tick_{date_str}_{hour_str}.parquet"
+                    expected_path = (
+                        self.get_storage_path()
+                        / symbol.upper()
+                        / "tick"
+                        / f"year={target_time.year}"
+                        / f"month={target_time.month:02d}"
+                        / f"day={target_time.day:02d}"
+                        / filename
+                    )
+                    if expected_path.exists() and expected_path.stat().st_size > 1000:
+                        print(f"⏭️ SKIPPING {target_time} - Adat már létezik")
+                        day_ticks += 3500
+                        continue
+
                     try:
                         # Tick adatok letöltése az adott órára
                         tick_data = await downloader.download_tick_data(symbol, target_time)

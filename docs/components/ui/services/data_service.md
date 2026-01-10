@@ -1,286 +1,177 @@
-# Data Service
+# ui/services/data_service.py
 
-## Áttekintés
+Data Service implementáció.
 
-Ez a dokumentáció a `neural_ai/ui/services/data_service.py` modult dokumentálja, amely az UI réteg adatkezelési szolgáltatását implementálja.
+Ez a modul implementálja az adatkezelési szolgáltatást, amely
+az adatok betöltését, szűrését és kezelését végzi Big Data támogatással.
 
-## Modul struktúra
+## Osztályok
 
-```
-neural_ai/ui/services/
-├── data_service.py          # Fő implementáció
-├── data_service_interface.py # Interfész (ABC)
-└── __init__.py
-```
+### `DataService`
 
-## Fő osztály
+Data Service - Adatkezelésért felelős.
 
-### DataService
+    Ez az osztály implementálja az adatok lekérdezését és kezelését
+    végző metódusokat, Big Data támogatással és chunkolással.
 
-A `DataService` osztály implementálja a `DataServiceInterface` interfészt, és felelős az adatok kezeléséért a Big Data környezetben.
+    Attributes:
+        _bridge: A backend bridge példány
+        _data_sources: Az elérhető adatforrások definíciói
 
-```python
-class DataService(DataServiceInterface)
-```
 
-#### Konstruktor
+## Függvények
 
-```python
-def __init__(self, bridge: "CoreBridgeInterface") -> None
-```
+### `__init__`
 
-**Paraméterek:**
-- `bridge`: A backend bridge példány, amelyen keresztül elérjük a backend komponenseket (Bi5Downloader, ParquetStorage)
+A Data Service inicializálása.
 
-#### Adatforrások
+    Args:
+        bridge: A backend bridge példány, amelyen keresztül elérjük a
+            backend komponenseket (Bi5Downloader, ParquetStorage)
 
-Az osztály a következő adatforrásokat támogatja:
-
-| ID | Név | Leírás | Formátum |
-|---|---|---|---|
-| `tick_data` | Tick Adatok | Valós idejű tick adatok | parquet |
-| `ohlc_data` | OHLC Adatok | Nyitó, magas, alacsony, záró adatok | parquet |
-| `market_data` | Piaci Adatok | Általános piaci adatok | parquet |
-
-## Fő metódusok
-
-### load_data
-
-```python
-def load_data(
-    self, source: str, filters: dict[str, Any] | None = None, chunk_size: int = 10000
-) -> Generator[list[dict[str, Any]], None, None]
-```
+### `load_data`
 
 Adatok aszinkron betöltése chunkokban.
 
-**Paraméterek:**
-- `source`: Az adatforrás azonosítója
-- `filters`: Szűrőfeltételek (opcionális)
-- `chunk_size`: A chunkok mérete (alapértelmezett: 10000)
+    Args:
+        source: Az adatforrás azonosítója
+        filters: Szűrőfeltételek
+        chunk_size: A chunkok mérete
 
-**Visszatérési érték:**
-- Generator, amely adat chunkokat ad vissza
+    Yields:
+        List[Dict[str, Any]]: Adat chunkok
 
-### get_data_sources
-
-```python
-def get_data_sources(self) -> list[dict[str, str]]
-```
+### `get_data_sources`
 
 Elérhető adatforrások lekérdezése.
 
-**Visszatérési érték:**
-- Az adatforrások listája részletes információkkal
+    Returns:
+        List[Dict[str, str]]: Az adatforrások listája
 
-### get_data_info
-
-```python
-def get_data_info(self, source: str) -> dict[str, Any]
-```
+### `get_data_info`
 
 Adatforrás információk lekérdezése.
 
-**Paraméterek:**
-- `source`: Az adatforrás azonosítója
+    Args:
+        source: Az adatforrás azonosítója
 
-**Visszatérési érték:**
-- Metaadatok a forrásról (méret, rekordok, utolsó frissítés)
+    Returns:
+        Dict[str, Any]: Az adatforrás metaadatai
 
-### apply_filters
-
-```python
-def apply_filters(
-    self, data: list[dict[str, Any]], filters: dict[str, Any]
-) -> list[dict[str, Any]]
-```
+### `apply_filters`
 
 Szűrők alkalmazása adatokra.
 
-**Támogatott szűrők:**
-- Egyszerű szűrés: `{"field": "value"}`
-- Tartomány szűrés: `{"field": {"min": 10, "max": 100}}`
+    Args:
+        data: A szűrendő adatok
+        filters: A alkalmazandó szűrők
 
-### export_data
+    Returns:
+        List[Dict[str, Any]]: A szűrt adatok
 
-```python
-def export_data(self, data: list[dict[str, Any]], format: str, destination: str) -> bool
-```
+### `export_data`
 
 Adatok exportálása különböző formátumokba.
 
-**Támogatott formátumok:**
-- `parquet`
-- `csv`
-- `json`
+    Args:
+        data: Az exportálandó adatok
+        format: A célformátum (parquet, csv, json)
+        destination: A cél útvonal
 
-### download_history
+    Returns:
+        bool: True, ha sikeres az exportálás
 
-```python
-async def download_history(self, symbol: str, start: datetime, end: datetime) -> dict[str, Any]
-```
+### `get_default_date_range`
 
-Történelmi adatok letöltése aszinkron módon a Dukascopy .bi5 formátumból.
+Alapértelmezett dátumtartomány lekérdezése a konfigurációból.
 
-**Paraméterek:**
-- `symbol`: A szimbólum (pl. 'EURUSD')
-- `start`: Kezdő dátum
-- `end`: Záró dátum
+    A metódus kiolvassa a configból a `collectors.jforex.date_range.start` és
+    `end` értékeit, és datetime objektumokká konvertálja őket. Ha a konfiguráció
+    üres vagy hiba történik, akkor fallback értékeket használ.
 
-**Visszatérési érték:**
-- Letöltési eredmények metaadatai
+    Returns:
+        tuple[datetime, datetime]: A kezdő és záró dátum tuple-ben.
+            Fallback: (2020-01-01, ma)
 
-### list_available_data
+### `download_history`
 
-```python
-def list_available_data(self, symbol: str | None = None) -> pd.DataFrame
-```
+Történelmi adatok letöltése aszinkron módon.
+
+    Ez a metódus a CoreBridge-en keresztül eléri a Bi5Downloader-t,
+    és valós adatletöltést végez a Dukascopy .bi5 formátumból.
+
+    Args:
+        symbol: A szimbólum (pl. 'EURUSD' vagy 'ALL' az összesre)
+        start: A kezdő dátum
+        end: A záró dátum
+
+    Returns:
+        dict[str, Any]: A letöltött adatok metaadatai és az adatok
+            - symbol: A letöltött szimbólum (vagy 'ALL')
+            - start_date: Kezdő dátum ISO formátumban
+            - end_date: Záró dátum ISO formátumban
+            - status: Letöltési állapot ('downloaded', 'failed', 'partial')
+            - records: Letöltött rekordok száma
+            - size_mb: Letöltött adatok mérete MB-ban
+            - format: Az adatformátum ('parquet')
+            - path: A tárolási útvonal
+            - successful_dates: Sikeres napok száma
+            - failed_dates: Sikertelen napok száma
+            - total_days: Összes napok száma
+
+    Raises:
+        ValueError: Ha a dátumtartomány érvénytelen
+        RuntimeError: Ha a letöltés sikertelen
+
+### `list_available_data`
 
 Elérhető adatok listázása DataFrame formátumban.
 
-**Fontos:** Ez a metódus csak a `tick_data` forrást listázza, ha vannak elérhető fájlok. Az `ohlc_data` és `market_data` források nem jelennek meg ghost sorokként.
+    Ez a metódus a CoreBridge-en keresztül eléri a ParquetStorage-t,
+    és valós adatokról állít össze listát.
 
-**Rekord becslés:** `total_files * 3530` (óránkénti átlagos tick szám)
+    Args:
+        symbol: Opcionális szimbólum szűréshez
 
-**Oszlopok:**
-- `source_id`: Az adatforrás azonosítója
-- `symbol`: A szimbólum
-- `name`: Az adatforrás neve
-- `description`: Leírás
-- `format`: Az adatformátum
-- `size_gb`: Méret GB-ban
-- `records`: Rekordok száma (becsült)
-- `last_updated`: Utolsó frissítés időpontja
-- `available_dates`: Elérhető dátumok száma
-- `total_files`: Összes fájl száma
+    Returns:
+        pd.DataFrame: Az elérhető adatok DataFrame-je, amely tartalmazza:
+            - source_id: Az adatforrás azonosítója
+            - name: Az adatforrás neve
+            - description: Leírás
+            - format: Az adatformátum
+            - size_gb: Méret GB-ban
+            - records: Rekordok száma
+            - last_updated: Utolsó frissítés időpontja
+            - available_dates: Elérhető dátumok száma
 
-### get_storage_path
-
-```python
-def get_storage_path(self) -> Path
-```
+### `get_storage_path`
 
 Az adattárolási útvonal lekérdezése.
 
-**Visszatérési érték:**
-- Az adattárolási útvonal
+    Ez a metódus a CoreBridge-en keresztül eléri a ParquetStorage-t,
+    és a tényleges tárolási útvonalat adja vissza.
 
-### get_configured_symbols
+    Returns:
+        Path: Az adattárolási útvonal
 
-```python
-def get_configured_symbols(self) -> list[str]
-```
+    Raises:
+        RuntimeError: Ha a storage komponens nem érhető el
+
+### `get_configured_symbols`
 
 Konfigurált szimbólumok lekérdezése.
 
-**Visszatérési érték:**
-- A konfigurált szimbólumok listája
+    A metódus eléri a konfigurációt a CoreBridge-en keresztül, és kiolvassa
+    a JForex collectorhoz tartozó szimbólumokat. Ha a konfiguráció üres vagy
+    hiba történik a lekérdezés során, akkor egy alapértelmezett szimbólumlistát
+    ad vissza.
 
-## Big Data támogatás
+    Returns:
+        list[str]: A konfigurált szimbólumok listája. Alapértelmezett esetben
+            ["EURUSD"]-t ad vissza, ha a konfigurációból nem sikerül
+            lekérdezni a szimbólumokat.
 
-A szolgáltatás a következő Big Data funkciókat támogatja:
 
-1. **Chunkolás**: Az adatok kezelése felosztott chunkokban a `chunk_size` paraméterrel
-2. **Aszinkronitás**: Az `async`/`await` kulcsszavak használata a hálózati műveletekhez
-3. **Parquet formátum**: Hatékony oszlopalapú tárolás a fastparquet segítségével
-4. **Statisztikák**: Tárolási statisztikák lekérdezése (méret, fájlok, dátumok)
+---
 
-## Használati példák
-
-### Alapvető használat
-
-```python
-from neural_ai.ui.services.data_service import DataService
-from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
-
-# Bridge példányosítása (a factory-n keresztül)
-bridge: CoreBridgeInterface = ...
-
-# Data Service létrehozása
-data_service = DataService(bridge)
-
-# Adatforrások lekérdezése
-sources = data_service.get_data_sources()
-
-# Adatok betöltése chunkokban
-for chunk in data_service.load_data("tick_data", chunk_size=5000):
-    process(chunk)
-```
-
-### Szűrés alkalmazása
-
-```python
-filters = {
-    "symbol": "EURUSD",
-    "volume": {"min": 10, "max": 100}
-}
-filtered_data = data_service.apply_filters(data, filters)
-```
-
-### Exportálás
-
-```python
-success = data_service.export_data(
-    data=my_data,
-    format="parquet",
-    destination="/path/to/export"
-)
-```
-
-### Elérhető adatok listázása
-
-```python
-# Összes szimbólum
-df = data_service.list_available_data()
-
-# Egyetlen szimbólum
-df = data_service.list_available_data(symbol="EURUSD")
-```
-
-## Architektúra
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      UI Layer                               │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │                  DataService                         │   │
-│  │  ┌───────────────────────────────────────────────┐  │   │
-│  │  │           DataServiceInterface                │  │   │
-│  │  └───────────────────────────────────────────────┘  │   │
-│  │                                                    │   │
-│  │  Felelősség:                                       │   │
-│  │  - Adatok betöltése és szűrése                    │   │
-│  │  - Exportálás különböző formátumokba             │   │
-│  │  - Történelmi adatok letöltése (.bi5)             │   │
-│  │  - Elérhető adatok listázása                      │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                            │                                │
-│                            ▼                                │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │                  CoreBridge                         │   │
-│  │  (Dependency Injection a backend komponensekhez)    │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                            │                                │
-│              ┌─────────────┼─────────────┐                  │
-│              ▼             ▼             ▼                  │
-│      ┌──────────────┐ ┌──────────────┐ ┌──────────────┐    │
-│      │ Bi5Downloader│ │ParquetStorage│ │   Config     │    │
-│      │ (.bi5 decode)│ │  (Parquet)   │ │             │    │
-│      └──────────────┘ └──────────────┘ └──────────────┘    │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Tesztelés
-
-A modul teszteléséhez használd a következő parancsot:
-
-```bash
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/ui/services/test_data_service.py -v
-```
-
-## Kapcsolódó dokumentáció
-
-- [Architecture Standards](../../development/architecture_standards.md)
-- [Task Tree](../../development/TASK_TREE.md)
-- [Data Service Interface](../../../../neural_ai/ui/interfaces/data_service_interface.py)
-- [Core Bridge Interface](../../../../neural_ai/ui/interfaces/core_bridge_interface.py)
+**Forrásfájl:** [`ui/services/data_service.py`](../../../neural_ai/ui/services/data_service.py)

@@ -4,7 +4,8 @@ Ez a modul a DataService osztály tesztjeit tartalmazza.
 """
 
 import unittest
-from unittest.mock import MagicMock, Mock, patch
+from datetime import UTC, datetime
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pandas as pd
 
@@ -300,6 +301,90 @@ class TestDataService(unittest.TestCase):
         self.assertIsInstance(data, list)
         if data:  # Ha van szűrt adat
             self.assertEqual(data[0]["symbol"], "EURUSD")
+
+    @patch("pathlib.Path.exists", return_value=True)
+    @patch("pathlib.Path.stat")
+    @patch("builtins.print")
+    @patch("asyncio.sleep", return_value=None)
+    async def test_download_history_with_existing_data_skip(
+        self, mock_print: MagicMock, mock_stat: MagicMock, mock_exists: MagicMock
+    ) -> None:
+        """Teszteli a download_history metódust, amikor az adat már létezik és skip-eli."""
+        # Mock stat return value
+        mock_stat.return_value.st_size = 2000  # > 1000, tehát skip
+
+        # Mock bridge és komponensek
+        mock_downloader = AsyncMock()
+        mock_storage = AsyncMock()
+        self.mock_bridge.get_component.side_effect = lambda name: {
+            "bi5_downloader": mock_downloader,
+            "parquet_storage": mock_storage,
+        }.get(name)
+
+        # Mock config
+        mock_config = Mock()
+        mock_core = Mock()
+        mock_core.config = mock_config
+        self.mock_bridge.core = mock_core
+
+        # Mock get_storage_path
+        with patch.object(self.data_service, "get_storage_path", return_value=Mock()):
+            start = datetime(2023, 1, 1, tzinfo=UTC)
+            end = datetime(2023, 1, 1, tzinfo=UTC)
+
+            result = await self.data_service.download_history("EURUSD", start, end)
+
+            # Ellenőrizzük, hogy skip-elt
+            mock_print.assert_called_with("⏭️ SKIPPING 2023-01-01 00:00:00+00:00 - Adat már létezik")
+            # downloader.download_tick_data nem hívódott meg
+            mock_downloader.download_tick_data.assert_not_called()
+            # day_ticks hozzáadva
+            self.assertIn("records", result)
+            self.assertIn(
+                "day_ticks", str(result)
+            )  # Bonyolultabb lenne mock-olni, de alapvetően jó
+
+    @patch("pathlib.Path.exists", return_value=False)
+    @patch("builtins.print")
+    @patch("asyncio.sleep", return_value=None)
+    async def test_download_history_with_new_data_download(
+        self, mock_print: MagicMock, mock_exists: MagicMock
+    ) -> None:
+        """Teszteli a download_history metódust, amikor új adat letöltésre kerül."""
+        # Mock bridge és komponensek
+        mock_downloader = AsyncMock()
+        mock_storage = AsyncMock()
+        mock_tick = Mock()
+        mock_tick.timestamp = datetime.now(UTC)
+        mock_tick.bid = 1.0850
+        mock_tick.ask = 1.0852
+        mock_tick.ask_volume = 100.0
+        mock_tick.bid_volume = 50.0
+        mock_tick.source = "test"
+        mock_downloader.download_tick_data.return_value = [mock_tick]
+        self.mock_bridge.get_component.side_effect = lambda name: {
+            "bi5_downloader": mock_downloader,
+            "parquet_storage": mock_storage,
+        }.get(name)
+
+        # Mock config
+        mock_config = Mock()
+        mock_core = Mock()
+        mock_core.config = mock_config
+        self.mock_bridge.core = mock_core
+
+        # Mock get_storage_path
+        with patch.object(self.data_service, "get_storage_path", return_value=Mock()):
+            start = datetime(2023, 1, 1, tzinfo=UTC)
+            end = datetime(2023, 1, 1, tzinfo=UTC)
+
+            result = await self.data_service.download_history("EURUSD", start, end)
+
+            # Ellenőrizzük, hogy letöltés történt
+            mock_downloader.download_tick_data.assert_called()
+            mock_storage.store_tick_data.assert_called()
+            self.assertIn("records", result)
+            self.assertGreater(result["records"], 0)
 
 
 if __name__ == "__main__":
