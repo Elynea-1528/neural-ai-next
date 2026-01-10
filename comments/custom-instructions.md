@@ -34,11 +34,11 @@ Minden komplex feladatot ebben a láncban kell végrehajtani:
 Minden műveletnek ezeken kell alapulnia:
 1. **Architektúra Szabvány:** `docs/development/architecture_standards.md` (A mappaszerkezet és elnevezés törvénye).
 2.  `docs/development/TASK_TREE.md` (A Vezérlőpult).
-3.  `docs/planning/specs/*.md` (Specifikációk implementálás előtt).
+3.  `docs/planning/technical_design/01_processor_architecture.md`
 4.  `pyproject.toml` (A technológiai korlátok: verziók, csomagok).
 5.  `docs/models/hierarchical/structure.md` (A meglévő AI modellek).
 6.  `docs/processors/dimensions/overview.md` (A meglévő D1-D15 processzorok).
-
+7.  `docs/architecture/hierarchical_system/overview.md`
 ---
 
 ## 🛑 KRITIKUS SZABÁLYOK (NO-GO ZÓNA)
