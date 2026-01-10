@@ -37,7 +37,7 @@ python scripts/download_history.py --symbol EURUSD --start 2023-01-01 --end 2023
 
 ### Smart Resume logika
 
-A Smart Resume mechanizmus ellenőrzi, hogy van-e már letöltött parquet fájl az adott óra mappában:
+A Smart Resume mechanizmus kizárólag a Master (Historical) parquet fájlt ellenőrzi az adott óra mappában, figyelmen kívül hagyva a Live fájlokat:
 
 ```python
 hour_dir = Path(
@@ -45,11 +45,14 @@ hour_dir = Path(
     f"month={current_hour.month:02d}/day={current_hour.day:02d}"
 )
 
-if hour_dir.exists() and any(hour_dir.glob("*.parquet")):
-    # Skip, mert már létezik adat
+master_filename = f"tick_{current_hour.strftime('%Y%m%d_%H')}.parquet"
+expected_path = hour_dir / master_filename
+
+if hour_dir.exists() and expected_path.exists() and expected_path.stat().st_size > 1000:
+    # Skip, mert már létezik teljes Master adat
 ```
 
-Ez biztosítja, hogy ha a storage időbélyeges nevet generál, akkor is felismerje a meglévő fájlokat.
+Ez biztosítja, hogy csak a teljes Historical adatok esetén ugorjon át, a Live fájlok jelenléte nem befolyásolja a letöltést.
 
 ## Adat struktúra
 

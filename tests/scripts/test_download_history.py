@@ -29,20 +29,22 @@ class TestSmartResumeLogic:
         # Ellenőrizzük, hogy az hour_dir.exists() ellenőrzés benne van
         assert "hour_dir.exists()" in source_code
 
-    def test_parquet_glob_check(self) -> None:
-        """Teszteli, hogy a parquet fájlok ellenőrzése benne van."""
+    def test_master_filename_generation(self) -> None:
+        """Teszteli, hogy a master fájlnév generálása benne van."""
         source_code = Path("scripts/download_history.py").read_text()
 
-        # Ellenőrizzük, hogy az any(hour_dir.glob("*.parquet")) ellenőrzés benne van
-        assert 'any(hour_dir.glob("*.parquet"))' in source_code
+        # Ellenőrizzük, hogy a master_filename generálása benne van
+        assert (
+            "master_filename = f\"tick_{current_hour.strftime('%Y%m%d_%H')}.parquet\""
+            in source_code
+        )
 
-    def test_old_logic_removed(self) -> None:
-        """Teszteli, hogy a régi logika el lett távolítva."""
+    def test_expected_path_check(self) -> None:
+        """Teszteli, hogy az expected_path ellenőrzés benne van."""
         source_code = Path("scripts/download_history.py").read_text()
 
-        # A régi expected_path logika nem lehet benne
-        assert "expected_path" not in source_code
-        assert "tick_" not in source_code or "any(hour_dir.glob" in source_code
+        # Ellenőrizzük, hogy az expected_path.exists() és st_size ellenőrzés benne van
+        assert "expected_path.exists() and expected_path.stat().st_size > 1000" in source_code
 
 
 class TestDownloadHistoryImports:
