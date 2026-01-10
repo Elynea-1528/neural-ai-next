@@ -71,6 +71,11 @@ class TestD01PriceProcessor:
             "tick_volume",
             "spread",
             "real_volume",
+            "mid_close",
+            "log_return",
+            "rolling_z_score",
+            "upper_shadow",
+            "lower_shadow",
         }
         assert set(result.columns) == expected_columns
 
@@ -115,6 +120,11 @@ class TestD01PriceProcessor:
             "tick_volume",
             "spread",
             "real_volume",
+            "mid_close",
+            "log_return",
+            "rolling_z_score",
+            "upper_shadow",
+            "lower_shadow",
         }
         assert set(result.columns) == expected_columns
 
@@ -147,7 +157,7 @@ class TestD01PriceProcessor:
 
         result = processor.process(data_with_extra)
 
-        # Csak a szükséges oszlopok maradnak
+        # Csak a szükséges oszlopok maradnak (és az újak)
         expected_columns = {
             "timestamp",
             "open",
@@ -157,6 +167,11 @@ class TestD01PriceProcessor:
             "tick_volume",
             "spread",
             "real_volume",
+            "mid_close",
+            "log_return",
+            "rolling_z_score",
+            "upper_shadow",
+            "lower_shadow",
         }
         assert set(result.columns) == expected_columns
         assert "extra_col" not in result.columns

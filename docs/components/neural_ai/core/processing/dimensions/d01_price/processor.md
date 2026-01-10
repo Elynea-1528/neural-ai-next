@@ -2,7 +2,7 @@
 
 ## 🎯 Cél és Feladat
 
-A `D01PriceProcessor` osztály a hierarchikus AI rendszer alapvető pénzügyi adatfeldolgozási komponense. Feladata a normalizált OHLCV adatok biztosítása és validálása az AI modellek számára. Ez az első dimenzió (D1) processzor, amely kiválasztja és visszaadja a timestamp, open, high, low, close, tick_volume, spread és real_volume oszlopokat.
+A `D01PriceProcessor` osztály a hierarchikus AI rendszer alapvető pénzügyi adatfeldolgozási komponense. Feladata a normalizált OHLCV adatok biztosítása és validálása az AI modellek számára. Ez az első dimenzió (D1) processzor, amely kiválasztja az alap oszlopokat és matematikai transzformációkat számít: log return, rolling Z-score és árnyékokat (shadows).
 
 ## 🏗️ Architektúra
 
@@ -41,7 +41,7 @@ processor = D01PriceProcessor()
 result = processor.process(ohlcv_data)
 
 print(result.columns)
-# ['timestamp', 'open', 'high', 'low', 'close', 'tick_volume', 'spread', 'real_volume']
+# ['timestamp', 'open', 'high', 'low', 'close', 'tick_volume', 'spread', 'real_volume', 'mid_close', 'log_return', 'rolling_z_score', 'upper_shadow', 'lower_shadow']
 ```
 
 ## 📝 API Referencia
@@ -58,13 +58,20 @@ Nincs paraméter, stateless implementáció.
 
 #### `process(df: pl.DataFrame) -> pl.DataFrame`
 
-Polars Expr alapú dimenzió számítás. Kiválasztja a szükséges oszlopokat a bemeneti DataFrame-ből.
+Polars Expr alapú dimenzió számítás matematikai transzformációkkal. Számítja a mid_close, log_return, rolling_z_score, upper_shadow és lower_shadow oszlopokat.
+
+**Matematikai transzformációk:**
+- `mid_close`: (open + close) / 2
+- `log_return`: ln(mid_close / mid_close.shift(1))
+- `rolling_z_score`: (log_return - log_return.rolling_mean(60)) / log_return.rolling_std(60)
+- `upper_shadow`: high - max(open, close)
+- `lower_shadow`: min(open, close) - low
 
 **Paraméterek:**
 - `df`: Polars DataFrame normalizált OHLCV adatokkal
 
 **Visszatérési érték:**
-- Polars DataFrame a kiválasztott alap oszlopokkal
+- Polars DataFrame az alap oszlopokkal és matematikai transzformációkkal
 
 **Dobott kivételek:**
 - `polars.exceptions.ColumnNotFoundError`: Ha hiányzik valamely szükséges oszlop
