@@ -216,7 +216,7 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
 async def _save_ticks_direct(
     storage: "StorageInterface",
     symbol: str,
-    ticks: list,
+    ticks: list["TickData"],
     date: datetime,
     logger: "LoggerInterface | None" = None,
 ) -> None:
@@ -241,15 +241,11 @@ async def _save_ticks_direct(
                 "ask": tick.ask,
                 "ask_volume": tick.ask_volume if tick.ask_volume is not None else 0.0,
                 "bid_volume": tick.bid_volume if tick.bid_volume is not None else 0.0,
-                "source": tick.source,
             }
             for tick in ticks
         ]
 
         df = pl.DataFrame(tick_dicts)
-
-        # Technikai 'volume' oszlop hozzáadása
-        df = df.with_columns((pl.col("ask_volume") + pl.col("bid_volume")).alias("volume"))
 
         # Dátum formázása a fájlnévhez
         date_str = date.strftime("%Y%m%d")

@@ -1,8 +1,12 @@
 """Tesztek a scripts/download_history.py scripthez."""
 
+from datetime import UTC, datetime
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+
+from neural_ai.collectors.jforex.interfaces.tick_data import TickData
 
 
 class TestSmartResumeLogic:
@@ -95,6 +99,69 @@ class TestSaveTicksDirect:
         from scripts.download_history import _save_ticks_direct  # type: ignore[import]
 
         assert callable(_save_ticks_direct)
+
+    @pytest.mark.asyncio
+    async def test_save_ticks_direct_creates_correct_dataframe_columns(self) -> None:
+        """Teszteli, hogy a _save_ticks_direct függvény helyesen hozza létre a DataFrame-et a forrásoszlopokkal."""
+        from scripts.download_history import _save_ticks_direct
+
+        # Mock storage
+        mock_storage = AsyncMock()
+
+        # Mock logger
+        mock_logger = MagicMock()
+
+        # Sample tick data
+        ticks = [
+            TickData(
+                timestamp=datetime(2023, 1, 1, 10, 0, 0, tzinfo=UTC),
+                symbol="EURUSD",
+                bid=1.0500,
+                ask=1.0502,
+                ask_volume=100.0,
+                bid_volume=150.0,
+                source="jforex",
+            ),
+            TickData(
+                timestamp=datetime(2023, 1, 1, 10, 0, 1, tzinfo=UTC),
+                symbol="EURUSD",
+                bid=1.0501,
+                ask=1.0503,
+                ask_volume=200.0,
+                bid_volume=250.0,
+                source="jforex",
+            ),
+        ]
+
+        symbol = "EURUSD"
+        date = datetime(2023, 1, 1, 10, 0, 0, tzinfo=UTC)
+
+        # Call the function
+        await _save_ticks_direct(mock_storage, symbol, ticks, date, mock_logger)
+
+        # Verify storage.store_tick_data was called
+        assert mock_storage.store_tick_data.called
+
+        # Get the DataFrame that was passed
+        call_args = mock_storage.store_tick_data.call_args
+        df = call_args[1]["data"]  # keyword argument 'data'
+
+        # Check that DataFrame has the correct columns (only source columns)
+        expected_columns = ["timestamp", "bid", "ask", "ask_volume", "bid_volume"]
+        assert list(df.columns) == expected_columns
+
+        # Check that 'volume' column is NOT present
+        assert "volume" not in df.columns
+
+        # Check that 'source' column is NOT present (only 5 source columns)
+        assert "source" not in df.columns
+
+        # Check data integrity
+        assert len(df) == 2
+        assert df["bid"].to_list() == [1.0500, 1.0501]
+        assert df["ask"].to_list() == [1.0502, 1.0503]
+        assert df["ask_volume"].to_list() == [100.0, 200.0]
+        assert df["bid_volume"].to_list() == [150.0, 250.0]
 
 
 if __name__ == "__main__":

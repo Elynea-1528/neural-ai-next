@@ -65,8 +65,6 @@ A letöltött tick adatok a következő struktúrában kerülnek mentésre:
     "ask": float,          # Ask ár
     "ask_volume": float,   # Ask volumen
     "bid_volume": float,   # Bid volumen
-    "volume": float,       # Összesített volumen
-    "source": str,         # Adatforrás
 }
 ```
 
