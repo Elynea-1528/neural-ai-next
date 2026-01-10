@@ -79,7 +79,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
         Returns:
             DataServiceInterface: A Data Service példány
         """
-        if not self._initialized:
+        if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
         if "data" not in self._services:
@@ -95,7 +95,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
         Returns:
             AIServiceInterface: Az AI Service példány
         """
-        if not self._initialized:
+        if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
         if "ai" not in self._services:
@@ -111,7 +111,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
         Returns:
             StrategyServiceInterface: A Strategy Service példány
         """
-        if not self._initialized:
+        if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
         if "strategy" not in self._services:
@@ -127,7 +127,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
         Returns:
             LiveOpsServiceInterface: A Live Ops Service példány
         """
-        if not self._initialized:
+        if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
         if "live_ops" not in self._services:
@@ -143,7 +143,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
         Returns:
             Dict[str, Any]: Az összes szolgáltatás példány
         """
-        if not self._initialized:
+        if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
         # Biztosítjuk, hogy minden szolgáltatás létrejöjjön
