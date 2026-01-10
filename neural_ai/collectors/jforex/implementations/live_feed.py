@@ -206,9 +206,10 @@ class JForexLiveFeed(ILiveFeed):
         A `_listen_loop` metódusból kapja a már dekódolt JSON adatokat.
         A timestamp milliszekundumban érkezik, ezért osztani kell 1000-el.
         A bid/ask értékek már float-ként érkeznek, nem kell castolni.
+        Az ask_volume és bid_volume mezőket kiolvassa a JSON-ből és hozzáadja az event-hez.
 
         Args:
-            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float)
+            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float, ask_volume/bid_volume float)
         """
         try:
             # Timestamp konverziója ms-ből datetime objektummá
@@ -218,13 +219,19 @@ class JForexLiveFeed(ILiveFeed):
             else:
                 timestamp = datetime.now(UTC)
 
+            # Volume értékek kiolvasása
+            ask_vol = float(data.get("ask_volume", 0.0))
+            bid_vol = float(data.get("bid_volume", 0.0))
+
             # MarketDataEvent létrehozása
             event = MarketDataEvent(
                 symbol=str(data.get("symbol", "")),
                 timestamp=timestamp,
                 bid=float(data.get("bid", 0.0)),
                 ask=float(data.get("ask", 0.0)),
-                volume=int(data.get("volume", 0)) if data.get("volume") else None,
+                volume=(ask_vol + bid_vol) if (ask_vol or bid_vol) else None,
+                ask_volume=ask_vol,
+                bid_volume=bid_vol,
                 source="jforex",
             )
 

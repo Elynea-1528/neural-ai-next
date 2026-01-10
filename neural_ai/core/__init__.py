@@ -174,6 +174,24 @@ def bootstrap_core(
     # 7. Rendszer monitorozás inicializálása
     logger.info("⏳ 8. Rendszer monitorozás indítása...")
     health_monitor = SystemComponentFactory.create_health_monitor(name="core", logger=logger)
+
+    # Komponensek regisztrálása a health monitor-ba
+    SystemComponentFactory.register_component(
+        monitor_name="core", component_name="core", health_check=None
+    )
+    SystemComponentFactory.register_component(
+        monitor_name="core", component_name="database", health_check=None
+    )
+    SystemComponentFactory.register_component(
+        monitor_name="core", component_name="event_bus", health_check=None
+    )
+    SystemComponentFactory.register_component(
+        monitor_name="core", component_name="collectors", health_check=None
+    )
+    SystemComponentFactory.register_component(
+        monitor_name="core", component_name="storage", health_check=None
+    )
+
     container.register_instance(HealthMonitorInterface, health_monitor)
     logger.debug("-> Health monitor regisztrálva")
 

@@ -78,7 +78,7 @@ def main() -> None:
         "neural_ai/",
         # "docs/",
         "configs/",
-        "logs/",
+        # "logs/",
         # "tests/",
         "scripts/",
         "external/jforex-bridge/src/main/java/com/neuralai/bridge/NeuralBridgeStrategy.java",

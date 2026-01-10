@@ -36,6 +36,7 @@ class UIApplication:
         self._factory: UIServiceFactory | None = None
         self._navigation: NavigationServiceInterface | None = None
         self._running: bool = False
+        self._init_error: Exception | None = None
 
     def initialize(self) -> bool:
         """Az alkalmazás inicializálása.
@@ -49,10 +50,7 @@ class UIApplication:
 
             # Core Bridge létrehozása és inicializálása
             self._bridge = CoreBridge()
-            if self._logger:
-                self._bridge.initialize(self._config, self._logger)
-            else:
-                self._bridge.initialize(self._config, None)
+            self._bridge.initialize()
 
             # UI Service Factory létrehozása és inicializálása
             self._factory = UIServiceFactory()
@@ -69,6 +67,7 @@ class UIApplication:
         except Exception as e:
             if self._logger:
                 self._logger.error(f"Hiba az inicializálás során: {e}")
+            self._init_error = e
             return False
 
     def run(self) -> None:
@@ -133,3 +132,12 @@ class UIApplication:
             bool: True, ha az alkalmazás inicializálva van, egyébként False
         """
         return self._factory is not None and self._navigation is not None
+
+    @property
+    def init_error(self) -> Exception | None:
+        """Az inicializálási hiba lekérdezése.
+
+        Returns:
+            Exception | None: A hiba, ha volt, egyébként None
+        """
+        return self._init_error

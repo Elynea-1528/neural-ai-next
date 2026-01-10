@@ -70,13 +70,14 @@ Háttérfolyamat a tickek folyamatos fogadásához.
 ### `_process_tick_data`
 
 Feldolgozza a tick adatokat és publikálja az EventBus-on.
-        
+
         A `_listen_loop` metódusból kapja a már dekódolt JSON adatokat.
         A timestamp milliszekundumban érkezik, ezért osztani kell 1000-el.
         A bid/ask értékek már float-ként érkeznek, nem kell castolni.
-        
+        Az ask_volume és bid_volume mezőket kiolvassa a JSON-ből és hozzáadja az event-hez.
+
         Args:
-            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float)
+            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float, ask_volume/bid_volume float)
 
 
 ---

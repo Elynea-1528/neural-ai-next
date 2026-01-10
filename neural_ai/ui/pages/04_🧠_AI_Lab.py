@@ -2,6 +2,8 @@
 
 from typing import Any
 
+import streamlit as st
+
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
 
@@ -14,8 +16,9 @@ class AILabPage(PageInterface):
         self._loaded = False
         self._title = "🧠 AI Lab"
 
-    def render(self) -> str:
-        return f"# {self._title}\n\nAI modellek kezelése és futtatása."
+    def render(self) -> None:
+        st.title(self._title)
+        st.markdown("AI modellek kezelése és futtatása.")
 
     def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
         self._loaded = True
@@ -38,4 +41,4 @@ if __name__ == "__main__":
 
     bridge = CoreBridge()
     page = AILabPage(bridge)
-    print(page.render())
+    page.render()

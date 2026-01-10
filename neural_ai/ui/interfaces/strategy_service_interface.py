@@ -119,3 +119,27 @@ class StrategyServiceInterface(Protocol):
             DataFrame: A resample-ölt OHLCV gyertyák DataFrame-ben
         """
         ...
+
+    async def run_sma_backtest(
+        self,
+        symbol: str,
+        date: str,
+        timeframe: str,
+        fast_period: int,
+        slow_period: int,
+        initial_capital: float = 10000.0,
+    ) -> dict[str, Any]:
+        """SMA kereszt stratégia backtesztelése VectorBT-vel.
+
+        Args:
+            symbol: A kereskedési szimbólum (pl. 'EURUSD')
+            date: A dátum (pl. '2024-03-20')
+            timeframe: Az időkeret (pl. '1m', '5m', '1h', '4h')
+            fast_period: A gyors SMA periódusa
+            slow_period: A lassú SMA periódusa
+            initial_capital: A kezdeti tőke (default: 10000.0)
+
+        Returns:
+            Dict[str, Any]: A backtest eredménye (stats, equity, trades, signals)
+        """
+        ...

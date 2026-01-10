@@ -42,7 +42,7 @@ jforex:
   # Date range for data collection
   date_range:
     # Start date (YYYY-MM-DD)
-    start: "2003-01-01"
+    start: "2000-01-01"
     
     # End date (YYYY-MM-DD)
     end: "2025-12-31"
