@@ -75,6 +75,7 @@ Az oldalsáv tartalma:
 - **Szimbólum választó**: Konfigurációból betöltött devizapárok
 - **Dátum választó**: Napi bontású dátumválasztó
 - **Idősík választó**: `1m`, `5m`, `15m`, `1h` opciókkal
+- **Price Type választó**: Radio button `Bid` vagy `Mid` ár típus kiválasztására
 - **Load & Visualize gomb**: Adatok betöltése és megjelenítése
 
 #### `_render_main_area()` - Fő terület megjelenítése
@@ -94,7 +95,9 @@ def _render_candlestick_chart(self) -> None
 ```
 
 Plotly alapú candlestick chart létrehozása:
-- OHLC adatok megjelenítése
+- Dinamikus OHLC adatok megjelenítése (`Bid` vagy `Mid` típus alapján)
+- `Bid` típus: `bid_open`, `bid_high`, `bid_low`, `bid_close` oszlopok használata
+- `Mid` típus: `mid_open`, `mid_high`, `mid_low`, `mid_close` oszlopok használata
 - Zöld/piros színezés a növekedés/csökkenés szerint
 - Zoomolható és interaktív
 
@@ -104,7 +107,11 @@ Plotly alapú candlestick chart létrehozása:
 def _render_data_table(self) -> None
 ```
 
-Az első 10 sor megjelenítése `st.dataframe` segítségével.
+Az első 10 sor megjelenítése `st.dataframe` segítségével:
+- Dinamikus OHLC oszlopok megjelenítése (Price Type alapján)
+- `Spread` oszlop megjelenítése (ask - bid átlag)
+- `Z-Score` (rolling_z_score) oszlop megjelenítése
+- Volume oszlopok (`real_volume`, `tick_volume`) megjelenítése
 
 #### `_get_symbols()` - Szimbólumok lekérése
 

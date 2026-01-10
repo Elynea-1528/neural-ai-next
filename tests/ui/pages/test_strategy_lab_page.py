@@ -362,6 +362,18 @@ class TestStrategyLabPageSessionState:
         """
         return MagicMock(spec=CoreBridgeInterface)
 
+    @pytest.fixture
+    def strategy_lab_page(self, mock_bridge: MagicMock) -> StrategyLabPage:
+        """StrategyLabPage példány létrehozása teszteléshez.
+
+        Args:
+            mock_bridge: A mockolt bridge példány.
+
+        Returns:
+            StrategyLabPage: A tesztelendő oldal példány.
+        """
+        return StrategyLabPage(bridge=mock_bridge)
+
     def test_init_session_state_candles_initialization(self, mock_bridge: MagicMock) -> None:
         """Teszteli, hogy az __init__ metódus inicializálja a session state candles-t.
 
@@ -465,3 +477,180 @@ class TestStrategyLabPageSessionState:
 
         # A session state megőrzi az adatot
         assert strategy_lab_module.st.session_state.backtest_result == mock_result
+
+    def test_price_type_session_state_initialization(self, mock_bridge: MagicMock) -> None:
+        """Teszteli a price_type session state inicializálását.
+
+        Args:
+            mock_bridge: A mockolt bridge példány.
+        """
+        page = StrategyLabPage(bridge=mock_bridge)
+
+        # Ellenőrizzük, hogy a price_type alapértelmezetten "Bid"
+        assert strategy_lab_module.st.session_state.price_type == "Bid"
+
+    def test_render_data_table_with_price_type_bid(
+        self, strategy_lab_page: StrategyLabPage
+    ) -> None:
+        """Teszteli a _render_data_table metódust Bid price type-pal.
+
+        Args:
+            strategy_lab_page: A tesztelendő oldal példány.
+        """
+        import pandas as pd
+
+        # Mock DataFrame bid oszlopokkal
+        mock_df = pd.DataFrame(
+            {
+                "bid_open": [1.1000, 1.1005],
+                "bid_high": [1.1020, 1.1010],
+                "bid_low": [1.0995, 1.0990],
+                "bid_close": [1.1010, 1.1000],
+                "spread": [0.0002, 0.0003],
+                "rolling_z_score": [0.5, -0.3],
+                "real_volume": [1000, 1500],
+                "tick_volume": [50, 75],
+            }
+        )
+        strategy_lab_page._candles = mock_df
+        strategy_lab_module.st.session_state.price_type = "Bid"
+
+        with patch("streamlit.dataframe") as mock_dataframe:
+            strategy_lab_page._render_data_table()
+
+            # Ellenőrizzük, hogy a megfelelő oszlopok kerültek megjelenítésre
+            call_args = mock_dataframe.call_args[0][0]
+            expected_cols = [
+                "bid_open",
+                "bid_high",
+                "bid_low",
+                "bid_close",
+                "spread",
+                "rolling_z_score",
+                "real_volume",
+                "tick_volume",
+            ]
+            assert list(call_args.columns) == expected_cols
+
+    def test_render_data_table_with_price_type_mid(
+        self, strategy_lab_page: StrategyLabPage
+    ) -> None:
+        """Teszteli a _render_data_table metódust Mid price type-pal.
+
+        Args:
+            strategy_lab_page: A tesztelendő oldal példány.
+        """
+        import pandas as pd
+
+        # Mock DataFrame mid oszlopokkal
+        mock_df = pd.DataFrame(
+            {
+                "mid_open": [1.1001, 1.1006],
+                "mid_high": [1.1021, 1.1011],
+                "mid_low": [1.0996, 1.0991],
+                "mid_close": [1.1011, 1.1001],
+                "spread": [0.0002, 0.0003],
+                "rolling_z_score": [0.5, -0.3],
+                "real_volume": [1000, 1500],
+            }
+        )
+        strategy_lab_page._candles = mock_df
+        strategy_lab_module.st.session_state.price_type = "Mid"
+
+        with patch("streamlit.dataframe") as mock_dataframe:
+            strategy_lab_page._render_data_table()
+
+            # Ellenőrizzük, hogy a megfelelő oszlopok kerültek megjelenítésre
+            call_args = mock_dataframe.call_args[0][0]
+            expected_cols = [
+                "mid_open",
+                "mid_high",
+                "mid_low",
+                "mid_close",
+                "spread",
+                "rolling_z_score",
+                "real_volume",
+            ]
+            assert list(call_args.columns) == expected_cols
+
+    @patch("plotly.graph_objects.Figure")
+    @patch("streamlit.plotly_chart")
+    def test_render_candlestick_chart_with_bid_price_type(
+        self,
+        mock_plotly_chart: MagicMock,
+        mock_figure: MagicMock,
+        strategy_lab_page: StrategyLabPage,
+    ) -> None:
+        """Teszteli a candlestick chart renderelését Bid price type-pal.
+
+        Args:
+            mock_plotly_chart: Mockolt plotly_chart.
+            mock_figure: Mockolt Figure.
+            strategy_lab_page: A tesztelendő oldal példány.
+        """
+        import pandas as pd
+
+        # Mock DataFrame bid oszlopokkal
+        mock_df = pd.DataFrame(
+            {
+                "bid_open": [1.1000, 1.1005],
+                "bid_high": [1.1020, 1.1010],
+                "bid_low": [1.0995, 1.0990],
+                "bid_close": [1.1010, 1.1000],
+                "timestamp": pd.date_range("2024-01-01", periods=2, freq="1min"),
+            }
+        )
+        strategy_lab_page._candles = mock_df
+        strategy_lab_module.st.session_state.price_type = "Bid"
+
+        mock_fig_instance = MagicMock()
+        mock_figure.return_value = mock_fig_instance
+
+        strategy_lab_page._render_candlestick_chart()
+
+        # Ellenőrizzük, hogy a Figure létrejött és a Candlestick chart hozzá lett adva
+        mock_figure.assert_called_once()
+        # A data tartalmazza a Candlestick objektumot
+        candlestick_data = mock_fig_instance.data[0]
+        assert hasattr(candlestick_data, "open")
+
+    @patch("plotly.graph_objects.Figure")
+    @patch("streamlit.plotly_chart")
+    def test_render_candlestick_chart_with_mid_price_type(
+        self,
+        mock_plotly_chart: MagicMock,
+        mock_figure: MagicMock,
+        strategy_lab_page: StrategyLabPage,
+    ) -> None:
+        """Teszteli a candlestick chart renderelését Mid price type-pal.
+
+        Args:
+            mock_plotly_chart: Mockolt plotly_chart.
+            mock_figure: Mockolt Figure.
+            strategy_lab_page: A tesztelendő oldal példány.
+        """
+        import pandas as pd
+
+        # Mock DataFrame mid oszlopokkal
+        mock_df = pd.DataFrame(
+            {
+                "mid_open": [1.1001, 1.1006],
+                "mid_high": [1.1021, 1.1011],
+                "mid_low": [1.0996, 1.0991],
+                "mid_close": [1.1011, 1.1001],
+                "timestamp": pd.date_range("2024-01-01", periods=2, freq="1min"),
+            }
+        )
+        strategy_lab_page._candles = mock_df
+        strategy_lab_module.st.session_state.price_type = "Mid"
+
+        mock_fig_instance = MagicMock()
+        mock_figure.return_value = mock_fig_instance
+
+        strategy_lab_page._render_candlestick_chart()
+
+        # Ellenőrizzük, hogy a Figure létrejött és a Candlestick chart hozzá lett adva
+        mock_figure.assert_called_once()
+        # A data tartalmazza a Candlestick objektumot
+        candlestick_data = mock_fig_instance.data[0]
+        assert hasattr(candlestick_data, "open")

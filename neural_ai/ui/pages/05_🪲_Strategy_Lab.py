@@ -43,6 +43,8 @@ class StrategyLabPage(PageInterface):
             st.session_state.backtest_result = None
         if "candles" not in st.session_state:
             st.session_state.candles = None
+        if "price_type" not in st.session_state:
+            st.session_state.price_type = "Bid"
 
     def render(self) -> None:
         """A Strategy Lab oldal megjelenítése."""
@@ -82,6 +84,17 @@ class StrategyLabPage(PageInterface):
                 index=0,
                 help="Válassza ki a gyertyák időkeretét",
             )
+
+            # Ár típus választó (Bid / Mid)
+            price_type_options = ["Bid", "Mid"]
+            selected_price_type = st.radio(
+                "Price Type",
+                options=price_type_options,
+                index=price_type_options.index(st.session_state.price_type),
+                help="Válassza ki az ár típust (Bid vagy Mid)",
+                horizontal=True,
+            )
+            st.session_state.price_type = selected_price_type
 
             # "Load & Visualize" gomb
             if st.button(
@@ -230,15 +243,29 @@ class StrategyLabPage(PageInterface):
         if self._candles is None or self._candles.empty:
             return
 
+        # Price type alapján OHLC oszlopok kiválasztása
+        price_type = st.session_state.price_type
+
         # Oszlopnevek normalizálása (kisbetűsítés)
         df = self._candles.copy()
         df.columns = [col.lower() for col in df.columns]
 
-        # OHLC oszlopok keresése
-        ohlc_columns = ["open", "high", "low", "close"]
-        if not all(col in df.columns for col in ohlc_columns):
-            st.error("Az adatokban nem található OHLC oszlop.")
-            return
+        # OHLC oszlopok kiválasztása price_type alapján
+        if price_type == "Mid":
+            ohlc_columns = ["mid_open", "mid_high", "mid_low", "mid_close"]
+            if not all(col in df.columns for col in ohlc_columns):
+                st.error("Az adatokban nem található Mid OHLC oszlop.")
+                return
+            open_col, high_col, low_col, close_col = "mid_open", "mid_high", "mid_low", "mid_close"
+        else:  # Bid
+            ohlc_columns = ["bid_open", "bid_high", "bid_low", "bid_close"]
+            if not all(col in df.columns for col in ohlc_columns):
+                # Fallback to standard OHLC columns
+                ohlc_columns = ["open", "high", "low", "close"]
+                if not all(col in df.columns for col in ohlc_columns):
+                    st.error("Az adatokban nem található OHLC oszlop.")
+                    return
+            open_col, high_col, low_col, close_col = ohlc_columns
 
         # Dátum oszlop kezelése
         if "timestamp" in df.columns:
@@ -253,11 +280,11 @@ class StrategyLabPage(PageInterface):
             data=[
                 go.Candlestick(
                     x=df["date"],
-                    open=df["open"],
-                    high=df["high"],
-                    low=df["low"],
-                    close=df["close"],
-                    name="OHLC",
+                    open=df[open_col],
+                    high=df[high_col],
+                    low=df[low_col],
+                    close=df[close_col],
+                    name=f"{price_type} OHLC",
                     increasing_line_color="#26a69a",
                     decreasing_line_color="#ef5350",
                 )
@@ -321,9 +348,44 @@ class StrategyLabPage(PageInterface):
         st.plotly_chart(fig, use_container_width=True)
 
     def _render_data_table(self) -> None:
-        """Az első 10 sor megjelenítése táblázatban."""
+        """Az első 10 sor megjelenítése táblázatban Spread és Z-Score oszlopokkal."""
         if self._candles is not None and not self._candles.empty:
-            st.dataframe(self._candles.head(10), use_container_width=True)
+            # Oszlopnevek normalizálása
+            df = self._candles.copy()
+            df.columns = [col.lower() for col in df.columns]
+
+            # Price type alapján OHLC oszlopok kiválasztása megjelenítéshez
+            price_type = st.session_state.price_type
+            if price_type == "Mid":
+                ohlc_cols = ["mid_open", "mid_high", "mid_low", "mid_close"]
+            else:
+                ohlc_cols = ["bid_open", "bid_high", "bid_low", "bid_close"]
+                if not all(col in df.columns for col in ohlc_cols):
+                    ohlc_cols = ["open", "high", "low", "close"]
+
+            # Megjelenítendő oszlopok: OHLC, spread, z-score, volume
+            display_cols = []
+            display_cols.extend(ohlc_cols)
+
+            # Spread oszlop hozzáadása, ha létezik
+            if "spread" in df.columns:
+                display_cols.append("spread")
+
+            # Z-Score oszlop hozzáadása (rolling_z_score)
+            if "rolling_z_score" in df.columns:
+                display_cols.append("rolling_z_score")
+
+            # Volume oszlop hozzáadása
+            volume_cols = ["real_volume", "tick_volume"]
+            for col in volume_cols:
+                if col in df.columns:
+                    display_cols.append(col)
+
+            # Csak a meglévő oszlopokat tartjuk meg
+            available_cols = [col for col in display_cols if col in df.columns]
+
+            # Az első 10 sor megjelenítése
+            st.dataframe(df[available_cols].head(10), use_container_width=True)
 
     def _get_symbols(self) -> list[str]:
         """Szimbólumok lekérése a konfigurációból.
