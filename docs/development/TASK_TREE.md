@@ -101,8 +101,8 @@
 | File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
 |:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
 | `factory.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐ | `✅ PERFECT` |
-| `implementations/resampler_service.py` | `[✅|✅|✅]` | `Stmt: 87%, Brch: 87%` | ⭐⭐⭐ | `🟢 STABLE` |
-| `interfaces/resampler_interface.py` | `[✅|➖|✅]` | `Stmt: 86%, Brch: 86%` | ⭐ | `🟢 STABLE` |
+| `implementations/resampler_service.py` | `[✅|✅|✅]` | `Stmt: 90%, Brch: 90%` | ⭐⭐⭐ | `🟢 STABLE` |
+| `interfaces/resampler_interface.py` | `[✅|➖|✅]` | `Stmt: 90%, Brch: 90%` | ⭐ | `🟢 STABLE` |
 
 ### 🏗️ MODULE: `[core/system]` ✅ COMPLETE
 
@@ -244,6 +244,7 @@
 - ✅ Multiple timeframe support (1m, 5m, 1H, 1D)
 - ✅ Pandas and Polars backend support
 - ✅ Comprehensive error handling
+- ✅ Polars first support with return_type parameter (Zero-copy for AI modules)
 
 ### 🏗️ MODULE: `[collectors/jforex/implementations]`
 
