@@ -404,11 +404,6 @@ class DataService(DataServiceInterface):
 
                             df = pl.DataFrame(tick_dicts)
 
-                            # Technikai 'volume' oszlop hozzáadása
-                            df = df.with_columns(
-                                (pl.col("ask_volume") + pl.col("bid_volume")).alias("volume")
-                            )
-
                             # Adatok mentése a storage-ba (óra szintű unique_id-vel)
                             unique_id = f"{hour:02d}"
                             await storage.store_tick_data(

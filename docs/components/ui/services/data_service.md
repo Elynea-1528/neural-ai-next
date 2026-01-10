@@ -99,6 +99,8 @@ Történelmi adatok letöltése aszinkron módon.
 
     Ez a metódus a CoreBridge-en keresztül eléri a Bi5Downloader-t,
     és valós adatletöltést végez a Dukascopy .bi5 formátumból.
+    A tick adatok csak a forrásból jövő 5 oszlopot tartalmazzák:
+    timestamp, bid, ask, ask_volume, bid_volume.
 
     Args:
         symbol: A szimbólum (pl. 'EURUSD' vagy 'ALL' az összesre)

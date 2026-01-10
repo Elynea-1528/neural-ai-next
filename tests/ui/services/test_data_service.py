@@ -386,6 +386,27 @@ class TestDataService(unittest.TestCase):
             self.assertIn("records", result)
             self.assertGreater(result["records"], 0)
 
+            # Ellenőrizzük a tárolt DataFrame oszlopait (csak forrásoszlopok, volume nélkül)
+            call_args = mock_storage.store_tick_data.call_args
+            df = call_args[1]["data"]  # keyword argument 'data'
+
+            # Csak a 5 forrásoszlop legyen jelen: timestamp, bid, ask, ask_volume, bid_volume
+            expected_columns = ["timestamp", "bid", "ask", "ask_volume", "bid_volume"]
+            self.assertEqual(list(df.columns), expected_columns)
+
+            # Ellenőrizzük, hogy a 'volume' oszlop NINCS jelen
+            self.assertNotIn("volume", df.columns)
+
+            # Ellenőrizzük, hogy a 'source' oszlop NINCS jelen (csak a tick_dicts-ben használt)
+            self.assertNotIn("source", df.columns)
+
+            # Ellenőrizzük az adatokat
+            self.assertEqual(len(df), 1)
+            self.assertEqual(df["bid"].iloc[0], 1.0850)
+            self.assertEqual(df["ask"].iloc[0], 1.0852)
+            self.assertEqual(df["ask_volume"].iloc[0], 100.0)
+            self.assertEqual(df["bid_volume"].iloc[0], 50.0)
+
 
 if __name__ == "__main__":
     unittest.main()
