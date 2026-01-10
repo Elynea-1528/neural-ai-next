@@ -37,8 +37,13 @@ class ResamplerService(ResamplerInterface):
         self._logger = structlog.get_logger()
 
     async def resample(
-        self, symbol: str, start: datetime, end: datetime, timeframe: str = "1m"
-    ) -> pd.DataFrame:
+        self,
+        symbol: str,
+        start: datetime,
+        end: datetime,
+        timeframe: str = "1m",
+        return_type: str = "pandas",
+    ) -> pd.DataFrame | pl.DataFrame:
         """Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
 
         Args:
@@ -46,9 +51,10 @@ class ResamplerService(ResamplerInterface):
             start: A kezdő időpont
             end: A záró időpont
             timeframe: Az időkeret (alapértelmezett: '1m' - 1 perc)
+            return_type: A visszaadott DataFrame típusa ('pandas' vagy 'polars')
 
         Returns:
-            DataFrame: OHLCV gyertyákat tartalmazó DataFrame
+            DataFrame: OHLCV gyertyákat tartalmazó DataFrame (Pandas vagy Polars)
 
         Raises:
             InvalidTimeframeError: Ha az időkeret érvénytelen
@@ -69,9 +75,24 @@ class ResamplerService(ResamplerInterface):
             ) from e
 
         try:
-            # Átalakítás OHLCV gyertyákká
+            # Átalakítás OHLCV gyertyákká (mindig Polars)
             ohlcv_data = self._convert_to_ohlcv(tick_data, timeframe)
-            return ohlcv_data
+
+            # Elágazás visszaadott típus alapján
+            if return_type == "pandas":
+                # Konverzió Pandas DataFrame-re index beállítással
+                result_df = ohlcv_data.to_pandas()
+                if not result_df.empty:
+                    result_df.index = pd.to_datetime(result_df["timestamp"])
+                    result_df = result_df.drop("timestamp", axis=1)
+                return result_df
+            elif return_type == "polars":
+                # Zero-Copy visszaadás natív Polars DataFrame-fel
+                return ohlcv_data
+            else:
+                raise ValueError(
+                    f"Invalid return_type: {return_type}. Supported: 'pandas', 'polars'"
+                )
         except Exception as e:
             raise ResamplingError(symbol=symbol, timeframe=timeframe, original_error=e) from e
 
@@ -131,7 +152,7 @@ class ResamplerService(ResamplerInterface):
                 symbol=symbol, start=str(start), end=str(end), original_error=e
             ) from e
 
-    def _convert_to_ohlcv(self, tick_data: pl.DataFrame, timeframe: str) -> pd.DataFrame:
+    def _convert_to_ohlcv(self, tick_data: pl.DataFrame, timeframe: str) -> pl.DataFrame:
         """Tick adatok átalakítása OHLCV gyertyákká Polars group_by_dynamic használatával.
 
         Args:
@@ -143,8 +164,17 @@ class ResamplerService(ResamplerInterface):
         """
         # Ellenőrizzük, hogy van-e adat
         if tick_data.is_empty():
-            return pd.DataFrame(
-                columns=["open", "high", "low", "close", "volume", "bid_volume", "ask_volume"]
+            return pl.DataFrame(
+                schema=[
+                    "timestamp",
+                    "open",
+                    "high",
+                    "low",
+                    "close",
+                    "volume",
+                    "bid_volume",
+                    "ask_volume",
+                ]
             )
 
         # Szükséges oszlopok ellenőrzése
@@ -216,9 +246,5 @@ class ResamplerService(ResamplerInterface):
                 elif col == "ask_volume":
                     ohlcv = ohlcv.rename({f"{col}_sum": "ask_volume"})
 
-        # Konvertálás Pandas DataFrame-re és timestamp beállítása indexként
-        result_df = ohlcv.to_pandas()
-        if not result_df.empty:
-            result_df.index = pd.to_datetime(result_df["timestamp"])
-            result_df = result_df.drop("timestamp", axis=1)
-        return result_df
+        # Natív Polars DataFrame visszaadás (Zero-Copy)
+        return ohlcv

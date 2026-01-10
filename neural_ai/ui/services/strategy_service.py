@@ -7,6 +7,8 @@ Ez a modul implementálja a kereskedési stratégia szolgáltatást,
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+import vectorbt as vbt
+
 from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
 if TYPE_CHECKING:
@@ -277,7 +279,124 @@ class StrategyService(StrategyServiceInterface):
 
         # Resample metódus hívása az OHLCV adatok lekéréséhez (async)
         candles: DataFrame = await resampler.resample(
-            symbol=symbol, start=start_date, end=end_date, timeframe=timeframe
+            symbol=symbol, start=start_date, end=end_date, timeframe=timeframe, return_type="pandas"
         )
 
         return candles
+
+    async def run_sma_backtest(
+        self,
+        symbol: str,
+        date: str,
+        timeframe: str,
+        fast_period: int,
+        slow_period: int,
+        initial_capital: float = 10000.0,
+    ) -> dict[str, Any]:
+        """SMA kereszt stratégia backtesztelése VectorBT-vel.
+
+        Ez a metódus betölti az adatokat, kiszámolja az SMA indikátorokat,
+        generálja a belépési és kilépési jeleket, majd lefuttatja a backtestet.
+
+        Args:
+            symbol: A kereskedési szimbólum (pl. 'EURUSD')
+            date: A dátum (pl. '2024-03-20')
+            timeframe: Az időkeret (pl. '1m', '5m', '1h', '4h')
+            fast_period: A gyors SMA periódusa
+            slow_period: A lassú SMA periódusa
+            initial_capital: A kezdeti tőke (default: 10000.0)
+
+        Returns:
+            Dict[str, Any]: A backtest eredménye (stats, equity, trades, signals)
+        """
+        # 1. Adatbetöltés
+        df: DataFrame = await self.get_candles(symbol, date, timeframe)
+
+        if df is None or df.empty:
+            return {
+                "error": "Nincs elérhető adat a megadott paraméterekhez.",
+                "stats": {},
+                "equity": [],
+                "trades": [],
+                "signals": {"entries": [], "exits": []},
+            }
+
+        # Oszlopnevek normalizálása (kisbetűsítés)
+        df.columns = [col.lower() for col in df.columns]
+
+        # OHLC oszlopok ellenőrzése
+        ohlc_columns = ["open", "high", "low", "close"]
+        if not all(col in df.columns for col in ohlc_columns):
+            return {
+                "error": "Az adatokban nem található OHLC oszlop.",
+                "stats": {},
+                "equity": [],
+                "trades": [],
+                "signals": {"entries": [], "exits": []},
+            }
+
+        try:
+            # 2. VBT Logika - SMA indikátorok számolása
+            fast_ma = vbt.MA.run(df["close"], fast_period)
+            slow_ma = vbt.MA.run(df["close"], slow_period)
+
+            # 3. Jelek generálása
+            entries = fast_ma.ma_crossed_above(slow_ma)
+            exits = fast_ma.ma_crossed_below(slow_ma)
+
+            # 4. Portfólió futtatása
+            pf = vbt.Portfolio.from_signals(
+                df["close"],
+                entries,
+                exits,
+                init_cash=initial_capital,
+                fees=0.001,  # 0.1% díj
+            )
+
+            # 5. Eredmények csomagolása
+            stats_dict: dict[str, Any] = pf.stats().to_dict()
+            equity_array = pf.value()
+
+            # Trades konvertálása DataFrame-re
+            trades_records = pf.trades.records
+            trades_df: DataFrame | dict[str, Any] = {}
+            if len(trades_records) > 0:
+                trades_df = {
+                    "count": len(trades_records),
+                    "pnl": trades_records["pnl"].tolist(),
+                    "duration": trades_records["duration"].tolist(),
+                    "entry_idx": trades_records["entry_idx"].tolist(),
+                    "exit_idx": trades_records["exit_idx"].tolist(),
+                }
+
+            # Signals konvertálása
+            entries_list = (
+                [int(i) for i in entries.values] if hasattr(entries, "values") else list(entries)
+            )
+            exits_list = [int(i) for i in exits.values] if hasattr(exits, "values") else list(exits)
+
+            return {
+                "stats": stats_dict,
+                "equity": equity_array.tolist(),
+                "trades": trades_df,
+                "signals": {
+                    "entries": entries_list,
+                    "exits": exits_list,
+                },
+                "parameters": {
+                    "symbol": symbol,
+                    "date": date,
+                    "timeframe": timeframe,
+                    "fast_period": fast_period,
+                    "slow_period": slow_period,
+                    "initial_capital": initial_capital,
+                },
+            }
+        except Exception as e:
+            return {
+                "error": f"Hiba a backtest futtatása közben: {str(e)}",
+                "stats": {},
+                "equity": [],
+                "trades": [],
+                "signals": {"entries": [], "exits": []},
+            }

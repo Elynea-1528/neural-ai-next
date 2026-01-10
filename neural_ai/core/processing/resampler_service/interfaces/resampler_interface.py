@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pandas import DataFrame
+    pass
 
 
 class ResamplerInterface(ABC):
@@ -17,8 +17,9 @@ class ResamplerInterface(ABC):
         symbol: str,
         start: datetime,
         end: datetime,
-        timeframe: str = '1m'
-    ) -> "DataFrame":
+        timeframe: str = "1m",
+        return_type: str = "pandas",
+    ) -> "pd.DataFrame | pl.DataFrame":
         """Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
 
         Args:
@@ -26,9 +27,10 @@ class ResamplerInterface(ABC):
             start: A kezdő időpont
             end: A záró időpont
             timeframe: Az időkeret (alapértelmezett: '1m' - 1 perc)
+            return_type: A visszaadott DataFrame típusa ('pandas' vagy 'polars')
 
         Returns:
-            DataFrame: OHLCV gyertyákat tartalmazó DataFrame
+            DataFrame: OHLCV gyertyákat tartalmazó DataFrame (Pandas vagy Polars)
 
         Raises:
             ResamplerError: Ha hiba történik az átalakítás során
