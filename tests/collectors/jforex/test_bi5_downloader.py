@@ -294,12 +294,12 @@ class TestBi5Downloader:
         assert url == "https://www.dukascopy.com/datafeed/EURUSD/2024/00/15/10h_ticks.bi5"
 
     def test_build_storage_path(self, downloader):
-        """Test storage path building."""
+        """Test storage path building with Master parquet format."""
         test_date = datetime(2024, 1, 15, 10, 30, 45, tzinfo=UTC)
 
         path = downloader._build_storage_path("EURUSD", test_date)
 
-        assert path == "data/jforex/EURUSD/2024/01/15/10h_ticks.parquet"
+        assert path == "data/tick/EURUSD/tick/year=2024/month=01/day=15/tick_20240115_10.parquet"
 
     @pytest.mark.asyncio
     async def test_download_tick_data_success(self, mock_dependencies):
@@ -321,7 +321,7 @@ class TestBi5Downloader:
 
         assert len(ticks) == 2
         mock_dependencies["storage"].exists.assert_called_once()
-        mock_dependencies["event_bus"].publish.assert_called_once()
+        assert mock_dependencies["event_bus"].publish.call_count == 2  # One publish per tick
 
     @pytest.mark.asyncio
     async def test_download_tick_data_not_available(self, mock_dependencies):

@@ -98,11 +98,12 @@ class Bi5Downloader(IJForexDownloader):
         Returns:
             Storage path string
         """
-        # Format: data/tick/{SYMBOL}/tick/year={YYYY}/month={MM}/day={DD}/tick_{YYYY}{MM}{DD}_{HH}0000.parquet
+        # Format: data/tick/{SYMBOL}/tick/year={YYYY}/month={MM}/day={DD}/
+        # tick_{YYYYMMDD}_{HH}.parquet
         path = (
             f"data/tick/{symbol.upper()}/tick/"
             f"year={date.year}/month={date.month:02d}/day={date.day:02d}/"
-            f"tick_{date.year}{date.month:02d}{date.day:02d}_{date.hour:02d}0000.parquet"
+            f"tick_{date.strftime('%Y%m%d')}_{date.strftime('%H')}.parquet"
         )
         return path
 
@@ -173,7 +174,7 @@ class Bi5Downloader(IJForexDownloader):
 
                 if valid_ask_vol and valid_bid_vol:
                     is_valid_20 = True
-            except:
+            except Exception:
                 pass
 
             if is_valid_20:
@@ -181,7 +182,10 @@ class Bi5Downloader(IJForexDownloader):
                 unpack_format = ">IIIff"
 
         self._logger.info(
-            f"bi5_format_detected: record_size={record_size}, unpack_format={unpack_format}, total_bytes={len(decompressed)}"
+            "bi5_format_detected",
+            record_size=record_size,
+            unpack_format=unpack_format,
+            total_bytes=len(decompressed),
         )
 
         return record_size, unpack_format
@@ -284,8 +288,11 @@ class Bi5Downloader(IJForexDownloader):
                     self._logger.warning(
                         "bi5_date_mismatch",
                         record_index=i,
-                        expected=f"{date.date().isoformat()}",
-                        actual=f"{timestamp.date().isoformat()} {timestamp.hour:02d}:{timestamp.minute:02d}",
+                        expected=date.date().isoformat(),
+                        actual=(
+                            f"{timestamp.date().isoformat()} "
+                            f"{timestamp.hour:02d}:{timestamp.minute:02d}"
+                        ),
                     )
                     continue
 

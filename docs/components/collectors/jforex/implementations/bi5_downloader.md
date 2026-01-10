@@ -50,8 +50,12 @@ Létrehozza a Dukascopy .bi5 letöltési URL-t a következő formátumban:
 def _build_storage_path(self, symbol: str, date: datetime) -> str
 ```
 
-Létrehozza a tárolási útvonalat Parquet fájlhoz:
-`data/jforex/{SYMBOL}/{YEAR}/{MONTH}/{DAY}/{HOUR}.parquet`
+Létrehozza a tárolási útvonalat Parquet fájlhoz a "Master" formátumban:
+`data/tick/{SYMBOL}/tick/year={YYYY}/month={MM}/day={DD}/tick_{YYYYMMDD}_{HH}.parquet`
+
+**Kritikus javítás (2026.01.10):**
+
+A Smart Resume logika javításához a tárolási útvonalat megváltoztattuk, hogy egyezzen a ParquetStorageService által használt "Master" fájlnévvel. Ez lehetővé teszi, hogy a letöltő helyesen felismerje a már meglévő adatokat és kihagyja a felesleges újratöltéseket.
 
 #### `_download_binary`
 
