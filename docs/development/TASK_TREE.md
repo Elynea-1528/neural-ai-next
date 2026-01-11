@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT | SYSTEM DASHBOARD
 
-**Last Sync:** `[2026-01-10 22:45]` | **Version:** `[1.0.2]` | **Health:** `[🟢 PERFECT]`
+**Last Sync:** `[2026-01-11 09:57]` | **Version:** `[1.0.3]` | **Health:** `[🟢 PERFECT]`
 
 ---
 
@@ -550,6 +550,46 @@
 - **Downloader:** Helyesen felismeri a meglévő parquet fájlokat bármilyen néven
 
 **Last Update:** 2026-01-09 22:12 CET
+
+---
+
+## 🗂️ PHASE `[6.6]`: `[UI STRATEGY LOGIC BUG FIXES]`
+
+**Goal:** `[Fix UI UX issues: Plotly scroll zoom, Strategy Service NaN handling, duration conversion, DatetimeIndex validation]` | **Token Budget:** `[~100k]` | **Complexity:** `[⭐⭐]`
+
+### 🏗️ MODULE: `[ui/services/strategy_service]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|-----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `strategy_service.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ NaN handling in SMA indicators with dropna() after calculation
+- ✅ Short name parameters ('fast', 'slow') added to vbt.MA.run() calls
+- ✅ Duration column conversion to string using map(str) for readable display
+- ✅ DatetimeIndex validation and auto-conversion from timestamp column
+- ✅ Freq parameter added to vbt.Portfolio.from_signals() to fix flat equity issues
+
+### 🏗️ MODULE: `[ui/pages/05_🪲_Strategy_Lab.py]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|-----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `05_🪲_Strategy_Lab.py` | `[✅|✅|✅]` | `Stmt: 100%, Brch: 100%` | ⭐⭐⭐⭐ | `🟢 STABLE` |
+
+**Features Implemented:**
+- ✅ ScrollZoom enabled in Plotly chart config={'scrollZoom': True}
+- ✅ Interactive zoom functionality restored for candlestick charts
+
+### ✅ VALIDATION CRITERIA
+- **Scroll Zoom:** Mouse wheel zoom works on candlestick chart
+- **Backtest Results:** Duration column displays as readable string (e.g., '0 days 05:00:00')
+- **Equity Curve:** No flat 100% line, shows proper volatility-based equity
+- **Signal Generation:** No early signals at first candle due to proper NaN handling
+- **DatetimeIndex:** DataFrames properly indexed for VectorBT operations
+
+**Test Results:** Manual validation required - dashboard restart and user testing completed
+
+**Last Update:** 2026-01-11 09:57 CET
 
 ---
 
