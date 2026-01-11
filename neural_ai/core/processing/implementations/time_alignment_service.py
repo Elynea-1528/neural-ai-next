@@ -19,10 +19,39 @@ class TimeAlignmentService(ITimeAlignmentService):
         )
         return full_range.join(df, on="timestamp", how="left")
 
+    def market_hours_filter(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Hétvégék szűrése - csak H-P napok megtartása."""
+        return df.filter(pl.col("timestamp").dt.weekday() < 6)
+
     def handle_gaps(self, df: pl.DataFrame, method: str = "forward_fill") -> pl.DataFrame:
-        """Lyukak kezelése az adatokban."""
+        """Lyukak kezelése az adatokban - árak forward fill, volumenek 0."""
         if method == "forward_fill":
-            return df.fill_null(strategy="forward")
+            # Áraknál forward fill
+            price_cols = [
+                "open",
+                "high",
+                "low",
+                "close",
+                "mid_open",
+                "mid_high",
+                "mid_low",
+                "mid_close",
+            ]
+            df = df.with_columns(
+                [
+                    pl.col(col).fill_null(strategy="forward")
+                    for col in price_cols
+                    if col in df.columns
+                ]
+            )
+            # Volumeneknél 0
+            volume_cols = ["tick_volume", "real_volume", "ask_volume", "bid_volume"]
+            df = df.with_columns(
+                [pl.col(col).fill_null(0) for col in volume_cols if col in df.columns]
+            )
+            # Spread és egyéb null-ok forward fill
+            df = df.fill_null(strategy="forward")
+            return df
         elif method == "mask":
             return df.with_columns(
                 pl.when(pl.col("close").is_null())

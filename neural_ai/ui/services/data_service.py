@@ -202,7 +202,8 @@ class DataService(DataServiceInterface):
                     "symbol": "EURUSD",
                     "bid": 1.0850 + random.uniform(-0.001, 0.001),
                     "ask": 1.0852 + random.uniform(-0.001, 0.001),
-                    "volume": random.randint(1, 100),
+                    "ask_volume": random.randint(1, 50),
+                    "bid_volume": random.randint(1, 50),
                 }
             elif source == "ohlc_data":
                 item = {
@@ -212,14 +213,16 @@ class DataService(DataServiceInterface):
                     "high": 1.0860 + random.uniform(-0.002, 0.002),
                     "low": 1.0840 + random.uniform(-0.002, 0.002),
                     "close": 1.0855 + random.uniform(-0.002, 0.002),
-                    "volume": random.randint(1000, 10000),
+                    "real_volume": random.randint(1000, 10000),
+                    "tick_volume": random.randint(100, 500),
                 }
             else:
                 item = {
                     "timestamp": timestamp.isoformat(),
                     "symbol": "EURUSD",
                     "price": 1.0850 + random.uniform(-0.001, 0.001),
-                    "volume": random.randint(1, 1000),
+                    "bid_volume": random.randint(1, 500),
+                    "ask_volume": random.randint(1, 500),
                 }
 
             data.append(item)
@@ -397,7 +400,6 @@ class DataService(DataServiceInterface):
                                     "bid_volume": tick.bid_volume
                                     if tick.bid_volume is not None
                                     else 0.0,
-                                    "source": tick.source,
                                 }
                                 for tick in tick_data
                             ]

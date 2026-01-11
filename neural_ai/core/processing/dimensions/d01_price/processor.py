@@ -31,11 +31,9 @@ class D01PriceProcessor(IDimensionProcessor):
         Returns:
             Polars DataFrame az alap adatokkal és matematikai transzformációkkal
         """
-        # Mid close számítás: (open + close) / 2
-        mid_close = (pl.col("open") + pl.col("close")) / 2
-
+        # Használjuk a bemeneti DataFrame meglévő mid_close oszlopát (Resampler biztosítja)
         # Log return: ln(mid_close / mid_close.shift(1))
-        log_return = (mid_close / mid_close.shift(1)).log()
+        log_return = (pl.col("mid_close") / pl.col("mid_close").shift(1)).log()
 
         # Rolling Z-score: (log_return - log_return.rolling_mean(60)) / log_return.rolling_std(60)
         rolling_mean = log_return.rolling_mean(window_size=60)
@@ -43,22 +41,25 @@ class D01PriceProcessor(IDimensionProcessor):
         rolling_z_score = (log_return - rolling_mean) / rolling_std
 
         # Shadows: Árnyékok mérete
-        # Upper shadow: high - max(open, close)
-        upper_shadow = pl.col("high") - pl.max_horizontal(pl.col("open"), pl.col("close"))
-        # Lower shadow: min(open, close) - low
-        lower_shadow = pl.min_horizontal(pl.col("open"), pl.col("close")) - pl.col("low")
+        # Upper shadow: mid_high - max(mid_open, mid_close)
+        upper_shadow = pl.col("mid_high") - pl.max_horizontal(
+            pl.col("mid_open"), pl.col("mid_close")
+        )
+        # Lower shadow: min(mid_open, mid_close) - mid_low
+        lower_shadow = pl.min_horizontal(pl.col("mid_open"), pl.col("mid_close")) - pl.col(
+            "mid_low"
+        )
 
         return df.select(
             [
                 "timestamp",
-                "open",
-                "high",
-                "low",
-                "close",
+                "mid_open",
+                "mid_high",
+                "mid_low",
+                "mid_close",
                 "tick_volume",
                 "spread",
                 "real_volume",
-                mid_close.alias("mid_close"),
                 log_return.alias("log_return"),
                 rolling_z_score.alias("rolling_z_score"),
                 upper_shadow.alias("upper_shadow"),

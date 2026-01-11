@@ -25,19 +25,37 @@ from pathlib import Path
 
 def create_zip_archive(output_path: str, files_to_archive: list) -> None:
     """ZIP archívum létrehozása."""
+    # Kizárandó mappák és fájlok
+    exclude_dirs = {"__pycache__", ".git", "logs", "data"}
+    exclude_files = {".DS_Store"}
+
     with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         for file_path in files_to_archive:
             if os.path.exists(file_path):
                 if os.path.isdir(file_path):
-                    # Mappa esetén rekurzív hozzáadás
+                    # Mappa esetén rekurzív hozzáadás, kizárásokkal
                     for root, dirs, files in os.walk(file_path):
+                        # Kizárandó mappák szűrése
+                        dirs[:] = [
+                            d
+                            for d in dirs
+                            if d not in exclude_dirs and os.path.join(root, d) not in exclude_dirs
+                        ]
                         for file in files:
                             file_to_add = os.path.join(root, file)
+                            # Kizárandó fájlok szűrése
+                            if file in exclude_files or file.endswith(".pyc"):
+                                print(f"⚠ Kihagyva: {file_to_add}")
+                                continue
                             arcname = os.path.relpath(file_to_add, start=".")
                             zipf.write(file_to_add, arcname)
                             print(f"✓ Hozzáadva: {arcname}")
                 else:
                     # Fájl esetén közvetlen hozzáadás
+                    file_name = os.path.basename(file_path)
+                    if file_name in exclude_files or file_name.endswith(".pyc"):
+                        print(f"⚠ Kihagyva: {file_path}")
+                        continue
                     arcname = (
                         os.path.basename(file_path) if file_path.startswith(".") else file_path
                     )
