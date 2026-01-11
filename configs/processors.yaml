@@ -3,5 +3,13 @@
 
 processors:
   d01:
+    required_timeframes: ["tick", "1m", "5m", "15m", "1h", "4h", "1d"]
+    
+    timeframe_configs:
+      tick:
+        z_score_window: 2000
+      1m:
+        z_score_window: 60
+      # ... többi timeframe config
     z_score_window: 60
     calc_shadows: true
