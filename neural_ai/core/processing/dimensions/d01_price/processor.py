@@ -59,28 +59,20 @@ class D01PriceProcessor(BaseDimensionProcessor):
         rolling_std = log_return.rolling_std(window_size=z_score_window)
         rolling_z_score = (log_return - rolling_mean) / rolling_std
 
-        if timeframe == "tick":
-            # Tick adatok esetén log_return ugyanaz
-            # Z-score ugyanabból az ablakból
-            # Shadows mindig None vagy 0
+        # Árnyékok számítása: csak akkor, ha calc_shadows és timeframe != "tick"
+        if calc_shadows and timeframe != "tick":
+            # Upper shadow: mid_high - max(mid_open, mid_close)
+            upper_shadow = pl.col("mid_high") - pl.max_horizontal(
+                pl.col("mid_open"), pl.col("mid_close")
+            )
+            # Lower shadow: min(mid_open, mid_close) - mid_low
+            lower_shadow = pl.min_horizontal(pl.col("mid_open"), pl.col("mid_close")) - pl.col(
+                "mid_low"
+            )
+        else:
+            # Egyéb esetben None értékekkel töltjük
             upper_shadow = pl.lit(None).cast(pl.Float64)
             lower_shadow = pl.lit(None).cast(pl.Float64)
-        else:
-            # OHLC adatok esetén eredeti logika
-            # Árnyékok számítása opcionálisan
-            if calc_shadows:
-                # Upper shadow: mid_high - max(mid_open, mid_close)
-                upper_shadow = pl.col("mid_high") - pl.max_horizontal(
-                    pl.col("mid_open"), pl.col("mid_close")
-                )
-                # Lower shadow: min(mid_open, mid_close) - mid_low
-                lower_shadow = pl.min_horizontal(pl.col("mid_open"), pl.col("mid_close")) - pl.col(
-                    "mid_low"
-                )
-            else:
-                # Ha nem kell számítani, None értékekkel töltjük
-                upper_shadow = pl.lit(None).cast(pl.Float64)
-                lower_shadow = pl.lit(None).cast(pl.Float64)
 
         # Alap oszlopok kiválasztása
         columns = [

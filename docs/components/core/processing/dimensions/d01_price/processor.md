@@ -25,15 +25,10 @@ Számítja a matematikai transzformációkat Polars Expr alapúan.
 
 #### Adaptív Logika
 
-- **Tick Timeframe (`timeframe == "tick"`)**:
-  - Log return: `ln(mid_close / mid_close.shift(1))`
-  - Z-score: Tick-specifikus ablakból számított rolling Z-score
-  - Shadows: Mindig None vagy 0 értékekkel
-
-- **OHLC Timeframe (`timeframe != "tick"`)**:
+- **Általános logika minden timeframe-ra**:
   - Log return: `ln(mid_close / mid_close.shift(1))`
   - Z-score: Konfigurált ablakból számított rolling Z-score
-  - Shadows: Opcionálisan számított upper és lower shadows `calc_shadows` config alapján
+  - Shadows: Számítása csak akkor történik, ha `calc_shadows` engedélyezve és `timeframe != "tick"`, különben None értékekkel töltjük
 
 #### Konfiguráció
 
@@ -49,7 +44,7 @@ Polars DataFrame az alap adatokkal és transzformációkkal:
 - `tick_volume`, `spread`, `real_volume`
 - `log_return`: Logaritmikus hozam
 - `rolling_z_score`: Normalizált Z-score
-- `upper_shadow`, `lower_shadow`: Árnyékok (csak OHLC esetén, ha engedélyezve)
+- `upper_shadow`, `lower_shadow`: Árnyékok (csak akkor számítva, ha `calc_shadows` és `timeframe != "tick"`, különben None)
 
 ## Példa Használat
 
