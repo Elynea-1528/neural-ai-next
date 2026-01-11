@@ -209,12 +209,15 @@ class DIContainer(DIContainerInterface):
         self._lazy_components.clear()
 
     def _verify_singleton(self, instance: object, component_name: str) -> None:
-        """Verify that the instance follows singleton pattern.
+        """Ellenőrzi, hogy az instance követi-e a singleton mintát.
 
         Args:
-            instance: The instance to verify
-            component_name: The name of the component
+            instance: Az ellenőrizendő példány
+            component_name: A komponens neve
         """
+        # import warnings
+        # warnings.warn(f"Singleton verifikáció {component_name} számára", UserWarning)
+        pass
 
     def _enforce_singleton(self, component_name: str, instance: object) -> None:
         """Enforce singleton pattern by preventing duplicate registration.
