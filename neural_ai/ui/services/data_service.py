@@ -400,6 +400,7 @@ class DataService(DataServiceInterface):
                                     "bid_volume": tick.bid_volume
                                     if tick.bid_volume is not None
                                     else 0.0,
+                                    "source": "jforex",
                                 }
                                 for tick in tick_data
                             ]

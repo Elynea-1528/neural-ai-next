@@ -72,15 +72,26 @@ class D01PriceProcessor(IDimensionProcessor):
     """D1 - Alap adatok (Base Data) processzor."""
 
     def process(self, df: pl.DataFrame) -> pl.DataFrame:
+        # 1. Validálás: Megvannak-e a szükséges Bid/Mid oszlopok?
+        # 2. Matek: Log Return számolása Mid Close-ból
+        # 3. Kimenet: Az összes explicit oszlop + a számoltak
         return df.select([
             pl.col("timestamp"),
-            pl.col("open"),
-            pl.col("high"),
-            pl.col("low"),
-            pl.col("close"),
-            pl.col("tick_volume"),
-            pl.col("spread"),
-            pl.col("real_volume")
+            
+            # Bid adatok (Chart/Execution)
+            pl.col("bid_open"), pl.col("bid_high"), pl.col("bid_low"), pl.col("bid_close"),
+            
+            # Mid adatok (AI)
+            pl.col("mid_open"), pl.col("mid_high"), pl.col("mid_low"), pl.col("mid_close"),
+            
+            # Metadata
+            pl.col("tick_volume"), pl.col("real_volume"), pl.col("spread"),
+            
+            # Computed Features
+            pl.col("log_return"),
+            pl.col("rolling_z_score"),
+            pl.col("upper_shadow"),
+            pl.col("lower_shadow")
         ])
 
 # dimensions/d02_support/processor.py
@@ -100,10 +111,10 @@ class D02SupportResistanceProcessor(IDimensionProcessor):
 
 **D1-D15 Dimenziók Lista:**
 
-| Dimenzió | Bemenet | Kimenet | Timeframe |
-|----------|---------|---------|-----------|
-| D1 - Base Data | raw_price_data, tick_data | normalized_data, basic_features | all |
-| D2 - Support/Resistance | normalized_price_data | support_levels, resistance_levels | H1, H4, D1 |
+| Dimenzió | Bemenet (Explicit) | Kimenet (Explicit) | Timeframe |
+|----------|-------------------|---------------------|-----------|
+| **D1 - Base Data** | `bid_ohlc`, `mid_ohlc`, `spread`, `volumes` | `log_return`, `z_score`, `shadows` | all |
+| **D2 - Support/Res** | `bid_ohlc` (levels), `mid_ohlc` (calc) | `swing_high`, `swing_low`, `resistance`, `support` | H1, H4, D1 |
 | D3 - Trend | normalized_price_data | trend_direction, strength, changes | all |
 | D4 - Moving Averages | normalized_price_data | sma, ema, wma, hull values | all |
 | D5 - Momentum | price_data, volume_data | rsi, macd, stochastic, signals | M5, M15, H1, H4 |

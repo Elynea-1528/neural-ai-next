@@ -179,14 +179,31 @@ async def validate_data() -> bool:
         df.columns = [col.lower() for col in df.columns]
 
         # Kötelező oszlopok ellenőrzése
-        required_columns = ["timestamp", "open", "high", "low", "close"]
+        required_columns = [
+            "timestamp",
+            "bid_open",
+            "bid_high",
+            "bid_low",
+            "bid_close",
+            "mid_close",
+        ]
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
             print(f"❌ Hiányzó kötelező oszlopok: {missing_columns}")
             return False
 
         # Új oszlopok ellenőrzése
-        new_columns = ["mid_open", "mid_high", "mid_low", "mid_close", "spread", "rolling_z_score"]
+        new_columns = [
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "spread",
+            "real_volume",
+            "tick_volume",
+            "bid_volume",
+            "ask_volume",
+        ]
         missing_new_columns = [col for col in new_columns if col not in df.columns]
         if missing_new_columns:
             print(f"❌ Hiányzó új oszlopok: {missing_new_columns}")
@@ -230,8 +247,8 @@ async def validate_data() -> bool:
 
         # Bid/Mid váltás szimuláció (adat szinten)
         # Ellenőrizzük, hogy a mid oszlopok különböznek a bid-től (ha van)
-        if "open" in df.columns and "mid_open" in df.columns:
-            bid_open = df["open"]
+        if "bid_open" in df.columns and "mid_open" in df.columns:
+            bid_open = df["bid_open"]
             mid_open = df["mid_open"]
             if (bid_open == mid_open).all():
                 print("⚠️ Figyelem: bid_open és mid_open azonos értékek (ez lehet normális)")

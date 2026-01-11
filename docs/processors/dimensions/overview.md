@@ -8,30 +8,52 @@ amelyek strukturált eredményeket adnak vissza a további feldolgozáshoz vagy 
 ```python
 {
     'timeframes': ['M1', 'M5', 'M15', 'H1', 'H4', 'D1'],
+    'config': {
+        'z_score_window': 60,      # Gördülő ablak mérete a normalizáláshoz
+        'use_mid_price': true,     # AI számításokhoz Mid Price használata
+        'calc_shadows': true       # Gyertya árnyékok számítása
+    },
     'values': {
-        'price': ['open', 'high', 'low', 'close'],
-        'volume': ['tick_volume'],
-        'spread': ['spread'],
-        'real_volume': ['real_volume']
+        # BEMENETI IGÉNY (Amit a Resamplertől kap):
+        'price_bid': ['bid_open', 'bid_high', 'bid_low', 'bid_close'],
+        'price_mid': ['mid_open', 'mid_high', 'mid_low', 'mid_close'],
+        'volume': ['tick_volume', 'real_volume', 'bid_volume', 'ask_volume'],
+        'spread': ['spread']
     }
 }
 ```
 
 ### Függvények
-- `_process_implementation(data, timeframe)`: Alapadatok feldolgozása
+- `_calculate_log_returns(df)`: Logaritmikus hozam számítása (kizárólag mid_close alapján).
+- `_calculate_rolling_z_score(df, window)`: Normalizálás gördülő átlaggal és szórással.
+- `_calculate_shadows(df)`: Gyertya kanócok méretének számítása (mid árakon).
 
 ### Visszatérési értékek
 ```python
 {
-    'weight': float,  # Időkeret súly
-    'mt5_data': {
-        'open': Series,    # Nyitó árak
-        'high': Series,    # Maximum árak
-        'low': Series,     # Minimum árak
-        'close': Series,   # Záró árak
-        'tick_volume': Series,  # Tick volumen
-        'spread': Series,       # Spread értékek
-        'real_volume': Series    # Valós volumen
+    'weight': 1.0,
+    'features': {
+        # ÁRAK (Explicit megnevezés)
+        'bid_open': Series,      # Kereskedéshez (Execution)
+        'bid_high': Series,
+        'bid_low': Series,
+        'bid_close': Series,
+        
+        'mid_open': Series,      # Elemzéshez (AI Analysis)
+        'mid_high': Series,
+        'mid_low': Series,
+        'mid_close': Series,
+        
+        # SZÁRMAZTATOTT MATEK (AI Input)
+        'log_return': Series,    # ln(mid_close / prev_mid_close)
+        'rolling_z_score': Series, # (log_return - mean) / std
+        'upper_shadow': Series,  # mid_high - max(mid_open, mid_close)
+        'lower_shadow': Series,  # min(mid_open, mid_close) - mid_low
+        
+        # VOLUMEN & KÖLTSÉG
+        'tick_volume': Series,   # Kötések száma
+        'real_volume': Series,   # Valós volumen (AskVol + BidVol)
+        'spread': Series         # Átlagos spread
     }
 }
 ```

@@ -606,4 +606,9 @@ Ez a dokumentum a Neural AI Next projekt architektúra szabványait definiálja.
 6. ✅ **Dokumentáció:** Mirror structure a `docs/components/`-ban.
 7. ✅ **Commit:** Atomic commit, formális üzenet, csak sikeres tesztek után.
 
+Adat Elnevezés:
+bid_open, bid_close... -> Kereskedéshez / Chart.
+mid_open, mid_close... -> AI Tanításhoz / Elemzéshez.
+open, close -> TILOS a backendben (túl kétértelmű). Csak a UI rétegben engedélyezett (display only).
+
 **Utolsó frissítés:** 2025-12-25

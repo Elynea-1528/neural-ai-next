@@ -2,6 +2,11 @@
 
 ## 1. Piramis Struktúra
 
+⚠️ ADATBEMENETI SZABVÁNY:
+Az AI modellek kizárólag a MID PRICE (Középár) alapú számításokat és a Log Return (Logaritmikus Hozam) értékeket használják bemenetként a zajcsökkentés érdekében.
+A BID PRICE (Vételi ár) kizárólag a Chart megjelenítésre és a Backtest végrehajtásra (Execution) szolgál.
+
+
 ```python
 class UltimateHierarchicalSystem(pl.LightningModule):
     def __init__(self):

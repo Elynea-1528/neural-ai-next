@@ -94,10 +94,13 @@ def main() -> None:
     # Archiválandó fájlok és mappák listája
     files_to_archive = [
         "neural_ai/",
-        # "docs/",
+        "docs/planning/technical_design/01_processor_architecture.md",
+        "docs/architecture/hierarchical_system/overview.md",
+        "docs/models/hierarchical/structure.md",
+        "docs/processors/dimensions/overview.md",
+        "docs/development/architecture_standards.md",
+        "docs/development/TASK_TREE.md",
         "configs/",
-        # "logs/",
-        # "tests/",
         "scripts/",
         "external/jforex-bridge/src/main/java/com/neuralai/bridge/NeuralBridgeStrategy.java",
         "main.py",

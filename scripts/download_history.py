@@ -241,6 +241,7 @@ async def _save_ticks_direct(
                 "ask": tick.ask,
                 "ask_volume": tick.ask_volume if tick.ask_volume is not None else 0.0,
                 "bid_volume": tick.bid_volume if tick.bid_volume is not None else 0.0,
+                "source": "jforex",
             }
             for tick in ticks
         ]
