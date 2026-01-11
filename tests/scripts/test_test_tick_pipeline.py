@@ -71,3 +71,59 @@ class TestValidateTickPipeline:
                 result = await validate_tick_pipeline()
 
         assert result is False
+
+    @pytest.mark.asyncio
+    async def test_validate_tick_pipeline_validation_errors(self):
+        """Teszt különböző validációs hibák esetén."""
+        from datetime import datetime
+
+        import pandas as pd
+        import polars as pl
+
+        # Mock adatok
+        date_range = pd.date_range(
+            start=datetime(2024, 1, 1, 12, 0, 0), end=datetime(2024, 1, 1, 12, 0, 10), freq="1s"
+        )
+
+        # Mock resample - rossz adatokkal
+        bad_resample_df = pl.DataFrame(
+            {
+                "timestamp": date_range[:5],  # Rövidebb len
+                "bid": [1.05] * 5,
+                "ask": [1.051] * 5,
+                "bid_volume": [50] * 5,
+                "ask_volume": [50] * 5,
+                "mid_close": [1.05] * 5,
+                "spread": [0.001] * 5,
+                "tick_volume": [2] * 5,  # Nem 1 minden sorban
+            }
+        )
+
+        # Mock d1 result - rossz adatokkal
+        bad_d1_df = pl.DataFrame(
+            {
+                "timestamp": date_range[:5],
+                # Hiányzó log_return
+                "upper_shadow": [0.01] * 5,  # Nem null
+                "lower_shadow": [0.01] * 5,  # Nem null
+            }
+        )
+
+        with (
+            patch(
+                "neural_ai.core.processing.resampler_service.factory.ResamplerServiceFactory"
+            ) as mock_factory,
+            patch("neural_ai.core.processing.factory.create_dimension_processor") as mock_create,
+        ):
+            mock_resampler = MagicMock()
+            mock_factory.create.return_value = mock_resampler
+            mock_resampler.resample.return_value = bad_resample_df
+
+            mock_processor = MagicMock()
+            mock_create.return_value = mock_processor
+            mock_processor.process.return_value = bad_d1_df
+
+            with patch("builtins.print"):
+                result = await validate_tick_pipeline()
+
+        assert result is False  # Validációs hibák miatt False
