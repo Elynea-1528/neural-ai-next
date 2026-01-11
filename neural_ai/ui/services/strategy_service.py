@@ -8,7 +8,6 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 import pandas as pd
-import vectorbt as vbt
 
 from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
@@ -340,6 +339,8 @@ class StrategyService(StrategyServiceInterface):
             }
 
         try:
+            import vectorbt as vbt
+
             # Adat előkészítés: Index ellenőrzése és javítása
             if not isinstance(df.index, pd.DatetimeIndex):
                 if "timestamp" in df.columns:
@@ -368,19 +369,56 @@ class StrategyService(StrategyServiceInterface):
             # 5. Eredmények csomagolása
             stats_dict: dict[str, Any] = pf.stats().to_dict()
             equity_array = pf.value()
+            if hasattr(equity_array, "tolist"):
+                equity_array = equity_array.tolist()
+            else:
+                equity_array = list(equity_array)
 
-            # Trades konvertálása DataFrame-re
-            trades_records = pf.trades.records
-            trades_df: DataFrame | dict[str, Any] = {}
-            if len(trades_records) > 0:
-                trades_df = {
-                    "count": len(trades_records),
-                    "pnl": trades_records["PnL"].tolist(),
-                    "entry_idx": trades_records["Entry Index"].tolist(),
-                    "exit_idx": trades_records["Exit Index"].tolist(),
+            # HASZNÁLJUK A READABLE DATAFRAME-ET! (Ez stabilabb)
+            trades_df_raw = pf.trades.records_readable
+
+            trades_data: dict[str, int | list[float] | list[str]] = {
+                "count": 0,
+                "pnl": [],
+                "duration": [],
+                "entry_time": [],
+                "exit_time": [],
+            }
+            if len(trades_df_raw) > 0:
+                # Biztonságos oszlop elérés és típuskonverzió
+                # PnL kezelés (Ha nincs PnL, akkor 0)
+                pnl = (
+                    trades_df_raw["PnL"].fillna(0.0).tolist()
+                    if "PnL" in trades_df_raw.columns
+                    else []
+                )
+
+                # Duration kezelés (Timedelta -> String, hogy a JSON ne haljon be)
+                duration = []
+                if "Duration" in trades_df_raw.columns:
+                    duration = trades_df_raw["Duration"].astype(str).tolist()
+
+                # Entry/Exit idők
+                entry_time = (
+                    trades_df_raw["Entry Timestamp"].astype(str).tolist()
+                    if "Entry Timestamp" in trades_df_raw.columns
+                    else []
+                )
+                exit_time = (
+                    trades_df_raw["Exit Timestamp"].astype(str).tolist()
+                    if "Exit Timestamp" in trades_df_raw.columns
+                    else []
+                )
+
+                trades_data = {
+                    "count": len(trades_df_raw),
+                    "pnl": pnl,
+                    "duration": duration,
+                    "entry_time": entry_time,
+                    "exit_time": exit_time,
                 }
 
-            # Signals konvertálása
+            # Signals konvertálása (marad a régi, az jó volt)
             entries_list = (
                 [int(i) for i in entries.values] if hasattr(entries, "values") else list(entries)
             )
@@ -388,12 +426,9 @@ class StrategyService(StrategyServiceInterface):
 
             return {
                 "stats": stats_dict,
-                "equity": equity_array.tolist(),
-                "trades": trades_df,
-                "signals": {
-                    "entries": entries_list,
-                    "exits": exits_list,
-                },
+                "equity": equity_array,
+                "trades": trades_data,  # Az új, biztonságos dict
+                "signals": {"entries": entries_list, "exits": exits_list},
                 "parameters": {
                     "symbol": symbol,
                     "date": date,

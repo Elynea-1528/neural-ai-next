@@ -4,10 +4,14 @@ Ez a modul tartalmazza a StrategyService osztály tesztjeit,
 beleértve az új get_candles metódust.
 """
 
+import sys
 from datetime import datetime
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
+
+# Mock vectorbt to avoid import issues in tests
+sys.modules["vectorbt"] = Mock()
 
 from neural_ai.ui.services.strategy_service import StrategyService
 
@@ -202,3 +206,267 @@ class TestStrategyService:
                     symbol="EURUSD", date="2024-03-20", timeframe=timeframe
                 )
                 assert mock_resampler.resample.call_args.kwargs["timeframe"] == timeframe
+
+    @pytest.mark.asyncio
+    async def test_run_sma_backtest_success_with_trades(
+        self, strategy_service: StrategyService
+    ) -> None:
+        """SMA backtest sikerességének tesztelése trades adatokkal."""
+        from unittest.mock import MagicMock
+
+        import pandas as pd
+
+        # Mock DataFrame OHLC adatokkal
+        df = pd.DataFrame(
+            {
+                "open": [1.05, 1.06, 1.07],
+                "high": [1.06, 1.07, 1.08],
+                "low": [1.04, 1.05, 1.06],
+                "close": [1.055, 1.065, 1.075],
+                "timestamp": pd.to_datetime(
+                    ["2024-01-01 10:00:00", "2024-01-01 10:01:00", "2024-01-01 10:02:00"]
+                ),
+            }
+        )
+        df.index = df["timestamp"]
+
+        # Mock vectorbt Portfolio
+        mock_pf = MagicMock()
+        mock_pf.stats.return_value.to_dict.return_value = {
+            "total_return": 0.05,
+            "sharpe_ratio": 1.2,
+        }
+        mock_pf.value.return_value = [10000, 10500, 11000]
+
+        # Mock trades.records_readable as MagicMock to avoid pandas issues
+        mock_trades_df = MagicMock()
+        mock_trades_df.__len__ = Mock(return_value=2)
+        mock_trades_df.__getitem__ = Mock(
+            side_effect=lambda key: {
+                "PnL": MagicMock(
+                    fillna=Mock(return_value=Mock(tolist=Mock(return_value=[50.0, 100.0])))
+                ),
+                "Duration": MagicMock(
+                    astype=Mock(
+                        return_value=Mock(
+                            tolist=Mock(return_value=["0 days 00:05:00", "0 days 00:10:00"])
+                        )
+                    )
+                ),
+                "Entry Timestamp": MagicMock(
+                    astype=Mock(
+                        return_value=Mock(
+                            tolist=Mock(return_value=["2024-01-01 10:00:00", "2024-01-01 10:01:00"])
+                        )
+                    )
+                ),
+                "Exit Timestamp": MagicMock(
+                    astype=Mock(
+                        return_value=Mock(
+                            tolist=Mock(return_value=["2024-01-01 10:05:00", "2024-01-01 10:11:00"])
+                        )
+                    )
+                ),
+            }[key]
+        )
+        mock_trades_df.columns = ["PnL", "Duration", "Entry Timestamp", "Exit Timestamp"]
+        mock_pf.trades.records_readable = mock_trades_df
+
+        # Mock signals
+        mock_entries = MagicMock()
+        mock_entries.values = [True, False, True]
+        mock_exits = MagicMock()
+        mock_exits.values = [False, True, False]
+
+        with (
+            patch("vectorbt.Portfolio.from_signals", return_value=mock_pf),
+            patch("vectorbt.MA.run") as mock_ma_run,
+        ):
+            # Mock MA.run visszatérési értékek
+            mock_fast_ma = MagicMock()
+            mock_slow_ma = MagicMock()
+            mock_fast_ma.ma_crossed_above.return_value = mock_entries
+            mock_fast_ma.ma_crossed_below.return_value = mock_exits
+            mock_ma_run.side_effect = [mock_fast_ma, mock_slow_ma]
+
+            result = await strategy_service.run_sma_backtest(
+                symbol="EURUSD",
+                date="2024-01-01",
+                timeframe="1m",
+                fast_period=5,
+                slow_period=10,
+                initial_capital=10000.0,
+                df=df,
+            )
+
+            # Ellenőrizzük az eredmény szerkezetét
+            assert "stats" in result
+            assert "equity" in result
+            assert "trades" in result
+            assert "signals" in result
+            assert "parameters" in result
+
+            # Ellenőrizzük a trades adatokat
+            trades_data = result["trades"]
+            assert trades_data["count"] == 2
+            assert trades_data["pnl"] == [50.0, 100.0]
+            assert trades_data["duration"] == ["0 days 00:05:00", "0 days 00:10:00"]
+            assert trades_data["entry_time"] == [
+                "2024-01-01 10:00:00",
+                "2024-01-01 10:01:00",
+            ]
+            assert trades_data["exit_time"] == [
+                "2024-01-01 10:05:00",
+                "2024-01-01 10:11:00",
+            ]
+
+            # Ellenőrizzük a signals-t
+            assert result["signals"]["entries"] == [1, 0, 1]
+            assert result["signals"]["exits"] == [0, 1, 0]
+
+            # Ellenőrizzük a parameters-t
+            params = result["parameters"]
+            assert params["symbol"] == "EURUSD"
+            assert params["fast_period"] == 5
+            assert params["slow_period"] == 10
+
+    @pytest.mark.asyncio
+    async def test_run_sma_backtest_no_trades(self, strategy_service: StrategyService) -> None:
+        """SMA backtest tesztelése trades nélkül."""
+        from unittest.mock import MagicMock
+
+        import pandas as pd
+
+        # Mock DataFrame OHLC adatokkal
+        df = pd.DataFrame(
+            {
+                "open": [1.05, 1.06, 1.07],
+                "high": [1.06, 1.07, 1.08],
+                "low": [1.04, 1.05, 1.06],
+                "close": [1.055, 1.065, 1.075],
+                "timestamp": pd.to_datetime(
+                    ["2024-01-01 10:00:00", "2024-01-01 10:01:00", "2024-01-01 10:02:00"]
+                ),
+            }
+        )
+        df.index = df["timestamp"]
+
+        # Mock vectorbt Portfolio
+        mock_pf = MagicMock()
+        mock_pf.stats.return_value.to_dict.return_value = {"total_return": 0.0, "sharpe_ratio": 0.0}
+        mock_pf.value.return_value = [10000, 10000, 10000]
+
+        # Üres trades DataFrame
+        mock_trades_df = pd.DataFrame()
+        mock_pf.trades.records_readable = mock_trades_df
+
+        # Mock signals
+        mock_entries = MagicMock()
+        mock_entries.values = [False, False, False]
+        mock_exits = MagicMock()
+        mock_exits.values = [False, False, False]
+
+        with (
+            patch("vectorbt.Portfolio.from_signals", return_value=mock_pf),
+            patch("vectorbt.MA.run") as mock_ma_run,
+        ):
+            # Mock MA.run visszatérési értékek
+            mock_fast_ma = MagicMock()
+            mock_slow_ma = MagicMock()
+            mock_fast_ma.ma_crossed_above.return_value = mock_entries
+            mock_fast_ma.ma_crossed_below.return_value = mock_exits
+            mock_ma_run.side_effect = [mock_fast_ma, mock_slow_ma]
+
+            result = await strategy_service.run_sma_backtest(
+                symbol="EURUSD",
+                date="2024-01-01",
+                timeframe="1m",
+                fast_period=5,
+                slow_period=10,
+                initial_capital=10000.0,
+                df=df,
+            )
+
+            # Ellenőrizzük az eredményt
+            trades_data = result["trades"]
+            assert trades_data["count"] == 0
+            assert trades_data["pnl"] == []
+            assert trades_data["duration"] == []
+            assert trades_data["entry_time"] == []
+            assert trades_data["exit_time"] == []
+
+    @pytest.mark.asyncio
+    async def test_run_sma_backtest_missing_pnl_column(
+        self, strategy_service: StrategyService
+    ) -> None:
+        """SMA backtest tesztelése hiányzó PnL oszloppal."""
+        from unittest.mock import MagicMock
+
+        import pandas as pd
+
+        # Mock DataFrame OHLC adatokkal
+        df = pd.DataFrame(
+            {
+                "open": [1.05, 1.06, 1.07],
+                "high": [1.06, 1.07, 1.08],
+                "low": [1.04, 1.05, 1.06],
+                "close": [1.055, 1.065, 1.075],
+                "timestamp": pd.to_datetime(
+                    ["2024-01-01 10:00:00", "2024-01-01 10:01:00", "2024-01-01 10:02:00"]
+                ),
+            }
+        )
+        df.index = df["timestamp"]
+
+        # Mock vectorbt Portfolio
+        mock_pf = MagicMock()
+        mock_pf.stats.return_value.to_dict.return_value = {
+            "total_return": 0.02,
+            "sharpe_ratio": 0.8,
+        }
+        mock_pf.value.return_value = [10000, 10200]
+
+        # Trades DataFrame PnL nélkül
+        mock_trades_df = pd.DataFrame(
+            {
+                "Duration": pd.to_timedelta(["00:05:00"]),
+                "Entry Timestamp": pd.to_datetime(["2024-01-01 10:00:00"]),
+                "Exit Timestamp": pd.to_datetime(["2024-01-01 10:05:00"]),
+            }
+        )
+        mock_pf.trades.records_readable = mock_trades_df
+
+        # Mock signals
+        mock_entries = MagicMock()
+        mock_entries.values = [True, False]
+        mock_exits = MagicMock()
+        mock_exits.values = [False, True]
+
+        with (
+            patch("vectorbt.Portfolio.from_signals", return_value=mock_pf),
+            patch("vectorbt.MA.run") as mock_ma_run,
+        ):
+            # Mock MA.run visszatérési értékek
+            mock_fast_ma = MagicMock()
+            mock_slow_ma = MagicMock()
+            mock_fast_ma.ma_crossed_above.return_value = mock_entries
+            mock_fast_ma.ma_crossed_below.return_value = mock_exits
+            mock_ma_run.side_effect = [mock_fast_ma, mock_slow_ma]
+
+            result = await strategy_service.run_sma_backtest(
+                symbol="EURUSD",
+                date="2024-01-01",
+                timeframe="1m",
+                fast_period=5,
+                slow_period=10,
+                initial_capital=10000.0,
+                df=df,
+            )
+
+            # Ellenőrizzük a trades adatokat
+            trades_data = result["trades"]
+            assert trades_data["count"] == 1
+            assert trades_data["pnl"] == []  # Hiányzó PnL miatt üres lista
+            assert trades_data["duration"] == ["0 days 00:05:00"]
+            assert trades_data["entry_time"] == ["2024-01-01 10:00:00"]
+            assert trades_data["exit_time"] == ["2024-01-01 10:05:00"]
