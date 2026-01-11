@@ -4,7 +4,7 @@ Dependency injection konténer implementáció.
 
 ## Osztályok
 
-### `LazyComponent`
+### `LazyComponent[T]`
 
 Lusta betöltésű komponensek wrapper osztálya.
 
@@ -25,26 +25,6 @@ Egyszerű dependency injection konténer.
 ### `__init__`
 
 Konténer inicializálása.
-
-### `get`
-
-Komponens példány lekérése (lusta betöltés támogatással).
-
-        Args:
-            component_name: A lekérendő komponens neve
-
-        Returns:
-            A komponens példánya
-
-        Raises:
-            ComponentNotFoundError: Ha a komponens nem található
-
-### `is_loaded`
-
-Ellenőrzi, hogy a komponens betöltődött-e már.
-
-        Returns:
-            True, ha a komponens már betöltődött, egyébként False
 
 ### `register_instance`
 
@@ -84,9 +64,22 @@ Lusta betöltésű komponens regisztrálása.
             ValueError: Ha a komponens név érvénytelen vagy a factory
                 függvény nem hívható
 
+### `get`
+
+Komponens példány lekérése (lusta betöltés támogatással).
+
+        Args:
+            component_name: A lekérendő komponens neve
+
+        Returns:
+            A komponens példánya
+
+        Raises:
+            ComponentNotFoundError: Ha a komponens nem található
+
 ### `get_lazy_components`
 
-Get status of all lazy components.
+A lusta komponensek státuszának lekérése.
 
         Returns:
             A dictionary where keys are component names and values
@@ -101,29 +94,7 @@ Preload specific components.
 
 ### `clear`
 
-Clear the container.
-
-### `_verify_singleton`
-
-Verify that the instance follows singleton pattern.
-
-        Args:
-            instance: The instance to verify
-            component_name: The name of the component
-
-        Raises:
-            UserWarning: If singleton pattern is not properly implemented
-
-### `_enforce_singleton`
-
-Enforce singleton pattern by preventing duplicate registration.
-
-        Args:
-            component_name: The name of the component
-            instance: The instance being registered
-
-        Raises:
-            SingletonViolationError: If singleton pattern is violated
+Konténer ürítése.
 
 ### `register`
 
@@ -139,7 +110,26 @@ Komponens példány regisztrálása.
 
 ### `get_memory_usage`
 
-Get memory usage statistics.
+Memória használat statisztikák lekérése.
+
+### `_verify_singleton`
+
+Singleton minta ellenőrzése.
+
+        Args:
+            instance: The instance to verify
+            component_name: The name of the component
+
+### `_enforce_singleton`
+
+Singleton minta kényszerítése duplikált regisztráció megakadályozásával.
+
+        Args:
+            component_name: The name of the component
+            instance: The instance being registered
+
+        Raises:
+            SingletonViolationError: If singleton pattern is violated
 
 
 ---

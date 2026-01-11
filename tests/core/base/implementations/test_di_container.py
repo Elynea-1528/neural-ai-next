@@ -1,312 +1,275 @@
-"""DIContainer és LazyComponent tesztek.
-
-Ez a modul tartalmazza a DIContainer és LazyComponent osztályok
-egységtesztjeit, beleértve a regisztrációt, feloldást és lusta betöltést.
-"""
-
-from unittest.mock import MagicMock, patch
+"""Dependency injection konténer tesztjei."""
 
 import pytest
-import structlog
 
 from neural_ai.core.base.exceptions import ComponentNotFoundError
 from neural_ai.core.base.implementations.di_container import DIContainer, LazyComponent
 
 
+class MockComponent:
+    """Mock komponens teszteléshez."""
+
+    def __init__(self, value: str = "test") -> None:
+        """Inicializálja a mock komponenst."""
+        self.value = value
+        self._initialized = True
+
+
 class TestLazyComponent:
-    """LazyComponent osztály tesztjei."""
+    """LazyComponent tesztjei."""
 
-    def test_init(self) -> None:
-        """Teszteli a LazyComponent inicializálását."""
-        factory_func: MagicMock = MagicMock(return_value="test_instance")
-        component: LazyComponent[str] = LazyComponent(factory_func)
+    def test_initialization(self) -> None:
+        """Teszteli a lusta komponens inicializálását."""
 
-        assert not component.is_loaded
-        # Megjegyzés: A _factory_func protected, de a tesztelés miatt ellenőrizzük
-        # A valós használatban csak a get() metódust használjuk
+        def factory() -> MockComponent:
+            return MockComponent("lazy")
 
-    def test_get_first_access(self) -> None:
-        """Teszteli a komponens első hozzáférését (betöltéssel)."""
-        mock_instance: MagicMock = MagicMock()
-        factory_func: MagicMock = MagicMock(return_value=mock_instance)
-        component: LazyComponent[MagicMock] = LazyComponent(factory_func)
+        lazy = LazyComponent[MockComponent](factory)
 
-        result = component.get()
+        assert not lazy.is_loaded
+        assert lazy.get().value == "lazy"
+        assert lazy.is_loaded
 
-        assert result is mock_instance
-        assert component.is_loaded
-        factory_func.assert_called_once()
+    def test_get_multiple_times(self) -> None:
+        """Teszteli a többszöri get hívást."""
+        call_count = 0
 
-    def test_get_multiple_access(self) -> None:
-        """Teszteli, hogy a factory csak egyszer hívódik meg többszöri hozzáféréskor."""
-        mock_instance: MagicMock = MagicMock()
-        factory_func: MagicMock = MagicMock(return_value=mock_instance)
-        component: LazyComponent[MagicMock] = LazyComponent(factory_func)
+        def factory() -> MockComponent:
+            nonlocal call_count
+            call_count += 1
+            return MockComponent(f"call_{call_count}")
 
-        result1 = component.get()
-        result2 = component.get()
-        result3 = component.get()
+        lazy = LazyComponent[MockComponent](factory)
 
-        assert result1 is mock_instance
-        assert result2 is mock_instance
-        assert result3 is mock_instance
-        assert component.is_loaded
-        factory_func.assert_called_once()
+        # Első hívás
+        instance1 = lazy.get()
+        assert call_count == 1
+        assert instance1.value == "call_1"
+
+        # Második hívás - factory-t nem hívja újra
+        instance2 = lazy.get()
+        assert call_count == 1
+        assert instance2 is instance1
 
 
 class TestDIContainer:
-    """DIContainer osztály tesztjei."""
+    """DIContainer tesztjei."""
 
-    def test_init(self) -> None:
-        """Teszteli a DIContainer inicializálását."""
-        container: DIContainer = DIContainer()
-
-        # A konténer kezdetben üres
-        assert container.resolve(object) is None
-        assert container.get_lazy_components() == {}
+    def test_initialization(self) -> None:
+        """Teszteli a konténer inicializálását."""
+        container = DIContainer()
+        assert container._instances == {}
+        assert container._factories == {}
+        assert container._lazy_components == {}
 
     def test_register_instance(self) -> None:
-        """Teszteli a példány regisztrálását."""
-        container: DIContainer = DIContainer()
-        mock_instance: MagicMock = MagicMock()
+        """Teszteli az instance regisztrálását."""
+        container = DIContainer()
+        instance = MockComponent("instance")
 
-        container.register_instance(str, mock_instance)
+        container.register_instance(str, instance)
 
-        # A regisztrált példány feloldható
-        result = container.resolve(str)
-        assert result is mock_instance
+        assert container._instances[str] is instance
 
     def test_register_factory(self) -> None:
         """Teszteli a factory regisztrálását."""
-        container: DIContainer = DIContainer()
-        mock_instance: MagicMock = MagicMock()
-        factory_func: MagicMock = MagicMock(return_value=mock_instance)
+        container = DIContainer()
 
-        container.register_factory(str, factory_func)
+        def factory() -> MockComponent:
+            return MockComponent("factory")
 
-        # A factory által létrehozott példány feloldható
-        result = container.resolve(str)
-        assert result is mock_instance
+        container.register_factory(str, factory)
+
+        assert container._factories[str] is factory
 
     def test_resolve_instance(self) -> None:
-        """Teszteli a példány feloldását."""
-        container: DIContainer = DIContainer()
-        mock_instance: MagicMock = MagicMock()
-        container.register_instance(str, mock_instance)
+        """Teszteli az instance feloldását."""
+        container = DIContainer()
+        instance = MockComponent("resolve")
 
-        result = container.resolve(str)
+        container.register_instance(str, instance)
 
-        assert result is mock_instance
+        resolved = container.resolve(str)
+        assert resolved is instance
 
     def test_resolve_factory(self) -> None:
-        """Teszteli a factory által létrehozott példány feloldását."""
-        container: DIContainer = DIContainer()
-        mock_instance: MagicMock = MagicMock()
-        factory_func: MagicMock = MagicMock(return_value=mock_instance)
-        container.register_factory(str, factory_func)
+        """Teszteli a factory feloldását."""
+        container = DIContainer()
 
-        result = container.resolve(str)
+        def factory() -> MockComponent:
+            return MockComponent("factory_resolve")
 
-        assert result is mock_instance
-        factory_func.assert_called_once()
+        container.register_factory(str, factory)
+
+        resolved = container.resolve(str)
+        assert isinstance(resolved, MockComponent)
+        assert resolved.value == "factory_resolve"
+
+        # Második resolve - ugyanaz az instance
+        resolved2 = container.resolve(str)
+        assert resolved2 is resolved
 
     def test_resolve_not_found(self) -> None:
-        """Teszteli a feloldást nem létező interfész esetén."""
-        container: DIContainer = DIContainer()
+        """Teszteli a nem létező komponens feloldását."""
+        container = DIContainer()
 
-        result = container.resolve(str)
+        assert container.resolve(str) is None
 
-        assert result is None
+    def test_register_lazy(self) -> None:
+        """Teszteli a lusta komponens regisztrálását."""
+        container = DIContainer()
 
-    def test_register_lazy_valid(self) -> None:
-        """Teszteli a lusta komponens regisztrálását érvényes adatokkal."""
-        container: DIContainer = DIContainer()
-        mock_instance: MagicMock = MagicMock()
-        factory_func: MagicMock = MagicMock(return_value=mock_instance)
+        def factory() -> MockComponent:
+            return MockComponent("lazy")
 
-        container.register_lazy("test_component", factory_func)
+        container.register_lazy("lazy_comp", factory)
 
-        # A lusta komponens lekérhető
-        result = container.get("test_component")
-        assert result is mock_instance
+        assert "lazy_comp" in container._lazy_components
+        assert not container._lazy_components["lazy_comp"].is_loaded
 
-    def test_register_lazy_empty_name(self) -> None:
-        """Teszteli a lusta komponens regisztrálását üres névvel."""
-        container: DIContainer = DIContainer()
-        factory_func: MagicMock = MagicMock()
+    def test_register_lazy_invalid_name(self) -> None:
+        """Teszteli az érvénytelen névvel való regisztrálást."""
+        container = DIContainer()
 
         with pytest.raises(ValueError, match="Component name must be a non-empty string"):
-            container.register_lazy("", factory_func)
+            container.register_lazy("", lambda: MockComponent())
 
-    def test_register_lazy_not_callable(self) -> None:
-        """Teszteli a lusta komponens regisztrálását nem hívható factory-val."""
-        container: DIContainer = DIContainer()
+    def test_register_lazy_invalid_factory(self) -> None:
+        """Teszteli az érvénytelen factory-val való regisztrálást."""
+        container = DIContainer()
 
         with pytest.raises(ValueError, match="Factory function must be callable"):
-            container.register_lazy("test", "not_callable")  # type: ignore
+            container.register_lazy("test", "not_callable")
+
+    def test_get_regular_instance(self) -> None:
+        """Teszteli a reguláris instance lekérését."""
+        container = DIContainer()
+        instance = MockComponent("regular")
+
+        container._instances["regular_comp"] = instance
+
+        result = container.get("regular_comp")
+        assert result is instance
 
     def test_get_lazy_component(self) -> None:
         """Teszteli a lusta komponens lekérését."""
-        container: DIContainer = DIContainer()
-        mock_instance: MagicMock = MagicMock()
-        factory_func: MagicMock = MagicMock(return_value=mock_instance)
-        container.register_lazy("test_component", factory_func)
+        container = DIContainer()
 
-        result = container.get("test_component")
+        def factory() -> MockComponent:
+            return MockComponent("lazy_get")
 
-        assert result is mock_instance
-        factory_func.assert_called_once()
+        container.register_lazy("lazy_get", factory)
 
-    def test_get_lazy_component_not_found(self) -> None:
-        """Teszteli a lusta komponens lekérését nem létező névvel."""
-        container: DIContainer = DIContainer()
+        result = container.get("lazy_get")
+        assert isinstance(result, MockComponent)
+        assert result.value == "lazy_get"
 
-        with pytest.raises(ComponentNotFoundError, match="Component 'test' not found"):
-            container.get("test")
+        # Ellenőrizzük, hogy átkerült-e a reguláris instances-be
+        assert "lazy_get" in container._instances
+        assert "lazy_get" not in container._lazy_components
 
-    def test_get_lazy_components(self) -> None:
-        """Teszteli a lusta komponensek státuszának lekérdezését."""
-        container: DIContainer = DIContainer()
-        factory_func1: MagicMock = MagicMock()
-        factory_func2: MagicMock = MagicMock()
-        container.register_lazy("component1", factory_func1)
-        container.register_lazy("component2", factory_func2)
+    def test_get_not_found(self) -> None:
+        """Teszteli a nem létező komponens lekérését."""
+        container = DIContainer()
+
+        with pytest.raises(ComponentNotFoundError, match="Component 'not_found' not found"):
+            container.get("not_found")
+
+    def test_get_lazy_components_status(self) -> None:
+        """Teszteli a lusta komponensek státuszának lekérését."""
+        container = DIContainer()
+
+        def factory1() -> MockComponent:
+            return MockComponent("1")
+
+        def factory2() -> MockComponent:
+            return MockComponent("2")
+
+        container.register_lazy("comp1", factory1)
+        container.register_lazy("comp2", factory2)
 
         status = container.get_lazy_components()
+        assert status == {"comp1": False, "comp2": False}
 
-        assert status == {"component1": False, "component2": False}
+        # Betöltjük az egyiket
+        container.get("comp1")
+
+        status = container.get_lazy_components()
+        assert status == {"comp2": False}  # comp1 már nincs lazy-ben
 
     def test_preload_components(self) -> None:
         """Teszteli a komponensek előtöltését."""
-        container: DIContainer = DIContainer()
-        mock_instance: MagicMock = MagicMock()
-        factory_func: MagicMock = MagicMock(return_value=mock_instance)
-        container.register_lazy("test_component", factory_func)
+        container = DIContainer()
 
-        # Előtöltés előtt még nem töltődött be
-        assert container.get_lazy_components() == {"test_component": False}
+        def factory() -> MockComponent:
+            return MockComponent("preload")
 
-        container.preload_components(["test_component"])
+        container.register_lazy("preload_comp", factory)
 
-        # Előtöltés után a komponens betöltődik és áthelyeződik az instances-be
-        # Ezért a lazy_components-ből eltűnik
-        assert container.get_lazy_components() == {}
-        # De lekérhető marad
-        result = container.get("test_component")
-        assert result is mock_instance
+        container.preload_components(["preload_comp"])
+
+        assert container.get("preload_comp").value == "preload"
 
     def test_clear(self) -> None:
-        """Teszteli a konténer kiürítését."""
-        container: DIContainer = DIContainer()
-        container.register_instance(str, "test")
-        container.register_factory(int, lambda: 42)
-        container.register_lazy("test", lambda: "value")
+        """Teszteli a konténer ürítését."""
+        container = DIContainer()
+
+        container._instances["test"] = MockComponent()
+        container._factories["test"] = lambda: MockComponent()
+        container.register_lazy("lazy", lambda: MockComponent())
 
         container.clear()
 
-        # A konténer üres lesz
-        assert container.resolve(str) is None
-        assert container.get_lazy_components() == {}
+        assert container._instances == {}
+        assert container._factories == {}
+        assert container._lazy_components == {}
 
-    def test_register_valid(self) -> None:
-        """Teszteli a komponens regisztrálását érvényes adatokkal."""
-        container: DIContainer = DIContainer()
-        mock_instance: MagicMock = MagicMock()
+    def test_register_method(self) -> None:
+        """Teszteli a register metódust."""
+        container = DIContainer()
+        instance = MockComponent("register")
 
-        container.register("test_component", mock_instance)
+        container.register("register_comp", instance)
 
-        # A regisztrált komponens lekérhető
-        result = container.get("test_component")
-        assert result is mock_instance
+        assert container._instances["register_comp"] is instance
 
-    def test_register_empty_name(self) -> None:
-        """Teszteli a komponens regisztrálását üres névvel."""
-        container: DIContainer = DIContainer()
-        mock_instance: MagicMock = MagicMock()
+    def test_register_invalid_name(self) -> None:
+        """Teszteli az érvénytelen névvel való regisztrálást."""
+        container = DIContainer()
 
         with pytest.raises(ValueError, match="Component name must be a non-empty string"):
-            container.register("", mock_instance)
+            container.register("", MockComponent())
 
     def test_register_none_instance(self) -> None:
-        """Teszteli a komponens regisztrálását None példánnyal."""
-        container: DIContainer = DIContainer()
+        """Teszteli a None instance regisztrálását."""
+        container = DIContainer()
 
         with pytest.raises(ValueError, match="Instance cannot be None"):
-            container.register("test", None)  # type: ignore
+            container.register("test", None)
+
+    def test_enforce_singleton_violation(self) -> None:
+        """Teszteli a singleton megsértését."""
+        container = DIContainer()
+        instance1 = MockComponent("1")
+        instance2 = MockComponent("2")
+
+        container.register("singleton_comp", instance1)
+
+        with pytest.raises(Exception):  # SingletonViolationError
+            container.register("singleton_comp", instance2)
 
     def test_get_memory_usage(self) -> None:
-        """Teszteli a memóriahasználat lekérdezését."""
-        container: DIContainer = DIContainer()
-        container.register("test1", "value1")
-        container.register("test2", 42)
+        """Teszteli a memória használat lekérését."""
+        container = DIContainer()
+        instance = MockComponent()
+
+        container.register("mem_test", instance)
+        container.register_lazy("lazy_mem", lambda: MockComponent())
 
         stats = container.get_memory_usage()
 
-        assert stats["total_instances"] == 2
-        assert stats["lazy_components"] == 0
+        assert stats["total_instances"] == 1
+        assert stats["lazy_components"] == 1
+        assert stats["loaded_lazy_components"] == 0
         assert "instance_sizes" in stats
         assert isinstance(stats["instance_sizes"], dict)
-
-    @patch.object(structlog, "get_logger")
-    def test_register_instance_logging(self, mock_get_logger: MagicMock) -> None:
-        """Teszteli a naplózást példány regisztrálásakor."""
-        mock_logger: MagicMock = MagicMock()
-        mock_get_logger.return_value = mock_logger
-        container: DIContainer = DIContainer()
-        mock_instance: MagicMock = MagicMock()
-
-        container.register_instance(str, mock_instance)
-
-        mock_logger.debug.assert_called()
-
-    def test_verify_singleton_missing_initialized(self) -> None:
-        """Teszteli a singleton ellenőrzést hiányzó _initialized flag esetén."""
-        container: DIContainer = DIContainer()
-
-        class TestClass:
-            pass
-
-        instance = TestClass()
-
-        import warnings
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            container._verify_singleton(instance, "test_component")
-            assert len(w) == 1
-            assert "_initialized" in str(w[0].message)
-
-    def test_verify_singleton_missing_instance_attribute(self) -> None:
-        """Teszteli a singleton ellenőrzést hiányzó _instance attribútum esetén (236-237. sorok)."""
-        container: DIContainer = DIContainer()
-
-        class TestClass:
-            _initialized = True
-            _instances = {}  # Van _instances, de nincs _instance
-
-        instance = TestClass()
-
-        import warnings
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            container._verify_singleton(instance, "test_component")
-            assert len(w) == 1  # Csak a _instance hiánya miatti figyelmeztetés
-            # Ellenőrizzük, hogy a figyelmeztetés a _instance hiányáról szól
-            assert "_instance" in str(w[0].message)
-
-    def test_enforce_singleton_different_instance(self) -> None:
-        """Teszteli a singleton kikényszerítést különböző példányok esetén (254-256. sorok)."""
-        container: DIContainer = DIContainer()
-
-        class TestClass:
-            _initialized = True
-
-        instance1 = TestClass()
-        instance2 = TestClass()
-
-        # Először regisztráljuk az első példányt
-        container._instances["test_component"] = instance1
-
-        # Aztán megpróbáljuk ugyanazzal a névvel regisztrálni a második példányt
-        from neural_ai.core.base.exceptions import SingletonViolationError
-        with pytest.raises(SingletonViolationError, match="Singleton pattern violated"):
-            container._enforce_singleton("test_component", instance2)

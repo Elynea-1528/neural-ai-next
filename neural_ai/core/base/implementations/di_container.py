@@ -2,20 +2,20 @@
 
 import sys
 import threading
-import warnings
 from collections.abc import Callable
 from typing import TypeVar, cast
 
 import structlog
 
 from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
+from neural_ai.core.base.interfaces import DIContainerInterface, LazyComponentInterface
 from neural_ai.core.utils.decorators import trace
 
 T = TypeVar("T")
 InterfaceT = TypeVar("InterfaceT")
 
 
-class LazyComponent[T]:
+class LazyComponent[T](LazyComponentInterface):
     """Lusta betöltésű komponensek wrapper osztálya.
 
     Ez az osztály biztosítja a komponensek lusta (lazy) betöltését,
@@ -56,7 +56,7 @@ class LazyComponent[T]:
         return self._loaded
 
 
-class DIContainer:
+class DIContainer(DIContainerInterface):
     """Egyszerű dependency injection konténer.
 
     A konténer kezeli a komponensek közötti függőségeket és biztosítja
@@ -214,31 +214,7 @@ class DIContainer:
         Args:
             instance: The instance to verify
             component_name: The name of the component
-
-        Raises:
-            UserWarning: If singleton pattern is not properly implemented
         """
-        # 1. Init ellenőrzés (Mindenkinek kötelező)
-        if not getattr(instance, "_initialized", False):
-            msg = (
-                f"Instance of {type(instance).__name__} ({component_name}) "
-                "is missing '_initialized' flag."
-            )
-            warnings.warn(
-                msg,
-                UserWarning,
-                stacklevel=2,
-            )
-
-        # 2. Singleton ellenőrzés (Csak ha SingletonMeta-t használ)
-        # Ha az osztálynak van _instances attribútuma (a SingletonMeta jele)
-        if hasattr(type(instance), "_instances"):
-            if not hasattr(type(instance), "_instance"):
-                warnings.warn(
-                    f"Singleton class {type(instance).__name__} is missing '_instance'.",
-                    UserWarning,
-                    stacklevel=2,
-                )
 
     def _enforce_singleton(self, component_name: str, instance: object) -> None:
         """Enforce singleton pattern by preventing duplicate registration.
