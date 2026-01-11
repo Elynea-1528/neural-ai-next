@@ -202,3 +202,65 @@ class TestD01PriceProcessor:
 
         # Ellenőrizzük, hogy a timestamp oszlop sorrendje azonos
         assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
+
+    def test_process_tick_timeframe_shadows_none(
+        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a process metódust tick timeframe-mal, ahol shadows None."""
+        result = processor.process(sample_ohlcv_data, timeframe="tick")
+
+        # Ellenőrizzük az eredmény típusát
+        assert isinstance(result, pl.DataFrame)
+
+        # Oszlopok azonosak, kivéve hogy shadows None
+        expected_columns = {
+            "timestamp",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "tick_volume",
+            "spread",
+            "real_volume",
+            "log_return",
+            "rolling_z_score",
+            "upper_shadow",
+            "lower_shadow",
+        }
+        assert set(result.columns) == expected_columns
+
+        # Shadows None kell legyenek
+        assert result["upper_shadow"].is_null().all()
+        assert result["lower_shadow"].is_null().all()
+
+        # Egyéb adatok megmaradnak
+        assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
+        assert result["mid_close"].equals(sample_ohlcv_data["mid_close"])
+
+    def test_process_ohlc_timeframe_with_shadows(
+        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a process metódust OHLC timeframe-mal calc_shadows=True."""
+        result = processor.process(sample_ohlcv_data, timeframe="1m")
+
+        # Shadows nem None
+        assert not result["upper_shadow"].is_null().all()
+        assert not result["lower_shadow"].is_null().all()
+
+    @pytest.fixture
+    def processor_no_shadows(self) -> D01PriceProcessor:
+        """D01PriceProcessor példány fixture calc_shadows=False."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": False}
+        mock_logger = MagicMock()
+        return D01PriceProcessor(mock_config, mock_logger)
+
+    def test_process_ohlc_timeframe_no_shadows(
+        self, processor_no_shadows: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a process metódust OHLC timeframe-mal calc_shadows=False."""
+        result = processor_no_shadows.process(sample_ohlcv_data, timeframe="1m")
+
+        # Shadows None
+        assert result["upper_shadow"].is_null().all()
+        assert result["lower_shadow"].is_null().all()

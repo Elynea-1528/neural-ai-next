@@ -7,7 +7,8 @@ import polars as pl
 from neural_ai.core.processing.dimensions.base import BaseDimensionProcessor
 
 if TYPE_CHECKING:
-    pass
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class D01PriceProcessor(BaseDimensionProcessor):
@@ -27,13 +28,15 @@ class D01PriceProcessor(BaseDimensionProcessor):
         """
         super().__init__(config, logger)
 
-    def process(self, df: pl.DataFrame) -> pl.DataFrame:
+    def process(self, df: pl.DataFrame, timeframe: str = "1m") -> pl.DataFrame:
         """Polars Expr alapú dimenzió számítás matematikai transzformációkkal.
 
         Számítja a log return-ot, rolling Z-score-ot és árnyékokat (shadows).
+        Adaptív logika: tick timeframe esetén különbözik az OHLC-tól.
 
         Args:
             df: Bemeneti Polars DataFrame (már time-aligned OHLCV adatok)
+            timeframe: Időkeret ("tick", "1m", stb.), default "1m"
 
         Returns:
             Polars DataFrame az alap adatokkal és matematikai transzformációkkal
@@ -51,35 +54,33 @@ class D01PriceProcessor(BaseDimensionProcessor):
         # Log return: ln(mid_close / mid_close.shift(1))
         log_return = (pl.col("mid_close") / pl.col("mid_close").shift(1)).log()
 
-        # Rolling Z-score: (log_return - log_return.rolling_mean(window)) / log_return.rolling_std(window)
+        # Rolling Z-score: (log_return - rolling_mean) / rolling_std
         rolling_mean = log_return.rolling_mean(window_size=z_score_window)
         rolling_std = log_return.rolling_std(window_size=z_score_window)
         rolling_z_score = (log_return - rolling_mean) / rolling_std
 
-        # Árnyékok számítása opcionálisan
-        if calc_shadows:
-            # Upper shadow: mid_high - max(mid_open, mid_close)
-            upper_shadow = pl.col("mid_high") - pl.max_horizontal(
-                pl.col("mid_open"), pl.col("mid_close")
-            )
-            # Lower shadow: min(mid_open, mid_close) - mid_low
-            lower_shadow = pl.min_horizontal(pl.col("mid_open"), pl.col("mid_close")) - pl.col(
-                "mid_low"
-            )
-        else:
-            # Ha nem kell számítani, None értékekkel töltjük
+        if timeframe == "tick":
+            # Tick adatok esetén log_return ugyanaz
+            # Z-score ugyanabból az ablakból
+            # Shadows mindig None vagy 0
             upper_shadow = pl.lit(None).cast(pl.Float64)
             lower_shadow = pl.lit(None).cast(pl.Float64)
-
-        # Shadows: Árnyékok mérete
-        # Upper shadow: mid_high - max(mid_open, mid_close)
-        upper_shadow = pl.col("mid_high") - pl.max_horizontal(
-            pl.col("mid_open"), pl.col("mid_close")
-        )
-        # Lower shadow: min(mid_open, mid_close) - mid_low
-        lower_shadow = pl.min_horizontal(pl.col("mid_open"), pl.col("mid_close")) - pl.col(
-            "mid_low"
-        )
+        else:
+            # OHLC adatok esetén eredeti logika
+            # Árnyékok számítása opcionálisan
+            if calc_shadows:
+                # Upper shadow: mid_high - max(mid_open, mid_close)
+                upper_shadow = pl.col("mid_high") - pl.max_horizontal(
+                    pl.col("mid_open"), pl.col("mid_close")
+                )
+                # Lower shadow: min(mid_open, mid_close) - mid_low
+                lower_shadow = pl.min_horizontal(pl.col("mid_open"), pl.col("mid_close")) - pl.col(
+                    "mid_low"
+                )
+            else:
+                # Ha nem kell számítani, None értékekkel töltjük
+                upper_shadow = pl.lit(None).cast(pl.Float64)
+                lower_shadow = pl.lit(None).cast(pl.Float64)
 
         # Alap oszlopok kiválasztása
         columns = [
@@ -93,16 +94,9 @@ class D01PriceProcessor(BaseDimensionProcessor):
             "real_volume",
             log_return.alias("log_return"),
             rolling_z_score.alias("rolling_z_score"),
+            upper_shadow.alias("upper_shadow"),
+            lower_shadow.alias("lower_shadow"),
         ]
-
-        # Árnyékok hozzáadása ha szükséges
-        if calc_shadows:
-            columns.extend(
-                [
-                    upper_shadow.alias("upper_shadow"),
-                    lower_shadow.alias("lower_shadow"),
-                ]
-            )
 
         return df.select(columns)
 
