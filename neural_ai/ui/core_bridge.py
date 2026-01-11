@@ -77,7 +77,7 @@ class CoreBridge(metaclass=SingletonMeta):
             if self._core.logger:
                 self._core.logger.error(f"Hiba a Strategy Service inicializálásakor: {e}")
 
-    def get_component(self, component_type: str) -> Any | None:
+    def get_component(self, component_type: str) -> object | None:
         """Komponens lekérése a backend rendszerből.
 
         Args:
@@ -85,7 +85,7 @@ class CoreBridge(metaclass=SingletonMeta):
                 Támogatott típusok: 'parquet_storage', 'bi5_downloader', 'strategy_service', 'config'
 
         Returns:
-            Optional[Any]: A lekérdezett komponens vagy None, ha nem található
+            Optional[object]: A lekérdezett komponens vagy None, ha nem található
                 vagy a bridge nincs inicializálva.
 
         Raises:
@@ -103,7 +103,8 @@ class CoreBridge(metaclass=SingletonMeta):
         elif component_type == "strategy_service":
             return self._get_strategy_service()
         elif component_type == "config":
-            return self._core.config if self._core else None
+            # Biztonságos hozzáférés
+            return self._core.config if self._core and self._core.config else None
         else:
             if self._core.logger:
                 self._core.logger.warning(f"Ismeretlen komponens típus: {component_type}")
