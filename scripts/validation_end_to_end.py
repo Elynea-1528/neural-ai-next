@@ -21,6 +21,12 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+try:
+    import requests
+except ImportError:
+    print("❌ requests modul nincs telepítve. Telepítés: pip install requests")
+    sys.exit(1)
+
 # Hozzáadjuk a projekt gyökerét a Python path-hoz
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -77,6 +83,19 @@ def test_dashboard_startup() -> bool:
     print("🖥️ Dashboard indítás tesztelése (headless mód)")
 
     try:
+        # Először erőszakkal leállítjuk az esetleges zombi folyamatokat
+        print("🔪 Zombi folyamatok leállítása...")
+        kill_result = subprocess.run(
+            ["/home/elynea/miniconda3/envs/neural-ai-next/bin/python", "scripts/force_kill.py"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if kill_result.returncode != 0:
+            print(f"⚠️ Force kill figyelmeztetés: {kill_result.stderr}")
+        else:
+            print("✅ Folyamatok tisztítása sikeres")
+
         # Dashboard indítása headless-ben
         cmd = [
             "/home/elynea/miniconda3/envs/neural-ai-next/bin/python",
@@ -88,25 +107,44 @@ def test_dashboard_startup() -> bool:
         # Indítás 10 másodperces timeout-al
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-        # Várunk 5 másodpercet az indulásra
-        time.sleep(5)
+        # Ciklikus ellenőrzés: max 30 másodpercig várunk a port elérhetőségére
+        max_wait = 30
+        check_interval = 1
+        health_url = "http://localhost:8501/_stcore/health"
 
-        # Ellenőrizzük, hogy még fut-e
-        if process.poll() is None:
-            print("✅ Dashboard sikeresen indult")
-            # Leállítjuk
-            process.terminate()
+        for elapsed in range(0, max_wait, check_interval):
+            # Ellenőrizzük, hogy a folyamat még fut-e
+            if process.poll() is not None:
+                _, stderr = process.communicate()
+                print(f"❌ Dashboard folyamat kilépett az indulás előtt: {stderr}")
+                return False
+
+            # Próbálunk kapcsolódni a health endpoint-hez
             try:
-                process.wait(timeout=5)
-                print("✅ Dashboard leállítva")
-            except subprocess.TimeoutExpired:
-                process.kill()
-                print("⚠️ Dashboard erőszakkal leállítva")
-            return True
-        else:
-            _, stderr = process.communicate()
-            print(f"❌ Dashboard indítása sikertelen: {stderr}")
-            return False
+                response = requests.get(health_url, timeout=2)
+                if response.status_code == 200:
+                    print(f"✅ Dashboard sikeresen indult ({elapsed + check_interval}s)")
+                    # Leállítjuk
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                        print("✅ Dashboard leállítva")
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        print("⚠️ Dashboard erőszakkal leállítva")
+                    return True
+            except requests.RequestException:
+                # Port még nem elérhető, folytatjuk a várakozást
+                pass
+
+            time.sleep(check_interval)
+
+        # Ha ide értünk, timeout történt
+        print("❌ Dashboard indítása timeout - port nem vált elérhetővé 30 másodpercen belül")
+        if process.poll() is None:
+            process.kill()
+            print("⚠️ Dashboard folyamat leállítva")
+        return False
 
     except Exception as e:
         print(f"❌ Hiba a dashboard indításakor: {e}")
