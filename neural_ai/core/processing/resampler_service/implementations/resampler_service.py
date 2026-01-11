@@ -107,8 +107,8 @@ class ResamplerService(ResamplerInterface):
         Raises:
             InvalidTimeframeError: Ha az időkeret érvénytelen
         """
-        valid_timeframes = ["1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"]
-        if timeframe not in valid_timeframes:
+        valid_timeframes = ["tick", "1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"]
+        if timeframe.lower() not in [tf.lower() for tf in valid_timeframes]:
             raise InvalidTimeframeError(timeframe)
 
     async def _load_tick_data(self, symbol: str, start: datetime, end: datetime) -> pl.DataFrame:
@@ -190,6 +190,24 @@ class ResamplerService(ResamplerInterface):
         missing_columns = [col for col in required_columns if col not in tick_data.columns]
         if missing_columns:
             raise ValueError(f"Missing required columns for OHLCV conversion: {missing_columns}")
+
+        # Ha timeframe tick, akkor bypass aggregáció és enrich soronként
+        if timeframe.lower() == "tick":
+            mid_price = (pl.col("bid") + pl.col("ask")) / 2
+            enriched_tick_data = tick_data.with_columns(
+                mid_open=mid_price,
+                mid_high=mid_price,
+                mid_low=mid_price,
+                mid_close=mid_price,
+                bid_open=pl.col("bid"),
+                bid_high=pl.col("bid"),
+                bid_low=pl.col("bid"),
+                bid_close=pl.col("bid"),
+                spread=pl.col("ask") - pl.col("bid"),
+                real_volume=pl.col("bid_volume") + pl.col("ask_volume"),
+                tick_volume=pl.lit(1),
+            )
+            return enriched_tick_data
 
         # Volume oszlopok kezelése (csak bid_volume, ask_volume)
         volume_cols: list[str] = []

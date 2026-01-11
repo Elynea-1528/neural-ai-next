@@ -243,7 +243,7 @@ class TestResamplerService:
 
     def test_validate_timeframe_valid(self, resampler: ResamplerService):
         """Teszt érvényes időkeret validálását."""
-        valid_timeframes = ["1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"]
+        valid_timeframes = ["tick", "1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"]
 
         for timeframe in valid_timeframes:
             # Nem dob kivételt
@@ -349,6 +349,111 @@ class TestResamplerService:
             assert row["spread"] >= 0, "Spread nem lehet negatív"
             assert row["real_volume"] >= 0, "Real Volume nem lehet negatív"
             assert row["tick_volume"] >= 0, "Tick Volume nem lehet negatív"
+
+    @pytest.mark.asyncio
+    async def test_resample_tick_timeframe(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt tick timeframe bypass aggregációval."""
+        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler.resample(
+            symbol="EURUSD", start=start, end=end, timeframe="tick", return_type="polars"
+        )
+
+        # Ellenőrzés
+        assert isinstance(result, pl.DataFrame)
+        # Sorok száma megegyezik (bypass aggregáció)
+        assert len(result) == len(sample_tick_data)
+        assert "mid_close" in result.columns
+        assert "spread" in result.columns
+        assert "tick_volume" in result.columns
+        # Minden tick_volume 1
+        assert all(result["tick_volume"] == 1)
+        # mid_close = (bid + ask) / 2
+        expected_mid_close = (sample_tick_data["bid"] + sample_tick_data["ask"]) / 2
+        assert result["mid_close"].equals(expected_mid_close)
+        # spread = ask - bid
+        expected_spread = sample_tick_data["ask"] - sample_tick_data["bid"]
+        assert result["spread"].equals(expected_spread)
+        # real_volume = bid_volume + ask_volume
+        expected_real_volume = sample_tick_data["bid_volume"] + sample_tick_data["ask_volume"]
+        assert result["real_volume"].equals(expected_real_volume)
+
+    @pytest.mark.asyncio
+    async def test_resample_tick_timeframe_pandas(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt tick timeframe bypass pandas visszaadással."""
+        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler.resample(
+            symbol="EURUSD", start=start, end=end, timeframe="tick", return_type="pandas"
+        )
+
+        # Ellenőrzés
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) == len(sample_tick_data)
+        assert isinstance(result.index, pd.DatetimeIndex)
+
+    def test_convert_to_ohlcv_tick_timeframe(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt _convert_to_ohlcv tick timeframe-mal."""
+        result = resampler._convert_to_ohlcv(sample_tick_data, "tick")
+
+        # Ellenőrzés
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) == len(sample_tick_data)
+        expected_columns = [
+            "timestamp",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "bid_open",
+            "bid_high",
+            "bid_low",
+            "bid_close",
+            "spread",
+            "real_volume",
+            "tick_volume",
+            "bid_volume",
+            "ask_volume",
+        ]
+        assert all(col in result.columns for col in expected_columns)
+        # OHLC értékek megegyeznek minden soron belül (open=high=low=close)
+        for row in result.rows(named=True):
+            mid_price = (row["bid"] + row["ask"]) / 2
+            # Mid OHLC minden sorban azonos
+            assert row["mid_open"] == mid_price
+            assert row["mid_high"] == mid_price
+            assert row["mid_low"] == mid_price
+            assert row["mid_close"] == mid_price
+            # Bid OHLC minden sorban azonos
+            assert row["bid_open"] == row["bid"]
+            assert row["bid_high"] == row["bid"]
+            assert row["bid_low"] == row["bid"]
+            assert row["bid_close"] == row["bid"]
+            # Egyéb ellenőrzések
+            assert row["spread"] == row["ask"] - row["bid"]
+            assert row["real_volume"] == row["bid_volume"] + row["ask_volume"]
+            assert row["tick_volume"] == 1
+
+    def test_validate_timeframe_tick_case_insensitive(self, resampler: ResamplerService):
+        """Teszt tick timeframe case insensitive validálását."""
+        # Különböző case-ek
+        tick_variants = ["tick", "Tick", "TICK", "tiCK"]
+
+        for variant in tick_variants:
+            # Nem dob kivételt
+            resampler._validate_timeframe(variant)
 
 
 class TestResamplerServiceFactory:
