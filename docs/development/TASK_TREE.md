@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT | SYSTEM DASHBOARD
 
-**Last Sync:** `[2026-01-11 09:57]` | **Version:** `[1.0.3]` | **Health:** `[🟢 PERFECT]`
+**Last Sync:** `[2026-01-11 18:17]` | **Version:** `[1.0.4]` | **Health:** `[🟢 PERFECT]`
 
 ---
 
@@ -741,6 +741,47 @@ Frissítés: UI Radio Button for data source selection, enhanced visualization.
   - `❌` No docstrings / No mirror file
   - `🟡` Basic docstrings / Outdated mirror
   - `✅` Google Style Docstrings + `docs/components/` mirror
+
+---
+
+## 🗂️ PHASE `[CLEANUP]`: `[PROJECT HYGIENE & PROCESSOR FINALIZATION]`
+
+**Goal:** `[Complete project cleanup, remove obsolete scripts, reorganize tests, fix archive exclusions, finalize processor implementations]` | **Token Budget:** `[~50k]` | **Complexity:** `[⭐⭐]`
+
+### 🏗️ MODULE: `[scripts]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `scripts/archive_project.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ **Exclude Logic:** Added exclusion for `__pycache__`, `.pyc`, `logs/`, `data/`, `.git/`, `.DS_Store`
+- ✅ **Test Reorganization:** Moved integration tests to `tests/integration/`
+- ✅ **Script Cleanup:** Removed obsolete debug scripts
+- ✅ **Archive Creation:** New clean project archive generated
+
+### 🏗️ MODULE: `[core/processing]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `implementations/time_alignment_service.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐ | `✅ PERFECT` |
+| `dimensions/d01_price/processor.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐ | `✅ PERFECT` |
+| `resampler_service/implementations/resampler_service.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ **Market Hours Filter:** `weekday < 6` for weekend exclusion
+- ✅ **Mid Close Usage:** D01 processor uses input `mid_close` directly
+- ✅ **Rolling Z-Score:** 60-window Z-score calculation on log returns
+- ✅ **Real Volume:** `bid_volume + ask_volume` sum calculation
+- ✅ **Volume Removal:** No volume column in required columns or mock data
+
+### 📋 VALIDATION RESULTS
+- **End-to-End Validation:** ✅ Data download successful, archive creation ✅
+- **Archive Cleanliness:** ✅ Excluded directories properly skipped
+- **Test Organization:** ✅ Integration tests moved to dedicated folder
+- **Code Quality:** ✅ All linter checks passed (Ruff, Type Hints)
+
+**Last Update:** 2026-01-11 18:17 - Project Hygiene & Processor Finalization Complete
 
 ---
 
