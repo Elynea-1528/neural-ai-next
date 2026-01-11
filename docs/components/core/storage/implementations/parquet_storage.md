@@ -1,296 +1,204 @@
-# ParquetStorageService
+# ParquetStorageService - Particionált Parquet tároló szolgáltatás
 
 ## Áttekintés
 
-A `ParquetStorageService` egy particionált Parquet tároló szolgáltatás, amely a Neural AI Next rendszer Tick adatait tárolja és kezeli. A szolgáltatás hardver-gyorsítást detektál és automatikusan kiválasztja a legoptimálisabb backend-et (PolarsBackend AVX2 támogatással, vagy PandasBackend kompatibilitási módban).
-
-## Jellemzők
-
-- **Dátum és szimbólum alapú particionálás**: Gyors és hatékony adatlekérdezés
-- **Automatikus backend kiválasztás**: AVX2 támogatás esetén Polars, egyébként Pandas
-- **Tömörítés**: Snappy algoritmus használata
-- **Deduplikáció**: Timestamp + Bid + Ask alapú duplikátum eltávolítás
-- **Aszinkron műveletek**: Párhuzamos fájlműveletek
-- **Adatintegritás ellenőrzés**: Checksum számítás és rendezettség ellenőrzés
+A `ParquetStorageService` osztály implementálja a Tick adatok particionált Parquet formátumban történő tárolását és lekérdezését a Neural AI Next rendszer számára. A tárolás dátum és szimbólum alapú particionálást használ a gyors lekérdezés érdekében.
 
 ## Architektúra
 
-### Osztályszerkezet
+### Osztály hierarchia
+```
+StorageInterface (ABC)
+└── ParquetStorageService (SingletonMeta)
+```
+
+### Dependenciák
+- **HardwareInterface**: Hardver képességek detektálása
+- **LoggerInterface**: Naplózás
+- **StorageBackend**: Adatok olvasása/írása (PolarsBackend vagy PandasBackend)
+
+### Főbb komponensek
+- **Backend kiválasztás**: AVX2 támogatáson alapuló automatikus backend kiválasztás
+- **Particionálás**: Szimbólum / év / hónap / nap szerkezet
+- **Aszinkron műveletek**: Párhuzamos adatbetöltés
+- **Deduplikáció**: Timestamp + bid + ask alapján
+- **Checksum**: Adatintegritás ellenőrzés
+
+## API Referencia
+
+### Inicializáció
 
 ```python
-class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
-    """Particionált Parquet tároló szolgáltatás backend selectorral."""
-    
-    def __init__(
-        self,
-        base_path: str | Path | None = None,
-        compression: str = "snappy",
-        hardware: "HardwareInterface | None" = None,
-        logger: "LoggerInterface | None" = None,
-        **kwargs: Any
-    ) -> None:
+service = ParquetStorageService(
+    base_path="/data/tick",
+    compression="snappy",
+    hardware=hardware_interface,
+    logger=logger_interface
+)
 ```
 
-### Attribútumok
-
-- `BASE_PATH`: A tárolás alapútvonala (alapértelmezett: `/data/tick`)
-- `engine`: A Parquet engine ('fastparquet' vagy 'polars')
-- `compression`: Tömörítési algoritmus ('snappy')
-- `backend`: A kiválasztott tárolási backend
-- `hardware`: Hardverképességek detektálásáért felelős interfész
-- `logger`: Naplózásért felelős interfész
-
-## Metódusok
-
-### `__init__`
-
-Inicializálja a ParquetStorageService-t backend selectorral.
-
-**Paraméterek:**
-- `base_path`: Az alapútvonal a tároláshoz (opcionális)
-- `compression`: A tömörítési algoritmus (alapértelmezett: 'snappy')
-- `hardware`: A hardverképességek detektálásáért felelős interfész (opcionális)
-- `logger`: A naplózásért felelős interfész (opcionális)
-- `**kwargs`: További opcionális paraméterek
-
-### `_select_backend`
-
-Backend kiválasztása hardver detekció alapján. Ha az AVX2 utasításkészlet elérhető, a PolarsBackend-et használja, egyébként a PandasBackend-et kompatibilitási módban.
-
-### `_get_path`
-
-Elérési út generálása a megadott szimbólumhoz és dátumhoz.
-
-**Paraméterek:**
-- `symbol`: A pénzpár szimbóluma (pl. 'EURUSD')
-- `date`: A dátum
-- `unique_id`: Egyedi azonosító a fájlnévhez (opcionális)
-
-**Visszatérési érték:** A teljes elérési út a Parquet fájlhoz
-
-### `store_tick_data`
-
-Tick adatok tárolása particionált Parquet formátumban.
-
-**Paraméterek:**
-- `symbol`: A pénzpár szimbóluma
-- `data`: A Tick adatokat tartalmazó DataFrame
-- `date`: A dátum, ami alapján a particionálás történik
-- `unique_id`: Egyedi azonosító a fájlnévhez (opcionális)
-
-**Kivételek:**
-- `ValueError`: Ha a DataFrame üres vagy nem tartalmazza a szükséges oszlopokat
-
-**Megvalósítás:**
-- **Append-only logika**: Minden adat egyedi fájlba kerül mentésre, nincs read-modify-write művelet
-- Ez biztosítja a 100%-os adatmentést, a deduplikációt olvasáskor végezzük
-- Ha `unique_id` meg van adva, a fájlnév tartalmazza ezt az azonosítót
-- Egyébként automatikusan generált időbélyeggel készül a fájlnév (Live mód)
-
-### `read_tick_data`
-
-Tick adatok olvasása dátumtartományból.
-
-**Paraméterek:**
-- `symbol`: A pénzpár szimbóluma
-- `start_date`: A kezdő dátum
-- `end_date`: A záró dátum
-
-**Visszatérési érték:** A Tick adatokat tartalmazó DataFrame
-
-### `_read_parquet_async`
-
-Aszinkron Parquet olvasás.
-
-**Paraméterek:**
-- `path`: A Parquet fájl elérési útja
-
-**Visszatérési érték:** A beolvasott DataFrame
-
-### `_concat_dataframes`
-
-DataFrame-ek összefűzése a backend típusának megfelelően.
-
-**Paraméterek:**
-- `dfs`: Az összefűzendő DataFrame-ek listája
-
-**Visszatérési érték:** Az összefűzött DataFrame
-
-### `_deduplicate_data`
-
-**KRITIKUS METÓDUS** - Adatok deduplikációja timestamp + bid + ask alapján.
-
-Ez a metódus felelős azért, hogy csak akkor távolítson el duplikátumokat, ha az időbélyeg, bid és ask értékek tökéletesen megegyeznek. Így megőrizzük az azonos időbélyegű, de eltérő árú tick-eket (intra-millisecond ticks).
-
-**Paraméterek:**
-- `data`: A deduplikálandó DataFrame
-
-**Visszatérési érték:** A deduplikált DataFrame
-
-**Implementáció:**
-- Polars backend: `pl_df.unique(subset=["timestamp", "bid", "ask"], maintain_order=False)`
-- Pandas backend: `pd_df.drop_duplicates(subset=["timestamp", "bid", "ask"], keep="first")`
-
-### `_sort_by_timestamp`
-
-DataFrame rendezése timestamp szerint.
-
-**Paraméterek:**
-- `data`: A rendezendő DataFrame
-
-**Visszatérési érték:** A rendezett DataFrame
-
-### `_filter_by_timestamp`
-
-DataFrame szűrése időbélyeg alapján.
-
-**Paraméterek:**
-- `data`: A szűrendő DataFrame
-- `start_date`: A kezdő dátum
-- `end_date`: A záró dátum
-
-**Visszatérési érték:** A szűrt DataFrame
-
-### `get_available_dates`
-
-Elérhető dátumok lekérdezése egy adott szimbólumhoz.
-
-**Paraméterek:**
-- `symbol`: A pénzpár szimbóluma
-
-**Visszatérési érték:** Az elérhető dátumok listája
-
-### `calculate_checksum`
-
-Adatok checksum számítása integritás ellenőrzéshez.
-
-**Paraméterek:**
-- `symbol`: A pénzpár szimbóluma
-- `date`: A dátum
-
-**Visszatérési érték:** A checksum SHA256 hash (az összes fájlra vonatkozik az adott napon)
-
-### `verify_data_integrity`
-
-Adatintegritás ellenőrzése.
-
-**Paraméterek:**
-- `symbol`: A pénzpár szimbóluma
-- `date`: A dátum
-
-**Visszatérési érték:** True ha az adatok integritása megfelelő, egyébként False
-
-### `get_storage_stats`
-
-Tárolási statisztikák lekérdezése.
-
-**Paraméterek:**
-- `symbol`: Opcionális szimbólum szűréshez
-
-**Visszatérési érték:** A statisztikákat tartalmazó dictionary
-
-## StorageInterface Implementáció
-
-A `ParquetStorageService` implementálja a `StorageInterface`-t, ami a következő metódusokat tartalmazza:
-
-- `save_dataframe(df, path, **kwargs)`: DataFrame mentése
-- `load_dataframe(path, **kwargs)`: DataFrame betöltése
-- `save_object(obj, path, **kwargs)`: Objektum mentése
-- `load_object(path, **kwargs)`: Objektum betöltése
-- `exists(path)`: Létezés ellenőrzése
-- `get_metadata(path)`: Metaadatok lekérdezése
-- `delete(path)`: Fájl vagy könyvtár törlése
-- `list_dir(path, pattern)`: Könyvtár tartalmának listázása
-
-## Használati példa
+### Tick adatok tárolása
 
 ```python
-import polars as pl
-from datetime import datetime
-from neural_ai.core.storage.factory import StorageFactory
-
-# Szolgáltatás létrehozása
-service = StorageFactory.get_storage("parquet")
-
-# Adatok tárolása
-data = pl.DataFrame({
-    'timestamp': [datetime.now()],
-    'bid': [1.1000],
-    'ask': [1.1002],
-    'volume': [1000],
-    'source': ['jforex']
-})
-
-await service.store_tick_data('EURUSD', data, datetime.now())
-
-# Adatok olvasása
-start = datetime(2023, 12, 1)
-end = datetime(2023, 12, 31)
-loaded_data = await service.read_tick_data('EURUSD', start, end)
-print(f"Loaded {len(loaded_data)} ticks")
+await service.store_tick_data(
+    symbol="EURUSD",
+    data=tick_dataframe,
+    date=datetime(2023, 12, 23)
+)
 ```
 
-## Deduplikáció Részletek
+### Tick adatok olvasása
 
-A deduplikáció logikája a következő kritériumok alapján működik:
-
-**Régi logika (2026.01.02 előtt):**
-- `subset=["timestamp", "source"]` vagy csak `["timestamp"]`
-- Ez azt jelentette, hogy az azonos időbélyegű és forrású tick-eket eltávolította
-
-**Új logika (2026.01.02-től):**
-- `subset=["timestamp", "bid", "ask"]`
-- Ez azt jelenti, hogy csak akkor távolít el duplikátumokat, ha az időbélyeg, bid és ask értékek tökéletesen megegyeznek
-- **Előny**: Megőrzi az azonos időbélyegű, de eltérő árú tick-eket (intra-millisecond ticks), ami pontosabb ármozgásokat tükröz
-
-## Fájlszerkezet
-
-A tárolt adatok a következő könyvtárszerkezetet követik:
-
+```python
+data = await service.read_tick_data(
+    symbol="EURUSD",
+    start_date=datetime(2023, 12, 1),
+    end_date=datetime(2023, 12, 31)
+)
 ```
-/data/tick/
+
+### Elérhető dátumok lekérdezése
+
+```python
+dates = await service.get_available_dates("EURUSD")
+```
+
+### Adatintegritás ellenőrzés
+
+```python
+is_valid = await service.verify_data_integrity(
+    symbol="EURUSD",
+    date=datetime(2023, 12, 23)
+)
+```
+
+### Checksum számítás
+
+```python
+checksum = await service.calculate_checksum(
+    symbol="EURUSD",
+    date=datetime(2023, 12, 23)
+)
+```
+
+### Tárolási statisztikák
+
+```python
+stats = await service.get_storage_stats(symbol="EURUSD")
+```
+
+## Konfiguráció
+
+### Paraméterek
+- `base_path`: Alapútvonal (alapértelmezett: "data/tick")
+- `compression`: Tömörítési algoritmus (alapértelmezett: "snappy")
+- `hardware`: Hardver interfész (opcionális)
+- `logger`: Logger interfész (opcionális)
+
+### Környezeti követelmények
+- **Python**: 3.12+
+- **Polars**: AVX2 támogatással gyorsabb feldolgozás
+- **Pandas**: Kompatibilitási mód
+- **FastParquet**: Pandas backend-hez
+
+## Adatmodell
+
+### Tick adat struktúra
+```python
+{
+    "timestamp": datetime,
+    "bid": float,
+    "ask": float,
+    "volume": float,
+    "ask_volume": float,
+    "bid_volume": float,
+    "source": str
+}
+```
+
+### Particionálás szerkezet
+```
+data/tick/
 ├── EURUSD/
-│   └── tick/
-│       └── year=2023/
-│           └── month=12/
-│               └── day=23/
-│                   ├── tick_20231223_abc123.parquet
-│                   └── tick_20231223_def456.parquet
-└── GBPUSD/
-    └── tick/
-        └── year=2023/
-            └── month=12/
-                └── day=23/
-                    └── tick_20231223_ghi789.parquet
+│   ├── year=2023/
+│   │   ├── month=12/
+│   │   │   ├── day=23/
+│   │   │   │   ├── tick_20231223_abc123.parquet
+│   │   │   │   └── tick_20231223_def456.parquet
+│   │   │   └── day=24/
+│   │   │       └── ...
+│   │   └── month=11/
+│   │       └── ...
+│   └── year=2024/
+│       └── ...
+└── USDJPY/
+    └── ...
 ```
 
-## Függőségek
+## Teljesítmény jellemzők
 
-- `polars`: AVX2 gyorsításhoz
-- `pandas`: Kompatibilitási módhoz
-- `fastparquet`: Parquet fájlok kezeléséhez
-- `structlog`: Naplózáshoz
+### Backend kiválasztás
+- **PolarsBackend**: AVX2 támogatással ~3-5x gyorsabb
+- **PandasBackend**: SSE4.2+ támogatással kompatibilitási mód
+
+### Aszinkron feldolgozás
+- Párhuzamos fájl olvasás `asyncio.gather()` használatával
+- Chunk-olás nagy adathalmazokhoz
+
+### Optimalizációk
+- Deduplikáció betöltéskor
+- Timestamp szerinti rendezés
+- Memória hatékony feldolgozás
 
 ## Hibakezelés
 
-A szolgáltatás a következő kivételeket dobhatja:
+### Kivételek
+- `StorageIOError`: IO műveletek során
+- `StorageNotFoundError`: Hiányzó fájlok/könyvtárak
+- `ValueError`: Érvénytelen bemenetek
 
-- `StorageIOError`: I/O hibák esetén
-- `StorageNotFoundError`: Fájl nem található esetén
-- `ValueError`: Érvénytelen adatok esetén
+### Loggolás
+- Strukturált naplózás `structlog` használatával
+- Debug, info, warning, error szintek
+- Teljesítmény metrikák (fájlméret, sorok száma)
 
-## Teljesítmény
+## Tesztelés
 
-- **PolarsBackend**: Akár 10x gyorsabb feldolgozás AVX2 támogatással
-- **PandasBackend**: Kompatibilitási mód régebbi CPU-khoz
-- **Párhuzamos olvasás**: Több fájl egyidejű betöltése
-- **Particionálás**: Gyors dátumtartományos lekérdezések
+### Egységtesztek
+A szolgáltatás teljes lefedettséget biztosító pytest teszteket tartalmaz:
 
-## Verziótörténet
+```bash
+pytest tests/core/storage/implementations/test_parquet_storage.py
+```
 
-- **v2.0.0**: Hardver-gyorsítás detekció, automatikus backend kiválasztás
-- **2026.01.02**: Deduplikáció módosítása timestamp + bid + ask alapúra
-- **2026.01.03**: Append-only logika bevezetése - a `_read_existing_data_for_date` metódus eltávolítva
-  - Minden adat egyedi fájlba kerül mentésre, nincs read-modify-write művelet
-  - 100%-os adatmentés garantálása
-  - Deduplikáció csak olvasáskor történik
+### Lefedett funkciók
+- Inicializáció különböző konfigurációkkal
+- Backend kiválasztás hardver alapján
+- Adatok tárolása és olvasása
+- Integritás ellenőrzés
+- Statisztikák lekérdezése
+
+## Kapcsolódó komponensek
+
+### Storage modul
+- `StorageInterface`: Absztrakt interfész
+- `StorageBackend`: Backend implementációk
+- `StorageFactory`: Factory minta implementáció
+
+### Egyéb modulok
+- `HardwareInterface`: Hardver detektálás
+- `LoggerInterface`: Naplózás
+- `ConfigInterface`: Konfiguráció kezelés
+
+## Fejlesztési megjegyzések
+
+### Refaktorálás 2023-12-23
+- `/ "tick"` útvonal komponens eltávolítása az összes metódusból
+- DI és base osztályok használata
+- Magyar docstringek és type hintsek
+- Lint szabványok betartása
+
+### Jövőbeli fejlesztések
+- Big data chunking implementáció
+- Elosztott tárolás támogatása
+- Automatikus particionálás optimalizáció

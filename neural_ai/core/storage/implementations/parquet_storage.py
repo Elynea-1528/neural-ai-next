@@ -163,7 +163,6 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         return (
             self.BASE_PATH
             / symbol.upper()
-            / "tick"
             / f"year={date.year}"
             / f"month={date.month:02d}"
             / f"day={date.day:02d}"
@@ -272,7 +271,6 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             date_dir = (
                 self.BASE_PATH
                 / symbol.upper()
-                / "tick"
                 / f"year={current_date.year}"
                 / f"month={current_date.month:02d}"
                 / f"day={current_date.day:02d}"
@@ -599,7 +597,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             >>> dates = await service.get_available_dates('EURUSD')
             >>> print(f"Available dates: {len(dates)}")
         """
-        symbol_path = self.BASE_PATH / symbol.upper() / "tick"
+        symbol_path = self.BASE_PATH / symbol.upper()
 
         if not symbol_path.exists():
             return []
@@ -639,7 +637,6 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         date_dir = (
             self.BASE_PATH
             / symbol.upper()
-            / "tick"
             / f"year={date.year}"
             / f"month={date.month:02d}"
             / f"day={date.day:02d}"
@@ -708,7 +705,6 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         date_dir = (
             self.BASE_PATH
             / symbol.upper()
-            / "tick"
             / f"year={date.year}"
             / f"month={date.month:02d}"
             / f"day={date.day:02d}"
