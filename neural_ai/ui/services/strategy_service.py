@@ -375,12 +375,9 @@ class StrategyService(StrategyServiceInterface):
             if len(trades_records) > 0:
                 trades_df = {
                     "count": len(trades_records),
-                    "pnl": trades_records["pnl"].tolist(),
-                    "duration": trades_records["duration"]
-                    .map(str)
-                    .tolist(),  # Stringgé alakítás olvashatóságért
-                    "entry_idx": trades_records["entry_idx"].tolist(),
-                    "exit_idx": trades_records["exit_idx"].tolist(),
+                    "pnl": trades_records["PnL"].tolist(),
+                    "entry_idx": trades_records["Entry Index"].tolist(),
+                    "exit_idx": trades_records["Exit Index"].tolist(),
                 }
 
             # Signals konvertálása
