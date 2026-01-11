@@ -358,7 +358,7 @@ class StrategyLabPage(PageInterface):
             dragmode="zoom",
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config={"scrollZoom": True})
 
     def _render_data_table(self) -> None:
         """Az első 10 sor megjelenítése táblázatban Spread és Z-Score oszlopokkal."""

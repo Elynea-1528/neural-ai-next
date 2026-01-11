@@ -7,6 +7,7 @@ Ez a modul implementálja a kereskedési stratégia szolgáltatást,
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+import pandas as pd
 import vectorbt as vbt
 
 from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
@@ -339,21 +340,33 @@ class StrategyService(StrategyServiceInterface):
             }
 
         try:
-            # 2. VBT Logika - SMA indikátorok számolása
-            fast_ma = vbt.MA.run(df["close"], fast_period)
-            slow_ma = vbt.MA.run(df["close"], slow_period)
+            # Adat előkészítés: Index ellenőrzése és javítása
+            if not isinstance(df.index, pd.DatetimeIndex):
+                if "timestamp" in df.columns:
+                    df.index = pd.to_datetime(df["timestamp"])
+                else:
+                    df.index = pd.to_datetime(df.index)
+
+            # 2. VBT Logika - SMA indikátorok számolása short_name paraméterekkel
+            fast_ma = vbt.MA.run(df["close"], fast_period, short_name="fast")
+            slow_ma = vbt.MA.run(df["close"], slow_period, short_name="slow")
+
+            # NaN értékek tisztítása az indikátorokban (VectorBT általában kezeli, de biztosítjuk)
+            fast_ma = fast_ma.dropna()
+            slow_ma = slow_ma.dropna()
 
             # 3. Jelek generálása
             entries = fast_ma.ma_crossed_above(slow_ma)
             exits = fast_ma.ma_crossed_below(slow_ma)
 
-            # 4. Portfólió futtatása
+            # 4. Portfólió futtatása freq paraméterrel az időköz egyértelműségért
             pf = vbt.Portfolio.from_signals(
                 df["close"],
                 entries,
                 exits,
                 init_cash=initial_capital,
                 fees=0.001,  # 0.1% díj
+                freq=timeframe,  # pl. '1m', '1h'
             )
 
             # 5. Eredmények csomagolása
@@ -367,7 +380,9 @@ class StrategyService(StrategyServiceInterface):
                 trades_df = {
                     "count": len(trades_records),
                     "pnl": trades_records["pnl"].tolist(),
-                    "duration": trades_records["duration"].tolist(),
+                    "duration": trades_records["duration"]
+                    .map(str)
+                    .tolist(),  # Stringgé alakítás olvashatóságért
                     "entry_idx": trades_records["entry_idx"].tolist(),
                     "exit_idx": trades_records["exit_idx"].tolist(),
                 }
