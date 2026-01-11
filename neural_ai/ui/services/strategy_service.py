@@ -351,10 +351,6 @@ class StrategyService(StrategyServiceInterface):
             fast_ma = vbt.MA.run(df["close"], fast_period, short_name="fast")
             slow_ma = vbt.MA.run(df["close"], slow_period, short_name="slow")
 
-            # NaN értékek tisztítása az indikátorokban (VectorBT általában kezeli, de biztosítjuk)
-            fast_ma = fast_ma.dropna()
-            slow_ma = slow_ma.dropna()
-
             # 3. Jelek generálása
             entries = fast_ma.ma_crossed_above(slow_ma)
             exits = fast_ma.ma_crossed_below(slow_ma)
