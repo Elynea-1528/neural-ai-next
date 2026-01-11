@@ -1,9 +1,15 @@
 """Processing Factory - Feldolgozási komponensek factory függvényei."""
 
+from typing import TYPE_CHECKING
+
 from neural_ai.core.processing.dimensions.d01_price.factory import D01PriceFactory
 from neural_ai.core.processing.implementations.time_alignment_service import TimeAlignmentService
 from neural_ai.core.processing.interfaces.dimension_processor_interface import IDimensionProcessor
 from neural_ai.core.processing.interfaces.time_alignment_interface import ITimeAlignmentService
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 def create_time_alignment_service() -> ITimeAlignmentService:
@@ -11,11 +17,15 @@ def create_time_alignment_service() -> ITimeAlignmentService:
     return TimeAlignmentService()
 
 
-def create_dimension_processor(dimension_id: int) -> IDimensionProcessor:
+def create_dimension_processor(
+    dimension_id: int, config: "ConfigManagerInterface", logger: "LoggerInterface"
+) -> IDimensionProcessor:
     """Dimension processor factory függvény.
 
     Args:
         dimension_id: A dimenzió azonosítója (1-15)
+        config: Konfigurációs menedzser interfész
+        logger: Logger interfész
 
     Returns:
         IDimensionProcessor: A megfelelő dimenzió processor példány
@@ -24,6 +34,6 @@ def create_dimension_processor(dimension_id: int) -> IDimensionProcessor:
         ValueError: Ha ismeretlen dimenzió ID-t adnak meg
     """
     if dimension_id == 1:
-        return D01PriceFactory.create()
+        return D01PriceFactory.create(config, logger)
     else:
         raise ValueError(f"Ismeretlen dimenzió ID: {dimension_id}")

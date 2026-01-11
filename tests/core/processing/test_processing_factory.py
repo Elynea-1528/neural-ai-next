@@ -1,5 +1,7 @@
 """Processing Factory unit tesztek."""
 
+from unittest.mock import MagicMock
+
 import pytest
 
 from neural_ai.core.processing.dimensions.d01_price.processor import D01PriceProcessor
@@ -24,7 +26,11 @@ class TestProcessingFactory:
 
     def test_create_dimension_processor_d1(self):
         """Teszteli a create_dimension_processor függvényt D1 dimenzióval."""
-        processor = create_dimension_processor(1)
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
+        processor = create_dimension_processor(1, mock_config, mock_logger)
 
         assert isinstance(processor, D01PriceProcessor)
         assert isinstance(processor, IDimensionProcessor)
@@ -32,15 +38,27 @@ class TestProcessingFactory:
 
     def test_create_dimension_processor_invalid_id(self):
         """Teszteli a create_dimension_processor függvényt érvénytelen ID-val."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
         with pytest.raises(ValueError, match="Ismeretlen dimenzió ID: 999"):
-            create_dimension_processor(999)
+            create_dimension_processor(999, mock_config, mock_logger)
 
     def test_create_dimension_processor_negative_id(self):
         """Teszteli a create_dimension_processor függvényt negatív ID-val."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
         with pytest.raises(ValueError, match="Ismeretlen dimenzió ID: -1"):
-            create_dimension_processor(-1)
+            create_dimension_processor(-1, mock_config, mock_logger)
 
     def test_create_dimension_processor_zero_id(self):
         """Teszteli a create_dimension_processor függvényt 0 ID-val."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
         with pytest.raises(ValueError, match="Ismeretlen dimenzió ID: 0"):
-            create_dimension_processor(0)
+            create_dimension_processor(0, mock_config, mock_logger)

@@ -1,0 +1,7 @@
+# Processors Configuration
+# Configuration for dimension processors (D1-D15)
+
+processors:
+  d01:
+    z_score_window: 60
+    calc_shadows: true

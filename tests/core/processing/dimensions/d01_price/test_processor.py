@@ -1,6 +1,7 @@
 """D01PriceProcessor unit tesztek."""
 
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock
 
 import numpy as np
 import polars as pl
@@ -15,13 +16,17 @@ class TestD01PriceProcessor:
     @pytest.fixture
     def processor(self) -> D01PriceProcessor:
         """D01PriceProcessor példány fixture."""
-        return D01PriceProcessor()
+        # Mock config és logger létrehozása
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+        return D01PriceProcessor(mock_config, mock_logger)
 
     @pytest.fixture
     def sample_ohlcv_data(self) -> pl.DataFrame:
         """Mint OHLCV adatok fixture."""
-        # 10 mock OHLCV rekord
-        timestamps = [datetime(2023, 1, 1, 9, 0, 0) + timedelta(minutes=i) for i in range(10)]
+        # 100 mock OHLCV rekord (nagyobb dataset a rolling Z-score-hoz)
+        timestamps = [datetime(2023, 1, 1, 9, 0, 0) + timedelta(minutes=i) for i in range(100)]
         base_price = 1.0500
 
         data = []
@@ -34,10 +39,10 @@ class TestD01PriceProcessor:
             data.append(
                 {
                     "timestamp": ts,
-                    "open": open_price,
-                    "high": high_price,
-                    "low": low_price,
-                    "close": close_price,
+                    "mid_open": open_price,
+                    "mid_high": high_price,
+                    "mid_low": low_price,
+                    "mid_close": close_price,
                     "tick_volume": int(np.random.normal(1000, 200)),
                     "spread": abs(np.random.normal(0.0002, 0.0001)),
                     "real_volume": np.random.normal(1500, 300),
@@ -64,14 +69,13 @@ class TestD01PriceProcessor:
         # Ellenőrizzük az oszlopokat
         expected_columns = {
             "timestamp",
-            "open",
-            "high",
-            "low",
-            "close",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
             "tick_volume",
             "spread",
             "real_volume",
-            "mid_close",
             "log_return",
             "rolling_z_score",
             "upper_shadow",
@@ -84,10 +88,10 @@ class TestD01PriceProcessor:
 
         # Ellenőrizzük, hogy az adatok változatlanok (csak szelektálás)
         assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
-        assert result["open"].equals(sample_ohlcv_data["open"])
-        assert result["high"].equals(sample_ohlcv_data["high"])
-        assert result["low"].equals(sample_ohlcv_data["low"])
-        assert result["close"].equals(sample_ohlcv_data["close"])
+        assert result["mid_open"].equals(sample_ohlcv_data["mid_open"])
+        assert result["mid_high"].equals(sample_ohlcv_data["mid_high"])
+        assert result["mid_low"].equals(sample_ohlcv_data["mid_low"])
+        assert result["mid_close"].equals(sample_ohlcv_data["mid_close"])
         assert result["tick_volume"].equals(sample_ohlcv_data["tick_volume"])
         assert result["spread"].equals(sample_ohlcv_data["spread"])
         assert result["real_volume"].equals(sample_ohlcv_data["real_volume"])
@@ -97,10 +101,10 @@ class TestD01PriceProcessor:
         empty_df = pl.DataFrame(
             schema={
                 "timestamp": pl.Datetime,
-                "open": pl.Float64,
-                "high": pl.Float64,
-                "low": pl.Float64,
-                "close": pl.Float64,
+                "mid_open": pl.Float64,
+                "mid_high": pl.Float64,
+                "mid_low": pl.Float64,
+                "mid_close": pl.Float64,
                 "tick_volume": pl.Int64,
                 "spread": pl.Float64,
                 "real_volume": pl.Float64,
@@ -113,14 +117,13 @@ class TestD01PriceProcessor:
         assert len(result) == 0
         expected_columns = {
             "timestamp",
-            "open",
-            "high",
-            "low",
-            "close",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
             "tick_volume",
             "spread",
             "real_volume",
-            "mid_close",
             "log_return",
             "rolling_z_score",
             "upper_shadow",
@@ -130,17 +133,17 @@ class TestD01PriceProcessor:
 
     def test_process_missing_columns_raises_error(self, processor: D01PriceProcessor):
         """Teszteli, hogy hiányzó oszlopok esetén ColumnNotFoundError-t dob."""
-        # Hiányzó spread oszlop
+        # Hiányzó mid_close oszlop
         incomplete_df = pl.DataFrame(
             {
                 "timestamp": [datetime(2023, 1, 1, 9, 0, 0)],
-                "open": [1.0500],
-                "high": [1.0520],
-                "low": [1.0480],
-                "close": [1.0510],
+                "mid_open": [1.0500],
+                "mid_high": [1.0520],
+                "mid_low": [1.0480],
+                # mid_close hiányzik
                 "tick_volume": [1000],
+                "spread": [0.0002],
                 "real_volume": [1500.0],
-                # spread hiányzik
             }
         )
 
@@ -160,14 +163,13 @@ class TestD01PriceProcessor:
         # Csak a szükséges oszlopok maradnak (és az újak)
         expected_columns = {
             "timestamp",
-            "open",
-            "high",
-            "low",
-            "close",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
             "tick_volume",
             "spread",
             "real_volume",
-            "mid_close",
             "log_return",
             "rolling_z_score",
             "upper_shadow",
@@ -184,10 +186,10 @@ class TestD01PriceProcessor:
 
         # Ellenőrizzük a fontos adattípusokat
         assert result["timestamp"].dtype == pl.Datetime
-        assert result["open"].dtype in [pl.Float32, pl.Float64]
-        assert result["high"].dtype in [pl.Float32, pl.Float64]
-        assert result["low"].dtype in [pl.Float32, pl.Float64]
-        assert result["close"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_open"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_high"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_low"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_close"].dtype in [pl.Float32, pl.Float64]
         assert result["tick_volume"].dtype in [pl.Int32, pl.Int64]
         assert result["spread"].dtype in [pl.Float32, pl.Float64]
         assert result["real_volume"].dtype in [pl.Float32, pl.Float64]
