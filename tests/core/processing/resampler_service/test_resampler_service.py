@@ -35,6 +35,13 @@ class TestResamplerService:
         return ResamplerService(storage=mock_storage)
 
     @pytest.fixture
+    def mock_storage_with_read_tick_data(self) -> MagicMock:
+        """Mock StorageInterface read_tick_data metódussal."""
+        storage = MagicMock()
+        storage.read_tick_data = AsyncMock(return_value=pl.DataFrame())
+        return storage
+
+    @pytest.fixture
     def sample_tick_data(self) -> pl.DataFrame:
         """Minta tick adatok létrehozása."""
         # 10 másodperc adatok 1 másodperces frekvenciával
@@ -49,7 +56,6 @@ class TestResamplerService:
                 "ask": [1.051 + i * 0.001 for i in range(len(date_range))],
                 "bid_volume": [50 + i * 5 for i in range(len(date_range))],
                 "ask_volume": [50 + i * 5 for i in range(len(date_range))],
-                "volume": [100 + i * 10 for i in range(len(date_range))],
             }
         )
 
@@ -79,7 +85,103 @@ class TestResamplerService:
         assert "spread" in result.columns
         assert "real_volume" in result.columns
         assert "tick_volume" in result.columns
-        assert "volume" in result.columns
+
+    @pytest.mark.asyncio
+    async def test_resample_valid_timeframe_pandas(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt érvényes időkerettel pandas visszaadással."""
+        # Mock a _load_tick_data metódust
+        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler.resample(
+            symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="pandas"
+        )
+
+        # Ellenőrzés
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) > 0
+        assert "mid_open" in result.columns
+        assert "mid_high" in result.columns
+        assert "mid_low" in result.columns
+        assert "mid_close" in result.columns
+        assert "bid_open" in result.columns
+        assert "spread" in result.columns
+        assert "real_volume" in result.columns
+        assert "tick_volume" in result.columns
+        # Ellenőrzi, hogy az index timestamp-e
+        assert isinstance(result.index, pd.DatetimeIndex)
+
+    @pytest.mark.asyncio
+    async def test_load_tick_data_with_storage(
+        self, sample_tick_data: pl.DataFrame, mock_storage_with_read_tick_data: MagicMock
+    ):
+        """Teszt _load_tick_data metódus tényleges storage hívással."""
+        resampler = ResamplerService(storage=mock_storage_with_read_tick_data)
+        mock_storage_with_read_tick_data.read_tick_data.return_value = sample_tick_data
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler._load_tick_data("EURUSD", start, end)
+
+        assert isinstance(result, pl.DataFrame)
+        mock_storage_with_read_tick_data.read_tick_data.assert_called_once_with(
+            "EURUSD", start, end
+        )
+
+    @pytest.mark.asyncio
+    async def test_load_tick_data_no_data(self, mock_storage_with_read_tick_data: MagicMock):
+        """Teszt _load_tick_data metódus üres adattal."""
+        resampler = ResamplerService(storage=mock_storage_with_read_tick_data)
+        mock_storage_with_read_tick_data.read_tick_data.return_value = None
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler._load_tick_data("EURUSD", start, end)
+
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) == 0
+
+    @pytest.mark.asyncio
+    async def test_load_tick_data_storage_error(self, mock_storage_with_read_tick_data: MagicMock):
+        """Teszt _load_tick_data metódus storage hiba esetén."""
+        resampler = ResamplerService(storage=mock_storage_with_read_tick_data)
+        mock_storage_with_read_tick_data.read_tick_data.side_effect = Exception("Storage hiba")
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        with pytest.raises(DataLoadError):
+            await resampler._load_tick_data("EURUSD", start, end)
+
+    @pytest.mark.asyncio
+    async def test_load_tick_data_no_read_method(self, mock_storage: MagicMock):
+        """Teszt _load_tick_data metódus hiányzó read_tick_data esetén."""
+        resampler = ResamplerService(storage=mock_storage)
+        # getatr None-t ad vissza
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        with pytest.raises(DataLoadError):
+            await resampler._load_tick_data("EURUSD", start, end)
+
+    @pytest.mark.asyncio
+    async def test_resample_invalid_return_type(self, resampler: ResamplerService):
+        """Teszt érvénytelen return_type esetén."""
+        resampler._load_tick_data = AsyncMock(return_value=pl.DataFrame())
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        with pytest.raises(ResamplingError):
+            await resampler.resample(
+                symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="invalid"
+            )
 
     @pytest.mark.asyncio
     async def test_resample_invalid_timeframe(self, resampler: ResamplerService):
@@ -172,7 +274,6 @@ class TestResamplerService:
             "spread",
             "real_volume",
             "tick_volume",
-            "volume",
             "bid_volume",
             "ask_volume",
         ]
@@ -188,7 +289,6 @@ class TestResamplerService:
                 "ask": pl.Series([], dtype=pl.Float64),
                 "bid_volume": pl.Series([], dtype=pl.Int64),
                 "ask_volume": pl.Series([], dtype=pl.Float64),
-                "volume": pl.Series([], dtype=pl.Int64),
             }
         )
 
@@ -196,6 +296,26 @@ class TestResamplerService:
 
         assert isinstance(result, pl.DataFrame)
         assert len(result) == 0
+
+    def test_convert_to_ohlcv_missing_columns(self, resampler: ResamplerService):
+        """Teszt hiányzó oszlopokkal."""
+        # Hiányzó ask_volume oszlop
+        invalid_data = pl.DataFrame(
+            {
+                "timestamp": pd.date_range(
+                    start=datetime(2024, 1, 1, 12, 0, 0),
+                    end=datetime(2024, 1, 1, 12, 0, 10),
+                    freq="1s",
+                ),
+                "bid": [1.05 + i * 0.001 for i in range(11)],
+                "ask": [1.051 + i * 0.001 for i in range(11)],
+                "bid_volume": [50 + i * 5 for i in range(11)],
+                # ask_volume hiányzik
+            }
+        )
+
+        with pytest.raises(ValueError, match="Missing required columns"):
+            resampler._convert_to_ohlcv(invalid_data, "1m")
 
     @pytest.mark.asyncio
     async def test_resample_ohlcv_calculation(
@@ -229,7 +349,6 @@ class TestResamplerService:
             assert row["spread"] >= 0, "Spread nem lehet negatív"
             assert row["real_volume"] >= 0, "Real Volume nem lehet negatív"
             assert row["tick_volume"] >= 0, "Tick Volume nem lehet negatív"
-            assert row["volume"] >= 0, "Volume nem lehet negatív"
 
 
 class TestResamplerServiceFactory:

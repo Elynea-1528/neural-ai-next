@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 import polars as pl
-import structlog
 
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.processing.resampler_service.exceptions.resampler_error import (
     DataLoadError,
     InvalidTimeframeError,
@@ -17,6 +17,7 @@ from neural_ai.core.processing.resampler_service.interfaces.resampler_interface 
 )
 
 if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
 
 
@@ -34,7 +35,7 @@ class ResamplerService(ResamplerInterface):
             storage: A tárolási interfész példány (Dependency Injection)
         """
         self._storage = storage
-        self._logger = structlog.get_logger()
+        self._logger: LoggerInterface = LoggerFactory.get_logger("resampler_service")
 
     async def resample(
         self,
@@ -84,7 +85,8 @@ class ResamplerService(ResamplerInterface):
                 result_df = ohlcv_data.to_pandas()
                 if not result_df.empty:
                     result_df.index = pd.to_datetime(result_df["timestamp"])
-                    result_df = result_df.drop(columns=["timestamp"])
+                    # Megtartjuk a timestamp oszlopot kompatibilitás miatt
+                    # result_df = result_df.drop(columns=["timestamp"])
                 return result_df
             elif return_type == "polars":
                 # Zero-Copy visszaadás natív Polars DataFrame-fel
@@ -178,7 +180,6 @@ class ResamplerService(ResamplerInterface):
                     "spread",
                     "real_volume",
                     "tick_volume",
-                    "volume",
                     "bid_volume",
                     "ask_volume",
                 ]
@@ -190,10 +191,8 @@ class ResamplerService(ResamplerInterface):
         if missing_columns:
             raise ValueError(f"Missing required columns for OHLCV conversion: {missing_columns}")
 
-        # Volume oszlopok kezelése (lehet volume, bid_volume, ask_volume)
-        volume_cols = []
-        if "volume" in tick_data.columns:
-            volume_cols.append("volume")
+        # Volume oszlopok kezelése (csak bid_volume, ask_volume)
+        volume_cols: list[str] = []
         if "bid_volume" in tick_data.columns:
             volume_cols.append("bid_volume")
         if "ask_volume" in tick_data.columns:

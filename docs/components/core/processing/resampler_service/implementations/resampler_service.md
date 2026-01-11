@@ -1,114 +1,157 @@
-# ResamplerService Implementáció
+# ResamplerService - Tick adatokból OHLCV gyertyák létrehozása
 
 ## Áttekintés
 
-A `ResamplerService` a tick adatokat alakítja át OHLCV (Open, High, Low, Close, Volume) gyertyákká a megadott időkeretben. A szolgáltatás a Polars `group_by_dynamic` funkcióját használja a hatékony csoportosításhoz és aggregációhoz.
+A `ResamplerService` osztály implementálja a `ResamplerInterface`-t, amely tick adatokból hoz létre OHLCV gyertyákat különböző időkeretekben. A szolgáltatás Polars-t használ a hatékonyság érdekében, és támogatja a Pandas és Polars DataFrame visszaadást.
 
-## Fő jellemzők
+## Architektúra
 
-- **Tick adatok betöltése**: A `ParquetStorageService.read_tick_data` metódusán keresztül tölti be az adatokat
-- **Gyors aggregáció**: Polars `group_by_dynamic` használata a Pandas `resample` helyett
-- **Támogatott időkeretek**: 1m, 5m, 15m, 30m, 1h, 4h, 1D, 1W, 1M
-- **Volume aggregáció**: Bid/Ask volume külön aggregálása
+### Osztály hierarchia
+```
+ResamplerInterface (ABC)
+└── ResamplerService
+```
 
-## Osztály struktúra
+### Dependenciák
+- **StorageInterface**: Tick adatok betöltése
+- **LoggerInterface**: Naplózás (LoggerFactory-ból)
+
+### Főbb komponensek
+- **Tick adat betöltés**: Aszinkron adatbetöltés a tárolóból
+- **OHLCV konverzió**: Kiterjesztett gyertyák (Mid/Bid OHLC, Spread, Real/Tick/Bid/Ask Volume)
+- **Időkeret validálás**: Támogatott időkeretek ellenőrzése
+- **Return type handling**: Pandas vagy Polars DataFrame visszaadás
+
+## API Referencia
+
+### Inicializáció
 
 ```python
-class ResamplerService(ResamplerInterface):
-    """Tick adatokból OHLCV gyertyák létrehozása."""
-    
-    def __init__(self, storage: "StorageInterface") -> None:
-        """Inicializálás Storage interfésszel."""
-        
-    async def resample(
-        self, symbol: str, start: datetime, end: datetime, timeframe: str = "1m"
-    ) -> pd.DataFrame:
-        """Tick adatok átalakítása OHLCV gyertyákká."""
+service = ResamplerService(storage=storage_interface)
 ```
 
-## Metódusok
-
-### `__init__(storage: StorageInterface)`
-
-A konstruktor Dependency Injection-nel kapja meg a tárolási interfészt.
-
-### `async resample(symbol, start, end, timeframe) -> pd.DataFrame`
-
-A fő metódus, amely elvégzi a teljes átalakítást:
-
-1. Validálja az időkeretet
-2. Betölti a tick adatokat a storage-ból
-3. Átalakítja OHLCV gyertyákká
-4. Visszaadja a Pandas DataFrame-et
-
-### `_load_tick_data(symbol, start, end) -> pl.DataFrame`
-
-Betölti a tick adatokat a `ParquetStorageService.read_tick_data` metódusán keresztül.
-
-### `_convert_to_ohlcv(tick_data, timeframe) -> pd.DataFrame`
-
-A Polars `group_by_dynamic` használatával végzi el az aggregációt:
-
-- **Open**: `price.first()` - az első ár a gyertyában
-- **High**: `price.max()` - a maximum ár
-- **Low**: `price.min()` - a minimum ár
-- **Close**: `price.last()` - az utolsó ár
-- **Volume**: `volume.sum()` - összes volumen
-
-## Aggregáció specifikáció
-
-### Mid OHLC (Középár alapú)
-```
-Mid Open = first((bid + ask) / 2)
-Mid High = max((bid + ask) / 2)
-Mid Low = min((bid + ask) / 2)
-Mid Close = last((bid + ask) / 2)
-```
-
-### Bid OHLC (Bid ár alapú)
-```
-Bid Open = first(bid)
-Bid High = max(bid)
-Bid Low = min(bid)
-Bid Close = last(bid)
-```
-
-### Kiegészítő metrikák
-```
-Spread = mean(ask - bid)
-Real Volume = sum(bid_volume + ask_volume)
-Tick Volume = count()
-Volume = sum(volume)  # Ha elérhető
-Bid Volume = sum(bid_volume)  # Ha elérhető
-Ask Volume = sum(ask_volume)  # Ha elérhető
-```
-
-## Használat példa
+### Tick adatok resample-olása
 
 ```python
-from datetime import datetime
-from neural_ai.core.processing.resampler_service.factory import ResamplerServiceFactory
-
-# Factory-n keresztül példányosítás
-resampler = ResamplerServiceFactory.get_resampler()
-
-# OHLCV gyertyák létrehozása
-start = datetime(2024, 1, 1)
-end = datetime(2024, 1, 2)
-ohlcv = await resampler.resample("EURUSD", start, end, timeframe="1m")
-
-print(ohlcv.head())
+await service.resample(
+    symbol="EURUSD",
+    start=datetime(2023, 12, 1),
+    end=datetime(2023, 12, 31),
+    timeframe="1m",
+    return_type="pandas"
+)
 ```
 
-## Függőségek
+### Paraméterek
+- `symbol`: Kereskedési szimbólum (str)
+- `start`: Kezdő időpont (datetime)
+- `end`: Záró időpont (datetime)
+- `timeframe`: Időkeret ('1m', '5m', '15m', '30m', '1h', '4h', '1D', '1W', '1M')
+- `return_type`: Visszaadott típus ('pandas' vagy 'polars')
 
-- `polars`: Gyors DataFrame műveletek és csoportosítás
-- `pandas`: Visszatérési érték formátum
-- `structlog`: Naplózás
-- `ParquetStorageService`: Tick adatok betöltése
+## Konfiguráció
 
-## Kivételek
+### Támogatott időkeretek
+- '1m', '5m', '15m', '30m', '1h', '4h', '1D', '1W', '1M'
 
-- `InvalidTimeframeError`: Érvénytelen időkeret esetén
-- `DataLoadError`: Hiba az adatbetöltés során
-- `ResamplingError`: Hiba az átalakítás során
+### Szükséges tick adat oszlopok
+- `timestamp`: Időbélyeg
+- `bid`: Bid ár
+- `ask`: Ask ár
+- `bid_volume`: Bid volume (opcionális)
+- `ask_volume`: Ask volume (opcionális)
+
+## Adatmodell
+
+### OHLCV gyertya struktúra
+```python
+{
+    "timestamp": datetime,
+    "mid_open": float,
+    "mid_high": float,
+    "mid_low": float,
+    "mid_close": float,
+    "bid_open": float,
+    "bid_high": float,
+    "bid_low": float,
+    "bid_close": float,
+    "spread": float,
+    "real_volume": float,
+    "tick_volume": int,
+    "bid_volume": float,  # Ha elérhető
+    "ask_volume": float   # Ha elérhető
+}
+```
+
+### Aggregációs logika
+- **Mid OHLC**: (bid + ask) / 2 átlag alapján
+- **Bid/Ask OHLC**: Bid és ask árak alapján
+- **Spread**: Átlagos spread (ask - bid)
+- **Real Volume**: bid_volume + ask_volume összeg
+- **Tick Volume**: Tick szám az időkeretben
+
+## Teljesítmény jellemzők
+
+### Polars használat
+- Hatékony group_by_dynamic aggregáció
+- Zero-copy DataFrame műveletek
+- AVX2 optimalizáció támogatása
+
+### Aszinkron feldolgozás
+- Aszinkron tick adat betöltés
+- Párhuzamos feldolgozás támogatása
+
+### Memória kezelés
+- Chunk-olás nagy adathalmazokhoz
+- Polars lazy evaluation ahol lehetséges
+
+## Hibakezelés
+
+### Kivételek
+- `InvalidTimeframeError`: Érvénytelen időkeret
+- `DataLoadError`: Adatbetöltési hiba
+- `ResamplingError`: Átalakítási hiba
+- `ValueError`: Hiányzó szükséges oszlopok
+
+### Naplózás
+- Strukturált naplózás LoggerInterface-en keresztül
+- Debug, info, warning szintek
+- Teljesítmény metrikák
+
+## Tesztelés
+
+### Egységtesztek
+A szolgáltatás teljes lefedettséget biztosító pytest teszteket tartalmaz:
+
+```bash
+pytest tests/core/processing/resampler_service/implementations/test_resampler_service.py
+```
+
+### Lefedett funkciók
+- Inicializáció különböző konfigurációkkal
+- Tick adatok resample-olása
+- Időkeret validálás
+- Hibakezelés
+- Return type konverziók
+
+## Kapcsolódó komponensek
+
+### Resampler modul
+- `ResamplerInterface`: Absztrakt interfész
+- `ResamplerFactory`: Factory implementáció
+- `ResamplerError`: Egyedi kivételek
+
+### Egyéb modulok
+- `StorageInterface`: Adattárolás
+- `LoggerInterface`: Naplózás
+- `ConfigInterface`: Konfiguráció kezelés
+
+## Fejlesztési megjegyzések
+
+### Refaktorálás dátuma
+2026-01-11 - Volume oszlop kezelés módosítása, LoggerFactory használat
+
+### Jövőbeli fejlesztések
+- Big data chunking implementáció
+- Elosztott feldolgozás támogatása
+- Automatikus optimalizáció időkeretekhez
