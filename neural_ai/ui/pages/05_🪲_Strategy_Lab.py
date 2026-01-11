@@ -236,6 +236,31 @@ class StrategyLabPage(PageInterface):
                 trades_data = {"P&L": pnl_list, "Időtartam (bar)": trades.get("duration", [])}
                 st.dataframe(trades_data, use_container_width=True)
 
+    def _prepare_data_for_view(self, df: "DataFrame", price_type: str) -> "DataFrame":
+        """Adatok előkészítése megjelenítéshez - oszlopok átnevezése price_type alapján.
+
+        Args:
+            df: Az eredeti DataFrame
+            price_type: Az ár típus ('Bid' vagy 'Mid')
+
+        Returns:
+            DataFrame: Az átnevezett oszlopokkal rendelkező DataFrame
+        """
+        df = df.copy()
+        prefix = f"{price_type.lower()}_"  # "bid_" vagy "mid_"
+
+        rename_map = {
+            f"{prefix}open": "open",
+            f"{prefix}high": "high",
+            f"{prefix}low": "low",
+            f"{prefix}close": "close",
+        }
+
+        # Csak akkor nevezzük át, ha léteznek az oszlopok
+        valid_map = {k: v for k, v in rename_map.items() if k in df.columns}
+        df = df.rename(columns=valid_map)
+        return df
+
     def _render_candlestick_chart(self, signals: dict[str, list[int]] | None = None) -> None:
         """Interaktív Plotly candlestick chart megjelenítése jelekkel."""
         import plotly.graph_objects as go
@@ -243,29 +268,17 @@ class StrategyLabPage(PageInterface):
         if self._candles is None or self._candles.empty:
             return
 
-        # Price type alapján OHLC oszlopok kiválasztása
+        # Adatok előkészítése oszlop-átnevezéssel
         price_type = st.session_state.price_type
+        df = self._prepare_data_for_view(self._candles, price_type)
 
-        # Oszlopnevek normalizálása (kisbetűsítés)
-        df = self._candles.copy()
-        df.columns = [col.lower() for col in df.columns]
-
-        # OHLC oszlopok kiválasztása price_type alapján
-        if price_type == "Mid":
-            ohlc_columns = ["mid_open", "mid_high", "mid_low", "mid_close"]
-            if not all(col in df.columns for col in ohlc_columns):
-                st.error("Az adatokban nem található Mid OHLC oszlop.")
-                return
-            open_col, high_col, low_col, close_col = "mid_open", "mid_high", "mid_low", "mid_close"
-        else:  # Bid
-            ohlc_columns = ["bid_open", "bid_high", "bid_low", "bid_close"]
-            if not all(col in df.columns for col in ohlc_columns):
-                # Fallback to standard OHLC columns
-                ohlc_columns = ["open", "high", "low", "close"]
-                if not all(col in df.columns for col in ohlc_columns):
-                    st.error("Az adatokban nem található OHLC oszlop.")
-                    return
-            open_col, high_col, low_col, close_col = ohlc_columns
+        # Ellenőrzés, hogy az átnevezés sikeres volt-e
+        required_cols = ["open", "high", "low", "close"]
+        if not all(col in df.columns for col in required_cols):
+            st.error(
+                f"Az adatokban nem található OHLC oszlop a kiválasztott {price_type} típusnál."
+            )
+            return
 
         # Dátum oszlop kezelése
         if "timestamp" in df.columns:
@@ -280,10 +293,10 @@ class StrategyLabPage(PageInterface):
             data=[
                 go.Candlestick(
                     x=df["date"],
-                    open=df[open_col],
-                    high=df[high_col],
-                    low=df[low_col],
-                    close=df[close_col],
+                    open=df["open"],
+                    high=df["high"],
+                    low=df["low"],
+                    close=df["close"],
                     name=f"{price_type} OHLC",
                     increasing_line_color="#26a69a",
                     decreasing_line_color="#ef5350",
@@ -428,6 +441,8 @@ class StrategyLabPage(PageInterface):
                     # Backtest eredmények törlése új adat betöltésekor
                     st.session_state.backtest_result = None
                     st.success(f"Sikeres betöltés: {symbol} - {date_str}")
+                    # Oldal újrarajzolása a friss adatokkal
+                    st.rerun()
                 else:
                     st.error("Strategy Service nem elérhető.")
             except Exception as e:
@@ -459,6 +474,11 @@ class StrategyLabPage(PageInterface):
             try:
                 strategy_service = self._get_strategy_service()
                 if strategy_service is not None and hasattr(strategy_service, "run_sma_backtest"):
+                    # Adatok előkészítése szabványos oszlopnevekkel
+                    prepared_df = self._prepare_data_for_view(
+                        self._candles, st.session_state.price_type
+                    )
+
                     result: dict[str, Any] = asyncio.run(
                         strategy_service.run_sma_backtest(
                             symbol,
@@ -467,6 +487,7 @@ class StrategyLabPage(PageInterface):
                             fast_period,
                             slow_period,
                             initial_capital,
+                            prepared_df,
                         )
                     )
                     st.session_state.backtest_result = result

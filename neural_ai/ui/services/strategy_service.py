@@ -292,6 +292,7 @@ class StrategyService(StrategyServiceInterface):
         fast_period: int,
         slow_period: int,
         initial_capital: float = 10000.0,
+        df: "DataFrame | None" = None,
     ) -> dict[str, Any]:
         """SMA kereszt stratégia backtesztelése VectorBT-vel.
 
@@ -305,12 +306,14 @@ class StrategyService(StrategyServiceInterface):
             fast_period: A gyors SMA periódusa
             slow_period: A lassú SMA periódusa
             initial_capital: A kezdeti tőke (default: 10000.0)
+            df: Opcionális DataFrame az adatokhoz (ha None, akkor betölti get_candles-szel)
 
         Returns:
             Dict[str, Any]: A backtest eredménye (stats, equity, trades, signals)
         """
         # 1. Adatbetöltés
-        df: DataFrame = await self.get_candles(symbol, date, timeframe)
+        if df is None:
+            df = await self.get_candles(symbol, date, timeframe)
 
         if df is None or df.empty:
             return {
