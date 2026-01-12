@@ -22,7 +22,7 @@
         "${workspaceFolder}/neural_ai",
         "${workspaceFolder}/tests"
     ],
-    /* FORMATTER & LINTER CONFIGURATION (Fixes "Multiple formatters" error) */
+    /* FORMATTER & LINTER CONFIGURATION */
     "[python]": {
         "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.formatOnSave": true,
@@ -134,5 +134,18 @@
     "material-icon-theme.folders.theme": "specific",
     "python-envs.defaultEnvManager": "ms-python.python:conda",
     "python-envs.defaultPackageManager": "ms-python.python:conda",
-    "python-envs.pythonProjects": []
+    "python-envs.pythonProjects": [],
+    
+    /* ----------------------------------------------------------- */
+    /* 🚀 AUTOMATA CONTEXT PACKER (Run On Save)                   */
+    /* ----------------------------------------------------------- */
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "\\.(py|md|yaml|toml|java)$",
+                "cmd": "${python.defaultInterpreterPath} ${workspaceFolder}/scripts/smart_pack.py full",
+                "isAsync": true
+            }
+        ]
+    }
 }
