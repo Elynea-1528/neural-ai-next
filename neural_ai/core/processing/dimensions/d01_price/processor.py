@@ -74,7 +74,7 @@ class D01PriceProcessor(BaseDimensionProcessor):
             upper_shadow = pl.lit(None).cast(pl.Float64)
             lower_shadow = pl.lit(None).cast(pl.Float64)
 
-        # Alap oszlopok kiválasztása
+        # Alap oszlopok kiválasztása, bid_volume és ask_volume hozzáadása ha léteznek
         columns = [
             "timestamp",
             "mid_open",
@@ -89,6 +89,12 @@ class D01PriceProcessor(BaseDimensionProcessor):
             upper_shadow.alias("upper_shadow"),
             lower_shadow.alias("lower_shadow"),
         ]
+
+        # Bid és ask volume hozzáadása, ha rendelkezésre állnak
+        if "bid_volume" in df.columns:
+            columns.append(pl.col("bid_volume"))
+        if "ask_volume" in df.columns:
+            columns.append(pl.col("ask_volume"))
 
         return df.select(columns)
 

@@ -8,6 +8,7 @@ Ez a szkript:
 4. Validálja a resample eredményeket
 5. Futtatja a D1 processzort "tick" timeframe-mal
 6. Validálja a D1 eredményeket
+7. Teszteli a TimeAlignment-et "tick" timeframe-mal
 
 Használat:
     python scripts/test_tick_pipeline.py
@@ -41,7 +42,10 @@ async def validate_tick_pipeline() -> bool:
     import pandas as pd
     import polars as pl
 
-    from neural_ai.core.processing.factory import create_dimension_processor
+    from neural_ai.core.processing.factory import (
+        create_dimension_processor,
+        create_time_alignment_service,
+    )
     from neural_ai.core.processing.resampler_service.factory import ResamplerServiceFactory
 
     print("🧬 TICK PIPELINE VALIDÁCIÓ")
@@ -148,6 +152,35 @@ async def validate_tick_pipeline() -> bool:
         if "lower_shadow" in d1_result_df.columns:
             if not d1_result_df["lower_shadow"].is_null().all():
                 validation_errors.append("Lower shadow nem None tick timeframe esetén")
+
+        # 7. TimeAlignment tesztelése "tick" timeframe-mal
+        print("🚀 TimeAlignment tesztelése 'tick' timeframe-mal...")
+
+        time_alignment = create_time_alignment_service()
+
+        # Reindex to grid tick esetében
+        aligned_reindex_df = time_alignment.reindex_to_grid(tick_df, timeframe="tick")
+        if len(aligned_reindex_df) != len(tick_df):
+            validation_errors.append("Reindex to grid tick esetében megváltoztatta a sorok számát")
+
+        # Handle gaps tick esetében
+        aligned_gaps_df = time_alignment.handle_gaps(tick_df, timeframe="tick")
+        if len(aligned_gaps_df) != len(tick_df):
+            validation_errors.append("Handle gaps tick esetében megváltoztatta a sorok számát")
+
+        # Ellenőrzés: tick esetében változatlan visszaadás
+        if not tick_df.equals(aligned_reindex_df):
+            validation_errors.append(
+                "Reindex to grid tick esetében nem változatlan a visszaadott adat"
+            )
+
+        if not tick_df.equals(aligned_gaps_df):
+            validation_errors.append("Handle gaps tick esetében nem változatlan a visszaadott adat")
+
+        if not validation_errors:
+            print("✅ TimeAlignment tick validáció sikeres!")
+            print("  • Reindex to grid: változatlan visszaadás")
+            print("  • Handle gaps: változatlan visszaadás")
 
         # Eredmények kiírása
         if validation_errors:

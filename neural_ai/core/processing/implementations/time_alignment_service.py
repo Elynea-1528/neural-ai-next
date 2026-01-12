@@ -8,6 +8,8 @@ class TimeAlignmentService(ITimeAlignmentService):
 
     def reindex_to_grid(self, df: pl.DataFrame, timeframe: str) -> pl.DataFrame:
         """Tökéletes időskála generálása minden timeframe-re."""
+        if timeframe.lower() == "tick":
+            return df  # Tick adaton nincs rács és nincs gap-fill
         # Létrehozza az összes szükséges időpontot (pl. minden perc M1-nél)
         # Kezeli a tőzsde nyitvatartási időket
         full_range = pl.DataFrame(
@@ -20,11 +22,17 @@ class TimeAlignmentService(ITimeAlignmentService):
         return full_range.join(df, on="timestamp", how="left")
 
     def market_hours_filter(self, df: pl.DataFrame) -> pl.DataFrame:
-        """Hétvégék szűrése - csak H-P napok megtartása."""
-        return df.filter(pl.col("timestamp").dt.weekday() < 6)
+        """Hétvégék szűrése - csak H-P napok megtartása, kivétel vasárnap >=21 UTC."""
+        weekday = pl.col("timestamp").dt.weekday()
+        hour = pl.col("timestamp").dt.hour()
+        return df.filter((weekday <= 5) | ((weekday == 7) & (hour >= 21)))
 
-    def handle_gaps(self, df: pl.DataFrame, method: str = "forward_fill") -> pl.DataFrame:
+    def handle_gaps(
+        self, df: pl.DataFrame, timeframe: str, method: str = "forward_fill"
+    ) -> pl.DataFrame:
         """Lyukak kezelése az adatokban - árak forward fill, volumenek 0."""
+        if timeframe.lower() == "tick":
+            return df  # Tick adaton nincs rács és nincs gap-fill
         if method == "forward_fill":
             # Áraknál forward fill
             price_cols = [

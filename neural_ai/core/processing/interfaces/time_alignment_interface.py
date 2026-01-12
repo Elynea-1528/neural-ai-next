@@ -14,6 +14,8 @@ class ITimeAlignmentService(ABC):
         pass
 
     @abstractmethod
-    def handle_gaps(self, df: "pl.DataFrame", method: str = "forward_fill") -> "pl.DataFrame":
+    def handle_gaps(
+        self, df: "pl.DataFrame", timeframe: str, method: str = "forward_fill"
+    ) -> "pl.DataFrame":
         """Lyukak kezelése az adatokban."""
         pass

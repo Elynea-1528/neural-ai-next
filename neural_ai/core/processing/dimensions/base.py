@@ -31,7 +31,7 @@ class BaseDimensionProcessor(IDimensionProcessor, ABC):
 
         # Konfiguráció betöltése dimenzió alapján (pl. "processors.d01")
         section = f"processors.d{self.dimension_id:02d}"
-        self.dim_config = config.get_section(section) or {}
+        self.dim_config = config.get("processors", f"d{self.dimension_id:02d}") or {}
 
         if not self.dim_config:
             self.logger.warning(

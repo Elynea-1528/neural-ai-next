@@ -48,9 +48,11 @@ async def main() -> None:
             print("❌ Storage nem érhető el")
             return
         storage = core.storage
+        config = core.config
+        logger = core.logger
         resampler = ResamplerService(storage)
         time_alignment = create_time_alignment_service()
-        d1_processor = create_dimension_processor(1)
+        d1_processor = create_dimension_processor(1, config, logger)
         print("✅ Core komponensek inicializálva")
         print()
 
@@ -101,7 +103,7 @@ async def main() -> None:
         aligned_data = time_alignment.market_hours_filter(ohlc_data)
 
         # Gap kezelés
-        aligned_data = time_alignment.handle_gaps(aligned_data)
+        aligned_data = time_alignment.handle_gaps(aligned_data, timeframe="1m")
 
         if aligned_data is None or aligned_data.is_empty():
             print("❌ Time Alignment hiba")
