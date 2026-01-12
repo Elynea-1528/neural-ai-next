@@ -118,9 +118,13 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
 
         while current_hour <= end_hour:
             # SMART RESUME: Ellenőrizzük, hogy van-e Master parquet fájl az óra mappában
-            hour_dir = Path(
-                f"data/tick/{symbol.upper()}/tick/year={current_hour.year}/"
-                f"month={current_hour.month:02d}/day={current_hour.day:02d}"
+            base_path = storage.BASE_PATH  # Ez a Configból jön (pl. data/tick)
+            hour_dir = (
+                base_path
+                / symbol.upper()
+                / f"year={current_hour.year}"
+                / f"month={current_hour.month:02d}"
+                / f"day={current_hour.day:02d}"
             )
             print(f"DEBUG: Checking path: {hour_dir} (Exists: {hour_dir.exists()})")
 
@@ -203,6 +207,7 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
         # 1. Downloader lezárása (hálózat)
         if "downloader" in locals():
             await downloader.close()
+            await asyncio.sleep(0.250)  # Ez segít az aiohttp-nek tisztán lezárni a kapcsolatokat
             if logger:
                 logger.info("Bi5Downloader lezárva")
             print("   ✅ Bi5Downloader lezárva")

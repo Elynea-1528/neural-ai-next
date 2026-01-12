@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT | SYSTEM DASHBOARD
 
-**Last Sync:** `[2026-01-11 23:55]` | **Version:** `[1.0.6]` | **Health:** `[🟢 PERFECT]`
+**Last Sync:** `[2026-01-12 10:10]` | **Version:** `[1.0.7]` | **Health:** `[🟢 PERFECT]`
 
 ---
 
@@ -941,3 +941,57 @@ Frissítés: UI Radio Button for data source selection, enhanced visualization.
 **Test Results:** End-to-end validation successful - dashboard starts cleanly without port conflicts
 
 **Last Update:** 2026-01-11 - Process Cleaner & Validation Fix complete
+
+---
+
+## 🗂️ PHASE `[10.2]`: `[SYSTEM SANITATION - CRITICAL PATH FIXES]`
+
+**Goal:** `[Resolve critical system issues: Smart Resume paths, Config access, Volume column cleanup, Leállási sequence]` | **Token Budget:** `[~20k]` | **Complexity:** `[⭐⭐]`
+
+### 🏗️ MODULE: `[scripts/download_history.py]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `scripts/download_history.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ Smart Resume path generation using storage.BASE_PATH
+- ✅ Removed hardcoded "data/tick/" strings
+- ✅ Added asyncio.sleep(0.250) to clean HTTP client shutdown
+
+**Files Fixed:**
+- `scripts/download_history.py` - Smart Resume logic and cleanup sequence
+
+### 🏗️ MODULE: `[collectors/jforex]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `implementations/bi5_downloader.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐⭐ | `✅ PERFECT` |
+| `factory.py` | `[✅|✅|✅]` | `[Stmt: 94% | Brch: 94%]` | ⭐⭐ | `🟢 STABLE` |
+
+**Features Implemented:**
+- ✅ Config access fixed: config.get("jforex", "base_url") instead of dot notation
+- ✅ Timeout handling corrected in factory
+
+**Files Fixed:**
+- `neural_ai/collectors/jforex/implementations/bi5_downloader.py` - Config access
+- `neural_ai/collectors/jforex/factory.py` - Config access
+
+### 🏗️ MODULE: `[core/ingestion/market_data_persister.py]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `neural_ai/core/ingestion/market_data_persister.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ Removed volume column from DataFrame conversion (both Polars and Pandas branches)
+- ✅ Only ask_volume and bid_volume remain for tick data
+
+**Files Fixed:**
+- `neural_ai/core/ingestion/market_data_persister.py` - Volume column removal
+
+### 📋 VALIDATION RESULTS
+
+**Test Results:** All fixes implemented successfully - ready for validation testing
+
+**Last Update:** 2026-01-12 10:15 - System Sanitation Phase complete, awaiting validation

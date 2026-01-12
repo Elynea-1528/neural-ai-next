@@ -60,7 +60,7 @@ class Bi5Downloader(IJForexDownloader):
         self._config = config
         self._http_client = http_client
         self._storage = storage
-        self._base_url = config.get("jforex.base_url", "https://www.dukascopy.com/datafeed")
+        self._base_url = config.get("jforex", "base_url") or "https://www.dukascopy.com/datafeed"
         if not self._base_url:
             self._base_url = "https://www.dukascopy.com/datafeed"
             self._logger.warning("jforex_base_url_not_set: Using default Dukascopy URL")
