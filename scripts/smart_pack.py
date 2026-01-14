@@ -1,6 +1,5 @@
 import argparse
 import os
-import shutil
 import time
 from pathlib import Path
 
@@ -79,21 +78,33 @@ def find_drive_path():
 
 
 def sync_to_drive(source_file: Path):
-    """Átmásolja a generált fájlt a Drive gyökerébe."""
+    """Átmásolja a generált fájlt a Drive-ra (GVFS workaround)."""
     drive_root = find_drive_path()
 
     if not drive_root:
-        print("⚠️  Nincs Google Drive felcsatolva. Csak helyi mentés történt.")
+        print("⚠️  Google Drive nincs felcsatolva. Csak helyi mentés történt.")
         return
 
     dest_file = drive_root / OUTPUT_FILENAME
 
-    print("☁️  Szinkronizálás folyamatban...")
+    print("☁️  Szinkronizálás folyamatban (Stream Mode)...")
     try:
-        shutil.copy2(source_file, dest_file)
-        print(f"✅ SIKER! Fájl feltöltve ide: {dest_file}")
+        start_t = time.time()
+
+        # GVFS WORKAROUND:
+        # shutil.copy2 helyett kézi bináris olvasás/írás.
+        # Ez nem viszi át a metadatát (időbélyeg), amit a Drive nem szeret,
+        # de átviszi a tartalmat, ami nekünk kell.
+        with open(source_file, "rb") as f_src:
+            with open(dest_file, "wb") as f_dst:
+                shutil.copyfileobj(f_src, f_dst)
+
+        duration = time.time() - start_t
+        print(f"✅ SIKER! Fájl feltöltve ide: {dest_file} ({duration:.2f}s)")
+
     except Exception as e:
         print(f"❌ Hiba a másoláskor: {e}")
+        print("   (A helyi fájl továbbra is elérhető a projekt mappában.)")
 
 
 # ==========================================
@@ -101,7 +112,7 @@ def sync_to_drive(source_file: Path):
 # ==========================================
 
 
-def is_ignored(path: Path) -> bool:
+def is_ignored(path):
     if path.name.startswith("."):
         return True
     if path.suffix.lower() in IGNORE_PATTERNS:
@@ -112,7 +123,7 @@ def is_ignored(path: Path) -> bool:
     return False
 
 
-def pack_project(mode: str = "full") -> None:
+def pack_project(mode="full"):
     print(f"📦 Context generálása ({mode} mód)...")
 
     # Fájlok gyűjtése
