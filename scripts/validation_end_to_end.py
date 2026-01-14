@@ -46,9 +46,10 @@ def download_data() -> bool:
 
     try:
         # Download szkript futtatása
+        script_path = Path(__file__).parent / "download_history.py"
         cmd = [
             "/home/elynea/miniconda3/envs/neural-ai-next/bin/python",
-            "scripts/download_history.py",
+            str(script_path),
             "--symbol",
             "EURUSD",
             "--start",
@@ -85,8 +86,9 @@ def test_dashboard_startup() -> bool:
     try:
         # Először erőszakkal leállítjuk az esetleges zombi folyamatokat
         print("🔪 Zombi folyamatok leállítása...")
+        force_kill_path = Path(__file__).parent / "force_kill.py"
         kill_result = subprocess.run(
-            ["/home/elynea/miniconda3/envs/neural-ai-next/bin/python", "scripts/force_kill.py"],
+            ["/home/elynea/miniconda3/envs/neural-ai-next/bin/python", str(force_kill_path)],
             capture_output=True,
             text=True,
             timeout=30,
@@ -97,15 +99,22 @@ def test_dashboard_startup() -> bool:
             print("✅ Folyamatok tisztítása sikeres")
 
         # Dashboard indítása headless-ben
+        main_path = Path(__file__).parent.parent / "main.py"
         cmd = [
             "/home/elynea/miniconda3/envs/neural-ai-next/bin/python",
-            "main.py",
+            str(main_path),
             "dashboard",
             "--headless",
         ]
 
-        # Indítás 10 másodperces timeout-al
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        # Indítás cwd-vel beállítva a projekt gyökerére
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            cwd=Path(__file__).parent.parent,
+        )
 
         # Ciklikus ellenőrzés: max 30 másodpercig várunk a port elérhetőségére
         max_wait = 30
@@ -148,6 +157,126 @@ def test_dashboard_startup() -> bool:
 
     except Exception as e:
         print(f"❌ Hiba a dashboard indításakor: {e}")
+        return False
+
+
+async def validate_d2_swing_engine() -> bool:
+    """D2 Swing Engine implementáció validálása.
+
+    Returns:
+        bool: Sikeres volt-e a validáció
+    """
+    print("🪝 D2 Swing Engine validálása")
+
+    try:
+        from typing import cast
+
+        import polars as pl
+
+        from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+        from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+        from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
+
+        # Core Bridge inicializálása
+        bridge = CoreBridge()
+        bridge.initialize()
+
+        # Komponensek lekérése és cast
+        config = cast(ConfigManagerInterface, bridge.get_component("config_manager"))
+        logger = cast(LoggerInterface, bridge.get_component("logger"))
+        strategy_service = cast(StrategyServiceInterface, bridge.get_component("strategy_service"))
+
+        if not all([config, logger, strategy_service]):
+            print("❌ Szükséges komponensek nem elérhetőek (config, logger, strategy_service)")
+            return False
+
+        # D2 processzor létrehozása
+        from neural_ai.core.processing.factory import create_dimension_processor
+
+        d2_processor = create_dimension_processor(2, config, logger)
+
+        # Adatok lekérése (H1 timeframe a support/resistance számításhoz)
+        candles: pl.DataFrame = await strategy_service.get_candles(
+            symbol="EURUSD", date="2024-03-20", timeframe="H1"
+        )
+
+        if candles is None or candles.is_empty():
+            print("❌ Nincs elérhető adat a D2 validációhoz")
+            return False
+
+        print(f"✅ {candles.height} H1 gyertya adat betöltve a D2 validációhoz")
+
+        # Oszlopnevek normalizálása (kisbetűsítés)
+        df = candles.clone()
+        rename_dict = {col: col.lower() for col in df.columns}
+        df = df.rename(rename_dict)
+
+        # Szükséges oszlopok ellenőrzése
+        required_columns = ["timestamp", "bid_open", "bid_high", "bid_low", "bid_close"]
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            print(f"❌ Hiányzó kötelező oszlopok: {missing_columns}")
+            return False
+
+        # D2 processzor futtatása (H1 timeframe)
+        processed_df = d2_processor.process(df, timeframe="H1")
+
+        # Új oszlopok ellenőrzése
+        expected_columns = ["swing_high", "swing_low", "resistance", "support"]
+        missing_new_columns = [col for col in expected_columns if col not in processed_df.columns]
+        if missing_new_columns:
+            print(f"❌ Hiányzó D2 kimeneti oszlopok: {missing_new_columns}")
+            return False
+
+        print(f"✅ Minden D2 kimeneti oszlop jelen van: {expected_columns}")
+
+        # Swing pontok ellenőrzése (boolean oszlopok, sum = True értékek száma)
+        swing_high_count = processed_df.select(pl.col("swing_high").sum()).item()
+        swing_low_count = processed_df.select(pl.col("swing_low").sum()).item()
+
+        if swing_high_count == 0 and swing_low_count == 0:
+            print("❌ Nincsenek swing pontok a feldolgozott adatokban")
+            return False
+
+        print(f"✅ Swing pontok megtalálva: {swing_high_count} high, {swing_low_count} low")
+
+        # Support/Resistance szintek ellenőrzése
+        resistance_values = processed_df.select(pl.col("resistance")).to_series().drop_nulls()
+        support_values = processed_df.select(pl.col("support")).to_series().drop_nulls()
+
+        if resistance_values.is_empty() or support_values.is_empty():
+            print("❌ Support/Resistance szintek üresek vagy csak NaN értékek")
+            return False
+
+        # Ellenőrizzük, hogy nem mind 0
+        if resistance_values.sum() == 0 or support_values.sum() == 0:
+            print("❌ Support/Resistance szintek csak 0 értékeket tartalmaznak")
+            return False
+
+        resistance_mean = resistance_values.mean()
+        support_mean = support_values.mean()
+        print(
+            f"✅ Support/Resistance szintek rendben "
+            f"(resistance avg: {resistance_mean:.5f}, support avg: {support_mean:.5f})"
+        )
+
+        # Logikai ellenőrzés: support < resistance általában
+        valid_levels = processed_df.filter(
+            pl.col("support").is_not_null()
+            & pl.col("resistance").is_not_null()
+            & (pl.col("support") < pl.col("resistance"))
+        ).height
+
+        if valid_levels == 0:
+            print("⚠️ Figyelem: Nincsenek érvényes support < resistance párok")
+        else:
+            print(f"✅ {valid_levels} érvényes support/resistance pár található")
+
+        print("✅ D2 Swing Engine validáció sikeres")
+        return True
+
+    except Exception as e:
+        print(f"❌ Hiba a D2 Swing Engine validálása közben: {e}")
         return False
 
 
@@ -277,7 +406,7 @@ async def main() -> None:
     print()
 
     success_count = 0
-    total_steps = 3
+    total_steps = 4
 
     # 1. Adat letöltés
     if download_data():
@@ -300,6 +429,13 @@ async def main() -> None:
         print("❌ Validáció sikertelen az adatok validálásánál")
         return
 
+    # 4. D2 Swing Engine validálása
+    if await validate_d2_swing_engine():
+        success_count += 1
+    else:
+        print("❌ Validáció sikertelen a D2 Swing Engine validálásánál")
+        return
+
     print()
     print("=" * 70)
     print("📊 VALIDÁCIÓ EREDMÉNYE")
@@ -308,7 +444,7 @@ async def main() -> None:
 
     if success_count == total_steps:
         print("🎉 END-TO-END VALIDÁCIÓ SIKERES!")
-        print("A CORE DATA PIPELINE teljes refaktorálása helyesen működik.")
+        print("A CORE DATA PIPELINE és D2 Swing Engine helyesen működik.")
     else:
         print("❌ Validáció részben vagy teljesen sikertelen.")
         sys.exit(1)

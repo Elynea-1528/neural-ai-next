@@ -53,7 +53,7 @@ def test_end_to_end_validation():
         )
 
         # Ellenőrizzük, hogy minden lépés sikeres volt
-        assert "✅ Sikeres lépések: 3/3" in result.stdout, (
+        assert "✅ Sikeres lépések: 4/4" in result.stdout, (
             "Nem minden validációs lépés volt sikeres\n"
             f"STDOUT:\n{result.stdout}\n"
             f"STDERR:\n{result.stderr}"
@@ -67,6 +67,10 @@ def test_end_to_end_validation():
             "✅ Minden új oszlop jelen van",
             "✅ Spread értékek rendben",
             "✅ Z-Score értékek rendben",
+            "✅ D2 Swing Engine validáció sikeres",
+            "✅ Minden D2 kimeneti oszlop jelen van",
+            "✅ Swing pontok megtalálva",
+            "✅ Support/Resistance szintek rendben",
         ]
 
         for indicator in success_indicators:
