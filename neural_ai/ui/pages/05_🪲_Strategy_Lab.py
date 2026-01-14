@@ -12,8 +12,6 @@ import streamlit as st
 from neural_ai.ui.interfaces.page_interface import PageInterface
 
 if TYPE_CHECKING:
-    from pandas import DataFrame
-
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
     from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
@@ -36,7 +34,7 @@ class StrategyLabPage(PageInterface):
         self._bridge = bridge
         self._loaded = False
         self._title = "🪲 Strategy Lab"
-        self._candles: DataFrame | None = None
+        self._candles: Optional[pl.DataFrame] = None
 
         # Session state inicializálása a backtesztekhez és gyertyákhoz
         if "backtest_result" not in st.session_state:
@@ -156,7 +154,7 @@ class StrategyLabPage(PageInterface):
 
     def _render_main_area(self) -> None:
         """Fő terület megjelenítése diagrammal és táblázattal."""
-        if self._candles is not None and not self._candles.empty:
+        if self._candles is not None and not self._candles.is_empty():
             st.subheader("📈 Gyertya Diagram")
 
             # Backtest jelek átadása a chartnak, ha léteznek
@@ -173,7 +171,7 @@ class StrategyLabPage(PageInterface):
             if st.session_state.backtest_result is not None:
                 self._render_backtest_results()
 
-        elif self._loaded and (self._candles is None or self._candles.empty):
+        elif self._loaded and (self._candles is None or self._candles.is_empty()):
             st.warning("Nincs elérhető adat a kiválasztott paraméterekhez.")
         else:
             st.info(
@@ -236,7 +234,7 @@ class StrategyLabPage(PageInterface):
                 trades_data = {"P&L": pnl_list, "Időtartam (bar)": trades.get("duration", [])}
                 st.dataframe(trades_data, use_container_width=True)
 
-    def _prepare_data_for_view(self, df: "DataFrame", price_type: str) -> "DataFrame":
+    def _prepare_data_for_view(self, df: "pl.DataFrame", price_type: str) -> "pl.DataFrame":
         """Adatok előkészítése megjelenítéshez - oszlopok átnevezése price_type alapján.
 
         Args:
@@ -265,12 +263,14 @@ class StrategyLabPage(PageInterface):
         """Interaktív Plotly candlestick chart megjelenítése jelekkel."""
         import plotly.graph_objects as go
 
-        if self._candles is None or self._candles.empty:
+        if self._candles is None or self._candles.is_empty():
             return
 
+        # Polars DataFrame konvertálása Pandas-ra megjelenítéshez
+        df_pd = self._candles.to_pandas()
         # Adatok előkészítése oszlop-átnevezéssel
         price_type = st.session_state.price_type
-        df = self._prepare_data_for_view(self._candles, price_type)
+        df = self._prepare_data_for_view(df_pd, price_type)
 
         # Ellenőrzés, hogy az átnevezés sikeres volt-e
         required_cols = ["open", "high", "low", "close"]
@@ -362,9 +362,10 @@ class StrategyLabPage(PageInterface):
 
     def _render_data_table(self) -> None:
         """Az első 10 sor megjelenítése táblázatban Spread és Z-Score oszlopokkal."""
-        if self._candles is not None and not self._candles.empty:
+        if self._candles is not None and not self._candles.is_empty():
+            # Polars DataFrame konvertálása Pandas-ra megjelenítéshez
+            df = self._candles.to_pandas()
             # Oszlopnevek normalizálása
-            df = self._candles.copy()
             df.columns = [col.lower() for col in df.columns]
 
             # Price type alapján OHLC oszlopok kiválasztása megjelenítéshez
@@ -433,7 +434,7 @@ class StrategyLabPage(PageInterface):
                 strategy_service = self._get_strategy_service()
                 if strategy_service is not None:
                     date_str = selected_date.strftime("%Y-%m-%d")
-                    result: DataFrame | None = asyncio.run(
+                    result: Optional[pl.DataFrame] = asyncio.run(
                         strategy_service.get_candles(symbol, date_str, timeframe)
                     )
                     st.session_state.candles = result
@@ -474,11 +475,6 @@ class StrategyLabPage(PageInterface):
             try:
                 strategy_service = self._get_strategy_service()
                 if strategy_service is not None and hasattr(strategy_service, "run_sma_backtest"):
-                    # Adatok előkészítése szabványos oszlopnevekkel
-                    prepared_df = self._prepare_data_for_view(
-                        self._candles, st.session_state.price_type
-                    )
-
                     result: dict[str, Any] = asyncio.run(
                         strategy_service.run_sma_backtest(
                             symbol,
@@ -487,7 +483,7 @@ class StrategyLabPage(PageInterface):
                             fast_period,
                             slow_period,
                             initial_capital,
-                            prepared_df,
+                            self._candles,
                         )
                     )
                     st.session_state.backtest_result = result

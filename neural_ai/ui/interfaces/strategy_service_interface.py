@@ -7,7 +7,7 @@ amely a stratégiák létrehozását, módosítását és tesztelését végzi.
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from pandas import DataFrame
+    pass
 
 
 @runtime_checkable
@@ -107,7 +107,7 @@ class StrategyServiceInterface(Protocol):
         """
         ...
 
-    async def get_candles(self, symbol: str, date: str, timeframe: str) -> "DataFrame":
+    async def get_candles(self, symbol: str, date: str, timeframe: str) -> "pl.DataFrame":
         """OHLCV gyertyák lekérdezése a ResamplerService-en keresztül.
 
         Args:
@@ -116,7 +116,7 @@ class StrategyServiceInterface(Protocol):
             timeframe: Az időkeret (pl. '1m', '5m', '1h', '4h')
 
         Returns:
-            DataFrame: A resample-ölt OHLCV gyertyák DataFrame-ben
+            pl.DataFrame: A resample-ölt OHLCV gyertyák Polars DataFrame-ben
         """
         ...
 
@@ -128,6 +128,7 @@ class StrategyServiceInterface(Protocol):
         fast_period: int,
         slow_period: int,
         initial_capital: float = 10000.0,
+        df: "pl.DataFrame | None" = None,
     ) -> dict[str, Any]:
         """SMA kereszt stratégia backtesztelése VectorBT-vel.
 
@@ -138,6 +139,7 @@ class StrategyServiceInterface(Protocol):
             fast_period: A gyors SMA periódusa
             slow_period: A lassú SMA periódusa
             initial_capital: A kezdeti tőke (default: 10000.0)
+            df: Opcionális Polars DataFrame az adatokhoz (ha None, akkor betölti get_candles-szel)
 
         Returns:
             Dict[str, Any]: A backtest eredménye (stats, equity, trades, signals)

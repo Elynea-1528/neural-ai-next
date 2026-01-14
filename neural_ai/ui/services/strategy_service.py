@@ -7,13 +7,9 @@ Ez a modul implementálja a kereskedési stratégia szolgáltatást,
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-import pandas as pd
-
 from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
 if TYPE_CHECKING:
-    from pandas import DataFrame
-
     from neural_ai.core.processing.resampler_service.interfaces.resampler_interface import (
         ResamplerInterface,
     )
@@ -51,7 +47,7 @@ class StrategyService(StrategyServiceInterface):
         self._backtests: dict[str, dict[str, Any]] = {}
         self._optimizations: dict[str, dict[str, Any]] = {}
 
-    def get_strategies(self) -> list[dict[str, Any]]:
+    def get_strategies(self) -> list[dict[str, str]]:
         """Elérhető stratégiák lekérdezése.
 
         Returns:
@@ -250,7 +246,7 @@ class StrategyService(StrategyServiceInterface):
 
         return result
 
-    async def get_candles(self, symbol: str, date: str, timeframe: str) -> "DataFrame":
+    async def get_candles(self, symbol: str, date: str, timeframe: str) -> "pl.DataFrame":
         """OHLCV gyertyák lekérdezése a ResamplerService-en keresztül.
 
         Ez a metódus a megadott szimbólumhoz, dátumhoz és időkerethez
@@ -278,8 +274,8 @@ class StrategyService(StrategyServiceInterface):
         end_date: datetime = datetime.strptime(f"{date} 23:59:59", "%Y-%m-%d %H:%M:%S")
 
         # Resample metódus hívása az OHLCV adatok lekéréséhez (async)
-        candles: DataFrame = await resampler.resample(
-            symbol=symbol, start=start_date, end=end_date, timeframe=timeframe, return_type="pandas"
+        candles: pl.DataFrame = await resampler.resample(
+            symbol=symbol, start=start_date, end=end_date, timeframe=timeframe, return_type="polars"
         )
 
         return candles
@@ -292,7 +288,7 @@ class StrategyService(StrategyServiceInterface):
         fast_period: int,
         slow_period: int,
         initial_capital: float = 10000.0,
-        df: "DataFrame | None" = None,
+        df=None,
     ) -> dict[str, Any]:
         """SMA kereszt stratégia backtesztelése VectorBT-vel.
 
@@ -339,18 +335,22 @@ class StrategyService(StrategyServiceInterface):
             }
 
         try:
+            import pandas as pd
             import vectorbt as vbt
 
+            # Polars DataFrame konvertálása Pandas-ra VectorBT-hez
+            df_pd = df.to_pandas()
+
             # Adat előkészítés: Index ellenőrzése és javítása
-            if not isinstance(df.index, pd.DatetimeIndex):
-                if "timestamp" in df.columns:
-                    df.index = pd.to_datetime(df["timestamp"])
+            if not isinstance(df_pd.index, pd.DatetimeIndex):
+                if "timestamp" in df_pd.columns:
+                    df_pd.index = pd.to_datetime(df_pd["timestamp"])
                 else:
-                    df.index = pd.to_datetime(df.index)
+                    df_pd.index = pd.to_datetime(df_pd.index)
 
             # 2. VBT Logika - SMA indikátorok számolása short_name paraméterekkel
-            fast_ma = vbt.MA.run(df["close"], fast_period, short_name="fast")
-            slow_ma = vbt.MA.run(df["close"], slow_period, short_name="slow")
+            fast_ma = vbt.MA.run(df_pd["close"], fast_period, short_name="fast")
+            slow_ma = vbt.MA.run(df_pd["close"], slow_period, short_name="slow")
 
             # 3. Jelek generálása
             entries = fast_ma.ma_crossed_above(slow_ma)
@@ -358,7 +358,7 @@ class StrategyService(StrategyServiceInterface):
 
             # 4. Portfólió futtatása freq paraméterrel az időköz egyértelműségért
             pf = vbt.Portfolio.from_signals(
-                df["close"],
+                df_pd["close"],
                 entries,
                 exits,
                 init_cash=initial_capital,

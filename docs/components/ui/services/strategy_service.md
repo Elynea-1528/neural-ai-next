@@ -1,112 +1,90 @@
-# Strategy Service
+# Strategy Service (`neural_ai/ui/services/strategy_service.py`)
 
 ## Áttekintés
 
-A `StrategyService` a kereskedési stratégiák kezeléséért felelős UI szolgáltatás. Ez az osztály implementálja a [`StrategyServiceInterface`](neural_ai/ui/interfaces/strategy_service_interface.py:1) interfészt, és lehetővé teszi a stratégiák létrehozását, szerkesztését, tesztelését és optimalizálását.
+A Strategy Service a kereskedési stratégiák kezelését végző szolgáltatás, amely a stratégiák létrehozását, módosítását és tesztelését biztosítja. A szolgáltatás Polars DataFrame-eken működik és VectorBT-vel integrálódik a backteszteléshez.
 
 ## Architektúra
 
-```
-neural_ai/ui/services/strategy_service.py
-neural_ai/ui/interfaces/strategy_service_interface.py
-```
+- **Interface**: `StrategyServiceInterface`
+- **Implementáció**: `StrategyService`
+- **Factory**: `UIServiceFactory.get_strategy_service()`
+- **Dependency Injection**: Bridge-en keresztül kapja meg a szükséges komponenseket
 
-## Fő funkciók
+## Főbb Metódusok
 
-### Stratégia kezelés
+### `get_strategies() -> list[dict[str, str]]`
+Az elérhető stratégiák listáját adja vissza.
 
-- **Stratégiák listázása**: [`get_strategies()`](neural_ai/ui/services/strategy_service.py:52)
-- **Új stratégia létrehozása**: [`create_strategy()`](neural_ai/ui/services/strategy_service.py:71)
-- **Stratégia módosítása**: [`update_strategy()`](neural_ai/ui/services/strategy_service.py:98)
-- **Stratégia törlése**: [`delete_strategy()`](neural_ai/ui/services/strategy_service.py:127)
-
-### Backtesting
-
-- **Backtest indítása**: [`backtest_strategy()`](neural_ai/ui/services/strategy_service.py:144)
-- **Backtest állapot lekérdezése**: [`get_backtest_status()`](neural_ai/ui/services/strategy_service.py:182)
-
-### Optimalizálás
-
-- **Stratégia optimalizálása**: [`optimize_strategy()`](neural_ai/ui/services/strategy_service.py:215)
-
-### Adat lekérdezés
-
-- **OHLCV gyertyák lekérdezése**: [`get_candles()`](neural_ai/ui/services/strategy_service.py:251) - ÚJ
-
-## get_candles metódus
-
-Az új [`get_candles()`](neural_ai/ui/services/strategy_service.py:251) metódus lehetővé teszi az OHLCV gyertyák lekérdezését a ResamplerService-en keresztül.
-
-### Használat
-
+**Visszatérési érték:**
 ```python
-from neural_ai.ui.services.strategy_service import StrategyService
-
-# StrategyService példányosítása (a bridge-en keresztül)
-service = StrategyService(bridge=bridge)
-
-# Gyertyák lekérése aszinkron módon
-candles = await service.get_candles(
-    symbol="EURUSD",
-    date="2024-03-20",
-    timeframe="1m"
-)
+[
+    {
+        "id": "strategy_id",
+        "name": "Stratégia neve",
+        "description": "Leírás",
+        "type": "technical",
+        "status": "active"
+    }
+]
 ```
 
-### Paraméterek
+### `get_candles(symbol: str, date: str, timeframe: str) -> pl.DataFrame`
+OHLCV gyertyák lekérdezése a ResamplerService-en keresztül.
 
-| Paraméter | Típus | Leírás |
-|-----------|-------|--------|
-| `symbol` | `str` | A kereskedési szimbólum (pl. 'EURUSD', 'GBPUSD') |
-| `date` | `str` | A dátum ISO formátumban (pl. '2024-03-20') |
-| `timeframe` | `str` | Az időkeret (pl. '1m', '5m', '15m', '1h', '4h', '1d') |
+**Paraméterek:**
+- `symbol`: Kereskedési szimbólum (pl. 'EURUSD')
+- `date`: Dátum (pl. '2024-03-20')
+- `timeframe`: Időkeret (pl. '1m', '5m', '1h')
 
-### Visszatérési érték
+**Visszatérési érték:** Polars DataFrame OHLCV adatokkal
 
-- **`DataFrame**: A resample-ölt OHLCV gyertyák Pandas DataFrame-ben
+### `run_sma_backtest(...) -> dict[str, Any]`
+SMA kereszt stratégia backtesztelése VectorBT-vel.
 
-### Implementáció részletek
+**Paraméterek:**
+- `symbol`: Szimbólum
+- `date`: Dátum
+- `timeframe`: Időkeret
+- `fast_period`: Gyors SMA periódusa
+- `slow_period`: Lassú SMA periódusa
+- `initial_capital`: Kezdeti tőke (alapértelmezett: 10000.0)
+- `df`: Opcionális Polars DataFrame
 
-A metódus a [`ResamplerServiceFactory`](neural_ai/core/processing/resampler_service/factory.py:1) segítségével példányosítja a ResamplerService-t, és meghívja annak [`resample()`](neural_ai/core/processing/resampler_service/interfaces/resampler_interface.py:16) metódusát az adatok lekéréséhez.
-
+**Visszatérési érték:**
 ```python
-async def get_candles(self, symbol: str, date: str, timeframe: str) -> "DataFrame":
-    # Factory-n keresztül ResamplerService példány lekérése
-    resampler = ResamplerServiceFactory.get_instance()
-    
-    # Dátum konvertálás
-    start_date = datetime.strptime(date, "%Y-%m-%d")
-    end_date = datetime.strptime(f"{date} 23:59:59", "%Y-%m-%d %H:%M:%S")
-    
-    # Async resample hívás
-    candles = await resampler.resample(
-        symbol=symbol,
-        start=start_date,
-        end=end_date,
-        timeframe=timeframe
-    )
-    
-    return candles
+{
+    "stats": {...},  # VectorBT statisztikák
+    "equity": [...], # Equity görbe
+    "trades": {...}, # Kereskedések adatai
+    "signals": {"entries": [...], "exits": [...]}, # Jelek
+    "parameters": {...} # Használt paraméterek
+}
 ```
 
-## Elérhető stratégiák
+## Big Data Támogatás
 
-A szolgáltatás alapértelmezetten két beépített stratégiával rendelkezik:
-
-1. **moving_avg_cross**: Mozgóátlag kereszt stratégia
-2. **rsi_strategy**: RSI indikátoron alapuló stratégia
+- Polars DataFrame használata nagy teljesítményű adatkezeléshez
+- Chunk-olás támogatása nagy adathalmazoknál
+- Aszinkron műveletek a nem-blokkoló feldolgozáshoz
 
 ## Tesztelés
 
-A [`test_strategy_service.py`](tests/ui/services/test_strategy_service.py:1) modul tartalmazza az összes tesztet, beleértve:
+A szolgáltatás teljes tesztlefedettséggel rendelkezik:
+- Unit tesztek minden metódusra
+- Mock objektumok használata a függőségekhez
+- Async függvények tesztelése
 
-- Stratégia CRUD műveletek
-- Backtest indítás és állapot lekérdezés
-- Optimalizálás
-- **get_candles metódus tesztelése** (100% coverage)
+## Használat
 
-## Függőségek
+```python
+# Factory-n keresztül
+strategy_service = ui_factory.get_strategy_service()
 
-- `neural_ai.core.processing.resampler_service`: OHLCV adatok resampling-hez
-- `neural_ai.ui.interfaces.core_bridge_interface`: Backend bridge-hez
-- `pandas`: DataFrame kezeléshez
+# Adatok lekérdezése
+candles = await strategy_service.get_candles("EURUSD", "2024-03-20", "1h")
+
+# Backteszt futtatása
+result = await strategy_service.run_sma_backtest(
+    "EURUSD", "2024-03-20", "1h", 10, 50, 10000.0, candles
+)
