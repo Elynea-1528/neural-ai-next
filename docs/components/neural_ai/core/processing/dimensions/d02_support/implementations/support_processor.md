@@ -16,19 +16,28 @@ Az osztály a `BaseDimensionProcessor`-ből örököl és a következő interfé
 
 ### Swing Pont Detektálás
 
-A processor swing high és swing low pontokat detektál rolling window maximum/minimum műveletekkel:
+A processor swing high és swing low pontokat detektál rolling window maximum/minimum műveletekkel külön body (középső) és wick (teljes) részek számára:
 
+#### Body Swing Pontok (mid árak alapján)
 ```python
-swing_highs = pl.when(pl.col("mid_high") == pl.col("mid_high").rolling_max(window_size=swing_window))
-swing_lows = pl.when(pl.col("mid_low") == pl.col("mid_low").rolling_min(window_size=swing_window))
+swing_high_body = pl.when(pl.col("mid_high") == pl.col("mid_high").rolling_max(window_size=swing_window))
+swing_low_body = pl.when(pl.col("mid_low") == pl.col("mid_low").rolling_min(window_size=swing_window))
+```
+
+#### Wick Swing Pontok (teljes árak alapján)
+```python
+swing_high_wick = pl.when(pl.col("high") == pl.col("high").rolling_max(window_size=swing_window))
+swing_low_wick = pl.when(pl.col("low") == pl.col("low").rolling_min(window_size=swing_window))
 ```
 
 ### Support/Resistance Szintek Számítása
 
-A swing pontokból aggregált szinteket számol rolling mean használatával:
+A swing pontokból aggregált szinteket számol rolling mean használatával külön body és wick számára:
 
-- **Resistance**: Swing high-ok átlaga (felső szintek)
-- **Support**: Swing low-ok átlaga (alsó szintek)
+- **Resistance Body**: Body swing high-ok átlaga
+- **Support Body**: Body swing low-ok átlaga
+- **Resistance Wick**: Wick swing high-ok átlaga
+- **Support Wick**: Wick swing low-ok átlaga
 
 ## Konfiguráció
 
@@ -69,10 +78,14 @@ processor = D02SupportFactory.create(config, logger)
 result_df = processor.process(input_df, timeframe="H1")
 
 # Eredmény tartalmazza az új oszlopokat:
-# - swing_high: boolean flag swing high pontokra
-# - swing_low: boolean flag swing low pontokra
-# - resistance: aggregált resistance szintek
-# - support: aggregált support szintek
+# - swing_high_body: boolean flag body swing high pontokra
+# - swing_low_body: boolean flag body swing low pontokra
+# - swing_high_wick: boolean flag wick swing high pontokra
+# - swing_low_wick: boolean flag wick swing low pontokra
+# - resistance_body: aggregált resistance szintek body alapján
+# - support_body: aggregált support szintek body alapján
+# - resistance_wick: aggregált resistance szintek wick alapján
+# - support_wick: aggregált support szintek wick alapján
 ```
 
 ## Bemeneti Adatok
@@ -89,23 +102,35 @@ A processor a következő oszlopokat várja a bemeneti Polars DataFrame-ben:
 
 Az eredmény DataFrame tartalmazza az összes bemeneti oszlopot plusz:
 
-- `swing_high`: `bool` - True swing high pontoknál
-- `swing_low`: `bool` - True swing low pontoknál
-- `resistance`: `float` - Aggregált resistance szintek
-- `support`: `float` - Aggregált support szintek
+- `swing_high_body`: `bool` - True body swing high pontoknál
+- `swing_low_body`: `bool` - True body swing low pontoknál
+- `swing_high_wick`: `bool` - True wick swing high pontoknál
+- `swing_low_wick`: `bool` - True wick swing low pontoknál
+- `resistance_body`: `float` - Aggregált resistance szintek body alapján
+- `support_body`: `float` - Aggregált support szintek body alapján
+- `resistance_wick`: `float` - Aggregált resistance szintek wick alapján
+- `support_wick`: `float` - Aggregált support szintek wick alapján
 
 ## Algoritmus Részletek
 
 ### Swing Pont Detektálás
 
+#### Body Swing Pontok (mid árak)
 1. **Rolling Maximum**: Minden pontnál ellenőrzi, hogy az adott `mid_high` érték a legnagyobb-e az ablakban
 2. **Rolling Minimum**: Minden pontnál ellenőrzi, hogy az adott `mid_low` érték a legkisebb-e az ablakban
-3. **Flag Generálás**: Boolean oszlopok létrehozása a swing pontokra
+
+#### Wick Swing Pontok (teljes árak)
+1. **Rolling Maximum**: Minden pontnál ellenőrzi, hogy az adott `high` érték a legnagyobb-e az ablakban
+2. **Rolling Minimum**: Minden pontnál ellenőrzi, hogy az adott `low` érték a legkisebb-e az ablakban
+
+3. **Flag Generálás**: Boolean oszlopok létrehozása minden swing pont típusra
 
 ### Szint Aggregálás
 
-1. **Resistance**: Swing high-ok `rolling_mean(window_size=min_distance * 2)` aggregálása
-2. **Support**: Swing low-ok `rolling_mean(window_size=min_distance * 2)` aggregálása
+1. **Resistance Body**: Body swing high-ok `rolling_mean(window_size=min_distance * 2)` aggregálása
+2. **Support Body**: Body swing low-ok `rolling_mean(window_size=min_distance * 2)` aggregálása
+3. **Resistance Wick**: Wick swing high-ok `rolling_mean(window_size=min_distance * 2)` aggregálása
+4. **Support Wick**: Wick swing low-ok `rolling_mean(window_size=min_distance * 2)` aggregálása
 
 ## Performance
 
@@ -126,10 +151,14 @@ A processor a következő kivételeket dobhatja:
 Teljes unit test lefedettséggel rendelkezik (`100%` coverage):
 
 - Dimension ID validáció
-- Swing high detektálás tesztelése
-- Swing low detektálás tesztelése
-- Resistance szintek számítása
-- Support szintek számítása
+- Body swing high detektálás tesztelése
+- Body swing low detektálás tesztelése
+- Wick swing high detektálás tesztelése
+- Wick swing low detektálás tesztelése
+- Resistance body szintek számítása
+- Support body szintek számítása
+- Resistance wick szintek számítása
+- Support wick szintek számítása
 - Edge case kezelések (üres DataFrame, hiányzó oszlopok)
 - Adat típus megőrzés
 - Sorrend megőrzés
