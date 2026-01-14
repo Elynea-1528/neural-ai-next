@@ -62,3 +62,14 @@ class TestProcessingFactory:
 
         with pytest.raises(ValueError, match="Ismeretlen dimenzió ID: 0"):
             create_dimension_processor(0, mock_config, mock_logger)
+
+    def test_create_dimension_processor_d2(self):
+        """Teszteli a create_dimension_processor függvényt D2 dimenzióval."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"window_size": 20, "threshold": 0.1}
+        mock_logger = MagicMock()
+
+        processor = create_dimension_processor(2, mock_config, mock_logger)
+
+        assert isinstance(processor, IDimensionProcessor)
+        assert processor.dimension_id == 2

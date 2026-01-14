@@ -1,88 +1,72 @@
-# Processing Factory - Feldolgozási komponensek factory
+# ProcessingFactory
 
-## 🎯 Cél és Feladat
+## Áttekintés
 
-A `factory.py` modul a processing komponensek központi Factory függvényeit biztosítja. Ez a bootstrap pont a TimeAlignmentService és Dimension Processor komponensek számára.
+A `ProcessingFactory` modul biztosítja a feldolgozási komponensek (TimeAlignmentService, DimensionProcessor-ek) létrehozását dinamikus factory loadinggal, Dependency Injection nélkül. Az architektúra elkerüli a konkrét osztályok statikus importálását, kizárólag interface-eket használva.
 
-## 🏗️ Architektúra
+## Architektúra
 
-A modul két fő Factory függvényt exportál:
+Ez a modul a `neural_ai.core.processing` része, és biztosítja a központi factory függvényeket minden feldolgozási komponens számára.
 
-- `create_time_alignment_service()`: TimeAlignmentService példányosítás
-- `create_dimension_processor(dimension_id)`: Dimension processor példányosítás ID alapján
+## Funkcionalitás
 
-## 🔧 Használat
-
-### TimeAlignmentService létrehozása
+### create_time_alignment_service Függvény
 
 ```python
-from neural_ai.core.processing.factory import create_time_alignment_service
-
-aligner = create_time_alignment_service()
-aligned_df = aligner.reindex_to_grid(ohlcv_df, timeframe="1m")
+def create_time_alignment_service() -> ITimeAlignmentService:
 ```
 
-### Dimension Processor létrehozása
+Létrehoz egy új `TimeAlignmentService` példányt dinamikus importlib használatával.
+
+#### Visszatérési érték
+
+`ITimeAlignmentService` - Az időszinkronizációs szolgáltatás példánya
+
+### create_dimension_processor Függvény
 
 ```python
-from neural_ai.core.processing.factory import create_dimension_processor
-
-# D1 processor létrehozása
-d1_processor = create_dimension_processor(1)
-result = d1_processor.process(aligned_df)
+def create_dimension_processor(
+    dimension_id: int, config: ConfigManagerInterface, logger: LoggerInterface
+) -> IDimensionProcessor:
 ```
 
-## 📝 API Referencia
+Létrehoz egy megfelelő dimenzió processzor példányt dinamikus factory loadinggal.
 
-### Függvények
+#### Paraméterek
 
-#### `create_time_alignment_service() -> ITimeAlignmentService`
+- `dimension_id`: A dimenzió azonosítója (1-15)
+- `config`: Konfigurációs menedzser interfész
+- `logger`: Logger interfész
 
-TimeAlignmentService példányt hoz létre.
+#### Visszatérési érték
 
-**Visszatérési érték:**
-- `ITimeAlignmentService`: TimeAlignmentService példány
+`IDimensionProcessor` - A megfelelő dimenzió processor példány
 
-#### `create_dimension_processor(dimension_id: int) -> IDimensionProcessor`
+#### Kivételek
 
-Dimension processor példányt hoz létre a megadott ID alapján.
+- `ValueError`: Ha ismeretlen dimenzió ID-t adnak meg
 
-**Paraméterek:**
-- `dimension_id`: Dimenzió azonosító (1-15)
+## Dinamikus Loading Mechanizmus
 
-**Visszatérési érték:**
-- `IDimensionProcessor`: A megfelelő dimenzió processor
+A factory `importlib` használatával dinamikusan tölti be a dimenzió factory modulokat és osztályokat, elkerülve a statikus importokat. Ez biztosítja a loose couplingot és a könnyebb bővíthetőséget.
 
-**Dobott kivételek:**
-- `ValueError`: Ismeretlen dimenzió ID esetén
+- **TimeAlignmentService**: Közvetlen dinamikus import az implementation osztályra
+- **DimensionProcessor-ek**: Dinamikus import a megfelelő factory modulra és osztályra
 
-**Támogatott dimenziók:**
-- `1`: D01PriceProcessor (alap adatok)
+## Konfiguráció
 
-## 🧪 Tesztelés
+A támogatott dimenziók konfigurációja:
 
-A Factory függvények teljes mértékben le vannak fedve unit tesztekkel:
+- `1`: price (D01PriceFactory)
+- `2`: support (D02SupportFactory)
 
-```bash
-pytest tests/core/processing/test_processing_factory.py --cov-report=term-missing
-# Coverage: Stmt: 100% | Brch: 100%
-```
+## Függőségek
 
-## 🔗 Kapcsolatok
+- `ConfigManagerInterface` - Konfiguráció kezelése
+- `LoggerInterface` - Logolás
+- `IDimensionProcessor` - Dimenzió processzor interfész
+- `ITimeAlignmentService` - Időszinkronizációs szolgáltatás interfész
 
-- **TimeAlignmentService:** `neural_ai.core.processing.implementations.time_alignment_service`
-- **D01PriceProcessor:** `neural_ai.core.processing.dimensions.d01_price`
-- **Interfészek:** `neural_ai.core.processing.interfaces`
+## Big Data Támogatás
 
-## 📊 Implementáció
-
-A jelenlegi implementáció csak a D1 dimenziót támogatja, de könnyen bővíthető további dimenziókkal:
-
-```python
-def create_dimension_processor(dimension_id: int) -> IDimensionProcessor:
-    if dimension_id == 1:
-        return D01PriceFactory.create()
-    elif dimension_id == 2:
-        return D02SupportFactory.create()  # Jövőbeli implementáció
-    else:
-        raise ValueError(f"Ismeretlen dimenzió ID: {dimension_id}")
+A factory által létrehozott komponensek támogatják a big data feldolgozást chunkolással, aszinkronitással és Parquet formátummal.

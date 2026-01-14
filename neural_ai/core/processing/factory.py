@@ -1,9 +1,8 @@
 """Processing Factory - Feldolgozási komponensek factory függvényei."""
 
+import importlib
 from typing import TYPE_CHECKING
 
-from neural_ai.core.processing.dimensions.d01_price.factory import D01PriceFactory
-from neural_ai.core.processing.implementations.time_alignment_service import TimeAlignmentService
 from neural_ai.core.processing.interfaces.dimension_processor_interface import IDimensionProcessor
 from neural_ai.core.processing.interfaces.time_alignment_interface import ITimeAlignmentService
 
@@ -11,16 +10,29 @@ if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
+# Dimenzió konfigurációk - dinamikus factory loadinghez
+DIMENSIONS_CONFIG = {1: "price", 2: "support"}
+
+FACTORY_CLASSES = {1: "D01PriceFactory", 2: "D02SupportFactory"}
+
 
 def create_time_alignment_service() -> ITimeAlignmentService:
-    """TimeAlignmentService factory függvény."""
-    return TimeAlignmentService()
+    """TimeAlignmentService factory függvény - dinamikus példányosítással.
+
+    Returns:
+        ITimeAlignmentService: Az időszinkronizációs szolgáltatás példánya
+    """
+    module = importlib.import_module(
+        "neural_ai.core.processing.implementations.time_alignment_service"
+    )
+    cls = module.TimeAlignmentService
+    return cls()
 
 
 def create_dimension_processor(
     dimension_id: int, config: "ConfigManagerInterface", logger: "LoggerInterface"
 ) -> IDimensionProcessor:
-    """Dimension processor factory függvény.
+    """Dimenzió processzor factory függvény - dinamikus factory loadinggal.
 
     Args:
         dimension_id: A dimenzió azonosítója (1-15)
@@ -33,7 +45,11 @@ def create_dimension_processor(
     Raises:
         ValueError: Ha ismeretlen dimenzió ID-t adnak meg
     """
-    if dimension_id == 1:
-        return D01PriceFactory.create(config, logger)
-    else:
+    if dimension_id not in DIMENSIONS_CONFIG:
         raise ValueError(f"Ismeretlen dimenzió ID: {dimension_id}")
+
+    name = DIMENSIONS_CONFIG[dimension_id]
+    module_name = f"neural_ai.core.processing.dimensions.d{dimension_id:02d}_{name}.factory"
+    module = importlib.import_module(module_name)
+    factory_class = getattr(module, FACTORY_CLASSES[dimension_id])
+    return factory_class.create(config, logger)
