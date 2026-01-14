@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT | SYSTEM DASHBOARD
 
-**Last Sync:** `[2026-01-12 10:10]` | **Version:** `[1.0.7]` | **Health:** `[🟢 PERFECT]`
+**Last Sync:** `[2026-01-12 10:18]` | **Version:** `[1.0.7]` | **Health:** `[🟢 PERFECT]`
 
 ---
 
@@ -826,6 +826,19 @@ Frissítés: UI Radio Button for data source selection, enhanced visualization.
 
 ---
 
+## 🗂️ PHASE `[CLEANUP & VALIDATION REPAIR]`: `[SYSTEM HYGIENE & COREBRIDGE FIX]`
+
+**Goal:** `[Clean obsolete scripts, fix CoreBridge DI integration, validate end-to-end pipeline]` | **Token Budget:** `[~10k]` | **Complexity:** `[⭐]` |
+
+### ✅ COMPLETED TASKS
+- **Script Cleanup:** Elavult script fájlok törölve (4 db: live_system_check.py, test_d1_full.py, test_tick_pipeline.py, migrate_structure.py)
+- **CoreBridge Integration:** validation_end_to_end.py CoreBridge integráció (DI helyes használat)
+- **Validation Success:** Validation script teszt sikeres (3/3 lépés zöld pipa)
+
+**Status:** ✅ COMPLETE
+
+---
+
 ## ⚡ ACTIVE CONTEXT & BLOCKERS
 
 - **Current Focus:** Phase 3.1 - Data Loss Investigation COMPLETE (data loss reduced from 40.5% to 1.0%)
@@ -992,6 +1005,15 @@ Frissítés: UI Radio Button for data source selection, enhanced visualization.
 
 ### 📋 VALIDATION RESULTS
 
-**Test Results:** All fixes implemented successfully - ready for validation testing
+**Test Results:** All fixes implemented and validated successfully
+- ✅ Smart Resume paths corrected
+- ✅ Config access fixed
+- ✅ Volume column removed
+- ✅ Clean shutdown implemented
+- ✅ No config warnings
+- ✅ No "Unclosed session" errors
 
-**Last Update:** 2026-01-12 10:15 - System Sanitation Phase complete, awaiting validation
+**Commit Hash:** 61bc3d0
+**Commit Message:** fix(sanitization): complete system sanitation - Smart Resume paths, config access, volume cleanup
+
+**Last Update:** 2026-01-12 10:17 - System Sanitation Phase complete and validated
