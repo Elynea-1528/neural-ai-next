@@ -311,7 +311,7 @@ class StrategyService(StrategyServiceInterface):
         if df is None:
             df = await self.get_candles(symbol, date, timeframe)
 
-        if df is None or df.empty:
+        if df is None or df.is_empty():
             return {
                 "error": "Nincs elérhető adat a megadott paraméterekhez.",
                 "stats": {},
