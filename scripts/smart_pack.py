@@ -7,7 +7,7 @@ from pathlib import Path
 # ==========================================
 # ⚙️ KONFIGURÁCIÓ
 # ==========================================
-
+# itt az új komment remélem látod, ezt adtam hozzá
 PROJECT_ROOT = Path("/home/elynea/Dokumentumok/neural-ai-next")
 OUTPUT_FILENAME = "neural_ai_full_context.txt"
 OUTPUT_FILE = PROJECT_ROOT / OUTPUT_FILENAME
@@ -17,25 +17,10 @@ DRIVE_SUBFOLDER = "Google AI Studio"
 
 # Mit vegyünk bele (Full mód)
 INCLUDE_DIRS = ["neural_ai", "scripts", "configs", "docs", "external"]
-INCLUDE_FILES = ["pyproject.toml", "main.py", "README.md", ".gitignore"]
+INCLUDE_FILES = ["pyproject.toml", "main.py", "README.md", ".gitignore", ".vscode/settings.json"]
 
 # Mit hagyjunk ki (Zajszűrés)
-IGNORE_PATTERNS = {
-    "__pycache__",
-    ".pytest_cache",
-    ".mypy_cache",
-    ".git",
-    ".vscode",
-    "venv",
-    "env",
-    "data",
-    "logs",
-    "htmlcov",
-    "build",
-    ".gradle",
-    "gradle",
-    "node_modules",
-    "docs/components",  # Generált API doksi felesleges
+IGNORE_EXTENSIONS = {
     ".pyc",
     ".pyo",
     ".pyd",
@@ -53,6 +38,24 @@ IGNORE_PATTERNS = {
     ".class",
     ".lock",
     ".DS_Store",
+    ".txt",
+}
+
+IGNORE_DIRS = {
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".git",
+    "venv",
+    "env",
+    "data",
+    "logs",
+    "htmlcov",
+    "build",
+    ".gradle",
+    "gradle",
+    "node_modules",
+    "docs/components",  # Generált API doksi felesleges !
 }
 
 # ==========================================
@@ -101,7 +104,7 @@ def sync_to_drive(source_file: Path):
     try:
         start_t = time.time()
 
-        # A MÁGIKUS MEGOLDÁS: Rendszerparancs hívása
+        # A MÁGIKUS MEGOLDÁS: Rendszerparancs hívásaaa
         # A 'cp' nem dob hibát az attribútumok miatt GVFS-en
         cmd = ["cp", str(source_file), str(dest_file)]
         result = subprocess.run(cmd, capture_output=True, text=True)
@@ -122,14 +125,30 @@ def sync_to_drive(source_file: Path):
 # ==========================================
 
 
-def is_ignored(path):
+def is_ignored(path: Path) -> bool:
+    """Eldönti, hogy egy fájl szemét-e."""
+    # 1. Kiterjesztés ellenőrzés
+    if path.suffix.lower() in IGNORE_EXTENSIONS:
+        return True
+
+    # 2. Rejtett fájl ellenőrzés
     if path.name.startswith("."):
         return True
-    if path.suffix.lower() in IGNORE_PATTERNS:
-        return True
-    for part in path.parts:
-        if part in IGNORE_PATTERNS:
+
+    # 3. Útvonal alapú szűrés (JAVÍTOTT LOGIKA)
+    try:
+        # A projekt gyökeréhez viszonyított relatív útvonal
+        rel_path = str(path.relative_to(PROJECT_ROOT))
+    except ValueError:
+        # Ha valamiért nem relatív (pl. szimlink), használjuk a teljeset
+        rel_path = str(path)
+
+    # Végigmegyünk a tiltólistán
+    for ignore in IGNORE_DIRS:
+        # Ha a tiltott kifejezés (pl. "docs/components") benne van az útvonalban
+        if ignore in rel_path:
             return True
+
     return False
 
 
