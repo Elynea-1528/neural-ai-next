@@ -311,7 +311,7 @@ class StrategyService(StrategyServiceInterface):
         if df is None:
             df = await self.get_candles(symbol, date, timeframe)
 
-        if df is None or df.is_empty():
+        if df is None or len(df) == 0:
             return {
                 "error": "Nincs elérhető adat a megadott paraméterekhez.",
                 "stats": {},
@@ -323,23 +323,48 @@ class StrategyService(StrategyServiceInterface):
         # Oszlopnevek normalizálása (kisbetűsítés)
         df.columns = [col.lower() for col in df.columns]
 
-        # OHLC oszlopok ellenőrzése
-        ohlc_columns = ["open", "high", "low", "close"]
-        if not all(col in df.columns for col in ohlc_columns):
-            return {
-                "error": "Az adatokban nem található OHLC oszlop.",
-                "stats": {},
-                "equity": [],
-                "trades": [],
-                "signals": {"entries": [], "exits": []},
-            }
-
         try:
             import pandas as pd
             import vectorbt as vbt
 
-            # Polars DataFrame konvertálása Pandas-ra VectorBT-hez
-            df_pd = df.to_pandas()
+            # DataFrame konvertálása Pandas-ra VectorBT-hez (ha szükséges)
+            if hasattr(df, "to_pandas"):
+                df_pd = df.to_pandas()
+            else:
+                df_pd = df
+
+            # Oszlopnevek normalizálása (kisbetű)
+            df_pd.columns = [col.lower() for col in df_pd.columns]
+
+            # --- AUTO-MAPPING LOGIKA ---
+            if "close" not in df_pd.columns:
+                if "mid_close" in df_pd.columns:
+                    rename_map = {
+                        "mid_open": "open",
+                        "mid_high": "high",
+                        "mid_low": "low",
+                        "mid_close": "close",
+                    }
+                    df_pd = df_pd.rename(columns=rename_map)
+                elif "bid_close" in df_pd.columns:
+                    rename_map = {
+                        "bid_open": "open",
+                        "bid_high": "high",
+                        "bid_low": "low",
+                        "bid_close": "close",
+                    }
+                    df_pd = df_pd.rename(columns=rename_map)
+
+            # OHLC oszlopok ellenőrzése
+            ohlc_columns = ["open", "high", "low", "close"]
+            if not all(col in df_pd.columns for col in ohlc_columns):
+                return {
+                    "error": "Az adatokban nem található OHLC oszlop.",
+                    "stats": {},
+                    "equity": [],
+                    "trades": [],
+                    "signals": {"entries": [], "exits": []},
+                }
 
             # Adat előkészítés: Index ellenőrzése és javítása
             if not isinstance(df_pd.index, pd.DatetimeIndex):
