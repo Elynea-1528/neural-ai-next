@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 import time
 from pathlib import Path
 
@@ -10,6 +11,9 @@ from pathlib import Path
 PROJECT_ROOT = Path("/home/elynea/Dokumentumok/neural-ai-next")
 OUTPUT_FILENAME = "neural_ai_full_context.txt"
 OUTPUT_FILE = PROJECT_ROOT / OUTPUT_FILENAME
+
+# ITT A LÉNYEG: A mappa neve a képről!
+DRIVE_SUBFOLDER = "Google AI Studio"
 
 # Mit vegyünk bele (Full mód)
 INCLUDE_DIRS = ["neural_ai", "scripts", "configs", "docs", "external"]
@@ -59,18 +63,23 @@ IGNORE_PATTERNS = {
 def find_drive_path():
     """Megkeresi az Ubuntu által felcsatolt Google Drive útvonalat."""
     try:
-        # Az Ubuntu a /run/user/{UID}/gvfs alá csatol
         uid = os.getuid()
         gvfs_root = Path(f"/run/user/{uid}/gvfs")
 
         if not gvfs_root.exists():
             return None
 
-        # Keressük a 'google-drive' kezdetű mappát (bármilyen email címmel)
         for item in gvfs_root.iterdir():
             if item.name.startswith("google-drive"):
-                print(f"✅ Drive megtalálva: {item}")
-                return item
+                # Ellenőrizzük, hogy létezik-e benne a célmappa
+                target = item / DRIVE_SUBFOLDER
+                if target.exists():
+                    print(f"✅ Drive és célmappa megtalálva: {target}")
+                    return target
+                else:
+                    print(f"ℹ️  Drive megvan, de a '{DRIVE_SUBFOLDER}' mappa nem található benne.")
+                    print(f"   Próbáljuk a gyökérbe: {item}")
+                    return item
 
         return None
     except Exception:
@@ -78,33 +87,34 @@ def find_drive_path():
 
 
 def sync_to_drive(source_file: Path):
-    """Átmásolja a generált fájlt a Drive-ra (GVFS workaround)."""
-    drive_root = find_drive_path()
+    """Átmásolja a fájlt a Linux 'cp' parancsával (GVFS Workaround)."""
+    dest_folder = find_drive_path()
 
-    if not drive_root:
+    if not dest_folder:
         print("⚠️  Google Drive nincs felcsatolva. Csak helyi mentés történt.")
         return
 
-    dest_file = drive_root / OUTPUT_FILENAME
+    dest_file = dest_folder / OUTPUT_FILENAME
 
-    print("☁️  Szinkronizálás folyamatban (Stream Mode)...")
+    print(f"☁️  Szinkronizálás (Linux cp): {dest_file} ...")
+
     try:
         start_t = time.time()
 
-        # GVFS WORKAROUND:
-        # shutil.copy2 helyett kézi bináris olvasás/írás.
-        # Ez nem viszi át a metadatát (időbélyeg), amit a Drive nem szeret,
-        # de átviszi a tartalmat, ami nekünk kell.
-        with open(source_file, "rb") as f_src:
-            with open(dest_file, "wb") as f_dst:
-                shutil.copyfileobj(f_src, f_dst)
+        # A MÁGIKUS MEGOLDÁS: Rendszerparancs hívása
+        # A 'cp' nem dob hibát az attribútumok miatt GVFS-en
+        cmd = ["cp", str(source_file), str(dest_file)]
+        result = subprocess.run(cmd, capture_output=True, text=True)
 
-        duration = time.time() - start_t
-        print(f"✅ SIKER! Fájl feltöltve ide: {dest_file} ({duration:.2f}s)")
+        if result.returncode == 0:
+            duration = time.time() - start_t
+            print(f"✅ SIKER! Fájl feltöltve ({duration:.2f}s).")
+        else:
+            print(f"❌ Hiba a másoláskor (cp exit code {result.returncode}):")
+            print(result.stderr)
 
     except Exception as e:
-        print(f"❌ Hiba a másoláskor: {e}")
-        print("   (A helyi fájl továbbra is elérhető a projekt mappában.)")
+        print(f"❌ Kritikus hiba: {e}")
 
 
 # ==========================================
