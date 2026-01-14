@@ -7,6 +7,7 @@ interaktív módon vizsgálhatják a gyertyadiagramokat és stratégiákat.
 from datetime import date
 from typing import TYPE_CHECKING, Any
 
+import polars as pl
 import streamlit as st
 
 from neural_ai.ui.interfaces.page_interface import PageInterface
@@ -34,7 +35,7 @@ class StrategyLabPage(PageInterface):
         self._bridge = bridge
         self._loaded = False
         self._title = "🪲 Strategy Lab"
-        self._candles: Optional[pl.DataFrame] = None
+        self._candles: pl.DataFrame | None = None
 
         # Session state inicializálása a backtesztekhez és gyertyákhoz
         if "backtest_result" not in st.session_state:
@@ -140,7 +141,7 @@ class StrategyLabPage(PageInterface):
                     type="primary",
                     help="Elindítja a VectorBT backtesztet a kiválasztott paraméterekkel",
                 ):
-                    if self._candles is not None and not self._candles.empty:
+                    if self._candles is not None and not self._candles.is_empty():
                         self._run_backtest(
                             selected_symbol,
                             selected_date.strftime("%Y-%m-%d"),
@@ -232,7 +233,7 @@ class StrategyLabPage(PageInterface):
             pnl_list = trades.get("pnl", [])
             if pnl_list:
                 trades_data = {"P&L": pnl_list, "Időtartam (bar)": trades.get("duration", [])}
-                st.dataframe(trades_data, use_container_width=True)
+                st.dataframe(trades_data, width="stretch")
 
     def _prepare_data_for_view(self, df: "pl.DataFrame", price_type: str) -> "pl.DataFrame":
         """Adatok előkészítése megjelenítéshez - oszlopok átnevezése price_type alapján.
@@ -399,7 +400,7 @@ class StrategyLabPage(PageInterface):
             available_cols = [col for col in display_cols if col in df.columns]
 
             # Az első 10 sor megjelenítése
-            st.dataframe(df[available_cols].head(10), use_container_width=True)
+            st.dataframe(df[available_cols].head(10), width="stretch")
 
     def _get_symbols(self) -> list[str]:
         """Szimbólumok lekérése a konfigurációból.
@@ -434,7 +435,7 @@ class StrategyLabPage(PageInterface):
                 strategy_service = self._get_strategy_service()
                 if strategy_service is not None:
                     date_str = selected_date.strftime("%Y-%m-%d")
-                    result: Optional[pl.DataFrame] = asyncio.run(
+                    result: pl.DataFrame | None = asyncio.run(
                         strategy_service.get_candles(symbol, date_str, timeframe)
                     )
                     st.session_state.candles = result
