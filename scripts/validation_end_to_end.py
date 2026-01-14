@@ -30,7 +30,7 @@ except ImportError:
 # Hozzáadjuk a projekt gyökerét a Python path-hoz
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from neural_ai.ui.services.strategy_service import StrategyService
+from neural_ai.ui.core_bridge import CoreBridge
 
 if TYPE_CHECKING:
     from pandas import DataFrame
@@ -160,8 +160,14 @@ async def validate_data() -> bool:
     print("🔍 Adatok validálása Strategy Service-en keresztül")
 
     try:
-        # Strategy Service példányosítása
-        strategy_service = StrategyService()
+        # Core Bridge inicializálása és Strategy Service lekérése
+        bridge = CoreBridge()
+        bridge.initialize()
+        strategy_service = bridge.get_component("strategy_service")
+
+        if not strategy_service:
+            print("❌ Strategy Service nem elérhető")
+            return False
 
         # Adatok lekérése
         candles: DataFrame = await strategy_service.get_candles(
