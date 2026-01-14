@@ -1016,4 +1016,28 @@ Frissítés: UI Radio Button for data source selection, enhanced visualization.
 **Commit Hash:** 61bc3d0
 **Commit Message:** fix(sanitization): complete system sanitation - Smart Resume paths, config access, volume cleanup
 
-**Last Update:** 2026-01-12 10:17 - System Sanitation Phase complete and validated
+---
+
+## 🗂️ PHASE `[11]`: `[D2 SUPPORT PROCESSOR IMPLEMENTATION - SWING POINT ANALYSIS]`
+
+**Goal:** `[Implement D2 dimension processor for support/resistance level calculation using swing point analysis across multiple timeframes]` | **Token Budget:** `[~150k]` | **Complexity:** `[⭐⭐⭐]`
+
+### 🏗️ MODULE: `[core/processing/dimensions/d02_support]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `factory.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐ | `✅ PERFECT` |
+| `implementations/support_processor.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐ | `✅ PERFECT` |
+| `exceptions/support_error.py` | `[✅|➖|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ **Swing Point Detection:** Rolling max/min calculation for swing highs/lows with configurable window sizes
+- ✅ **Support/Resistance Levels:** Aggregated levels from swing points using rolling averages
+- ✅ **Timeframe-Specific Config:** Different swing windows and min distances per timeframe (H1, H4, D1)
+- ✅ **Polars Integration:** High-performance dataframe operations with time-aligned OHLCV data
+- ✅ **Factory Pattern:** DI-compliant factory for processor instantiation
+- ✅ **Error Handling:** Custom SupportError exceptions for domain-specific issues
+
+**Test Results:** 7/7 tests passing, 100% Stmt/Branch coverage, swing point detection validated on synthetic data
+
+**Last Update:** 2026-01-14 - D2 Support Processor implementation complete

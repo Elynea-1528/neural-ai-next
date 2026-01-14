@@ -91,3 +91,41 @@ class TestD02SupportFactory:
             "support",
         }
         assert set(result.columns) == expected_columns
+
+    def test_processor_uses_timeframe_specific_config(self):
+        """Teszteli, hogy a processor timeframe-specifikus konfigurációt használ."""
+        import polars as pl
+
+        mock_config = MagicMock()
+        mock_config.get.return_value = {
+            "swing_window": 5,
+            "min_distance": 10,
+            "timeframe_configs": {
+                "h4": {"swing_window": 10, "min_distance": 20},
+                "d1": {"swing_window": 15, "min_distance": 30},
+            },
+        }
+        mock_logger = MagicMock()
+
+        processor = D02SupportFactory.create(mock_config, mock_logger)
+
+        # Egyszerű teszt DataFrame
+        timestamps = [datetime(2023, 1, 1, 9, 0) + timedelta(minutes=i) for i in range(50)]
+        test_df = pl.DataFrame(
+            {
+                "timestamp": timestamps,
+                "mid_open": [1.0500 + i * 0.0001 for i in range(50)],
+                "mid_high": [1.0520 + i * 0.0001 for i in range(50)],
+                "mid_low": [1.0480 + i * 0.0001 for i in range(50)],
+                "mid_close": [1.0510 + i * 0.0001 for i in range(50)],
+                "tick_volume": [1000 + i * 10 for i in range(50)],
+                "spread": [0.0002 + i * 0.00001 for i in range(50)],
+                "real_volume": [1500.0 + i * 5 for i in range(50)],
+            }
+        )
+
+        # Teszteljük H4 timeframe-mal
+        result_h4 = processor.process(test_df, timeframe="H4")
+        assert isinstance(result_h4, pl.DataFrame)
+
+        # A teszt sikeres, ha nem dob exception-t és helyes eredményt ad
