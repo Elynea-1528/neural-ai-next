@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, Any
 from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
 if TYPE_CHECKING:
+    import polars as pl
+
     from neural_ai.core.processing.resampler_service.interfaces.resampler_interface import (
         ResamplerInterface,
     )
@@ -471,3 +473,49 @@ class StrategyService(StrategyServiceInterface):
                 "trades": [],
                 "signals": {"entries": [], "exits": []},
             }
+
+    async def analyze_market_structure(
+        self, symbol: str, date: str, timeframe: str, df: "pl.DataFrame | None" = None
+    ) -> "pl.DataFrame":
+        """Piaci struktúra elemzése swing pontokkal és szintekkel.
+
+        Ez a metódus a D2 dimenzió processor-t használja a swing pontok és
+        piaci szintek kiszámítására az adott szimbólum adataiból.
+
+        Args:
+            symbol: A kereskedési szimbólum (pl. 'EURUSD')
+            date: A dátum (pl. '2024-03-20')
+            timeframe: Az időkeret (pl. '1m', '5m', '1h', '4h')
+            df: Opcionális Polars DataFrame (ha None, akkor betölti get_candles-szel)
+
+        Returns:
+            pl.DataFrame: A feldolgozott DataFrame swing pontokkal és szintekkel
+        """
+        # 1. Adatok betöltése, ha nincs megadva
+        if df is None:
+            df = await self.get_candles(symbol, date, timeframe)
+
+        if df is None or len(df) == 0:
+            raise ValueError(
+                f"Nincs elérhető adat a megadott paraméterekhez: {symbol}, {date}, {timeframe}"
+            )
+
+        # 2. Config és Logger lekérése a bridge-en keresztül
+        if self._bridge is None:
+            raise RuntimeError("Core bridge nincs inicializálva")
+
+        config: ConfigManagerInterface = self._bridge.get_component("config")
+        logger: LoggerInterface = self._bridge.get_component("logger")
+
+        if config is None or logger is None:
+            raise RuntimeError("Config vagy Logger komponens nem elérhető")
+
+        # 3. D2 processor létrehozása Factory-n keresztül
+        from neural_ai.core.processing.factory import create_dimension_processor
+
+        processor = create_dimension_processor(dimension_id=2, config=config, logger=logger)
+
+        # 4. D2 processzálás futtatása
+        df_d2 = processor.process(df)
+
+        return df_d2

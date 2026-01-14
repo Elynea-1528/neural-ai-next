@@ -11,6 +11,7 @@ A `StrategyService` osztály a kereskedési stratégiák kezeléséért felelős
 - **Függőségek**:
   - `StrategyServiceInterface`
   - `ResamplerService` (Factory-n keresztül)
+  - `D2SupportProcessor` (Factory-n keresztül)
   - `vectorbt` könyvtár backteszteléshez
   - `pandas` adatkezeléshez
 
@@ -126,6 +127,19 @@ SMA kereszt stratégia backtesztelése VectorBT-vel.
 
 **Visszatérési érték:**
 - Backtest eredmény szótár (stats, equity, trades, signals, parameters)
+
+### `analyze_market_structure(symbol: str, date: str, timeframe: str, df: DataFrame | None = None) -> DataFrame` (async)
+
+Piaci struktúra elemzése swing pontokkal és szintekkel a D2 dimension processor használatával.
+
+**Paraméterek:**
+- `symbol`: Kereskedési szimbólum
+- `date`: Dátum
+- `timeframe`: Időkeret
+- `df`: Opcionális Polars DataFrame (ha None, akkor betölti get_candles-szel)
+
+**Visszatérési érték:**
+- Feldolgozott DataFrame swing pontokkal és piaci szintekkel
 
 ## Adatstruktúrák
 

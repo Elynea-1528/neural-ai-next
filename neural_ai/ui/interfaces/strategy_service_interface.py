@@ -7,7 +7,7 @@ amely a stratégiák létrehozását, módosítását és tesztelését végzi.
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    pass
+    import polars as pl
 
 
 @runtime_checkable
@@ -143,5 +143,24 @@ class StrategyServiceInterface(Protocol):
 
         Returns:
             Dict[str, Any]: A backtest eredménye (stats, equity, trades, signals)
+        """
+        ...
+
+    async def analyze_market_structure(
+        self, symbol: str, date: str, timeframe: str, df: "pl.DataFrame | None" = None
+    ) -> "pl.DataFrame":
+        """Piaci struktúra elemzése swing pontokkal és szintekkel.
+
+        Ez a metódus a D2 dimenzió processor-t használja a swing pontok és
+        piaci szintek kiszámítására az adott szimbólum adataiból.
+
+        Args:
+            symbol: A kereskedési szimbólum (pl. 'EURUSD')
+            date: A dátum (pl. '2024-03-20')
+            timeframe: Az időkeret (pl. '1m', '5m', '1h', '4h')
+            df: Opcionális Polars DataFrame (ha None, akkor betölti get_candles-szel)
+
+        Returns:
+            pl.DataFrame: A feldolgozott DataFrame swing pontokkal és szintekkel
         """
         ...

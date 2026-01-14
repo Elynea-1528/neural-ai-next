@@ -6,12 +6,13 @@ beleértve az új get_candles metódust.
 
 import sys
 from datetime import datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
-# Mock vectorbt to avoid import issues in tests
+# Mock vectorbt and polars to avoid import issues in tests
 sys.modules["vectorbt"] = Mock()
+sys.modules["polars"] = Mock()
 
 from neural_ai.ui.services.strategy_service import StrategyService
 
@@ -470,3 +471,181 @@ class TestStrategyService:
             assert trades_data["duration"] == ["0 days 00:05:00"]
             assert trades_data["entry_time"] == ["2024-01-01 10:00:00"]
             assert trades_data["exit_time"] == ["2024-01-01 10:05:00"]
+
+    @pytest.mark.asyncio
+    async def test_analyze_market_structure_with_df(
+        self, strategy_service: StrategyService
+    ) -> None:
+        """Piaci struktúra elemzés tesztelése meglévő DataFrame-mel."""
+        from unittest.mock import MagicMock
+
+        # Mock Polars DataFrame
+        mock_df = MagicMock()
+        mock_processed_df = MagicMock()
+
+        # Mock processor
+        mock_processor = MagicMock()
+        mock_processor.process.return_value = mock_processed_df
+
+        # Mock config és logger
+        mock_config = MagicMock()
+        mock_logger = MagicMock()
+
+        # Setup mock bridge
+        strategy_service._bridge.get_component.side_effect = lambda comp: {
+            "config": mock_config,
+            "logger": mock_logger,
+        }.get(comp)
+
+        with patch(
+            "neural_ai.core.processing.factory.create_dimension_processor",
+            return_value=mock_processor,
+        ) as mock_create_processor:
+            result = await strategy_service.analyze_market_structure(
+                symbol="EURUSD",
+                date="2024-03-20",
+                timeframe="1h",
+                df=mock_df,
+            )
+
+            # Ellenőrizzük, hogy nem hívta meg a get_candles-t (mert df meg van adva)
+            # strategy_service.get_candles.assert_not_called()  # Ez nem működik, mert async
+
+            # Ellenőrizzük, hogy létrehozták-e a processor-t
+            mock_create_processor.assert_called_once_with(
+                dimension_id=2, config=mock_config, logger=mock_logger
+            )
+
+            # Ellenőrizzük, hogy a process metódust hívták-e
+            mock_processor.process.assert_called_once_with(mock_df)
+
+            # Ellenőrizzük az eredményt
+            assert result == mock_processed_df
+
+    @pytest.mark.asyncio
+    async def test_analyze_market_structure_without_df(
+        self, strategy_service: StrategyService
+    ) -> None:
+        """Piaci struktúra elemzés tesztelése DataFrame betöltéssel."""
+        from unittest.mock import MagicMock
+
+        # Mock Polars DataFrame-ok
+        mock_candles_df = MagicMock()
+        mock_processed_df = MagicMock()
+
+        # Mock processor
+        mock_processor = MagicMock()
+        mock_processor.process.return_value = mock_processed_df
+
+        # Mock config és logger
+        mock_config = MagicMock()
+        mock_logger = MagicMock()
+
+        # Setup mock bridge
+        strategy_service._bridge.get_component.side_effect = lambda comp: {
+            "config": mock_config,
+            "logger": mock_logger,
+        }.get(comp)
+
+        with (
+            patch.object(
+                strategy_service,
+                "get_candles",
+                new_callable=AsyncMock,
+                return_value=mock_candles_df,
+            ) as mock_get_candles,
+            patch(
+                "neural_ai.core.processing.factory.create_dimension_processor",
+                return_value=mock_processor,
+            ) as mock_create_processor,
+        ):
+            result = await strategy_service.analyze_market_structure(
+                symbol="EURUSD",
+                date="2024-03-20",
+                timeframe="1h",
+            )
+
+            # Ellenőrizzük, hogy hívták-e a get_candles-t
+            mock_get_candles.assert_called_once_with("EURUSD", "2024-03-20", "1h")
+
+            # Ellenőrizzük, hogy létrehozták-e a processor-t
+            mock_create_processor.assert_called_once_with(
+                dimension_id=2, config=mock_config, logger=mock_logger
+            )
+
+            # Ellenőrizzük, hogy a process metódust hívták-e a betöltött df-fel
+            mock_processor.process.assert_called_once_with(mock_candles_df)
+
+            # Ellenőrizzük az eredményt
+            assert result == mock_processed_df
+
+    @pytest.mark.asyncio
+    async def test_analyze_market_structure_no_data(
+        self, strategy_service: StrategyService
+    ) -> None:
+        """Piaci struktúra elemzés tesztelése adatok hiányában."""
+        # Mock get_candles hogy None-t adjon vissza
+        with patch.object(
+            strategy_service, "get_candles", new_callable=AsyncMock, return_value=None
+        ) as mock_get_candles:
+            with pytest.raises(ValueError, match="Nincs elérhető adat"):
+                await strategy_service.analyze_market_structure(
+                    symbol="EURUSD",
+                    date="2024-03-20",
+                    timeframe="1h",
+                )
+
+    @pytest.mark.asyncio
+    async def test_analyze_market_structure_empty_data(
+        self, strategy_service: StrategyService
+    ) -> None:
+        """Piaci struktúra elemzés tesztelése üres adatokkal."""
+        # Mock üres DataFrame
+        mock_df = MagicMock()
+        mock_df.__len__ = Mock(return_value=0)
+
+        with pytest.raises(ValueError, match="Nincs elérhető adat"):
+            await strategy_service.analyze_market_structure(
+                symbol="EURUSD",
+                date="2024-03-20",
+                timeframe="1h",
+                df=mock_df,
+            )
+
+    @pytest.mark.asyncio
+    async def test_analyze_market_structure_no_bridge(
+        self, strategy_service: StrategyService
+    ) -> None:
+        """Piaci struktúra elemzés tesztelése bridge hiányában."""
+        # Set bridge to None
+        strategy_service._bridge = None
+
+        mock_df = MagicMock()
+        mock_df.__len__ = Mock(return_value=1)
+
+        with pytest.raises(RuntimeError, match="Core bridge nincs inicializálva"):
+            await strategy_service.analyze_market_structure(
+                symbol="EURUSD",
+                date="2024-03-20",
+                timeframe="1h",
+                df=mock_df,
+            )
+
+    @pytest.mark.asyncio
+    async def test_analyze_market_structure_missing_components(
+        self, strategy_service: StrategyService
+    ) -> None:
+        """Piaci struktúra elemzés tesztelése hiányzó komponensekkel."""
+        # Setup mock bridge hogy None-t adjon vissza
+        strategy_service._bridge.get_component.return_value = None
+
+        mock_df = MagicMock()
+        mock_df.__len__ = Mock(return_value=1)
+
+        with pytest.raises(RuntimeError, match="Config vagy Logger komponens nem elérhető"):
+            await strategy_service.analyze_market_structure(
+                symbol="EURUSD",
+                date="2024-03-20",
+                timeframe="1h",
+                df=mock_df,
+            )
