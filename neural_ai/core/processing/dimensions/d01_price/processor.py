@@ -43,11 +43,20 @@ class D01PriceProcessor(BaseDimensionProcessor):
         """
         # Konfiguráció kiolvasása
         z_score_window = self.dim_config.get("z_score_window", 60)
+
+        # Timeframe specifikus felülírás
+        if timeframe:
+            tf_configs = self.dim_config.get("timeframe_configs", {})
+            # Case-insensitive keresés
+            for tf_key, tf_cfg in tf_configs.items():
+                if tf_key.lower() == timeframe.lower():
+                    z_score_window = tf_cfg.get("z_score_window", z_score_window)
+                    break
+
         calc_shadows = self.dim_config.get("calc_shadows", True)
 
         self.logger.debug(
-            f"D1 processzor konfiguráció: z_score_window={z_score_window}, "
-            f"calc_shadows={calc_shadows}"
+            f"D1 processzor futtatása: timeframe={timeframe}, window={z_score_window}"
         )
 
         # Használjuk a bemeneti DataFrame meglévő mid_close oszlopát (Resampler biztosítja)

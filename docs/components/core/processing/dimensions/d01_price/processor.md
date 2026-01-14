@@ -33,6 +33,9 @@ Számítja a matematikai transzformációkat Polars Expr alapúan.
 #### Konfiguráció
 
 - `z_score_window`: Z-score rolling ablak mérete (default 60)
+- `timeframe_configs`: Opcionális szótár timeframe-specifikus konfigurációkkal (case-insensitive kereséssel):
+  - Kulcs: timeframe string (pl. "1M", "5M")
+  - Érték: konfigurációs szótár, amely felülírhatja a globális beállításokat (pl. {"z_score_window": 100})
 - `calc_shadows`: Árnyékok számítása engedélyezve (default True)
 
 #### Kimenet

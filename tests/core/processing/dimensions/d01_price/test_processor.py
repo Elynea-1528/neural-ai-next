@@ -18,6 +18,7 @@ class TestD01PriceProcessor:
         """D01PriceProcessor példány fixture."""
         # Mock config és logger létrehozása
         mock_config = MagicMock()
+        mock_config.get.return_value = {"z_score_window": 60, "calc_shadows": True}
         mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
         mock_logger = MagicMock()
         return D01PriceProcessor(mock_config, mock_logger)
@@ -251,6 +252,7 @@ class TestD01PriceProcessor:
     def processor_no_shadows(self) -> D01PriceProcessor:
         """D01PriceProcessor példány fixture calc_shadows=False."""
         mock_config = MagicMock()
+        mock_config.get.return_value = {"z_score_window": 60, "calc_shadows": False}
         mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": False}
         mock_logger = MagicMock()
         return D01PriceProcessor(mock_config, mock_logger)
