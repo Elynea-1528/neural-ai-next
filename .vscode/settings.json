@@ -137,13 +137,13 @@
     "python-envs.pythonProjects": [],
     
     /* ----------------------------------------------------------- */
-    /* 🚀 AUTOMATA CONTEXT PACKER (Run On Save)                   */
+    /* 🚀 AUTOMATA CONTEXT PACKER (Run On Save)                    */
     /* ----------------------------------------------------------- */
     "emeraldwalk.runonsave": {
         "commands": [
             {
                 "match": "\\.(py|md|yaml|toml|java)$",
-                "cmd": "${python.defaultInterpreterPath} ${workspaceFolder}/scripts/smart_pack.py full",
+                "cmd": "/home/elynea/miniconda3/envs/neural-ai-next/bin/python ${workspaceFolder}/scripts/smart_pack.py",
                 "isAsync": true
             }
         ]

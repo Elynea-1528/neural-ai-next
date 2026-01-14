@@ -68,3 +68,6 @@ condaenv.*.txt
 # Wine/MT5 data (not needed in git)
 .mt5/
 mt5_data/
+
+# txt files
+.txt
