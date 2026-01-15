@@ -1,6 +1,6 @@
 """D02SupportProcessor - Support/Resistance szintek processzora."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import polars as pl
 
@@ -66,7 +66,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
     def _find_swing_points_high_low(self, df: pl.DataFrame) -> pl.DataFrame:
         """Swing pontok keresése high/low értékeken.
 
-        Swing pontokat keres bid_high és bid_low értékeken gördülő maximum szukcesszióval.
+        Swing pontokat keres high és low értékeken gördülő maximum szukcesszióval.
 
         Args:
             df: Bemeneti Polars DataFrame
@@ -79,17 +79,23 @@ class D02SupportProcessor(BaseDimensionProcessor):
         # Wick swing pontok számítása
         swing_high_wick = (
             pl.when(
-                pl.col("bid_high") == pl.col("bid_high").rolling_max(window_size=swing_window, center=True)
+                pl.col("high")
+                == pl.col("high").rolling_max(
+                    window_size=swing_window, center=True
+                )
             )
-            .then(pl.col("bid_high"))
+            .then(pl.col("high"))
             .otherwise(None)
         )
 
         swing_low_wick = (
             pl.when(
-                pl.col("bid_low") == pl.col("bid_low").rolling_min(window_size=swing_window, center=True)
+                pl.col("low")
+                == pl.col("low").rolling_min(
+                    window_size=swing_window, center=True
+                )
             )
-            .then(pl.col("bid_low"))
+            .then(pl.col("low"))
             .otherwise(None)
         )
 
@@ -101,8 +107,8 @@ class D02SupportProcessor(BaseDimensionProcessor):
     def _merge_levels(self, df: pl.DataFrame) -> pl.DataFrame:
         """Szintek összevonása swing pontok alapján.
 
-        Placeholder implementáció: egyszerűen visszaadja a swing high értékeket resistance oszlopban.
-        Később ide kerül a súlyozott átlagolás logikája.
+        Placeholder implementáció: egyszerűen visszaadja a swing high értékeket
+        resistance oszlopban. Később ide kerül a súlyozott átlagolás logikája.
 
         Args:
             df: Bemeneti Polars DataFrame swing pontokkal
@@ -114,6 +120,30 @@ class D02SupportProcessor(BaseDimensionProcessor):
         resistance = pl.coalesce("swing_high_body", "swing_high_wick")
 
         return df.with_columns(resistance.alias("resistance"))
+
+    def _confirm_with_volume(self, df: pl.DataFrame, swing_mask: pl.Expr) -> pl.Expr:
+        """Swing pontok megerősítése volumen alapján.
+
+        Ellenőrzi, hogy a swing pontokon a real_volume nagyobb-e a mozgóátlagnál.
+        Ha volume_confirmation false, mindig 1.0-s szorzót ad vissza.
+
+        Args:
+            df: Bemeneti Polars DataFrame (nem használt, de konzisztenciáért)
+            swing_mask: Swing pontokat jelölő kifejezés
+
+        Returns:
+            pl.Expr: Szorzó kifejezés (1.2 ha megerősített, 1.0 ha nem)
+        """
+        volume_confirmation = cast(dict, self.dim_config).get("volume_confirmation", False)
+        if not volume_confirmation:
+            return pl.lit(1.0)
+
+        threshold = pl.col("real_volume").rolling_mean(window_size=20) * 1.5
+        return (
+            pl.when(swing_mask & (pl.col("real_volume") > threshold))
+            .then(1.2)
+            .otherwise(1.0)
+        )
 
     def process(self, df: pl.DataFrame, timeframe: str = "H1") -> pl.DataFrame:
         """Support/Resistance szintek számítása swing pontok alapján.

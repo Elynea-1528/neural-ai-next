@@ -20,7 +20,11 @@ class TestD02SupportProcessor:
         """D02SupportProcessor példány fixture."""
         # Mock config és logger létrehozása
         mock_config = MagicMock()
-        mock_config.get.return_value = {"swing_window": 5, "min_distance": 10}
+        mock_config.get.return_value = {
+            "swing_window": 5,
+            "min_distance": 10,
+            "volume_confirmation": True
+        }
         mock_logger = MagicMock()
         return D02SupportProcessor(mock_config, mock_logger)
 
@@ -203,6 +207,10 @@ class TestD02SupportProcessor:
             "swing_low_body",
             "swing_high_wick",
             "swing_low_wick",
+            "resistance",
+            "swing_high",
+            "swing_low",
+            "support",
         }
         assert set(result.columns) == expected_columns
 
@@ -264,3 +272,40 @@ class TestD02SupportProcessor:
         assert result["swing_low_body"].dtype in [pl.Float32, pl.Float64]
         assert result["swing_high_wick"].dtype in [pl.Float32, pl.Float64]
         assert result["swing_low_wick"].dtype in [pl.Float32, pl.Float64]
+
+    def test_confirm_with_volume_enabled(
+        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a _confirm_with_volume metódust volume_confirmation True esetén."""
+        # Swing mask: első 10 sor True, többi False
+        swing_mask = pl.col("timestamp").cum_count() <= 10
+
+        expr = processor._confirm_with_volume(sample_ohlcv_data, swing_mask)
+
+        # Alkalmazzuk az expr-t a df-re
+        result_df = sample_ohlcv_data.with_columns(volume_multiplier=expr)
+
+        # Ellenőrizzük, hogy az első 10 sorban különböző értékek vannak (1.0 vagy 1.2)
+        first_10 = result_df.head(10)["volume_multiplier"].to_list()
+        others = result_df.slice(10)["volume_multiplier"].to_list()
+
+        # Első 10-ben lehet 1.2 vagy 1.0 attól függően, hogy teljesül-e a feltétel
+        assert all(v in [1.0, 1.2] for v in first_10)
+        # Többi mindig 1.0 (swing_mask False)
+        assert all(v == 1.0 for v in others)
+
+    def test_confirm_with_volume_disabled(self, processor: D02SupportProcessor):
+        """Teszteli a _confirm_with_volume metódust volume_confirmation False esetén."""
+        # Mock config módosítása volume_confirmation False-ra
+        processor.dim_config = {"volume_confirmation": False}
+
+        df = pl.DataFrame({"real_volume": [1000, 2000, 3000]})
+        swing_mask = pl.lit(True)
+
+        expr = processor._confirm_with_volume(df, swing_mask)
+
+        # Alkalmazzuk
+        result_df = df.with_columns(volume_multiplier=expr)
+
+        # Mindig 1.0 kell legyen
+        assert all(result_df["volume_multiplier"] == 1.0)
