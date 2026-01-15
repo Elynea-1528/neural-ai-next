@@ -12,6 +12,8 @@ from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceIn
 if TYPE_CHECKING:
     import polars as pl
 
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.processing.resampler_service.interfaces.resampler_interface import (
         ResamplerInterface,
     )
@@ -510,12 +512,14 @@ class StrategyService(StrategyServiceInterface):
         if config is None or logger is None:
             raise RuntimeError("Config vagy Logger komponens nem elérhető")
 
+        logger.info(f"D2 elemzés indítása: {symbol} {timeframe}")
+
         # 3. D2 processor létrehozása Factory-n keresztül
         from neural_ai.core.processing.factory import create_dimension_processor
 
         processor = create_dimension_processor(dimension_id=2, config=config, logger=logger)
 
         # 4. D2 processzálás futtatása
-        df_d2 = processor.process(df)
+        df_d2 = processor.process(df, timeframe=timeframe)
 
         return df_d2

@@ -517,7 +517,7 @@ class TestStrategyService:
             )
 
             # Ellenőrizzük, hogy a process metódust hívták-e
-            mock_processor.process.assert_called_once_with(mock_df)
+            mock_processor.process.assert_called_once_with(mock_df, timeframe="1h")
 
             # Ellenőrizzük az eredményt
             assert result == mock_processed_df
@@ -574,7 +574,7 @@ class TestStrategyService:
             )
 
             # Ellenőrizzük, hogy a process metódust hívták-e a betöltött df-fel
-            mock_processor.process.assert_called_once_with(mock_candles_df)
+            mock_processor.process.assert_called_once_with(mock_candles_df, timeframe="1h")
 
             # Ellenőrizzük az eredményt
             assert result == mock_processed_df
