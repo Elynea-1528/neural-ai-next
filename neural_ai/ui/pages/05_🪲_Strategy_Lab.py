@@ -44,6 +44,12 @@ class StrategyLabPage(PageInterface):
             st.session_state.candles = None
         if "price_type" not in st.session_state:
             st.session_state.price_type = "Bid"
+        if "show_body_swings" not in st.session_state:
+            st.session_state.show_body_swings = False
+        if "show_wick_swings" not in st.session_state:
+            st.session_state.show_wick_swings = False
+        if "d2_analysis" not in st.session_state:
+            st.session_state.d2_analysis = None
 
     def render(self) -> None:
         """A Strategy Lab oldal megjelenítése."""
@@ -102,6 +108,26 @@ class StrategyLabPage(PageInterface):
                 help="Betölti és megjeleníti a kiválasztott adatokat",
             ):
                 self._load_and_visualize(selected_symbol, selected_date, selected_timeframe)
+
+            st.divider()
+
+            # Piaci Szerkezet (D2) Expander
+            with st.expander("📈 Piaci Szerkezet (D2)", expanded=False):
+                st.markdown("**Swing Pontok Megjelenítése**")
+
+                show_body_swings = st.checkbox(
+                    "Show Body Swings",
+                    value=st.session_state.show_body_swings,
+                    help="Body alapú support és resistance szintek megjelenítése",
+                )
+                st.session_state.show_body_swings = show_body_swings
+
+                show_wick_swings = st.checkbox(
+                    "Show Wick Swings",
+                    value=st.session_state.show_wick_swings,
+                    help="Wick alapú support és resistance szintek megjelenítése",
+                )
+                st.session_state.show_wick_swings = show_wick_swings
 
             st.divider()
 
@@ -348,6 +374,112 @@ class StrategyLabPage(PageInterface):
                     )
                 )
 
+        # D2 swing pontok hozzáadása, ha aktívak a checkboxok és van elemzés
+        if (
+            st.session_state.show_body_swings or st.session_state.show_wick_swings
+        ) and st.session_state.d2_analysis is not None:
+            d2_df = (
+                st.session_state.d2_analysis.to_pandas()
+                if hasattr(st.session_state.d2_analysis, "to_pandas")
+                else st.session_state.d2_analysis
+            )
+
+            # Body swings kirajzolása
+            if st.session_state.show_body_swings:
+                # Resistance Body (piros kör)
+                if "resistance_body" in d2_df.columns:
+                    valid_resistance_body = d2_df["resistance_body"].dropna()
+                    if not valid_resistance_body.empty:
+                        resistance_dates = [
+                            df["date"].iloc[i] for i in valid_resistance_body.index if i < len(df)
+                        ]
+                        resistance_values = valid_resistance_body.values
+                        fig.add_trace(
+                            go.Scatter(
+                                x=resistance_dates,
+                                y=resistance_values,
+                                mode="markers",
+                                name="Resistance Body",
+                                marker={
+                                    "symbol": "circle",
+                                    "size": 8,
+                                    "color": "#FF0000",
+                                    "line": {"width": 1, "color": "#FF0000"},
+                                },
+                            )
+                        )
+
+                # Support Body (zöld kör)
+                if "support_body" in d2_df.columns:
+                    valid_support_body = d2_df["support_body"].dropna()
+                    if not valid_support_body.empty:
+                        support_dates = [
+                            df["date"].iloc[i] for i in valid_support_body.index if i < len(df)
+                        ]
+                        support_values = valid_support_body.values
+                        fig.add_trace(
+                            go.Scatter(
+                                x=support_dates,
+                                y=support_values,
+                                mode="markers",
+                                name="Support Body",
+                                marker={
+                                    "symbol": "circle",
+                                    "size": 8,
+                                    "color": "#00FF00",
+                                    "line": {"width": 1, "color": "#00FF00"},
+                                },
+                            )
+                        )
+
+            # Wick swings kirajzolása
+            if st.session_state.show_wick_swings:
+                # Resistance Wick (piros X)
+                if "resistance_wick" in d2_df.columns:
+                    valid_resistance_wick = d2_df["resistance_wick"].dropna()
+                    if not valid_resistance_wick.empty:
+                        resistance_wick_dates = [
+                            df["date"].iloc[i] for i in valid_resistance_wick.index if i < len(df)
+                        ]
+                        resistance_wick_values = valid_resistance_wick.values
+                        fig.add_trace(
+                            go.Scatter(
+                                x=resistance_wick_dates,
+                                y=resistance_wick_values,
+                                mode="markers",
+                                name="Resistance Wick",
+                                marker={
+                                    "symbol": "x-thin",
+                                    "size": 10,
+                                    "color": "#FF0000",
+                                    "line": {"width": 2, "color": "#FF0000"},
+                                },
+                            )
+                        )
+
+                # Support Wick (zöld X)
+                if "support_wick" in d2_df.columns:
+                    valid_support_wick = d2_df["support_wick"].dropna()
+                    if not valid_support_wick.empty:
+                        support_wick_dates = [
+                            df["date"].iloc[i] for i in valid_support_wick.index if i < len(df)
+                        ]
+                        support_wick_values = valid_support_wick.values
+                        fig.add_trace(
+                            go.Scatter(
+                                x=support_wick_dates,
+                                y=support_wick_values,
+                                mode="markers",
+                                name="Support Wick",
+                                marker={
+                                    "symbol": "x-thin",
+                                    "size": 10,
+                                    "color": "#00FF00",
+                                    "line": {"width": 2, "color": "#00FF00"},
+                                },
+                            )
+                        )
+
         # Chart formázása
         fig.update_layout(
             title="Candlestick Chart",
@@ -442,6 +574,19 @@ class StrategyLabPage(PageInterface):
                     self._loaded = True
                     # Backtest eredmények törlése új adat betöltésekor
                     st.session_state.backtest_result = None
+
+                    # Automatikus piaci szerkezet elemzés (D2)
+                    try:
+                        d2_result = asyncio.run(
+                            strategy_service.analyze_market_structure(
+                                symbol, date_str, timeframe, result
+                            )
+                        )
+                        st.session_state.d2_analysis = d2_result
+                    except Exception as e:
+                        st.warning(f"D2 elemzés sikertelen: {str(e)}")
+                        st.session_state.d2_analysis = None
+
                     st.success(f"Sikeres betöltés: {symbol} - {date_str}")
                     # Oldal újrarajzolása a friss adatokkal
                     st.rerun()

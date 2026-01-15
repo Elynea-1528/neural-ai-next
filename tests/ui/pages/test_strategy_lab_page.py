@@ -484,7 +484,7 @@ class TestStrategyLabPageSessionState:
         Args:
             mock_bridge: A mockolt bridge példány.
         """
-        page = StrategyLabPage(bridge=mock_bridge)
+        StrategyLabPage(bridge=mock_bridge)
 
         # Ellenőrizzük, hogy a price_type alapértelmezetten "Bid"
         assert strategy_lab_module.st.session_state.price_type == "Bid"
@@ -498,9 +498,10 @@ class TestStrategyLabPageSessionState:
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
+        import polars as pl
 
         # Mock DataFrame bid oszlopokkal
-        mock_df = pd.DataFrame(
+        mock_df_pd = pd.DataFrame(
             {
                 "bid_open": [1.1000, 1.1005],
                 "bid_high": [1.1020, 1.1010],
@@ -512,6 +513,8 @@ class TestStrategyLabPageSessionState:
                 "tick_volume": [50, 75],
             }
         )
+        # Konvertáljuk Polars-ra
+        mock_df = pl.from_pandas(mock_df_pd)
         strategy_lab_page._candles = mock_df
         strategy_lab_module.st.session_state.price_type = "Bid"
 
@@ -541,9 +544,10 @@ class TestStrategyLabPageSessionState:
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
+        import polars as pl
 
         # Mock DataFrame mid oszlopokkal
-        mock_df = pd.DataFrame(
+        mock_df_pd = pd.DataFrame(
             {
                 "mid_open": [1.1001, 1.1006],
                 "mid_high": [1.1021, 1.1011],
@@ -554,6 +558,8 @@ class TestStrategyLabPageSessionState:
                 "real_volume": [1000, 1500],
             }
         )
+        # Konvertáljuk Polars-ra
+        mock_df = pl.from_pandas(mock_df_pd)
         strategy_lab_page._candles = mock_df
         strategy_lab_module.st.session_state.price_type = "Mid"
 
@@ -589,9 +595,10 @@ class TestStrategyLabPageSessionState:
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
+        import polars as pl
 
         # Mock DataFrame bid oszlopokkal
-        mock_df = pd.DataFrame(
+        mock_df_pd = pd.DataFrame(
             {
                 "bid_open": [1.1000, 1.1005],
                 "bid_high": [1.1020, 1.1010],
@@ -600,6 +607,8 @@ class TestStrategyLabPageSessionState:
                 "timestamp": pd.date_range("2024-01-01", periods=2, freq="1min"),
             }
         )
+        # Konvertáljuk Polars-ra
+        mock_df = pl.from_pandas(mock_df_pd)
         strategy_lab_page._candles = mock_df
         strategy_lab_module.st.session_state.price_type = "Bid"
 
@@ -630,9 +639,10 @@ class TestStrategyLabPageSessionState:
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
+        import polars as pl
 
         # Mock DataFrame mid oszlopokkal
-        mock_df = pd.DataFrame(
+        mock_df_pd = pd.DataFrame(
             {
                 "mid_open": [1.1001, 1.1006],
                 "mid_high": [1.1021, 1.1011],
@@ -641,6 +651,8 @@ class TestStrategyLabPageSessionState:
                 "timestamp": pd.date_range("2024-01-01", periods=2, freq="1min"),
             }
         )
+        # Konvertáljuk Polars-ra
+        mock_df = pl.from_pandas(mock_df_pd)
         strategy_lab_page._candles = mock_df
         strategy_lab_module.st.session_state.price_type = "Mid"
 
