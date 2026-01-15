@@ -216,6 +216,49 @@ class D02SupportProcessor(BaseDimensionProcessor):
 
         return updated_levels
 
+    def _categorize_zones(
+        self,
+        levels: list[dict[str, str | float | int]]
+    ) -> dict[str, dict[str, list[dict[str, str | float | int]]]]:
+        """Szintek kategorizálása strength és touches alapján.
+
+        A szinteket erősíti support és resistance kategóriákba, majd minden kategóriában
+        további alcsoportokba: strong, moderate, weak.
+
+        Args:
+            levels: Szintek listája dict-ekkel, melyek tartalmazzák 'strength',
+                'touches', 'type' stb.
+
+        Returns:
+            dict: Kategorizált szintek struktúrája:
+                {
+                    "support": {"strong": [...], "moderate": [...], "weak": [...]},
+                    "resistance": {"strong": [...], "moderate": [...], "weak": [...]}
+                }
+        """
+        min_touches = cast(int, self.dim_config.get("min_touches", 1))
+
+        result: dict[str, dict[str, list[dict[str, str | float | int]]]] = {
+            "support": {"strong": [], "moderate": [], "weak": []},
+            "resistance": {"strong": [], "moderate": [], "weak": []}
+        }
+
+        for level in levels:
+            strength = cast(float, level["strength"])
+            touches = cast(int, level["touches"])
+            level_type = cast(str, level["type"])
+
+            if strength > 0.7 and touches >= min_touches:
+                category = "strong"
+            elif 0.3 <= strength <= 0.7 or (touches < min_touches and strength > 0.4):
+                category = "moderate"
+            else:
+                category = "weak"
+
+            result[level_type][category].append(level)
+
+        return result
+
     def _confirm_with_volume(self, df: pl.DataFrame, swing_mask: pl.Expr) -> pl.Expr:
         """Swing pontok megerősítése volumen alapján.
 

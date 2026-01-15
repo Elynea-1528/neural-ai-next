@@ -57,6 +57,39 @@ List[Dict[str, Union[float, int, str]]]: Frissített szintek listája 'strength'
 **Konfiguráció:**
 - `strength_window`: Visszatekintési ablak paraméter (alapértelmezett: 10), releváns a strength számításnál.
 
+### `_categorize_zones`
+
+**Aláírás:**
+```python
+def _categorize_zones(self, levels: List[Dict[str, Union[str, float, int]]]) -> Dict[str, Dict[str, List[Dict[str, Union[str, float, int]]]]]
+```
+
+**Leírás:**
+A szinteket kategorizálja strength és touches alapján support és resistance kategóriákba, majd minden kategóriában további alcsoportokba: strong, moderate, weak.
+
+**Paraméterek:**
+- `levels`: Szintek listája dict-ekkel, melyek tartalmazzák 'strength', 'touches', 'type' stb.
+
+**Visszatérési érték:**
+Dict[str, Dict[str, List[Dict[str, Union[str, float, int]]]]]: Kategorizált szintek struktúrája:
+```python
+{
+    "support": {"strong": [...], "moderate": [...], "weak": [...]},
+    "resistance": {"strong": [...], "moderate": [...], "weak": [...]}
+}
+```
+
+**Logika:**
+1. Inicializálja az eredmény struktúrát üres listákkal.
+2. Minden szinthez ellenőrzi a kategorizálási szabályokat:
+   - Strong: strength > 0.7 és touches >= min_touches
+   - Moderate: strength 0.3-0.7 vagy (touches < min_touches és strength > 0.4)
+   - Weak: minden más eset
+3. Hozzáadja a megfelelő lista végéhez a szintet.
+
+**Konfiguráció:**
+- `min_touches`: Minimális érintések száma a strong kategorizáláshoz (alapértelmezett: 1)
+
 ## Architektúra
 
 - **Base**: `BaseDimensionProcessor`

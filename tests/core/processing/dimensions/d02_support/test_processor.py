@@ -23,7 +23,8 @@ class TestD02SupportProcessor:
         mock_config.get.return_value = {
             "swing_window": 5,
             "min_distance": 10,
-            "volume_confirmation": True
+            "volume_confirmation": True,
+            "min_touches": 2
         }
         mock_logger = MagicMock()
         return D02SupportProcessor(mock_config, mock_logger)
@@ -452,3 +453,124 @@ class TestD02SupportProcessor:
         assert abs(result[0]["strength"] - 0.25) < 1e-6
         assert abs(result[1]["strength"] - 0.5) < 1e-6
         assert result[2]["strength"] == 1.0
+
+    def test_categorize_zones_empty_levels(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust üres szintek listával."""
+        result = processor._categorize_zones([])
+
+        expected = {
+            "support": {"strong": [], "moderate": [], "weak": []},
+            "resistance": {"strong": [], "moderate": [], "weak": []}
+        }
+
+        assert result == expected
+
+    def test_categorize_zones_strong_support(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust strong support szinttel."""
+        levels = [
+            {"price": 1.0480, "touches": 3, "type": "support", "strength": 0.8}
+        ]
+        result = processor._categorize_zones(levels)
+
+        assert len(result["support"]["strong"]) == 1
+        assert result["support"]["strong"][0]["price"] == 1.0480
+        assert len(result["support"]["moderate"]) == 0
+        assert len(result["support"]["weak"]) == 0
+        assert len(result["resistance"]["strong"]) == 0
+
+    def test_categorize_zones_strong_resistance(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust strong resistance szinttel."""
+        levels = [
+            {"price": 1.0520, "touches": 2, "type": "resistance", "strength": 0.9}
+        ]
+        result = processor._categorize_zones(levels)
+
+        assert len(result["resistance"]["strong"]) == 1
+        assert result["resistance"]["strong"][0]["price"] == 1.0520
+        assert len(result["resistance"]["moderate"]) == 0
+        assert len(result["resistance"]["weak"]) == 0
+        assert len(result["support"]["strong"]) == 0
+
+    def test_categorize_zones_moderate_level(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust moderate szinttel."""
+        levels = [
+            {"price": 1.0480, "touches": 1, "type": "support", "strength": 0.5}
+        ]
+        result = processor._categorize_zones(levels)
+
+        assert len(result["support"]["moderate"]) == 1
+        assert result["support"]["moderate"][0]["price"] == 1.0480
+        assert len(result["support"]["strong"]) == 0
+        assert len(result["support"]["weak"]) == 0
+
+    def test_categorize_zones_weak_level(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust weak szinttel."""
+        levels = [
+            {"price": 1.0480, "touches": 1, "type": "support", "strength": 0.2}
+        ]
+        result = processor._categorize_zones(levels)
+
+        assert len(result["support"]["weak"]) == 1
+        assert result["support"]["weak"][0]["price"] == 1.0480
+        assert len(result["support"]["strong"]) == 0
+        assert len(result["support"]["moderate"]) == 0
+
+    def test_categorize_zones_edge_case_strength_07(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust strength = 0.7 esetén."""
+        levels = [
+            {"price": 1.0520, "touches": 3, "type": "resistance", "strength": 0.7}
+        ]
+        result = processor._categorize_zones(levels)
+
+        # strength == 0.7, tehát moderate (nem > 0.7)
+        assert len(result["resistance"]["moderate"]) == 1
+        assert len(result["resistance"]["strong"]) == 0
+
+    def test_categorize_zones_edge_case_strength_03(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust strength = 0.3 esetén."""
+        levels = [
+            {"price": 1.0520, "touches": 3, "type": "resistance", "strength": 0.3}
+        ]
+        result = processor._categorize_zones(levels)
+
+        # strength == 0.3, 0.3 <= 0.7, tehát moderate
+        assert len(result["resistance"]["moderate"]) == 1
+        assert len(result["resistance"]["strong"]) == 0
+
+    def test_categorize_zones_low_touches_but_high_strength(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust alacsony touches de magas strength esetén."""
+        levels = [
+            {"price": 1.0480, "touches": 1, "type": "support", "strength": 0.5}
+        ]
+        result = processor._categorize_zones(levels)
+
+        # touches < min_touches (2), de strength > 0.4, tehát moderate
+        assert len(result["support"]["moderate"]) == 1
+        assert len(result["support"]["strong"]) == 0
+
+    def test_categorize_zones_multiple_levels(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust több szinttel különböző kategóriákban."""
+        levels = [
+            {"price": 1.0480, "touches": 3, "type": "support", "strength": 0.8},  # strong
+            {"price": 1.0520, "touches": 2, "type": "resistance", "strength": 0.5},  # moderate
+            {"price": 1.0500, "touches": 1, "type": "support", "strength": 0.2},  # weak
+            {"price": 1.0540, "touches": 4, "type": "resistance", "strength": 0.9},  # strong
+        ]
+        result = processor._categorize_zones(levels)
+
+        assert len(result["support"]["strong"]) == 1
+        assert len(result["support"]["moderate"]) == 0
+        assert len(result["support"]["weak"]) == 1
+        assert len(result["resistance"]["strong"]) == 1
+        assert len(result["resistance"]["moderate"]) == 1
+        assert len(result["resistance"]["weak"]) == 0
+
+    def test_categorize_zones_min_touches_boundary(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust min_touches határán."""
+        levels = [
+            {"price": 1.0520, "touches": 2, "type": "resistance", "strength": 0.8}  # touches == min_touches
+        ]
+        result = processor._categorize_zones(levels)
+
+        # touches >= min_touches és strength > 0.7, tehát strong
+        assert len(result["resistance"]["strong"]) == 1
