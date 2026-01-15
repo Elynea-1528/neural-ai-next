@@ -3,7 +3,6 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-import pandas as pd
 import polars as pl
 
 from neural_ai.core.logger.factory import LoggerFactory
@@ -43,8 +42,8 @@ class ResamplerService(ResamplerInterface):
         start: datetime,
         end: datetime,
         timeframe: str = "1m",
-        return_type: str = "pandas",
-    ) -> pd.DataFrame | pl.DataFrame:
+        return_type: str = "polars",
+    ) -> pl.DataFrame:
         """Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
 
         Args:
@@ -55,7 +54,7 @@ class ResamplerService(ResamplerInterface):
             return_type: A visszaadott DataFrame típusa ('pandas' vagy 'polars')
 
         Returns:
-            DataFrame: OHLCV gyertyákat tartalmazó DataFrame (Pandas vagy Polars)
+            pl.DataFrame: OHLCV gyertyákat tartalmazó Polars DataFrame
 
         Raises:
             InvalidTimeframeError: Ha az időkeret érvénytelen
@@ -79,22 +78,8 @@ class ResamplerService(ResamplerInterface):
             # Átalakítás OHLCV gyertyákká (mindig Polars)
             ohlcv_data = self._convert_to_ohlcv(tick_data, timeframe)
 
-            # Elágazás visszaadott típus alapján
-            if return_type == "pandas":
-                # Konverzió Pandas DataFrame-re index beállítással
-                result_df = ohlcv_data.to_pandas()
-                if not result_df.empty:
-                    result_df.index = pd.to_datetime(result_df["timestamp"])
-                    # Megtartjuk a timestamp oszlopot kompatibilitás miatt
-                    # result_df = result_df.drop(columns=["timestamp"])
-                return result_df
-            elif return_type == "polars":
-                # Zero-Copy visszaadás natív Polars DataFrame-fel
-                return ohlcv_data
-            else:
-                raise ValueError(
-                    f"Invalid return_type: {return_type}. Supported: 'pandas', 'polars'"
-                )
+            # Mindig Polars DataFrame visszaadása (Zero-Copy)
+            return ohlcv_data
         except Exception as e:
             raise ResamplingError(symbol=symbol, timeframe=timeframe, original_error=e) from e
 

@@ -262,7 +262,7 @@ class StrategyService(StrategyServiceInterface):
             timeframe: Az időkeret (pl. '1m', '5m', '1h', '4h')
 
         Returns:
-            DataFrame: A resample-ölt OHLCV gyertyák DataFrame-ben
+            pl.DataFrame: A resample-ölt OHLCV gyertyák DataFrame-ben
         """
         # ResamplerService példányosítása Factory-n keresztül
         from neural_ai.core.processing.resampler_service.factory import (
