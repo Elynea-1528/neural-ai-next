@@ -78,7 +78,7 @@ class StrategyLabPage(PageInterface):
 
             # Dátum választó (nap)
             selected_date = st.date_input(
-                "Dátum", value=date.today(), help="Válassza ki a megjeleníteni kívánt napot"
+                "Dátum", value=date(2024, 3, 20), help="Válassza ki a megjeleníteni kívánt napot"
             )
 
             # Idősík választó
@@ -86,7 +86,7 @@ class StrategyLabPage(PageInterface):
             selected_timeframe = st.selectbox(
                 "Idősík",
                 options=timeframe_options,
-                index=0,
+                index=3,
                 help="Válassza ki a gyertyák időkeretét",
             )
 
@@ -401,8 +401,9 @@ class StrategyLabPage(PageInterface):
                                 mode="markers",
                                 name="Resistance Body",
                                 marker={
-                                    "size": 6,
-                                    "color": "rgb(255, 0, 0)",
+                                    "symbol": "triangle-down",
+                                    "size": 10,
+                                    "color": "red",
                                 },
                             )
                         )
@@ -422,8 +423,9 @@ class StrategyLabPage(PageInterface):
                                 mode="markers",
                                 name="Support Body",
                                 marker={
-                                    "size": 6,
-                                    "color": "rgb(0, 255, 0)",
+                                    "symbol": "triangle-up",
+                                    "size": 10,
+                                    "color": "green",
                                 },
                             )
                         )
@@ -486,6 +488,10 @@ class StrategyLabPage(PageInterface):
             xaxis_rangeslider_visible=False,
             dragmode="zoom",
         )
+
+        if st.session_state.d2_analysis is not None:
+            count_high = st.session_state.d2_analysis["swing_high_body"].drop_nulls().len()
+            st.caption(f"🔍 Debug: Talált Swing High pontok: {count_high} db")
 
         st.plotly_chart(fig, use_container_width=True, config={"scrollZoom": True})
 
