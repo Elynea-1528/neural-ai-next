@@ -381,3 +381,74 @@ class TestD02SupportProcessor:
         # Rendezve kell lenni ár szerint
         prices = [level["price"] for level in result]
         assert prices == sorted(prices)
+
+    def test_calculate_level_strength_empty_levels(self, processor: D02SupportProcessor):
+        """Teszteli a _calculate_level_strength metódust üres szintek listával."""
+        result = processor._calculate_level_strength([])
+
+        assert result == []
+
+    def test_calculate_level_strength_single_level(self, processor: D02SupportProcessor):
+        """Teszteli a _calculate_level_strength metódust egyetlen szinttel."""
+        levels = [{"price": 1.0500, "touches": 5, "type": "resistance"}]
+        result = processor._calculate_level_strength(levels)
+
+        expected_strength = (5 * 0.1) * 1.0  # volume_factor alapértelmezett 1.0, max_strength = 0.5, normalizált 1.0
+        assert len(result) == 1
+        assert result[0]["strength"] == 1.0  # Normalizált
+        assert result[0]["price"] == 1.0500
+        assert result[0]["touches"] == 5
+        assert result[0]["type"] == "resistance"
+
+    def test_calculate_level_strength_multiple_levels(self, processor: D02SupportProcessor):
+        """Teszteli a _calculate_level_strength metódust több szinttel."""
+        levels = [
+            {"price": 1.0500, "touches": 5, "type": "resistance"},
+            {"price": 1.0480, "touches": 10, "type": "support"},
+        ]
+        result = processor._calculate_level_strength(levels)
+
+        # Számítások:
+        # Level 1: (5 * 0.1) * 1.0 = 0.5
+        # Level 2: (10 * 0.1) * 1.0 = 1.0
+        # Max = 1.0
+        # Normalized: 0.5/1.0 = 0.5, 1.0/1.0 = 1.0
+
+        assert len(result) == 2
+        assert result[0]["strength"] == 0.5
+        assert result[1]["strength"] == 1.0
+
+    def test_calculate_level_strength_with_volume_factor(self, processor: D02SupportProcessor):
+        """Teszteli a _calculate_level_strength metódust volume_factor használatával."""
+        levels = [
+            {"price": 1.0500, "touches": 5, "type": "resistance", "volume_factor": 2.0},
+            {"price": 1.0480, "touches": 5, "type": "support", "volume_factor": 1.0},
+        ]
+        result = processor._calculate_level_strength(levels)
+
+        # Level 1: (5 * 0.1) * 2.0 = 1.0
+        # Level 2: (5 * 0.1) * 1.0 = 0.5
+        # Max = 1.0
+        # Normalized: 1.0/1.0 = 1.0, 0.5/1.0 = 0.5
+
+        assert len(result) == 2
+        assert result[0]["strength"] == 1.0
+        assert result[1]["strength"] == 0.5
+
+    def test_calculate_level_strength_normalization(self, processor: D02SupportProcessor):
+        """Teszteli a normalizálást 0-1 közé."""
+        levels = [
+            {"price": 1.0500, "touches": 1, "type": "resistance"},
+            {"price": 1.0480, "touches": 2, "type": "support"},
+            {"price": 1.0520, "touches": 4, "type": "resistance"},
+        ]
+        result = processor._calculate_level_strength(levels)
+
+        # Számítások:
+        # 0.1, 0.2, 0.4 -> max=0.4
+        # Normalized: 0.25, 0.5, 1.0
+
+        assert len(result) == 3
+        assert abs(result[0]["strength"] - 0.25) < 1e-6
+        assert abs(result[1]["strength"] - 0.5) < 1e-6
+        assert result[2]["strength"] == 1.0

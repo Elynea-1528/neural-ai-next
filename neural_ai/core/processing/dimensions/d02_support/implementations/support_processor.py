@@ -176,6 +176,46 @@ class D02SupportProcessor(BaseDimensionProcessor):
 
         return merged_levels
 
+    def _calculate_level_strength(
+        self, levels: list[dict[str, float | int | str]]
+    ) -> list[dict[str, float | int | str]]:
+        """Szintek erősségének számítása.
+
+        Minden szinthez kiszámolja a strength értéket az érintések, súly és
+        volumen tényező alapján, majd normalizálja 0-1 közé.
+
+        Args:
+            levels: Szintek listája dict-ekkel, amelyek tartalmazzák 'touches' és
+                opcionálisan 'volume_factor'.
+
+        Returns:
+            list[dict[str, float | int | str]]: Frissített szintek listája
+                'strength' kulccsal.
+        """
+        base_weight = 0.1
+        strength_window = cast(int, self.dim_config.get("strength_window", 10))
+        # Használjuk a strength_window-t base_weight módosítására
+        base_weight /= strength_window
+
+        # Frissített szintek listája
+        updated_levels: list[dict[str, float | int | str]] = []
+
+        for level in levels:
+            touches = cast(int, level.get("touches", 1))
+            volume_factor = cast(float, level.get("volume_factor", 1.0))
+            strength = (touches * base_weight) * volume_factor
+            level["strength"] = strength
+            updated_levels.append(level)
+
+        # Normalizálás 0-1 közé a teljes listában
+        if updated_levels:
+            max_strength = max(cast(float, level["strength"]) for level in updated_levels)
+            if max_strength > 0:
+                for level in updated_levels:
+                    level["strength"] = cast(float, level["strength"]) / max_strength
+
+        return updated_levels
+
     def _confirm_with_volume(self, df: pl.DataFrame, swing_mask: pl.Expr) -> pl.Expr:
         """Swing pontok megerősítése volumen alapján.
 
