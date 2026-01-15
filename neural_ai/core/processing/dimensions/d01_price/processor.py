@@ -41,13 +41,12 @@ class D01PriceProcessor(BaseDimensionProcessor):
         Returns:
             Polars DataFrame az alap adatokkal és matematikai transzformációkkal
         """
-        # Konfiguráció kiolvasása
+        # Alapértelmezett config
         z_score_window = self.dim_config.get("z_score_window", 60)
 
         # Timeframe specifikus felülírás
         if timeframe:
             tf_configs = self.dim_config.get("timeframe_configs", {})
-            # Case-insensitive keresés
             for tf_key, tf_cfg in tf_configs.items():
                 if tf_key.lower() == timeframe.lower():
                     z_score_window = tf_cfg.get("z_score_window", z_score_window)
@@ -83,16 +82,16 @@ class D01PriceProcessor(BaseDimensionProcessor):
             upper_shadow = pl.lit(None).cast(pl.Float64)
             lower_shadow = pl.lit(None).cast(pl.Float64)
 
-        # Alap oszlopok kiválasztása, bid_volume és ask_volume hozzáadása ha léteznek
+        # Alap oszlopok kiválasztása
         columns = [
             "timestamp",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "tick_volume",
-            "spread",
-            "real_volume",
+            # Bid adatok (VISSZAPÓTOLVA)
+            "bid_open", "bid_high", "bid_low", "bid_close",
+            # Mid adatok
+            "mid_open", "mid_high", "mid_low", "mid_close",
+            # Metadata
+            "tick_volume", "spread", "real_volume",
+            # Számított értékek
             log_return.alias("log_return"),
             rolling_z_score.alias("rolling_z_score"),
             upper_shadow.alias("upper_shadow"),

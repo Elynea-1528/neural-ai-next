@@ -37,15 +37,26 @@ class TestD01PriceProcessor:
             high_price = max(open_price, close_price) + abs(np.random.normal(0, 0.001))
             low_price = min(open_price, close_price) - abs(np.random.normal(0, 0.001))
 
+            # Bid árak (spread figyelembevételével)
+            spread = abs(np.random.normal(0.0002, 0.0001))
+            bid_open = open_price - spread / 2
+            bid_high = high_price - spread / 2
+            bid_low = low_price - spread / 2
+            bid_close = close_price - spread / 2
+
             data.append(
                 {
                     "timestamp": ts,
+                    "bid_open": bid_open,
+                    "bid_high": bid_high,
+                    "bid_low": bid_low,
+                    "bid_close": bid_close,
                     "mid_open": open_price,
                     "mid_high": high_price,
                     "mid_low": low_price,
                     "mid_close": close_price,
                     "tick_volume": int(np.random.normal(1000, 200)),
-                    "spread": abs(np.random.normal(0.0002, 0.0001)),
+                    "spread": spread,
                     "real_volume": np.random.normal(1500, 300),
                 }
             )
@@ -70,6 +81,7 @@ class TestD01PriceProcessor:
         # Ellenőrizzük az oszlopokat
         expected_columns = {
             "timestamp",
+            "bid_open", "bid_high", "bid_low", "bid_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -102,6 +114,10 @@ class TestD01PriceProcessor:
         empty_df = pl.DataFrame(
             schema={
                 "timestamp": pl.Datetime,
+                "bid_open": pl.Float64,
+                "bid_high": pl.Float64,
+                "bid_low": pl.Float64,
+                "bid_close": pl.Float64,
                 "mid_open": pl.Float64,
                 "mid_high": pl.Float64,
                 "mid_low": pl.Float64,
@@ -118,6 +134,7 @@ class TestD01PriceProcessor:
         assert len(result) == 0
         expected_columns = {
             "timestamp",
+            "bid_open", "bid_high", "bid_low", "bid_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -134,14 +151,17 @@ class TestD01PriceProcessor:
 
     def test_process_missing_columns_raises_error(self, processor: D01PriceProcessor):
         """Teszteli, hogy hiányzó oszlopok esetén ColumnNotFoundError-t dob."""
-        # Hiányzó mid_close oszlop
+        # Hiányzó bid_close és mid_close oszlop
         incomplete_df = pl.DataFrame(
             {
                 "timestamp": [datetime(2023, 1, 1, 9, 0, 0)],
+                "bid_open": [1.0499],
+                "bid_high": [1.0519],
+                "bid_low": [1.0479],
+                # bid_close és mid_close hiányzik
                 "mid_open": [1.0500],
                 "mid_high": [1.0520],
                 "mid_low": [1.0480],
-                # mid_close hiányzik
                 "tick_volume": [1000],
                 "spread": [0.0002],
                 "real_volume": [1500.0],
@@ -164,6 +184,7 @@ class TestD01PriceProcessor:
         # Csak a szükséges oszlopok maradnak (és az újak)
         expected_columns = {
             "timestamp",
+            "bid_open", "bid_high", "bid_low", "bid_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -216,6 +237,7 @@ class TestD01PriceProcessor:
         # Oszlopok azonosak, kivéve hogy shadows None
         expected_columns = {
             "timestamp",
+            "bid_open", "bid_high", "bid_low", "bid_close",
             "mid_open",
             "mid_high",
             "mid_low",
