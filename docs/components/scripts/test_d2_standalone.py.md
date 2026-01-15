@@ -109,8 +109,8 @@ A script a következő információkat írja ki:
 🎯 Swing pontok:
    Swing High Body: 3
    Swing Low Body: 2
-   Swing High Wick: 1
-   Swing Low Wick: 4
+   Swing High Wick: 2
+   Swing Low Wick: 3
 
 📈 Első 5 swing ponttal rendelkező sor:
 shape: (3, 22)

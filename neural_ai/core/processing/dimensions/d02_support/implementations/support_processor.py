@@ -138,7 +138,6 @@ class D02SupportProcessor(BaseDimensionProcessor):
 
         for swing in sorted_swings:
             price = cast(float, swing["price"])
-            volume_factor = cast(float, swing.get("volume_factor", 1.0))
             swing_type = cast(str, swing["type"])
 
             # Type mapping: high -> resistance, low -> support
@@ -149,16 +148,11 @@ class D02SupportProcessor(BaseDimensionProcessor):
             for level in merged_levels:
                 level_price = cast(float, level["price"])
                 level_touches = cast(int, level["touches"])
-                level_volume_factor = cast(float, level["volume_factor"])
                 if abs(level_price - price) <= level_merge:
-                    # Súlyozott átlag az áraknak
-                    total_volume_factor = level_volume_factor + volume_factor
-                    new_price = (level_price * level_volume_factor +
-                                 price * volume_factor) / total_volume_factor
+                    # Egyszerű átlag az áraknak
+                    new_price = (level_price * level_touches + price) / (level_touches + 1)
                     level["price"] = new_price
                     level["touches"] = level_touches + 1
-                    level["volume_factor"] = total_volume_factor
-                    level["strength"] = float(level["touches"])  # Strength = touches
                     found = True
                     break
 
@@ -167,8 +161,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
                     "price": price,
                     "touches": 1,
                     "type": level_type,
-                    "strength": 1.0,
-                    "volume_factor": volume_factor  # Tároljuk a volume_factor-t az összevonáshoz
+                    "strength": 1.0
                 })
 
         # Eltávolítjuk a volume_factor-t a visszatérésből, mert nem része a specifikációnak
@@ -359,9 +352,6 @@ class D02SupportProcessor(BaseDimensionProcessor):
 
         # Szintek erősségének számítása
         merged_levels = self._calculate_level_strength(merged_levels)
-
-        # Szintek kategorizálása
-        self._categorize_zones(merged_levels)
 
         # Support és resistance szintek kinyerése
         support_levels = [level for level in merged_levels if level["type"] == "support"]

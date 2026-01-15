@@ -113,7 +113,7 @@ class DataHubPage(PageInterface):
                     if data_df.empty:
                         st.warning("Nincsenek elérhető adatok a kiválasztott szűrővel.")
                     else:
-                        st.dataframe(data_df, use_container_width=True)
+                        st.dataframe(data_df, width="stretch")
 
                         # Összesítő információk
                         col1, col2, col3 = st.columns(3)
