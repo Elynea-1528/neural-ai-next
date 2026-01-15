@@ -55,65 +55,47 @@ class D02SupportProcessor(BaseDimensionProcessor):
 
         self.logger.debug(f"D2 processzor futtatása: timeframe={timeframe}, window={swing_window}")
 
-        # Body swing pontok számítása (középső rész: mid_high, mid_low)
+        # Body definíció: gyertya testének top és bottom (mid_open és mid_close alapján)
+        body_top = pl.max_horizontal("mid_open", "mid_close")
+        body_bottom = pl.min_horizontal("mid_open", "mid_close")
+
+        # Body swing pontok számítása (középső rész: body_top, body_bottom)
         swing_high_body = (
-            pl.when(pl.col("mid_high") == pl.col("mid_high").rolling_max(window_size=swing_window))
-            .then(pl.col("mid_high"))
+            pl.when(body_top == body_top.rolling_max(window_size=swing_window, center=True))
+            .then(body_top)
             .otherwise(None)
         )
 
         swing_low_body = (
-            pl.when(pl.col("mid_low") == pl.col("mid_low").rolling_min(window_size=swing_window))
-            .then(pl.col("mid_low"))
+            pl.when(body_bottom == body_bottom.rolling_min(window_size=swing_window, center=True))
+            .then(body_bottom)
             .otherwise(None)
         )
 
         # Wick swing pontok számítása (teljes rész: high, low)
         swing_high_wick = (
-            pl.when(pl.col("high") == pl.col("high").rolling_max(window_size=swing_window))
+            pl.when(
+                pl.col("high") == pl.col("high").rolling_max(window_size=swing_window, center=True)
+            )
             .then(pl.col("high"))
             .otherwise(None)
         )
 
         swing_low_wick = (
-            pl.when(pl.col("low") == pl.col("low").rolling_min(window_size=swing_window))
+            pl.when(
+                pl.col("low") == pl.col("low").rolling_min(window_size=swing_window, center=True)
+            )
             .then(pl.col("low"))
             .otherwise(None)
         )
 
-        # Aggregált szintek body számára
-        resistance_body = swing_high_body.rolling_mean(window_size=min_distance * 2).alias(
-            "resistance_body"
-        )
-        support_body = swing_low_body.rolling_mean(window_size=min_distance * 2).alias(
-            "support_body"
-        )
-
-        # Aggregált szintek wick számára
-        resistance_wick = swing_high_wick.rolling_mean(window_size=min_distance * 2).alias(
-            "resistance_wick"
-        )
-        support_wick = swing_low_wick.rolling_mean(window_size=min_distance * 2).alias(
-            "support_wick"
-        )
-
-        # Swing pontok boolean flag-ek
-        swing_high_body_flag = swing_high_body.is_not_null().alias("swing_high_body")
-        swing_low_body_flag = swing_low_body.is_not_null().alias("swing_low_body")
-        swing_high_wick_flag = swing_high_wick.is_not_null().alias("swing_high_wick")
-        swing_low_wick_flag = swing_low_wick.is_not_null().alias("swing_low_wick")
-
-        # Eredmény dataframe visszaadása az új oszlopokkal
+        # Eredmény dataframe visszaadása a swing pontokkal (konkrét árak vagy None)
         return df.with_columns(
             [
-                swing_high_body_flag,
-                swing_low_body_flag,
-                swing_high_wick_flag,
-                swing_low_wick_flag,
-                resistance_body,
-                support_body,
-                resistance_wick,
-                support_wick,
+                swing_high_body.alias("swing_high_body"),
+                swing_low_body.alias("swing_low_body"),
+                swing_high_wick.alias("swing_high_wick"),
+                swing_low_wick.alias("swing_low_wick"),
             ]
         )
 

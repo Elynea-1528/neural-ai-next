@@ -90,10 +90,6 @@ class TestD02SupportProcessor:
             "swing_low_body",
             "swing_high_wick",
             "swing_low_wick",
-            "resistance_body",
-            "support_body",
-            "resistance_wick",
-            "support_wick",
         }
         assert all(col in result.columns for col in expected_new_columns)
 
@@ -123,11 +119,11 @@ class TestD02SupportProcessor:
         """Teszteli a body swing high pontok helyes detektálását."""
         result = processor.process(sample_ohlcv_data)
 
-        # Swing high body csak boolean értékeket tartalmazhat
-        assert result["swing_high_body"].dtype == pl.Boolean
+        # Swing high body Float vagy None lehet
+        assert result["swing_high_body"].dtype in [pl.Float32, pl.Float64]
 
         # Legalább egy swing high pontnak kell lennie (a minta adatokban)
-        assert result["swing_high_body"].any()
+        assert result["swing_high_body"].drop_nulls().len() > 0
 
     def test_process_swing_low_body_detection(
         self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
@@ -135,11 +131,11 @@ class TestD02SupportProcessor:
         """Teszteli a body swing low pontok helyes detektálását."""
         result = processor.process(sample_ohlcv_data)
 
-        # Swing low body csak boolean értékeket tartalmazhat
-        assert result["swing_low_body"].dtype == pl.Boolean
+        # Swing low body Float vagy None lehet
+        assert result["swing_low_body"].dtype in [pl.Float32, pl.Float64]
 
         # Legalább egy swing low pontnak kell lennie
-        assert result["swing_low_body"].any()
+        assert result["swing_low_body"].drop_nulls().len() > 0
 
     def test_process_swing_high_wick_detection(
         self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
@@ -147,11 +143,11 @@ class TestD02SupportProcessor:
         """Teszteli a wick swing high pontok helyes detektálását."""
         result = processor.process(sample_ohlcv_data)
 
-        # Swing high wick csak boolean értékeket tartalmazhat
-        assert result["swing_high_wick"].dtype == pl.Boolean
+        # Swing high wick Float vagy None lehet
+        assert result["swing_high_wick"].dtype in [pl.Float32, pl.Float64]
 
         # Legalább egy swing high pontnak kell lennie (a minta adatokban)
-        assert result["swing_high_wick"].any()
+        assert result["swing_high_wick"].drop_nulls().len() > 0
 
     def test_process_swing_low_wick_detection(
         self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
@@ -159,49 +155,11 @@ class TestD02SupportProcessor:
         """Teszteli a wick swing low pontok helyes detektálását."""
         result = processor.process(sample_ohlcv_data)
 
-        # Swing low wick csak boolean értékeket tartalmazhat
-        assert result["swing_low_wick"].dtype == pl.Boolean
+        # Swing low wick Float vagy None lehet
+        assert result["swing_low_wick"].dtype in [pl.Float32, pl.Float64]
 
         # Legalább egy swing low pontnak kell lennie
-        assert result["swing_low_wick"].any()
-
-    def test_process_resistance_body_levels(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a resistance body szintek számítását."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Resistance body float típusú kell legyen
-        assert result["resistance_body"].dtype in [pl.Float32, pl.Float64]
-
-        # Resistance szintek swing high-ok alapján számítódnak
-
-    def test_process_support_body_levels(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a support body szintek számítását."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Support body float típusú kell legyen
-        assert result["support_body"].dtype in [pl.Float32, pl.Float64]
-
-    def test_process_resistance_wick_levels(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a resistance wick szintek számítását."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Resistance wick float típusú kell legyen
-        assert result["resistance_wick"].dtype in [pl.Float32, pl.Float64]
-
-    def test_process_support_wick_levels(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a support wick szintek számítását."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Support wick float típusú kell legyen
-        assert result["support_wick"].dtype in [pl.Float32, pl.Float64]
+        assert result["swing_low_wick"].drop_nulls().len() > 0
 
     def test_process_empty_dataframe(self, processor: D02SupportProcessor):
         """Teszteli a process metódust üres DataFrame-mel."""
@@ -245,10 +203,6 @@ class TestD02SupportProcessor:
             "swing_low_body",
             "swing_high_wick",
             "swing_low_wick",
-            "resistance_body",
-            "support_body",
-            "resistance_wick",
-            "support_wick",
         }
         assert set(result.columns) == expected_columns
 
@@ -306,11 +260,7 @@ class TestD02SupportProcessor:
         assert result["real_volume"].dtype in [pl.Float32, pl.Float64]
 
         # Új oszlopok típusai
-        assert result["swing_high_body"].dtype == pl.Boolean
-        assert result["swing_low_body"].dtype == pl.Boolean
-        assert result["swing_high_wick"].dtype == pl.Boolean
-        assert result["swing_low_wick"].dtype == pl.Boolean
-        assert result["resistance_body"].dtype in [pl.Float32, pl.Float64]
-        assert result["support_body"].dtype in [pl.Float32, pl.Float64]
-        assert result["resistance_wick"].dtype in [pl.Float32, pl.Float64]
-        assert result["support_wick"].dtype in [pl.Float32, pl.Float64]
+        assert result["swing_high_body"].dtype in [pl.Float32, pl.Float64]
+        assert result["swing_low_body"].dtype in [pl.Float32, pl.Float64]
+        assert result["swing_high_wick"].dtype in [pl.Float32, pl.Float64]
+        assert result["swing_low_wick"].dtype in [pl.Float32, pl.Float64]

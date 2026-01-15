@@ -386,9 +386,9 @@ class StrategyLabPage(PageInterface):
 
             # Body swings kirajzolása
             if st.session_state.show_body_swings:
-                # Resistance Body (piros kör)
-                if "resistance_body" in d2_df.columns:
-                    valid_resistance_body = d2_df["resistance_body"].dropna()
+                # Resistance Body (piros pötty)
+                if "swing_high_body" in d2_df.columns:
+                    valid_resistance_body = d2_df["swing_high_body"].dropna()
                     if not valid_resistance_body.empty:
                         resistance_dates = [
                             df["date"].iloc[i] for i in valid_resistance_body.index if i < len(df)
@@ -401,17 +401,15 @@ class StrategyLabPage(PageInterface):
                                 mode="markers",
                                 name="Resistance Body",
                                 marker={
-                                    "symbol": "circle",
-                                    "size": 8,
-                                    "color": "#FF0000",
-                                    "line": {"width": 1, "color": "#FF0000"},
+                                    "size": 6,
+                                    "color": "rgb(255, 0, 0)",
                                 },
                             )
                         )
 
-                # Support Body (zöld kör)
-                if "support_body" in d2_df.columns:
-                    valid_support_body = d2_df["support_body"].dropna()
+                # Support Body (zöld pötty)
+                if "swing_low_body" in d2_df.columns:
+                    valid_support_body = d2_df["swing_low_body"].dropna()
                     if not valid_support_body.empty:
                         support_dates = [
                             df["date"].iloc[i] for i in valid_support_body.index if i < len(df)
@@ -424,10 +422,8 @@ class StrategyLabPage(PageInterface):
                                 mode="markers",
                                 name="Support Body",
                                 marker={
-                                    "symbol": "circle",
-                                    "size": 8,
-                                    "color": "#00FF00",
-                                    "line": {"width": 1, "color": "#00FF00"},
+                                    "size": 6,
+                                    "color": "rgb(0, 255, 0)",
                                 },
                             )
                         )
