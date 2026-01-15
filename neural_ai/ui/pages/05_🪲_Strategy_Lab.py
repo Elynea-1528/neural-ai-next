@@ -409,7 +409,7 @@ class StrategyLabPage(PageInterface):
                         fig.add_trace(
                             go.Scatter(
                                 x=swings["date"],
-                                y=swings["swing_high_body"],
+                                y=swings["swing_high_body"] * 1.0005,
                                 mode="markers",
                                 name="Swing High (Body)",
                                 marker={
@@ -427,7 +427,7 @@ class StrategyLabPage(PageInterface):
                         fig.add_trace(
                             go.Scatter(
                                 x=swings["date"],
-                                y=swings["swing_low_body"],
+                                y=swings["swing_low_body"] * 0.9995,
                                 mode="markers",
                                 name="Swing Low (Body)",
                                 marker={
@@ -447,7 +447,7 @@ class StrategyLabPage(PageInterface):
                         fig.add_trace(
                             go.Scatter(
                                 x=swings["date"],
-                                y=swings["swing_high_wick"],
+                                y=swings["swing_high_wick"] * 1.0005,
                                 mode="markers",
                                 name="Swing High (Wick)",
                                 marker={
@@ -466,7 +466,7 @@ class StrategyLabPage(PageInterface):
                         fig.add_trace(
                             go.Scatter(
                                 x=swings["date"],
-                                y=swings["swing_low_wick"],
+                                y=swings["swing_low_wick"] * 0.9995,
                                 mode="markers",
                                 name="Swing Low (Wick)",
                                 marker={
