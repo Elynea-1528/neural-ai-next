@@ -26,8 +26,10 @@ processors:
     use_high_low: true
     primary_weight: 0.7
     secondary_weight: 0.3
-    level_merge: 0.0002
-    volume_confirmation: false
+    level_merge: 0.0005
+    min_touches: 2
+    volume_confirmation: true
+    strength_window: 100
     timeframe_configs:
       M1:
         swing_window: 5
