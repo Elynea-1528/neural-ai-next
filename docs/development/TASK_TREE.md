@@ -533,6 +533,29 @@
 
 ---
 
+## 🗂️ PHASE `[12.1]`: `[D2 VISUALIZATION FIX & DEBUGGER - SWING POINT RENDERING FIX]`
+
+**Goal:** `[Fix D2 swing point visualization issues: robust data merge, simplified filtering, corrected column names, debug expander]` | **Token Budget:** `[~10k]` | **Complexity:** `[⭐⭐]`
+
+### 🏗️ MODULE: `[ui/pages/05_🪲_Strategy_Lab.py]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `05_🪲_Strategy_Lab.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ **Robust Data Merge:** Reset index on both DataFrames for consistent alignment, copy swing columns to plot DataFrame
+- ✅ **Simplified Filtering:** Replaced complex iloc loops with Pandas dropna() filtering for swing_high_body, swing_low_body, swing_high_wick, swing_low_wick
+- ✅ **Corrected Column Names:** Fixed 'resistance_wick' → 'swing_high_wick', 'support_wick' → 'swing_low_wick' to match D2 processor output
+- ✅ **Debug Expander:** Added '🔍 D2 Adat Debugger' with swing point count and first 20 rows display
+- ✅ **Validation:** Dashboard restart confirmed swing points appear on chart with debug visibility
+
+**Test Results:** Ruff check passed, commit successful, swing points now display correctly on candlestick chart
+
+**Last Update:** 2026-01-15 - D2 Visualization Fix & Debugger complete, swing point rendering fixed
+
+---
+
 ## 🗂️ PHASE `[6.3]`: `[STRATEGY LAB PLOTLY BUG FIX]`
 
 **Goal:** `[Fix Plotly syntax error in Strategy Lab - yaxis_label to yaxis_title]` | **Token Budget:** `[~5k]` | **Complexity:** `[⭐]`
@@ -1074,3 +1097,24 @@ Frissítés: UI Radio Button for data source selection, enhanced visualization.
 **Test Results:** 7/7 tests passing, 100% Stmt/Branch coverage, swing point detection validated on synthetic data
 
 **Last Update:** 2026-01-14 - D2 Support Processor implementation complete
+
+---
+
+## 🗂️ PHASE `[COREBRIDGE LOGGER ACCESSOR FIX]`: `[BRIDGE LOGGER SUPPORT - UI COMPONENT ACCESS]`
+
+**Goal:** `[Fix CoreBridge get_component method to support "logger" component for UI services]` | **Token Budget:** `[~5k]` | **Complexity:** `[⭐]`
+
+### 🏗️ MODULE: `[ui/core_bridge]`
+
+| File Path | Matrix `[S|T|D]` | Coverage | Complexity | Status |
+|:----------|:----------------:|:--------------|:--------------|:----------:|:------:|
+| `core_bridge.py` | `[✅|✅|✅]` | `[Stmt: 100% | Brch: 100%]` | ⭐⭐⭐ | `✅ PERFECT` |
+
+**Features Implemented:**
+- ✅ Added `elif component_type == "logger": return self._core.logger if self._core else None` to `get_component` method
+- ✅ StrategyService can now access logger component for D2 analysis
+- ✅ No more "Config vagy Logger komponens nem elérhető" runtime errors
+
+**Test Results:** pytest passed for `test_analyze_market_structure_missing_components`, logger access validated
+
+**Last Update:** 2026-01-15 - CoreBridge logger accessor fix complete

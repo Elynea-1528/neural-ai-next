@@ -105,6 +105,8 @@ class CoreBridge(metaclass=SingletonMeta):
         elif component_type == "config":
             # Biztonságos hozzáférés
             return self._core.config if self._core and self._core.config else None
+        elif component_type == "logger":
+            return self._core.logger if self._core else None
         else:
             if self._core.logger:
                 self._core.logger.warning(f"Ismeretlen komponens típus: {component_type}")
