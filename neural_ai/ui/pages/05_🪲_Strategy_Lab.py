@@ -378,74 +378,78 @@ class StrategyLabPage(PageInterface):
         if (
             st.session_state.show_body_swings or st.session_state.show_wick_swings
         ) and st.session_state.d2_analysis is not None:
+            # Adat-összefésülés: D2 adatok konvertálása és összefésülése
             d2_df = (
                 st.session_state.d2_analysis.to_pandas()
                 if hasattr(st.session_state.d2_analysis, "to_pandas")
                 else st.session_state.d2_analysis
             )
 
-            # Body swings kirajzolása
+            # Reset index mindkét DataFrame-en a biztos összhangért
+            d2_df = d2_df.reset_index(drop=True)
+            df_plot = df.reset_index(drop=True)
+
+            # Swing oszlopok átmásolása a rajzoló DataFrame-be
+            cols_to_copy = [
+                "swing_high_body",
+                "swing_low_body",
+                "swing_high_wick",
+                "swing_low_wick",
+            ]
+            for col in cols_to_copy:
+                if col in d2_df.columns:
+                    df_plot[col] = d2_df[col]
+
+            # Body swings kirajzolása egyszerű szűréssel
             if st.session_state.show_body_swings:
-                # Resistance Body (piros pötty)
-                if "swing_high_body" in d2_df.columns:
-                    valid_resistance_body = d2_df["swing_high_body"].dropna()
-                    if not valid_resistance_body.empty:
-                        resistance_dates = [
-                            df["date"].iloc[i] for i in valid_resistance_body.index if i < len(df)
-                        ]
-                        resistance_values = valid_resistance_body.values
+                # Swing High (Body) - Resistance (piros triangle-down)
+                if "swing_high_body" in df_plot.columns:
+                    swings = df_plot.dropna(subset=["swing_high_body"])
+                    if not swings.empty:
                         fig.add_trace(
                             go.Scatter(
-                                x=resistance_dates,
-                                y=resistance_values,
+                                x=swings["date"],
+                                y=swings["swing_high_body"],
                                 mode="markers",
-                                name="Resistance Body",
+                                name="Swing High (Body)",
                                 marker={
                                     "symbol": "triangle-down",
-                                    "size": 10,
+                                    "size": 12,
                                     "color": "red",
                                 },
                             )
                         )
 
-                # Support Body (zöld pötty)
-                if "swing_low_body" in d2_df.columns:
-                    valid_support_body = d2_df["swing_low_body"].dropna()
-                    if not valid_support_body.empty:
-                        support_dates = [
-                            df["date"].iloc[i] for i in valid_support_body.index if i < len(df)
-                        ]
-                        support_values = valid_support_body.values
+                # Swing Low (Body) - Support (zöld triangle-up)
+                if "swing_low_body" in df_plot.columns:
+                    swings = df_plot.dropna(subset=["swing_low_body"])
+                    if not swings.empty:
                         fig.add_trace(
                             go.Scatter(
-                                x=support_dates,
-                                y=support_values,
+                                x=swings["date"],
+                                y=swings["swing_low_body"],
                                 mode="markers",
-                                name="Support Body",
+                                name="Swing Low (Body)",
                                 marker={
                                     "symbol": "triangle-up",
-                                    "size": 10,
+                                    "size": 12,
                                     "color": "green",
                                 },
                             )
                         )
 
-            # Wick swings kirajzolása
+            # Wick swings kirajzolása egyszerű szűréssel
             if st.session_state.show_wick_swings:
-                # Resistance Wick (piros X)
-                if "resistance_wick" in d2_df.columns:
-                    valid_resistance_wick = d2_df["resistance_wick"].dropna()
-                    if not valid_resistance_wick.empty:
-                        resistance_wick_dates = [
-                            df["date"].iloc[i] for i in valid_resistance_wick.index if i < len(df)
-                        ]
-                        resistance_wick_values = valid_resistance_wick.values
+                # Swing High (Wick) - Resistance (piros x-thin)
+                if "swing_high_wick" in df_plot.columns:
+                    swings = df_plot.dropna(subset=["swing_high_wick"])
+                    if not swings.empty:
                         fig.add_trace(
                             go.Scatter(
-                                x=resistance_wick_dates,
-                                y=resistance_wick_values,
+                                x=swings["date"],
+                                y=swings["swing_high_wick"],
                                 mode="markers",
-                                name="Resistance Wick",
+                                name="Swing High (Wick)",
                                 marker={
                                     "symbol": "x-thin",
                                     "size": 10,
@@ -455,20 +459,16 @@ class StrategyLabPage(PageInterface):
                             )
                         )
 
-                # Support Wick (zöld X)
-                if "support_wick" in d2_df.columns:
-                    valid_support_wick = d2_df["support_wick"].dropna()
-                    if not valid_support_wick.empty:
-                        support_wick_dates = [
-                            df["date"].iloc[i] for i in valid_support_wick.index if i < len(df)
-                        ]
-                        support_wick_values = valid_support_wick.values
+                # Swing Low (Wick) - Support (zöld x-thin)
+                if "swing_low_wick" in df_plot.columns:
+                    swings = df_plot.dropna(subset=["swing_low_wick"])
+                    if not swings.empty:
                         fig.add_trace(
                             go.Scatter(
-                                x=support_wick_dates,
-                                y=support_wick_values,
+                                x=swings["date"],
+                                y=swings["swing_low_wick"],
                                 mode="markers",
-                                name="Support Wick",
+                                name="Swing Low (Wick)",
                                 marker={
                                     "symbol": "x-thin",
                                     "size": 10,
@@ -489,11 +489,25 @@ class StrategyLabPage(PageInterface):
             dragmode="zoom",
         )
 
-        if st.session_state.d2_analysis is not None:
-            count_high = st.session_state.d2_analysis["swing_high_body"].drop_nulls().len()
-            st.caption(f"🔍 Debug: Talált Swing High pontok: {count_high} db")
+        st.plotly_chart(fig, width="stretch", config={"scrollZoom": True})
 
-        st.plotly_chart(fig, use_container_width=True, config={"scrollZoom": True})
+        # DEBUG Expander - D2 adatok megjelenítése
+        with st.expander("🔍 D2 Adat Debugger", expanded=True):
+            if st.session_state.d2_analysis is not None:
+                # Konvertálás Pandas-ra debug célból
+                debug_d2_df = (
+                    st.session_state.d2_analysis.to_pandas()
+                    if hasattr(st.session_state.d2_analysis, "to_pandas")
+                    else st.session_state.d2_analysis
+                )
+                # Swing pontokat tartalmazó sorok kiválasztása (legalább 1 swing érték)
+                debug_df = debug_d2_df[
+                    ["swing_high_body", "swing_low_body", "swing_high_wick", "swing_low_wick"]
+                ].dropna(thresh=1)
+                st.write(f"Talált Swing Pontok száma: {len(debug_df)}")
+                st.dataframe(debug_df.head(20), use_container_width=True)
+            else:
+                st.warning("Nincs D2 elemzési adat.")
 
     def _render_data_table(self) -> None:
         """Az első 10 sor megjelenítése táblázatban Spread és Z-Score oszlopokkal."""
