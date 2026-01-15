@@ -599,8 +599,12 @@ class StrategyLabPage(PageInterface):
                             )
                         )
                         st.session_state.d2_analysis = d2_result
+                        print(f"DEBUG: D2 elemzés kész, sorok: {d2_result.height}")
                     except Exception as e:
-                        st.warning(f"D2 elemzés sikertelen: {str(e)}")
+                        st.error(f"Kritikus hiba a D2 elemzés során: {str(e)}")
+                        import traceback
+
+                        st.code(traceback.format_exc())
                         st.session_state.d2_analysis = None
 
                     st.success(f"Sikeres betöltés: {symbol} - {date_str}")
