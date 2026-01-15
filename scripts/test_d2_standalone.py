@@ -89,10 +89,17 @@ async def run_d2_test() -> None:
         print(f"   ❌ Hiba a resample-oláskor: {e}")
         return
 
-    # 4. D2 Support Processor futtatása
+    # 4. D2 Support Processor futtatása és új függvények ellenőrzése
     print("⏳ 4. D2 Support Processor futtatása...")
     try:
         processor = D02SupportFactory.create(core.config, core.logger)
+
+        # Ellenőrizzük, hogy az új függvények léteznek
+        assert hasattr(processor, '_find_swing_points_close_open'), "Hiányzó _find_swing_points_close_open függvény"
+        assert hasattr(processor, '_find_swing_points_high_low'), "Hiányzó _find_swing_points_high_low függvény"
+        assert hasattr(processor, '_merge_levels'), "Hiányzó _merge_levels függvény"
+        print("   ✅ Új függvények ellenőrizve")
+
         result = processor.process(ohlcv, timeframe="H1")
         print("   ✅ D2 processor sikeresen lefutott")
     except Exception as e:
