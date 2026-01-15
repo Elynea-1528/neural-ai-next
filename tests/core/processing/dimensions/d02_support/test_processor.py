@@ -95,6 +95,10 @@ class TestD02SupportProcessor:
             "swing_low_body",
             "swing_high_wick",
             "swing_low_wick",
+            "nearest_resistance",
+            "nearest_support",
+            "resistance_strength",
+            "support_strength",
         }
         assert all(col in result.columns for col in expected_new_columns)
 
@@ -208,10 +212,10 @@ class TestD02SupportProcessor:
             "swing_low_body",
             "swing_high_wick",
             "swing_low_wick",
-            "swing_high",
-            "swing_low",
-            "support_levels",
-            "resistance_levels",
+            "nearest_resistance",
+            "nearest_support",
+            "resistance_strength",
+            "support_strength",
         }
         assert set(result.columns) == expected_columns
 
@@ -319,7 +323,7 @@ class TestD02SupportProcessor:
 
     def test_merge_levels_single_swing_high(self, processor: D02SupportProcessor):
         """Teszteli a _merge_levels metódust egyetlen high swing-gel."""
-        swings = [{"price": 1.0500, "volume": 1000.0, "type": "high"}]
+        swings = [{"price": 1.0500, "volume_factor": 1000.0, "type": "high"}]
         result = processor._merge_levels(swings)
 
         expected = [{"price": 1.0500, "touches": 1, "type": "resistance", "strength": 1.0}]
@@ -328,7 +332,7 @@ class TestD02SupportProcessor:
 
     def test_merge_levels_single_swing_low(self, processor: D02SupportProcessor):
         """Teszteli a _merge_levels metódust egyetlen low swing-gel."""
-        swings = [{"price": 1.0480, "volume": 1000.0, "type": "low"}]
+        swings = [{"price": 1.0480, "volume_factor": 1000.0, "type": "low"}]
         result = processor._merge_levels(swings)
 
         expected = [{"price": 1.0480, "touches": 1, "type": "support", "strength": 1.0}]
@@ -338,10 +342,10 @@ class TestD02SupportProcessor:
     def test_merge_levels_multiple_swings_no_merge(self, processor: D02SupportProcessor):
         """Teszteli a _merge_levels metódust több swing-gel, amelyek nem kerülnek összevonásra."""
         swings = [
-            {"price": 1.0500, "volume": 1000.0, "type": "high"},
-            {"price": 1.0520, "volume": 1000.0, "type": "high"},
+            {"price": 1.0500, "volume_factor": 1000.0, "type": "high"},
+            {"price": 1.0520, "volume_factor": 1000.0, "type": "high"},
             # Távolabb mint level_merge (0.0005)
-            {"price": 1.0480, "volume": 1000.0, "type": "low"},
+            {"price": 1.0480, "volume_factor": 1000.0, "type": "low"},
         ]
         result = processor._merge_levels(swings)
 
@@ -356,8 +360,8 @@ class TestD02SupportProcessor:
     def test_merge_levels_merge_close_swings(self, processor: D02SupportProcessor):
         """Teszteli a _merge_levels metódust közel lévő swing-ek összevonásával."""
         swings = [
-            {"price": 1.0500, "volume": 1000.0, "type": "high"},
-            {"price": 1.0502, "volume": 2000.0, "type": "high"},  # Közel, össze kell vonni
+            {"price": 1.0500, "volume_factor": 1000.0, "type": "high"},
+            {"price": 1.0502, "volume_factor": 2000.0, "type": "high"},  # Közel, össze kell vonni
         ]
         result = processor._merge_levels(swings)
 
@@ -373,9 +377,9 @@ class TestD02SupportProcessor:
     def test_merge_levels_sorted_by_price(self, processor: D02SupportProcessor):
         """Teszteli, hogy a swing-ek ár szerint rendezettek maradnak."""
         swings = [
-            {"price": 1.0520, "volume": 1000.0, "type": "high"},
-            {"price": 1.0480, "volume": 1000.0, "type": "low"},
-            {"price": 1.0500, "volume": 1000.0, "type": "high"},
+            {"price": 1.0520, "volume_factor": 1000.0, "type": "high"},
+            {"price": 1.0480, "volume_factor": 1000.0, "type": "low"},
+            {"price": 1.0500, "volume_factor": 1000.0, "type": "high"},
         ]
         result = processor._merge_levels(swings)
 

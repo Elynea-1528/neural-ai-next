@@ -111,13 +111,13 @@ class D02SupportProcessor(BaseDimensionProcessor):
 
         A swing pontokat ár szerint rendezi, majd iteratívan összevonja azokat,
         amelyek a level_merge távolságon belül vannak. Az összevonás során
-        súlyozott átlagot számol az árak és volumenek alapján, és összeadja
+        súlyozott átlagot számol az árak és volumen faktorok alapján, és összeadja
         az érintéseket (touches).
 
         Args:
             swings: Swing pontok listája, ahol minden dict tartalmazza:
                 - "price": float (ár)
-                - "volume": float (volumen)
+                - "volume_factor": float (volumen faktor)
                 - "type": str ("high" vagy "low")
 
         Returns:
@@ -138,7 +138,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
 
         for swing in sorted_swings:
             price = cast(float, swing["price"])
-            volume = cast(float, swing.get("volume", 1.0))  # Ha nincs volume, 1.0 alap
+            volume_factor = cast(float, swing.get("volume_factor", 1.0))
             swing_type = cast(str, swing["type"])
 
             # Type mapping: high -> resistance, low -> support
@@ -149,14 +149,15 @@ class D02SupportProcessor(BaseDimensionProcessor):
             for level in merged_levels:
                 level_price = cast(float, level["price"])
                 level_touches = cast(int, level["touches"])
-                level_volume = cast(float, level["volume"])
+                level_volume_factor = cast(float, level["volume_factor"])
                 if abs(level_price - price) <= level_merge:
                     # Súlyozott átlag az áraknak
-                    total_volume = level_volume + volume
-                    new_price = (level_price * level_volume + price * volume) / total_volume
+                    total_volume_factor = level_volume_factor + volume_factor
+                    new_price = (level_price * level_volume_factor +
+                                 price * volume_factor) / total_volume_factor
                     level["price"] = new_price
                     level["touches"] = level_touches + 1
-                    level["volume"] = total_volume
+                    level["volume_factor"] = total_volume_factor
                     level["strength"] = float(level["touches"])  # Strength = touches
                     found = True
                     break
@@ -167,12 +168,12 @@ class D02SupportProcessor(BaseDimensionProcessor):
                     "touches": 1,
                     "type": level_type,
                     "strength": 1.0,
-                    "volume": volume  # Tároljuk a volume-ot az összevonáshoz
+                    "volume_factor": volume_factor  # Tároljuk a volume_factor-t az összevonáshoz
                 })
 
-        # Eltávolítjuk a volume-ot a visszatérésből, mert nem része a specifikációnak
+        # Eltávolítjuk a volume_factor-t a visszatérésből, mert nem része a specifikációnak
         for level in merged_levels:
-            del level["volume"]
+            del level["volume_factor"]
 
         return merged_levels
 
@@ -286,15 +287,18 @@ class D02SupportProcessor(BaseDimensionProcessor):
     def process(self, df: pl.DataFrame, timeframe: str = "H1") -> pl.DataFrame:
         """Support/Resistance szintek számítása swing pontok alapján.
 
-        Sorban meghívja a privát függvényeket: swing pontok keresése záró/nyitó és high/low alapján,
-        majd szintek összevonása. A részeredményeket hozzáadja a DataFrame-hez.
+        Detektálja a swingeket Body és Wick alapján, gyűjti őket listába VolumeFactor-ral,
+        futtatja a szintek összevonását, erősség számítását és kategorizálását.
+        Idősoros vetítés minden gyertyánál a legközelebbi support/resistance-hez.
 
         Args:
             df: Bemeneti Polars DataFrame (time-aligned OHLCV adatok)
             timeframe: Időkeret ("H1", "H4", "D1"), default "H1"
 
         Returns:
-            Polars DataFrame a support/resistance szintekkel kiegészítve
+            Polars DataFrame frissített oszlopokkal: swing_high_body, swing_low_body,
+            swing_high_wick, swing_low_wick, nearest_resistance, nearest_support,
+            resistance_strength, support_strength.
         """
         self.logger.debug(f"D2 processzor futtatása: timeframe={timeframe}")
 
@@ -304,39 +308,107 @@ class D02SupportProcessor(BaseDimensionProcessor):
         # Swing pontok keresése high/low értékeken
         df = self._find_swing_points_high_low(df)
 
+        # Volume factor számítása minden swing típushoz
+        high_body_mask = pl.col("swing_high_body").is_not_null()
+        low_body_mask = pl.col("swing_low_body").is_not_null()
+        high_wick_mask = pl.col("swing_high_wick").is_not_null()
+        low_wick_mask = pl.col("swing_low_wick").is_not_null()
+
+        df = df.with_columns([
+            self._confirm_with_volume(df, high_body_mask).alias("vf_high_body"),
+            self._confirm_with_volume(df, low_body_mask).alias("vf_low_body"),
+            self._confirm_with_volume(df, high_wick_mask).alias("vf_high_wick"),
+            self._confirm_with_volume(df, low_wick_mask).alias("vf_low_wick"),
+        ])
+
         # Swing pontok gyűjtése list[dict]-ként
         swings = []
         for row in df.iter_rows(named=True):
-            volume = row.get("real_volume", 1.0)
+            timestamp = row["timestamp"]
             if row.get("swing_high_body") is not None:
-                swings.append({"price": row["swing_high_body"], "type": "high", "volume": volume})
+                swings.append({
+                    "timestamp": timestamp,
+                    "price": row["swing_high_body"],
+                    "type": "high",
+                    "volume_factor": row["vf_high_body"]
+                })
             if row.get("swing_low_body") is not None:
-                swings.append({"price": row["swing_low_body"], "type": "low", "volume": volume})
+                swings.append({
+                    "timestamp": timestamp,
+                    "price": row["swing_low_body"],
+                    "type": "low",
+                    "volume_factor": row["vf_low_body"]
+                })
             if row.get("swing_high_wick") is not None:
-                swings.append({"price": row["swing_high_wick"], "type": "high", "volume": volume})
+                swings.append({
+                    "timestamp": timestamp,
+                    "price": row["swing_high_wick"],
+                    "type": "high",
+                    "volume_factor": row["vf_high_wick"]
+                })
             if row.get("swing_low_wick") is not None:
-                swings.append({"price": row["swing_low_wick"], "type": "low", "volume": volume})
+                swings.append({
+                    "timestamp": timestamp,
+                    "price": row["swing_low_wick"],
+                    "type": "low",
+                    "volume_factor": row["vf_low_wick"]
+                })
 
         # Szintek összevonása
         merged_levels = self._merge_levels(swings)
 
-        # Összevont szintek hozzáadása
-        support_levels = [
-            level["price"] for level in merged_levels if level["type"] == "support"
-        ]
-        resistance_levels = [
-            level["price"] for level in merged_levels if level["type"] == "resistance"
-        ]
+        # Szintek erősségének számítása
+        merged_levels = self._calculate_level_strength(merged_levels)
 
-        # Végső aggregáció és UI által várt oszlopok hozzáadása
-        return df.with_columns([
-            # Egyszerűsített swing high/low aggregáció
-            pl.coalesce("swing_high_body", "swing_high_wick").alias("swing_high"),
-            pl.coalesce("swing_low_body", "swing_low_wick").alias("swing_low"),
-            # Support és resistance szintek
-            pl.lit(support_levels).alias("support_levels"),
-            pl.lit(resistance_levels).alias("resistance_levels"),
+        # Szintek kategorizálása
+        self._categorize_zones(merged_levels)
+
+        # Support és resistance szintek kinyerése
+        support_levels = [level for level in merged_levels if level["type"] == "support"]
+        resistance_levels = [level for level in merged_levels if level["type"] == "resistance"]
+
+        # Mapping price -> strength
+        support_dict = {level["price"]: level["strength"] for level in support_levels}
+        resistance_dict = {level["price"]: level["strength"] for level in resistance_levels}
+
+        # Függvények nearest számításhoz
+        def find_nearest_support(close: float) -> tuple[float | None, float | None]:
+            candidates = [p for p in support_dict if p <= close]
+            if not candidates:
+                return None, None
+            nearest_price = max(candidates)
+            return nearest_price, support_dict[nearest_price]
+
+        def find_nearest_resistance(close: float) -> tuple[float | None, float | None]:
+            candidates = [p for p in resistance_dict if p >= close]
+            if not candidates:
+                return None, None
+            nearest_price = min(candidates)
+            return nearest_price, resistance_dict[nearest_price]
+
+        # Oszlopok hozzáadása
+        nearest_support_expr = pl.col("close").map_elements(
+            lambda c: find_nearest_support(c)[0], return_dtype=pl.Float64
+        ).alias("nearest_support")
+        support_strength_expr = pl.col("close").map_elements(
+            lambda c: find_nearest_support(c)[1], return_dtype=pl.Float64
+        ).alias("support_strength")
+        nearest_resistance_expr = pl.col("close").map_elements(
+            lambda c: find_nearest_resistance(c)[0], return_dtype=pl.Float64
+        ).alias("nearest_resistance")
+        resistance_strength_expr = pl.col("close").map_elements(
+            lambda c: find_nearest_resistance(c)[1], return_dtype=pl.Float64
+        ).alias("resistance_strength")
+
+        df = df.with_columns([
+            nearest_support_expr,
+            support_strength_expr,
+            nearest_resistance_expr,
+            resistance_strength_expr,
         ])
+
+        # Ideiglenes oszlopok eltávolítása
+        return df.drop(["vf_high_body", "vf_low_body", "vf_high_wick", "vf_low_wick"])
 
     @property
     def dimension_id(self) -> int:

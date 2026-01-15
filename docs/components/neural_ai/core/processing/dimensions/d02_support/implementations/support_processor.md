@@ -6,6 +6,34 @@ A D02SupportProcessor felelős a support és resistance szintek azonosításáé
 
 ## Főbb Metódusok
 
+### `process`
+
+**Aláírás:**
+```python
+def process(self, df: pl.DataFrame, timeframe: str = "H1") -> pl.DataFrame
+```
+
+**Leírás:**
+Support/Resistance szintek számítása swing pontok alapján. Detektálja a swingeket Body és Wick alapján, gyűjti őket listába VolumeFactor-ral, futtatja a szintek összevonását, erősség számítását és kategorizálását. Idősoros vetítés minden gyertyánál a legközelebbi support/resistance-hez.
+
+**Paraméterek:**
+- `df`: Bemeneti Polars DataFrame (time-aligned OHLCV adatok)
+- `timeframe`: Időkeret ("H1", "H4", "D1"), default "H1"
+
+**Visszatérési érték:**
+Polars DataFrame frissített oszlopokkal: swing_high_body, swing_low_body, swing_high_wick, swing_low_wick, nearest_resistance, nearest_support, resistance_strength, support_strength.
+
+**Logika:**
+1. Swing pontok keresése záró/nyitó árak alapján (_find_swing_points_close_open)
+2. Swing pontok keresése high/low értékeken (_find_swing_points_high_low)
+3. Volume factor számítása minden swing típushoz (_confirm_with_volume)
+4. Swing pontok gyűjtése listába: [{"timestamp": timestamp, "price": price, "type": type, "volume_factor": factor}]
+5. Szintek összevonása (_merge_levels)
+6. Szintek erősségének számítása (_calculate_level_strength)
+7. Szintek kategorizálása (_categorize_zones) - opcionális, jelenleg nem használjuk tovább
+8. Idősoros vetítés: minden sorhoz megtalálja a legközelebbi support (max price <= close) és resistance (min price >= close) az összes szint közül, strength-szel együtt
+9. Frissített DataFrame visszaadása
+
 ### `_merge_levels`
 
 **Aláírás:**
@@ -19,7 +47,7 @@ A swing pontokat ár szerint rendezi, majd iteratívan összevonja azokat, amely
 **Paraméterek:**
 - `swings`: Swing pontok listája, ahol minden dict tartalmazza:
   - `"price"`: float (ár)
-  - `"volume"`: float (volumen)
+  - `"volume_factor"`: float (volumen faktor)
   - `"type"`: str ("high" vagy "low")
 
 **Visszatérési érték:**
@@ -27,7 +55,7 @@ List[Dict[str, Union[float, int, str]]]: Összevont szintek listája [{"price": 
 
 **Logika:**
 1. Rendezés ár szerint (price kulcs alapján).
-2. Iteratív összevonás: ha két swing közötti távolság <= level_merge, súlyozott átlag és touches összeadás.
+2. Iteratív összevonás: ha két swing közötti távolság <= level_merge, súlyozott átlag az áraknak volume_factor alapján, touches összeadás.
 3. Type mapping: "high" -> "resistance", "low" -> "support"
 4. Strength = touches (float-ként)
 
