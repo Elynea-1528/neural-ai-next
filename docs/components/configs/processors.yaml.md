@@ -18,6 +18,18 @@ processors:
 
     z_score_window: 60
     calc_shadows: true
+
+  d02:
+    swing_window: 5
+    min_distance: 10
+
+    timeframe_configs:
+      M1:
+        swing_window: 5
+      H1:
+        swing_window: 5
+      D1:
+        swing_window: 3
 ```
 
 ## Konfigurációs Paraméterek
@@ -44,6 +56,25 @@ processors:
 - **Típus:** Boolean
 - **Leírás:** Meghatározza, hogy számítsák-e az árnyékokat (shadows) az OHLC adatoknál
 - **Alapértelmezett:** true
+
+### swing_window
+- **Típus:** Integer
+- **Leírás:** Swing ablak mérete a support/resistance szintek számításához
+- **Alapértelmezett:** 5
+
+### min_distance
+- **Típus:** Integer
+- **Leírás:** Minimum távolság a szintek között a d02 processzor esetében
+- **Alapértelmezett:** 10
+
+### timeframe_configs (d02)
+- **Típus:** Dictionary
+- **Leírás:** Timeframe-specifikus konfigurációs paraméterek a d02 processzor számára
+- **Alparaméterek:**
+  - **swing_window:** Swing ablak mérete timeframe-enként
+    - M1: 5
+    - H1: 5
+    - D1: 3
 
 ## Használat
 
