@@ -375,6 +375,8 @@ class StrategyLabPage(PageInterface):
                 )
 
         # D2 swing pontok hozzáadása, ha aktívak a checkboxok és van elemzés
+        df_plot = df.reset_index(drop=True)  # Mindig létrehozzuk df_plot-ot
+
         if (
             st.session_state.show_body_swings or st.session_state.show_wick_swings
         ) and st.session_state.d2_analysis is not None:
@@ -387,7 +389,6 @@ class StrategyLabPage(PageInterface):
 
             # Reset index mindkét DataFrame-en a biztos összhangért
             d2_df = d2_df.reset_index(drop=True)
-            df_plot = df.reset_index(drop=True)
 
             # Swing oszlopok átmásolása a rajzoló DataFrame-be
             cols_to_copy = [
@@ -478,6 +479,49 @@ class StrategyLabPage(PageInterface):
                             )
                         )
 
+        # Nearest resistance és support szintek megjelenítése horizontális vonalaként
+        if "nearest_resistance" in df_plot.columns and "resistance_strength" in df_plot.columns:
+            # Unique resistance szintek gyűjtése strength-szel
+            resistance_levels = df_plot.dropna(subset=["nearest_resistance", "resistance_strength"])
+            if not resistance_levels.empty:
+                unique_resistances = (
+                    resistance_levels.groupby("nearest_resistance")["resistance_strength"]
+                    .mean()
+                    .reset_index()
+                )
+                for _, row in unique_resistances.iterrows():
+                    level = row["nearest_resistance"]
+                    strength = row["resistance_strength"]
+                    opacity = strength * 0.8 + 0.2
+                    fig.add_hline(
+                        y=level,
+                        line_dash="dash",
+                        line_color=f"rgba(255, 0, 0, {opacity})",
+                        annotation_text=f"R: {level:.5f} (S:{strength:.2f})",
+                        annotation_position="top right",
+                    )
+
+        if "nearest_support" in df_plot.columns and "support_strength" in df_plot.columns:
+            # Unique support szintek gyűjtése strength-szel
+            support_levels = df_plot.dropna(subset=["nearest_support", "support_strength"])
+            if not support_levels.empty:
+                unique_supports = (
+                    support_levels.groupby("nearest_support")["support_strength"]
+                    .mean()
+                    .reset_index()
+                )
+                for _, row in unique_supports.iterrows():
+                    level = row["nearest_support"]
+                    strength = row["support_strength"]
+                    opacity = strength * 0.8 + 0.2
+                    fig.add_hline(
+                        y=level,
+                        line_dash="dash",
+                        line_color=f"rgba(0, 255, 0, {opacity})",
+                        annotation_text=f"S: {level:.5f} (S:{strength:.2f})",
+                        annotation_position="bottom right",
+                    )
+
         # Chart formázása
         fig.update_layout(
             title="Candlestick Chart",
@@ -526,7 +570,7 @@ class StrategyLabPage(PageInterface):
                 if not all(col in df.columns for col in ohlc_cols):
                     ohlc_cols = ["open", "high", "low", "close"]
 
-            # Megjelenítendő oszlopok: OHLC, spread, z-score, volume
+            # Megjelenítendő oszlopok: OHLC, spread, z-score, volume, nearest levels, strengths
             display_cols = []
             display_cols.extend(ohlc_cols)
 
@@ -541,6 +585,17 @@ class StrategyLabPage(PageInterface):
             # Volume oszlop hozzáadása
             volume_cols = ["real_volume", "tick_volume"]
             for col in volume_cols:
+                if col in df.columns:
+                    display_cols.append(col)
+
+            # D2 oszlopok hozzáadása, ha elérhetők
+            d2_cols = [
+                "nearest_resistance",
+                "nearest_support",
+                "resistance_strength",
+                "support_strength",
+            ]
+            for col in d2_cols:
                 if col in df.columns:
                     display_cols.append(col)
 
