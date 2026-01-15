@@ -27,39 +27,25 @@ class D02SupportProcessor(BaseDimensionProcessor):
         """
         super().__init__(config, logger)
 
-    def process(self, df: pl.DataFrame, timeframe: str = "H1") -> pl.DataFrame:
-        """Support/Resistance szintek számítása swing pontok alapján body és wick számára.
+    def _find_swing_points_close_open(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Swing pontok keresése záró/nyitó árak alapján.
 
-        Swing high és low pontokat keres különböző ablakméretekkel body (középső)
-        és wick (teljes) részeire, majd ezek alapján számítja a külön support és
-        resistance szinteket.
+        Kiszámolja a gyertya testének top és bottom értékeit mid_open és mid_close alapján,
+        majd swing pontokat keres rajtuk gördülő maximum szukcesszióval.
 
         Args:
-            df: Bemeneti Polars DataFrame (time-aligned OHLCV adatok)
-            timeframe: Időkeret ("H1", "H4", "D1"), default "H1"
+            df: Bemeneti Polars DataFrame
 
         Returns:
-            Polars DataFrame a support/resistance szintekkel kiegészítve (8 új oszlop)
+            pl.DataFrame: swing_high_body és swing_low_body oszlopokkal kiegészített DataFrame
         """
-        # Konfiguráció kiolvasása
         swing_window = self.dim_config.get("swing_window", 5)
-        min_distance = self.dim_config.get("min_distance", 10)
-
-        # Timeframe specifikus felülírás
-        tf_configs = self.dim_config.get("timeframe_configs", {})
-        for tf_key, tf_cfg in tf_configs.items():
-            if tf_key.lower() == timeframe.lower():
-                swing_window = tf_cfg.get("swing_window", swing_window)
-                min_distance = tf_cfg.get("min_distance", min_distance)
-                break
-
-        self.logger.debug(f"D2 processzor futtatása: timeframe={timeframe}, window={swing_window}")
 
         # Body definíció: gyertya testének top és bottom (mid_open és mid_close alapján)
         body_top = pl.max_horizontal("mid_open", "mid_close")
         body_bottom = pl.min_horizontal("mid_open", "mid_close")
 
-        # Body swing pontok számítása (középső rész: body_top, body_bottom)
+        # Body swing pontok számítása
         swing_high_body = (
             pl.when(body_top == body_top.rolling_max(window_size=swing_window, center=True))
             .then(body_top)
@@ -72,32 +58,95 @@ class D02SupportProcessor(BaseDimensionProcessor):
             .otherwise(None)
         )
 
-        # Wick swing pontok számítása (teljes rész: high, low)
+        return df.with_columns([
+            swing_high_body.alias("swing_high_body"),
+            swing_low_body.alias("swing_low_body"),
+        ])
+
+    def _find_swing_points_high_low(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Swing pontok keresése high/low értékeken.
+
+        Swing pontokat keres bid_high és bid_low értékeken gördülő maximum szukcesszióval.
+
+        Args:
+            df: Bemeneti Polars DataFrame
+
+        Returns:
+            pl.DataFrame: swing_high_wick és swing_low_wick oszlopokkal kiegészített DataFrame
+        """
+        swing_window = self.dim_config.get("swing_window", 5)
+
+        # Wick swing pontok számítása
         swing_high_wick = (
             pl.when(
-                pl.col("high") == pl.col("high").rolling_max(window_size=swing_window, center=True)
+                pl.col("bid_high") == pl.col("bid_high").rolling_max(window_size=swing_window, center=True)
             )
-            .then(pl.col("high"))
+            .then(pl.col("bid_high"))
             .otherwise(None)
         )
 
         swing_low_wick = (
             pl.when(
-                pl.col("low") == pl.col("low").rolling_min(window_size=swing_window, center=True)
+                pl.col("bid_low") == pl.col("bid_low").rolling_min(window_size=swing_window, center=True)
             )
-            .then(pl.col("low"))
+            .then(pl.col("bid_low"))
             .otherwise(None)
         )
 
-        # Eredmény dataframe visszaadása a swing pontokkal (konkrét árak vagy None)
-        return df.with_columns(
-            [
-                swing_high_body.alias("swing_high_body"),
-                swing_low_body.alias("swing_low_body"),
-                swing_high_wick.alias("swing_high_wick"),
-                swing_low_wick.alias("swing_low_wick"),
-            ]
-        )
+        return df.with_columns([
+            swing_high_wick.alias("swing_high_wick"),
+            swing_low_wick.alias("swing_low_wick"),
+        ])
+
+    def _merge_levels(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Szintek összevonása swing pontok alapján.
+
+        Placeholder implementáció: egyszerűen visszaadja a swing high értékeket resistance oszlopban.
+        Később ide kerül a súlyozott átlagolás logikája.
+
+        Args:
+            df: Bemeneti Polars DataFrame swing pontokkal
+
+        Returns:
+            pl.DataFrame: resistance oszloppal kiegészített DataFrame
+        """
+        # Placeholder: swing high-ok visszaadása resistance-ként
+        resistance = pl.coalesce("swing_high_body", "swing_high_wick")
+
+        return df.with_columns(resistance.alias("resistance"))
+
+    def process(self, df: pl.DataFrame, timeframe: str = "H1") -> pl.DataFrame:
+        """Support/Resistance szintek számítása swing pontok alapján.
+
+        Sorban meghívja a privát függvényeket: swing pontok keresése záró/nyitó és high/low alapján,
+        majd szintek összevonása. A részeredményeket hozzáadja a DataFrame-hez.
+
+        Args:
+            df: Bemeneti Polars DataFrame (time-aligned OHLCV adatok)
+            timeframe: Időkeret ("H1", "H4", "D1"), default "H1"
+
+        Returns:
+            Polars DataFrame a support/resistance szintekkel kiegészítve
+        """
+        self.logger.debug(f"D2 processzor futtatása: timeframe={timeframe}")
+
+        # Swing pontok keresése záró/nyitó árak alapján
+        df = self._find_swing_points_close_open(df)
+
+        # Swing pontok keresése high/low értékeken
+        df = self._find_swing_points_high_low(df)
+
+        # Szintek összevonása
+        df = self._merge_levels(df)
+
+        # Végső aggregáció és UI által várt oszlopok hozzáadása
+        return df.with_columns([
+            # Egyszerűsített swing high/low aggregáció
+            pl.coalesce("swing_high_body", "swing_high_wick").alias("swing_high"),
+            pl.coalesce("swing_low_body", "swing_low_wick").alias("swing_low"),
+            # Placeholder support szintek (None egyelőre)
+            pl.lit(None).cast(pl.Float64).alias("support"),
+        ])
 
     @property
     def dimension_id(self) -> int:
