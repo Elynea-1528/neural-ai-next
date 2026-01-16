@@ -648,6 +648,12 @@ class StrategyLabPage(PageInterface):
 
                     # Automatikus piaci szerkezet elemzés (D2)
                     try:
+                        # Config állapot megjelenítése debug célból
+                        config = self._bridge.get_component("config")
+                        if config is not None:
+                            d2_config = config.get("processors", {}).get("d02", {})
+                            st.info(f"Config loaded for D2: {list(d2_config.keys())}")
+
                         d2_result = asyncio.run(
                             strategy_service.analyze_market_structure(
                                 symbol, date_str, timeframe, result
@@ -657,9 +663,9 @@ class StrategyLabPage(PageInterface):
                         print(f"DEBUG: D2 elemzés kész, sorok: {d2_result.height}")
                     except Exception as e:
                         st.error(f"Kritikus hiba a D2 elemzés során: {str(e)}")
-                        import traceback
-
-                        st.code(traceback.format_exc())
+                        with st.expander("⚠️ D2 Elemzés Hiba Részletek", expanded=False):
+                            import traceback
+                            st.code(traceback.format_exc())
                         st.session_state.d2_analysis = None
 
                     st.success(f"Sikeres betöltés: {symbol} - {date_str}")

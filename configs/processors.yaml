@@ -19,16 +19,16 @@ d01:
 
 # D2 - Support/Resistance
 d02:
-  swing_window: 5
-  min_distance: 10
+  swing_threshold: 0.001
+  level_merge: 0.002
+  min_candles: 5
+  strength_window: 100
   use_close_open: true
   use_high_low: true
   primary_weight: 0.7
   secondary_weight: 0.3
-  level_merge: 0.0005
-  min_touches: 2
   volume_confirmation: true
-  strength_window: 100
+  min_touches: 2
   timeframe_configs:
     M1:
       swing_window: 5
