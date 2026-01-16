@@ -1,5 +1,5 @@
 # NEURAL AI NEXT CONTEXT (FULL)
-*Generated: 2026-01-16 10:59:22*
+*Generated: 2026-01-16 11:55:41*
 
 ## `FILE: .vscode/settings.json`
 
@@ -762,7 +762,7 @@ loggers:
 # Configuration for dimension processors (D1-D15)
 
 # D1 - Alap adatok
-D1_price_zscore:
+d01:
   required_timeframes: ["tick", "1m", "5m", "15m", "1h", "4h", "1d"]
   z_score_window: 60
   use_mid_price: true
@@ -778,17 +778,17 @@ D1_price_zscore:
       z_score_window: 20
 
 # D2 - Support/Resistance
-D2_support_resistance:
-  swing_window: 5
-  min_distance: 10
+d02:
+  swing_threshold: 0.001
+  level_merge: 0.002
+  min_candles: 5
+  strength_window: 100
   use_close_open: true
   use_high_low: true
   primary_weight: 0.7
   secondary_weight: 0.3
-  level_merge: 0.0005
-  min_touches: 2
   volume_confirmation: true
-  strength_window: 100
+  min_touches: 2
   timeframe_configs:
     M1:
       swing_window: 5
@@ -20349,7 +20349,11 @@ class D02SupportProcessor(BaseDimensionProcessor):
         Returns:
             pl.DataFrame: swing_high_body és swing_low_body oszlopokkal kiegészített DataFrame
         """
-        swing_window = self.dim_config.get("swing_window", 5)
+        min_candles = self.dim_config.get("min_candles")
+        if min_candles is None:
+            self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
+            min_candles = 5
+        min_candles = cast(int, min_candles)
 
         # Body definíció: gyertya testének top és bottom (mid_open és mid_close alapján)
         body_top = pl.max_horizontal("mid_open", "mid_close")
@@ -20357,13 +20361,13 @@ class D02SupportProcessor(BaseDimensionProcessor):
 
         # Body swing pontok számítása
         swing_high_body = (
-            pl.when(body_top == body_top.rolling_max(window_size=swing_window, center=True))
+            pl.when(body_top == body_top.rolling_max(window_size=min_candles, center=True))
             .then(body_top)
             .otherwise(None)
         )
 
         swing_low_body = (
-            pl.when(body_bottom == body_bottom.rolling_min(window_size=swing_window, center=True))
+            pl.when(body_bottom == body_bottom.rolling_min(window_size=min_candles, center=True))
             .then(body_bottom)
             .otherwise(None)
         )
@@ -20384,14 +20388,18 @@ class D02SupportProcessor(BaseDimensionProcessor):
         Returns:
             pl.DataFrame: swing_high_wick és swing_low_wick oszlopokkal kiegészített DataFrame
         """
-        swing_window = self.dim_config.get("swing_window", 5)
+        min_candles = self.dim_config.get("min_candles")
+        if min_candles is None:
+            self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
+            min_candles = 5
+        min_candles = cast(int, min_candles)
 
         # Wick swing pontok számítása
         swing_high_wick = (
             pl.when(
                 pl.col("high")
                 == pl.col("high").rolling_max(
-                    window_size=swing_window, center=True
+                    window_size=min_candles, center=True
                 )
             )
             .then(pl.col("high"))
@@ -20402,7 +20410,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
             pl.when(
                 pl.col("low")
                 == pl.col("low").rolling_min(
-                    window_size=swing_window, center=True
+                    window_size=min_candles, center=True
                 )
             )
             .then(pl.col("low"))
@@ -20430,7 +20438,11 @@ class D02SupportProcessor(BaseDimensionProcessor):
         if df.is_empty():
             return df
 
-        threshold = cast(float, self.dim_config.get("level_merge", 0.0005))
+        level_merge = self.dim_config.get("level_merge")
+        if level_merge is None:
+            self.logger.warning("level_merge paraméter hiányzik a configból, default 0.0005 használata")
+            level_merge = 0.0005
+        threshold = cast(float, level_merge)
 
         while True:
             rows = df.to_dicts()
@@ -20489,7 +20501,11 @@ class D02SupportProcessor(BaseDimensionProcessor):
                 'strength' kulccsal.
         """
         base_weight = 0.1
-        strength_window = cast(int, self.dim_config.get("strength_window", 10))
+        strength_window = self.dim_config.get("strength_window")
+        if strength_window is None:
+            self.logger.warning("strength_window paraméter hiányzik a configból, default 10 használata")
+            strength_window = 10
+        strength_window = cast(int, strength_window)
         # Használjuk a strength_window-t base_weight módosítására
         base_weight /= strength_window
 
@@ -20532,7 +20548,11 @@ class D02SupportProcessor(BaseDimensionProcessor):
                     "resistance": {"strong": [...], "moderate": [...], "weak": [...]}
                 }
         """
-        min_touches = cast(int, self.dim_config.get("min_touches", 1))
+        min_touches = self.dim_config.get("min_touches")
+        if min_touches is None:
+            self.logger.warning("min_touches paraméter hiányzik a configból, default 1 használata")
+            min_touches = 1
+        min_touches = cast(int, min_touches)
 
         result: dict[str, dict[str, list[dict[str, str | float | int]]]] = {
             "support": {"strong": [], "moderate": [], "weak": []},
@@ -20568,7 +20588,11 @@ class D02SupportProcessor(BaseDimensionProcessor):
         Returns:
             pl.Expr: Szorzó kifejezés (1.2 ha megerősített, 1.0 ha nem)
         """
-        volume_confirmation = cast(dict, self.dim_config).get("volume_confirmation", False)
+        volume_confirmation = self.dim_config.get("volume_confirmation")
+        if volume_confirmation is None:
+            self.logger.warning("volume_confirmation paraméter hiányzik a configból, default False használata")
+            volume_confirmation = False
+        volume_confirmation = cast(bool, volume_confirmation)
         if not volume_confirmation:
             return pl.lit(1.0)
 
@@ -28719,6 +28743,12 @@ class StrategyLabPage(PageInterface):
 
                     # Automatikus piaci szerkezet elemzés (D2)
                     try:
+                        # Config állapot megjelenítése debug célból
+                        config = self._bridge.get_component("config")
+                        if config is not None:
+                            d2_config = config.get("processors", {}).get("d02", {})
+                            st.info(f"Config loaded for D2: {list(d2_config.keys())}")
+
                         d2_result = asyncio.run(
                             strategy_service.analyze_market_structure(
                                 symbol, date_str, timeframe, result
@@ -28728,9 +28758,9 @@ class StrategyLabPage(PageInterface):
                         print(f"DEBUG: D2 elemzés kész, sorok: {d2_result.height}")
                     except Exception as e:
                         st.error(f"Kritikus hiba a D2 elemzés során: {str(e)}")
-                        import traceback
-
-                        st.code(traceback.format_exc())
+                        with st.expander("⚠️ D2 Elemzés Hiba Részletek", expanded=False):
+                            import traceback
+                            st.code(traceback.format_exc())
                         st.session_state.d2_analysis = None
 
                     st.success(f"Sikeres betöltés: {symbol} - {date_str}")

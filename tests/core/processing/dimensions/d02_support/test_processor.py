@@ -316,75 +316,75 @@ class TestD02SupportProcessor:
         assert all(result_df["volume_multiplier"] == 1.0)
 
     def test_merge_levels_empty_swings(self, processor: D02SupportProcessor):
-        """Teszteli a _merge_levels metódust üres swing listával."""
-        result = processor._merge_levels([])
+        """Teszteli a _merge_levels metódust üres swing DataFrame-mel."""
+        df = pl.DataFrame(schema={"price": pl.Float64, "weight": pl.Float64, "type": pl.Utf8})
+        result = processor._merge_levels(df)
 
-        assert result == []
+        assert result.is_empty()
 
     def test_merge_levels_single_swing_high(self, processor: D02SupportProcessor):
         """Teszteli a _merge_levels metódust egyetlen high swing-gel."""
-        swings = [{"price": 1.0500, "volume_factor": 1000.0, "type": "high"}]
-        result = processor._merge_levels(swings)
+        df = pl.DataFrame({"price": [1.0500], "weight": [1000.0], "type": ["high"]})
+        result = processor._merge_levels(df)
 
-        expected = [{"price": 1.0500, "touches": 1, "type": "resistance", "strength": 1.0}]
+        expected = pl.DataFrame({"price": [1.0500], "weight": [1000.0], "type": ["high"]})
 
-        assert result == expected
+        assert result.equals(expected)
 
     def test_merge_levels_single_swing_low(self, processor: D02SupportProcessor):
         """Teszteli a _merge_levels metódust egyetlen low swing-gel."""
-        swings = [{"price": 1.0480, "volume_factor": 1000.0, "type": "low"}]
-        result = processor._merge_levels(swings)
+        df = pl.DataFrame({"price": [1.0480], "weight": [1000.0], "type": ["low"]})
+        result = processor._merge_levels(df)
 
-        expected = [{"price": 1.0480, "touches": 1, "type": "support", "strength": 1.0}]
+        expected = pl.DataFrame({"price": [1.0480], "weight": [1000.0], "type": ["low"]})
 
-        assert result == expected
+        assert result.equals(expected)
 
     def test_merge_levels_multiple_swings_no_merge(self, processor: D02SupportProcessor):
         """Teszteli a _merge_levels metódust több swing-gel, amelyek nem kerülnek összevonásra."""
-        swings = [
-            {"price": 1.0500, "volume_factor": 1000.0, "type": "high"},
-            {"price": 1.0520, "volume_factor": 1000.0, "type": "high"},
-            # Távolabb mint level_merge (0.0005)
-            {"price": 1.0480, "volume_factor": 1000.0, "type": "low"},
-        ]
-        result = processor._merge_levels(swings)
+        df = pl.DataFrame({
+            "price": [1.0500, 1.0520, 1.0480],
+            "weight": [1000.0, 1000.0, 1000.0],
+            "type": ["high", "high", "low"]
+        })
+        result = processor._merge_levels(df)
 
-        expected = [
-            {"price": 1.0480, "touches": 1, "type": "support", "strength": 1.0},
-            {"price": 1.0500, "touches": 1, "type": "resistance", "strength": 1.0},
-            {"price": 1.0520, "touches": 1, "type": "resistance", "strength": 1.0},
-        ]
+        expected = pl.DataFrame({
+            "price": [1.0480, 1.0500, 1.0520],
+            "weight": [1000.0, 1000.0, 1000.0],
+            "type": ["low", "high", "high"]
+        })
 
-        assert result == expected
+        assert result.equals(expected)
 
     def test_merge_levels_merge_close_swings(self, processor: D02SupportProcessor):
         """Teszteli a _merge_levels metódust közel lévő swing-ek összevonásával."""
-        swings = [
-            {"price": 1.0500, "volume_factor": 1000.0, "type": "high"},
-            {"price": 1.0502, "volume_factor": 2000.0, "type": "high"},  # Közel, össze kell vonni
-        ]
-        result = processor._merge_levels(swings)
+        df = pl.DataFrame({
+            "price": [1.0500, 1.0502],
+            "weight": [1000.0, 2000.0],
+            "type": ["high", "high"]
+        })
+        result = processor._merge_levels(df)
 
         # Súlyozott átlag számítása
         expected_price = (1.0500 * 1000 + 1.0502 * 2000) / 3000
 
         assert len(result) == 1
-        assert result[0]["touches"] == 2
-        assert result[0]["type"] == "resistance"
-        assert result[0]["strength"] == 2.0
-        assert abs(result[0]["price"] - expected_price) < 1e-6
+        assert result["type"][0] == "high"
+        assert result["weight"][0] == 3000.0
+        assert abs(result["price"][0] - expected_price) < 1e-6
 
     def test_merge_levels_sorted_by_price(self, processor: D02SupportProcessor):
         """Teszteli, hogy a swing-ek ár szerint rendezettek maradnak."""
-        swings = [
-            {"price": 1.0520, "volume_factor": 1000.0, "type": "high"},
-            {"price": 1.0480, "volume_factor": 1000.0, "type": "low"},
-            {"price": 1.0500, "volume_factor": 1000.0, "type": "high"},
-        ]
-        result = processor._merge_levels(swings)
+        df = pl.DataFrame({
+            "price": [1.0520, 1.0480, 1.0500],
+            "weight": [1000.0, 1000.0, 1000.0],
+            "type": ["high", "low", "high"]
+        })
+        result = processor._merge_levels(df)
 
         # Rendezve kell lenni ár szerint
-        prices = [level["price"] for level in result]
+        prices = result["price"].to_list()
         assert prices == sorted(prices)
 
     def test_calculate_level_strength_empty_levels(self, processor: D02SupportProcessor):
