@@ -212,6 +212,7 @@ class TestCoreComponents:
         components.set_database(MagicMock())
         components.set_event_bus(MagicMock())
         components.set_hardware(MagicMock())
+        components.set_health_monitor(MagicMock())
 
         assert components.validate()
 

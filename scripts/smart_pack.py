@@ -276,7 +276,7 @@ def pack_project(mode: str = "full") -> None:
             print(f"📄 MD kész:  {count} fájl ({size_mb_md:.2f} MB) -> {OUTPUT_FILE_MD}")
 
         # AUTO SYNC
-        sync_to_drive(OUTPUT_FILE_TXT)
+        # sync_to_drive(OUTPUT_FILE_TXT)
         sync_to_drive(OUTPUT_FILE_MD)
 
     except Exception as e:
