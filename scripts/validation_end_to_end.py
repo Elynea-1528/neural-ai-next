@@ -191,7 +191,7 @@ async def validate_d2_swing_engine() -> bool:
             return False
 
         # D2 processzor létrehozása
-        from neural_ai.processors.processing.factory import create_dimension_processor
+        from neural_ai.processors.factory import create_dimension_processor
 
         d2_processor = create_dimension_processor(2, config, logger)
 

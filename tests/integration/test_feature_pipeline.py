@@ -24,11 +24,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from neural_ai.core import bootstrap_core
-from neural_ai.processors.processing.factory import (
+from neural_ai.processors.factory import (
     create_dimension_processor,
     create_time_alignment_service,
 )
-from neural_ai.processors.processing.resampler_service.implementations.resampler_service import (
+from neural_ai.processors.resampler_service.implementations.resampler_service import (
     ResamplerService,
 )
 

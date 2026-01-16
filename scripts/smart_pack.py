@@ -73,7 +73,7 @@ IGNORE_DIRS: set[str] = {
 IGNORE_FILES: set[str] = {
     OUTPUT_FILENAME_TXT,
     OUTPUT_FILENAME_MD,
-    "smart_pack.py",  # Önmagát ne
+    # "smart_pack.py",  # Önmagát ne
 }
 
 

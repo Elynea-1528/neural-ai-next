@@ -23,8 +23,8 @@ import polars as pl
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from neural_ai.core import bootstrap_core
-from neural_ai.processors.processing.dimensions.d02_support.factory import D02SupportFactory
-from neural_ai.processors.processing.resampler_service.factory import ResamplerServiceFactory
+from neural_ai.processors.dimensions.d02_support.factory import D02SupportFactory
+from neural_ai.processors.resampler_service.factory import ResamplerServiceFactory
 
 if TYPE_CHECKING:
     pass

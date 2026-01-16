@@ -147,7 +147,7 @@ class TestStrategyService:
         mock_resampler.resample = AsyncMock(return_value=mock_candles)
 
         with patch(
-            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
+            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory.get_instance",
             return_value=mock_resampler,
         ):
             result = await strategy_service.get_candles(
@@ -175,7 +175,7 @@ class TestStrategyService:
         mock_resampler.resample = AsyncMock(return_value=mock_candles)
 
         with patch(
-            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
+            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory.get_instance",
             return_value=mock_resampler,
         ):
             await strategy_service.get_candles(symbol="EURUSD", date="2024-03-20", timeframe="5m")
@@ -199,7 +199,7 @@ class TestStrategyService:
         timeframes = ["1m", "5m", "15m", "1h", "4h", "1d"]
 
         with patch(
-            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
+            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory.get_instance",
             return_value=mock_resampler,
         ):
             for timeframe in timeframes:
@@ -498,7 +498,7 @@ class TestStrategyService:
         }.get(comp)
 
         with patch(
-            "neural_ai.processors.processing.factory.create_dimension_processor",
+            "neural_ai.processors.factory.create_dimension_processor",
             return_value=mock_processor,
         ) as mock_create_processor:
             result = await strategy_service.analyze_market_structure(
@@ -555,7 +555,7 @@ class TestStrategyService:
                 return_value=mock_candles_df,
             ) as mock_get_candles,
             patch(
-                "neural_ai.processors.processing.factory.create_dimension_processor",
+                "neural_ai.processors.factory.create_dimension_processor",
                 return_value=mock_processor,
             ) as mock_create_processor,
         ):

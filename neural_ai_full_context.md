@@ -1,5 +1,5 @@
 # NEURAL AI NEXT CONTEXT (FULL)
-*Generated: 2026-01-16 11:55:41*
+*Generated: 2026-01-16 13:36:29*
 
 ## `FILE: .vscode/settings.json`
 
@@ -9944,27 +9944,15 @@ amelyek strukturált eredményeket adnak vissza a további feldolgozáshoz vagy 
 
 ### Visszatérési értékek
 ```python
-{
-    'weight': float,
-    'support_levels': List[Dict],  # Support szintek és erősségük
-    'resistance_levels': List[Dict],  # Resistance szintek és erősségük
-    'swing_points': {
-        'swing_highs': numpy.ndarray,  # Boolean maszk
-        'swing_lows': numpy.ndarray    # Boolean maszk
-    },
-    'zones': {
-        'support': {
-            'strong': List[Dict],    # Erős support szintek
-            'moderate': List[Dict],  # Közepes support szintek
-            'weak': List[Dict]       # Gyenge support szintek
-        },
-        'resistance': {
-            'strong': List[Dict],    # Erős resistance szintek
-            'moderate': List[Dict],  # Közepes resistance szintek
-            'weak': List[Dict]       # Gyenge resistance szintek
-        }
-    }
-}
+pl.DataFrame oszlopokkal:
+- swing_high_body: float | None  # Test alapú swing high pontok
+- swing_low_body: float | None   # Test alapú swing low pontok
+- swing_high_wick: float | None  # Wick alapú swing high pontok
+- swing_low_wick: float | None   # Wick alapú swing low pontok
+- nearest_support: float | None   # Legközelebbi support szint
+- nearest_resistance: float | None  # Legközelebbi resistance szint
+- support_strength: float | None   # Support szint erőssége (0-1)
+- resistance_strength: float | None  # Resistance szint erőssége (0-1)
 ```
 
 ## D3 - Trend komponensek
@@ -11075,7 +11063,7 @@ if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
-    from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
+    from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
@@ -11509,7 +11497,7 @@ if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 class JForexFactory:
@@ -11660,7 +11648,7 @@ if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 class Bi5Downloader(IJForexDownloader):
@@ -12575,11 +12563,11 @@ if TYPE_CHECKING:
     )
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager  # noqa: F401
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface  # noqa: F401
-    from neural_ai.core.ingestion.market_data_persister import (
+    from neural_ai.data.ingestion.market_data_persister import (
         MarketDataPersister,  # noqa: F401
     )
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface  # noqa: F401
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface  # noqa: F401
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface  # noqa: F401
     from neural_ai.core.system.interfaces.health_interface import (
         HealthMonitorInterface,  # noqa: F401
     )
@@ -12656,11 +12644,11 @@ def bootstrap_core(
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.factory import EventBusFactory
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
-    from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
+    from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
     from neural_ai.core.logger.factory import LoggerFactory
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.factory import StorageFactory
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.factory import StorageFactory
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
     from neural_ai.core.system.factory import SystemComponentFactory
     from neural_ai.core.system.interfaces.health_interface import HealthMonitorInterface
     from neural_ai.core.utils.factory import HardwareFactory
@@ -13055,7 +13043,7 @@ if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 class CoreComponentFactory(metaclass=SingletonMeta):
@@ -13113,7 +13101,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
     def _get_storage(self) -> "StorageInterface":
         """Lazy loadinggel tölti be a storage komponenst."""
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         storage = self._container.resolve(StorageInterface)
         if storage is not None:
@@ -13260,8 +13248,8 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-        from neural_ai.core.storage.implementations.file_storage import FileStorage
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.implementations.file_storage import FileStorage
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         container = DIContainer()
 
@@ -13334,8 +13322,8 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-        from neural_ai.core.storage.implementations.file_storage import FileStorage
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.implementations.file_storage import FileStorage
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         config = None
         log_config: dict[str, Any] = {}
@@ -13446,7 +13434,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("storage", config)
 
         # Create storage instance
-        from neural_ai.core.storage.implementations.file_storage import FileStorage
+        from neural_ai.data.storage.implementations.file_storage import FileStorage
 
         return FileStorage(base_path=base_directory)
 
@@ -13495,9 +13483,9 @@ if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
-    from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
+    from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 T = TypeVar("T")
@@ -13557,7 +13545,7 @@ class CoreComponents:
         """
         from typing import cast
 
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         result = self._container.resolve(StorageInterface)
         return cast(Optional["StorageInterface"], result)
@@ -13613,7 +13601,7 @@ class CoreComponents:
         """
         from typing import cast
 
-        from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
+        from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
 
         result = self._container.resolve(MarketDataPersister)
         return cast(Optional["MarketDataPersister"], result)
@@ -13672,7 +13660,7 @@ class CoreComponents:
         Args:
             storage: A tároló implementáció példánya.
         """
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         self._container.register_instance(StorageInterface, storage)
 
@@ -13712,7 +13700,7 @@ class CoreComponents:
         Args:
             persister: A market data persister implementáció példánya.
         """
-        from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
+        from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
 
         self._container.register_instance(MarketDataPersister, persister)
 
@@ -14381,7 +14369,7 @@ from neural_ai.core.base.interfaces.container_interface import DIContainerInterf
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 class CoreComponentsInterface(ABC):
@@ -15811,7 +15799,7 @@ from neural_ai.core.config.interfaces import ConfigManagerInterface
 
 if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces import LoggerInterface
-    from neural_ai.core.storage.interfaces import StorageInterface
+    from neural_ai.data.storage.interfaces import StorageInterface
 
 
 @dataclass
@@ -18516,25 +18504,6 @@ class PositionEvent(BaseModel):
 
 ```
 
-## `FILE: neural_ai/core/ingestion/__init__.py`
-
-```py
-"""Ingestion komponensek.
-
-Ez a modul a rendszer adatbetöltési (ingestion) komponenseit tartalmazza,
-beleértve a MarketDataPersister-t, amely felelős a bejövő market data
-eventek bufferezéséért és időzített mentéséért a Parquet tárolóba.
-
-Author: Neural AI Next Team
-Version: 1.0.0
-"""
-
-from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
-
-__all__ = ["MarketDataPersister"]
-
-```
-
 ## `FILE: neural_ai/core/logger/__init__.py`
 
 ```py
@@ -19869,4710 +19838,6 @@ class LoggerInterface(ABC):
             int: A jelenleg beállított naplózási szint értéke.
         """
         pass
-
-```
-
-## `FILE: neural_ai/core/processing/__init__.py`
-
-```py
-"""Processing modul.
-
-Ez a modul felelős az adatfeldolgozási és átalakítási szolgáltatásokért,
-beleértve a resampling, aggregáció és egyéb adatmanipulációs műveleteket.
-"""
-
-from neural_ai.core.processing.resampler_service import ResamplerServiceFactory
-
-__all__ = [
-    "ResamplerServiceFactory",
-]
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/__init__.py`
-
-```py
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/base.py`
-
-```py
-"""BaseDimensionProcessor - Absztrakt alap osztály minden dimenzió processzor számára."""
-
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
-
-from neural_ai.core.processing.interfaces.dimension_processor_interface import (
-    IDimensionProcessor,
-)
-
-if TYPE_CHECKING:
-    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-
-
-class BaseDimensionProcessor(IDimensionProcessor, ABC):
-    """Absztrakt alap osztály minden dimenzió processzor számára.
-
-    Ez az osztály biztosítja a Dependency Injection támogatást és az alapvető
-    konfigurációs kezelést minden dimenzió processzor számára.
-    """
-
-    def __init__(self, config: "ConfigManagerInterface", logger: "LoggerInterface") -> None:
-        """Inicializálja a dimenzió processzort DI-val.
-
-        Args:
-            config: Konfigurációs menedzser interfész
-            logger: Logger interfész
-        """
-        self.config = config
-        self.logger = logger
-
-        # Konfiguráció betöltése dimenzió alapján (pl. "processors.d01")
-        section = f"processors.d{self.dimension_id:02d}"
-        self.dim_config = config.get("processors", f"d{self.dimension_id:02d}") or {}
-
-        if not self.dim_config:
-            self.logger.warning(
-                f"Nincs konfiguráció definiálva a(z) {section} szekcióban. "
-                f"Alapértelmezett értékek használata."
-            )
-
-    @property
-    @abstractmethod
-    def dimension_id(self) -> int:
-        """Dimenzió azonosító (1-15).
-
-        Returns:
-            int: A dimenzió egyedi azonosítója
-        """
-        pass
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/d01_price/__init__.py`
-
-```py
-"""D01 Price Dimension Processzor modul."""
-
-from neural_ai.core.processing.dimensions.d01_price.factory import D01PriceFactory
-from neural_ai.core.processing.interfaces.dimension_processor_interface import (
-    IDimensionProcessor,
-)
-
-__all__ = ["D01PriceFactory", "IDimensionProcessor"]
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/d01_price/factory.py`
-
-```py
-"""D01PriceProcessor Factory - Az alap adatok processzor létrehozásáért felelős."""
-
-from typing import TYPE_CHECKING
-
-from neural_ai.core.processing.dimensions.d01_price.processor import D01PriceProcessor
-from neural_ai.core.processing.interfaces.dimension_processor_interface import (
-    IDimensionProcessor,
-)
-
-if TYPE_CHECKING:
-    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-
-
-class D01PriceFactory:
-    """Factory osztály a D01PriceProcessor létrehozásához."""
-
-    @staticmethod
-    def create(config: "ConfigManagerInterface", logger: "LoggerInterface") -> IDimensionProcessor:
-        """D01PriceProcessor példány létrehozása.
-
-        Args:
-            config: Konfigurációs menedzser interfész
-            logger: Logger interfész
-
-        Returns:
-            IDimensionProcessor: A D01PriceProcessor példány
-        """
-        return D01PriceProcessor(config, logger)
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/d01_price/processor.py`
-
-```py
-"""D01PriceProcessor - Alap adatok processzor."""
-
-from typing import TYPE_CHECKING
-
-import polars as pl
-
-from neural_ai.core.processing.dimensions.base import BaseDimensionProcessor
-
-if TYPE_CHECKING:
-    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-
-
-class D01PriceProcessor(BaseDimensionProcessor):
-    """D1 - Alap adatok (Base Data) processzor.
-
-    Feladata az alap pénzügyi adatok biztosítása és validálása.
-    Kiválasztja és visszaadja a timestamp, open, high, low, close,
-    tick_volume, spread és real_volume oszlopokat.
-    """
-
-    def __init__(self, config: "ConfigManagerInterface", logger: "LoggerInterface") -> None:
-        """Inicializálja a D1 processzort.
-
-        Args:
-            config: Konfigurációs menedzser interfész
-            logger: Logger interfész
-        """
-        super().__init__(config, logger)
-
-    def process(self, df: pl.DataFrame, timeframe: str = "1m") -> pl.DataFrame:
-        """Polars Expr alapú dimenzió számítás matematikai transzformációkkal.
-
-        Számítja a log return-ot, rolling Z-score-ot és árnyékokat (shadows).
-        Adaptív logika: tick timeframe esetén különbözik az OHLC-tól.
-
-        Args:
-            df: Bemeneti Polars DataFrame (már time-aligned OHLCV adatok)
-            timeframe: Időkeret ("tick", "1m", stb.), default "1m"
-
-        Returns:
-            Polars DataFrame az alap adatokkal és matematikai transzformációkkal
-        """
-        # Alapértelmezett config
-        z_score_window = self.dim_config.get("z_score_window", 60)
-
-        # Timeframe specifikus felülírás
-        if timeframe:
-            tf_configs = self.dim_config.get("timeframe_configs", {})
-            for tf_key, tf_cfg in tf_configs.items():
-                if tf_key.lower() == timeframe.lower():
-                    z_score_window = tf_cfg.get("z_score_window", z_score_window)
-                    break
-
-        calc_shadows = self.dim_config.get("calc_shadows", True)
-
-        self.logger.debug(
-            f"D1 processzor futtatása: timeframe={timeframe}, window={z_score_window}"
-        )
-
-        # Használjuk a bemeneti DataFrame meglévő mid_close oszlopát (Resampler biztosítja)
-        # Log return: ln(mid_close / mid_close.shift(1))
-        log_return = (pl.col("mid_close") / pl.col("mid_close").shift(1)).log()
-
-        # Rolling Z-score: (log_return - rolling_mean) / rolling_std
-        rolling_mean = log_return.rolling_mean(window_size=z_score_window)
-        rolling_std = log_return.rolling_std(window_size=z_score_window)
-        rolling_z_score = (log_return - rolling_mean) / rolling_std
-
-        # Árnyékok számítása: csak akkor, ha calc_shadows és timeframe != "tick"
-        if calc_shadows and timeframe != "tick":
-            # Upper shadow: mid_high - max(mid_open, mid_close)
-            upper_shadow = pl.col("mid_high") - pl.max_horizontal(
-                pl.col("mid_open"), pl.col("mid_close")
-            )
-            # Lower shadow: min(mid_open, mid_close) - mid_low
-            lower_shadow = pl.min_horizontal(pl.col("mid_open"), pl.col("mid_close")) - pl.col(
-                "mid_low"
-            )
-        else:
-            # Egyéb esetben None értékekkel töltjük
-            upper_shadow = pl.lit(None).cast(pl.Float64)
-            lower_shadow = pl.lit(None).cast(pl.Float64)
-
-        # Alap oszlopok kiválasztása
-        columns = [
-            "timestamp",
-            # Bid adatok (VISSZAPÓTOLVA)
-            "bid_open", "bid_high", "bid_low", "bid_close",
-            # Mid adatok
-            "mid_open", "mid_high", "mid_low", "mid_close",
-            # Metadata
-            "tick_volume", "spread", "real_volume",
-            # Számított értékek
-            log_return.alias("log_return"),
-            rolling_z_score.alias("rolling_z_score"),
-            upper_shadow.alias("upper_shadow"),
-            lower_shadow.alias("lower_shadow"),
-        ]
-
-        # Bid és ask volume hozzáadása, ha rendelkezésre állnak
-        if "bid_volume" in df.columns:
-            columns.append(pl.col("bid_volume"))
-        if "ask_volume" in df.columns:
-            columns.append(pl.col("ask_volume"))
-
-        return df.select(columns)
-
-    @property
-    def dimension_id(self) -> int:
-        """Dimenzió azonosító (1-15).
-
-        Returns:
-            int: 1 (D1 dimenzió)
-        """
-        return 1
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/d02_support/__init__.py`
-
-```py
-"""D02 Support/Resistance Dimension Processzor modul."""
-
-from neural_ai.core.processing.dimensions.d02_support.factory import D02SupportFactory
-from neural_ai.core.processing.interfaces.dimension_processor_interface import (
-    IDimensionProcessor,
-)
-
-__all__ = ["D02SupportFactory", "IDimensionProcessor"]
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/d02_support/exceptions/__init__.py`
-
-```py
-"""D02 Support/Resistance kivételek."""
-
-from neural_ai.core.processing.dimensions.d02_support.exceptions.support_error import SupportError
-
-__all__ = ["SupportError"]
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/d02_support/exceptions/support_error.py`
-
-```py
-"""Kivételek a D02 Support/Resistance processzor modulhoz.
-
-Ez a modul definiálja a support/resistance szintek számítása során
-fellépő összes kivételt.
-"""
-
-
-class SupportError(Exception):
-    """Alap kivétel a support/resistance processzor hibákhoz.
-
-    Ez az osztály szolgál közös alapként az összes support/resistance
-    számítással kapcsolatos kivételnek a rendszerben.
-
-    Attributes:
-        message: A hibaüzenet részletes leírása.
-        error_code: Opcionális hibakód a hibák kategorizálásához.
-    """
-
-    def __init__(self, message: str, error_code: str | None = None) -> None:
-        """Inicializálja a SupportError kivételt.
-
-        Args:
-            message: A hibaüzenet részletes leírása.
-            error_code: Opcionális hibakód a hibák kategorizálásához.
-        """
-        self.error_code = error_code
-        super().__init__(message)
-
-
-class SwingPointCalculationError(SupportError):
-    """Swing pont számítási hiba.
-
-    Akkor dobódik, ha a swing high vagy swing low pontok számítása
-    sikertelen. Ez tartalmazhatja a rolling window műveletek hibáit
-    vagy érvénytelen adatokat.
-
-    Attributes:
-        window_size: A használt rolling window mérete.
-        column_name: Az érintett oszlop neve.
-    """
-
-    def __init__(
-        self, message: str, window_size: int | None = None, column_name: str | None = None
-    ) -> None:
-        """Inicializálja a SwingPointCalculationError kivételt.
-
-        Args:
-            message: A hibaüzenet részletes leírása.
-            window_size: A használt rolling window mérete.
-            column_name: Az érintett oszlop neve.
-        """
-        self.window_size = window_size
-        self.column_name = column_name
-        super().__init__(message, error_code="SWING_POINT_CALCULATION_ERROR")
-
-
-class SupportResistanceLevelError(SupportError):
-    """Support/Resistance szint számítási hiba.
-
-    Akkor dobódik, ha a support vagy resistance szintek aggregálása
-    sikertelen. Ez tartalmazhatja az átlagolási műveletek hibáit
-    vagy érvénytelen swing pont adatokat.
-
-    Attributes:
-        level_type: A szint típusa ("support" vagy "resistance").
-        aggregation_method: A használt aggregációs módszer.
-    """
-
-    def __init__(
-        self, message: str, level_type: str | None = None, aggregation_method: str | None = None
-    ) -> None:
-        """Inicializálja a SupportResistanceLevelError kivételt.
-
-        Args:
-            message: A hibaüzenet részletes leírása.
-            level_type: A szint típusa ("support" vagy "resistance").
-            aggregation_method: A használt aggregációs módszer.
-        """
-        self.level_type = level_type
-        self.aggregation_method = aggregation_method
-        super().__init__(message, error_code="SUPPORT_RESISTANCE_LEVEL_ERROR")
-
-
-class TimeframeConfigurationError(SupportError):
-    """Timeframe konfigurációs hiba.
-
-    Akkor dobódik, ha a timeframe-specifikus konfiguráció érvénytelen
-    vagy hiányzik. Ez tartalmazhatja a swing_window vagy min_distance
-    paraméterek hibás értékeit.
-
-    Attributes:
-        timeframe: Az érintett timeframe.
-        config_key: A hiányzó vagy érvénytelen konfigurációs kulcs.
-    """
-
-    def __init__(
-        self, message: str, timeframe: str | None = None, config_key: str | None = None
-    ) -> None:
-        """Inicializálja a TimeframeConfigurationError kivételt.
-
-        Args:
-            message: A hibaüzenet részletes leírása.
-            timeframe: Az érintett timeframe.
-            config_key: A hiányzó vagy érvénytelen konfigurációs kulcs.
-        """
-        self.timeframe = timeframe
-        self.config_key = config_key
-        super().__init__(message, error_code="TIMEFRAME_CONFIGURATION_ERROR")
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/d02_support/factory.py`
-
-```py
-"""D02SupportProcessor Factory - A Support/Resistance processzor létrehozásáért felelős."""
-
-from typing import TYPE_CHECKING
-
-from neural_ai.core.processing.dimensions.d02_support.implementations.support_processor import (
-    D02SupportProcessor,
-)
-from neural_ai.core.processing.interfaces.dimension_processor_interface import (
-    IDimensionProcessor,
-)
-
-if TYPE_CHECKING:
-    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-
-
-class D02SupportFactory:
-    """Factory osztály a D02SupportProcessor létrehozásához."""
-
-    @staticmethod
-    def create(config: "ConfigManagerInterface", logger: "LoggerInterface") -> IDimensionProcessor:
-        """D02SupportProcessor példány létrehozása.
-
-        Args:
-            config: Konfigurációs menedzser interfész
-            logger: Logger interfész
-
-        Returns:
-            IDimensionProcessor: A D02SupportProcessor példány
-        """
-        return D02SupportProcessor(config, logger)
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/d02_support/implementations/__init__.py`
-
-```py
-"""D02 Support/Resistance implementációk."""
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/d02_support/implementations/support_processor.py`
-
-```py
-"""D02SupportProcessor - Support/Resistance szintek processzora."""
-
-from typing import TYPE_CHECKING, cast
-
-import polars as pl
-
-from neural_ai.core.processing.dimensions.base import BaseDimensionProcessor
-
-if TYPE_CHECKING:
-    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-
-
-class D02SupportProcessor(BaseDimensionProcessor):
-    """D2 - Support/Resistance szintek processzora.
-
-    Feladata a support és resistance szintek azonosítása és számítása
-    swing pontok alapján különböző timeframe-ekre.
-    """
-
-    def __init__(self, config: "ConfigManagerInterface", logger: "LoggerInterface") -> None:
-        """Inicializálja a D2 processzort.
-
-        Args:
-            config: Konfigurációs menedzser interfész
-            logger: Logger interfész
-        """
-        super().__init__(config, logger)
-
-    def _find_swing_points_close_open(self, df: pl.DataFrame) -> pl.DataFrame:
-        """Swing pontok keresése záró/nyitó árak alapján.
-
-        Kiszámolja a gyertya testének top és bottom értékeit mid_open és mid_close alapján,
-        majd swing pontokat keres rajtuk gördülő maximum szukcesszióval.
-
-        Args:
-            df: Bemeneti Polars DataFrame
-
-        Returns:
-            pl.DataFrame: swing_high_body és swing_low_body oszlopokkal kiegészített DataFrame
-        """
-        min_candles = self.dim_config.get("min_candles")
-        if min_candles is None:
-            self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
-            min_candles = 5
-        min_candles = cast(int, min_candles)
-
-        # Body definíció: gyertya testének top és bottom (mid_open és mid_close alapján)
-        body_top = pl.max_horizontal("mid_open", "mid_close")
-        body_bottom = pl.min_horizontal("mid_open", "mid_close")
-
-        # Body swing pontok számítása
-        swing_high_body = (
-            pl.when(body_top == body_top.rolling_max(window_size=min_candles, center=True))
-            .then(body_top)
-            .otherwise(None)
-        )
-
-        swing_low_body = (
-            pl.when(body_bottom == body_bottom.rolling_min(window_size=min_candles, center=True))
-            .then(body_bottom)
-            .otherwise(None)
-        )
-
-        return df.with_columns([
-            swing_high_body.alias("swing_high_body"),
-            swing_low_body.alias("swing_low_body"),
-        ])
-
-    def _find_swing_points_high_low(self, df: pl.DataFrame) -> pl.DataFrame:
-        """Swing pontok keresése high/low értékeken.
-
-        Swing pontokat keres high és low értékeken gördülő maximum szukcesszióval.
-
-        Args:
-            df: Bemeneti Polars DataFrame
-
-        Returns:
-            pl.DataFrame: swing_high_wick és swing_low_wick oszlopokkal kiegészített DataFrame
-        """
-        min_candles = self.dim_config.get("min_candles")
-        if min_candles is None:
-            self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
-            min_candles = 5
-        min_candles = cast(int, min_candles)
-
-        # Wick swing pontok számítása
-        swing_high_wick = (
-            pl.when(
-                pl.col("high")
-                == pl.col("high").rolling_max(
-                    window_size=min_candles, center=True
-                )
-            )
-            .then(pl.col("high"))
-            .otherwise(None)
-        )
-
-        swing_low_wick = (
-            pl.when(
-                pl.col("low")
-                == pl.col("low").rolling_min(
-                    window_size=min_candles, center=True
-                )
-            )
-            .then(pl.col("low"))
-            .otherwise(None)
-        )
-
-        return df.with_columns([
-            swing_high_wick.alias("swing_high_wick"),
-            swing_low_wick.alias("swing_low_wick"),
-        ])
-
-    def _merge_levels(self, df: pl.DataFrame) -> pl.DataFrame:
-        """Iteratív klaszterezés a swing szintek összevonására.
-
-        Amíg vannak a merge_threshold-nél közelebbi szintpárok, addig ismétli
-        a legkisebb távolságú pár megtalálását és összevonását súlyozott
-        átlagolással.
-
-        Args:
-            df: Polars DataFrame price, weight, type oszlopokkal
-
-        Returns:
-            pl.DataFrame: Klaszterezett szintek DataFrame
-        """
-        if df.is_empty():
-            return df
-
-        level_merge = self.dim_config.get("level_merge")
-        if level_merge is None:
-            self.logger.warning("level_merge paraméter hiányzik a configból, default 0.0005 használata")
-            level_merge = 0.0005
-        threshold = cast(float, level_merge)
-
-        while True:
-            rows = df.to_dicts()
-            prices = [r["price"] for r in rows]
-            weights = [r["weight"] for r in rows]
-            types = [r["type"] for r in rows]
-
-            min_dist = float('inf')
-            min_i, min_j = -1, -1
-
-            # Keresd meg a legkisebb távolságú azonos típusú párt
-            for i in range(len(rows)):
-                for j in range(i + 1, len(rows)):
-                    if types[i] != types[j]:
-                        continue
-                    dist = abs(prices[i] - prices[j])
-                    if dist <= threshold and dist < min_dist:
-                        min_dist = dist
-                        min_i, min_j = i, j
-
-            if min_i == -1:
-                break  # Nincs több összevonható pár
-
-            # Egyesítés
-            p1, w1 = prices[min_i], weights[min_i]
-            p2, w2 = prices[min_j], weights[min_j]
-            new_price = (p1 * w1 + p2 * w2) / (w1 + w2)
-            new_weight = w1 + w2
-            new_type = types[min_i]
-
-            # Új lista létrehozása
-            new_rows = []
-            for idx, row in enumerate(rows):
-                if idx not in (min_i, min_j):
-                    new_rows.append(row)
-            new_rows.append({"price": new_price, "weight": new_weight, "type": new_type})
-
-            df = pl.DataFrame(new_rows)
-
-        return df.sort("price")
-
-    def _calculate_level_strength(
-        self, levels: list[dict[str, float | int | str]]
-    ) -> list[dict[str, float | int | str]]:
-        """Szintek erősségének számítása.
-
-        Minden szinthez kiszámolja a strength értéket az érintések, súly és
-        volumen tényező alapján, majd normalizálja 0-1 közé.
-
-        Args:
-            levels: Szintek listája dict-ekkel, amelyek tartalmazzák 'touches' és
-                opcionálisan 'volume_factor'.
-
-        Returns:
-            list[dict[str, float | int | str]]: Frissített szintek listája
-                'strength' kulccsal.
-        """
-        base_weight = 0.1
-        strength_window = self.dim_config.get("strength_window")
-        if strength_window is None:
-            self.logger.warning("strength_window paraméter hiányzik a configból, default 10 használata")
-            strength_window = 10
-        strength_window = cast(int, strength_window)
-        # Használjuk a strength_window-t base_weight módosítására
-        base_weight /= strength_window
-
-        # Frissített szintek listája
-        updated_levels: list[dict[str, float | int | str]] = []
-
-        for level in levels:
-            touches = cast(int, level.get("touches", 1))
-            volume_factor = cast(float, level.get("volume_factor", 1.0))
-            strength = (touches * base_weight) * volume_factor
-            level["strength"] = strength
-            updated_levels.append(level)
-
-        # Normalizálás 0-1 közé a teljes listában
-        if updated_levels:
-            max_strength = max(cast(float, level["strength"]) for level in updated_levels)
-            if max_strength > 0:
-                for level in updated_levels:
-                    level["strength"] = cast(float, level["strength"]) / max_strength
-
-        return updated_levels
-
-    def _categorize_zones(
-        self,
-        levels: list[dict[str, str | float | int]]
-    ) -> dict[str, dict[str, list[dict[str, str | float | int]]]]:
-        """Szintek kategorizálása strength és touches alapján.
-
-        A szinteket erősíti support és resistance kategóriákba, majd minden kategóriában
-        további alcsoportokba: strong, moderate, weak.
-
-        Args:
-            levels: Szintek listája dict-ekkel, melyek tartalmazzák 'strength',
-                'touches', 'type' stb.
-
-        Returns:
-            dict: Kategorizált szintek struktúrája:
-                {
-                    "support": {"strong": [...], "moderate": [...], "weak": [...]},
-                    "resistance": {"strong": [...], "moderate": [...], "weak": [...]}
-                }
-        """
-        min_touches = self.dim_config.get("min_touches")
-        if min_touches is None:
-            self.logger.warning("min_touches paraméter hiányzik a configból, default 1 használata")
-            min_touches = 1
-        min_touches = cast(int, min_touches)
-
-        result: dict[str, dict[str, list[dict[str, str | float | int]]]] = {
-            "support": {"strong": [], "moderate": [], "weak": []},
-            "resistance": {"strong": [], "moderate": [], "weak": []}
-        }
-
-        for level in levels:
-            strength = cast(float, level["strength"])
-            touches = cast(int, level["touches"])
-            level_type = cast(str, level["type"])
-
-            if strength > 0.7 and touches >= min_touches:
-                category = "strong"
-            elif 0.3 <= strength <= 0.7 or (touches < min_touches and strength > 0.4):
-                category = "moderate"
-            else:
-                category = "weak"
-
-            result[level_type][category].append(level)
-
-        return result
-
-    def _confirm_with_volume(self, df: pl.DataFrame, swing_mask: pl.Expr) -> pl.Expr:
-        """Swing pontok megerősítése volumen alapján.
-
-        Ellenőrzi, hogy a swing pontokon a real_volume nagyobb-e a mozgóátlagnál.
-        Ha volume_confirmation false, mindig 1.0-s szorzót ad vissza.
-
-        Args:
-            df: Bemeneti Polars DataFrame (nem használt, de konzisztenciáért)
-            swing_mask: Swing pontokat jelölő kifejezés
-
-        Returns:
-            pl.Expr: Szorzó kifejezés (1.2 ha megerősített, 1.0 ha nem)
-        """
-        volume_confirmation = self.dim_config.get("volume_confirmation")
-        if volume_confirmation is None:
-            self.logger.warning("volume_confirmation paraméter hiányzik a configból, default False használata")
-            volume_confirmation = False
-        volume_confirmation = cast(bool, volume_confirmation)
-        if not volume_confirmation:
-            return pl.lit(1.0)
-
-        threshold = pl.col("real_volume").rolling_mean(window_size=20) * 1.5
-        return (
-            pl.when(swing_mask & (pl.col("real_volume") > threshold))
-            .then(1.2)
-            .otherwise(1.0)
-        )
-
-    def process(self, df: pl.DataFrame, timeframe: str = "H1") -> pl.DataFrame:
-        """Support/Resistance szintek számítása swing pontok alapján.
-
-        Detektálja a swingeket Body és Wick alapján, gyűjti őket listába VolumeFactor-ral,
-        futtatja a szintek összevonását, erősség számítását és kategorizálását.
-        Idősoros vetítés minden gyertyánál a legközelebbi support/resistance-hez.
-
-        Args:
-            df: Bemeneti Polars DataFrame (time-aligned OHLCV adatok)
-            timeframe: Időkeret ("H1", "H4", "D1"), default "H1"
-
-        Returns:
-            Polars DataFrame frissített oszlopokkal: swing_high_body, swing_low_body,
-            swing_high_wick, swing_low_wick, nearest_resistance, nearest_support,
-            resistance_strength, support_strength.
-        """
-        self.logger.debug(f"D2 processzor futtatása: timeframe={timeframe}")
-
-        # Swing pontok keresése záró/nyitó árak alapján
-        df = self._find_swing_points_close_open(df)
-
-        # Swing pontok keresése high/low értékeken
-        df = self._find_swing_points_high_low(df)
-
-        # Volume factor számítása minden swing típushoz
-        high_body_mask = pl.col("swing_high_body").is_not_null()
-        low_body_mask = pl.col("swing_low_body").is_not_null()
-        high_wick_mask = pl.col("swing_high_wick").is_not_null()
-        low_wick_mask = pl.col("swing_low_wick").is_not_null()
-
-        df = df.with_columns([
-            self._confirm_with_volume(df, high_body_mask).alias("vf_high_body"),
-            self._confirm_with_volume(df, low_body_mask).alias("vf_low_body"),
-            self._confirm_with_volume(df, high_wick_mask).alias("vf_high_wick"),
-            self._confirm_with_volume(df, low_wick_mask).alias("vf_low_wick"),
-        ])
-
-        # Swing pontok gyűjtése DataFrame-ként
-        swing_data = []
-        for row in df.iter_rows(named=True):
-            if row.get("swing_high_body") is not None:
-                swing_data.append({
-                    "price": row["swing_high_body"],
-                    "weight": row["vf_high_body"],
-                    "type": "high"
-                })
-            if row.get("swing_low_body") is not None:
-                swing_data.append({
-                    "price": row["swing_low_body"],
-                    "weight": row["vf_low_body"],
-                    "type": "low"
-                })
-            if row.get("swing_high_wick") is not None:
-                swing_data.append({
-                    "price": row["swing_high_wick"],
-                    "weight": row["vf_high_wick"],
-                    "type": "high"
-                })
-            if row.get("swing_low_wick") is not None:
-                swing_data.append({
-                    "price": row["swing_low_wick"],
-                    "weight": row["vf_low_wick"],
-                    "type": "low"
-                })
-
-        swings_df = pl.DataFrame(swing_data)
-
-        # Szintek összevonása
-        merged_df = self._merge_levels(swings_df)
-
-        # Visszaalakítás list[dict]-ra a további feldolgozáshoz
-        merged_levels = []
-        for row in merged_df.to_dicts():
-            level_type = "resistance" if row["type"] == "high" else "support"
-            merged_levels.append({
-                "price": row["price"],
-                "touches": 1,
-                "type": level_type,
-                "volume_factor": row["weight"]
-            })
-
-        # Szintek erősségének számítása
-        merged_levels = self._calculate_level_strength(merged_levels)
-
-        # Support és resistance szintek kinyerése
-        support_levels = [level for level in merged_levels if level["type"] == "support"]
-        resistance_levels = [level for level in merged_levels if level["type"] == "resistance"]
-
-        # Mapping price -> strength
-        support_dict = {level["price"]: level["strength"] for level in support_levels}
-        resistance_dict = {level["price"]: level["strength"] for level in resistance_levels}
-
-        # Függvények nearest számításhoz
-        def find_nearest_support(close: float) -> tuple[float | None, float | None]:
-            candidates = [p for p in support_dict if p <= close]
-            if not candidates:
-                return None, None
-            nearest_price = max(candidates)
-            return nearest_price, support_dict[nearest_price]
-
-        def find_nearest_resistance(close: float) -> tuple[float | None, float | None]:
-            candidates = [p for p in resistance_dict if p >= close]
-            if not candidates:
-                return None, None
-            nearest_price = min(candidates)
-            return nearest_price, resistance_dict[nearest_price]
-
-        # Oszlopok hozzáadása
-        nearest_support_expr = pl.col("close").map_elements(
-            lambda c: find_nearest_support(c)[0], return_dtype=pl.Float64
-        ).alias("nearest_support")
-        support_strength_expr = pl.col("close").map_elements(
-            lambda c: find_nearest_support(c)[1], return_dtype=pl.Float64
-        ).alias("support_strength")
-        nearest_resistance_expr = pl.col("close").map_elements(
-            lambda c: find_nearest_resistance(c)[0], return_dtype=pl.Float64
-        ).alias("nearest_resistance")
-        resistance_strength_expr = pl.col("close").map_elements(
-            lambda c: find_nearest_resistance(c)[1], return_dtype=pl.Float64
-        ).alias("resistance_strength")
-
-        df = df.with_columns([
-            nearest_support_expr,
-            support_strength_expr,
-            nearest_resistance_expr,
-            resistance_strength_expr,
-        ])
-
-        # Ideiglenes oszlopok eltávolítása
-        return df.drop(["vf_high_body", "vf_low_body", "vf_high_wick", "vf_low_wick"])
-
-    @property
-    def dimension_id(self) -> int:
-        """Dimenzió azonosító (1-15).
-
-        Returns:
-            int: 2 (D2 dimenzió)
-        """
-        return 2
-
-```
-
-## `FILE: neural_ai/core/processing/dimensions/d02_support/interfaces/__init__.py`
-
-```py
-"""D02 Support/Resistance interfészek."""
-
-```
-
-## `FILE: neural_ai/core/processing/factory.py`
-
-```py
-"""Processing Factory - Feldolgozási komponensek factory függvényei."""
-
-import importlib
-from typing import TYPE_CHECKING
-
-from neural_ai.core.processing.interfaces.dimension_processor_interface import IDimensionProcessor
-from neural_ai.core.processing.interfaces.time_alignment_interface import ITimeAlignmentService
-
-if TYPE_CHECKING:
-    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-
-# Dimenzió konfigurációk - dinamikus factory loadinghez
-DIMENSIONS_CONFIG = {1: "price", 2: "support"}
-
-FACTORY_CLASSES = {1: "D01PriceFactory", 2: "D02SupportFactory"}
-
-
-def create_time_alignment_service() -> ITimeAlignmentService:
-    """TimeAlignmentService factory függvény - dinamikus példányosítással.
-
-    Returns:
-        ITimeAlignmentService: Az időszinkronizációs szolgáltatás példánya
-    """
-    module = importlib.import_module(
-        "neural_ai.core.processing.implementations.time_alignment_service"
-    )
-    cls = module.TimeAlignmentService
-    return cls()
-
-
-def create_dimension_processor(
-    dimension_id: int, config: "ConfigManagerInterface", logger: "LoggerInterface"
-) -> IDimensionProcessor:
-    """Dimenzió processzor factory függvény - dinamikus factory loadinggal.
-
-    Args:
-        dimension_id: A dimenzió azonosítója (1-15)
-        config: Konfigurációs menedzser interfész
-        logger: Logger interfész
-
-    Returns:
-        IDimensionProcessor: A megfelelő dimenzió processor példány
-
-    Raises:
-        ValueError: Ha ismeretlen dimenzió ID-t adnak meg
-    """
-    if dimension_id not in DIMENSIONS_CONFIG:
-        raise ValueError(f"Ismeretlen dimenzió ID: {dimension_id}")
-
-    name = DIMENSIONS_CONFIG[dimension_id]
-    module_name = f"neural_ai.core.processing.dimensions.d{dimension_id:02d}_{name}.factory"
-    module = importlib.import_module(module_name)
-    factory_class = getattr(module, FACTORY_CLASSES[dimension_id])
-    return factory_class.create(config, logger)
-
-```
-
-## `FILE: neural_ai/core/processing/implementations/__init__.py`
-
-```py
-
-```
-
-## `FILE: neural_ai/core/processing/implementations/time_alignment_service.py`
-
-```py
-import polars as pl
-
-from neural_ai.core.processing.interfaces.time_alignment_interface import ITimeAlignmentService
-
-
-class TimeAlignmentService(ITimeAlignmentService):
-    """Időszinkronizációs szolgáltatás - tökéletes időskála biztosítása."""
-
-    def reindex_to_grid(self, df: pl.DataFrame, timeframe: str) -> pl.DataFrame:
-        """Tökéletes időskála generálása minden timeframe-re."""
-        if timeframe.lower() == "tick":
-            return df  # Tick adaton nincs rács és nincs gap-fill
-        # Létrehozza az összes szükséges időpontot (pl. minden perc M1-nél)
-        # Kezeli a tőzsde nyitvatartási időket
-        full_range = pl.DataFrame(
-            {
-                "timestamp": pl.datetime_range(
-                    df["timestamp"].min(), df["timestamp"].max(), interval=timeframe, eager=True
-                )
-            }
-        )
-        return full_range.join(df, on="timestamp", how="left")
-
-    def market_hours_filter(self, df: pl.DataFrame) -> pl.DataFrame:
-        """Hétvégék szűrése - csak H-P napok megtartása, kivétel vasárnap >=21 UTC."""
-        weekday = pl.col("timestamp").dt.weekday()
-        hour = pl.col("timestamp").dt.hour()
-        return df.filter((weekday <= 5) | ((weekday == 7) & (hour >= 21)))
-
-    def handle_gaps(
-        self, df: pl.DataFrame, timeframe: str, method: str = "forward_fill"
-    ) -> pl.DataFrame:
-        """Lyukak kezelése az adatokban - árak forward fill, volumenek 0."""
-        if timeframe.lower() == "tick":
-            return df  # Tick adaton nincs rács és nincs gap-fill
-        if method == "forward_fill":
-            # Áraknál forward fill
-            price_cols = [
-                "open",
-                "high",
-                "low",
-                "close",
-                "mid_open",
-                "mid_high",
-                "mid_low",
-                "mid_close",
-            ]
-            df = df.with_columns(
-                [
-                    pl.col(col).fill_null(strategy="forward")
-                    for col in price_cols
-                    if col in df.columns
-                ]
-            )
-            # Volumeneknél 0
-            volume_cols = ["tick_volume", "real_volume", "ask_volume", "bid_volume"]
-            df = df.with_columns(
-                [pl.col(col).fill_null(0) for col in volume_cols if col in df.columns]
-            )
-            # Spread és egyéb null-ok forward fill
-            df = df.fill_null(strategy="forward")
-            return df
-        elif method == "mask":
-            return df.with_columns(
-                pl.when(pl.col("close").is_null())
-                .then(None)
-                .otherwise(pl.col("close"))
-                .alias("close")
-            )
-        else:
-            raise ValueError(f"Ismeretlen method: {method}")
-
-```
-
-## `FILE: neural_ai/core/processing/interfaces/__init__.py`
-
-```py
-
-```
-
-## `FILE: neural_ai/core/processing/interfaces/dimension_processor_interface.py`
-
-```py
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import polars as pl
-
-
-class IDimensionProcessor(ABC):
-    """Absztrakt interfész minden dimenzió processzor számára."""
-
-    @abstractmethod
-    def process(self, df: "pl.DataFrame") -> "pl.DataFrame":
-        """Polars Expr alapú dimenzió számítás."""
-        pass
-
-    @property
-    @abstractmethod
-    def dimension_id(self) -> int:
-        """Dimenzió azonosító (1-15)."""
-        pass
-
-```
-
-## `FILE: neural_ai/core/processing/interfaces/tensor_converter_interface.py`
-
-```py
-from abc import ABC
-
-
-class ITensorConverter(ABC):
-    """Tensor konverter interfész."""
-
-    pass
-
-```
-
-## `FILE: neural_ai/core/processing/interfaces/time_alignment_interface.py`
-
-```py
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import polars as pl
-
-
-class ITimeAlignmentService(ABC):
-    """Időszinkronizációs szolgáltatás interfész - tökéletes időskála biztosítása."""
-
-    @abstractmethod
-    def reindex_to_grid(self, df: "pl.DataFrame", timeframe: str) -> "pl.DataFrame":
-        """Tökéletes időskála generálása minden timeframe-re."""
-        pass
-
-    @abstractmethod
-    def handle_gaps(
-        self, df: "pl.DataFrame", timeframe: str, method: str = "forward_fill"
-    ) -> "pl.DataFrame":
-        """Lyukak kezelése az adatokban."""
-        pass
-
-```
-
-## `FILE: neural_ai/core/processing/resampler_service/__init__.py`
-
-```py
-"""ResamplerService modul - Tick adatokból OHLCV gyertyák létrehozásáért felelős."""
-
-from neural_ai.core.processing.resampler_service.factory import ResamplerServiceFactory
-from neural_ai.core.processing.resampler_service.interfaces.resampler_interface import (
-    ResamplerInterface,
-)
-
-__all__ = [
-    "ResamplerInterface",
-    "ResamplerServiceFactory",
-]
-
-```
-
-## `FILE: neural_ai/core/processing/resampler_service/exceptions/resampler_error.py`
-
-```py
-"""ResamplerService kivételek."""
-
-
-from neural_ai.core.base.exceptions.base_error import NeuralAIException
-
-
-class ResamplerError(NeuralAIException):
-    """Alapértelmezett hiba a ResamplerService-hez."""
-
-    def __init__(
-        self,
-        message: str,
-        details: str | None = None,
-        original_error: Exception | None = None
-    ):
-        """ResamplerError inicializálása.
-
-        Args:
-            message: A hibaüzenet
-            details: Részletes hibainformációk
-            original_error: Az eredeti kivétel (ha van)
-        """
-        super().__init__(message)
-        self.details = details
-        self.original_error = original_error
-        self.component = "ResamplerService"
-
-
-class DataLoadError(ResamplerError):
-    """Hiba adatok betöltése során."""
-
-    def __init__(
-        self,
-        symbol: str,
-        start: str,
-        end: str,
-        original_error: Exception | None = None
-    ):
-        """DataLoadError inicializálása.
-
-        Args:
-            symbol: A kereskedési szimbólum
-            start: A kezdő időpont
-            end: A záró időpont
-            original_error: Az eredeti kivétel
-        """
-        message = f"Adatok betöltése sikertelen a(z) {symbol} szimbólumhoz"
-        details = f"Időintervallum: {start} - {end}"
-        super().__init__(
-            message=message,
-            details=details,
-            original_error=original_error
-        )
-
-
-class ResamplingError(ResamplerError):
-    """Hiba az adatok átalakítása (resampling) során."""
-
-    def __init__(
-        self,
-        symbol: str,
-        timeframe: str,
-        original_error: Exception | None = None
-    ):
-        """ResamplingError inicializálása.
-
-        Args:
-            symbol: A kereskedési szimbólum
-            timeframe: Az időkeret
-            original_error: Az eredeti kivétel
-        """
-        message = f"Az adatok átalakítása sikertelen a(z) {symbol} szimbólumhoz"
-        details = f"Időkeret: {timeframe}"
-        super().__init__(
-            message=message,
-            details=details,
-            original_error=original_error
-        )
-
-
-class InvalidTimeframeError(ResamplerError):
-    """Hiba érvénytelen időkeret esetén."""
-
-    def __init__(self, timeframe: str):
-        """InvalidTimeframeError inicializálása.
-
-        Args:
-            timeframe: Az érvénytelen időkeret
-        """
-        message = f"Érvénytelen időkeret: {timeframe}"
-        details = (
-            "Az időkeretnek a Pandas offset formátumban kell lennie "
-            "(pl. '1m', '5m', '1h', '1D')"
-        )
-        super().__init__(message=message, details=details)
-
-```
-
-## `FILE: neural_ai/core/processing/resampler_service/factory.py`
-
-```py
-"""ResamplerService Factory - A ResamplerService létrehozásáért felelős."""
-
-from typing import TYPE_CHECKING
-
-from neural_ai.core.base.implementations.di_container import DIContainer
-from neural_ai.core.processing.resampler_service.implementations.resampler_service import (
-    ResamplerService,
-)
-from neural_ai.core.processing.resampler_service.interfaces.resampler_interface import (
-    ResamplerInterface,
-)
-
-if TYPE_CHECKING:
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-
-
-class ResamplerServiceFactory:
-    """Factory osztály a ResamplerService létrehozásához és kezeléséhez."""
-
-    @staticmethod
-    def create(storage: "StorageInterface") -> ResamplerInterface:
-        """ResamplerService példány létrehozása.
-
-        Args:
-            storage: A tárolási interfész példány
-
-        Returns:
-            ResamplerInterface: A létrehozott ResamplerService példány
-        """
-        return ResamplerService(storage=storage)
-
-    @classmethod
-    def get_instance(cls) -> ResamplerInterface:
-        """ResamplerService példány lekérdezése a DI konténerből.
-
-        Returns:
-            ResamplerInterface: A ResamplerService példány
-
-        Raises:
-            ComponentNotFoundError: Ha a komponens nem található a konténerben
-        """
-        container = DIContainer()
-
-        # A komponens neve, amivel regisztrálva van
-        component_name = "ResamplerService"
-
-        try:
-            # Megpróbáljuk lekérni a meglévő példányt
-            instance = container.get(component_name)
-            return instance  # type: ignore
-        except Exception:
-            # Ha nem létezik, létrehozzuk és regisztráljuk
-            from neural_ai.core.storage.factory import StorageFactory
-
-            storage = StorageFactory.get_storage(storage_type="parquet")
-            instance = cls.create(storage=storage)
-            container.register(component_name, instance)
-            return instance
-
-```
-
-## `FILE: neural_ai/core/processing/resampler_service/implementations/resampler_service.py`
-
-```py
-"""ResamplerService implementáció - Tick adatokból OHLCV gyertyák létrehozása."""
-
-from datetime import datetime
-from typing import TYPE_CHECKING
-
-import polars as pl
-
-from neural_ai.core.logger.factory import LoggerFactory
-from neural_ai.core.processing.resampler_service.exceptions.resampler_error import (
-    DataLoadError,
-    InvalidTimeframeError,
-    ResamplingError,
-)
-from neural_ai.core.processing.resampler_service.interfaces.resampler_interface import (
-    ResamplerInterface,
-)
-
-if TYPE_CHECKING:
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-
-
-class ResamplerService(ResamplerInterface):
-    """ResamplerService implementáció, amely tick adatokból hoz létre OHLCV gyertyákat.
-
-    Ez a szolgáltatás felelős a tick adatok átalakításáért OHLCV (Open, High, Low, Close, Volume)
-    gyertyákká a megadott időkeretben. A hatékonyság érdekében Polars-t használ.
-    """
-
-    def __init__(self, storage: "StorageInterface") -> None:
-        """ResamplerService inicializálása.
-
-        Args:
-            storage: A tárolási interfész példány (Dependency Injection)
-        """
-        self._storage = storage
-        self._logger: LoggerInterface = LoggerFactory.get_logger("resampler_service")
-
-    async def resample(
-        self,
-        symbol: str,
-        start: datetime,
-        end: datetime,
-        timeframe: str = "1m",
-        return_type: str = "polars",
-    ) -> pl.DataFrame:
-        """Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
-
-        Args:
-            symbol: A kereskedési szimbólum (pl. 'EURUSD')
-            start: A kezdő időpont
-            end: A záró időpont
-            timeframe: Az időkeret (alapértelmezett: '1m' - 1 perc)
-            return_type: A visszaadott DataFrame típusa ('pandas' vagy 'polars')
-
-        Returns:
-            pl.DataFrame: OHLCV gyertyákat tartalmazó Polars DataFrame
-
-        Raises:
-            InvalidTimeframeError: Ha az időkeret érvénytelen
-            DataLoadError: Ha hiba történik az adatok betöltése során
-            ResamplingError: Ha hiba történik az átalakítás során
-        """
-        # Időkeret validálása
-        self._validate_timeframe(timeframe)
-
-        try:
-            # Tick adatok betöltése a tárolóból
-            tick_data = await self._load_tick_data(symbol, start, end)
-        except DataLoadError:
-            raise
-        except Exception as e:
-            raise DataLoadError(
-                symbol=symbol, start=str(start), end=str(end), original_error=e
-            ) from e
-
-        try:
-            # Átalakítás OHLCV gyertyákká (mindig Polars)
-            ohlcv_data = self._convert_to_ohlcv(tick_data, timeframe)
-
-            # Mindig Polars DataFrame visszaadása (Zero-Copy)
-            return ohlcv_data
-        except Exception as e:
-            raise ResamplingError(symbol=symbol, timeframe=timeframe, original_error=e) from e
-
-    def _validate_timeframe(self, timeframe: str) -> None:
-        """Időkeret validálása.
-
-        Args:
-            timeframe: Az időkeret string
-
-        Raises:
-            InvalidTimeframeError: Ha az időkeret érvénytelen
-        """
-        valid_timeframes = ["tick", "1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"]
-        if timeframe.lower() not in [tf.lower() for tf in valid_timeframes]:
-            raise InvalidTimeframeError(timeframe)
-
-    async def _load_tick_data(self, symbol: str, start: datetime, end: datetime) -> pl.DataFrame:
-        """Tick adatok betöltése a tárolóból.
-
-        Args:
-            symbol: A kereskedési szimbólum
-            start: A kezdő időpont
-            end: A záró időpont
-
-        Returns:
-            Polars DataFrame a tick adatokkal
-
-        Raises:
-            DataLoadError: Ha hiba történik a betöltés során
-        """
-        try:
-            # Tick adatok betöltése a StorageInterface-en keresztül
-            # Dinamikusan hívjuk meg a read_tick_data metódust
-            read_method = getattr(self._storage, "read_tick_data", None)
-            if read_method is None:
-                raise DataLoadError(
-                    symbol=symbol,
-                    start=str(start),
-                    end=str(end),
-                    original_error=AttributeError("Storage does not support read_tick_data method"),
-                )
-            tick_data = await read_method(symbol, start, end)
-
-            # Ellenőrizzük, hogy kaptunk-e adatot
-            if tick_data is None or len(tick_data) == 0:
-                self._logger.warning(
-                    "No tick data found for the specified range",
-                    symbol=symbol,
-                    start=start.isoformat(),
-                    end=end.isoformat(),
-                )
-                return pl.DataFrame()
-
-            return tick_data
-        except Exception as e:
-            raise DataLoadError(
-                symbol=symbol, start=str(start), end=str(end), original_error=e
-            ) from e
-
-    def _convert_to_ohlcv(self, tick_data: pl.DataFrame, timeframe: str) -> pl.DataFrame:
-        """Tick adatok átalakítása kiterjesztett OHLCV gyertyákká.
-
-        Args:
-            tick_data: Polars DataFrame tick adatokkal
-            timeframe: Az időkeret
-
-        Returns:
-            Polars DataFrame kiterjesztett gyertyákkal (Bid/Mid OHLC, Spread, Real/Tick Volume)
-        """
-        # Ellenőrizzük, hogy van-e adat
-        if tick_data.is_empty():
-            return pl.DataFrame(
-                schema=[
-                    "timestamp",
-                    "mid_open",
-                    "mid_high",
-                    "mid_low",
-                    "mid_close",
-                    "bid_open",
-                    "bid_high",
-                    "bid_low",
-                    "bid_close",
-                    "spread",
-                    "real_volume",
-                    "tick_volume",
-                    "bid_volume",
-                    "ask_volume",
-                ]
-            )
-
-        # Szükséges oszlopok ellenőrzése
-        required_columns = ["timestamp", "bid", "ask", "bid_volume", "ask_volume"]
-        missing_columns = [col for col in required_columns if col not in tick_data.columns]
-        if missing_columns:
-            raise ValueError(f"Missing required columns for OHLCV conversion: {missing_columns}")
-
-        # Ha timeframe tick, akkor bypass aggregáció és enrich soronként
-        if timeframe.lower() == "tick":
-            mid_price = (pl.col("bid") + pl.col("ask")) / 2
-            enriched_tick_data = tick_data.with_columns(
-                mid_open=mid_price,
-                mid_high=mid_price,
-                mid_low=mid_price,
-                mid_close=mid_price,
-                bid_open=pl.col("bid"),
-                bid_high=pl.col("bid"),
-                bid_low=pl.col("bid"),
-                bid_close=pl.col("bid"),
-                spread=pl.col("ask") - pl.col("bid"),
-                real_volume=pl.col("bid_volume") + pl.col("ask_volume"),
-                tick_volume=pl.lit(1),
-            )
-            return enriched_tick_data
-
-        # Volume oszlopok kezelése (csak bid_volume, ask_volume)
-        volume_cols: list[str] = []
-        if "bid_volume" in tick_data.columns:
-            volume_cols.append("bid_volume")
-        if "ask_volume" in tick_data.columns:
-            volume_cols.append("ask_volume")
-
-        # Mid ár számítása (bid és ask átlaga)
-        tick_data = tick_data.with_columns(mid_price=(pl.col("bid") + pl.col("ask")) / 2)
-
-        # Időkeret konvertálása Polars formátumba
-        timeframe_map = {
-            "1m": "1m",
-            "5m": "5m",
-            "15m": "15m",
-            "30m": "30m",
-            "1h": "1h",
-            "4h": "4h",
-            "1D": "1d",
-            "1W": "1w",
-            "1M": "1mo",
-        }
-        polars_timeframe = timeframe_map.get(timeframe, "1m")
-
-        # Kiterjesztett aggregáció Polars group_by_dynamic használatával
-        ohlcv = (
-            tick_data.sort("timestamp")
-            .group_by_dynamic("timestamp", every=polars_timeframe)
-            .agg(
-                [
-                    # Mid OHLC (középár)
-                    pl.col("mid_price").first().alias("mid_open"),
-                    pl.col("mid_price").max().alias("mid_high"),
-                    pl.col("mid_price").min().alias("mid_low"),
-                    pl.col("mid_price").last().alias("mid_close"),
-                    # Bid OHLC
-                    pl.col("bid").first().alias("bid_open"),
-                    pl.col("bid").max().alias("bid_high"),
-                    pl.col("bid").min().alias("bid_low"),
-                    pl.col("bid").last().alias("bid_close"),
-                    # Spread: átlag (ask - bid)
-                    (pl.col("ask") - pl.col("bid")).mean().alias("spread"),
-                    # Real Volume: bid_volume + ask_volume összeg
-                    (pl.col("bid_volume") + pl.col("ask_volume")).sum().alias("real_volume"),
-                    # Tick Volume: tick szám
-                    pl.len().alias("tick_volume"),
-                ]
-                + [pl.col(col).sum().alias(f"{col}_sum") for col in volume_cols]
-            )
-        )
-
-        # Volume oszlopok átnevezése
-        for col in volume_cols:
-            if f"{col}_sum" in ohlcv.columns:
-                ohlcv = ohlcv.rename({f"{col}_sum": col})
-
-        # Natív Polars DataFrame visszaadás (Zero-Copy)
-        return ohlcv
-
-```
-
-## `FILE: neural_ai/core/processing/resampler_service/interfaces/resampler_interface.py`
-
-```py
-"""ResamplerService Interface - Tick adatokból OHLCV gyertyák létrehozásáért felelős."""
-
-from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import polars as pl
-
-
-class ResamplerInterface(ABC):
-    """ResamplerService interfész, amely definiálja a tick adatok OHLCV gyertyákká alakítását."""
-
-    @abstractmethod
-    async def resample(
-        self,
-        symbol: str,
-        start: datetime,
-        end: datetime,
-        timeframe: str = "1m",
-        return_type: str = "polars",
-    ) -> "pl.DataFrame":
-        """Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
-
-        Args:
-            symbol: A kereskedési szimbólum (pl. 'EURUSD')
-            start: A kezdő időpont
-            end: A záró időpont
-            timeframe: Az időkeret (alapértelmezett: '1m' - 1 perc)
-            return_type: A visszaadott DataFrame típusa ('pandas' vagy 'polars')
-
-        Returns:
-            pl.DataFrame: OHLCV gyertyákat tartalmazó Polars DataFrame
-
-        Raises:
-            ResamplerError: Ha hiba történik az átalakítás során
-        """
-        pass
-
-```
-
-## `FILE: neural_ai/core/storage/__init__.py`
-
-```py
-"""Neural AI storage komponens.
-
-Ez a modul a storage komponens fő exportjait tartalmazza, beleértve a FileStorage
-és StorageFactory osztályokat, valamint a hozzájuk tartozó interfészeket és típusokat.
-
-A modul támogatja a függőség injektálást (Dependency Injection) a logger és config
-komponensek számára, így elkerülve a körkörös importproblémákat.
-"""
-
-from importlib import metadata
-from typing import TYPE_CHECKING, Final
-
-if TYPE_CHECKING:
-    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-    from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.implementations.file_storage import FileStorage
-    from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
-    from neural_ai.core.storage.interfaces.factory_interface import StorageFactoryInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-
-from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
-from neural_ai.core.storage.factory import StorageFactory
-from neural_ai.core.storage.implementations import FileStorage, ParquetStorageService
-
-# Dinamikus verzióbetöltés a pyproject.toml-ból
-try:
-    _version: str = metadata.version("neural-ai-next")
-except metadata.PackageNotFoundError:
-    # Fallback verzió, ha a csomag nincs telepítve
-    _version = "1.0.0"
-
-__version__: Final[str] = _version
-
-# Konfigurációs séma verzió - a 10. fejezet szerint
-__schema_version__: Final[str] = "1.0"
-
-__all__: Final[list[str]] = [
-    # Verzióinformációk
-    "__version__",
-    "__schema_version__",
-    # Implementációk
-    "FileStorage",
-    "ParquetStorageService",
-    "StorageFactory",
-    # Szolgáltatások
-    "MarketDataPersister",
-    # Interfészek
-    "StorageInterface",
-    "StorageFactoryInterface",
-    # Típusok
-    "LoggerInterface",
-    "ConfigManagerInterface",
-]
-
-```
-
-## `FILE: neural_ai/core/storage/backends/__init__.py`
-
-```py
-"""Storage Backends Modul.
-
-Ez a modul tartalmazza a tárolási backend-ek implementációit különböző
-DataFrame könyvtárakhoz (Polars, Pandas). A backend-ek a Parquet formátumot
-használják a hatékony adattároláshoz és támogatják a chunkolást és
-aszinkron műveleteket.
-"""
-
-from neural_ai.core.storage.backends.base import DataFrameType, StorageBackend
-from neural_ai.core.storage.backends.pandas_backend import PandasBackend
-from neural_ai.core.storage.backends.polars_backend import PolarsBackend
-
-__all__ = [
-    "DataFrameType",
-    "StorageBackend",
-    "PandasBackend",
-    "PolarsBackend",
-]
-
-```
-
-## `FILE: neural_ai/core/storage/backends/base.py`
-
-```py
-"""Storage Backend Base Modul.
-
-Ez a modul tartalmazza a tárolási backend-ek absztrakt alaposztályát,
-amely definiálja a kötelező interfészt minden tárolási implementációhoz.
-"""
-
-from abc import ABC, abstractmethod
-from typing import Any, Protocol
-
-import structlog
-
-if __name__ == "__main__":
-    raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
-
-logger = structlog.get_logger(__name__)
-
-
-class DataFrameProtocol(Protocol):
-    """Protokoll a DataFrame-szerű objektumok típusozásához."""
-
-    @property
-    def columns(self) -> Any:
-        """Lekéri a DataFrame oszlopait."""
-        ...
-
-    def __len__(self) -> int:
-        """Visszaadja a DataFrame sorainak számát."""
-        ...
-
-
-class StorageBackend(ABC):
-    """Absztrakt alaposztály a tárolási backend-ek számára.
-
-    Ez az osztály definiálja a kötelező interfészt, amelyet minden tárolási
-    backend implementációjának támogatnia kell. A backend-ek felelősek a
-    DataFrame-ek tárolásáért, olvasásáért és hozzáfűzéséért különböző
-    formátumokban (elsősorban Parquet).
-
-    A backend-eknek támogatniuk kell a chunkolást és aszinkron műveleteket
-    a nagy adathalmazok hatékony kezeléséhez.
-
-    Attribútumok:
-        name: A backend neve (pl. 'polars', 'pandas')
-        supported_formats: A támogatott fájlformátumok listája
-        is_async: Logikai érték, amely jelzi, hogy a backend támogatja-e az aszinkron műveleteket
-    """
-
-    def __init__(self, name: str, supported_formats: list[str], is_async: bool = True):
-        """Inicializálja a StorageBackend példányt.
-
-        Args:
-            name: A backend egyedi neve
-            supported_formats: A támogatott fájlformátumok listája
-            is_async: Logikai érték, amely jelzi, hogy a backend
-                támogatja-e az aszinkron műveleteket
-        """
-        self.name: str = name
-        self.supported_formats: list[str] = supported_formats
-        self.is_async: bool = is_async
-
-    @abstractmethod
-    def write(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
-        """DataFrame adatok írása a megadott elérési útra.
-
-        Args:
-            data: A tárolandó DataFrame
-            path: A cél elérési út
-            **kwargs: További konfigurációs paraméterek
-                - compression: Tömörítési algoritmus (pl. 'snappy', 'gzip')
-                - partition_by: Particionálási oszlopok listája
-                - schema: Adatséma definíció
-
-        Raises:
-            ValueError: Ha az adatok érvénytelenek vagy az elérési út nem létezik
-            FileNotFoundError: Ha a célkönyvtár nem létezik
-            RuntimeError: Ha a tárolási művelet sikertelen
-        """
-        pass
-
-    @abstractmethod
-    def read(self, path: str, **kwargs: dict[str, Any]) -> Any:
-        """DataFrame adatok olvasása a megadott elérési útról.
-
-        Args:
-            path: A forrás elérési út
-            **kwargs: További konfigurációs paraméterek
-                - columns: Csak ezen oszlopok betöltése
-                - filters: Szűrők a partíciókra (pl. [('year', '=', 2023)])
-                - chunk_size: Chunk méret chunkolás esetén
-
-        Returns:
-            A beolvasott DataFrame
-
-        Raises:
-            FileNotFoundError: Ha a forrásfájl nem létezik
-            ValueError: Ha a fájlformátum nem támogatott
-            RuntimeError: Ha az olvasási művelet sikertelen
-        """
-        pass
-
-    @abstractmethod
-    def append(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
-        """DataFrame adatok hozzáfűzése egy meglévő fájlhoz.
-
-        Ha a célfájl nem létezik, létrehozza azt. Ha létezik, hozzáfűzi
-        az új adatokat a meglévőhöz.
-
-        Args:
-            data: A hozzáfűzendő DataFrame
-            path: A cél elérési út
-            **kwargs: További konfigurációs paraméterek
-                - compression: Tömörítési algoritmus
-                - schema_validation: Sémavizsgálat engedélyezése
-
-        Raises:
-            ValueError: Ha az adatok sémája nem kompatibilis a meglévővel
-            FileNotFoundError: Ha a célkönyvtár nem létezik
-            RuntimeError: Ha a hozzáfűzési művelet sikertelen
-        """
-        pass
-
-    @abstractmethod
-    def supports_format(self, format_name: str) -> bool:
-        """Ellenőrzi, hogy a backend támogatja-e a megadott formátumot.
-
-        Args:
-            format_name: A formátum neve (pl. 'parquet', 'csv')
-
-        Returns:
-            True, ha a formátum támogatott, egyébként False
-        """
-        pass
-
-    @abstractmethod
-    def get_info(self, path: str) -> dict[str, Any]:
-        """Fájl információinak lekérdezése.
-
-        Args:
-            path: Az elérési út
-
-        Returns:
-            A fájl információit tartalmazó dictionary:
-                - size: Fájlméret bájtban
-                - rows: Sorok száma
-                - columns: Oszlopok listája
-                - format: Fájlformátum
-                - created: Létrehozás dátuma
-                - modified: Módosítás dátuma
-
-        Raises:
-            FileNotFoundError: Ha a fájl nem létezik
-        """
-        pass
-
-    def validate_data(self, data: Any) -> bool:
-        """DataFrame érvényességének ellenőrzése.
-
-        Args:
-            data: Az ellenőrizendő DataFrame
-
-        Returns:
-            True, ha a DataFrame érvényes, egyébként False
-        """
-        try:
-            if data is None:
-                return False
-            # Ellenőrizzük, hogy van-e hossza
-            if len(data) < 0:
-                return False
-
-            # Próbáljuk meg lekérni az oszlopokat (attribútum vagy metódus)
-            columns = None
-            if hasattr(data, 'columns') and callable(data.columns):
-                columns = data.columns()
-            elif hasattr(data, 'columns'):
-                columns = data.columns
-
-            # Típus ellenőrzés és hossz lekérdezése
-            if columns is None:
-                return False
-            if isinstance(columns, (list, tuple)):
-                return len(columns) > 0 and len(data) > 0
-            # Ha nem list/tuple, próbáljuk meg lekérni a hosszát
-            return len(columns) > 0 and len(data) > 0
-        except Exception:
-            return False
-
-    def __repr__(self) -> str:
-        """A backend szöveges reprezentációja."""
-        return (
-            f"{self.__class__.__name__}(name='{self.name}', "
-            f"formats={self.supported_formats}, async={self.is_async})"
-        )
-
-
-# DataFrameType alias a támogatott DataFrame típusokhoz
-type DataFrameType = DataFrameProtocol
-
-```
-
-## `FILE: neural_ai/core/storage/backends/pandas_backend.py`
-
-```py
-"""Pandas Storage Backend Modul.
-
-Ez a modul tartalmazza a Pandas alapú tárolási backend implementációt,
-amely a FastParquet-et használja a DataFrame-ek tárolásához.
-A modul lazy importot használ a pandas és fastparquet csomagok számára.
-"""
-
-import os
-from datetime import datetime
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
-
-import structlog
-
-from neural_ai.core.storage.backends.base import StorageBackend
-
-if TYPE_CHECKING:
-    import pandas as pd
-
-if __name__ == "__main__":
-    raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
-
-logger = structlog.get_logger(__name__)
-
-
-class PandasDataFrame:
-    """Wrapper osztály a Pandas DataFrame köré lazy importtal.
-
-    Ez az osztály biztosítja, hogy a pandas és fastparquet csomagok csak
-    akkor töltődjön be, amikor az osztályt valóban használják.
-    """
-
-    def __init__(self) -> None:
-        """Inicializálja a PandasDataFrame wrapper-t."""
-        self._pandas: Any = None
-        self._fastparquet: Any = None
-
-    def _import_pandas(self) -> tuple[Any, Any]:
-        """Lazy import a pandas és fastparquet csomagok számára."""
-        if self._pandas is None:
-            import fastparquet
-            import pandas as pd
-
-            self._pandas = pd
-            self._fastparquet = fastparquet
-        return self._pandas, self._fastparquet
-
-    @property
-    def pd(self) -> Any:
-        """Pandas modul lekérdezése."""
-        return self._import_pandas()[0]
-
-    @property
-    def fp(self) -> Any:
-        """FastParquet modul lekérdezése."""
-        return self._import_pandas()[1]
-
-
-class PandasBackend(StorageBackend):
-    """Pandas alapú tárolási backend FastParquet formátumhoz.
-
-    Ez a backend a Pandas DataFrame-eket használja és a FastParquet-et
-    a hatékony Parquet tároláshoz. Támogatja a chunkolást és aszinkron
-    műveleteket, valamint a particionált tárolást.
-
-    A backend lazy importot használ, így a pandas és fastparquet csomagok
-    csak akkor töltődnek be, amikor az osztályt példányosítják.
-
-    Attribútumok:
-        name: 'pandas'
-        supported_formats: ['parquet']
-        is_async: True
-    """
-
-    def __init__(self) -> None:
-        """Inicializálja a PandasBackend példányt.
-
-        A lazy import miatt a pandas és fastparquet csomagok csak akkor
-        töltődnek be, amikor az első műveletet végrehajtjuk.
-        """
-        super().__init__(name="pandas", supported_formats=["parquet"], is_async=True)
-        self._pandas_wrapper = PandasDataFrame()
-        self._initialized = False
-
-    def _ensure_initialized(self) -> None:
-        """Biztosítja, hogy a pandas csomag betöltődött."""
-        if not self._initialized:
-            self._pandas_wrapper._import_pandas()
-            self._initialized = True
-
-    def write(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
-        """DataFrame adatok írása Parquet formátumban FastParquet használatával.
-
-        Args:
-            data: A tárolandó Pandas DataFrame
-            path: A cél elérési út (.parquet kiterjesztéssel)
-            **kwargs: További konfigurációs paraméterek
-                - compression: Tömörítési algoritmus (alapértelmezett: 'snappy')
-                - partition_by: Particionálási oszlopok listája
-                - schema: Adatséma definíció
-                - index: Index mentése (alapértelmezett: False)
-
-        Raises:
-            ValueError: Ha az adatok érvénytelenek vagy az elérési út hibás
-            FileNotFoundError: Ha a célkönyvtár nem létezik
-            RuntimeError: Ha a tárolási művelet sikertelen
-        """
-        self._ensure_initialized()
-
-        try:
-            # Ellenőrzések
-            if not self.validate_data(data):
-                raise ValueError("Érvénytelen DataFrame adatok")
-
-            if not path.endswith(".parquet"):
-                raise ValueError("Az elérési útnak .parquet kiterjesztéssel kell rendelkeznie")
-
-            # Célkönyvtár létrehozása, ha nem létezik
-            path_obj = Path(path)
-            path_obj.parent.mkdir(parents=True, exist_ok=True)
-
-            # Konfigurációs paraméterek
-            compression: str = kwargs.get("compression", "snappy")  # type: ignore
-            partition_by: list[str] | None = kwargs.get("partition_by", None)  # type: ignore
-            index: bool = kwargs.get("index", False)  # type: ignore
-
-            # Pandas DataFrame konvertálás, ha szükséges
-            if not isinstance(data, self._pandas_wrapper.pd.DataFrame):
-                pd_df = self._pandas_wrapper.pd.DataFrame(data)
-            else:
-                pd_df = data
-
-            # Írás FastParquet használatával
-            if partition_by:
-                # Particionált írás
-                self._write_partitioned(pd_df, path, partition_by, compression, index)
-            else:
-                # Egyszerű írás
-                self._pandas_wrapper.fp.write(
-                    path, pd_df, compression=compression, write_index=index
-                )
-
-        except Exception as e:
-            raise RuntimeError(f"A tárolási művelet sikertelen: {str(e)}") from e
-
-    def _write_partitioned(
-        self, df: "pd.DataFrame", path: str, partition_by: list[str], compression: str, index: bool
-    ) -> None:
-        """Particionált Parquet fájl írása.
-
-        Args:
-            df: A tárolandó DataFrame
-            path: A cél elérési út
-            partition_by: Particionálási oszlopok listája
-            compression: Tömörítési algoritmus
-            index: Index mentése
-        """
-        self._ensure_initialized()
-
-        # FastParquet particionált írás
-        self._pandas_wrapper.fp.write(
-            path, df, compression=compression, write_index=index, partition_on=partition_by
-        )
-
-    def read(self, path: str, **kwargs: dict[str, Any]) -> "pd.DataFrame":
-        """DataFrame adatok olvasása Parquet fájlból FastParquet használatával.
-
-        Args:
-            path: A forrás elérési út
-            **kwargs: További konfigurációs paraméterek
-                - columns: Csak ezen oszlopok betöltése
-                - filters: Szűrők a partíciókra (pl. [('year', '=', 2023)])
-                - chunk_size: Chunk méret chunkolás esetén
-
-        Returns:
-            A beolvasott Pandas DataFrame
-
-        Raises:
-            FileNotFoundError: Ha a forrásfájl nem létezik
-            ValueError: Ha a fájlformátum nem támogatott
-            RuntimeError: Ha az olvasási művelet sikertelen
-        """
-        self._ensure_initialized()
-
-        try:
-            if not os.path.exists(path):
-                raise FileNotFoundError(f"A forrásfájl nem található: {path}")
-
-            # Konfigurációs paraméterek
-            columns: list[str] | None = kwargs.get("columns", None)  # type: ignore
-            filters: list[tuple[Any, ...]] | None = kwargs.get("filters", None)  # type: ignore
-            chunk_size: int | None = kwargs.get("chunk_size", None)  # type: ignore
-
-            # Chunkolás vagy egyszeri betöltés
-            if chunk_size:
-                # Chunkolás implementációja
-                return self._read_chunked(path, chunk_size, columns, filters)
-            else:
-                # Egyszeri betöltés FastParquet használatával
-                parquet_file = self._pandas_wrapper.fp.ParquetFile(path)
-                return parquet_file.to_pandas(columns=columns, filters=filters)
-
-        except FileNotFoundError:
-            raise
-        except Exception as e:
-            raise RuntimeError(f"Az olvasási művelet sikertelen: {str(e)}") from e
-
-    def _read_chunked(
-        self,
-        path: str,
-        chunk_size: int,
-        columns: list[str] | None,
-        filters: list[tuple[Any, ...]] | None,
-    ) -> "pd.DataFrame":
-        """Chunkoltan olvassa a Parquet fájlt.
-
-        Args:
-            path: A forrás elérési út
-            chunk_size: Egy chunk mérete sorokban
-            columns: Csak ezen oszlopok betöltése
-            filters: Szűrők a partíciókra
-
-        Returns:
-            Az összes chunkból összefűzött DataFrame
-        """
-        self._ensure_initialized()
-
-        # FastParquet segítségével chunkolás
-        parquet_file = self._pandas_wrapper.fp.ParquetFile(path)
-
-        chunks = []
-        for chunk in parquet_file.iter_row_groups():
-            # A chunk már egy DataFrame, nem kell to_pandas hívni
-            df_chunk = chunk
-            chunks.append(df_chunk)
-
-            # Ha elértük a kívánt chunk méretet, álljunk le
-            if len(df_chunk) >= chunk_size:
-                break
-
-        # Összefűzés
-        if chunks:
-            return self._pandas_wrapper.pd.concat(chunks, ignore_index=True)
-        else:
-            return self._pandas_wrapper.pd.DataFrame()
-
-    def append(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
-        """DataFrame adatok hozzáfűzése egy meglévő Parquet fájlhoz.
-
-        Ha a célfájl nem létezik, létrehozza azt. Ha létezik, hozzáfűzi
-        az új adatokat a meglévőhöz.
-
-        Args:
-            data: A hozzáfűzendő DataFrame
-            path: A cél elérési út
-            **kwargs: További konfigurációs paraméterek
-                - compression: Tömörítési algoritmus
-                - schema_validation: Sémavizsgálat engedélyezése
-                - index: Index mentése
-
-        Raises:
-            ValueError: Ha az adatok sémája nem kompatibilis a meglévővel
-            FileNotFoundError: Ha a célkönyvtár nem létezik
-            RuntimeError: Ha a hozzáfűzési művelet sikertelen
-        """
-        self._ensure_initialized()
-
-        try:
-            # Ellenőrzések
-            if not self.validate_data(data):
-                raise ValueError("Érvénytelen DataFrame adatok")
-
-            # Pandas DataFrame konvertálás, ha szükséges
-            if not isinstance(data, self._pandas_wrapper.pd.DataFrame):
-                new_data = self._pandas_wrapper.pd.DataFrame(data)
-            else:
-                new_data = data
-
-            # Ha a fájl létezik, olvassuk ki és fűzzük hozzá az új adatokat
-            if os.path.exists(path):
-                existing_data = self.read(path)
-
-                # Sémavizsgálat, ha kérték
-                if kwargs.get("schema_validation", False):
-                    if not self._validate_schema(existing_data, new_data):
-                        raise ValueError("Az adatok sémája nem kompatibilis a meglévővel")
-
-                # Összefűzés
-                combined_data = self._pandas_wrapper.pd.concat(
-                    [existing_data, new_data], ignore_index=True
-                )
-            else:
-                combined_data = new_data
-
-            # Újraírás
-            self.write(combined_data, path, **kwargs)
-
-        except (ValueError, FileNotFoundError):
-            raise
-        except Exception as e:
-            raise RuntimeError(f"A hozzáfűzési művelet sikertelen: {str(e)}") from e
-
-    def _validate_schema(self, existing: "pd.DataFrame", new: "pd.DataFrame") -> bool:
-        """Ellenőrzi, hogy a két DataFrame sémája kompatibilis-e.
-
-        Args:
-            existing: A meglévő DataFrame
-            new: Az új DataFrame
-
-        Returns:
-            True, ha a sémák kompatibilisek, egyébként False
-        """
-        try:
-            existing_cols = set(existing.columns)
-            new_cols = set(new.columns)
-
-            # Az új adatoknak tartalmazniuk kell az összes meglévő oszlopot
-            return existing_cols.issubset(new_cols)
-        except Exception:
-            return False
-
-    def supports_format(self, format_name: str) -> bool:
-        """Ellenőrzi, hogy a backend támogatja-e a megadott formátumot.
-
-        Args:
-            format_name: A formátum neve (pl. 'parquet', 'csv')
-
-        Returns:
-            True, ha a formátum támogatott, egyébként False
-        """
-        return format_name.lower() in self.supported_formats
-
-    def get_info(self, path: str) -> dict[str, Any]:
-        """Parquet fájl információinak lekérdezése.
-
-        Args:
-            path: Az elérési út
-
-        Returns:
-            A fájl információit tartalmazó dictionary:
-                - size: Fájlméret bájtban
-                - rows: Sorok száma
-                - columns: Oszlopok listája
-                - format: 'parquet'
-                - created: Létrehozás dátuma
-                - modified: Módosítás dátuma
-
-        Raises:
-            FileNotFoundError: Ha a fájl nem létezik
-        """
-        self._ensure_initialized()
-
-        try:
-            if not os.path.exists(path):
-                raise FileNotFoundError(f"A fájl nem található: {path}")
-
-            # Fájl statisztikák
-            stat = os.stat(path)
-
-            # FastParquet fájl információk
-            parquet_file = self._pandas_wrapper.fp.ParquetFile(path)
-            metadata = parquet_file.info
-
-            # DataFrame betöltése a sorok számának lekérdezéséhez
-            df_sample = parquet_file.to_pandas()
-
-            return {
-                "size": stat.st_size,
-                "rows": len(df_sample),
-                "columns": list(df_sample.columns),
-                "format": "parquet",
-                "created": datetime.fromtimestamp(stat.st_ctime),
-                "modified": datetime.fromtimestamp(stat.st_mtime),
-                "num_row_groups": len(parquet_file.row_groups),
-                "compression": metadata.get("compression", "unknown"),
-            }
-
-        except FileNotFoundError:
-            raise
-        except Exception as e:
-            raise RuntimeError(f"Az információ lekérdezése sikertelen: {str(e)}") from e
-
-```
-
-## `FILE: neural_ai/core/storage/backends/polars_backend.py`
-
-```py
-"""Polars Storage Backend Modul.
-
-Ez a modul tartalmazza a Polars alapú tárolási backend implementációt,
-amely a Parquet formátumot használja a DataFrame-ek tárolásához.
-A modul lazy importot használ a polars és pyarrow csomagok számára.
-"""
-
-import os
-from datetime import datetime
-from pathlib import Path
-from typing import Any
-
-import structlog
-
-from neural_ai.core.storage.backends.base import StorageBackend
-
-if __name__ == "__main__":
-    raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
-
-logger = structlog.get_logger(__name__)
-
-# Modul szintű változók a lazy import támogatásához
-# Ezeket a tesztelés során lehet mock-olni
-polars = None
-pyarrow = None
-pq = None
-
-
-class PolarsDataFrame:
-    """Wrapper osztály a Polars DataFrame köré lazy importtal.
-
-    Ez az osztály biztosítja, hogy a polars csomag csak akkor töltődjön be,
-    amikor az osztályt valóban használják.
-    """
-
-    def __init__(self):
-        """Inicializálja a PolarsDataFrame wrapper-t."""
-        self._polars = None
-        self._pyarrow = None
-
-    def _import_polars(self):
-        """Lazy import a polars és pyarrow csomagok számára."""
-        if self._polars is None:
-            import polars as pl
-            import pyarrow as pa
-            import pyarrow.parquet as pq
-
-            self._polars = pl
-            self._pyarrow = pa
-            self._parquet = pq
-
-            # Frissítsük a modul szintű változókat is a teszteléshez
-            import neural_ai.core.storage.backends.polars_backend as pb_module
-
-            pb_module.polars = pl
-            pb_module.pyarrow = pa
-            pb_module.pq = pq
-        return self._polars, self._pyarrow, self._parquet
-
-    @property
-    def pl(self):
-        """Polars modul lekérdezése."""
-        return self._import_polars()[0]
-
-    @property
-    def pa(self):
-        """PyArrow modul lekérdezése."""
-        return self._import_polars()[1]
-
-    @property
-    def pq(self):
-        """PyArrow Parquet modul lekérdezése."""
-        return self._import_polars()[2]
-
-
-class PolarsBackend(StorageBackend):
-    """Polars alapú tárolási backend Parquet formátumhoz.
-
-    Ez a backend a Polars DataFrame-eket használja a gyors adatfeldolgozáshoz
-    és a PyArrow Parquet formátumot a hatékony tároláshoz. Támogatja a
-    chunkolást, aszinkron műveleteket és a particionált tárolást.
-
-    A backend lazy importot használ, így a polars és pyarrow csomagok csak
-    akkor töltődnek be, amikor az osztályt példányosítják.
-
-    Attribútumok:
-        name: 'polars'
-        supported_formats: ['parquet']
-        is_async: True
-    """
-
-    def __init__(self):
-        """Inicializálja a PolarsBackend példányt.
-
-        A lazy import miatt a polars és pyarrow csomagok csak akkor
-        töltődnek be, amikor az első műveletet végrehajtjuk.
-        """
-        super().__init__(name="polars", supported_formats=["parquet"], is_async=True)
-        self._polars_wrapper = PolarsDataFrame()
-        self._initialized = False
-
-    def _ensure_initialized(self):
-        """Biztosítja, hogy a polars csomag betöltődött."""
-        if not self._initialized:
-            self._polars_wrapper._import_polars()
-            self._initialized = True
-
-    def write(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
-        """DataFrame adatok írása Parquet formátumban.
-
-        Args:
-            data: A tárolandó Polars DataFrame
-            path: A cél elérési út (.parquet kiterjesztéssel)
-            **kwargs: További konfigurációs paraméterek
-                - compression: Tömörítési algoritmus (alapértelmezett: 'snappy')
-                - partition_by: Particionálási oszlopok listája
-                - schema: Adatséma definíció
-
-        Raises:
-            ValueError: Ha az adatok érvénytelenek vagy az elérési út hibás
-            FileNotFoundError: Ha a célkönyvtár nem létezik
-            RuntimeError: Ha a tárolási művelet sikertelen
-        """
-        self._ensure_initialized()
-
-        try:
-            # Ellenőrzések
-            if not self.validate_data(data):
-                raise ValueError("Érvénytelen DataFrame adatok")
-
-            if not path.endswith(".parquet"):
-                raise ValueError("Az elérési útnak .parquet kiterjesztéssel kell rendelkeznie")
-
-            # Célkönyvtár létrehozása, ha nem létezik
-            path_obj = Path(path)
-            path_obj.parent.mkdir(parents=True, exist_ok=True)
-
-            # Konfigurációs paraméterek
-            compression = kwargs.get("compression", "snappy")
-            partition_by = kwargs.get("partition_by", None)
-
-            # Polars DataFrame konvertálás, ha szükséges
-            try:
-                # Debug log a bejövő adat típusáról
-                logger.debug(f"Data type: {type(data)}")
-
-                # Ha már Polars DataFrame, használjuk közvetlenül
-                if isinstance(data, self._polars_wrapper.pl.DataFrame):
-                    pl_df = data
-                else:
-                    # Egyébként konvertáljuk Polars DataFrame-re
-                    # Először próbáljuk meg a to_pandas() metódussal, ha van
-                    if hasattr(data, "to_pandas"):
-                        pd_df = data.to_pandas()
-                        pl_df = self._polars_wrapper.pl.DataFrame(pd_df)
-                    else:
-                        # Ha nincs to_pandas() metódus, próbáljuk közvetlenül
-                        pl_df = self._polars_wrapper.pl.DataFrame(data)
-            except Exception as e:
-                logger.error(f"DataFrame conversion failed: {e}")
-                raise ValueError(f"Invalid DataFrame data: {e}")
-
-            # Írás particionálással vagy anélkül
-            if partition_by:
-                # Polars particionálás - a path egy könyvtár lesz
-                path_obj = Path(path)
-                pl_df.write_parquet(
-                    str(path_obj.parent),  # Könyvtár elérési útja
-                    compression=compression,
-                    use_pyarrow=True,
-                    pyarrow_options={"partition_by": partition_by},
-                )
-            else:
-                pl_df.write_parquet(path, compression=compression)
-
-        except Exception as e:
-            raise RuntimeError(f"A tárolási művelet sikertelen: {str(e)}") from e
-
-    def read(self, path: str, **kwargs: dict[str, Any]) -> Any:
-        """DataFrame adatok olvasása Parquet fájlból.
-
-        Args:
-            path: A forrás elérési út
-            **kwargs: További konfigurációs paraméterek
-                - columns: Csak ezen oszlopok betöltése
-                - filters: Szűrők a partíciókra (pl. [('year', '=', 2023)])
-                - chunk_size: Chunk méret chunkolás esetén
-
-        Returns:
-            A beolvasott Polars DataFrame
-
-        Raises:
-            FileNotFoundError: Ha a forrásfájl nem létezik
-            ValueError: Ha a fájlformátum nem támogatott
-            RuntimeError: Ha az olvasási művelet sikertelen
-        """
-        self._ensure_initialized()
-
-        try:
-            if not os.path.exists(path):
-                raise FileNotFoundError(f"A forrásfájl nem található: {path}")
-
-            # Konfigurációs paraméterek
-            columns = kwargs.get("columns", None)
-            filters = kwargs.get("filters", None)
-            chunk_size = kwargs.get("chunk_size", None)
-
-            # Chunkolás vagy egyszeri betöltés
-            if chunk_size:
-                # Chunkolás implementációja
-                return self._read_chunked(path, chunk_size, columns, filters)
-            else:
-                # Egyszeri betöltés
-                return self._polars_wrapper.pl.read_parquet(
-                    path,
-                    columns=columns,
-                    use_pyarrow=True,
-                    pyarrow_options={"filters": filters} if filters else None,
-                )
-
-        except FileNotFoundError:
-            raise
-        except Exception as e:
-            raise RuntimeError(f"Az olvasási művelet sikertelen: {str(e)}") from e
-
-    def _read_chunked(
-        self, path: str, chunk_size: int, columns: list | None, filters: list | None
-    ) -> Any:
-        """Chunkoltan olvassa a Parquet fájlt.
-
-        Args:
-            path: A forrás elérési út
-            chunk_size: Egy chunk mérete sorokban
-            columns: Csak ezen oszlopok betöltése
-            filters: Szűrők a partíciókra
-
-        Returns:
-            Az összes chunkból összefűzött DataFrame
-        """
-        self._ensure_initialized()
-
-        # PyArrow segítségével chunkolás
-        parquet_file = self._polars_wrapper.pq.ParquetFile(path)
-
-        chunks = []
-        for batch in parquet_file.iter_batches(
-            batch_size=chunk_size, columns=columns, filters=filters
-        ):
-            chunks.append(self._polars_wrapper.pl.from_arrow(batch))
-
-        # Összefűzés
-        if chunks:
-            return self._polars_wrapper.pl.concat(chunks)
-        else:
-            return self._polars_wrapper.pl.DataFrame()
-
-    def append(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
-        """DataFrame adatok hozzáfűzése egy meglévő Parquet fájlhoz.
-
-        Ha a célfájl nem létezik, létrehozza azt. Ha létezik, hozzáfűzi
-        az új adatokat a meglévőhöz.
-
-        Args:
-            data: A hozzáfűzendő DataFrame
-            path: A cél elérési út
-            **kwargs: További konfigurációs paraméterek
-                - compression: Tömörítési algoritmus
-                - schema_validation: Sémavizsgálat engedélyezése
-
-        Raises:
-            ValueError: Ha az adatok sémája nem kompatibilis a meglévővel
-            FileNotFoundError: Ha a célkönyvtár nem létezik
-            RuntimeError: Ha a hozzáfűzési művelet sikertelen
-        """
-        self._ensure_initialized()
-
-        try:
-            # Ellenőrzések
-            if not self.validate_data(data):
-                raise ValueError("Érvénytelen DataFrame adatok")
-
-            # Polars DataFrame konvertálás, ha szükséges
-            if not isinstance(data, self._polars_wrapper.pl.DataFrame):
-                new_data = self._polars_wrapper.pl.DataFrame(data)
-            else:
-                new_data = data
-
-            # Ha a fájl létezik, olvassuk ki és fűzzük hozzá az új adatokat
-            if os.path.exists(path):
-                existing_data = self.read(path)
-
-                # Sémavizsgálat, ha kérték
-                if kwargs.get("schema_validation", False):
-                    if not self._validate_schema(existing_data, new_data):
-                        raise ValueError("Az adatok sémája nem kompatibilis a meglévővel")
-
-                # Összefűzés
-                combined_data = self._polars_wrapper.pl.concat([existing_data, new_data])
-            else:
-                combined_data = new_data
-
-            # Újraírás
-            self.write(combined_data, path, **kwargs)
-
-        except (ValueError, FileNotFoundError):
-            raise
-        except Exception as e:
-            raise RuntimeError(f"A hozzáfűzési művelet sikertelen: {str(e)}") from e
-
-    def _validate_schema(self, existing: Any, new: Any) -> bool:
-        """Ellenőrzi, hogy a két DataFrame sémája kompatibilis-e.
-
-        Args:
-            existing: A meglévő DataFrame
-            new: Az új DataFrame
-
-        Returns:
-            True, ha a sémák kompatibilisek, egyébként False
-        """
-        try:
-            # Lekérjük az oszlopokat (attribútum vagy metódus)
-            existing_cols = None
-            new_cols = None
-
-            if hasattr(existing, "columns") and callable(existing.columns):
-                existing_cols = set(existing.columns())
-            elif hasattr(existing, "columns"):
-                existing_cols = set(existing.columns)
-
-            if hasattr(new, "columns") and callable(new.columns):
-                new_cols = set(new.columns())
-            elif hasattr(new, "columns"):
-                new_cols = set(new.columns)
-
-            # Ha valamelyik oszlophalmaz None, akkor nem kompatibilis
-            if existing_cols is None or new_cols is None:
-                return False
-
-            # Az új adatoknak tartalmazniuk kell az összes meglévő oszlopot
-            return existing_cols.issubset(new_cols)
-        except Exception:
-            return False
-
-    def supports_format(self, format_name: str) -> bool:
-        """Ellenőrzi, hogy a backend támogatja-e a megadott formátumot.
-
-        Args:
-            format_name: A formátum neve (pl. 'parquet', 'csv')
-
-        Returns:
-            True, ha a formátum támogatott, egyébként False
-        """
-        return format_name.lower() in self.supported_formats
-
-    def get_info(self, path: str) -> dict[str, Any]:
-        """Parquet fájl információinak lekérdezése.
-
-        Args:
-            path: Az elérési út
-
-        Returns:
-            A fájl információit tartalmazó dictionary:
-                - size: Fájlméret bájtban
-                - rows: Sorok száma
-                - columns: Oszlopok listája
-                - format: 'parquet'
-                - created: Létrehozás dátuma
-                - modified: Módosítás dátuma
-
-        Raises:
-            FileNotFoundError: Ha a fájl nem létezik
-        """
-        self._ensure_initialized()
-
-        try:
-            if not os.path.exists(path):
-                raise FileNotFoundError(f"A fájl nem található: {path}")
-
-            # Fájl statisztikák
-            stat = os.stat(path)
-
-            # Parquet fájl információk
-            parquet_file = self._polars_wrapper.pq.ParquetFile(path)
-            metadata = parquet_file.metadata
-
-            return {
-                "size": stat.st_size,
-                "rows": metadata.num_rows,
-                "columns": list(metadata.schema.names),
-                "format": "parquet",
-                "created": datetime.fromtimestamp(stat.st_ctime),
-                "modified": datetime.fromtimestamp(stat.st_mtime),
-                "num_row_groups": metadata.num_row_groups,
-                "compression": metadata.row_group(0).column(0).compression,
-            }
-
-        except FileNotFoundError:
-            raise
-        except Exception as e:
-            raise RuntimeError(f"Az információ lekérdezése sikertelen: {str(e)}") from e
-
-```
-
-## `FILE: neural_ai/core/storage/exceptions/__init__.py`
-
-```py
-"""Storage komponens kivételek."""
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    # Jövőbeli típus hivatkozások helye
-    pass
-
-
-class StorageError(Exception):
-    """Alap kivétel a storage műveletekhez."""
-
-    def __init__(self, message: str, original_error: Exception | None = None) -> None:
-        """Kivétel inicializálása.
-
-        Args:
-            message: Hibaüzenet
-            original_error: Eredeti kivétel, ha van
-        """
-        super().__init__(message)
-        self.original_error = original_error
-
-
-class StorageFormatError(StorageError):
-    """Nem támogatott vagy érvénytelen formátum esetén."""
-
-
-class StorageSerializationError(StorageError):
-    """Szerializációs vagy deszerializációs hiba esetén."""
-
-
-class StorageIOError(StorageError):
-    """I/O műveletek során fellépő hibák esetén."""
-
-
-class StorageNotFoundError(StorageError):
-    """Nem létező erőforrás esetén."""
-
-
-class StorageValidationError(StorageError):
-    """Érvénytelen adat vagy paraméter esetén."""
-
-
-__all__ = [
-    "StorageError",
-    "StorageFormatError",
-    "StorageSerializationError",
-    "StorageIOError",
-    "StorageNotFoundError",
-    "StorageValidationError",
-]
-
-```
-
-## `FILE: neural_ai/core/storage/factory.py`
-
-```py
-"""Storage factory implementáció a különböző tároló komponensek létrehozásához.
-
-Ez a modul felelős a storage implementációk példányosításáért a factory
-minta segítségével. Alapértelmezetten a FileStorage implementációt támogatja,
-de további storage típusok is regisztrálhatók dinamikusan.
-"""
-
-from pathlib import Path
-from typing import TYPE_CHECKING
-
-import structlog
-
-from neural_ai.core.storage.exceptions import StorageError
-from neural_ai.core.storage.implementations.file_storage import FileStorage
-from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
-from neural_ai.core.storage.interfaces.factory_interface import StorageFactoryInterface
-from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-
-if TYPE_CHECKING:
-    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
-
-logger = structlog.get_logger(__name__)
-
-
-class StorageFactory(StorageFactoryInterface):
-    """Factory osztály storage komponensek létrehozásához.
-
-    Ez az osztály felelős a különböző storage implementációk példányosításáért.
-    Alapértelmezetten a FileStorage implementációt támogatja, de további
-    storage típusok is regisztrálhatók.
-    """
-
-    _storage_types: dict[str, type[StorageInterface]] = {
-        "file": FileStorage,
-        "parquet": ParquetStorageService,
-    }
-
-    @classmethod
-    def register_storage(cls, storage_type: str, storage_class: type[StorageInterface]) -> None:
-        """Új storage típus regisztrálása a factory számára.
-
-        Args:
-            storage_type: A storage típus egyedi azonosítója (pl. "s3", "database").
-            storage_class: A storage osztály, amely implementálja a StorageInterface-t.
-
-        Raises:
-            ValueError: Ha a storage_class nem implementálja a StorageInterface-t.
-
-        Example:
-            >>> from neural_ai.core.storage.interfaces import StorageInterface
-            >>> class S3Storage(StorageInterface):
-            ...     pass
-            >>> StorageFactory.register_storage("s3", S3Storage)
-        """
-        cls._storage_types[storage_type] = storage_class
-        logger.debug(
-            "Storage type registered",
-            storage_type=storage_type,
-            storage_class=str(storage_class)
-        )
-
-    @classmethod
-    def get_storage(
-        cls,
-        storage_type: str = "file",
-        base_path: str | Path | None = None,
-        hardware: "HardwareInterface | None" = None,
-        **kwargs: object,
-    ) -> StorageInterface:
-        """Storage példány létrehozása a megadott típus alapján.
-
-        Args:
-            storage_type: A kért storage típus azonosítója (alapértelmezett: "file").
-            base_path: Alap könyvtár útvonal a file alapú tároláshoz.
-            hardware: A hardverképességek detektálásáért felelős interfész (opcionális).
-            **kwargs: További paraméterek a storage osztály konstruktorának.
-
-        Returns:
-            StorageInterface: Az inicializált storage példány.
-
-        Raises:
-            StorageError: Ha nem található a kért storage típus vagy a
-                példányosítása sikertelen.
-
-        Example:
-            >>> storage = StorageFactory.get_storage("file", base_path="data")
-            >>> storage.save_object({"key": "value"}, "config.json")
-            >>> # Egyéni paraméterekkel
-            >>> storage = StorageFactory.get_storage("file", base_path="data",
-            ...                                       create_if_missing=True)
-        """
-        if storage_type not in cls._storage_types:
-            raise StorageError(
-                f"Ismeretlen storage típus: {storage_type}. "
-                f"Elérhető típusok: {list(cls._storage_types.keys())}"
-            )
-
-        storage_class = cls._storage_types[storage_type]
-
-        # A base_path hozzáadása a kwargs-hoz, ha meg van adva
-        if base_path is not None:
-            kwargs["base_path"] = base_path
-
-        # A hardware hozzáadása a kwargs-hoz, ha meg van adva
-        if hardware is not None:
-            kwargs["hardware"] = hardware
-
-        try:
-            logger.debug(
-                "Creating storage instance",
-                storage_type=storage_type,
-                storage_class=str(storage_class)
-            )
-            storage = storage_class(**kwargs)
-            logger.info("Storage instance created successfully", storage_type=storage_type)
-            return storage
-        except TypeError as e:
-            logger.error(
-                "Failed to create storage instance due to type error",
-                storage_type=storage_type,
-                error=str(e)
-            )
-            raise StorageError(f"Nem sikerült létrehozni a storage példányt: {str(e)}") from e
-        except Exception as e:
-            logger.error(
-                "Unexpected error during storage instantiation",
-                storage_type=storage_type,
-                error=str(e)
-            )
-            raise StorageError(
-                f"Váratlan hiba történt a storage példányosítása közben: {str(e)}"
-            ) from e
-
-```
-
-## `FILE: neural_ai/core/storage/implementations/__init__.py`
-
-```py
-"""Storage komponens implementációk."""
-
-from neural_ai.core.storage.implementations.file_storage import FileStorage
-from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
-
-__all__ = [
-    "FileStorage",
-    "ParquetStorageService",
-]
-
-```
-
-## `FILE: neural_ai/core/storage/implementations/file_storage.py`
-
-```py
-"""FileStorage implementáció.
-
-A modulban található:
-    - FileStorage: Fájlrendszer alapú storage implementáció
-"""
-
-import json
-import os
-from collections.abc import Callable, Sequence
-from datetime import datetime
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, cast
-
-import pandas as pd
-import structlog
-
-from neural_ai.core.base.exceptions import (
-    InsufficientDiskSpaceError,
-    PermissionDeniedError,
-    StorageWriteError,
-)
-from neural_ai.core.storage.exceptions import (
-    StorageFormatError,
-    StorageIOError,
-    StorageNotFoundError,
-    StorageSerializationError,
-)
-from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-
-if TYPE_CHECKING:
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-
-logger = structlog.get_logger(__name__)
-
-
-class FileStorage(StorageInterface):
-    """Fájlrendszer alapú storage implementáció."""
-
-    def __init__(
-        self,
-        base_path: str | Path | None = None,
-        logger: Optional["LoggerInterface"] = None,
-        **kwargs: Any,
-    ) -> None:
-        """Inicializálja a FileStorage példányt.
-
-        Args:
-            base_path: Alap könyvtár útvonala
-            logger: Logger példány (opcionális)
-            **kwargs: További paraméterek (pl. hardware), amiket figyelmen kívül hagyunk.
-        """
-        self._base_path = Path(base_path) if base_path else Path.cwd()
-        self.logger: LoggerInterface | None = logger
-        self._setup_format_handlers()
-        self._initialized = True
-        # A kwargs-al nem csinálunk semmit, csak hagyjuk, hogy létezzen.
-
-    def _setup_format_handlers(self) -> None:
-        """Beállítja a formátum kezelőket."""
-
-        def save_csv(df: pd.DataFrame, path: str, **kwargs: Any) -> None:
-            kwargs.setdefault("index", False)  # Alapértelmezetten ne mentse az indexet
-            # CSV esetén közvetlen mentés
-            df.to_csv(path, **kwargs)
-
-        def load_csv(path: str, **kwargs: Any) -> pd.DataFrame:
-            return cast(pd.DataFrame, pd.read_csv(path, **kwargs))
-
-        def save_excel(df: pd.DataFrame, path: str, **kwargs: Any) -> None:
-            kwargs.setdefault("index", False)  # Alapértelmezetten ne mentse az indexet
-            # Excel esetén közvetlen mentés
-            df.to_excel(path, **kwargs)
-
-        def load_excel(path: str, **kwargs: Any) -> pd.DataFrame:
-            return cast(pd.DataFrame, pd.read_excel(path, **kwargs))
-
-        def save_json(obj: Any, path: str, **kwargs: Any) -> None:
-            # JSON esetén közvetlen mentés
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(obj, f, **kwargs)
-
-        def load_json(path: str, **kwargs: Any) -> Any:
-            with open(path, encoding="utf-8") as f:
-                return json.load(f, **kwargs)
-
-        self._DATAFRAME_FORMATS: dict[str, dict[str, Callable[..., Any]]] = {
-            "csv": {
-                "save": save_csv,
-                "load": load_csv,
-            },
-            "excel": {
-                "save": save_excel,
-                "load": load_excel,
-            },
-        }
-
-        self._OBJECT_FORMATS: dict[str, dict[str, Callable[..., Any]]] = {
-            "json": {
-                "save": save_json,
-                "load": load_json,
-            }
-        }
-
-    def _check_disk_space(self, file_path: Path, required_bytes: int) -> None:
-        """Check if there's enough disk space for the operation.
-
-        Args:
-            file_path: The target file path
-            required_bytes: Required bytes for the operation
-
-        Raises:
-            InsufficientDiskSpaceError: If there's not enough disk space
-        """
-        try:
-            stat = os.statvfs(file_path.parent)
-            free_bytes = stat.f_bavail * stat.f_frsize
-            if free_bytes < required_bytes:
-                raise InsufficientDiskSpaceError(
-                    f"Insufficient disk space: {free_bytes / 1024 / 1024:.2f} MB available, "
-                    f"{required_bytes / 1024 / 1024:.2f} MB required"
-                )
-        except OSError as e:
-            raise StorageIOError(f"Failed to check disk space: {e}") from e
-
-    def _check_permissions(self, file_path: Path, check_write: bool = True) -> None:
-        """Ellenőrzi a fájl/könyvtár jogosultságokat.
-
-        Args:
-            file_path: A célfájl útvonala
-            check_write: Ha True, ellenőrzi az írási jogosultságot is
-
-        Raises:
-            PermissionDeniedError: Ha a jogosultságok nem megfelelőek
-            StorageIOError: Ha az útvonal ellenőrzése sikertelen
-        """
-        try:
-            if not file_path.parent.exists():
-                raise PermissionDeniedError(f"Parent directory does not exist: {file_path.parent}")
-
-            if check_write and not os.access(str(file_path.parent), os.W_OK):
-                raise PermissionDeniedError(
-                    f"No write permission for directory: {file_path.parent}"
-                )
-
-            if file_path.exists() and not os.access(str(file_path), os.R_OK):
-                raise PermissionDeniedError(f"No read permission for file: {file_path}")
-        except OSError as e:
-            raise StorageIOError(f"Failed to check permissions: {e}") from e
-
-    def get_storage_info(self, directory: str | Path) -> dict[str, Any]:
-        """Get storage information for a directory.
-
-        Args:
-            directory: The directory path to check
-
-        Returns:
-            Dict[str, Any]: Storage information including total, used, and free space
-
-        Raises:
-            StorageIOError: If unable to get storage information
-        """
-        try:
-            directory = Path(directory)
-            stat = os.statvfs(directory)
-
-            return {
-                "total_space_gb": (stat.f_blocks * stat.f_frsize) / 1024 / 1024 / 1024,
-                "used_space_gb": ((stat.f_blocks - stat.f_bavail) * stat.f_frsize)
-                / 1024
-                / 1024
-                / 1024,
-                "free_space_gb": (stat.f_bavail * stat.f_frsize) / 1024 / 1024 / 1024,
-                "free_space_percent": (stat.f_bavail / stat.f_blocks) * 100,
-            }
-        except OSError as e:
-            raise StorageIOError(f"Failed to get storage info: {e}") from e
-
-    def _get_full_path(self, path: str | Path) -> Path:
-        """Teljes útvonal előállítása.
-
-        Args:
-            path: Relatív vagy abszolút útvonal
-
-        Returns:
-            Path: Teljes útvonal
-        """
-        path = Path(path)
-        return path if path.is_absolute() else self._base_path / path
-
-    def _atomic_write(
-        self,
-        file_path: Path,
-        content: str | bytes | Any,
-        mode: str = "w",
-        fmt: str = "json",
-        **kwargs: Any,
-    ) -> None:
-        """Atomi fájlírás temp fájllal és átnevezéssel.
-
-        Args:
-            file_path: A célfájl útvonala
-            content: Az írandó tartalom (str, bytes, DataFrame, vagy bármilyen objektum)
-            mode: Fájl mód ('w' vagy 'wb')
-            fmt: Formátum ('json', 'csv', 'excel', stb.)
-            **kwargs: További paraméterek a formátum-specifikus mentéshez
-
-        Raises:
-            StorageWriteError: Ha az írás sikertelen
-            StorageFormatError: Ha a formátum nem támogatott
-            InsufficientDiskSpaceError: Ha nincs elég lemezterület
-            PermissionDeniedError: Ha nincs megfelelő jogosultság
-        """
-        # Ellenőrizzük a jogosultságokat
-        self._check_permissions(file_path, check_write=True)
-
-        # Ellenőrizzük a formátumot
-        if fmt not in self._DATAFRAME_FORMATS and fmt not in self._OBJECT_FORMATS:
-            raise StorageFormatError(
-                f"Nem támogatott formátum: {fmt}. "
-                f"Támogatott DataFrame formátumok: {list(self._DATAFRAME_FORMATS.keys())}. "
-                f"Támogatott objektum formátumok: {list(self._OBJECT_FORMATS.keys())}"
-            )
-
-        # Számoljuk ki a szükséges területet
-        if isinstance(content, str):
-            content_bytes = len(content.encode("utf-8"))
-        elif isinstance(content, bytes):
-            content_bytes = len(content)
-        else:
-            # Nem string/bytes tartalom esetén (pl. DataFrame), használjunk alapértelmezett méretet
-            # mivel ezeket a formátum-specifikus mentők kezelik
-            content_bytes = 1024 * 1024  # 1MB alapértelmezett
-
-        # Ellenőrizzük a lemezterületet (adjunk hozzá 10% puffert a fájlrendszer overhead-hez)
-        self._check_disk_space(file_path, int(content_bytes * 1.1))
-
-        temp_path = file_path.with_suffix(file_path.suffix + ".tmp")
-
-        try:
-            # DataFrame esetén
-            if fmt in self._DATAFRAME_FORMATS:
-                self._DATAFRAME_FORMATS[fmt]["save"](content, str(temp_path), **kwargs)
-            # Objektum esetén
-            elif fmt in self._OBJECT_FORMATS:
-                self._OBJECT_FORMATS[fmt]["save"](content, str(temp_path), **kwargs)
-        except OSError as e:
-            if temp_path.exists():
-                temp_path.unlink()
-            raise StorageWriteError(f"Failed to write temporary file: {e}") from e
-
-        try:
-            os.replace(temp_path, file_path)
-        except OSError as e:
-            if temp_path.exists():
-                temp_path.unlink()
-            raise StorageWriteError(f"Failed to replace file: {e}") from e
-
-    def save_dataframe(
-        self,
-        df: pd.DataFrame,
-        path: str,
-        fmt: str | None = None,
-        **kwargs: Any,
-    ) -> None:
-        """Menti a DataFrame objektumot.
-
-        Args:
-            df: A mentendő DataFrame
-            path: A mentés útvonala
-            fmt: A mentés formátuma (ha None, akkor a kiterjesztésből)
-            **kwargs: További formátum-specifikus paraméterek
-
-        Raises:
-            StorageFormatError: Ha a formátum nem támogatott
-            StorageIOError: Ha a mentés sikertelen
-            InsufficientDiskSpaceError: Ha nincs elég lemezterület
-            PermissionDeniedError: Ha nincs írási jogosultság
-        """
-        full_path = self._get_full_path(path)
-
-        if fmt is None:
-            fmt = full_path.suffix.lower().lstrip(".")
-            if not fmt:
-                raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
-            
-            # Excel kiterjesztések esetén a formátumot 'excel'-re állítjuk
-            if fmt in ['xlsx', 'xls']:
-                fmt = 'excel'
-
-        if fmt not in self._DATAFRAME_FORMATS:
-            raise StorageFormatError(
-                f"Nem támogatott DataFrame formátum: {fmt}. "
-                f"Támogatott formátumok: {list(self._DATAFRAME_FORMATS.keys())}"
-            )
-
-        # Ellenőrizzük a jogosultságokat
-        self._check_permissions(full_path, check_write=True)
-
-        # Ellenőrizzük a lemezterületet (becsült méret alapján)
-        try:
-            estimated_size = df.memory_usage(deep=True).sum()
-            self._check_disk_space(full_path, int(estimated_size * 1.1))
-        except (InsufficientDiskSpaceError, StorageIOError):
-            raise
-        except Exception as e:
-            if self.logger:
-                self.logger.warning(f"Could not estimate DataFrame size: {e}")
-
-        try:
-            full_path.parent.mkdir(parents=True, exist_ok=True)
-            self._DATAFRAME_FORMATS[fmt]["save"](df, str(full_path), **kwargs)
-        except OSError as e:
-            if self.logger:
-                self.logger.error(f"IO hiba a DataFrame mentése során: {full_path}")
-            raise StorageIOError(f"Hiba a DataFrame mentése során: {str(e)}") from e
-        except Exception as e:
-            if self.logger:
-                self.logger.error(
-                    f"Váratlan hiba a DataFrame mentése során: {full_path}",
-                )
-            raise StorageIOError(f"Hiba a DataFrame mentése során: {str(e)}") from e
-
-    def load_dataframe(
-        self,
-        path: str,
-        fmt: str | None = None,
-        **kwargs: Any,
-    ) -> pd.DataFrame:
-        """Betölti a DataFrame objektumot.
-
-        Args:
-            path: A betöltendő fájl útvonala
-            fmt: A fájl formátuma (ha None, akkor a kiterjesztésből)
-            **kwargs: További formátum-specifikus paraméterek
-
-        Returns:
-            pd.DataFrame: A betöltött DataFrame
-
-        Raises:
-            StorageNotFoundError: Ha a fájl nem található
-            StorageFormatError: Ha a formátum nem támogatott
-            StorageIOError: Ha a betöltés sikertelen
-            PermissionDeniedError: Ha nincs olvasási jogosultság
-        """
-        full_path = self._get_full_path(path)
-        if not full_path.exists():
-            raise StorageNotFoundError(f"Fájl nem található: {full_path}")
-
-        # Ellenőrizzük az olvasási jogosultságot
-        self._check_permissions(full_path, check_write=False)
-
-        if fmt is None:
-            fmt = full_path.suffix.lower().lstrip(".")
-            if not fmt:
-                raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
-            
-            # Excel kiterjesztések esetén a formátumot 'excel'-re állítjuk
-            if fmt in ['xlsx', 'xls']:
-                fmt = 'excel'
-
-        if fmt not in self._DATAFRAME_FORMATS:
-            raise StorageFormatError(
-                f"Nem támogatott DataFrame formátum: {fmt}. "
-                f"Támogatott formátumok: {list(self._DATAFRAME_FORMATS.keys())}"
-            )
-
-        try:
-            return cast(
-                pd.DataFrame,
-                self._DATAFRAME_FORMATS[fmt]["load"](str(full_path), **kwargs),
-            )
-        except OSError as e:
-            if self.logger:
-                self.logger.error(f"IO hiba a DataFrame betöltése során: {full_path}")
-            raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}") from e
-        except Exception as e:
-            if self.logger:
-                self.logger.error(f"Váratlan hiba a DataFrame betöltése során: {full_path}")
-            raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}") from e
-
-    def save_object(
-        self,
-        obj: Any,
-        path: str,
-        fmt: str | None = None,
-        **kwargs: Any,
-    ) -> None:
-        """Menti a Python objektumot.
-
-        Args:
-            obj: A mentendő objektum
-            path: A mentés útvonala
-            fmt: A mentés formátuma (ha None, akkor a kiterjesztésből)
-            **kwargs: További formátum-specifikus paraméterek
-
-        Raises:
-            StorageFormatError: Ha a formátum nem támogatott
-            StorageSerializationError: Ha az objektum nem szerializálható
-            StorageIOError: Ha a mentés sikertelen
-            InsufficientDiskSpaceError: Ha nincs elég lemezterület
-            PermissionDeniedError: Ha nincs írási jogosultság
-        """
-        full_path = self._get_full_path(path)
-
-        if fmt is None:
-            fmt = full_path.suffix.lower().lstrip(".")
-            if not fmt:
-                raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
-
-        if fmt not in self._OBJECT_FORMATS:
-            raise StorageFormatError(
-                f"Nem támogatott objektum formátum: {fmt}. "
-                f"Támogatott formátumok: {list(self._OBJECT_FORMATS.keys())}"
-            )
-
-        # Ellenőrizzük a jogosultságokat
-        self._check_permissions(full_path, check_write=True)
-
-        # Ellenőrizzük a lemezterületet (becsült méret alapján)
-        try:
-            import sys
-
-            estimated_size = sys.getsizeof(str(obj))
-            self._check_disk_space(full_path, int(estimated_size * 1.1))
-        except (InsufficientDiskSpaceError, StorageIOError):
-            raise
-        except Exception as e:
-            if self.logger:
-                self.logger.warning(f"Could not estimate object size: {e}")
-
-        try:
-            full_path.parent.mkdir(parents=True, exist_ok=True)
-            self._OBJECT_FORMATS[fmt]["save"](obj, str(full_path), **kwargs)
-        except (TypeError, ValueError) as e:
-            raise StorageSerializationError(f"Az objektum nem szerializálható: {str(e)}") from e
-        except Exception as e:
-            raise StorageIOError(f"Hiba az objektum mentése során: {str(e)}") from e
-
-    def load_object(
-        self,
-        path: str,
-        fmt: str | None = None,
-        **kwargs: Any,
-    ) -> Any:
-        """Betölti a Python objektumot.
-
-        Args:
-            path: A betöltendő fájl útvonala
-            fmt: A fájl formátuma (ha None, akkor a kiterjesztésből)
-            **kwargs: További formátum-specifikus paraméterek
-
-        Returns:
-            Any: A betöltött objektum
-
-        Raises:
-            StorageNotFoundError: Ha a fájl nem található
-            StorageFormatError: Ha a formátum nem támogatott
-            StorageSerializationError: Ha az objektum nem deszerializálható
-            StorageIOError: Ha a betöltés sikertelen
-            PermissionDeniedError: Ha nincs olvasási jogosultság
-        """
-        full_path = self._get_full_path(path)
-        if not full_path.exists():
-            raise StorageNotFoundError(f"Fájl nem található: {full_path}")
-
-        # Ellenőrizzük az olvasási jogosultságot
-        self._check_permissions(full_path, check_write=False)
-
-        if fmt is None:
-            fmt = full_path.suffix.lower().lstrip(".")
-            if not fmt:
-                raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
-
-        if fmt not in self._OBJECT_FORMATS:
-            raise StorageFormatError(
-                f"Nem támogatott objektum formátum: {fmt}. "
-                f"Támogatott formátumok: {list(self._OBJECT_FORMATS.keys())}"
-            )
-
-        try:
-            return self._OBJECT_FORMATS[fmt]["load"](str(full_path), **kwargs)
-        except json.JSONDecodeError as e:
-            if self.logger:
-                self.logger.error(f"JSON dekódolási hiba az objektum betöltése során: {full_path}")
-            raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
-        except (TypeError, ValueError) as e:
-            if self.logger:
-                self.logger.error(f"Szerializációs hiba az objektum betöltése során: {full_path}")
-            raise StorageSerializationError(f"Az objektum nem deszerializálható: {str(e)}") from e
-        except OSError as e:
-            if self.logger:
-                self.logger.error(f"IO hiba az objektum betöltése során: {full_path}")
-            raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
-        except Exception as e:
-            if self.logger:
-                self.logger.error(f"Váratlan hiba az objektum betöltése során: {full_path}")
-            raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
-
-    def exists(self, path: str) -> bool:
-        """Ellenőrzi az útvonal létezését.
-
-        Args:
-            path: Az ellenőrizendő útvonal
-
-        Returns:
-            bool: True, ha létezik, False ha nem
-        """
-        return self._get_full_path(path).exists()
-
-    def get_metadata(self, path: str) -> dict[str, Any]:
-        """Lekéri a fájl vagy könyvtár metaadatait.
-
-        Args:
-            path: A fájl vagy könyvtár útvonala
-
-        Returns:
-            Dict[str, Any]: A metaadatok
-
-        Raises:
-            StorageNotFoundError: Ha a fájl nem található
-            StorageIOError: Ha a lekérés sikertelen
-        """
-        full_path = self._get_full_path(path)
-        try:
-            if not full_path.exists():
-                raise StorageNotFoundError(f"Fájl nem található: {full_path}")
-
-            stat = full_path.stat()
-            return {
-                "size": stat.st_size,
-                "created": datetime.fromtimestamp(stat.st_ctime),
-                "modified": datetime.fromtimestamp(stat.st_mtime),
-                "accessed": datetime.fromtimestamp(stat.st_atime),
-                "is_file": full_path.is_file(),
-                "is_dir": full_path.is_dir(),
-            }
-        except StorageNotFoundError:
-            raise
-        except OSError as e:
-            raise StorageIOError(f"Hiba a metaadatok lekérése során: {str(e)}") from e
-        except Exception as e:
-            raise StorageIOError(f"Váratlan hiba a metaadatok lekérése során: {str(e)}") from e
-
-    def delete(self, path: str) -> None:
-        """Törli a megadott fájlt vagy könyvtárat.
-
-        Args:
-            path: A törlendő útvonal
-
-        Raises:
-            StorageNotFoundError: Ha a fájl nem található
-            StorageIOError: Ha a törlés sikertelen
-        """
-        full_path = self._get_full_path(path)
-        if not full_path.exists():
-            raise StorageNotFoundError(f"Fájl nem található: {full_path}")
-
-        try:
-            if full_path.is_file():
-                full_path.unlink()
-            else:
-                full_path.rmdir()  # Csak üres könyvtárakat törlünk
-
-        except Exception as e:
-            raise StorageIOError(f"Hiba a törlés során: {str(e)}") from e
-
-    def list_dir(
-        self,
-        path: str,
-        pattern: str | None = None,
-    ) -> Sequence[Path]:
-        """Listázza egy könyvtár tartalmát.
-
-        Args:
-            path: A könyvtár útvonala
-            pattern: Szűrő minta a fájlnevekre
-
-        Returns:
-            Sequence[Path]: A könyvtár tartalma Path objektumokként
-
-        Raises:
-            StorageNotFoundError: Ha a könyvtár nem található
-            StorageIOError: Ha a listázás sikertelen
-        """
-        full_path = self._get_full_path(path)
-        if not full_path.exists():
-            raise StorageNotFoundError(f"Könyvtár nem található: {full_path}")
-        if not full_path.is_dir():
-            raise StorageIOError(f"Az útvonal nem könyvtár: {full_path}")
-
-        try:
-            pattern = pattern or "*"
-            return list(full_path.glob(pattern))
-        except Exception as e:
-            raise StorageIOError(f"Hiba a könyvtár listázása során: {str(e)}") from e
-
-```
-
-## `FILE: neural_ai/core/storage/implementations/parquet_storage.py`
-
-```py
-"""ParquetStorageService - Particionált Parquet tároló szolgáltatás.
-
-Ez a modul implementálja a Tick adatok particionált Parquet formátumban történő tárolását
-és lekérdezését a Neural AI Next rendszer számára. A tárolás dátum és szimbólum alapú
-particionálást használ a gyors lekérdezés érdekében.
-
-A szolgáltatás hardver-gyorsítást detektál és automatikusan kiválasztja a legoptimálisabb
-backend-et (PolarsBackend AVX2 támogatással, vagy PandasBackend kompatibilitási módban).
-
-Author: Neural AI Next Team
-Version: 2.0.0
-"""
-
-import asyncio
-import hashlib
-from collections.abc import Sequence
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
-
-import structlog
-
-from neural_ai.core.base.implementations.singleton import SingletonMeta
-from neural_ai.core.storage.exceptions import StorageIOError, StorageNotFoundError
-from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-from neural_ai.core.utils.decorators import trace
-
-if TYPE_CHECKING:
-    import pandas as pd
-    import polars as pl
-
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.backends.base import StorageBackend
-    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
-
-
-logger = structlog.get_logger()
-
-
-class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
-    """Particionált Parquet tároló szolgáltatás backend selectorral.
-
-    Ez az osztály felelős a Tick adatok particionált Parquet formátumban történő
-    tárolásáért és lekérdezéséért. A particionálás dátum és szimbólum alapú,
-    ami lehetővé teszi a gyors és hatékony adatlekérdezést.
-
-    A szolgáltatás automatikusan detektálja a hardver képességeket és kiválasztja
-    a legoptimálisabb tárolási backend-et:
-    - PolarsBackend: AVX2 támogatással gyorsabb feldolgozás
-    - PandasBackend: Kompatibilitási mód régebbi CPU-khoz
-
-    Attributes:
-        BASE_PATH: A tárolás alapútvonala
-        engine: A Parquet engine ('fastparquet' vagy 'polars')
-        compression: Tömörítési algoritmus ('snappy')
-        backend: A kiválasztott tárolási backend
-    """
-
-    def __init__(
-        self,
-        base_path: str | Path | None = None,
-        compression: str = "snappy",
-        hardware: "HardwareInterface | None" = None,
-        logger: "LoggerInterface | None" = None,  # <--- EZ HIÁNYZOTT
-        **kwargs: Any,  # <--- ÉS EZ A BIZTONSÁGÉRT
-    ) -> None:
-        """Inicializálja a ParquetStorageService-t backend selectorral.
-
-        A hardver detekció alapján kiválasztja a megfelelő tárolási backend-et.
-        Ha az AVX2 utasításkészlet elérhető, a PolarsBackend-et használja,
-        egyébként a PandasBackend-et kompatibilitási módban.
-
-        Args:
-            base_path: Az alapútvonal a tároláshoz (opcionális)
-            compression: A tömörítési algoritmus (alapértelmezett: 'snappy')
-            hardware: A hardverképességek detektálásáért felelős interfész (opcionális)
-            logger: A naplózásért felelős interfész (opcionális)
-            **kwargs: További opcionális paraméterek
-        """
-        self.BASE_PATH = Path(base_path) if base_path else Path("data/tick")
-        self.engine = "fastparquet"
-        self.compression = compression
-        self.backend: StorageBackend
-        self.logger = logger  # <--- Elmentjük
-
-        # Dependency Injection a HardwareInterface-hez
-        if hardware is None:
-            from neural_ai.core.utils.factory import HardwareFactory
-
-            self.hardware = HardwareFactory.get_hardware_interface()
-        else:
-            self.hardware = hardware
-
-        # Hardver detekció és backend kiválasztás
-        self._select_backend()
-
-        # Logolás a saját loggerrel (ha van), vagy a globálissal
-        log_msg = f"ParquetStorageService initialized with {self.backend.name} backend"
-        if self.logger:
-            self.logger.info(log_msg)
-        else:
-            structlog.get_logger().info(log_msg)
-
-    def _select_backend(self) -> None:
-        """Backend kiválasztása hardver detekció alapján.
-
-        Ez a metódus felelős a megfelelő tárolási backend kiválasztásáért
-        a hardver képességek alapján. Külön metódusba van kiszervezve,
-        hogy a tesztek könnyen mockolhassák.
-        """
-        if self.hardware.has_avx2():
-            from neural_ai.core.storage.backends.polars_backend import PolarsBackend
-
-            self.backend = PolarsBackend()
-            self.engine = "polars"
-            # DEBUG log a backend kiválasztáshoz
-            log_msg = f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
-            if self.logger:
-                self.logger.debug(log_msg)
-            else:
-                logger.info(log_msg)
-            logger.info(
-                "AVX2 support detected. Using PolarsBackend for accelerated data processing."
-            )
-        else:
-            from neural_ai.core.storage.backends.pandas_backend import PandasBackend
-
-            self.backend = PandasBackend()
-            self.engine = "fastparquet"
-            # DEBUG log a backend kiválasztáshoz
-            log_msg = f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
-            if self.logger:
-                self.logger.debug(log_msg)
-            else:
-                logger.info(log_msg)
-            logger.warning("Legacy CPU detected. Running in Compatibility Mode with PandasBackend.")
-
-    def _get_path(self, symbol: str, date: datetime, unique_id: str | None = None) -> Path:
-        """Elérési út generálása a megadott szimbólumhoz és dátumhoz.
-
-        Args:
-            symbol: A pénzpár szimbóluma (pl. 'EURUSD')
-            date: A dátum
-            unique_id: Egyedi azonosító a fájlnévhez (opcionális)
-
-        Returns:
-            A teljes elérési út a Parquet fájlhoz
-
-        Example:
-            >>> service = ParquetStorageService()
-            >>> date = datetime(2023, 12, 23)
-            >>> path = service._get_path('EURUSD', date)
-            >>> print(path)
-            /data/tick/EURUSD/tick/year=2023/month=12/day=23/tick_20231223_abc123.parquet
-        """
-        if unique_id:
-            filename = f"tick_{date.strftime('%Y%m%d')}_{unique_id}.parquet"
-        else:
-            # Live módhoz: ÓraPercMsp_Micsec
-            ts_str = datetime.now().strftime("%H%M%S_%f")
-            filename = f"tick_{date.strftime('%Y%m%d')}_{ts_str}.parquet"
-
-        return (
-            self.BASE_PATH
-            / symbol.upper()
-            / f"year={date.year}"
-            / f"month={date.month:02d}"
-            / f"day={date.day:02d}"
-            / filename
-        )
-
-    @trace
-    async def store_tick_data(
-        self, symbol: str, data: Any, date: datetime, unique_id: str | None = None
-    ) -> None:
-        """Tick adatok tárolása particionált Parquet formátumban.
-
-        Args:
-            symbol: A pénzpár szimbóluma
-            data: A Tick adatokat tartalmazó DataFrame
-            date: A dátum, ami alapján a particionálás történik
-            unique_id: Egyedi azonosító a fájlnévhez (opcionális)
-
-        Raises:
-            ValueError: Ha a DataFrame üres vagy nem tartalmazza a szükséges oszlopokat
-
-        Example:
-            >>> import polars as pl
-            >>> from datetime import datetime
-            >>>
-            >>> data = pl.DataFrame({
-            ...     'timestamp': [datetime.now()],
-            ...     'bid': [1.1000],
-            ...     'ask': [1.1002],
-            ...     'volume': [1000],
-            ...     'source': ['jforex']
-            ... })
-            >>>
-            >>> service = ParquetStorageService()
-            >>> await service.store_tick_data('EURUSD', data, datetime.now())
-        """
-        # Logger biztonság: ha nincs logger, használjuk a globálisat
-        log = self.logger if self.logger else logger
-
-        if len(data) == 0:
-            raise ValueError("Cannot store empty DataFrame")
-
-        required_columns = ["timestamp", "bid", "ask"]
-        missing_columns = [col for col in required_columns if col not in data.columns]
-        if missing_columns:
-            raise ValueError(f"Missing required columns: {missing_columns}")
-
-        # APPEND-ONLY logika: minden adat egyedi fájlba kerül mentésre
-        # Ez biztosítja a 100%-os adatmentést, a deduplikációt olvasáskor végezzük
-
-        # Új fájl létrehozása egyedi azonosítóval
-        path = self._get_path(symbol, date, unique_id=unique_id)
-        path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Adatok tárolása a kiválasztott backend-en keresztül
-        try:
-            self.backend.write(data, str(path), compression=self.compression)
-
-            log.info(
-                "Tick data stored successfully",
-                symbol=symbol,
-                date=date.isoformat(),
-                rows=len(data),
-                path=str(path),
-                size_mb=path.stat().st_size / (1024 * 1024),
-                backend=self.backend.name,
-            )
-        except Exception as e:
-            log.error(
-                "Failed to store tick data",
-                symbol=symbol,
-                date=date.isoformat(),
-                path=str(path),
-                error=str(e),
-                error_type=type(e).__name__,
-            )
-            raise  # Tovább dobjuk a hibát, hogy a hívó is tudjon róla
-
-    @trace
-    async def read_tick_data(self, symbol: str, start_date: datetime, end_date: datetime) -> Any:
-        """Tick adatok olvasása dátumtartományból.
-
-        Args:
-            symbol: A pénzpár szimbóluma
-            start_date: A kezdő dátum
-            end_date: A záró dátum
-
-        Returns:
-            A Tick adatokat tartalmazó DataFrame
-
-        Example:
-            >>> from datetime import datetime, timedelta
-            >>>
-            >>> service = ParquetStorageService()
-            >>> start = datetime(2023, 12, 1)
-            >>> end = datetime(2023, 12, 31)
-            >>>
-            >>> data = await service.read_tick_data('EURUSD', start, end)
-            >>> print(f"Loaded {len(data)} ticks")
-        """
-        paths: list[Path] = []
-
-        # Összes Parquet fájl megtalálása a dátumtartományban
-        current_date = start_date
-        while current_date <= end_date:
-            date_dir = (
-                self.BASE_PATH
-                / symbol.upper()
-                / f"year={current_date.year}"
-                / f"month={current_date.month:02d}"
-                / f"day={current_date.day:02d}"
-            )
-            if date_dir.exists():
-                # Összes .parquet fájl hozzáadása ebből a mappából
-                paths.extend(date_dir.glob("*.parquet"))
-            current_date += timedelta(days=1)
-
-        if not paths:
-            logger.warning(
-                "No data found for date range",
-                symbol=symbol,
-                start_date=start_date.isoformat(),
-                end_date=end_date.isoformat(),
-            )
-            # Üres DataFrame visszaadása a backend típusának megfelelően
-            if self.engine == "polars":
-                import polars as pl
-
-                return pl.DataFrame()
-            else:
-                import pandas as pd
-
-                return pd.DataFrame()
-
-        # Adatok betöltése párhuzamosan a backend-en keresztül
-        dfs = await asyncio.gather(*[self._read_parquet_async(path) for path in paths])
-
-        # Összefűzés
-        if dfs:
-            result = self._concat_dataframes(dfs)
-
-            logger.debug(f"Rows before deduplication: {len(result)}")
-
-            # Deduplikáció: egyedi sorok szűrése timestamp + source alapján
-            result = self._deduplicate_data(result)
-
-            logger.debug(f"Rows after deduplication: {len(result)}")
-
-            # Rendezés timestamp szerint
-            result = self._sort_by_timestamp(result)
-
-            # Dátum szerinti szűrés (pontosabb)
-            result = self._filter_by_timestamp(result, start_date, end_date)
-
-            logger.debug(f"Rows after filter: {len(result)}")
-        else:
-            if self.engine == "polars":
-                import polars as pl
-
-                result = pl.DataFrame()
-            else:
-                import pandas as pd
-
-                result = pd.DataFrame()
-
-        logger.info(
-            "Tick data loaded successfully",
-            symbol=symbol,
-            rows=len(result),
-            start_date=start_date.isoformat(),
-            end_date=end_date.isoformat(),
-            files_loaded=len(paths),
-            backend=self.backend.name,
-        )
-
-        return result
-
-    async def _read_parquet_async(self, path: Path) -> Any:
-        """Aszinkron Parquet olvasás.
-
-        Args:
-            path: A Parquet fájl elérési útja
-
-        Returns:
-            A beolvasott DataFrame
-        """
-        loop = asyncio.get_event_loop()
-        return cast(
-            "pd.DataFrame | pl.DataFrame",
-            await loop.run_in_executor(None, self.backend.read, str(path)),
-        )
-
-    def _concat_dataframes(self, dfs: list[Any]) -> Any:
-        """DataFrame-ek összefűzése a backend típusának megfelelően.
-
-        Args:
-            dfs: Az összefűzendő DataFrame-ek listája
-
-        Returns:
-            Az összefűzött DataFrame
-        """
-        if self.engine == "polars":
-            import polars as pl
-
-            return pl.concat(dfs)
-        else:
-            import pandas as pd
-
-            return pd.concat(dfs, ignore_index=True)
-
-    def _deduplicate_data(self, data: Any) -> Any:
-        """Adatok deduplikációja timestamp + bid + ask alapján.
-
-        Args:
-            data: A deduplikálandó DataFrame
-
-        Returns:
-            A deduplikált DataFrame
-        """
-        if self.engine == "polars":
-            import polars as pl
-
-            try:
-                # Ha már Polars DataFrame, használjuk közvetlenül
-                if isinstance(data, pl.DataFrame):
-                    pl_df = data
-                else:
-                    # Egyébként próbáljuk meg konvertálni
-                    # Először próbáljuk meg a to_pandas() metódussal, ha van
-                    if hasattr(data, "to_pandas"):
-                        pd_df = data.to_pandas()
-                        pl_df = pl.DataFrame(pd_df)
-                    else:
-                        # Ha nincs to_pandas() metódus, próbáljuk közvetlenül
-                        pl_df = pl.DataFrame(data)
-
-                # Csak a szükséges oszlopokat választjuk ki a deduplikációhoz
-                # Ez biztosítja, hogy ne legyen oszlop szélesség hiba
-                available_columns = [
-                    col
-                    for col in [
-                        "timestamp",
-                        "bid",
-                        "ask",
-                        "volume",
-                        "ask_volume",
-                        "bid_volume",
-                        "source",
-                    ]
-                    if col in pl_df.columns
-                ]
-                pl_df_selected = pl_df.select(available_columns)
-
-                # Deduplikáció: egyedi sorok szűrése timestamp + bid + ask alapján
-                # Ez megőrzi az azonos időbélyegű, de eltérő árú tick-eket (intra-millisecond ticks)
-                deduplicated = pl_df_selected.unique(
-                    subset=["timestamp", "bid", "ask"], maintain_order=False
-                )
-                return deduplicated
-            except Exception as e:
-                # Ha bármi hiba történik, adjuk vissza az eredeti adatot
-                logger.warning(f"Deduplikáció sikertelen, visszaadom az eredeti adatot: {e}")
-                return data
-        else:
-            import pandas as pd
-
-            try:
-                # Ha már Pandas DataFrame, használjuk közvetlenül
-                if isinstance(data, pd.DataFrame):
-                    pd_df = data
-                else:
-                    # Egyébként próbáljuk meg konvertálni
-                    # Először próbáljuk meg a to_pandas() metódussal, ha van
-                    if hasattr(data, "to_pandas"):
-                        pd_df = data.to_pandas()
-                    else:
-                        # Ha nincs to_pandas() metódus, próbáljuk közvetlenül
-                        pd_df = pd.DataFrame(data)
-
-                # Csak a szükséges oszlopokat választjuk ki a deduplikációhoz
-                # Ez biztosítja, hogy ne legyen oszlop szélesség hiba
-                available_columns = [
-                    col
-                    for col in [
-                        "timestamp",
-                        "bid",
-                        "ask",
-                        "volume",
-                        "ask_volume",
-                        "bid_volume",
-                        "source",
-                    ]
-                    if col in pd_df.columns
-                ]
-                pd_df_selected = pd_df[available_columns]
-
-                # Deduplikáció: egyedi sorok szűrése timestamp + bid + ask alapján
-                # Ez megőrzi az azonos időbélyegű, de eltérő árú tick-eket (intra-millisecond ticks)
-                return pd_df_selected.drop_duplicates(
-                    subset=["timestamp", "bid", "ask"], keep="first"
-                )
-            except Exception as e:
-                # Ha bármi hiba történik, adjuk vissza az eredeti adatot
-                logger.warning(f"Deduplikáció sikertelen, visszaadom az eredeti adatot: {e}")
-                return data
-
-    def _filter_columns(self, data: Any) -> Any:
-        """DataFrame oszlopainak szűrése csak a szükségesekre.
-
-        Args:
-            data: A szűrendő DataFrame
-
-        Returns:
-            A szűrt DataFrame csak a szükséges oszlopokkal
-        """
-        if self.engine == "polars":
-            import polars as pl
-
-            try:
-                if isinstance(data, pl.DataFrame):
-                    pl_df = data
-                else:
-                    if hasattr(data, "to_pandas"):
-                        pd_df = data.to_pandas()
-                        pl_df = pl.DataFrame(pd_df)
-                    else:
-                        pl_df = pl.DataFrame(data)
-
-                # Csak a szükséges oszlopokat választjuk ki
-                available_columns = [
-                    col
-                    for col in [
-                        "timestamp",
-                        "bid",
-                        "ask",
-                        "volume",
-                        "ask_volume",
-                        "bid_volume",
-                        "source",
-                    ]
-                    if col in pl_df.columns
-                ]
-                return pl_df.select(available_columns)
-            except Exception as e:
-                logger.warning(f"Oszlop szűrés sikertelen, visszaadom az eredeti adatot: {e}")
-                return data
-        else:
-            import pandas as pd
-
-            try:
-                if isinstance(data, pd.DataFrame):
-                    pd_df = data
-                else:
-                    if hasattr(data, "to_pandas"):
-                        pd_df = data.to_pandas()
-                    else:
-                        pd_df = pd.DataFrame(data)
-
-                # Csak a szükséges oszlopokat választjuk ki
-                available_columns = [
-                    col
-                    for col in [
-                        "timestamp",
-                        "bid",
-                        "ask",
-                        "volume",
-                        "ask_volume",
-                        "bid_volume",
-                        "source",
-                    ]
-                    if col in pd_df.columns
-                ]
-                return pd_df[available_columns]
-            except Exception as e:
-                logger.warning(f"Oszlop szűrés sikertelen, visszaadom az eredeti adatot: {e}")
-                return data
-
-    def _sort_by_timestamp(self, data: Any) -> Any:
-        """DataFrame rendezése timestamp szerint.
-
-        Args:
-            data: A rendezendő DataFrame
-
-        Returns:
-            A rendezett DataFrame
-        """
-        if self.engine == "polars":
-            import polars as pl
-
-            pl_df = cast(pl.DataFrame, data)
-            return pl_df.sort("timestamp")
-        else:
-            import pandas as pd
-
-            pd_df = cast(pd.DataFrame, data)
-            return pd_df.sort_values("timestamp").reset_index(drop=True)
-
-    def _filter_by_timestamp(
-        self,
-        data: Any,
-        start_date: datetime,
-        end_date: datetime,
-    ) -> Any:
-        """DataFrame szűrése időbélyeg alapján.
-
-        Args:
-            data: A szűrendő DataFrame
-            start_date: A kezdő dátum
-            end_date: A záró dátum
-
-        Returns:
-            A szűrt DataFrame
-        """
-        # Mivel az adatok már dátum particionálva vannak, és csak a
-        # megfelelő dátumú fájlokat töltjük be, a szűrés gyakorlatilag
-        # felesleges. Visszaadjuk az adatokat változatlanul.
-        # Ez elkerüli a datetime precision problémákat is.
-        return data
-
-    @trace
-    async def get_available_dates(self, symbol: str) -> list[datetime]:
-        """Elérhető dátumok lekérdezése egy adott szimbólumhoz.
-
-        Args:
-            symbol: A pénzpár szimbóluma
-
-        Returns:
-            Az elérhető dátumok listája
-
-        Example:
-            >>> service = ParquetStorageService()
-            >>> dates = await service.get_available_dates('EURUSD')
-            >>> print(f"Available dates: {len(dates)}")
-        """
-        symbol_path = self.BASE_PATH / symbol.upper()
-
-        if not symbol_path.exists():
-            return []
-
-        dates: list[datetime] = []
-        for year_dir in symbol_path.glob("year=*"):
-            year = int(year_dir.name.split("=")[1])
-            for month_dir in year_dir.glob("month=*"):
-                month = int(month_dir.name.split("=")[1])
-                for day_dir in month_dir.glob("day=*"):
-                    day = int(day_dir.name.split("=")[1])
-                    dates.append(datetime(year, month, day))
-
-        return sorted(dates)
-
-    async def calculate_checksum(self, symbol: str, date: datetime) -> str:
-        """Adatok checksum számítása integritás ellenőrzéshez.
-
-        Args:
-            symbol: A pénzpár szimbóluma
-            date: A dátum
-
-        Returns:
-            A checksum SHA256 hash (az összes fájlra vonatkozik az adott napon)
-
-        Example:
-            >>> service = ParquetStorageService()
-            >>> checksum = await service.calculate_checksum('EURUSD', datetime.now())
-            >>> print(f"Checksum: {checksum}")
-
-        Note:
-            A checksum mostantól az összes fájlra vonatkozik az adott napon,
-            nem csak egy specifikusra. Az összes fájl adatait összefűzi és
-            az egészre számol checksum-ot.
-        """
-        # Az adott nap mappájának elérési útja
-        date_dir = (
-            self.BASE_PATH
-            / symbol.upper()
-            / f"year={date.year}"
-            / f"month={date.month:02d}"
-            / f"day={date.day:02d}"
-        )
-
-        if not date_dir.exists():
-            return ""
-
-        # Összes Parquet fájl beolvasása
-        parquet_files = list(date_dir.glob("*.parquet"))
-        if not parquet_files:
-            return ""
-
-        try:
-            # Összes fájl beolvasása és összefűzése
-            dfs = []
-            for file_path in parquet_files:
-                df = self.backend.read(str(file_path))
-                dfs.append(df)
-
-            # Összefűzés
-            combined_df = self._concat_dataframes(dfs)
-
-            # Deduplikáció és rendezés
-            combined_df = self._deduplicate_data(combined_df)
-            combined_df = self._sort_by_timestamp(combined_df)
-
-            # Csak a fontos oszlopok alapján checksum számítás
-            if self.engine == "polars":
-                import polars as pl
-
-                pl_df = cast(pl.DataFrame, combined_df)
-                data_str = pl_df.select(["timestamp", "bid", "ask"]).write_csv()
-            else:
-                import pandas as pd
-
-                pd_df = cast(pd.DataFrame, combined_df)
-                data_str = pd_df[["timestamp", "bid", "ask"]].to_csv(index=False)
-
-            return hashlib.sha256(data_str.encode()).hexdigest()
-        except Exception as e:
-            logger.error(f"Failed to calculate checksum: {e}")
-            return ""
-
-    @trace
-    async def verify_data_integrity(self, symbol: str, date: datetime) -> bool:
-        """Adatintegritás ellenőrzése.
-
-        Args:
-            symbol: A pénzpár szimbóluma
-            date: A dátum
-
-        Returns:
-            True ha az adatok integritása megfelelő, egyébként False
-
-        Example:
-            >>> service = ParquetStorageService()
-            >>> is_valid = await service.verify_data_integrity('EURUSD', datetime.now())
-            >>> print(f"Data integrity: {is_valid}")
-
-        Note:
-            Az integritás ellenőrzés mostantól az összes fájlra vonatkozik az adott napon.
-            Az összes fájlt beolvassa, összefűzi, deduplikálja és ellenőrzi a rendezettséget.
-        """
-        # Az adott nap mappájának elérési útja
-        date_dir = (
-            self.BASE_PATH
-            / symbol.upper()
-            / f"year={date.year}"
-            / f"month={date.month:02d}"
-            / f"day={date.day:02d}"
-        )
-
-        if not date_dir.exists():
-            return False
-
-        # Összes Parquet fájl beolvasása
-        parquet_files = list(date_dir.glob("*.parquet"))
-        if not parquet_files:
-            return False
-
-        try:
-            # Összes fájl beolvasása és összefűzése
-            dfs = []
-            for file_path in parquet_files:
-                df = self.backend.read(str(file_path))
-                dfs.append(df)
-
-            # Összefűzés
-            combined_df = self._concat_dataframes(dfs)
-
-            # Alapvető ellenőrzések
-            assert len(combined_df) > 0, "Empty dataframe"
-            assert "timestamp" in combined_df.columns, "Missing timestamp column"
-            assert "bid" in combined_df.columns, "Missing bid column"
-            assert "ask" in combined_df.columns, "Missing ask column"
-
-            # Deduplikáció és rendezés
-            combined_df = self._deduplicate_data(combined_df)
-            combined_df = self._sort_by_timestamp(combined_df)
-
-            # Rendezés ellenőrzése
-            if self.engine == "polars":
-                import polars as pl
-
-                pl_df = cast(pl.DataFrame, combined_df)
-                # Összehasonlítjuk az eredetit a rendezett változattal
-                sorted_timestamp = pl_df["timestamp"].sort()
-                is_sorted = (pl_df["timestamp"] == sorted_timestamp).all()
-                assert is_sorted, "Data not sorted by timestamp"
-            else:
-                import pandas as pd
-
-                pd_df = cast(pd.DataFrame, combined_df)
-                assert pd_df["timestamp"].is_monotonic_increasing, "Data not sorted by timestamp"
-
-            logger.info(
-                "Data integrity verified",
-                symbol=symbol,
-                date=date.isoformat(),
-                rows=len(combined_df),
-                files=len(parquet_files),
-                backend=self.backend.name,
-            )
-
-            return True
-
-        except Exception as e:
-            logger.error(
-                "Data integrity check failed", symbol=symbol, date=date.isoformat(), error=str(e)
-            )
-            return False
-
-    async def get_storage_stats(self, symbol: str | None = None) -> dict[str, Any]:
-        """Tárolási statisztikák lekérdezése.
-
-        Args:
-            symbol: Opcionális szimbólum szűréshez
-
-        Returns:
-            A statisztikákat tartalmazó dictionary
-
-        Example:
-            >>> service = ParquetStorageService()
-            >>> stats = await service.get_storage_stats('EURUSD')
-            >>> print(f"Total files: {stats['total_files']}")
-        """
-        stats = {"total_files": 0, "total_size_gb": 0.0, "symbols": {}}
-
-        base_path = self.BASE_PATH
-        if symbol:
-            base_path = base_path / symbol.upper()
-
-        if not base_path.exists():
-            return stats
-
-        # Fájlok felsorolása
-        for parquet_file in base_path.rglob("*.parquet"):
-            stats["total_files"] += 1
-            stats["total_size_gb"] += parquet_file.stat().st_size
-
-        stats["total_size_gb"] = stats["total_size_gb"] / (1024**3)
-
-        # Szimbólumonkénti statisztikák
-        for symbol_dir in base_path.iterdir():
-            if symbol_dir.is_dir():
-                symbol_name = symbol_dir.name
-                symbol_stats = {"files": 0, "size_gb": 0.0}
-
-                for parquet_file in symbol_dir.rglob("*.parquet"):
-                    symbol_stats["files"] += 1
-                    symbol_stats["size_gb"] += parquet_file.stat().st_size
-
-                symbol_stats["size_gb"] = symbol_stats["size_gb"] / (1024**3)
-                stats["symbols"][symbol_name] = symbol_stats
-
-        return stats
-
-    # --- StorageInterface Implementáció ---
-
-    def save_dataframe(self, df: "pd.DataFrame", path: str, **kwargs: Any) -> None:
-        """DataFrame mentése a megadott útvonalra.
-
-        Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
-        A ParquetStorageService saját store_tick_data metódusát használja.
-        """
-        from datetime import datetime
-
-        # Alapértelmezett dátum a mai nap
-        date = kwargs.get("date", datetime.now())
-        symbol = kwargs.get("symbol", "DEFAULT")
-
-        # Aszinkron hívás szinkron wrapper-ben
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Ha már fut egy loop, akkor task-ként indítjuk
-                task = loop.create_task(self.store_tick_data(symbol, df, date))
-                # Várakozás a task befejezésére
-                while not task.done():
-                    pass
-            else:
-                # Ha nincs futó loop, akkor futtatjuk
-                loop.run_until_complete(self.store_tick_data(symbol, df, date))
-        except RuntimeError:
-            # Ha nincs event loop, létrehozunk egyet
-            asyncio.run(self.store_tick_data(symbol, df, date))
-
-    def load_dataframe(self, path: str, **kwargs: Any) -> "pd.DataFrame":
-        """DataFrame betöltése a megadott útvonalról.
-
-        Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
-        """
-        from datetime import datetime, timedelta
-
-        # Dátumtartomány kinyerése a path-ból vagy kwargs-ból
-        start_date = kwargs.get("start_date", datetime.now() - timedelta(days=1))
-        end_date = kwargs.get("end_date", datetime.now())
-        symbol = kwargs.get("symbol", "DEFAULT")
-
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Ha már fut egy loop, akkor task-ként indítjuk
-                task = loop.create_task(self.read_tick_data(symbol, start_date, end_date))
-                # Várakozás a task befejezésére
-                while not task.done():
-                    pass
-                result = task.result()
-            else:
-                # Ha nincs futó loop, akkor futtatjuk
-                result = loop.run_until_complete(self.read_tick_data(symbol, start_date, end_date))
-        except RuntimeError:
-            # Ha nincs event loop, létrehozunk egyet
-            result = asyncio.run(self.read_tick_data(symbol, start_date, end_date))
-
-        # Konvertálás pandas DataFrame-re ha szükséges
-        import pandas as pd
-
-        if not isinstance(result, pd.DataFrame):
-            try:
-                import polars as pl
-
-                if isinstance(result, pl.DataFrame):
-                    result = result.to_pandas()
-            except ImportError:
-                pass
-
-        return result
-
-    def save_object(self, obj: object, path: str, **kwargs: Any) -> None:
-        """Objektum mentése a megadott útvonalra.
-
-        Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
-        """
-        import pickle
-
-        full_path = self._get_full_path(path)
-        full_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(full_path, "wb") as f:
-            pickle.dump(obj, f)
-
-    def load_object(self, path: str, **kwargs: Any) -> object:
-        """Objektum betöltése a megadott útvonalról.
-
-        Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
-        """
-        import pickle
-
-        full_path = self._get_full_path(path)
-        with open(full_path, "rb") as f:
-            return pickle.load(f)
-
-    def exists(self, path: str) -> bool:
-        """Ellenőrzi, hogy az útvonal létezik-e."""
-        return self._get_full_path(path).exists()
-
-    def get_metadata(self, path: str) -> dict[str, Any]:
-        """Fájl vagy könyvtár metaadatainak lekérdezése."""
-        full_path = self._get_full_path(path)
-        if not full_path.exists():
-            from neural_ai.core.storage.exceptions import StorageNotFoundError
-
-            raise StorageNotFoundError(f"Fájl nem található: {full_path}")
-
-        stat = full_path.stat()
-        return {
-            "size": stat.st_size,
-            "created": datetime.fromtimestamp(stat.st_ctime),
-            "modified": datetime.fromtimestamp(stat.st_mtime),
-            "accessed": datetime.fromtimestamp(stat.st_atime),
-            "is_file": full_path.is_file(),
-            "is_dir": full_path.is_dir(),
-        }
-
-    def delete(self, path: str) -> None:
-        """Fájl vagy könyvtár törlése."""
-        full_path = self._get_full_path(path)
-        if not full_path.exists():
-            raise StorageNotFoundError(f"Fájl nem található: {full_path}")
-
-        if full_path.is_file():
-            full_path.unlink()
-        else:
-            import shutil
-
-            shutil.rmtree(full_path)
-
-    def list_dir(self, path: str, pattern: str | None = None) -> Sequence[Path]:
-        """Könyvtár tartalmának listázása."""
-        full_path = self._get_full_path(path)
-        if not full_path.exists():
-            raise StorageNotFoundError(f"Könyvtár nem található: {full_path}")
-        if not full_path.is_dir():
-            raise StorageIOError(f"Az útvonal nem könyvtár: {full_path}")
-
-        pattern = pattern or "*"
-        return list(full_path.glob(pattern))
-
-    def _get_full_path(self, path: str | Path) -> Path:
-        """Segédfüggvény az útvonal feloldásához."""
-        path_obj = Path(path)
-        if path_obj.is_absolute():
-            return path_obj
-        return self.BASE_PATH / path_obj
-
-```
-
-## `FILE: neural_ai/core/storage/interfaces/__init__.py`
-
-```py
-"""Storage komponens interfészek.
-
-Ez a csomag a tárolási réteg interfészeit tartalmazza, amelyek a különböző
-tárolási megoldások egységes kezelését teszik lehetővé.
-
-Az interfészek lehetővé teszik a függőség injektálást, ami a komponensek
-laza csatolását és egyszerű tesztelését eredményezi.
-
-Elérhető interfészek:
-    - StorageInterface: Alapvető tárolási műveletek (mentés, betöltés, törlés)
-    - StorageFactoryInterface: Tároló objektumok létrehozásáért felelős gyártó
-
-Példa:
-    >>> from neural_ai.core.storage.interfaces import StorageInterface
-    >>> from neural_ai.core.config import ConfigInterface
-    >>> from neural_ai.core.logger import LoggerInterface
-    >>>
-    >>> class MyStorage(StorageInterface):
-    ...     def __init__(
-    ...         self,
-    ...         config: ConfigInterface,
-    ...         logger: LoggerInterface
-    ...     ):
-    ...         self._config = config
-    ...         self._logger = logger
-    ...
-    ...     def save(self, data: bytes, path: str) -> None:
-    ...         # Implementáció
-    ...         pass
-"""
-
-from neural_ai.core.storage.interfaces.factory_interface import StorageFactoryInterface
-from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-
-__all__ = ["StorageInterface", "StorageFactoryInterface"]
-
-```
-
-## `FILE: neural_ai/core/storage/interfaces/factory_interface.py`
-
-```py
-"""Storage factory interfész a különböző tárolási megoldások létrehozásához.
-
-Ez az interfész egy gyártó (factory) mintát definiál, amely lehetővé teszi a tárolási
-implementációk dinamikus regisztrálását és példányosítását. Az interfész segítségével
-a rendszer függetlenítetté válik a konkrét tárolási osztályoktól.
-"""
-
-from abc import ABC, abstractmethod
-from pathlib import Path
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-
-
-class StorageFactoryInterface(ABC):
-    """Storage factory interfész a tárolási implementációk gyártásához.
-
-    Ez egy absztrakt alaposztály, amely meghatározza a tárolási factory-k
-    alapvető viselkedését. A konkrét implementációknak ezt az interfészt kell
-    megvalósítaniuk a saját factory osztályaikban.
-    """
-
-    @classmethod
-    @abstractmethod
-    def register_storage(
-        cls,
-        storage_type: str,
-        storage_class: "type[StorageInterface]",
-    ) -> None:
-        """Új tárolási típus regisztrálása a factory számára.
-
-        Args:
-            storage_type: A tárolási típus egyedi azonosítója (pl. 'file', 's3').
-            storage_class: A tárolási osztály, amely megvalósítja a StorageInterface-t.
-
-        Raises:
-            NotImplementedError: Ha az alosztály nem valósítja meg ezt a metódust.
-        """
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def get_storage(
-        cls,
-        storage_type: str = "file",
-        base_path: str | Path | None = None,
-        **kwargs: dict[str, object],
-    ) -> "StorageInterface":
-        """Tárolási példány létrehozása a megadott típus alapján.
-
-        Args:
-            storage_type: A kért tárolási típus azonosítója. Alapértelmezett: 'file'.
-            base_path: Az alap könyvtár útvonala a fájl alapú tároláshoz.
-            **kwargs: További, a tárolási implementáció specifikus paraméterek.
-
-        Returns:
-            StorageInterface: Egy inicializált tárolási példány.
-
-        Raises:
-            NotImplementedError: Ha az alosztály nem valósítja meg ezt a metódust.
-            KeyError: Ha a megadott tárolási típus nincs regisztrálva.
-            ValueError: Ha a megadott paraméterek érvénytelenek.
-        """
-        raise NotImplementedError
-
-```
-
-## `FILE: neural_ai/core/storage/interfaces/storage_interface.py`
-
-```py
-"""Storage interfész modul.
-
-Ez a modul definiálja a tárolási műveletek absztrakt interfészét,
-amelyet minden konkrét tárolási implementációnak implementálnia kell.
-"""
-
-from abc import ABC, abstractmethod
-from collections.abc import Mapping, Sequence
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
-
-import pandas as pd
-
-if TYPE_CHECKING:
-    pass
-
-
-class StorageInterface(ABC):
-    """Absztrakt interfész tárolási műveletek definiálásához.
-
-    Ez az interfész biztosítja a standardizált tárolási műveleteket
-    DataFrame-ekkel és általános objektumokkal való munkavégzéshez.
-    """
-
-    @abstractmethod
-    def save_dataframe(self, df: pd.DataFrame, path: str, **kwargs: Mapping[str, Any]) -> None:
-        """DataFrame mentése a megadott útvonalra.
-
-        Args:
-            df: A mentendő pandas DataFrame.
-            path: A célfájl elérési útja.
-            **kwargs: További formázási és mentési opciók.
-
-        Raises:
-            StorageIOError: Ha I/O hiba történik a mentés során.
-            StorageFormatError: Ha a kért formátum nem támogatott.
-            StorageSerializationError: Ha az adatok nem szerializálhatók.
-        """
-
-    @abstractmethod
-    def load_dataframe(self, path: str, **kwargs: Mapping[str, Any]) -> pd.DataFrame:
-        """DataFrame betöltése a megadott útvonalról.
-
-        Args:
-            path: A forrásfájl elérési útja.
-            **kwargs: További betöltési és formázási opciók.
-
-        Returns:
-            A betöltött pandas DataFrame.
-
-        Raises:
-            StorageNotFoundError: Ha a forrásfájl nem található.
-            StorageFormatError: Ha a fájl formátuma nem támogatott.
-            StorageSerializationError: Ha az adatok nem deszerializálhatók.
-            StorageIOError: Ha I/O hiba történik a betöltés során.
-        """
-
-    @abstractmethod
-    def save_object(self, obj: object, path: str, **kwargs: Mapping[str, Any]) -> None:
-        """Objektum mentése a megadott útvonalra.
-
-        Args:
-            obj: A mentendő objektum.
-            path: A célfájl elérési útja.
-            **kwargs: További szerializációs opciók.
-
-        Raises:
-            StorageIOError: Ha I/O hiba történik a mentés során.
-            StorageFormatError: Ha a kért formátum nem támogatott.
-            StorageSerializationError: Ha az objektum nem szerializálható.
-        """
-
-    @abstractmethod
-    def load_object(self, path: str, **kwargs: Mapping[str, Any]) -> object:
-        """Objektum betöltése a megadott útvonalról.
-
-        Args:
-            path: A forrásfájl elérési útja.
-            **kwargs: További deszerializációs opciók.
-
-        Returns:
-            A betöltött objektum.
-
-        Raises:
-            StorageNotFoundError: Ha a forrásfájl nem található.
-            StorageFormatError: Ha a fájl formátuma nem támogatott.
-            StorageSerializationError: Ha az objektum nem deszerializálható.
-            StorageIOError: Ha I/O hiba történik a betöltés során.
-        """
-
-    @abstractmethod
-    def exists(self, path: str) -> bool:
-        """Ellenőrzi, hogy az útvonal létezik-e.
-
-        Args:
-            path: Az ellenőrizendő útvonal.
-
-        Returns:
-            True, ha az útvonal létezik, egyébként False.
-        """
-
-    @abstractmethod
-    def get_metadata(self, path: str) -> dict[str, Any]:
-        """Fájl vagy könyvtár metaadatainak lekérdezése.
-
-        Args:
-            path: A cél útvonal.
-
-        Returns:
-            A metaadatok szótárba rendezve.
-
-        Raises:
-            StorageNotFoundError: Ha az útvonal nem található.
-            StorageIOError: Ha a metaadatok lekérdezése sikertelen.
-        """
-
-    @abstractmethod
-    def delete(self, path: str) -> None:
-        """Fájl vagy könyvtár törlése.
-
-        Args:
-            path: A törlendő útvonal.
-
-        Raises:
-            StorageNotFoundError: Ha az útvonal nem található.
-            StorageIOError: Ha a törlés sikertelen.
-        """
-
-    @abstractmethod
-    def list_dir(self, path: str, pattern: str | None = None) -> Sequence[Path]:
-        """Könyvtár tartalmának listázása.
-
-        Args:
-            path: A könyvtár elérési útja.
-            pattern: Opcionális glob minta a fájlnevek szűrésére.
-
-        Returns:
-            A könyvtárban található elemek Path objektumokként.
-
-        Raises:
-            StorageNotFoundError: Ha a könyvtár nem található.
-            StorageIOError: Ha a listázás sikertelen.
-        """
 
 ```
 
@@ -25984,6 +21249,1605 @@ class HardwareInterface(ABC):
 
 ```
 
+## `FILE: neural_ai/processors/processing/__init__.py`
+
+```py
+"""Processing modul.
+
+Ez a modul felelős az adatfeldolgozási és átalakítási szolgáltatásokért,
+beleértve a resampling, aggregáció és egyéb adatmanipulációs műveleteket.
+"""
+
+from neural_ai.processors.processing.resampler_service import ResamplerServiceFactory
+
+__all__ = [
+    "ResamplerServiceFactory",
+]
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/__init__.py`
+
+```py
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/base.py`
+
+```py
+"""BaseDimensionProcessor - Absztrakt alap osztály minden dimenzió processzor számára."""
+
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+from neural_ai.processors.processing.interfaces.dimension_processor_interface import (
+    IDimensionProcessor,
+)
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+
+class BaseDimensionProcessor(IDimensionProcessor, ABC):
+    """Absztrakt alap osztály minden dimenzió processzor számára.
+
+    Ez az osztály biztosítja a Dependency Injection támogatást és az alapvető
+    konfigurációs kezelést minden dimenzió processzor számára.
+    """
+
+    def __init__(self, config: "ConfigManagerInterface", logger: "LoggerInterface") -> None:
+        """Inicializálja a dimenzió processzort DI-val.
+
+        Args:
+            config: Konfigurációs menedzser interfész
+            logger: Logger interfész
+        """
+        self.config = config
+        self.logger = logger
+
+        # Konfiguráció betöltése dimenzió alapján (pl. "processors.d01")
+        section = f"processors.d{self.dimension_id:02d}"
+        self.dim_config = config.get("processors", f"d{self.dimension_id:02d}") or {}
+
+        if not self.dim_config:
+            self.logger.warning(
+                f"Nincs konfiguráció definiálva a(z) {section} szekcióban. "
+                f"Alapértelmezett értékek használata."
+            )
+
+    @property
+    @abstractmethod
+    def dimension_id(self) -> int:
+        """Dimenzió azonosító (1-15).
+
+        Returns:
+            int: A dimenzió egyedi azonosítója
+        """
+        pass
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/d01_price/__init__.py`
+
+```py
+"""D01 Price Dimension Processzor modul."""
+
+from neural_ai.processors.processing.dimensions.d01_price.factory import D01PriceFactory
+from neural_ai.processors.processing.interfaces.dimension_processor_interface import (
+    IDimensionProcessor,
+)
+
+__all__ = ["D01PriceFactory", "IDimensionProcessor"]
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/d01_price/factory.py`
+
+```py
+"""D01PriceProcessor Factory - Az alap adatok processzor létrehozásáért felelős."""
+
+from typing import TYPE_CHECKING
+
+from neural_ai.processors.processing.dimensions.d01_price.processor import D01PriceProcessor
+from neural_ai.processors.processing.interfaces.dimension_processor_interface import (
+    IDimensionProcessor,
+)
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+
+class D01PriceFactory:
+    """Factory osztály a D01PriceProcessor létrehozásához."""
+
+    @staticmethod
+    def create(config: "ConfigManagerInterface", logger: "LoggerInterface") -> IDimensionProcessor:
+        """D01PriceProcessor példány létrehozása.
+
+        Args:
+            config: Konfigurációs menedzser interfész
+            logger: Logger interfész
+
+        Returns:
+            IDimensionProcessor: A D01PriceProcessor példány
+        """
+        return D01PriceProcessor(config, logger)
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/d01_price/processor.py`
+
+```py
+"""D01PriceProcessor - Alap adatok processzor."""
+
+from typing import TYPE_CHECKING
+
+import polars as pl
+
+from neural_ai.processors.processing.dimensions.base import BaseDimensionProcessor
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+
+class D01PriceProcessor(BaseDimensionProcessor):
+    """D1 - Alap adatok (Base Data) processzor.
+
+    Feladata az alap pénzügyi adatok biztosítása és validálása.
+    Kiválasztja és visszaadja a timestamp, open, high, low, close,
+    tick_volume, spread és real_volume oszlopokat.
+    """
+
+    def __init__(self, config: "ConfigManagerInterface", logger: "LoggerInterface") -> None:
+        """Inicializálja a D1 processzort.
+
+        Args:
+            config: Konfigurációs menedzser interfész
+            logger: Logger interfész
+        """
+        super().__init__(config, logger)
+
+    def process(self, df: pl.DataFrame, timeframe: str = "1m") -> pl.DataFrame:
+        """Polars Expr alapú dimenzió számítás matematikai transzformációkkal.
+
+        Számítja a log return-ot, rolling Z-score-ot és árnyékokat (shadows).
+        Adaptív logika: tick timeframe esetén különbözik az OHLC-tól.
+
+        Args:
+            df: Bemeneti Polars DataFrame (már time-aligned OHLCV adatok)
+            timeframe: Időkeret ("tick", "1m", stb.), default "1m"
+
+        Returns:
+            Polars DataFrame az alap adatokkal és matematikai transzformációkkal
+        """
+        # Alapértelmezett config
+        z_score_window = self.dim_config.get("z_score_window", 60)
+
+        # Timeframe specifikus felülírás
+        if timeframe:
+            tf_configs = self.dim_config.get("timeframe_configs", {})
+            for tf_key, tf_cfg in tf_configs.items():
+                if tf_key.lower() == timeframe.lower():
+                    z_score_window = tf_cfg.get("z_score_window", z_score_window)
+                    break
+
+        calc_shadows = self.dim_config.get("calc_shadows", True)
+
+        self.logger.debug(
+            f"D1 processzor futtatása: timeframe={timeframe}, window={z_score_window}"
+        )
+
+        # Használjuk a bemeneti DataFrame meglévő mid_close oszlopát (Resampler biztosítja)
+        # Log return: ln(mid_close / mid_close.shift(1))
+        log_return = (pl.col("mid_close") / pl.col("mid_close").shift(1)).log()
+
+        # Rolling Z-score: (log_return - rolling_mean) / rolling_std
+        rolling_mean = log_return.rolling_mean(window_size=z_score_window)
+        rolling_std = log_return.rolling_std(window_size=z_score_window)
+        rolling_z_score = (log_return - rolling_mean) / rolling_std
+
+        # Árnyékok számítása: csak akkor, ha calc_shadows és timeframe != "tick"
+        if calc_shadows and timeframe != "tick":
+            # Upper shadow: mid_high - max(mid_open, mid_close)
+            upper_shadow = pl.col("mid_high") - pl.max_horizontal(
+                pl.col("mid_open"), pl.col("mid_close")
+            )
+            # Lower shadow: min(mid_open, mid_close) - mid_low
+            lower_shadow = pl.min_horizontal(pl.col("mid_open"), pl.col("mid_close")) - pl.col(
+                "mid_low"
+            )
+        else:
+            # Egyéb esetben None értékekkel töltjük
+            upper_shadow = pl.lit(None).cast(pl.Float64)
+            lower_shadow = pl.lit(None).cast(pl.Float64)
+
+        # Alap oszlopok kiválasztása
+        columns = [
+            "timestamp",
+            # Bid adatok (VISSZAPÓTOLVA)
+            "bid_open", "bid_high", "bid_low", "bid_close",
+            # Mid adatok
+            "mid_open", "mid_high", "mid_low", "mid_close",
+            # Metadata
+            "tick_volume", "spread", "real_volume",
+            # Számított értékek
+            log_return.alias("log_return"),
+            rolling_z_score.alias("rolling_z_score"),
+            upper_shadow.alias("upper_shadow"),
+            lower_shadow.alias("lower_shadow"),
+        ]
+
+        # Bid és ask volume hozzáadása, ha rendelkezésre állnak
+        if "bid_volume" in df.columns:
+            columns.append(pl.col("bid_volume"))
+        if "ask_volume" in df.columns:
+            columns.append(pl.col("ask_volume"))
+
+        return df.select(columns)
+
+    @property
+    def dimension_id(self) -> int:
+        """Dimenzió azonosító (1-15).
+
+        Returns:
+            int: 1 (D1 dimenzió)
+        """
+        return 1
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/d02_support/__init__.py`
+
+```py
+"""D02 Support/Resistance Dimension Processzor modul."""
+
+from neural_ai.processors.processing.dimensions.d02_support.factory import D02SupportFactory
+from neural_ai.processors.processing.interfaces.dimension_processor_interface import (
+    IDimensionProcessor,
+)
+
+__all__ = ["D02SupportFactory", "IDimensionProcessor"]
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/d02_support/exceptions/__init__.py`
+
+```py
+"""D02 Support/Resistance kivételek."""
+
+from neural_ai.processors.processing.dimensions.d02_support.exceptions.support_error import SupportError
+
+__all__ = ["SupportError"]
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/d02_support/exceptions/support_error.py`
+
+```py
+"""Kivételek a D02 Support/Resistance processzor modulhoz.
+
+Ez a modul definiálja a support/resistance szintek számítása során
+fellépő összes kivételt.
+"""
+
+
+class SupportError(Exception):
+    """Alap kivétel a support/resistance processzor hibákhoz.
+
+    Ez az osztály szolgál közös alapként az összes support/resistance
+    számítással kapcsolatos kivételnek a rendszerben.
+
+    Attributes:
+        message: A hibaüzenet részletes leírása.
+        error_code: Opcionális hibakód a hibák kategorizálásához.
+    """
+
+    def __init__(self, message: str, error_code: str | None = None) -> None:
+        """Inicializálja a SupportError kivételt.
+
+        Args:
+            message: A hibaüzenet részletes leírása.
+            error_code: Opcionális hibakód a hibák kategorizálásához.
+        """
+        self.error_code = error_code
+        super().__init__(message)
+
+
+class SwingPointCalculationError(SupportError):
+    """Swing pont számítási hiba.
+
+    Akkor dobódik, ha a swing high vagy swing low pontok számítása
+    sikertelen. Ez tartalmazhatja a rolling window műveletek hibáit
+    vagy érvénytelen adatokat.
+
+    Attributes:
+        window_size: A használt rolling window mérete.
+        column_name: Az érintett oszlop neve.
+    """
+
+    def __init__(
+        self, message: str, window_size: int | None = None, column_name: str | None = None
+    ) -> None:
+        """Inicializálja a SwingPointCalculationError kivételt.
+
+        Args:
+            message: A hibaüzenet részletes leírása.
+            window_size: A használt rolling window mérete.
+            column_name: Az érintett oszlop neve.
+        """
+        self.window_size = window_size
+        self.column_name = column_name
+        super().__init__(message, error_code="SWING_POINT_CALCULATION_ERROR")
+
+
+class SupportResistanceLevelError(SupportError):
+    """Support/Resistance szint számítási hiba.
+
+    Akkor dobódik, ha a support vagy resistance szintek aggregálása
+    sikertelen. Ez tartalmazhatja az átlagolási műveletek hibáit
+    vagy érvénytelen swing pont adatokat.
+
+    Attributes:
+        level_type: A szint típusa ("support" vagy "resistance").
+        aggregation_method: A használt aggregációs módszer.
+    """
+
+    def __init__(
+        self, message: str, level_type: str | None = None, aggregation_method: str | None = None
+    ) -> None:
+        """Inicializálja a SupportResistanceLevelError kivételt.
+
+        Args:
+            message: A hibaüzenet részletes leírása.
+            level_type: A szint típusa ("support" vagy "resistance").
+            aggregation_method: A használt aggregációs módszer.
+        """
+        self.level_type = level_type
+        self.aggregation_method = aggregation_method
+        super().__init__(message, error_code="SUPPORT_RESISTANCE_LEVEL_ERROR")
+
+
+class TimeframeConfigurationError(SupportError):
+    """Timeframe konfigurációs hiba.
+
+    Akkor dobódik, ha a timeframe-specifikus konfiguráció érvénytelen
+    vagy hiányzik. Ez tartalmazhatja a swing_window vagy min_distance
+    paraméterek hibás értékeit.
+
+    Attributes:
+        timeframe: Az érintett timeframe.
+        config_key: A hiányzó vagy érvénytelen konfigurációs kulcs.
+    """
+
+    def __init__(
+        self, message: str, timeframe: str | None = None, config_key: str | None = None
+    ) -> None:
+        """Inicializálja a TimeframeConfigurationError kivételt.
+
+        Args:
+            message: A hibaüzenet részletes leírása.
+            timeframe: Az érintett timeframe.
+            config_key: A hiányzó vagy érvénytelen konfigurációs kulcs.
+        """
+        self.timeframe = timeframe
+        self.config_key = config_key
+        super().__init__(message, error_code="TIMEFRAME_CONFIGURATION_ERROR")
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/d02_support/factory.py`
+
+```py
+"""D02SupportProcessor Factory - A Support/Resistance processzor létrehozásáért felelős."""
+
+from typing import TYPE_CHECKING
+
+from neural_ai.processors.processing.dimensions.d02_support.implementations.support_processor import (
+    D02SupportProcessor,
+)
+from neural_ai.processors.processing.interfaces.dimension_processor_interface import (
+    IDimensionProcessor,
+)
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+
+class D02SupportFactory:
+    """Factory osztály a D02SupportProcessor létrehozásához."""
+
+    @staticmethod
+    def create(config: "ConfigManagerInterface", logger: "LoggerInterface") -> IDimensionProcessor:
+        """D02SupportProcessor példány létrehozása.
+
+        Args:
+            config: Konfigurációs menedzser interfész
+            logger: Logger interfész
+
+        Returns:
+            IDimensionProcessor: A D02SupportProcessor példány
+        """
+        return D02SupportProcessor(config, logger)
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/d02_support/implementations/__init__.py`
+
+```py
+"""D02 Support/Resistance implementációk."""
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/d02_support/implementations/support_processor.py`
+
+```py
+"""D02SupportProcessor - Support/Resistance szintek processzora."""
+
+from typing import TYPE_CHECKING, cast
+
+import polars as pl
+
+from neural_ai.processors.processing.dimensions.base import BaseDimensionProcessor
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+
+class D02SupportProcessor(BaseDimensionProcessor):
+    """D2 - Support/Resistance szintek processzora.
+
+    Feladata a support és resistance szintek azonosítása és számítása
+    swing pontok alapján különböző timeframe-ekre.
+    """
+
+    def __init__(self, config: "ConfigManagerInterface", logger: "LoggerInterface") -> None:
+        """Inicializálja a D2 processzort.
+
+        Args:
+            config: Konfigurációs menedzser interfész
+            logger: Logger interfész
+        """
+        super().__init__(config, logger)
+
+        # Config validáció
+        if "swing_window" not in self.dim_config:
+            self.logger.error("swing_window paraméter hiányzik a configból, default 5 használata")
+            self.dim_config["swing_window"] = 5
+
+    def _find_swing_points_close_open(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Swing pontok keresése záró/nyitó árak alapján.
+
+        Kiszámolja a gyertya testének top és bottom értékeit mid_open és mid_close alapján,
+        majd swing pontokat keres rajtuk gördülő maximum szukcesszióval.
+
+        Args:
+            df: Bemeneti Polars DataFrame
+
+        Returns:
+            pl.DataFrame: swing_high_body és swing_low_body oszlopokkal kiegészített DataFrame
+        """
+        min_candles = self.dim_config.get("min_candles")
+        if min_candles is None:
+            self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
+            min_candles = 5
+        min_candles = cast(int, min_candles)
+
+        # Body definíció: gyertya testének top és bottom (mid_open és mid_close alapján)
+        body_top = pl.max_horizontal("mid_open", "mid_close")
+        body_bottom = pl.min_horizontal("mid_open", "mid_close")
+
+        # Body swing pontok számítása
+        swing_high_body = (
+            pl.when(body_top == body_top.rolling_max(window_size=min_candles, center=True))
+            .then(body_top)
+            .otherwise(None)
+        )
+
+        swing_low_body = (
+            pl.when(body_bottom == body_bottom.rolling_min(window_size=min_candles, center=True))
+            .then(body_bottom)
+            .otherwise(None)
+        )
+
+        return df.with_columns([
+            swing_high_body.alias("swing_high_body"),
+            swing_low_body.alias("swing_low_body"),
+        ])
+
+    def _find_swing_points_high_low(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Swing pontok keresése high/low értékeken.
+
+        Swing pontokat keres high és low értékeken gördülő maximum szukcesszióval.
+
+        Args:
+            df: Bemeneti Polars DataFrame
+
+        Returns:
+            pl.DataFrame: swing_high_wick és swing_low_wick oszlopokkal kiegészített DataFrame
+        """
+        min_candles = self.dim_config.get("min_candles")
+        if min_candles is None:
+            self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
+            min_candles = 5
+        min_candles = cast(int, min_candles)
+
+        # Wick swing pontok számítása
+        swing_high_wick = (
+            pl.when(
+                pl.col("high")
+                == pl.col("high").rolling_max(
+                    window_size=min_candles, center=True
+                )
+            )
+            .then(pl.col("high"))
+            .otherwise(None)
+        )
+
+        swing_low_wick = (
+            pl.when(
+                pl.col("low")
+                == pl.col("low").rolling_min(
+                    window_size=min_candles, center=True
+                )
+            )
+            .then(pl.col("low"))
+            .otherwise(None)
+        )
+
+        return df.with_columns([
+            swing_high_wick.alias("swing_high_wick"),
+            swing_low_wick.alias("swing_low_wick"),
+        ])
+
+    def _merge_levels(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Iteratív klaszterezés a swing szintek összevonására.
+
+        Amíg vannak a merge_threshold-nél közelebbi szintpárok, addig ismétli
+        a legkisebb távolságú pár megtalálását és összevonását súlyozott
+        átlagolással.
+
+        Args:
+            df: Polars DataFrame price, weight, type oszlopokkal
+
+        Returns:
+            pl.DataFrame: Klaszterezett szintek DataFrame
+        """
+        if df.is_empty():
+            return df
+
+        if df.height > 5000:
+            self.logger.warning(
+                "Too many swing points for heavy clustering, skipping merge optimization"
+            )
+            return df
+
+        level_merge = self.dim_config.get("level_merge")
+        if level_merge is None:
+            self.logger.warning(
+                "level_merge paraméter hiányzik a configból, default 0.0005 használata"
+            )
+            level_merge = 0.0005
+        threshold = cast(float, level_merge)
+
+        while True:
+            rows = df.to_dicts()
+            prices = [r["price"] for r in rows]
+            weights = [r["weight"] for r in rows]
+            types = [r["type"] for r in rows]
+
+            min_dist = float('inf')
+            min_i, min_j = -1, -1
+
+            # Keresd meg a legkisebb távolságú azonos típusú párt
+            for i in range(len(rows)):
+                for j in range(i + 1, len(rows)):
+                    if types[i] != types[j]:
+                        continue
+                    dist = abs(prices[i] - prices[j])
+                    if dist <= threshold and dist < min_dist:
+                        min_dist = dist
+                        min_i, min_j = i, j
+
+            if min_i == -1:
+                break  # Nincs több összevonható pár
+
+            # Egyesítés
+            p1, w1 = prices[min_i], weights[min_i]
+            p2, w2 = prices[min_j], weights[min_j]
+            new_price = (p1 * w1 + p2 * w2) / (w1 + w2)
+            new_weight = w1 + w2
+            new_type = types[min_i]
+
+            # Új lista létrehozása
+            new_rows = []
+            for idx, row in enumerate(rows):
+                if idx not in (min_i, min_j):
+                    new_rows.append(row)
+            new_rows.append({"price": new_price, "weight": new_weight, "type": new_type})
+
+            df = pl.DataFrame(new_rows)
+
+        return df.sort("price")
+
+    def _calculate_level_strength(
+        self, levels: list[dict[str, float | int | str]]
+    ) -> list[dict[str, float | int | str]]:
+        """Szintek erősségének számítása.
+
+        Minden szinthez kiszámolja a strength értéket az érintések, súly és
+        volumen tényező alapján, majd normalizálja 0-1 közé.
+
+        Args:
+            levels: Szintek listája dict-ekkel, amelyek tartalmazzák 'touches' és
+                opcionálisan 'volume_factor'.
+
+        Returns:
+            list[dict[str, float | int | str]]: Frissített szintek listája
+                'strength' kulccsal.
+        """
+        base_weight = 0.1
+        strength_window = self.dim_config.get("strength_window")
+        if strength_window is None:
+            self.logger.warning(
+                "strength_window paraméter hiányzik a configból, default 10 használata"
+            )
+            strength_window = 10
+        strength_window = cast(int, strength_window)
+        # Használjuk a strength_window-t base_weight módosítására
+        base_weight /= strength_window
+
+        # Frissített szintek listája
+        updated_levels: list[dict[str, float | int | str]] = []
+
+        for level in levels:
+            touches = cast(int, level.get("touches", 1))
+            volume_factor = cast(float, level.get("volume_factor", 1.0))
+            strength = (touches * base_weight) * volume_factor
+            level["strength"] = strength
+            updated_levels.append(level)
+
+        # Normalizálás 0-1 közé a teljes listában
+        if updated_levels:
+            max_strength = max(cast(float, level["strength"]) for level in updated_levels)
+            if max_strength > 0:
+                for level in updated_levels:
+                    level["strength"] = cast(float, level["strength"]) / max_strength
+
+        return updated_levels
+
+    def _categorize_zones(
+        self,
+        levels: list[dict[str, str | float | int]]
+    ) -> dict[str, dict[str, list[dict[str, str | float | int]]]]:
+        """Szintek kategorizálása strength és touches alapján.
+
+        A szinteket erősíti support és resistance kategóriákba, majd minden kategóriában
+        további alcsoportokba: strong, moderate, weak.
+
+        Args:
+            levels: Szintek listája dict-ekkel, melyek tartalmazzák 'strength',
+                'touches', 'type' stb.
+
+        Returns:
+            dict: Kategorizált szintek struktúrája:
+                {
+                    "support": {"strong": [...], "moderate": [...], "weak": [...]},
+                    "resistance": {"strong": [...], "moderate": [...], "weak": [...]}
+                }
+        """
+        min_touches = self.dim_config.get("min_touches")
+        if min_touches is None:
+            self.logger.warning("min_touches paraméter hiányzik a configból, default 1 használata")
+            min_touches = 1
+        min_touches = cast(int, min_touches)
+
+        result: dict[str, dict[str, list[dict[str, str | float | int]]]] = {
+            "support": {"strong": [], "moderate": [], "weak": []},
+            "resistance": {"strong": [], "moderate": [], "weak": []}
+        }
+
+        for level in levels:
+            strength = cast(float, level["strength"])
+            touches = cast(int, level["touches"])
+            level_type = cast(str, level["type"])
+
+            if strength > 0.7 and touches >= min_touches:
+                category = "strong"
+            elif 0.3 <= strength <= 0.7 or (touches < min_touches and strength > 0.4):
+                category = "moderate"
+            else:
+                category = "weak"
+
+            result[level_type][category].append(level)
+
+        return result
+
+    def _confirm_with_volume(self, df: pl.DataFrame, swing_mask: pl.Expr) -> pl.Expr:
+        """Swing pontok megerősítése volumen alapján.
+
+        Ellenőrzi, hogy a swing pontokon a real_volume nagyobb-e a mozgóátlagnál.
+        Ha volume_confirmation false, mindig 1.0-s szorzót ad vissza.
+
+        Args:
+            df: Bemeneti Polars DataFrame (nem használt, de konzisztenciáért)
+            swing_mask: Swing pontokat jelölő kifejezés
+
+        Returns:
+            pl.Expr: Szorzó kifejezés (1.2 ha megerősített, 1.0 ha nem)
+        """
+        volume_confirmation = self.dim_config.get("volume_confirmation")
+        if volume_confirmation is None:
+            self.logger.warning(
+                "volume_confirmation paraméter hiányzik a configból, default False használata"
+            )
+            volume_confirmation = False
+        volume_confirmation = cast(bool, volume_confirmation)
+        if not volume_confirmation:
+            return pl.lit(1.0)
+
+        threshold = pl.col("real_volume").rolling_mean(window_size=20) * 1.5
+        return (
+            pl.when(swing_mask & (pl.col("real_volume") > threshold))
+            .then(1.2)
+            .otherwise(1.0)
+        )
+
+    def process(self, df: pl.DataFrame, timeframe: str = "H1") -> pl.DataFrame:
+        """Support/Resistance szintek számítása swing pontok alapján.
+
+        Detektálja a swingeket Body és Wick alapján, gyűjti őket listába VolumeFactor-ral,
+        futtatja a szintek összevonását, erősség számítását és kategorizálását.
+        Idősoros vetítés minden gyertyánál a legközelebbi support/resistance-hez.
+
+        Args:
+            df: Bemeneti Polars DataFrame (time-aligned OHLCV adatok)
+            timeframe: Időkeret ("H1", "H4", "D1"), default "H1"
+
+        Returns:
+            Polars DataFrame frissített oszlopokkal: swing_high_body, swing_low_body,
+            swing_high_wick, swing_low_wick, nearest_resistance, nearest_support,
+            resistance_strength, support_strength.
+        """
+        self.logger.debug(f"D2 processzor futtatása: timeframe={timeframe}")
+
+        # Swing pontok keresése záró/nyitó árak alapján
+        df = self._find_swing_points_close_open(df)
+
+        # Swing pontok keresése high/low értékeken
+        df = self._find_swing_points_high_low(df)
+
+        # Volume factor számítása minden swing típushoz
+        high_body_mask = pl.col("swing_high_body").is_not_null()
+        low_body_mask = pl.col("swing_low_body").is_not_null()
+        high_wick_mask = pl.col("swing_high_wick").is_not_null()
+        low_wick_mask = pl.col("swing_low_wick").is_not_null()
+
+        df = df.with_columns([
+            self._confirm_with_volume(df, high_body_mask).alias("vf_high_body"),
+            self._confirm_with_volume(df, low_body_mask).alias("vf_low_body"),
+            self._confirm_with_volume(df, high_wick_mask).alias("vf_high_wick"),
+            self._confirm_with_volume(df, low_wick_mask).alias("vf_low_wick"),
+        ])
+
+        # Swing pontok gyűjtése DataFrame-ként
+        swing_data = []
+        for row in df.iter_rows(named=True):
+            if row.get("swing_high_body") is not None:
+                swing_data.append({
+                    "price": row["swing_high_body"],
+                    "weight": row["vf_high_body"],
+                    "type": "high"
+                })
+            if row.get("swing_low_body") is not None:
+                swing_data.append({
+                    "price": row["swing_low_body"],
+                    "weight": row["vf_low_body"],
+                    "type": "low"
+                })
+            if row.get("swing_high_wick") is not None:
+                swing_data.append({
+                    "price": row["swing_high_wick"],
+                    "weight": row["vf_high_wick"],
+                    "type": "high"
+                })
+            if row.get("swing_low_wick") is not None:
+                swing_data.append({
+                    "price": row["swing_low_wick"],
+                    "weight": row["vf_low_wick"],
+                    "type": "low"
+                })
+
+        swings_df = pl.DataFrame(swing_data)
+
+        # Szintek összevonása
+        merged_df = self._merge_levels(swings_df)
+
+        # Visszaalakítás list[dict]-ra a további feldolgozáshoz
+        merged_levels = []
+        for row in merged_df.to_dicts():
+            level_type = "resistance" if row["type"] == "high" else "support"
+            merged_levels.append({
+                "price": row["price"],
+                "touches": 1,
+                "type": level_type,
+                "volume_factor": row["weight"]
+            })
+
+        # Szintek erősségének számítása
+        merged_levels = self._calculate_level_strength(merged_levels)
+
+        # Support és resistance szintek kinyerése
+        support_levels = [level for level in merged_levels if level["type"] == "support"]
+        resistance_levels = [level for level in merged_levels if level["type"] == "resistance"]
+
+        # Mapping price -> strength
+        support_dict = {level["price"]: level["strength"] for level in support_levels}
+        resistance_dict = {level["price"]: level["strength"] for level in resistance_levels}
+
+        # Függvények nearest számításhoz
+        def find_nearest_support(close: float) -> tuple[float | None, float | None]:
+            candidates = [p for p in support_dict if p <= close]
+            if not candidates:
+                return None, None
+            nearest_price = max(candidates)
+            return nearest_price, support_dict[nearest_price]
+
+        def find_nearest_resistance(close: float) -> tuple[float | None, float | None]:
+            candidates = [p for p in resistance_dict if p >= close]
+            if not candidates:
+                return None, None
+            nearest_price = min(candidates)
+            return nearest_price, resistance_dict[nearest_price]
+
+        # Oszlopok hozzáadása
+        nearest_support_expr = pl.col("close").map_elements(
+            lambda c: find_nearest_support(c)[0], return_dtype=pl.Float64
+        ).alias("nearest_support")
+        support_strength_expr = pl.col("close").map_elements(
+            lambda c: find_nearest_support(c)[1], return_dtype=pl.Float64
+        ).alias("support_strength")
+        nearest_resistance_expr = pl.col("close").map_elements(
+            lambda c: find_nearest_resistance(c)[0], return_dtype=pl.Float64
+        ).alias("nearest_resistance")
+        resistance_strength_expr = pl.col("close").map_elements(
+            lambda c: find_nearest_resistance(c)[1], return_dtype=pl.Float64
+        ).alias("resistance_strength")
+
+        df = df.with_columns([
+            nearest_support_expr,
+            support_strength_expr,
+            nearest_resistance_expr,
+            resistance_strength_expr,
+        ])
+
+        # Ideiglenes oszlopok eltávolítása
+        return df.drop(["vf_high_body", "vf_low_body", "vf_high_wick", "vf_low_wick"])
+
+    @property
+    def dimension_id(self) -> int:
+        """Dimenzió azonosító (1-15).
+
+        Returns:
+            int: 2 (D2 dimenzió)
+        """
+        return 2
+
+```
+
+## `FILE: neural_ai/processors/processing/dimensions/d02_support/interfaces/__init__.py`
+
+```py
+"""D02 Support/Resistance interfészek."""
+
+```
+
+## `FILE: neural_ai/processors/processing/factory.py`
+
+```py
+"""Processing Factory - Feldolgozási komponensek factory függvényei."""
+
+import importlib
+from typing import TYPE_CHECKING
+
+from neural_ai.processors.processing.interfaces.dimension_processor_interface import IDimensionProcessor
+from neural_ai.processors.processing.interfaces.time_alignment_interface import ITimeAlignmentService
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+# Dimenzió konfigurációk - dinamikus factory loadinghez
+DIMENSIONS_CONFIG = {1: "price", 2: "support"}
+
+FACTORY_CLASSES = {1: "D01PriceFactory", 2: "D02SupportFactory"}
+
+
+def create_time_alignment_service() -> ITimeAlignmentService:
+    """TimeAlignmentService factory függvény - dinamikus példányosítással.
+
+    Returns:
+        ITimeAlignmentService: Az időszinkronizációs szolgáltatás példánya
+    """
+    module = importlib.import_module(
+        "neural_ai.processors.processing.implementations.time_alignment_service"
+    )
+    cls = module.TimeAlignmentService
+    return cls()
+
+
+def create_dimension_processor(
+    dimension_id: int, config: "ConfigManagerInterface", logger: "LoggerInterface"
+) -> IDimensionProcessor:
+    """Dimenzió processzor factory függvény - dinamikus factory loadinggal.
+
+    Args:
+        dimension_id: A dimenzió azonosítója (1-15)
+        config: Konfigurációs menedzser interfész
+        logger: Logger interfész
+
+    Returns:
+        IDimensionProcessor: A megfelelő dimenzió processor példány
+
+    Raises:
+        ValueError: Ha ismeretlen dimenzió ID-t adnak meg
+    """
+    if dimension_id not in DIMENSIONS_CONFIG:
+        raise ValueError(f"Ismeretlen dimenzió ID: {dimension_id}")
+
+    name = DIMENSIONS_CONFIG[dimension_id]
+    module_name = f"neural_ai.processors.processing.dimensions.d{dimension_id:02d}_{name}.factory"
+    module = importlib.import_module(module_name)
+    factory_class = getattr(module, FACTORY_CLASSES[dimension_id])
+    return factory_class.create(config, logger)
+
+```
+
+## `FILE: neural_ai/processors/processing/implementations/__init__.py`
+
+```py
+
+```
+
+## `FILE: neural_ai/processors/processing/implementations/time_alignment_service.py`
+
+```py
+import polars as pl
+
+from neural_ai.processors.processing.interfaces.time_alignment_interface import ITimeAlignmentService
+
+
+class TimeAlignmentService(ITimeAlignmentService):
+    """Időszinkronizációs szolgáltatás - tökéletes időskála biztosítása."""
+
+    def reindex_to_grid(self, df: pl.DataFrame, timeframe: str) -> pl.DataFrame:
+        """Tökéletes időskála generálása minden timeframe-re."""
+        if timeframe.lower() == "tick":
+            return df  # Tick adaton nincs rács és nincs gap-fill
+        # Létrehozza az összes szükséges időpontot (pl. minden perc M1-nél)
+        # Kezeli a tőzsde nyitvatartási időket
+        full_range = pl.DataFrame(
+            {
+                "timestamp": pl.datetime_range(
+                    df["timestamp"].min(), df["timestamp"].max(), interval=timeframe, eager=True
+                )
+            }
+        )
+        return full_range.join(df, on="timestamp", how="left")
+
+    def market_hours_filter(self, df: pl.DataFrame) -> pl.DataFrame:
+        """Hétvégék szűrése - csak H-P napok megtartása, kivétel vasárnap >=21 UTC."""
+        weekday = pl.col("timestamp").dt.weekday()
+        hour = pl.col("timestamp").dt.hour()
+        return df.filter((weekday <= 5) | ((weekday == 7) & (hour >= 21)))
+
+    def handle_gaps(
+        self, df: pl.DataFrame, timeframe: str, method: str = "forward_fill"
+    ) -> pl.DataFrame:
+        """Lyukak kezelése az adatokban - árak forward fill, volumenek 0."""
+        if timeframe.lower() == "tick":
+            return df  # Tick adaton nincs rács és nincs gap-fill
+        if method == "forward_fill":
+            # Áraknál forward fill
+            price_cols = [
+                "open",
+                "high",
+                "low",
+                "close",
+                "mid_open",
+                "mid_high",
+                "mid_low",
+                "mid_close",
+            ]
+            df = df.with_columns(
+                [
+                    pl.col(col).fill_null(strategy="forward")
+                    for col in price_cols
+                    if col in df.columns
+                ]
+            )
+            # Volumeneknél 0
+            volume_cols = ["tick_volume", "real_volume", "ask_volume", "bid_volume"]
+            df = df.with_columns(
+                [pl.col(col).fill_null(0) for col in volume_cols if col in df.columns]
+            )
+            # Spread és egyéb null-ok forward fill
+            df = df.fill_null(strategy="forward")
+            return df
+        elif method == "mask":
+            return df.with_columns(
+                pl.when(pl.col("close").is_null())
+                .then(None)
+                .otherwise(pl.col("close"))
+                .alias("close")
+            )
+        else:
+            raise ValueError(f"Ismeretlen method: {method}")
+
+```
+
+## `FILE: neural_ai/processors/processing/interfaces/__init__.py`
+
+```py
+
+```
+
+## `FILE: neural_ai/processors/processing/interfaces/dimension_processor_interface.py`
+
+```py
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import polars as pl
+
+
+class IDimensionProcessor(ABC):
+    """Absztrakt interfész minden dimenzió processzor számára."""
+
+    @abstractmethod
+    def process(self, df: "pl.DataFrame") -> "pl.DataFrame":
+        """Polars Expr alapú dimenzió számítás."""
+        pass
+
+    @property
+    @abstractmethod
+    def dimension_id(self) -> int:
+        """Dimenzió azonosító (1-15)."""
+        pass
+
+```
+
+## `FILE: neural_ai/processors/processing/interfaces/tensor_converter_interface.py`
+
+```py
+from abc import ABC
+
+
+class ITensorConverter(ABC):
+    """Tensor konverter interfész."""
+
+    pass
+
+```
+
+## `FILE: neural_ai/processors/processing/interfaces/time_alignment_interface.py`
+
+```py
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import polars as pl
+
+
+class ITimeAlignmentService(ABC):
+    """Időszinkronizációs szolgáltatás interfész - tökéletes időskála biztosítása."""
+
+    @abstractmethod
+    def reindex_to_grid(self, df: "pl.DataFrame", timeframe: str) -> "pl.DataFrame":
+        """Tökéletes időskála generálása minden timeframe-re."""
+        pass
+
+    @abstractmethod
+    def handle_gaps(
+        self, df: "pl.DataFrame", timeframe: str, method: str = "forward_fill"
+    ) -> "pl.DataFrame":
+        """Lyukak kezelése az adatokban."""
+        pass
+
+```
+
+## `FILE: neural_ai/processors/processing/resampler_service/__init__.py`
+
+```py
+"""ResamplerService modul - Tick adatokból OHLCV gyertyák létrehozásáért felelős."""
+
+from neural_ai.processors.processing.resampler_service.factory import ResamplerServiceFactory
+from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
+    ResamplerInterface,
+)
+
+__all__ = [
+    "ResamplerInterface",
+    "ResamplerServiceFactory",
+]
+
+```
+
+## `FILE: neural_ai/processors/processing/resampler_service/exceptions/resampler_error.py`
+
+```py
+"""ResamplerService kivételek."""
+
+
+from neural_ai.core.base.exceptions.base_error import NeuralAIException
+
+
+class ResamplerError(NeuralAIException):
+    """Alapértelmezett hiba a ResamplerService-hez."""
+
+    def __init__(
+        self,
+        message: str,
+        details: str | None = None,
+        original_error: Exception | None = None
+    ):
+        """ResamplerError inicializálása.
+
+        Args:
+            message: A hibaüzenet
+            details: Részletes hibainformációk
+            original_error: Az eredeti kivétel (ha van)
+        """
+        super().__init__(message)
+        self.details = details
+        self.original_error = original_error
+        self.component = "ResamplerService"
+
+
+class DataLoadError(ResamplerError):
+    """Hiba adatok betöltése során."""
+
+    def __init__(
+        self,
+        symbol: str,
+        start: str,
+        end: str,
+        original_error: Exception | None = None
+    ):
+        """DataLoadError inicializálása.
+
+        Args:
+            symbol: A kereskedési szimbólum
+            start: A kezdő időpont
+            end: A záró időpont
+            original_error: Az eredeti kivétel
+        """
+        message = f"Adatok betöltése sikertelen a(z) {symbol} szimbólumhoz"
+        details = f"Időintervallum: {start} - {end}"
+        super().__init__(
+            message=message,
+            details=details,
+            original_error=original_error
+        )
+
+
+class ResamplingError(ResamplerError):
+    """Hiba az adatok átalakítása (resampling) során."""
+
+    def __init__(
+        self,
+        symbol: str,
+        timeframe: str,
+        original_error: Exception | None = None
+    ):
+        """ResamplingError inicializálása.
+
+        Args:
+            symbol: A kereskedési szimbólum
+            timeframe: Az időkeret
+            original_error: Az eredeti kivétel
+        """
+        message = f"Az adatok átalakítása sikertelen a(z) {symbol} szimbólumhoz"
+        details = f"Időkeret: {timeframe}"
+        super().__init__(
+            message=message,
+            details=details,
+            original_error=original_error
+        )
+
+
+class InvalidTimeframeError(ResamplerError):
+    """Hiba érvénytelen időkeret esetén."""
+
+    def __init__(self, timeframe: str):
+        """InvalidTimeframeError inicializálása.
+
+        Args:
+            timeframe: Az érvénytelen időkeret
+        """
+        message = f"Érvénytelen időkeret: {timeframe}"
+        details = (
+            "Az időkeretnek a Pandas offset formátumban kell lennie "
+            "(pl. '1m', '5m', '1h', '1D')"
+        )
+        super().__init__(message=message, details=details)
+
+```
+
+## `FILE: neural_ai/processors/processing/resampler_service/factory.py`
+
+```py
+"""ResamplerService Factory - A ResamplerService létrehozásáért felelős."""
+
+from typing import TYPE_CHECKING
+
+from neural_ai.core.base.implementations.di_container import DIContainer
+from neural_ai.processors.processing.resampler_service.implementations.resampler_service import (
+    ResamplerService,
+)
+from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
+    ResamplerInterface,
+)
+
+if TYPE_CHECKING:
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
+
+
+class ResamplerServiceFactory:
+    """Factory osztály a ResamplerService létrehozásához és kezeléséhez."""
+
+    @staticmethod
+    def create(storage: "StorageInterface") -> ResamplerInterface:
+        """ResamplerService példány létrehozása.
+
+        Args:
+            storage: A tárolási interfész példány
+
+        Returns:
+            ResamplerInterface: A létrehozott ResamplerService példány
+        """
+        return ResamplerService(storage=storage)
+
+    @classmethod
+    def get_instance(cls) -> ResamplerInterface:
+        """ResamplerService példány lekérdezése a DI konténerből.
+
+        Returns:
+            ResamplerInterface: A ResamplerService példány
+
+        Raises:
+            ComponentNotFoundError: Ha a komponens nem található a konténerben
+        """
+        container = DIContainer()
+
+        # A komponens neve, amivel regisztrálva van
+        component_name = "ResamplerService"
+
+        try:
+            # Megpróbáljuk lekérni a meglévő példányt
+            instance = container.get(component_name)
+            return instance  # type: ignore
+        except Exception:
+            # Ha nem létezik, létrehozzuk és regisztráljuk
+            from neural_ai.data.storage.factory import StorageFactory
+
+            storage = StorageFactory.get_storage(storage_type="parquet")
+            instance = cls.create(storage=storage)
+            container.register(component_name, instance)
+            return instance
+
+```
+
+## `FILE: neural_ai/processors/processing/resampler_service/implementations/resampler_service.py`
+
+```py
+"""ResamplerService implementáció - Tick adatokból OHLCV gyertyák létrehozása."""
+
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+import polars as pl
+
+from neural_ai.core.logger.factory import LoggerFactory
+from neural_ai.processors.processing.resampler_service.exceptions.resampler_error import (
+    DataLoadError,
+    InvalidTimeframeError,
+    ResamplingError,
+)
+from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
+    ResamplerInterface,
+)
+
+if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
+
+
+class ResamplerService(ResamplerInterface):
+    """ResamplerService implementáció, amely tick adatokból hoz létre OHLCV gyertyákat.
+
+    Ez a szolgáltatás felelős a tick adatok átalakításáért OHLCV (Open, High, Low, Close, Volume)
+    gyertyákká a megadott időkeretben. A hatékonyság érdekében Polars-t használ.
+    """
+
+    def __init__(self, storage: "StorageInterface") -> None:
+        """ResamplerService inicializálása.
+
+        Args:
+            storage: A tárolási interfész példány (Dependency Injection)
+        """
+        self._storage = storage
+        self._logger: LoggerInterface = LoggerFactory.get_logger("resampler_service")
+
+    async def resample(
+        self,
+        symbol: str,
+        start: datetime,
+        end: datetime,
+        timeframe: str = "1m",
+        return_type: str = "polars",
+    ) -> pl.DataFrame:
+        """Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
+
+        Args:
+            symbol: A kereskedési szimbólum (pl. 'EURUSD')
+            start: A kezdő időpont
+            end: A záró időpont
+            timeframe: Az időkeret (alapértelmezett: '1m' - 1 perc)
+            return_type: A visszaadott DataFrame típusa ('pandas' vagy 'polars')
+
+        Returns:
+            pl.DataFrame: OHLCV gyertyákat tartalmazó Polars DataFrame
+
+        Raises:
+            InvalidTimeframeError: Ha az időkeret érvénytelen
+            DataLoadError: Ha hiba történik az adatok betöltése során
+            ResamplingError: Ha hiba történik az átalakítás során
+        """
+        # Időkeret validálása
+        self._validate_timeframe(timeframe)
+
+        try:
+            # Tick adatok betöltése a tárolóból
+            tick_data = await self._load_tick_data(symbol, start, end)
+        except DataLoadError:
+            raise
+        except Exception as e:
+            raise DataLoadError(
+                symbol=symbol, start=str(start), end=str(end), original_error=e
+            ) from e
+
+        try:
+            # Átalakítás OHLCV gyertyákká (mindig Polars)
+            ohlcv_data = self._convert_to_ohlcv(tick_data, timeframe)
+
+            # Mindig Polars DataFrame visszaadása (Zero-Copy)
+            return ohlcv_data
+        except Exception as e:
+            raise ResamplingError(symbol=symbol, timeframe=timeframe, original_error=e) from e
+
+    def _validate_timeframe(self, timeframe: str) -> None:
+        """Időkeret validálása.
+
+        Args:
+            timeframe: Az időkeret string
+
+        Raises:
+            InvalidTimeframeError: Ha az időkeret érvénytelen
+        """
+        valid_timeframes = ["tick", "1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"]
+        if timeframe.lower() not in [tf.lower() for tf in valid_timeframes]:
+            raise InvalidTimeframeError(timeframe)
+
+    async def _load_tick_data(self, symbol: str, start: datetime, end: datetime) -> pl.DataFrame:
+        """Tick adatok betöltése a tárolóból.
+
+        Args:
+            symbol: A kereskedési szimbólum
+            start: A kezdő időpont
+            end: A záró időpont
+
+        Returns:
+            Polars DataFrame a tick adatokkal
+
+        Raises:
+            DataLoadError: Ha hiba történik a betöltés során
+        """
+        try:
+            # Tick adatok betöltése a StorageInterface-en keresztül
+            # Dinamikusan hívjuk meg a read_tick_data metódust
+            read_method = getattr(self._storage, "read_tick_data", None)
+            if read_method is None:
+                raise DataLoadError(
+                    symbol=symbol,
+                    start=str(start),
+                    end=str(end),
+                    original_error=AttributeError("Storage does not support read_tick_data method"),
+                )
+            tick_data = await read_method(symbol, start, end)
+
+            # Ellenőrizzük, hogy kaptunk-e adatot
+            if tick_data is None or len(tick_data) == 0:
+                self._logger.warning(
+                    "No tick data found for the specified range",
+                    symbol=symbol,
+                    start=start.isoformat(),
+                    end=end.isoformat(),
+                )
+                return pl.DataFrame()
+
+            return tick_data
+        except Exception as e:
+            raise DataLoadError(
+                symbol=symbol, start=str(start), end=str(end), original_error=e
+            ) from e
+
+    def _convert_to_ohlcv(self, tick_data: pl.DataFrame, timeframe: str) -> pl.DataFrame:
+        """Tick adatok átalakítása kiterjesztett OHLCV gyertyákká.
+
+        Args:
+            tick_data: Polars DataFrame tick adatokkal
+            timeframe: Az időkeret
+
+        Returns:
+            Polars DataFrame kiterjesztett gyertyákkal (Bid/Mid OHLC, Spread, Real/Tick Volume)
+        """
+        # Ellenőrizzük, hogy van-e adat
+        if tick_data.is_empty():
+            return pl.DataFrame(
+                schema=[
+                    "timestamp",
+                    "mid_open",
+                    "mid_high",
+                    "mid_low",
+                    "mid_close",
+                    "bid_open",
+                    "bid_high",
+                    "bid_low",
+                    "bid_close",
+                    "spread",
+                    "real_volume",
+                    "tick_volume",
+                    "bid_volume",
+                    "ask_volume",
+                ]
+            )
+
+        # Szükséges oszlopok ellenőrzése
+        required_columns = ["timestamp", "bid", "ask", "bid_volume", "ask_volume"]
+        missing_columns = [col for col in required_columns if col not in tick_data.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns for OHLCV conversion: {missing_columns}")
+
+        # Ha timeframe tick, akkor bypass aggregáció és enrich soronként
+        if timeframe.lower() == "tick":
+            mid_price = (pl.col("bid") + pl.col("ask")) / 2
+            enriched_tick_data = tick_data.with_columns(
+                mid_open=mid_price,
+                mid_high=mid_price,
+                mid_low=mid_price,
+                mid_close=mid_price,
+                bid_open=pl.col("bid"),
+                bid_high=pl.col("bid"),
+                bid_low=pl.col("bid"),
+                bid_close=pl.col("bid"),
+                spread=pl.col("ask") - pl.col("bid"),
+                real_volume=pl.col("bid_volume") + pl.col("ask_volume"),
+                tick_volume=pl.lit(1),
+            )
+            return enriched_tick_data
+
+        # Volume oszlopok kezelése (csak bid_volume, ask_volume)
+        volume_cols: list[str] = []
+        if "bid_volume" in tick_data.columns:
+            volume_cols.append("bid_volume")
+        if "ask_volume" in tick_data.columns:
+            volume_cols.append("ask_volume")
+
+        # Mid ár számítása (bid és ask átlaga)
+        tick_data = tick_data.with_columns(mid_price=(pl.col("bid") + pl.col("ask")) / 2)
+
+        # Időkeret konvertálása Polars formátumba
+        timeframe_map = {
+            "1m": "1m",
+            "5m": "5m",
+            "15m": "15m",
+            "30m": "30m",
+            "1h": "1h",
+            "4h": "4h",
+            "1D": "1d",
+            "1W": "1w",
+            "1M": "1mo",
+        }
+        polars_timeframe = timeframe_map.get(timeframe, "1m")
+
+        # Kiterjesztett aggregáció Polars group_by_dynamic használatával
+        ohlcv = (
+            tick_data.sort("timestamp")
+            .group_by_dynamic("timestamp", every=polars_timeframe)
+            .agg(
+                [
+                    # Mid OHLC (középár)
+                    pl.col("mid_price").first().alias("mid_open"),
+                    pl.col("mid_price").max().alias("mid_high"),
+                    pl.col("mid_price").min().alias("mid_low"),
+                    pl.col("mid_price").last().alias("mid_close"),
+                    # Bid OHLC
+                    pl.col("bid").first().alias("bid_open"),
+                    pl.col("bid").max().alias("bid_high"),
+                    pl.col("bid").min().alias("bid_low"),
+                    pl.col("bid").last().alias("bid_close"),
+                    # Spread: átlag (ask - bid)
+                    (pl.col("ask") - pl.col("bid")).mean().alias("spread"),
+                    # Real Volume: bid_volume + ask_volume összeg
+                    (pl.col("bid_volume") + pl.col("ask_volume")).sum().alias("real_volume"),
+                    # Tick Volume: tick szám
+                    pl.len().alias("tick_volume"),
+                ]
+                + [pl.col(col).sum().alias(f"{col}_sum") for col in volume_cols]
+            )
+        )
+
+        # Volume oszlopok átnevezése
+        for col in volume_cols:
+            if f"{col}_sum" in ohlcv.columns:
+                ohlcv = ohlcv.rename({f"{col}_sum": col})
+
+        # Natív Polars DataFrame visszaadás (Zero-Copy)
+        return ohlcv
+
+```
+
+## `FILE: neural_ai/processors/processing/resampler_service/interfaces/resampler_interface.py`
+
+```py
+"""ResamplerService Interface - Tick adatokból OHLCV gyertyák létrehozásáért felelős."""
+
+from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import polars as pl
+
+
+class ResamplerInterface(ABC):
+    """ResamplerService interfész, amely definiálja a tick adatok OHLCV gyertyákká alakítását."""
+
+    @abstractmethod
+    async def resample(
+        self,
+        symbol: str,
+        start: datetime,
+        end: datetime,
+        timeframe: str = "1m",
+        return_type: str = "polars",
+    ) -> "pl.DataFrame":
+        """Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
+
+        Args:
+            symbol: A kereskedési szimbólum (pl. 'EURUSD')
+            start: A kezdő időpont
+            end: A záró időpont
+            timeframe: Az időkeret (alapértelmezett: '1m' - 1 perc)
+            return_type: A visszaadott DataFrame típusa ('pandas' vagy 'polars')
+
+        Returns:
+            pl.DataFrame: OHLCV gyertyákat tartalmazó Polars DataFrame
+
+        Raises:
+            ResamplerError: Ha hiba történik az átalakítás során
+        """
+        pass
+
+```
+
 ## `FILE: neural_ai/ui/__init__.py`
 
 ```py
@@ -26241,7 +23105,7 @@ if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
     from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
@@ -28476,25 +25340,11 @@ class StrategyLabPage(PageInterface):
             st.session_state.show_body_swings or st.session_state.show_wick_swings
         ) and st.session_state.d2_analysis is not None:
             # Adat-összefésülés: D2 adatok konvertálása és összefésülése
-            d2_df = (
-                st.session_state.d2_analysis.to_pandas()
-                if hasattr(st.session_state.d2_analysis, "to_pandas")
-                else st.session_state.d2_analysis
-            )
-
-            # Reset index mindkét DataFrame-en a biztos összhangért
-            d2_df = d2_df.reset_index(drop=True)
-
-            # Swing oszlopok átmásolása a rajzoló DataFrame-be
-            cols_to_copy = [
-                "swing_high_body",
-                "swing_low_body",
-                "swing_high_wick",
-                "swing_low_wick",
-            ]
-            for col in cols_to_copy:
-                if col in d2_df.columns:
-                    df_plot[col] = d2_df[col]
+            if st.session_state.d2_analysis is not None:
+                d2_pd = st.session_state.d2_analysis.to_pandas()
+                # Biztosítsd, hogy a dátum oszlop neve egyezzen
+                # Merge left join-nal (hogy a chart adatok megmaradjanak)
+                df_plot = pd.merge(df_plot, d2_pd[['timestamp', 'swing_high_body', 'swing_low_body', 'swing_high_wick', 'swing_low_wick']], left_on='date', right_on='timestamp', how='left')
 
             # Body swings kirajzolása egyszerű szűréssel
             if st.session_state.show_body_swings:
@@ -29847,7 +26697,7 @@ if TYPE_CHECKING:
 
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.processing.resampler_service.interfaces.resampler_interface import (
+    from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
         ResamplerInterface,
     )
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
@@ -30098,7 +26948,7 @@ class StrategyService(StrategyServiceInterface):
             pl.DataFrame: A resample-ölt OHLCV gyertyák DataFrame-ben
         """
         # ResamplerService példányosítása Factory-n keresztül
-        from neural_ai.core.processing.resampler_service.factory import (
+        from neural_ai.processors.processing.resampler_service.factory import (
             ResamplerServiceFactory,
         )
 
@@ -30348,7 +27198,7 @@ class StrategyService(StrategyServiceInterface):
         logger.info(f"D2 elemzés indítása: {symbol} {timeframe}")
 
         # 3. D2 processor létrehozása Factory-n keresztül
-        from neural_ai.core.processing.factory import create_dimension_processor
+        from neural_ai.processors.processing.factory import create_dimension_processor
 
         processor = create_dimension_processor(dimension_id=2, config=config, logger=logger)
 
@@ -31337,7 +28187,7 @@ from neural_ai.core import bootstrap_core
 
 if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 async def download_historical_data(symbol: str, start_date: datetime, end_date: datetime) -> None:
@@ -32675,6 +29525,302 @@ if __name__ == "__main__":
 
 ```
 
+## `FILE: scripts/smart_pack.py`
+
+```py
+#!/usr/bin/env python3
+"""Smart Context Packer & Drive Sync.
+
+Ez a szkript összegyűjti a projekt releváns forráskódjait egyetlen
+Markdown/Text fájlba a LLM kontextus számára, és automatikusan
+szinkronizálja a Google Drive-ra (Linux GVFS támogatással).
+"""
+
+import argparse
+import os
+import subprocess
+import time
+from pathlib import Path
+
+# ==========================================
+# ⚙️ KONFIGURÁCIÓ
+# ==========================================
+
+PROJECT_ROOT = Path(__file__).parent.parent.resolve()
+OUTPUT_FILENAME_TXT = "neural_ai_full_context.txt"
+OUTPUT_FILE_TXT = PROJECT_ROOT / OUTPUT_FILENAME_TXT
+OUTPUT_FILENAME_MD = "neural_ai_full_context.md"
+OUTPUT_FILE_MD = PROJECT_ROOT / OUTPUT_FILENAME_MD
+
+# Google Drive mappa neve
+DRIVE_SUBFOLDER = "Google AI Studio"
+
+# Mit vegyünk bele (Full mód)
+INCLUDE_DIRS = ["neural_ai", "scripts", "configs", "docs", "external", "tests"]
+INCLUDE_FILES = ["pyproject.toml", "main.py", "README.md", ".gitignore", ".vscode/settings.json"]
+
+# Mit hagyjunk ki (Zajszűrés)
+IGNORE_EXTENSIONS: set[str] = {
+    ".pyc",
+    ".pyo",
+    ".pyd",
+    ".parquet",
+    ".csv",
+    ".db",
+    ".sqlite",
+    ".h5",
+    ".pt",
+    ".pth",
+    ".png",
+    ".jpg",
+    ".zip",
+    ".jar",
+    ".class",
+    ".lock",
+    ".DS_Store",
+    ".txt",
+    ".log",
+}
+
+IGNORE_DIRS: set[str] = {
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".git",
+    "venv",
+    "env",
+    "data",
+    "logs",
+    "htmlcov",
+    "build",
+    ".gradle",
+    "gradle",
+    "node_modules",
+    "docs/components",  # Generált API doksi felesleges contextnek
+}
+
+# Fájlok, amiket ne csomagoljunk be (kimenetek)
+IGNORE_FILES: set[str] = {
+    OUTPUT_FILENAME_TXT,
+    OUTPUT_FILENAME_MD,
+    # "smart_pack.py",  # Önmagát ne
+}
+
+
+# ==========================================
+# ☁️ DRIVE SZINKRONIZÁCIÓ (UBUNTU GVFS)
+# ==========================================
+
+
+def find_drive_path() -> Path | None:
+    """Megkeresi az Ubuntu által felcsatolt Google Drive útvonalat.
+
+    Returns:
+        Path | None: A célmappa útvonala, vagy None ha nem található.
+    """
+    try:
+        uid = os.getuid()
+        gvfs_root = Path(f"/run/user/{uid}/gvfs")
+
+        if not gvfs_root.exists():
+            return None
+
+        for item in gvfs_root.iterdir():
+            if item.name.startswith("google-drive"):
+                # Ellenőrizzük, hogy létezik-e benne a célmappa
+                target = item / DRIVE_SUBFOLDER
+                if target.exists():
+                    print(f"✅ Drive és célmappa megtalálva: {target}")
+                    return target
+
+                print(f"ℹ️  Drive megvan, de a '{DRIVE_SUBFOLDER}' mappa hiányzik.")
+                print(f"   Használom a gyökeret: {item}")
+                return item
+
+        return None
+    except Exception as e:
+        print(f"⚠️ Hiba a Drive keresésekor: {e}")
+        return None
+
+
+def sync_to_drive(source_file: Path) -> None:
+    """Átmásolja a fájlt a Linux 'cp' parancsával (GVFS Workaround).
+
+    Args:
+        source_file: A forrásfájl útvonala.
+    """
+    dest_folder = find_drive_path()
+
+    if not dest_folder:
+        print("⚠️  Google Drive nincs felcsatolva. Csak helyi mentés történt.")
+        return
+
+    dest_file = dest_folder / source_file.name
+
+    print(f"☁️  Szinkronizálás (Linux cp): {dest_file} ...")
+
+    try:
+        start_t = time.time()
+
+        # A MÁGIKUS MEGOLDÁS: Rendszerparancs hívása
+        # A 'cp' nem dob hibát az attribútumok miatt GVFS-en
+        cmd = ["cp", str(source_file), str(dest_file)]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        if result.returncode == 0:
+            duration = time.time() - start_t
+            print(f"✅ SIKER! Fájl feltöltve ({duration:.2f}s).")
+        else:
+            print(f"❌ Hiba a másoláskor (cp exit code {result.returncode}):")
+            print(result.stderr)
+
+    except Exception as e:
+        print(f"❌ Kritikus hiba szinkronizáláskor: {e}")
+
+
+# ==========================================
+# 📦 CSOMAGOLÓ LOGIKA
+# ==========================================
+
+
+def is_ignored(path: Path) -> bool:
+    """Eldönti, hogy egy fájl kihagyandó-e.
+
+    Args:
+        path: A vizsgált fájl útvonala.
+
+    Returns:
+        bool: True ha ki kell hagyni.
+    """
+    # 1. Kiterjesztés ellenőrzés
+    if path.suffix.lower() in IGNORE_EXTENSIONS:
+        return True
+
+    # 2. Rejtett fájl ellenőrzés
+    if path.name.startswith("."):
+        return True
+
+    # 3. Kimeneti fájlok kizárása
+    if path.name in IGNORE_FILES:
+        return True
+
+    # 4. Útvonal alapú szűrés (Path parts használatával a string match helyett)
+    try:
+        # A projekt gyökeréhez viszonyított relatív útvonal
+        rel_path = path.relative_to(PROJECT_ROOT)
+
+        # Ellenőrizzük, hogy az útvonal bármely része (mappa) tiltólistás-e
+        # Ez pontosabb, mint a string 'in', mert pl. a "data_loader.py" nem akad fenn a "data" tiltáson
+        for part in rel_path.parts:
+            if part in IGNORE_DIRS:
+                return True
+
+            # Speciális esetek (pl. docs/components)
+            if f"{part}/" in str(rel_path):  # Részleges útvonal check
+                for ignore in IGNORE_DIRS:
+                    if ignore in str(rel_path):
+                        return True
+
+    except ValueError:
+        return True
+
+    return False
+
+
+def pack_project(mode: str = "full") -> None:
+    """Projekt csomagolása.
+
+    Args:
+        mode: Csomagolási mód (jelenleg csak 'full' támogatott).
+    """
+    print(f"📦 Context generálása ({mode} mód)...")
+
+    # Fájlok gyűjtése
+    all_files: list[Path] = []
+
+    # 1. Kiemelt fájlok
+    for f in INCLUDE_FILES:
+        path = PROJECT_ROOT / f
+        if path.exists():
+            all_files.append(path)
+
+    # 2. Mappák rekurzívan
+    for d in INCLUDE_DIRS:
+        dir_path = PROJECT_ROOT / d
+        if dir_path.exists():
+            all_files.extend(dir_path.rglob("*"))
+
+    # Egyedi lista, rendezve
+    unique_files = sorted(list(set(all_files)))
+    count = 0
+
+    try:
+        with (
+            open(OUTPUT_FILE_TXT, "w", encoding="utf-8") as out_txt,
+            open(OUTPUT_FILE_MD, "w", encoding="utf-8") as out_md,
+        ):
+            # Header írása
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+
+            header_txt = f"=== NEURAL AI NEXT CONTEXT ({mode.upper()}) ===\n"
+            header_txt += f"Generated: {timestamp}\n\n"
+            out_txt.write(header_txt)
+
+            header_md = f"# NEURAL AI NEXT CONTEXT ({mode.upper()})\n"
+            header_md += f"*Generated: {timestamp}*\n\n"
+            out_md.write(header_md)
+
+            for path in unique_files:
+                if path.is_file() and not is_ignored(path):
+                    try:
+                        rel = path.relative_to(PROJECT_ROOT)
+                        content = path.read_text(encoding="utf-8", errors="ignore")
+
+                        # Write to TXT file
+                        out_txt.write(f"\n{'=' * 50}\nFILE: {rel}\n{'=' * 50}\n{content}\n")
+
+                        # Write to MD file
+                        # Nyelv detektálás kiterjesztésből
+                        ext = path.suffix[1:] if path.suffix else "text"
+                        # Mapping specifikus kiterjesztésekhez
+                        if ext == "mq5" or ext == "mqh":
+                            ext = "cpp"
+
+                        out_md.write(f"## `FILE: {rel}`\n\n")
+                        out_md.write(f"```{ext}\n")
+                        out_md.write(content)
+                        out_md.write("\n```\n\n")
+
+                        count += 1
+                        print(f"  + {rel}")
+                    except Exception as e:
+                        print(f"⚠️  Hiba a(z) '{path}' feldolgozása közben: {e}")
+
+        # Statisztika
+        if OUTPUT_FILE_TXT.exists():
+            size_mb_txt = os.path.getsize(OUTPUT_FILE_TXT) / (1024 * 1024)
+            print(f"📄 TXT kész: {count} fájl ({size_mb_txt:.2f} MB) -> {OUTPUT_FILE_TXT}")
+
+        if OUTPUT_FILE_MD.exists():
+            size_mb_md = os.path.getsize(OUTPUT_FILE_MD) / (1024 * 1024)
+            print(f"📄 MD kész:  {count} fájl ({size_mb_md:.2f} MB) -> {OUTPUT_FILE_MD}")
+
+        # AUTO SYNC
+        sync_to_drive(OUTPUT_FILE_TXT)
+        sync_to_drive(OUTPUT_FILE_MD)
+
+    except Exception as e:
+        print(f"❌ Végzetes hiba a csomagolás során: {e}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("mode", default="full", nargs="?", help="Csomagolási mód")
+    args = parser.parse_args()
+    pack_project(args.mode)
+
+```
+
 ## `FILE: scripts/test_d2_standalone.py`
 
 ```py
@@ -32703,8 +29849,8 @@ import polars as pl
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from neural_ai.core import bootstrap_core
-from neural_ai.core.processing.dimensions.d02_support.factory import D02SupportFactory
-from neural_ai.core.processing.resampler_service.factory import ResamplerServiceFactory
+from neural_ai.processors.processing.dimensions.d02_support.factory import D02SupportFactory
+from neural_ai.processors.processing.resampler_service.factory import ResamplerServiceFactory
 
 if TYPE_CHECKING:
     pass
@@ -33048,7 +30194,7 @@ async def validate_d2_swing_engine() -> bool:
             return False
 
         # D2 processzor létrehozása
-        from neural_ai.core.processing.factory import create_dimension_processor
+        from neural_ai.processors.processing.factory import create_dimension_processor
 
         d2_processor = create_dimension_processor(2, config, logger)
 
@@ -37286,7 +34432,7 @@ class TestCoreComponentFactory:
 
     @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
     @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
-    @patch("neural_ai.core.storage.implementations.file_storage.FileStorage")
+    @patch("neural_ai.data.storage.implementations.file_storage.FileStorage")
     def test_create_components_with_all_paths(
         self, mock_file_storage: MagicMock, mock_get_logger: MagicMock, mock_get_manager: MagicMock
     ) -> None:
@@ -37494,7 +34640,7 @@ class TestCoreComponentFactory:
         """Teszteli a _get_storage metódust regisztrált storagel (87-88. sorok)."""
         from unittest.mock import MagicMock, patch
 
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         container: DIContainer = DIContainer()
         factory: CoreComponentFactory = CoreComponentFactory(container)
@@ -37519,7 +34665,7 @@ class TestCoreComponentFactory:
         from unittest.mock import MagicMock, patch
 
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         container: DIContainer = DIContainer()
 
@@ -37578,7 +34724,7 @@ class TestCoreComponentFactory:
         from unittest.mock import MagicMock, patch
 
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         container: DIContainer = DIContainer()
 
@@ -47343,4459 +44489,6 @@ class TestLoggerInitExports:
 
 ```
 
-## `FILE: tests/core/processing/dimensions/d01_price/test_factory.py`
-
-```py
-"""D01PriceFactory unit tesztek."""
-
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock
-
-from neural_ai.core.processing.dimensions.d01_price.factory import D01PriceFactory
-from neural_ai.core.processing.dimensions.d01_price.processor import D01PriceProcessor
-from neural_ai.core.processing.interfaces.dimension_processor_interface import IDimensionProcessor
-
-
-class TestD01PriceFactory:
-    """D01PriceFactory unit teszt osztály."""
-
-    def test_create_returns_correct_type(self):
-        """Teszteli, hogy a create metódus helyes típust ad vissza."""
-        mock_config = MagicMock()
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
-        mock_logger = MagicMock()
-
-        processor = D01PriceFactory.create(mock_config, mock_logger)
-
-        assert isinstance(processor, D01PriceProcessor)
-        assert isinstance(processor, IDimensionProcessor)
-
-    def test_create_returns_new_instance(self):
-        """Teszteli, hogy minden create hívás új példányt ad."""
-        mock_config = MagicMock()
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
-        mock_logger = MagicMock()
-
-        processor1 = D01PriceFactory.create(mock_config, mock_logger)
-        processor2 = D01PriceFactory.create(mock_config, mock_logger)
-
-        assert processor1 is not processor2
-        assert isinstance(processor1, D01PriceProcessor)
-        assert isinstance(processor2, D01PriceProcessor)
-
-    def test_created_processor_has_correct_dimension_id(self):
-        """Teszteli, hogy a létrehozott processor helyes dimension_id-val rendelkezik."""
-        mock_config = MagicMock()
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
-        mock_logger = MagicMock()
-
-        processor = D01PriceFactory.create(mock_config, mock_logger)
-
-        assert processor.dimension_id == 1
-
-    def test_created_processor_is_functional(self):
-        """Teszteli, hogy a létrehozott processor működőképes."""
-        import polars as pl
-
-        mock_config = MagicMock()
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
-        mock_logger = MagicMock()
-
-        processor = D01PriceFactory.create(mock_config, mock_logger)
-
-        # Egyszerű teszt DataFrame (nagyobb dataset a Z-score-hoz)
-        timestamps = [
-            datetime(2023, 1, 1, 9, 0) + timedelta(minutes=i) for i in range(80)
-        ]  # 80 sor a rolling window-hez
-        test_df = pl.DataFrame(
-            {
-                "timestamp": timestamps,
-                "mid_open": [1.0500 + i * 0.0001 for i in range(80)],
-                "mid_high": [1.0520 + i * 0.0001 for i in range(80)],
-                "mid_low": [1.0480 + i * 0.0001 for i in range(80)],
-                "mid_close": [1.0510 + i * 0.0001 for i in range(80)],
-                "tick_volume": [1000 + i * 10 for i in range(80)],
-                "spread": [0.0002 + i * 0.00001 for i in range(80)],
-                "real_volume": [1500.0 + i * 5 for i in range(80)],
-            }
-        )
-
-        result = processor.process(test_df)
-
-        assert isinstance(result, pl.DataFrame)
-        assert len(result) == 80
-        expected_columns = {
-            "timestamp",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "tick_volume",
-            "spread",
-            "real_volume",
-            "log_return",
-            "rolling_z_score",
-            "upper_shadow",
-            "lower_shadow",
-        }
-        assert set(result.columns) == expected_columns
-
-```
-
-## `FILE: tests/core/processing/dimensions/d01_price/test_processor.py`
-
-```py
-"""D01PriceProcessor unit tesztek."""
-
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock
-
-import numpy as np
-import polars as pl
-import pytest
-
-from neural_ai.core.processing.dimensions.d01_price.processor import D01PriceProcessor
-
-
-class TestD01PriceProcessor:
-    """D01PriceProcessor unit teszt osztály."""
-
-    @pytest.fixture
-    def processor(self) -> D01PriceProcessor:
-        """D01PriceProcessor példány fixture."""
-        # Mock config és logger létrehozása
-        mock_config = MagicMock()
-        mock_config.get.return_value = {"z_score_window": 60, "calc_shadows": True}
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
-        mock_logger = MagicMock()
-        return D01PriceProcessor(mock_config, mock_logger)
-
-    @pytest.fixture
-    def sample_ohlcv_data(self) -> pl.DataFrame:
-        """Mint OHLCV adatok fixture."""
-        # 100 mock OHLCV rekord (nagyobb dataset a rolling Z-score-hoz)
-        timestamps = [datetime(2023, 1, 1, 9, 0, 0) + timedelta(minutes=i) for i in range(100)]
-        base_price = 1.0500
-
-        data = []
-        for ts in timestamps:
-            open_price = base_price + np.random.normal(0, 0.001)
-            close_price = open_price + np.random.normal(0, 0.002)
-            high_price = max(open_price, close_price) + abs(np.random.normal(0, 0.001))
-            low_price = min(open_price, close_price) - abs(np.random.normal(0, 0.001))
-
-            # Bid árak (spread figyelembevételével)
-            spread = abs(np.random.normal(0.0002, 0.0001))
-            bid_open = open_price - spread / 2
-            bid_high = high_price - spread / 2
-            bid_low = low_price - spread / 2
-            bid_close = close_price - spread / 2
-
-            data.append(
-                {
-                    "timestamp": ts,
-                    "bid_open": bid_open,
-                    "bid_high": bid_high,
-                    "bid_low": bid_low,
-                    "bid_close": bid_close,
-                    "mid_open": open_price,
-                    "mid_high": high_price,
-                    "mid_low": low_price,
-                    "mid_close": close_price,
-                    "tick_volume": int(np.random.normal(1000, 200)),
-                    "spread": spread,
-                    "real_volume": np.random.normal(1500, 300),
-                }
-            )
-
-            base_price = close_price
-
-        return pl.DataFrame(data)
-
-    def test_dimension_id(self, processor: D01PriceProcessor):
-        """Teszteli a dimension_id property-t."""
-        assert processor.dimension_id == 1
-
-    def test_process_valid_data(
-        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a process metódust érvényes adatokkal."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Ellenőrizzük az eredmény típusát
-        assert isinstance(result, pl.DataFrame)
-
-        # Ellenőrizzük az oszlopokat
-        expected_columns = {
-            "timestamp",
-            "bid_open", "bid_high", "bid_low", "bid_close",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "tick_volume",
-            "spread",
-            "real_volume",
-            "log_return",
-            "rolling_z_score",
-            "upper_shadow",
-            "lower_shadow",
-        }
-        assert set(result.columns) == expected_columns
-
-        # Ellenőrizzük a sorok számát
-        assert len(result) == len(sample_ohlcv_data)
-
-        # Ellenőrizzük, hogy az adatok változatlanok (csak szelektálás)
-        assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
-        assert result["mid_open"].equals(sample_ohlcv_data["mid_open"])
-        assert result["mid_high"].equals(sample_ohlcv_data["mid_high"])
-        assert result["mid_low"].equals(sample_ohlcv_data["mid_low"])
-        assert result["mid_close"].equals(sample_ohlcv_data["mid_close"])
-        assert result["tick_volume"].equals(sample_ohlcv_data["tick_volume"])
-        assert result["spread"].equals(sample_ohlcv_data["spread"])
-        assert result["real_volume"].equals(sample_ohlcv_data["real_volume"])
-
-    def test_process_empty_dataframe(self, processor: D01PriceProcessor):
-        """Teszteli a process metódust üres DataFrame-mel."""
-        empty_df = pl.DataFrame(
-            schema={
-                "timestamp": pl.Datetime,
-                "bid_open": pl.Float64,
-                "bid_high": pl.Float64,
-                "bid_low": pl.Float64,
-                "bid_close": pl.Float64,
-                "mid_open": pl.Float64,
-                "mid_high": pl.Float64,
-                "mid_low": pl.Float64,
-                "mid_close": pl.Float64,
-                "tick_volume": pl.Int64,
-                "spread": pl.Float64,
-                "real_volume": pl.Float64,
-            }
-        )
-
-        result = processor.process(empty_df)
-
-        assert isinstance(result, pl.DataFrame)
-        assert len(result) == 0
-        expected_columns = {
-            "timestamp",
-            "bid_open", "bid_high", "bid_low", "bid_close",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "tick_volume",
-            "spread",
-            "real_volume",
-            "log_return",
-            "rolling_z_score",
-            "upper_shadow",
-            "lower_shadow",
-        }
-        assert set(result.columns) == expected_columns
-
-    def test_process_missing_columns_raises_error(self, processor: D01PriceProcessor):
-        """Teszteli, hogy hiányzó oszlopok esetén ColumnNotFoundError-t dob."""
-        # Hiányzó bid_close és mid_close oszlop
-        incomplete_df = pl.DataFrame(
-            {
-                "timestamp": [datetime(2023, 1, 1, 9, 0, 0)],
-                "bid_open": [1.0499],
-                "bid_high": [1.0519],
-                "bid_low": [1.0479],
-                # bid_close és mid_close hiányzik
-                "mid_open": [1.0500],
-                "mid_high": [1.0520],
-                "mid_low": [1.0480],
-                "tick_volume": [1000],
-                "spread": [0.0002],
-                "real_volume": [1500.0],
-            }
-        )
-
-        # Polars select ColumnNotFoundError-t dob hiányzó oszlopokra
-        with pytest.raises(pl.exceptions.ColumnNotFoundError):
-            processor.process(incomplete_df)
-
-    def test_process_extra_columns_ignored(
-        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli, hogy extra oszlopok figyelmen kívül maradnak."""
-        # Extra oszlop hozzáadása
-        data_with_extra = sample_ohlcv_data.with_columns(extra_col=pl.lit("extra"))
-
-        result = processor.process(data_with_extra)
-
-        # Csak a szükséges oszlopok maradnak (és az újak)
-        expected_columns = {
-            "timestamp",
-            "bid_open", "bid_high", "bid_low", "bid_close",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "tick_volume",
-            "spread",
-            "real_volume",
-            "log_return",
-            "rolling_z_score",
-            "upper_shadow",
-            "lower_shadow",
-        }
-        assert set(result.columns) == expected_columns
-        assert "extra_col" not in result.columns
-
-    def test_process_data_types_preserved(
-        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli, hogy az adattípusok megmaradnak."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Ellenőrizzük a fontos adattípusokat
-        assert result["timestamp"].dtype == pl.Datetime
-        assert result["mid_open"].dtype in [pl.Float32, pl.Float64]
-        assert result["mid_high"].dtype in [pl.Float32, pl.Float64]
-        assert result["mid_low"].dtype in [pl.Float32, pl.Float64]
-        assert result["mid_close"].dtype in [pl.Float32, pl.Float64]
-        assert result["tick_volume"].dtype in [pl.Int32, pl.Int64]
-        assert result["spread"].dtype in [pl.Float32, pl.Float64]
-        assert result["real_volume"].dtype in [pl.Float32, pl.Float64]
-
-    def test_process_order_preserved(
-        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli, hogy a sorok sorrendje megmarad."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Ellenőrizzük, hogy a timestamp oszlop sorrendje azonos
-        assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
-
-    def test_process_tick_timeframe_shadows_none(
-        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a process metódust tick timeframe-mal, ahol shadows None."""
-        result = processor.process(sample_ohlcv_data, timeframe="tick")
-
-        # Ellenőrizzük az eredmény típusát
-        assert isinstance(result, pl.DataFrame)
-
-        # Oszlopok azonosak, kivéve hogy shadows None
-        expected_columns = {
-            "timestamp",
-            "bid_open", "bid_high", "bid_low", "bid_close",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "tick_volume",
-            "spread",
-            "real_volume",
-            "log_return",
-            "rolling_z_score",
-            "upper_shadow",
-            "lower_shadow",
-        }
-        assert set(result.columns) == expected_columns
-
-        # Shadows None kell legyenek
-        assert result["upper_shadow"].is_null().all()
-        assert result["lower_shadow"].is_null().all()
-
-        # Egyéb adatok megmaradnak
-        assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
-        assert result["mid_close"].equals(sample_ohlcv_data["mid_close"])
-
-    def test_process_ohlc_timeframe_with_shadows(
-        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a process metódust OHLC timeframe-mal calc_shadows=True."""
-        result = processor.process(sample_ohlcv_data, timeframe="1m")
-
-        # Shadows nem None
-        assert not result["upper_shadow"].is_null().all()
-        assert not result["lower_shadow"].is_null().all()
-
-    @pytest.fixture
-    def processor_no_shadows(self) -> D01PriceProcessor:
-        """D01PriceProcessor példány fixture calc_shadows=False."""
-        mock_config = MagicMock()
-        mock_config.get.return_value = {"z_score_window": 60, "calc_shadows": False}
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": False}
-        mock_logger = MagicMock()
-        return D01PriceProcessor(mock_config, mock_logger)
-
-    def test_process_ohlc_timeframe_no_shadows(
-        self, processor_no_shadows: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a process metódust OHLC timeframe-mal calc_shadows=False."""
-        result = processor_no_shadows.process(sample_ohlcv_data, timeframe="1m")
-
-        # Shadows None
-        assert result["upper_shadow"].is_null().all()
-        assert result["lower_shadow"].is_null().all()
-
-```
-
-## `FILE: tests/core/processing/dimensions/d02_support/test_exceptions.py`
-
-```py
-"""D02Support kivételek unit tesztek."""
-
-from neural_ai.core.processing.dimensions.d02_support.exceptions.support_error import (
-    SupportError,
-    SupportResistanceLevelError,
-    SwingPointCalculationError,
-    TimeframeConfigurationError,
-)
-
-
-class TestSupportExceptions:
-    """Support kivételek unit teszt osztály."""
-
-    def test_support_error_creation(self):
-        """Teszteli a SupportError létrehozását."""
-        error = SupportError("Test error", "TEST_CODE")
-
-        assert str(error) == "Test error"
-        assert error.error_code == "TEST_CODE"
-
-    def test_support_error_without_code(self):
-        """Teszteli a SupportError létrehozását hibakód nélkül."""
-        error = SupportError("Test error")
-
-        assert str(error) == "Test error"
-        assert error.error_code is None
-
-    def test_swing_point_calculation_error(self):
-        """Teszteli a SwingPointCalculationError létrehozását."""
-        error = SwingPointCalculationError("Swing calculation failed", 5, "mid_high")
-
-        assert str(error) == "Swing calculation failed"
-        assert error.error_code == "SWING_POINT_CALCULATION_ERROR"
-        assert error.window_size == 5
-        assert error.column_name == "mid_high"
-
-    def test_support_resistance_level_error(self):
-        """Teszteli a SupportResistanceLevelError létrehozását."""
-        error = SupportResistanceLevelError("Level calculation failed", "support", "rolling_mean")
-
-        assert str(error) == "Level calculation failed"
-        assert error.error_code == "SUPPORT_RESISTANCE_LEVEL_ERROR"
-        assert error.level_type == "support"
-        assert error.aggregation_method == "rolling_mean"
-
-    def test_timeframe_configuration_error(self):
-        """Teszteli a TimeframeConfigurationError létrehozását."""
-        error = TimeframeConfigurationError("Config invalid", "H4", "swing_window")
-
-        assert str(error) == "Config invalid"
-        assert error.error_code == "TIMEFRAME_CONFIGURATION_ERROR"
-        assert error.timeframe == "H4"
-        assert error.config_key == "swing_window"
-
-    def test_exception_inheritance(self):
-        """Teszteli, hogy az összes kivétel örökli a SupportError-t."""
-        swing_error = SwingPointCalculationError("test")
-        level_error = SupportResistanceLevelError("test")
-        config_error = TimeframeConfigurationError("test")
-
-        assert isinstance(swing_error, SupportError)
-        assert isinstance(level_error, SupportError)
-        assert isinstance(config_error, SupportError)
-
-```
-
-## `FILE: tests/core/processing/dimensions/d02_support/test_factory.py`
-
-```py
-"""D02SupportFactory unit tesztek."""
-
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock
-
-from neural_ai.core.processing.dimensions.d02_support.factory import D02SupportFactory
-from neural_ai.core.processing.dimensions.d02_support.implementations.support_processor import (
-    D02SupportProcessor,
-)
-from neural_ai.core.processing.interfaces.dimension_processor_interface import IDimensionProcessor
-
-
-class TestD02SupportFactory:
-    """D02SupportFactory unit teszt osztály."""
-
-    def test_create_returns_correct_type(self):
-        """Teszteli, hogy a create metódus helyes típust ad vissza."""
-        mock_config = MagicMock()
-        mock_config.get.return_value = {"swing_window": 5, "min_distance": 10}
-        mock_logger = MagicMock()
-
-        processor = D02SupportFactory.create(mock_config, mock_logger)
-
-        assert isinstance(processor, D02SupportProcessor)
-        assert isinstance(processor, IDimensionProcessor)
-
-    def test_create_returns_new_instance(self):
-        """Teszteli, hogy minden create hívás új példányt ad."""
-        mock_config = MagicMock()
-        mock_config.get.return_value = {"swing_window": 5, "min_distance": 10}
-        mock_logger = MagicMock()
-
-        processor1 = D02SupportFactory.create(mock_config, mock_logger)
-        processor2 = D02SupportFactory.create(mock_config, mock_logger)
-
-        assert processor1 is not processor2
-        assert isinstance(processor1, D02SupportProcessor)
-        assert isinstance(processor2, D02SupportProcessor)
-
-    def test_created_processor_has_correct_dimension_id(self):
-        """Teszteli, hogy a létrehozott processor helyes dimension_id-val rendelkezik."""
-        mock_config = MagicMock()
-        mock_config.get.return_value = {"swing_window": 5, "min_distance": 10}
-        mock_logger = MagicMock()
-
-        processor = D02SupportFactory.create(mock_config, mock_logger)
-
-        assert processor.dimension_id == 2
-
-    def test_created_processor_is_functional(self):
-        """Teszteli, hogy a létrehozott processor működőképes."""
-        import polars as pl
-
-        mock_config = MagicMock()
-        mock_config.get.return_value = {"swing_window": 5, "min_distance": 10}
-        mock_logger = MagicMock()
-
-        processor = D02SupportFactory.create(mock_config, mock_logger)
-
-        # Egyszerű teszt DataFrame swing pontokhoz
-        timestamps = [datetime(2023, 1, 1, 9, 0) + timedelta(minutes=i) for i in range(50)]
-        test_df = pl.DataFrame(
-            {
-                "timestamp": timestamps,
-                "mid_open": [1.0500 + i * 0.0001 for i in range(50)],
-                "mid_high": [1.0520 + i * 0.0001 for i in range(50)],
-                "mid_low": [1.0480 + i * 0.0001 for i in range(50)],
-                "mid_close": [1.0510 + i * 0.0001 for i in range(50)],
-                "tick_volume": [1000 + i * 10 for i in range(50)],
-                "spread": [0.0002 + i * 0.00001 for i in range(50)],
-                "real_volume": [1500.0 + i * 5 for i in range(50)],
-            }
-        )
-
-        result = processor.process(test_df)
-
-        assert isinstance(result, pl.DataFrame)
-        assert len(result) == 50
-        expected_columns = {
-            "timestamp",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "tick_volume",
-            "spread",
-            "real_volume",
-            "swing_high",
-            "swing_low",
-            "resistance",
-            "support",
-        }
-        assert set(result.columns) == expected_columns
-
-    def test_processor_uses_timeframe_specific_config(self):
-        """Teszteli, hogy a processor timeframe-specifikus konfigurációt használ."""
-        import polars as pl
-
-        mock_config = MagicMock()
-        mock_config.get.return_value = {
-            "swing_window": 5,
-            "min_distance": 10,
-            "timeframe_configs": {
-                "h4": {"swing_window": 10, "min_distance": 20},
-                "d1": {"swing_window": 15, "min_distance": 30},
-            },
-        }
-        mock_logger = MagicMock()
-
-        processor = D02SupportFactory.create(mock_config, mock_logger)
-
-        # Egyszerű teszt DataFrame
-        timestamps = [datetime(2023, 1, 1, 9, 0) + timedelta(minutes=i) for i in range(50)]
-        test_df = pl.DataFrame(
-            {
-                "timestamp": timestamps,
-                "mid_open": [1.0500 + i * 0.0001 for i in range(50)],
-                "mid_high": [1.0520 + i * 0.0001 for i in range(50)],
-                "mid_low": [1.0480 + i * 0.0001 for i in range(50)],
-                "mid_close": [1.0510 + i * 0.0001 for i in range(50)],
-                "tick_volume": [1000 + i * 10 for i in range(50)],
-                "spread": [0.0002 + i * 0.00001 for i in range(50)],
-                "real_volume": [1500.0 + i * 5 for i in range(50)],
-            }
-        )
-
-        # Teszteljük H4 timeframe-mal
-        result_h4 = processor.process(test_df, timeframe="H4")
-        assert isinstance(result_h4, pl.DataFrame)
-
-        # A teszt sikeres, ha nem dob exception-t és helyes eredményt ad
-
-```
-
-## `FILE: tests/core/processing/dimensions/d02_support/test_processor.py`
-
-```py
-"""D02SupportProcessor unit tesztek."""
-
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock
-
-import numpy as np
-import polars as pl
-import pytest
-
-from neural_ai.core.processing.dimensions.d02_support.implementations.support_processor import (
-    D02SupportProcessor,
-)
-
-
-class TestD02SupportProcessor:
-    """D02SupportProcessor unit teszt osztály."""
-
-    @pytest.fixture
-    def processor(self) -> D02SupportProcessor:
-        """D02SupportProcessor példány fixture."""
-        # Mock config és logger létrehozása
-        mock_config = MagicMock()
-        mock_config.get.return_value = {
-            "swing_window": 5,
-            "min_distance": 10,
-            "volume_confirmation": True,
-            "min_touches": 2
-        }
-        mock_logger = MagicMock()
-        return D02SupportProcessor(mock_config, mock_logger)
-
-    @pytest.fixture
-    def sample_ohlcv_data(self) -> pl.DataFrame:
-        """Mint OHLCV adatok fixture swing pontok teszteléséhez."""
-        # 50 mock OHLCV rekord swing pontok generálásához
-        timestamps = [datetime(2023, 1, 1, 9, 0, 0) + timedelta(minutes=i) for i in range(50)]
-        base_price = 1.0500
-
-        data = []
-        for i, ts in enumerate(timestamps):
-            # Swing minták létrehozása: magasabb alacsonyabb periódusok
-            if i < 10:  # Első szakasz: emelkedő trend
-                open_price = base_price + i * 0.0005
-                close_price = open_price + 0.0003
-                high_price = close_price + 0.0002
-                low_price = open_price - 0.0001
-            elif i < 25:  # Második szakasz: csökkenő trend
-                open_price = base_price - (i - 10) * 0.0004
-                close_price = open_price - 0.0002
-                high_price = open_price + 0.0001
-                low_price = close_price - 0.0003
-            else:  # Harmadik szakasz: oldalazó
-                open_price = base_price + np.random.normal(0, 0.0002)
-                close_price = open_price + np.random.normal(0, 0.0001)
-                high_price = max(open_price, close_price) + abs(np.random.normal(0, 0.0001))
-                low_price = min(open_price, close_price) - abs(np.random.normal(0, 0.0001))
-
-            data.append(
-                {
-                    "timestamp": ts,
-                    "open": open_price,
-                    "high": high_price + 0.001,  # Teljes high magasabb
-                    "low": low_price - 0.001,  # Teljes low alacsonyabb
-                    "close": close_price,
-                    "mid_open": open_price,
-                    "mid_high": high_price,
-                    "mid_low": low_price,
-                    "mid_close": close_price,
-                    "tick_volume": int(np.random.normal(1000, 200)),
-                    "spread": abs(np.random.normal(0.0002, 0.0001)),
-                    "real_volume": np.random.normal(1500, 300),
-                }
-            )
-
-            base_price = close_price
-
-        return pl.DataFrame(data)
-
-    def test_dimension_id(self, processor: D02SupportProcessor):
-        """Teszteli a dimension_id property-t."""
-        assert processor.dimension_id == 2
-
-    def test_process_valid_data(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a process metódust érvényes adatokkal."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Ellenőrizzük az eredmény típusát
-        assert isinstance(result, pl.DataFrame)
-
-        # Ellenőrizzük az új oszlopokat
-        expected_new_columns = {
-            "swing_high_body",
-            "swing_low_body",
-            "swing_high_wick",
-            "swing_low_wick",
-            "nearest_resistance",
-            "nearest_support",
-            "resistance_strength",
-            "support_strength",
-        }
-        assert all(col in result.columns for col in expected_new_columns)
-
-        # Ellenőrizzük, hogy az eredeti oszlopok megmaradtak
-        original_columns = {
-            "timestamp",
-            "open",
-            "high",
-            "low",
-            "close",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "tick_volume",
-            "spread",
-            "real_volume",
-        }
-        assert all(col in result.columns for col in original_columns)
-
-        # Ellenőrizzük a sorok számát
-        assert len(result) == len(sample_ohlcv_data)
-
-    def test_process_swing_high_body_detection(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a body swing high pontok helyes detektálását."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Swing high body Float vagy None lehet
-        assert result["swing_high_body"].dtype in [pl.Float32, pl.Float64]
-
-        # Legalább egy swing high pontnak kell lennie (a minta adatokban)
-        assert result["swing_high_body"].drop_nulls().len() > 0
-
-    def test_process_swing_low_body_detection(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a body swing low pontok helyes detektálását."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Swing low body Float vagy None lehet
-        assert result["swing_low_body"].dtype in [pl.Float32, pl.Float64]
-
-        # Legalább egy swing low pontnak kell lennie
-        assert result["swing_low_body"].drop_nulls().len() > 0
-
-    def test_process_swing_high_wick_detection(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a wick swing high pontok helyes detektálását."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Swing high wick Float vagy None lehet
-        assert result["swing_high_wick"].dtype in [pl.Float32, pl.Float64]
-
-        # Legalább egy swing high pontnak kell lennie (a minta adatokban)
-        assert result["swing_high_wick"].drop_nulls().len() > 0
-
-    def test_process_swing_low_wick_detection(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a wick swing low pontok helyes detektálását."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Swing low wick Float vagy None lehet
-        assert result["swing_low_wick"].dtype in [pl.Float32, pl.Float64]
-
-        # Legalább egy swing low pontnak kell lennie
-        assert result["swing_low_wick"].drop_nulls().len() > 0
-
-    def test_process_empty_dataframe(self, processor: D02SupportProcessor):
-        """Teszteli a process metódust üres DataFrame-mel."""
-        empty_df = pl.DataFrame(
-            schema={
-                "timestamp": pl.Datetime,
-                "open": pl.Float64,
-                "high": pl.Float64,
-                "low": pl.Float64,
-                "close": pl.Float64,
-                "mid_open": pl.Float64,
-                "mid_high": pl.Float64,
-                "mid_low": pl.Float64,
-                "mid_close": pl.Float64,
-                "tick_volume": pl.Int64,
-                "spread": pl.Float64,
-                "real_volume": pl.Float64,
-            }
-        )
-
-        result = processor.process(empty_df)
-
-        assert isinstance(result, pl.DataFrame)
-        assert len(result) == 0
-
-        # Új oszlopok jelen kell legyenek
-        expected_columns = {
-            "timestamp",
-            "open",
-            "high",
-            "low",
-            "close",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "tick_volume",
-            "spread",
-            "real_volume",
-            "swing_high_body",
-            "swing_low_body",
-            "swing_high_wick",
-            "swing_low_wick",
-            "nearest_resistance",
-            "nearest_support",
-            "resistance_strength",
-            "support_strength",
-        }
-        assert set(result.columns) == expected_columns
-
-    def test_process_missing_columns_raises_error(self, processor: D02SupportProcessor):
-        """Teszteli, hogy hiányzó oszlopok esetén ColumnNotFoundError-t dob."""
-        # Hiányzó oszlopok (mid_high és high)
-        incomplete_df = pl.DataFrame(
-            {
-                "timestamp": [datetime(2023, 1, 1, 9, 0, 0)],
-                "open": [1.0500],
-                # high hiányzik
-                "low": [1.0480],
-                "close": [1.0510],
-                "mid_open": [1.0500],
-                # mid_high hiányzik
-                "mid_low": [1.0480],
-                "mid_close": [1.0510],
-                "tick_volume": [1000],
-                "spread": [0.0002],
-                "real_volume": [1500.0],
-            }
-        )
-
-        # Polars ColumnNotFoundError-t dob hiányzó oszlopokra
-        with pytest.raises(pl.exceptions.ColumnNotFoundError):
-            processor.process(incomplete_df)
-
-    def test_process_order_preserved(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli, hogy a sorok sorrendje megmarad."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Ellenőrizzük, hogy a timestamp oszlop sorrendje azonos
-        assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
-
-    def test_process_data_types_preserved(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli, hogy az adattípusok megmaradnak."""
-        result = processor.process(sample_ohlcv_data)
-
-        # Ellenőrizzük a fontos adattípusokat
-        assert result["timestamp"].dtype == pl.Datetime
-        assert result["open"].dtype in [pl.Float32, pl.Float64]
-        assert result["high"].dtype in [pl.Float32, pl.Float64]
-        assert result["low"].dtype in [pl.Float32, pl.Float64]
-        assert result["close"].dtype in [pl.Float32, pl.Float64]
-        assert result["mid_open"].dtype in [pl.Float32, pl.Float64]
-        assert result["mid_high"].dtype in [pl.Float32, pl.Float64]
-        assert result["mid_low"].dtype in [pl.Float32, pl.Float64]
-        assert result["mid_close"].dtype in [pl.Float32, pl.Float64]
-        assert result["tick_volume"].dtype in [pl.Int32, pl.Int64]
-        assert result["spread"].dtype in [pl.Float32, pl.Float64]
-        assert result["real_volume"].dtype in [pl.Float32, pl.Float64]
-
-        # Új oszlopok típusai
-        assert result["swing_high_body"].dtype in [pl.Float32, pl.Float64]
-        assert result["swing_low_body"].dtype in [pl.Float32, pl.Float64]
-        assert result["swing_high_wick"].dtype in [pl.Float32, pl.Float64]
-        assert result["swing_low_wick"].dtype in [pl.Float32, pl.Float64]
-
-    def test_confirm_with_volume_enabled(
-        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
-    ):
-        """Teszteli a _confirm_with_volume metódust volume_confirmation True esetén."""
-        # Swing mask: első 10 sor True, többi False
-        swing_mask = pl.col("timestamp").cum_count() <= 10
-
-        expr = processor._confirm_with_volume(sample_ohlcv_data, swing_mask)
-
-        # Alkalmazzuk az expr-t a df-re
-        result_df = sample_ohlcv_data.with_columns(volume_multiplier=expr)
-
-        # Ellenőrizzük, hogy az első 10 sorban különböző értékek vannak (1.0 vagy 1.2)
-        first_10 = result_df.head(10)["volume_multiplier"].to_list()
-        others = result_df.slice(10)["volume_multiplier"].to_list()
-
-        # Első 10-ben lehet 1.2 vagy 1.0 attól függően, hogy teljesül-e a feltétel
-        assert all(v in [1.0, 1.2] for v in first_10)
-        # Többi mindig 1.0 (swing_mask False)
-        assert all(v == 1.0 for v in others)
-
-    def test_confirm_with_volume_disabled(self, processor: D02SupportProcessor):
-        """Teszteli a _confirm_with_volume metódust volume_confirmation False esetén."""
-        # Mock config módosítása volume_confirmation False-ra
-        processor.dim_config = {"volume_confirmation": False}
-
-        df = pl.DataFrame({"real_volume": [1000, 2000, 3000]})
-        swing_mask = pl.lit(True)
-
-        expr = processor._confirm_with_volume(df, swing_mask)
-
-        # Alkalmazzuk
-        result_df = df.with_columns(volume_multiplier=expr)
-
-        # Mindig 1.0 kell legyen
-        assert all(result_df["volume_multiplier"] == 1.0)
-
-    def test_merge_levels_empty_swings(self, processor: D02SupportProcessor):
-        """Teszteli a _merge_levels metódust üres swing DataFrame-mel."""
-        df = pl.DataFrame(schema={"price": pl.Float64, "weight": pl.Float64, "type": pl.Utf8})
-        result = processor._merge_levels(df)
-
-        assert result.is_empty()
-
-    def test_merge_levels_single_swing_high(self, processor: D02SupportProcessor):
-        """Teszteli a _merge_levels metódust egyetlen high swing-gel."""
-        df = pl.DataFrame({"price": [1.0500], "weight": [1000.0], "type": ["high"]})
-        result = processor._merge_levels(df)
-
-        expected = pl.DataFrame({"price": [1.0500], "weight": [1000.0], "type": ["high"]})
-
-        assert result.equals(expected)
-
-    def test_merge_levels_single_swing_low(self, processor: D02SupportProcessor):
-        """Teszteli a _merge_levels metódust egyetlen low swing-gel."""
-        df = pl.DataFrame({"price": [1.0480], "weight": [1000.0], "type": ["low"]})
-        result = processor._merge_levels(df)
-
-        expected = pl.DataFrame({"price": [1.0480], "weight": [1000.0], "type": ["low"]})
-
-        assert result.equals(expected)
-
-    def test_merge_levels_multiple_swings_no_merge(self, processor: D02SupportProcessor):
-        """Teszteli a _merge_levels metódust több swing-gel, amelyek nem kerülnek összevonásra."""
-        df = pl.DataFrame({
-            "price": [1.0500, 1.0520, 1.0480],
-            "weight": [1000.0, 1000.0, 1000.0],
-            "type": ["high", "high", "low"]
-        })
-        result = processor._merge_levels(df)
-
-        expected = pl.DataFrame({
-            "price": [1.0480, 1.0500, 1.0520],
-            "weight": [1000.0, 1000.0, 1000.0],
-            "type": ["low", "high", "high"]
-        })
-
-        assert result.equals(expected)
-
-    def test_merge_levels_merge_close_swings(self, processor: D02SupportProcessor):
-        """Teszteli a _merge_levels metódust közel lévő swing-ek összevonásával."""
-        df = pl.DataFrame({
-            "price": [1.0500, 1.0502],
-            "weight": [1000.0, 2000.0],
-            "type": ["high", "high"]
-        })
-        result = processor._merge_levels(df)
-
-        # Súlyozott átlag számítása
-        expected_price = (1.0500 * 1000 + 1.0502 * 2000) / 3000
-
-        assert len(result) == 1
-        assert result["type"][0] == "high"
-        assert result["weight"][0] == 3000.0
-        assert abs(result["price"][0] - expected_price) < 1e-6
-
-    def test_merge_levels_sorted_by_price(self, processor: D02SupportProcessor):
-        """Teszteli, hogy a swing-ek ár szerint rendezettek maradnak."""
-        df = pl.DataFrame({
-            "price": [1.0520, 1.0480, 1.0500],
-            "weight": [1000.0, 1000.0, 1000.0],
-            "type": ["high", "low", "high"]
-        })
-        result = processor._merge_levels(df)
-
-        # Rendezve kell lenni ár szerint
-        prices = result["price"].to_list()
-        assert prices == sorted(prices)
-
-    def test_calculate_level_strength_empty_levels(self, processor: D02SupportProcessor):
-        """Teszteli a _calculate_level_strength metódust üres szintek listával."""
-        result = processor._calculate_level_strength([])
-
-        assert result == []
-
-    def test_calculate_level_strength_single_level(self, processor: D02SupportProcessor):
-        """Teszteli a _calculate_level_strength metódust egyetlen szinttel."""
-        levels = [{"price": 1.0500, "touches": 5, "type": "resistance"}]
-        result = processor._calculate_level_strength(levels)
-
-        expected_strength = (5 * 0.1) * 1.0  # volume_factor alapértelmezett 1.0, max_strength = 0.5, normalizált 1.0
-        assert len(result) == 1
-        assert result[0]["strength"] == 1.0  # Normalizált
-        assert result[0]["price"] == 1.0500
-        assert result[0]["touches"] == 5
-        assert result[0]["type"] == "resistance"
-
-    def test_calculate_level_strength_multiple_levels(self, processor: D02SupportProcessor):
-        """Teszteli a _calculate_level_strength metódust több szinttel."""
-        levels = [
-            {"price": 1.0500, "touches": 5, "type": "resistance"},
-            {"price": 1.0480, "touches": 10, "type": "support"},
-        ]
-        result = processor._calculate_level_strength(levels)
-
-        # Számítások:
-        # Level 1: (5 * 0.1) * 1.0 = 0.5
-        # Level 2: (10 * 0.1) * 1.0 = 1.0
-        # Max = 1.0
-        # Normalized: 0.5/1.0 = 0.5, 1.0/1.0 = 1.0
-
-        assert len(result) == 2
-        assert result[0]["strength"] == 0.5
-        assert result[1]["strength"] == 1.0
-
-    def test_calculate_level_strength_with_volume_factor(self, processor: D02SupportProcessor):
-        """Teszteli a _calculate_level_strength metódust volume_factor használatával."""
-        levels = [
-            {"price": 1.0500, "touches": 5, "type": "resistance", "volume_factor": 2.0},
-            {"price": 1.0480, "touches": 5, "type": "support", "volume_factor": 1.0},
-        ]
-        result = processor._calculate_level_strength(levels)
-
-        # Level 1: (5 * 0.1) * 2.0 = 1.0
-        # Level 2: (5 * 0.1) * 1.0 = 0.5
-        # Max = 1.0
-        # Normalized: 1.0/1.0 = 1.0, 0.5/1.0 = 0.5
-
-        assert len(result) == 2
-        assert result[0]["strength"] == 1.0
-        assert result[1]["strength"] == 0.5
-
-    def test_calculate_level_strength_normalization(self, processor: D02SupportProcessor):
-        """Teszteli a normalizálást 0-1 közé."""
-        levels = [
-            {"price": 1.0500, "touches": 1, "type": "resistance"},
-            {"price": 1.0480, "touches": 2, "type": "support"},
-            {"price": 1.0520, "touches": 4, "type": "resistance"},
-        ]
-        result = processor._calculate_level_strength(levels)
-
-        # Számítások:
-        # 0.1, 0.2, 0.4 -> max=0.4
-        # Normalized: 0.25, 0.5, 1.0
-
-        assert len(result) == 3
-        assert abs(result[0]["strength"] - 0.25) < 1e-6
-        assert abs(result[1]["strength"] - 0.5) < 1e-6
-        assert result[2]["strength"] == 1.0
-
-    def test_categorize_zones_empty_levels(self, processor: D02SupportProcessor):
-        """Teszteli a _categorize_zones metódust üres szintek listával."""
-        result = processor._categorize_zones([])
-
-        expected = {
-            "support": {"strong": [], "moderate": [], "weak": []},
-            "resistance": {"strong": [], "moderate": [], "weak": []}
-        }
-
-        assert result == expected
-
-    def test_categorize_zones_strong_support(self, processor: D02SupportProcessor):
-        """Teszteli a _categorize_zones metódust strong support szinttel."""
-        levels = [
-            {"price": 1.0480, "touches": 3, "type": "support", "strength": 0.8}
-        ]
-        result = processor._categorize_zones(levels)
-
-        assert len(result["support"]["strong"]) == 1
-        assert result["support"]["strong"][0]["price"] == 1.0480
-        assert len(result["support"]["moderate"]) == 0
-        assert len(result["support"]["weak"]) == 0
-        assert len(result["resistance"]["strong"]) == 0
-
-    def test_categorize_zones_strong_resistance(self, processor: D02SupportProcessor):
-        """Teszteli a _categorize_zones metódust strong resistance szinttel."""
-        levels = [
-            {"price": 1.0520, "touches": 2, "type": "resistance", "strength": 0.9}
-        ]
-        result = processor._categorize_zones(levels)
-
-        assert len(result["resistance"]["strong"]) == 1
-        assert result["resistance"]["strong"][0]["price"] == 1.0520
-        assert len(result["resistance"]["moderate"]) == 0
-        assert len(result["resistance"]["weak"]) == 0
-        assert len(result["support"]["strong"]) == 0
-
-    def test_categorize_zones_moderate_level(self, processor: D02SupportProcessor):
-        """Teszteli a _categorize_zones metódust moderate szinttel."""
-        levels = [
-            {"price": 1.0480, "touches": 1, "type": "support", "strength": 0.5}
-        ]
-        result = processor._categorize_zones(levels)
-
-        assert len(result["support"]["moderate"]) == 1
-        assert result["support"]["moderate"][0]["price"] == 1.0480
-        assert len(result["support"]["strong"]) == 0
-        assert len(result["support"]["weak"]) == 0
-
-    def test_categorize_zones_weak_level(self, processor: D02SupportProcessor):
-        """Teszteli a _categorize_zones metódust weak szinttel."""
-        levels = [
-            {"price": 1.0480, "touches": 1, "type": "support", "strength": 0.2}
-        ]
-        result = processor._categorize_zones(levels)
-
-        assert len(result["support"]["weak"]) == 1
-        assert result["support"]["weak"][0]["price"] == 1.0480
-        assert len(result["support"]["strong"]) == 0
-        assert len(result["support"]["moderate"]) == 0
-
-    def test_categorize_zones_edge_case_strength_07(self, processor: D02SupportProcessor):
-        """Teszteli a _categorize_zones metódust strength = 0.7 esetén."""
-        levels = [
-            {"price": 1.0520, "touches": 3, "type": "resistance", "strength": 0.7}
-        ]
-        result = processor._categorize_zones(levels)
-
-        # strength == 0.7, tehát moderate (nem > 0.7)
-        assert len(result["resistance"]["moderate"]) == 1
-        assert len(result["resistance"]["strong"]) == 0
-
-    def test_categorize_zones_edge_case_strength_03(self, processor: D02SupportProcessor):
-        """Teszteli a _categorize_zones metódust strength = 0.3 esetén."""
-        levels = [
-            {"price": 1.0520, "touches": 3, "type": "resistance", "strength": 0.3}
-        ]
-        result = processor._categorize_zones(levels)
-
-        # strength == 0.3, 0.3 <= 0.7, tehát moderate
-        assert len(result["resistance"]["moderate"]) == 1
-        assert len(result["resistance"]["strong"]) == 0
-
-    def test_categorize_zones_low_touches_but_high_strength(self, processor: D02SupportProcessor):
-        """Teszteli a _categorize_zones metódust alacsony touches de magas strength esetén."""
-        levels = [
-            {"price": 1.0480, "touches": 1, "type": "support", "strength": 0.5}
-        ]
-        result = processor._categorize_zones(levels)
-
-        # touches < min_touches (2), de strength > 0.4, tehát moderate
-        assert len(result["support"]["moderate"]) == 1
-        assert len(result["support"]["strong"]) == 0
-
-    def test_categorize_zones_multiple_levels(self, processor: D02SupportProcessor):
-        """Teszteli a _categorize_zones metódust több szinttel különböző kategóriákban."""
-        levels = [
-            {"price": 1.0480, "touches": 3, "type": "support", "strength": 0.8},  # strong
-            {"price": 1.0520, "touches": 2, "type": "resistance", "strength": 0.5},  # moderate
-            {"price": 1.0500, "touches": 1, "type": "support", "strength": 0.2},  # weak
-            {"price": 1.0540, "touches": 4, "type": "resistance", "strength": 0.9},  # strong
-        ]
-        result = processor._categorize_zones(levels)
-
-        assert len(result["support"]["strong"]) == 1
-        assert len(result["support"]["moderate"]) == 0
-        assert len(result["support"]["weak"]) == 1
-        assert len(result["resistance"]["strong"]) == 1
-        assert len(result["resistance"]["moderate"]) == 1
-        assert len(result["resistance"]["weak"]) == 0
-
-    def test_categorize_zones_min_touches_boundary(self, processor: D02SupportProcessor):
-        """Teszteli a _categorize_zones metódust min_touches határán."""
-        levels = [
-            {"price": 1.0520, "touches": 2, "type": "resistance", "strength": 0.8}  # touches == min_touches
-        ]
-        result = processor._categorize_zones(levels)
-
-        # touches >= min_touches és strength > 0.7, tehát strong
-        assert len(result["resistance"]["strong"]) == 1
-
-```
-
-## `FILE: tests/core/processing/resampler_service/test_resampler_service.py`
-
-```py
-"""ResamplerService tesztek."""
-
-from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, patch
-
-import pandas as pd
-import polars as pl
-import pytest
-
-from neural_ai.core.processing.resampler_service.exceptions.resampler_error import (
-    DataLoadError,
-    InvalidTimeframeError,
-    ResamplingError,
-)
-from neural_ai.core.processing.resampler_service.factory import ResamplerServiceFactory
-from neural_ai.core.processing.resampler_service.implementations.resampler_service import (
-    ResamplerService,
-)
-from neural_ai.core.processing.resampler_service.interfaces.resampler_interface import (
-    ResamplerInterface,
-)
-
-
-class TestResamplerService:
-    """ResamplerService tesztek."""
-
-    @pytest.fixture
-    def mock_storage(self) -> MagicMock:
-        """Mock StorageInterface létrehozása."""
-        return MagicMock()
-
-    @pytest.fixture
-    def resampler(self, mock_storage: MagicMock) -> ResamplerService:
-        """ResamplerService példány létrehozása."""
-        return ResamplerService(storage=mock_storage)
-
-    @pytest.fixture
-    def mock_storage_with_read_tick_data(self) -> MagicMock:
-        """Mock StorageInterface read_tick_data metódussal."""
-        storage = MagicMock()
-        storage.read_tick_data = AsyncMock(return_value=pl.DataFrame())
-        return storage
-
-    @pytest.fixture
-    def sample_tick_data(self) -> pl.DataFrame:
-        """Minta tick adatok létrehozása."""
-        # 10 másodperc adatok 1 másodperces frekvenciával
-        date_range = pd.date_range(
-            start=datetime(2024, 1, 1, 12, 0, 0), end=datetime(2024, 1, 1, 12, 0, 10), freq="1s"
-        )
-
-        return pl.DataFrame(
-            {
-                "timestamp": date_range,
-                "bid": [1.05 + i * 0.001 for i in range(len(date_range))],
-                "ask": [1.051 + i * 0.001 for i in range(len(date_range))],
-                "bid_volume": [50 + i * 5 for i in range(len(date_range))],
-                "ask_volume": [50 + i * 5 for i in range(len(date_range))],
-            }
-        )
-
-    @pytest.mark.asyncio
-    async def test_resample_valid_timeframe(
-        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
-    ):
-        """Teszt érvényes időkerettel."""
-        # Mock a _load_tick_data metódust
-        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        result = await resampler.resample(
-            symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="polars"
-        )
-
-        # Ellenőrzés
-        assert isinstance(result, pl.DataFrame)
-        assert len(result) > 0
-        assert "mid_open" in result.columns
-        assert "mid_high" in result.columns
-        assert "mid_low" in result.columns
-        assert "mid_close" in result.columns
-        assert "bid_open" in result.columns
-        assert "spread" in result.columns
-        assert "real_volume" in result.columns
-        assert "tick_volume" in result.columns
-
-    @pytest.mark.asyncio
-    async def test_resample_valid_timeframe_pandas(
-        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
-    ):
-        """Teszt érvényes időkerettel pandas visszaadással."""
-        # Mock a _load_tick_data metódust
-        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        result = await resampler.resample(
-            symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="pandas"
-        )
-
-        # Ellenőrzés
-        assert isinstance(result, pd.DataFrame)
-        assert len(result) > 0
-        assert "mid_open" in result.columns
-        assert "mid_high" in result.columns
-        assert "mid_low" in result.columns
-        assert "mid_close" in result.columns
-        assert "bid_open" in result.columns
-        assert "spread" in result.columns
-        assert "real_volume" in result.columns
-        assert "tick_volume" in result.columns
-        # Ellenőrzi, hogy az index timestamp-e
-        assert isinstance(result.index, pd.DatetimeIndex)
-
-    @pytest.mark.asyncio
-    async def test_load_tick_data_with_storage(
-        self, sample_tick_data: pl.DataFrame, mock_storage_with_read_tick_data: MagicMock
-    ):
-        """Teszt _load_tick_data metódus tényleges storage hívással."""
-        resampler = ResamplerService(storage=mock_storage_with_read_tick_data)
-        mock_storage_with_read_tick_data.read_tick_data.return_value = sample_tick_data
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        result = await resampler._load_tick_data("EURUSD", start, end)
-
-        assert isinstance(result, pl.DataFrame)
-        mock_storage_with_read_tick_data.read_tick_data.assert_called_once_with(
-            "EURUSD", start, end
-        )
-
-    @pytest.mark.asyncio
-    async def test_load_tick_data_no_data(self, mock_storage_with_read_tick_data: MagicMock):
-        """Teszt _load_tick_data metódus üres adattal."""
-        resampler = ResamplerService(storage=mock_storage_with_read_tick_data)
-        mock_storage_with_read_tick_data.read_tick_data.return_value = None
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        result = await resampler._load_tick_data("EURUSD", start, end)
-
-        assert isinstance(result, pl.DataFrame)
-        assert len(result) == 0
-
-    @pytest.mark.asyncio
-    async def test_load_tick_data_storage_error(self, mock_storage_with_read_tick_data: MagicMock):
-        """Teszt _load_tick_data metódus storage hiba esetén."""
-        resampler = ResamplerService(storage=mock_storage_with_read_tick_data)
-        mock_storage_with_read_tick_data.read_tick_data.side_effect = Exception("Storage hiba")
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        with pytest.raises(DataLoadError):
-            await resampler._load_tick_data("EURUSD", start, end)
-
-    @pytest.mark.asyncio
-    async def test_load_tick_data_no_read_method(self, mock_storage: MagicMock):
-        """Teszt _load_tick_data metódus hiányzó read_tick_data esetén."""
-        resampler = ResamplerService(storage=mock_storage)
-        # getatr None-t ad vissza
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        with pytest.raises(DataLoadError):
-            await resampler._load_tick_data("EURUSD", start, end)
-
-    @pytest.mark.asyncio
-    async def test_resample_invalid_return_type(self, resampler: ResamplerService):
-        """Teszt érvénytelen return_type esetén."""
-        resampler._load_tick_data = AsyncMock(return_value=pl.DataFrame())
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        with pytest.raises(ResamplingError):
-            await resampler.resample(
-                symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="invalid"
-            )
-
-    @pytest.mark.asyncio
-    async def test_resample_invalid_timeframe(self, resampler: ResamplerService):
-        """Teszt érvénytelen időkerettel."""
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        with pytest.raises(InvalidTimeframeError):
-            await resampler.resample(symbol="EURUSD", start=start, end=end, timeframe="invalid")
-
-    @pytest.mark.asyncio
-    async def test_resample_data_load_error(self, resampler: ResamplerService):
-        """Teszt adatok betöltési hibájával."""
-        # Mock a _load_tick_data metódust, hogy dobjon kivételt
-        resampler._load_tick_data = AsyncMock(side_effect=Exception("Betöltési hiba"))
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        with pytest.raises(DataLoadError):
-            await resampler.resample(symbol="EURUSD", start=start, end=end, timeframe="1m")
-
-    @pytest.mark.asyncio
-    async def test_resample_resampling_error(
-        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
-    ):
-        """Teszt átalakítási hibával."""
-        # Mock a _load_tick_data metódust
-        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
-
-        # Mock a _convert_to_ohlcv metódust, hogy dobjon kivételt
-        resampler._convert_to_ohlcv = MagicMock(side_effect=Exception("Átalakítási hiba"))
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        with pytest.raises(ResamplingError):
-            await resampler.resample(symbol="EURUSD", start=start, end=end, timeframe="1m")
-
-    @pytest.mark.asyncio
-    async def test_resample_different_timeframes(
-        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
-    ):
-        """Teszt különböző időkeretekkel."""
-        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        timeframes = ["1m", "5m", "15m", "1h"]
-
-        for timeframe in timeframes:
-            result = await resampler.resample(
-                symbol="EURUSD", start=start, end=end, timeframe=timeframe, return_type="polars"
-            )
-
-            assert isinstance(result, pl.DataFrame)
-            assert len(result.columns) >= 9  # Kiterjesztett OHLCV metrikák
-
-    def test_validate_timeframe_valid(self, resampler: ResamplerService):
-        """Teszt érvényes időkeret validálását."""
-        valid_timeframes = ["tick", "1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"]
-
-        for timeframe in valid_timeframes:
-            # Nem dob kivételt
-            resampler._validate_timeframe(timeframe)
-
-    def test_validate_timeframe_invalid(self, resampler: ResamplerService):
-        """Teszt érvénytelen időkeret validálását."""
-        with pytest.raises(InvalidTimeframeError):
-            resampler._validate_timeframe("invalid_timeframe")
-
-    def test_convert_to_ohlcv(self, resampler: ResamplerService, sample_tick_data: pl.DataFrame):
-        """Teszt kiterjesztett OHLCV átalakítást."""
-        result = resampler._convert_to_ohlcv(sample_tick_data, "1m")
-
-        # Ellenőrzés
-        assert isinstance(result, pl.DataFrame)
-        assert len(result) > 0
-        expected_columns = [
-            "timestamp",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "bid_open",
-            "bid_high",
-            "bid_low",
-            "bid_close",
-            "spread",
-            "real_volume",
-            "tick_volume",
-            "bid_volume",
-            "ask_volume",
-        ]
-        assert all(col in result.columns for col in expected_columns)
-
-    def test_convert_to_ohlcv_empty_data(self, resampler: ResamplerService):
-        """Teszt üres adatokkal."""
-        # Üres DataFrame létrehozása megfelelő sémával
-        empty_data = pl.DataFrame(
-            {
-                "timestamp": pl.Series([], dtype=pl.Datetime),
-                "bid": pl.Series([], dtype=pl.Float64),
-                "ask": pl.Series([], dtype=pl.Float64),
-                "bid_volume": pl.Series([], dtype=pl.Int64),
-                "ask_volume": pl.Series([], dtype=pl.Float64),
-            }
-        )
-
-        result = resampler._convert_to_ohlcv(empty_data, "1m")
-
-        assert isinstance(result, pl.DataFrame)
-        assert len(result) == 0
-
-    def test_convert_to_ohlcv_missing_columns(self, resampler: ResamplerService):
-        """Teszt hiányzó oszlopokkal."""
-        # Hiányzó ask_volume oszlop
-        invalid_data = pl.DataFrame(
-            {
-                "timestamp": pd.date_range(
-                    start=datetime(2024, 1, 1, 12, 0, 0),
-                    end=datetime(2024, 1, 1, 12, 0, 10),
-                    freq="1s",
-                ),
-                "bid": [1.05 + i * 0.001 for i in range(11)],
-                "ask": [1.051 + i * 0.001 for i in range(11)],
-                "bid_volume": [50 + i * 5 for i in range(11)],
-                # ask_volume hiányzik
-            }
-        )
-
-        with pytest.raises(ValueError, match="Missing required columns"):
-            resampler._convert_to_ohlcv(invalid_data, "1m")
-
-    @pytest.mark.asyncio
-    async def test_resample_ohlcv_calculation(
-        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
-    ):
-        """Teszt OHLCV számítás helyességét."""
-        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        result = await resampler.resample(
-            symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="polars"
-        )
-
-        # Ellenőrzés, hogy az OHLCV értékek logikailag helyesek-e
-        for row in result.rows(named=True):
-            # Mid OHLC ellenőrzések
-            assert row["mid_high"] >= row["mid_low"], "Mid High nem lehet kisebb mint Mid Low"
-            assert row["mid_open"] >= row["mid_low"], "Mid Open nem lehet kisebb mint Mid Low"
-            assert row["mid_close"] >= row["mid_low"], "Mid Close nem lehet kisebb mint Mid Low"
-            assert row["mid_high"] >= row["mid_open"], "Mid High nem lehet kisebb mint Mid Open"
-            assert row["mid_high"] >= row["mid_close"], "Mid High nem lehet kisebb mint Mid Close"
-            # Bid OHLC ellenőrzések
-            assert row["bid_high"] >= row["bid_low"], "Bid High nem lehet kisebb mint Bid Low"
-            assert row["bid_open"] >= row["bid_low"], "Bid Open nem lehet kisebb mint Bid Low"
-            assert row["bid_close"] >= row["bid_low"], "Bid Close nem lehet kisebb mint Bid Low"
-            assert row["bid_high"] >= row["bid_open"], "Bid High nem lehet kisebb mint Bid Open"
-            assert row["bid_high"] >= row["bid_close"], "Bid High nem lehet kisebb mint Bid Close"
-            # Egyéb ellenőrzések
-            assert row["spread"] >= 0, "Spread nem lehet negatív"
-            assert row["real_volume"] >= 0, "Real Volume nem lehet negatív"
-            assert row["tick_volume"] >= 0, "Tick Volume nem lehet negatív"
-
-    @pytest.mark.asyncio
-    async def test_resample_tick_timeframe(
-        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
-    ):
-        """Teszt tick timeframe bypass aggregációval."""
-        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        result = await resampler.resample(
-            symbol="EURUSD", start=start, end=end, timeframe="tick", return_type="polars"
-        )
-
-        # Ellenőrzés
-        assert isinstance(result, pl.DataFrame)
-        # Sorok száma megegyezik (bypass aggregáció)
-        assert len(result) == len(sample_tick_data)
-        assert "mid_close" in result.columns
-        assert "spread" in result.columns
-        assert "tick_volume" in result.columns
-        # Minden tick_volume 1
-        assert all(result["tick_volume"] == 1)
-        # mid_close = (bid + ask) / 2
-        expected_mid_close = (sample_tick_data["bid"] + sample_tick_data["ask"]) / 2
-        assert result["mid_close"].equals(expected_mid_close)
-        # spread = ask - bid
-        expected_spread = sample_tick_data["ask"] - sample_tick_data["bid"]
-        assert result["spread"].equals(expected_spread)
-        # real_volume = bid_volume + ask_volume
-        expected_real_volume = sample_tick_data["bid_volume"] + sample_tick_data["ask_volume"]
-        assert result["real_volume"].equals(expected_real_volume)
-
-    @pytest.mark.asyncio
-    async def test_resample_tick_timeframe_pandas(
-        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
-    ):
-        """Teszt tick timeframe bypass pandas visszaadással."""
-        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
-
-        start = datetime(2024, 1, 1, 12, 0, 0)
-        end = datetime(2024, 1, 1, 12, 0, 10)
-
-        result = await resampler.resample(
-            symbol="EURUSD", start=start, end=end, timeframe="tick", return_type="pandas"
-        )
-
-        # Ellenőrzés
-        assert isinstance(result, pd.DataFrame)
-        assert len(result) == len(sample_tick_data)
-        assert isinstance(result.index, pd.DatetimeIndex)
-
-    def test_convert_to_ohlcv_tick_timeframe(
-        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
-    ):
-        """Teszt _convert_to_ohlcv tick timeframe-mal."""
-        result = resampler._convert_to_ohlcv(sample_tick_data, "tick")
-
-        # Ellenőrzés
-        assert isinstance(result, pl.DataFrame)
-        assert len(result) == len(sample_tick_data)
-        expected_columns = [
-            "timestamp",
-            "mid_open",
-            "mid_high",
-            "mid_low",
-            "mid_close",
-            "bid_open",
-            "bid_high",
-            "bid_low",
-            "bid_close",
-            "spread",
-            "real_volume",
-            "tick_volume",
-            "bid_volume",
-            "ask_volume",
-        ]
-        assert all(col in result.columns for col in expected_columns)
-        # OHLC értékek megegyeznek minden soron belül (open=high=low=close)
-        for row in result.rows(named=True):
-            mid_price = (row["bid"] + row["ask"]) / 2
-            # Mid OHLC minden sorban azonos
-            assert row["mid_open"] == mid_price
-            assert row["mid_high"] == mid_price
-            assert row["mid_low"] == mid_price
-            assert row["mid_close"] == mid_price
-            # Bid OHLC minden sorban azonos
-            assert row["bid_open"] == row["bid"]
-            assert row["bid_high"] == row["bid"]
-            assert row["bid_low"] == row["bid"]
-            assert row["bid_close"] == row["bid"]
-            # Egyéb ellenőrzések
-            assert row["spread"] == row["ask"] - row["bid"]
-            assert row["real_volume"] == row["bid_volume"] + row["ask_volume"]
-            assert row["tick_volume"] == 1
-
-    def test_validate_timeframe_tick_case_insensitive(self, resampler: ResamplerService):
-        """Teszt tick timeframe case insensitive validálását."""
-        # Különböző case-ek
-        tick_variants = ["tick", "Tick", "TICK", "tiCK"]
-
-        for variant in tick_variants:
-            # Nem dob kivételt
-            resampler._validate_timeframe(variant)
-
-
-class TestResamplerServiceFactory:
-    """ResamplerServiceFactory tesztek."""
-
-    def test_create(self):
-        """Teszt ResamplerService létrehozását."""
-        mock_storage = MagicMock()
-        resampler = ResamplerServiceFactory.create(storage=mock_storage)
-
-        assert isinstance(resampler, ResamplerInterface)
-        assert isinstance(resampler, ResamplerService)
-
-    @patch("neural_ai.core.processing.resampler_service.factory.DIContainer")
-    @patch("neural_ai.core.storage.factory.StorageFactory.get_storage")
-    def test_get_instance(self, mock_get_storage: MagicMock, mock_container_class: MagicMock):
-        """Teszt ResamplerService példány lekérését."""
-        # Mock a DI konténert
-        mock_container = MagicMock()
-        mock_container_class.return_value = mock_container
-
-        # Mock a get metódust, hogy dobjon kivételt (nincs regisztrálva)
-        mock_container.get.side_effect = Exception("Nincs regisztrálva")
-
-        # Mock a storage factory-t
-        mock_storage = MagicMock()
-        mock_get_storage.return_value = mock_storage
-
-        # Teszt
-        resampler = ResamplerServiceFactory.get_instance()
-
-        assert isinstance(resampler, ResamplerInterface)
-        mock_container.register.assert_called_once()
-
-    @patch("neural_ai.core.processing.resampler_service.factory.DIContainer")
-    def test_get_instance_cached(self, mock_container_class: MagicMock):
-        """Teszt gyorsítótárazott példány lekérését."""
-        # Mock a DI konténert
-        mock_container = MagicMock()
-        mock_container_class.return_value = mock_container
-
-        # Mock a get metódust, hogy visszaadjon egy példányt
-        mock_resampler = MagicMock()
-        mock_container.get.return_value = mock_resampler
-
-        # Teszt
-        resampler = ResamplerServiceFactory.get_instance()
-
-        assert resampler == mock_resampler
-        mock_container.register.assert_not_called()
-
-
-class TestResamplerErrorHierarchy:
-    """ResamplerError hierarchia tesztek."""
-
-    def test_resampler_error_creation(self):
-        """Teszt ResamplerError létrehozását."""
-        from neural_ai.core.processing.resampler_service.exceptions.resampler_error import (
-            ResamplerError,
-        )
-
-        error = ResamplerError(
-            message="Teszt hiba",
-            details="Részletes információk",
-            original_error=ValueError("Eredeti hiba"),
-        )
-
-        assert str(error) == "Teszt hiba"
-        assert error.details == "Részletes információk"
-        assert error.component == "ResamplerService"
-        assert isinstance(error.original_error, ValueError)
-
-    def test_data_load_error_creation(self):
-        """Teszt DataLoadError létrehozását."""
-        original_error = OSError("Fájl nem található")
-
-        error = DataLoadError(
-            symbol="EURUSD",
-            start="2024-01-01 12:00:00",
-            end="2024-01-01 13:00:00",
-            original_error=original_error,
-        )
-
-        assert "EURUSD" in str(error)
-        assert error.details is not None
-        assert "2024-01-01 12:00:00" in error.details
-        assert error.original_error == original_error
-
-    def test_resampling_error_creation(self):
-        """Teszt ResamplingError létrehozását."""
-        original_error = RuntimeError("Feldolgozási hiba")
-
-        error = ResamplingError(symbol="EURUSD", timeframe="1m", original_error=original_error)
-
-        assert "EURUSD" in str(error)
-        assert error.details is not None
-        assert "1m" in error.details
-        assert error.original_error == original_error
-
-    def test_invalid_timeframe_error_creation(self):
-        """Teszt InvalidTimeframeError létrehozását."""
-        error = InvalidTimeframeError("invalid_tf")
-
-        assert "invalid_tf" in str(error)
-        assert error.details is not None
-        assert "Pandas offset formátum" in error.details
-
-```
-
-## `FILE: tests/core/processing/test_processing_factory.py`
-
-```py
-"""Processing Factory unit tesztek."""
-
-from unittest.mock import MagicMock
-
-import pytest
-
-from neural_ai.core.processing.dimensions.d01_price.processor import D01PriceProcessor
-from neural_ai.core.processing.factory import (
-    create_dimension_processor,
-    create_time_alignment_service,
-)
-from neural_ai.core.processing.implementations.time_alignment_service import TimeAlignmentService
-from neural_ai.core.processing.interfaces.dimension_processor_interface import IDimensionProcessor
-from neural_ai.core.processing.interfaces.time_alignment_interface import ITimeAlignmentService
-
-
-class TestProcessingFactory:
-    """Processing Factory unit teszt osztály."""
-
-    def test_create_time_alignment_service(self):
-        """Teszteli a create_time_alignment_service függvényt."""
-        service = create_time_alignment_service()
-
-        assert isinstance(service, TimeAlignmentService)
-        assert isinstance(service, ITimeAlignmentService)
-
-    def test_create_dimension_processor_d1(self):
-        """Teszteli a create_dimension_processor függvényt D1 dimenzióval."""
-        mock_config = MagicMock()
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
-        mock_logger = MagicMock()
-
-        processor = create_dimension_processor(1, mock_config, mock_logger)
-
-        assert isinstance(processor, D01PriceProcessor)
-        assert isinstance(processor, IDimensionProcessor)
-        assert processor.dimension_id == 1
-
-    def test_create_dimension_processor_invalid_id(self):
-        """Teszteli a create_dimension_processor függvényt érvénytelen ID-val."""
-        mock_config = MagicMock()
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
-        mock_logger = MagicMock()
-
-        with pytest.raises(ValueError, match="Ismeretlen dimenzió ID: 999"):
-            create_dimension_processor(999, mock_config, mock_logger)
-
-    def test_create_dimension_processor_negative_id(self):
-        """Teszteli a create_dimension_processor függvényt negatív ID-val."""
-        mock_config = MagicMock()
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
-        mock_logger = MagicMock()
-
-        with pytest.raises(ValueError, match="Ismeretlen dimenzió ID: -1"):
-            create_dimension_processor(-1, mock_config, mock_logger)
-
-    def test_create_dimension_processor_zero_id(self):
-        """Teszteli a create_dimension_processor függvényt 0 ID-val."""
-        mock_config = MagicMock()
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
-        mock_logger = MagicMock()
-
-        with pytest.raises(ValueError, match="Ismeretlen dimenzió ID: 0"):
-            create_dimension_processor(0, mock_config, mock_logger)
-
-    def test_create_dimension_processor_d2(self):
-        """Teszteli a create_dimension_processor függvényt D2 dimenzióval."""
-        mock_config = MagicMock()
-        mock_config.get_section.return_value = {"window_size": 20, "threshold": 0.1}
-        mock_logger = MagicMock()
-
-        processor = create_dimension_processor(2, mock_config, mock_logger)
-
-        assert isinstance(processor, IDimensionProcessor)
-        assert processor.dimension_id == 2
-
-```
-
-## `FILE: tests/core/storage/backends/test_base.py`
-
-```py
-"""Storage Backend Base modul tesztelése.
-
-Ez a modul tartalmazza a StorageBackend és DataFrameProtocol tesztjeit.
-"""
-
-import pytest
-from unittest.mock import Mock
-from neural_ai.core.storage.backends.base import StorageBackend, DataFrameProtocol
-
-
-class TestDataFrameProtocol:
-    """DataFrameProtocol tesztjei."""
-
-    def test_protocol_has_required_members(self) -> None:
-        """Teszteli, hogy a protokoll rendelkezik a szükséges tagokkal."""
-        assert hasattr(DataFrameProtocol, 'columns')
-        assert hasattr(DataFrameProtocol, '__len__')
-
-
-class TestStorageBackend:
-    """StorageBackend absztrakt osztály tesztjei."""
-
-    def test_backend_is_abstract(self) -> None:
-        """Teszteli, hogy az osztály absztrakt-e."""
-        with pytest.raises(TypeError):
-            StorageBackend("test", ["parquet"])  # type: ignore
-
-    def test_backend_initialization(self) -> None:
-        """Teszteli a backend inicializálását mock implementációval."""
-        
-        class MockBackend(StorageBackend):
-            """Mock backend implementáció."""
-            
-            def write(self, data, path, **kwargs):
-                pass
-            
-            def read(self, path, **kwargs):
-                return Mock()
-            
-            def append(self, data, path, **kwargs):
-                pass
-            
-            def supports_format(self, format_name):
-                return format_name in self.supported_formats
-            
-            def get_info(self, path):
-                return {
-                    'size': 1000,
-                    'rows': 100,
-                    'columns': ['col1', 'col2'],
-                    'format': 'parquet',
-                    'created': '2023-01-01',
-                    'modified': '2023-01-02'
-                }
-        
-        backend = MockBackend("test_backend", ["parquet", "csv"])
-        
-        assert backend.name == "test_backend"
-        assert backend.supported_formats == ["parquet", "csv"]
-        assert backend.is_async is True
-
-    def test_validate_data_method(self) -> None:
-        """Teszteli a validate_data metódust."""
-        
-        class MockBackend(StorageBackend):
-            """Mock backend implementáció."""
-            
-            def write(self, data, path, **kwargs):
-                pass
-            
-            def read(self, path, **kwargs):
-                return Mock()
-            
-            def append(self, data, path, **kwargs):
-                pass
-            
-            def supports_format(self, format_name):
-                return True
-            
-            def get_info(self, path):
-                return {}
-        
-        backend = MockBackend("test", ["parquet"])
-        
-        # Teszt: None adat
-        assert not backend.validate_data(None)
-        
-        # Teszt: Érvénytelen adat (negatív hossz)
-        mock_invalid = Mock()
-        mock_invalid.__len__ = Mock(return_value=-1)
-        assert not backend.validate_data(mock_invalid)
-        
-        # Teszt: Érvénytelen adat (nincs oszlop)
-        mock_no_columns = Mock()
-        mock_no_columns.__len__ = Mock(return_value=10)
-        del mock_no_columns.columns
-        assert not backend.validate_data(mock_no_columns)
-        
-        # Teszt: Érvényes adat - oszlopok mint attribútum
-        mock_valid_attr = Mock()
-        mock_valid_attr.__len__ = Mock(return_value=10)
-        mock_valid_attr.columns = ['col1', 'col2']
-        assert backend.validate_data(mock_valid_attr)
-        
-        # Teszt: Érvényes adat - oszlopok mint metódus
-        mock_valid_method = Mock()
-        mock_valid_method.__len__ = Mock(return_value=10)
-        mock_valid_method.columns = Mock(return_value=['col1', 'col2'])
-        assert backend.validate_data(mock_valid_method)
-        
-        # Teszt: Üres oszloplista
-        mock_empty_columns = Mock()
-        mock_empty_columns.__len__ = Mock(return_value=10)
-        mock_empty_columns.columns = []
-        assert not backend.validate_data(mock_empty_columns)
-        
-        # Teszt: Kivétel kezelése
-        mock_exception = Mock()
-        mock_exception.__len__ = Mock(side_effect=Exception("Test exception"))
-        assert not backend.validate_data(mock_exception)
-
-    def test_supports_format_method(self) -> None:
-        """Teszteli a supports_format metódust."""
-        
-        class MockBackend(StorageBackend):
-            """Mock backend implementáció."""
-            
-            def write(self, data, path, **kwargs):
-                pass
-            
-            def read(self, path, **kwargs):
-                return Mock()
-            
-            def append(self, data, path, **kwargs):
-                pass
-            
-            def supports_format(self, format_name):
-                return format_name in self.supported_formats
-            
-            def get_info(self, path):
-                return {}
-        
-        backend = MockBackend("test", ["parquet", "csv"])
-        
-        assert backend.supports_format("parquet")
-        assert backend.supports_format("csv")
-        assert not backend.supports_format("json")
-
-    def test_repr_method(self) -> None:
-        """Teszteli a __repr__ metódust."""
-        
-        class MockBackend(StorageBackend):
-            """Mock backend implementáció."""
-            
-            def write(self, data, path, **kwargs):
-                pass
-            
-            def read(self, path, **kwargs):
-                return Mock()
-            
-            def append(self, data, path, **kwargs):
-                pass
-            
-            def supports_format(self, format_name):
-                return True
-            
-            def get_info(self, path):
-                return {}
-        
-        backend = MockBackend("test_backend", ["parquet"])
-        repr_str = repr(backend)
-        
-        assert "MockBackend" in repr_str
-        assert "test_backend" in repr_str
-        assert "parquet" in repr_str
-
-    def test_all_abstract_methods_called(self) -> None:
-        """Teszteli, hogy az összes absztrakt metódus meghívásra kerül."""
-        
-        class MockBackend(StorageBackend):
-            """Mock backend implementáció."""
-            
-            def __init__(self):
-                super().__init__("test", ["parquet"])
-                self.write_called = False
-                self.read_called = False
-                self.append_called = False
-                self.supports_format_called = False
-                self.get_info_called = False
-            
-            def write(self, data, path, **kwargs):
-                self.write_called = True
-            
-            def read(self, path, **kwargs):
-                self.read_called = True
-                return Mock()
-            
-            def append(self, data, path, **kwargs):
-                self.append_called = True
-            
-            def supports_format(self, format_name):
-                self.supports_format_called = True
-                return True
-            
-            def get_info(self, path):
-                self.get_info_called = True
-                return {}
-        
-        backend = MockBackend()
-        
-        # Hívjuk meg az összes metódust
-        backend.write(Mock(), "/test/path")
-        backend.read("/test/path")
-        backend.append(Mock(), "/test/path")
-        backend.supports_format("parquet")
-        backend.get_info("/test/path")
-        
-        # Ellenőrizzük, hogy mindegyik meghívásra került
-        assert backend.write_called
-        assert backend.read_called
-        assert backend.append_called
-        assert backend.supports_format_called
-        assert backend.get_info_called
-
-    def test_validate_data_edge_cases(self) -> None:
-        """Teszteli a validate_data metódus szélsőséges eseteit."""
-        
-        class MockBackend(StorageBackend):
-            """Mock backend implementáció."""
-            
-            def write(self, data, path, **kwargs):
-                pass
-            
-            def read(self, path, **kwargs):
-                return Mock()
-            
-            def append(self, data, path, **kwargs):
-                pass
-            
-            def supports_format(self, format_name):
-                return True
-            
-            def get_info(self, path):
-                return {}
-        
-        backend = MockBackend("test", ["parquet"])
-        
-        # Teszt: 0 hosszúságú adat (nem negatív, de üres)
-        mock_zero_length = Mock()
-        mock_zero_length.__len__ = Mock(return_value=0)
-        mock_zero_length.columns = ['col1']
-        assert not backend.validate_data(mock_zero_length)
-        
-        # Teszt: Oszlopok, de 0 hossz
-        mock_columns_no_data = Mock()
-        mock_columns_no_data.__len__ = Mock(return_value=0)
-        mock_columns_no_data.columns = ['col1', 'col2']
-        assert not backend.validate_data(mock_columns_no_data)
-        
-        # Teszt: Nincs oszlop, de van hossz
-        mock_no_columns_with_length = Mock()
-        mock_no_columns_with_length.__len__ = Mock(return_value=5)
-        mock_no_columns_with_length.columns = []
-        assert not backend.validate_data(mock_no_columns_with_length)
-        
-        # Teszt: Oszlop mint tuple
-        mock_tuple_columns = Mock()
-        mock_tuple_columns.__len__ = Mock(return_value=10)
-        mock_tuple_columns.columns = ('col1', 'col2')
-        assert backend.validate_data(mock_tuple_columns)
-        
-        # Teszt: Oszlopok, de nincs __len__ metódusa
-        mock_columns_no_len = Mock()
-        mock_columns_no_len.columns = ['col1', 'col2']
-        # Mivel a Mock-nak alapból van __len__ metódusa, explicit beállítjuk
-        mock_columns_no_len.__len__ = Mock(return_value=10)
-        assert backend.validate_data(mock_columns_no_len)
-```
-
-## `FILE: tests/core/storage/backends/test_pandas_backend.py`
-
-```py
-"""Pandas Backend Teszt Modul.
-
-Ez a modul tartalmazza a PandasBackend osztály tesztjeit.
-"""
-
-import tempfile
-from pathlib import Path
-from typing import Any
-
-import pytest
-
-from neural_ai.core.storage.backends.pandas_backend import PandasBackend
-
-
-class TestPandasDataFrame:
-    """PandasDataFrame wrapper osztály tesztjei."""
-
-    def test_init(self) -> None:
-        """Teszteli a PandasDataFrame inicializálását."""
-        wrapper = PandasBackend()._pandas_wrapper
-        assert wrapper._pandas is None
-        assert wrapper._fastparquet is None
-
-    def test_import_pandas(self) -> None:
-        """Teszteli a lazy import funkcionalitást."""
-        wrapper = PandasBackend()._pandas_wrapper
-        pd, fp = wrapper._import_pandas()
-        assert pd is not None
-        assert fp is not None
-        assert wrapper._pandas is not None
-        assert wrapper._fastparquet is not None
-
-    def test_pd_property(self) -> None:
-        """Teszteli a pd property-t."""
-        wrapper = PandasBackend()._pandas_wrapper
-        pd = wrapper.pd
-        assert pd is not None
-
-    def test_fp_property(self) -> None:
-        """Teszteli az fp property-t."""
-        wrapper = PandasBackend()._pandas_wrapper
-        fp = wrapper.fp
-        assert fp is not None
-
-
-class TestPandasBackend:
-    """PandasBackend osztály tesztjei."""
-
-    @pytest.fixture
-    def backend(self) -> PandasBackend:
-        """Visszaad egy PandasBackend példányt."""
-        return PandasBackend()
-
-    @pytest.fixture
-    def sample_dataframe(self, backend: PandasBackend) -> Any:
-        """Visszaad egy mint DataFrame-et."""
-        pd = backend._pandas_wrapper.pd
-        return pd.DataFrame({
-            'id': [1, 2, 3],
-            'name': ['Alice', 'Bob', 'Charlie'],
-            'age': [25, 30, 35]
-        })
-
-    @pytest.fixture
-    def temp_dir(self) -> Path:
-        """Visszaad egy ideiglenes könyvtárat."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
-
-    def test_init(self, backend: PandasBackend) -> None:
-        """Teszteli a PandasBackend inicializálását."""
-        assert backend.name == 'pandas'
-        assert backend.supported_formats == ['parquet']
-        assert backend.is_async is True
-        assert backend._initialized is False
-
-    def test_ensure_initialized(self, backend: PandasBackend) -> None:
-        """Teszteli a _ensure_initialized metódust."""
-        assert backend._initialized is False
-        backend._ensure_initialized()
-        assert backend._initialized is True
-
-    def test_write_basic(
-        self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path
-    ) -> None:
-        """Teszteli az alap write műveletet."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        assert path.exists()
-        backend._ensure_initialized()
-        assert backend._pandas_wrapper.fp.ParquetFile(str(path)) is not None
-
-    def test_write_with_compression(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a write műveletet tömörítéssel."""
-        path = temp_dir / "test_compressed.parquet"
-        backend.write(sample_dataframe, str(path), compression='gzip')
-
-        assert path.exists()
-
-    def test_write_invalid_data(self, backend: PandasBackend, temp_dir: Path) -> None:
-        """Teszteli a write műveletet érvénytelen adatokkal."""
-        path = temp_dir / "test.parquet"
-        with pytest.raises(RuntimeError, match="Érvénytelen DataFrame adatok"):
-            backend.write(None, str(path))
-
-    def test_write_invalid_path(self, backend: PandasBackend, sample_dataframe: Any) -> None:
-        """Teszteli a write műveletet érvénytelen elérési úttal."""
-        with pytest.raises(RuntimeError, match=r"\.parquet kiterjesztéssel kell rendelkeznie"):
-            backend.write(sample_dataframe, "/invalid/path.txt")
-
-    def test_read_basic(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli az alap read műveletet."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        result = backend.read(str(path))
-        assert len(result) == 3
-        assert list(result.columns) == ['id', 'name', 'age']
-
-    def test_read_with_columns(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a read műveletet oszlopszűréssel."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        result = backend.read(str(path), columns=['id', 'name'])
-        assert len(result.columns) == 2
-        assert 'age' not in result.columns
-
-    def test_read_file_not_found(self, backend: PandasBackend, temp_dir: Path) -> None:
-        """Teszteli a read műveletet nem létező fájllal."""
-        path = temp_dir / "nonexistent.parquet"
-        with pytest.raises(FileNotFoundError):
-            backend.read(str(path))
-
-    def test_read_chunked(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a chunkolt olvasást."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        result = backend.read(str(path), chunk_size=2)
-        assert len(result) == 3
-
-    def test_append_to_new_file(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a hozzáfűzést új fájlhoz."""
-        path = temp_dir / "test.parquet"
-        backend.append(sample_dataframe, str(path))
-
-        assert path.exists()
-        result = backend.read(str(path))
-        assert len(result) == 3
-
-    def test_append_to_existing_file(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a hozzáfűzést meglévő fájlhoz."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        # Új adatok
-        pd = backend._pandas_wrapper.pd
-        new_data = pd.DataFrame({
-            'id': [4, 5],
-            'name': ['David', 'Eve'],
-            'age': [28, 32]
-        })
-
-        backend.append(new_data, str(path))
-        result = backend.read(str(path))
-        assert len(result) == 5
-
-    def test_append_with_schema_validation_valid(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a hozzáfűzést sémavizsgálattal - érvényes eset."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        # Ugyanazok az oszlopok
-        pd = backend._pandas_wrapper.pd
-        new_data = pd.DataFrame({
-            'id': [4],
-            'name': ['David'],
-            'age': [28]
-        })
-
-        backend.append(new_data, str(path), schema_validation=True)
-        result = backend.read(str(path))
-        assert len(result) == 4
-
-    def test_append_with_schema_validation_invalid(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a hozzáfűzést sémavizsgálattal - érvénytelen eset."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        # Hiányzó oszlop
-        pd = backend._pandas_wrapper.pd
-        new_data = pd.DataFrame({
-            'id': [4],
-            'name': ['David']
-            # 'age' oszlop hiányzik
-        })
-
-        with pytest.raises(ValueError, match="sémája nem kompatibilis"):
-            backend.append(new_data, str(path), schema_validation=True)
-
-    def test_append_invalid_data(self, backend: PandasBackend, temp_dir: Path) -> None:
-        """Teszteli a hozzáfűzést érvénytelen adatokkal."""
-        path = temp_dir / "test.parquet"
-        with pytest.raises(ValueError, match="Érvénytelen DataFrame adatok"):
-            backend.append(None, str(path))
-
-    def test_supports_format(self, backend: PandasBackend) -> None:
-        """Teszteli a supports_format metódust."""
-        assert backend.supports_format('parquet') is True
-        assert backend.supports_format('csv') is False
-        assert backend.supports_format('json') is False
-
-    def test_get_info(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a get_info metódust."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        info = backend.get_info(str(path))
-
-        assert info['size'] > 0
-        assert info['rows'] == 3
-        assert set(info['columns']) == {'id', 'name', 'age'}
-        assert info['format'] == 'parquet'
-        assert 'created' in info
-        assert 'modified' in info
-        assert 'num_row_groups' in info
-        assert 'compression' in info
-
-    def test_get_info_file_not_found(self, backend: PandasBackend, temp_dir: Path) -> None:
-        """Teszteli a get_info metódust nem létező fájllal."""
-        path = temp_dir / "nonexistent.parquet"
-        with pytest.raises(FileNotFoundError):
-            backend.get_info(str(path))
-
-    def test_validate_data(self, backend: PandasBackend, sample_dataframe: Any) -> None:
-        """Teszteli a validate_data metódust."""
-        assert backend.validate_data(sample_dataframe) is True
-        assert backend.validate_data(None) is False
-
-    def test_repr(self, backend: PandasBackend) -> None:
-        """Teszteli a __repr__ metódust."""
-        repr_str = repr(backend)
-        assert 'PandasBackend' in repr_str
-        assert 'pandas' in repr_str
-        assert 'parquet' in repr_str
-
-    def test_write_partitioned(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a particionált írást."""
-        path = temp_dir / "partitioned.parquet"
-        backend.write(sample_dataframe, str(path), partition_by=['age'])
-
-        # A particionált írás létrehoz egy könyvtárat
-        assert path.exists() or path.parent.exists()
-
-    def test_write_with_index(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli az írást index mentéssel."""
-        path = temp_dir / "test_index.parquet"
-        backend.write(sample_dataframe, str(path), index=True)
-
-        assert path.exists()
-
-    def test_read_with_filters(self, backend: PandasBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli az olvasást szűrőkkel."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        # Szűrők a fastparquet formátumban
-        filters = [('age', '=', 25)]
-        result = backend.read(str(path), filters=filters)
-        assert len(result) >= 0  # Legalább 0 sor, attól függ a szűrés
-
-    def test_validate_schema_valid(self, backend: PandasBackend, sample_dataframe: Any) -> None:
-        """Teszteli a _validate_schema metódust érvényes esetre."""
-        pd = backend._pandas_wrapper.pd
-        new_data = pd.DataFrame({
-            'id': [4],
-            'name': ['David'],
-            'age': [28],
-            'extra': ['info']  # Extra oszlop is lehet
-        })
-
-        assert backend._validate_schema(sample_dataframe, new_data) is True
-
-    def test_validate_schema_invalid(self, backend: PandasBackend, sample_dataframe: Any) -> None:
-        """Teszteli a _validate_schema metódust érvénytelen esetre."""
-        pd = backend._pandas_wrapper.pd
-        new_data = pd.DataFrame({
-            'id': [4],
-            'name': ['David']
-            # 'age' oszlop hiányzik
-        })
-
-        assert backend._validate_schema(sample_dataframe, new_data) is False
-
-    def test_validate_schema_exception(self, backend: PandasBackend) -> None:
-        """Teszteli a _validate_schema metódust kivétel esetén."""
-        # Olyan objektumok, amelyeknek nincs columns attribútuma
-        assert backend._validate_schema("invalid", "invalid") is False
-
-```
-
-## `FILE: tests/core/storage/backends/test_polars_backend.py`
-
-```py
-"""Polars Backend Teszt Modul.
-
-Ez a modul tartalmazza a PolarsBackend osztály tesztjeit.
-"""
-
-import tempfile
-from pathlib import Path
-from typing import Any
-
-import pytest
-
-from neural_ai.core.storage.backends.polars_backend import PolarsBackend
-
-
-class TestPolarsDataFrame:
-    """PolarsDataFrame wrapper osztály tesztjei."""
-
-    def test_init(self) -> None:
-        """Teszteli a PolarsDataFrame inicializálását."""
-        wrapper = PolarsBackend()._polars_wrapper
-        assert wrapper._polars is None
-        assert wrapper._pyarrow is None
-
-    def test_import_polars(self) -> None:
-        """Teszteli a lazy import funkcionalitást."""
-        wrapper = PolarsBackend()._polars_wrapper
-        pl, pa, pq = wrapper._import_polars()
-        assert pl is not None
-        assert pa is not None
-        assert pq is not None
-        assert wrapper._polars is not None
-        assert wrapper._pyarrow is not None
-
-    def test_pl_property(self) -> None:
-        """Teszteli a pl property-t."""
-        wrapper = PolarsBackend()._polars_wrapper
-        pl = wrapper.pl
-        assert pl is not None
-
-    def test_pa_property(self) -> None:
-        """Teszteli a pa property-t."""
-        wrapper = PolarsBackend()._polars_wrapper
-        pa = wrapper.pa
-        assert pa is not None
-
-    def test_pq_property(self) -> None:
-        """Teszteli a pq property-t."""
-        wrapper = PolarsBackend()._polars_wrapper
-        pq = wrapper.pq
-        assert pq is not None
-
-
-class TestPolarsBackend:
-    """PolarsBackend osztály tesztjei."""
-
-    @pytest.fixture
-    def backend(self) -> PolarsBackend:
-        """Visszaad egy PolarsBackend példányt."""
-        return PolarsBackend()
-
-    @pytest.fixture
-    def sample_dataframe(self, backend: PolarsBackend) -> Any:
-        """Visszaad egy mint DataFrame-et."""
-        pl = backend._polars_wrapper.pl
-        return pl.DataFrame({
-            'id': [1, 2, 3],
-            'name': ['Alice', 'Bob', 'Charlie'],
-            'age': [25, 30, 35]
-        })
-
-    @pytest.fixture
-    def temp_dir(self) -> Path:
-        """Visszaad egy ideiglenes könyvtárat."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
-
-    def test_init(self, backend: PolarsBackend) -> None:
-        """Teszteli a PolarsBackend inicializálását."""
-        assert backend.name == 'polars'
-        assert backend.supported_formats == ['parquet']
-        assert backend.is_async is True
-        assert backend._initialized is False
-
-    def test_ensure_initialized(self, backend: PolarsBackend) -> None:
-        """Teszteli a _ensure_initialized metódust."""
-        assert backend._initialized is False
-        backend._ensure_initialized()
-        assert backend._initialized is True
-
-    def test_write_basic(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli az alap write műveletet."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        assert path.exists()
-        backend._ensure_initialized()
-        # Ellenőrizzük, hogy a fájl valóban Parquet formátumú
-        parquet_file = backend._polars_wrapper.pq.ParquetFile(str(path))
-        assert parquet_file is not None
-
-    def test_write_with_compression(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a write műveletet tömörítéssel."""
-        path = temp_dir / "test_compressed.parquet"
-        backend.write(sample_dataframe, str(path), compression='gzip')
-
-        assert path.exists()
-
-    def test_write_invalid_data(self, backend: PolarsBackend, temp_dir: Path) -> None:
-        """Teszteli a write műveletet érvénytelen adatokkal."""
-        path = temp_dir / "test.parquet"
-        with pytest.raises(RuntimeError, match="A tárolási művelet sikertelen"):
-            backend.write(None, str(path))
-
-    def test_write_invalid_path(self, backend: PolarsBackend, sample_dataframe: Any) -> None:
-        """Teszteli a write műveletet érvénytelen elérési úttal."""
-        with pytest.raises(RuntimeError, match="A tárolási művelet sikertelen"):
-            backend.write(sample_dataframe, "/invalid/path.txt")
-
-    def test_read_basic(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli az alap read műveletet."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        result = backend.read(str(path))
-        assert len(result) == 3
-        assert 'id' in result.columns
-        assert 'name' in result.columns
-        assert 'age' in result.columns
-
-    def test_read_with_columns(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a read műveletet oszlopszűréssel."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        result = backend.read(str(path), columns=['id', 'name'])
-        assert len(result.columns) == 2
-        assert 'age' not in result.columns
-
-    def test_read_file_not_found(self, backend: PolarsBackend, temp_dir: Path) -> None:
-        """Teszteli a read műveletet nem létező fájllal."""
-        path = temp_dir / "nonexistent.parquet"
-        with pytest.raises(FileNotFoundError):
-            backend.read(str(path))
-
-    def test_read_chunked(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a chunkolt olvasást."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        # A chunk_size paraméterrel történő olvasás nem támogatott a jelenlegi implementációban
-        # A metódus a _read_chunked-et hívja, ami a filters paramétert nem kezeli jól
-        # Ezért ezt a tesztet egyszerűsítjük
-        result = backend.read(str(path))
-        assert len(result) == 3
-
-    def test_append_to_new_file(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a hozzáfűzést új fájlhoz."""
-        path = temp_dir / "test.parquet"
-        backend.append(sample_dataframe, str(path))
-
-        assert path.exists()
-        result = backend.read(str(path))
-        assert len(result) == 3
-
-    def test_append_to_existing_file(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a hozzáfűzést meglévő fájlhoz."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        # Új adatok
-        pl = backend._polars_wrapper.pl
-        new_data = pl.DataFrame({
-            'id': [4, 5],
-            'name': ['David', 'Eve'],
-            'age': [28, 32]
-        })
-
-        backend.append(new_data, str(path))
-        result = backend.read(str(path))
-        assert len(result) == 5
-
-    def test_append_with_schema_validation_valid(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a hozzáfűzést sémavizsgálattal - érvényes eset."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        # Ugyanazok az oszlopok
-        pl = backend._polars_wrapper.pl
-        new_data = pl.DataFrame({
-            'id': [4],
-            'name': ['David'],
-            'age': [28]
-        })
-
-        backend.append(new_data, str(path), **{'schema_validation': True})
-        result = backend.read(str(path))
-        assert len(result) == 4
-
-    def test_append_with_schema_validation_invalid(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a hozzáfűzést sémavizsgálattal - érvénytelen eset."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        # Hiányzó oszlop
-        pl = backend._polars_wrapper.pl
-        new_data = pl.DataFrame({
-            'id': [4],
-            'name': ['David']
-            # 'age' oszlop hiányzik
-        })
-
-        with pytest.raises(ValueError, match="sémája nem kompatibilis"):
-            backend.append(new_data, str(path), **{'schema_validation': True})
-
-    def test_append_invalid_data(self, backend: PolarsBackend, temp_dir: Path) -> None:
-        """Teszteli a hozzáfűzést érvénytelen adatokkal."""
-        path = temp_dir / "test.parquet"
-        with pytest.raises(ValueError, match="Érvénytelen DataFrame adatok"):
-            backend.append(None, str(path))
-
-    def test_supports_format(self, backend: PolarsBackend) -> None:
-        """Teszteli a supports_format metódust."""
-        assert backend.supports_format('parquet') is True
-        assert backend.supports_format('csv') is False
-        assert backend.supports_format('json') is False
-
-    def test_get_info(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a get_info metódust."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        info = backend.get_info(str(path))
-
-        assert info['size'] > 0
-        assert info['rows'] == 3
-        assert set(info['columns']) == {'id', 'name', 'age'}
-        assert info['format'] == 'parquet'
-        assert 'created' in info
-        assert 'modified' in info
-        assert 'num_row_groups' in info
-        assert 'compression' in info
-
-    def test_get_info_file_not_found(self, backend: PolarsBackend, temp_dir: Path) -> None:
-        """Teszteli a get_info metódust nem létező fájllal."""
-        path = temp_dir / "nonexistent.parquet"
-        with pytest.raises(FileNotFoundError):
-            backend.get_info(str(path))
-
-    def test_validate_data(self, backend: PolarsBackend, sample_dataframe: Any) -> None:
-        """Teszteli a validate_data metódust."""
-        assert backend.validate_data(sample_dataframe) is True
-        assert backend.validate_data(None) is False
-
-    def test_repr(self, backend: PolarsBackend) -> None:
-        """Teszteli a __repr__ metódust."""
-        repr_str = repr(backend)
-        assert 'PolarsBackend' in repr_str
-        assert 'polars' in repr_str
-        assert 'parquet' in repr_str
-
-    def test_write_partitioned(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a particionált írást."""
-        path = temp_dir / "partitioned.parquet"
-        # A particionált írás jelenlegi implementációja hibás, ezért skip-eljük
-        # Amikor javítva lesz a kód, akkor lehet újra aktiválni
-        pytest.skip("A partition_by paraméter átadása jelenleg hibás a PyArrow-nak")
-
-        backend.write(sample_dataframe, str(path), partition_by=['age'])
-
-        # A particionált írás létrehoz egy könyvtárat
-        assert path.exists() or path.parent.exists()
-
-    def test_read_with_filters(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli az olvasást szűrőkkel."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        # Szűrők a pyarrow formátumban - jelenleg skip-eljük, mert a filters paraméter átadása hibás
-        pytest.skip("A filters paraméter átadása jelenleg hibás a PyArrow-nak")
-
-        filters = [('age', '=', 25)]
-        result = backend.read(str(path), **{'filters': filters})
-        assert len(result) >= 0  # Legalább 0 sor, attól függ a szűrés
-
-    def test_validate_schema_valid(self, backend: PolarsBackend, sample_dataframe: Any) -> None:
-        """Teszteli a _validate_schema metódust érvényes esetre."""
-        pl = backend._polars_wrapper.pl
-        new_data = pl.DataFrame({
-            'id': [4],
-            'name': ['David'],
-            'age': [28],
-            'extra': ['info']  # Extra oszlop is lehet
-        })
-
-        # A _validate_schema metódus protected, ezért skip-eljük ezt a tesztet
-        pytest.skip("A _validate_schema metódus protected, nem teszteljük közvetlenül")
-
-        assert backend._validate_schema(sample_dataframe, new_data) is True
-
-    def test_validate_schema_invalid(self, backend: PolarsBackend, sample_dataframe: Any) -> None:
-        """Teszteli a _validate_schema metódust érvénytelen esetre."""
-        pl = backend._polars_wrapper.pl
-        new_data = pl.DataFrame({
-            'id': [4],
-            'name': ['David']
-            # 'age' oszlop hiányzik
-        })
-
-        # A _validate_schema metódus protected, ezért skip-eljük ezt a tesztet
-        pytest.skip("A _validate_schema metódus protected, nem teszteljük közvetlenül")
-
-        assert backend._validate_schema(sample_dataframe, new_data) is False
-
-    def test_validate_schema_exception(self, backend: PolarsBackend) -> None:
-        """Teszteli a _validate_schema metódust kivétel esetén."""
-        # Olyan objektumok, amelyeknek nincs columns attribútuma
-        # A _validate_schema metódus protected, ezért skip-eljük ezt a tesztet
-        pytest.skip("A _validate_schema metódus protected, nem teszteljük közvetlenül")
-
-        assert backend._validate_schema("invalid", "invalid") is False
-
-    def test_read_chunked_implementation(self, backend: PolarsBackend, sample_dataframe: Any, temp_dir: Path) -> None:
-        """Teszteli a _read_chunked metódust."""
-        path = temp_dir / "test.parquet"
-        backend.write(sample_dataframe, str(path))
-
-        # Közvetlen hívás a _read_chunked metódusra
-        # A filters paramétert None-ként adjuk át, mert a PyArrow újabb verziója nem támogatja
-        # A _read_chunked metódus protected, ezért skip-eljük ezt a tesztet
-        pytest.skip("A _read_chunked metódus protected, nem teszteljük közvetlenül")
-
-        result = backend._read_chunked(str(path), chunk_size=2, columns=None, filters=None)
-        assert len(result) == 3
-
-```
-
-## `FILE: tests/core/storage/implementations/test_file_storage.py`
-
-```py
-"""FileStorage teszt modul.
-
-Ez a modul tartalmazza a FileStorage osztály tesztjeit.
-"""
-
-import json
-import shutil
-import tempfile
-from datetime import datetime
-from pathlib import Path
-from typing import Any
-from unittest.mock import MagicMock
-
-import pandas as pd
-import pytest
-
-from neural_ai.core.base.exceptions import (
-    InsufficientDiskSpaceError,
-    PermissionDeniedError,
-    StorageWriteError,
-)
-from neural_ai.core.storage.exceptions import (
-    StorageFormatError,
-    StorageIOError,
-    StorageNotFoundError,
-    StorageSerializationError,
-)
-from neural_ai.core.storage.implementations.file_storage import FileStorage
-
-
-class TestFileStorage:
-    """FileStorage osztály tesztjei."""
-
-    @pytest.fixture
-    def temp_dir(self) -> Path:
-        """Ideiglenes könyvtár létrehozása a tesztekhez."""
-        tmpdir = tempfile.mkdtemp()
-        yield Path(tmpdir)
-        shutil.rmtree(tmpdir)
-
-    @pytest.fixture
-    def storage(self, temp_dir: Path) -> FileStorage:
-        """FileStorage példány létrehozása."""
-        return FileStorage(base_path=str(temp_dir))
-
-    @pytest.fixture
-    def sample_dataframe(self) -> pd.DataFrame:
-        """Minta DataFrame létrehozása."""
-        return pd.DataFrame(
-            {"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"], "age": [25, 30, 35]}
-        )
-
-    @pytest.fixture
-    def sample_object(self) -> dict[str, object]:
-        """Minta Python objektum létrehozása."""
-        return {"key": "value", "number": 42, "nested": {"inner": "data"}}
-
-    def test_init_default_path(self) -> None:
-        """Teszteli az alapértelmezett útvonal beállítását."""
-        storage = FileStorage()
-        assert storage._base_path == Path.cwd()
-
-    def test_init_custom_path(self, temp_dir: Path) -> None:
-        """Teszteli az egyéni útvonal beállítását."""
-        storage = FileStorage(base_path=str(temp_dir))
-        assert storage._base_path == temp_dir
-
-    def test_init_with_logger(self, temp_dir: Path) -> None:
-        """Teszteli a logger beállítását."""
-        mock_logger: MagicMock = MagicMock()
-        storage = FileStorage(base_path=str(temp_dir), logger=mock_logger)
-        assert storage.logger is mock_logger
-
-    def test_get_full_path_absolute(self, storage: FileStorage) -> None:
-        """Teszteli az abszolút útvonal kezelését."""
-        abs_path = Path("/absolute/path/file.txt")
-        result = storage._get_full_path(abs_path)
-        assert result == abs_path
-
-    def test_get_full_path_relative(self, storage: FileStorage, temp_dir: Path) -> None:
-        """Teszteli a relatív útvonal kezelését."""
-        rel_path = "relative/file.txt"
-        result = storage._get_full_path(rel_path)
-        assert result == temp_dir / rel_path
-
-    def test_exists_true(self, storage: FileStorage, temp_dir: Path) -> None:
-        """Teszteli a létező fájl ellenőrzését."""
-        test_file = temp_dir / "test.txt"
-        test_file.write_text("test")
-        assert storage.exists("test.txt") is True
-
-    def test_exists_false(self, storage: FileStorage) -> None:
-        """Teszteli a nem létező fájl ellenőrzését."""
-        assert storage.exists("nonexistent.txt") is False
-
-    def test_save_dataframe_csv(self, storage: FileStorage, sample_dataframe: pd.DataFrame) -> None:
-        """Teszteli a DataFrame mentését CSV formátumban."""
-        storage.save_dataframe(sample_dataframe, "test.csv")
-
-        # Ellenőrizzük, hogy a fájl létrejött
-        assert storage.exists("test.csv")
-
-        # Betöltjük és ellenőrizzük az adatokat
-        loaded = storage.load_dataframe("test.csv")
-        assert len(loaded) == 3
-        assert list(loaded.columns) == ["id", "name", "age"]
-
-    def test_save_dataframe_excel(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame
-    ) -> None:
-        """Teszteli a DataFrame mentését Excel formátumban."""
-        # Ellenőrizzük, hogy az openpyxl csomag telepítve van-e
-        pytest.importorskip("openpyxl")
-
-        storage.save_dataframe(sample_dataframe, "test.xlsx")
-
-        # Ellenőrizzük, hogy a fájl létrejött
-        assert storage.exists("test.xlsx")
-
-        # Betöltjük és ellenőrizzük az adatokat
-        loaded = storage.load_dataframe("test.xlsx")
-        assert len(loaded) == 3
-
-    def test_save_dataframe_invalid_format(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame
-    ) -> None:
-        """Teszteli a DataFrame mentését érvénytelen formátumban."""
-        with pytest.raises(StorageFormatError, match="Nem támogatott DataFrame formátum"):
-            storage.save_dataframe(sample_dataframe, "test.invalid")
-
-    def test_load_dataframe_not_found(self, storage: FileStorage) -> None:
-        """Teszteli a DataFrame betöltését nem létező fájlból."""
-        with pytest.raises(StorageNotFoundError, match="Fájl nem található"):
-            storage.load_dataframe("nonexistent.csv")
-
-    def test_save_object_json(self, storage: FileStorage, sample_object: dict[str, object]) -> None:
-        """Teszteli a Python objektum mentését JSON formátumban."""
-        storage.save_object(sample_object, "test.json")
-
-        # Ellenőrizzük, hogy a fájl létrejött
-        assert storage.exists("test.json")
-
-        # Betöltjük és ellenőrizzük az adatokat
-        loaded = storage.load_object("test.json")
-        assert loaded == sample_object
-
-    def test_save_object_invalid_format(
-        self, storage: FileStorage, sample_object: dict[str, object]
-    ) -> None:
-        """Teszteli a Python objektum mentését érvénytelen formátumban."""
-        with pytest.raises(StorageFormatError, match="Nem támogatott objektum formátum"):
-            storage.save_object(sample_object, "test.invalid")
-
-    def test_load_object_not_found(self, storage: FileStorage) -> None:
-        """Teszteli a Python objektum betöltését nem létező fájlból."""
-        with pytest.raises(StorageNotFoundError, match="Fájl nem található"):
-            storage.load_object("nonexistent.json")
-
-    def test_load_object_invalid_json(self, storage: FileStorage) -> None:
-        """Teszteli a Python objektum betöltését érvénytelen JSON fájlból."""
-        # Hozzunk létre egy érvénytelen JSON fájlt
-        invalid_json_path = storage._get_full_path("invalid.json")
-        invalid_json_path.write_text("{invalid json}")
-
-        with pytest.raises(StorageIOError):
-            storage.load_object("invalid.json")
-
-    def test_get_metadata_file(self, storage: FileStorage) -> None:
-        """Teszteli a fájl metaadatok lekérdezését."""
-        test_file = storage._get_full_path("meta_test.txt")
-        test_file.write_text("test content")
-
-        metadata = storage.get_metadata("meta_test.txt")
-
-        assert metadata["size"] > 0
-        assert metadata["is_file"] is True
-        assert metadata["is_dir"] is False
-        assert isinstance(metadata["created"], datetime)
-        assert isinstance(metadata["modified"], datetime)
-
-    def test_get_metadata_not_found(self, storage: FileStorage) -> None:
-        """Teszteli a metaadatok lekérdezését nem létező fájlból."""
-        with pytest.raises(StorageNotFoundError):
-            storage.get_metadata("nonexistent.txt")
-
-    def test_delete_file(self, storage: FileStorage) -> None:
-        """Teszteli a fájl törlését."""
-        test_file = storage._get_full_path("delete_test.txt")
-        test_file.write_text("test")
-
-        assert storage.exists("delete_test.txt")
-        storage.delete("delete_test.txt")
-        assert not storage.exists("delete_test.txt")
-
-    def test_delete_not_found(self, storage: FileStorage) -> None:
-        """Teszteli a nem létező fájl törlését."""
-        with pytest.raises(StorageNotFoundError):
-            storage.delete("nonexistent.txt")
-
-    def test_list_dir(self, storage: FileStorage) -> None:
-        """Teszteli a könyvtár listázását."""
-        # Hozzunk létre néhány tesztfájlt
-        (storage._get_full_path("dir1") / "file1.txt").parent.mkdir(parents=True, exist_ok=True)
-        storage._get_full_path("dir1/file1.txt").write_text("test1")
-        storage._get_full_path("dir1/file2.txt").write_text("test2")
-
-        files = storage.list_dir("dir1")
-        assert len(files) == 2
-        filenames = [f.name for f in files]
-        assert "file1.txt" in filenames
-        assert "file2.txt" in filenames
-
-    def test_list_dir_with_pattern(self, storage: FileStorage) -> None:
-        """Teszteli a könyvtár listázását mintával."""
-        # Hozzunk létre néhány tesztfájlt
-        (storage._get_full_path("dir2") / "file1.txt").parent.mkdir(parents=True, exist_ok=True)
-        storage._get_full_path("dir2/file1.txt").write_text("test1")
-        storage._get_full_path("dir2/file2.csv").write_text("test2")
-
-        txt_files = storage.list_dir("dir2", pattern="*.txt")
-        assert len(txt_files) == 1
-        assert txt_files[0].name == "file1.txt"
-
-    def test_list_dir_not_found(self, storage: FileStorage) -> None:
-        """Teszteli a könyvtár listázását nem létező könyvtárból."""
-        with pytest.raises(StorageNotFoundError):
-            storage.list_dir("nonexistent_dir")
-
-    def test_check_permissions_read_only(self, storage: FileStorage, temp_dir: Path) -> None:
-        """Teszteli az olvasási jogosultság ellenőrzését."""
-        test_file = temp_dir / "readonly.txt"
-        test_file.write_text("test")
-        test_file.chmod(0o444)
-
-        # Ez nem szabad, hogy hibát dobjon, csak írási jogosultság ellenőrzésénél
-        try:
-            storage._check_permissions(test_file, check_write=False)
-        except PermissionDeniedError:
-            pytest.fail("Unexpected PermissionDeniedError")
-
-    def test_get_storage_info(self, storage: FileStorage) -> None:
-        """Teszteli a tároló információk lekérdezését."""
-        info = storage.get_storage_info(storage._base_path)
-
-        assert "total_space_gb" in info
-        assert "used_space_gb" in info
-        assert "free_space_gb" in info
-        assert "free_space_percent" in info
-        assert isinstance(info["free_space_percent"], float)
-
-    def test_atomic_write_json(
-        self, storage: FileStorage, sample_object: dict[str, object]
-    ) -> None:
-        """Teszteli az atomi írást JSON formátumban."""
-        test_file = storage._get_full_path("atomic_test.json")
-        storage._atomic_write(test_file, sample_object, fmt="json")
-
-        # Ellenőrizzük, hogy a fájl létrejött
-        assert test_file.exists()
-
-        # Ellenőrizzük a tartalmat
-        loaded = json.loads(test_file.read_text())
-        assert loaded == sample_object
-
-    def test_atomic_write_dataframe(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame
-    ) -> None:
-        """Teszteli az atomi írást DataFrame-mel."""
-        test_file = storage._get_full_path("atomic_df.csv")
-        storage._atomic_write(test_file, sample_dataframe, fmt="csv")
-
-        # Ellenőrizzük, hogy a fájl létrejött
-        assert test_file.exists()
-
-        # Betöltjük és ellenőrizzük
-        loaded = pd.read_csv(test_file)
-        assert len(loaded) == 3
-
-    def test_setup_format_handlers(self, storage: FileStorage) -> None:
-        """Teszteli a formátum kezelők beállítását."""
-        assert "csv" in storage._DATAFRAME_FORMATS
-        assert "excel" in storage._DATAFRAME_FORMATS
-        assert "json" in storage._OBJECT_FORMATS
-
-        # Ellenőrizzük, hogy a kezelők rendelkeznek save és load metódusokkal
-        for fmt in storage._DATAFRAME_FORMATS:
-            assert "save" in storage._DATAFRAME_FORMATS[fmt]
-            assert "load" in storage._DATAFRAME_FORMATS[fmt]
-
-        for fmt in storage._OBJECT_FORMATS:
-            assert "save" in storage._OBJECT_FORMATS[fmt]
-            assert "load" in storage._OBJECT_FORMATS[fmt]
-
-    def test_save_dataframe_with_kwargs(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame
-    ) -> None:
-        """Teszteli a DataFrame mentését **kwargs paraméterekkel."""
-        # CSV mentés egyéni elválasztóval
-        storage.save_dataframe(sample_dataframe, "test_semicolon.csv", sep=";")
-
-        # Betöltjük és ellenőrizzük, hogy a pontosvesszős formátum működik
-        loaded = storage.load_dataframe("test_semicolon.csv", sep=";")
-        assert len(loaded) == 3
-        assert list(loaded.columns) == ["id", "name", "age"]
-
-    def test_load_dataframe_with_kwargs(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame
-    ) -> None:
-        """Teszteli a DataFrame betöltését **kwargs paraméterekkel."""
-        # Először mentünk egy CSV-t
-        storage.save_dataframe(sample_dataframe, "test_kwargs.csv")
-
-        # Betöltjük egyéni paraméterekkel (pl. csak bizonyos oszlopok)
-        loaded = storage.load_dataframe("test_kwargs.csv", usecols=["id", "name"])
-        assert len(loaded.columns) == 2
-        assert "age" not in loaded.columns
-
-    def test_save_object_with_kwargs(
-        self, storage: FileStorage, sample_object: dict[str, object]
-    ) -> None:
-        """Teszteli a Python objektum mentését **kwargs paraméterekkel."""
-        # JSON mentés egyéni indentációval
-        storage.save_object(sample_object, "test_indent.json", indent=4)
-
-        # Ellenőrizzük, hogy a fájl létrejött és formázott-e
-        test_file = storage._get_full_path("test_indent.json")
-        content = test_file.read_text()
-        assert "    " in content  # 4 spaces indent
-
-    def test_load_object_with_kwargs(
-        self, storage: FileStorage, sample_object: dict[str, object]
-    ) -> None:
-        """Teszteli a Python objektum betöltését **kwargs paraméterekkel."""
-        # Először mentünk egy JSON-t
-        storage.save_object(sample_object, "test_kwargs.json")
-
-        # Betöltjük (nincs specifikus kwargs a JSON-hoz, de átadhatunk)
-        loaded = storage.load_object("test_kwargs.json")
-        assert loaded == sample_object
-
-    def test_check_disk_space_sufficient(self, storage: FileStorage, temp_dir: Path) -> None:
-        """Teszteli a lemezterület ellenőrzését elegendő terület esetén."""
-        test_file = temp_dir / "disk_test.txt"
-        # Ez nem szabad, hogy hibát dobjon
-        storage._check_disk_space(test_file, 1024)
-
-    def test_check_disk_space_insufficient(self, storage: FileStorage, temp_dir: Path) -> None:
-        """Teszteli a lemezterület ellenőrzését elégtelen terület esetén."""
-        test_file = temp_dir / "disk_test.txt"
-        # Nagyon nagy méretet kérünk (1 TB), hogy biztosan ne férjen rá
-        with pytest.raises(InsufficientDiskSpaceError):
-            storage._check_disk_space(test_file, 1024 * 1024 * 1024 * 1024)
-
-    def test_check_disk_space_os_error(
-        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli a lemezterület ellenőrzését OS hiba esetén."""
-        test_file = temp_dir / "disk_test.txt"
-
-        def mock_statvfs(path: Path) -> None:
-            raise OSError("Mocked OS error")
-
-        # Monkey patch-eljük az os.statvfs-t
-        import os as os_module
-
-        monkeypatch.setattr(os_module, "statvfs", mock_statvfs)
-
-        with pytest.raises(StorageIOError, match="Failed to check disk space"):
-            storage._check_disk_space(test_file, 1024)
-
-    def test_check_permissions_write_denied(self, storage: FileStorage, temp_dir: Path) -> None:
-        """Teszteli a jogosultság ellenőrzését írási jog nélkül."""
-        test_dir = temp_dir / "readonly_dir"
-        test_dir.mkdir()
-        test_file = test_dir / "test.txt"
-
-        # Állítsuk be csak olvashatóra a könyvtárat
-        test_dir.chmod(0o444)
-
-        with pytest.raises(PermissionDeniedError, match="No write permission"):
-            storage._check_permissions(test_file, check_write=True)
-
-        # Visszaállítjuk az eredeti jogosultságot
-        test_dir.chmod(0o755)
-
-    def test_check_permissions_read_denied(self, storage: FileStorage, temp_dir: Path) -> None:
-        """Teszteli a jogosultság ellenőrzését olvasási jog nélkül."""
-        test_file = temp_dir / "no_read.txt"
-        test_file.write_text("test")
-        test_file.chmod(0o000)  # Semmilyen jogosultság
-
-        with pytest.raises(PermissionDeniedError, match="No read permission"):
-            storage._check_permissions(test_file, check_write=False)
-
-        # Visszaállítjuk az eredeti jogosultságot
-        test_file.chmod(0o644)
-
-    def test_check_permissions_parent_not_exists(
-        self, storage: FileStorage, temp_dir: Path
-    ) -> None:
-        """Teszteli a jogosultság ellenőrzését nem létező szülőkönyvtár esetén."""
-        test_file = temp_dir / "nonexistent_dir" / "test.txt"
-
-        with pytest.raises(PermissionDeniedError, match="Parent directory does not exist"):
-            storage._check_permissions(test_file, check_write=True)
-
-    def test_get_storage_info_os_error(
-        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli a tároló információk lekérdezését OS hiba esetén."""
-
-        def mock_statvfs(path: Path) -> None:
-            raise OSError("Mocked OS error")
-
-        # Monkey patch-eljük az os.statvfs-t
-        import os as os_module
-
-        monkeypatch.setattr(os_module, "statvfs", mock_statvfs)
-
-        with pytest.raises(StorageIOError, match="Failed to get storage info"):
-            storage.get_storage_info(temp_dir)
-
-    def test_atomic_write_bytes(self, storage: FileStorage) -> None:
-        """Teszteli az atomi írást bytes tartalommal (bináris mód)."""
-        test_file = storage._get_full_path("atomic_bytes.bin")
-        content = b"binary content"
-
-        # Bináris tartalmat közvetlenül írunk a temp fájlba
-        temp_path = test_file.with_suffix(test_file.suffix + ".tmp")
-        temp_path.write_bytes(content)
-        temp_path.replace(test_file)
-
-        assert test_file.exists()
-        assert test_file.read_bytes() == content
-
-    def test_atomic_write_string(self, storage: FileStorage) -> None:
-        """Teszteli az atomi írást string tartalommal (JSON formátum)."""
-        test_file = storage._get_full_path("atomic_string.json")
-        content = {"data": "string content"}
-
-        storage._atomic_write(test_file, content, mode="w", fmt="json")
-
-        assert test_file.exists()
-        # A JSON mentés során a tartalom JSON formátumban lesz elmentve
-        import json
-
-        loaded = json.loads(test_file.read_text())
-        assert loaded == content
-
-    def test_atomic_write_invalid_format(self, storage: FileStorage) -> None:
-        """Teszteli az atomi írást érvénytelen formátummal."""
-        test_file = storage._get_full_path("atomic_invalid.txt")
-
-        with pytest.raises(StorageFormatError, match="Nem támogatott formátum"):
-            storage._atomic_write(test_file, "content", fmt="invalid_format")
-
-    def test_atomic_write_os_error_save(
-        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli az atomi írást OS hiba esetén a mentés során."""
-        test_file = temp_dir / "atomic_error.txt"
-
-        def mock_open(*args: Any, **kwargs: Any) -> None:
-            raise OSError("Mocked OS error")
-
-        # Monkey patch-eljük az open-t
-        import builtins
-
-        monkeypatch.setattr(builtins, "open", mock_open)
-
-        with pytest.raises(StorageWriteError, match="Failed to write temporary file"):
-            storage._atomic_write(test_file, "content", fmt="json")
-
-    def test_save_dataframe_format_detection_failure(self, storage: FileStorage) -> None:
-        """Teszteli a DataFrame mentését formátum meghatározási hiba esetén."""
-        df = pd.DataFrame({"a": [1, 2, 3]})
-
-        with pytest.raises(StorageFormatError, match="Nem sikerült meghatározni"):
-            storage.save_dataframe(df, "test_no_extension")
-
-    def test_save_dataframe_excel_format_detection(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame
-    ) -> None:
-        """Teszteli a DataFrame mentését Excel formátum automatikus felismerésével."""
-        pytest.importorskip("openpyxl")
-
-        # .xlsx kiterjesztésből automatikusan excel formátumot kell felismernie
-        storage.save_dataframe(sample_dataframe, "test_auto.xlsx")
-        assert storage.exists("test_auto.xlsx")
-
-    def test_save_dataframe_disk_space_check_failure(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli a DataFrame mentését lemezterület ellenőrzési hiba esetén."""
-
-        # Mock-oljuk a df.memory_usage-t, hogy nagyon nagy méretet adjon vissza
-        # Ez kiváltja a _check_disk_space hívást a save_dataframe-en belül
-        def mock_memory_usage(*args: Any, **kwargs: Any) -> Any:
-            # Adjunk vissza egy Series-t, ami 1 TB méretet jelent
-            return pd.Series(
-                [1024 * 1024 * 1024 * 1024] * len(sample_dataframe.columns),
-                index=sample_dataframe.columns,
-            )
-
-        monkeypatch.setattr(sample_dataframe, "memory_usage", mock_memory_usage)
-
-        # Most a save_dataframe-nek kivételt kell dobnia, mert a lemezterület ellenőrzés
-        # észlelni fogja, hogy nincs elég hely
-        with pytest.raises((InsufficientDiskSpaceError, StorageIOError)):
-            storage.save_dataframe(sample_dataframe, "test.csv")
-
-    def test_save_dataframe_io_error(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli a DataFrame mentését IO hiba esetén."""
-
-        def mock_mkdir(*args: Any, **kwargs: Any) -> None:
-            raise OSError("Mocked IO error")
-
-        monkeypatch.setattr(Path, "mkdir", mock_mkdir)
-
-        with pytest.raises(StorageIOError, match="Hiba a DataFrame mentése során"):
-            storage.save_dataframe(sample_dataframe, "test.csv")
-
-    def test_load_dataframe_format_detection_failure(self, storage: FileStorage) -> None:
-        """Teszteli a DataFrame betöltését formátum meghatározási hiba esetén."""
-        test_file = storage._get_full_path("test_no_extension")
-        test_file.write_text("dummy")
-
-        with pytest.raises(StorageFormatError, match="Nem sikerült meghatározni"):
-            storage.load_dataframe("test_no_extension")
-
-    def test_load_dataframe_excel_format_detection(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame
-    ) -> None:
-        """Teszteli a DataFrame betöltését Excel formátum automatikus felismerésével."""
-        pytest.importorskip("openpyxl")
-
-        storage.save_dataframe(sample_dataframe, "test_auto_load.xlsx")
-        loaded = storage.load_dataframe("test_auto_load.xlsx")
-        assert len(loaded) == 3
-
-    def test_load_dataframe_io_error(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli a DataFrame betöltését IO hiba esetén."""
-        storage.save_dataframe(sample_dataframe, "test_io.csv")
-
-        def mock_read_csv(*args: Any, **kwargs: Any) -> None:
-            raise OSError("Mocked IO error")
-
-        monkeypatch.setattr(pd, "read_csv", mock_read_csv)
-
-        with pytest.raises(StorageIOError, match="Hiba a DataFrame betöltése során"):
-            storage.load_dataframe("test_io.csv")
-
-    def test_save_object_format_detection_failure(self, storage: FileStorage) -> None:
-        """Teszteli az objektum mentését formátum meghatározási hiba esetén."""
-        obj = {"key": "value"}
-
-        with pytest.raises(StorageFormatError, match="Nem sikerült meghatározni"):
-            storage.save_object(obj, "test_no_extension")
-
-    def test_save_object_serialization_error(
-        self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli az objektum mentését szerializációs hiba esetén."""
-
-        # Olyan objektumot hozunk létre, amit nem lehet JSON-ba szerializálni
-        class NonSerializable:
-            pass
-
-        obj = NonSerializable()
-
-        with pytest.raises(StorageSerializationError, match="nem szerializálható"):
-            storage.save_object(obj, "test.json")
-
-    def test_save_object_io_error(
-        self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli az objektum mentését IO hiba esetén."""
-
-        def mock_mkdir(*args: Any, **kwargs: Any) -> None:
-            raise OSError("Mocked IO error")
-
-        monkeypatch.setattr(Path, "mkdir", mock_mkdir)
-
-        with pytest.raises(StorageIOError, match="Hiba az objektum mentése során"):
-            storage.save_object({"key": "value"}, "test.json")
-
-    def test_load_object_format_detection_failure(self, storage: FileStorage) -> None:
-        """Teszteli az objektum betöltését formátum meghatározási hiba esetén."""
-        test_file = storage._get_full_path("test_no_extension")
-        test_file.write_text("dummy")
-
-        with pytest.raises(StorageFormatError, match="Nem sikerült meghatározni"):
-            storage.load_object("test_no_extension")
-
-    def test_load_object_deserialization_error(self, storage: FileStorage) -> None:
-        """Teszteli az objektum betöltését deszerializációs hiba esetén."""
-        test_file = storage._get_full_path("invalid.json")
-        test_file.write_text("{invalid json}")
-
-        with pytest.raises(StorageIOError):
-            storage.load_object("invalid.json")
-
-    def test_load_object_os_error(
-        self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli az objektum betöltését OS hiba esetén."""
-        storage.save_object({"key": "value"}, "test_os.json")
-
-        def mock_open(*args: Any, **kwargs: Any) -> None:
-            raise OSError("Mocked OS error")
-
-        import builtins
-
-        monkeypatch.setattr(builtins, "open", mock_open)
-
-        with pytest.raises(StorageIOError, match="Hiba az objektum betöltése során"):
-            storage.load_object("test_os.json")
-
-    def test_get_metadata_os_error(
-        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli a metaadatok lekérdezését OS hiba esetén."""
-        test_file = temp_dir / "meta_error.txt"
-        test_file.write_text("test")
-
-        def mock_stat(*args: Any, **kwargs: Any) -> None:
-            raise OSError("Mocked OS error")
-
-        monkeypatch.setattr(Path, "stat", mock_stat)
-
-        with pytest.raises(StorageIOError, match="Hiba a metaadatok lekérése során"):
-            storage.get_metadata("meta_error.txt")
-
-    def test_delete_directory(self, storage: FileStorage) -> None:
-        """Teszteli a könyvtár törlését."""
-        test_dir = storage._get_full_path("delete_dir")
-        test_dir.mkdir(parents=True)
-
-        assert storage.exists("delete_dir")
-        storage.delete("delete_dir")
-        assert not storage.exists("delete_dir")
-
-    def test_delete_io_error(
-        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli a fájl törlését IO hiba esetén."""
-        test_file = temp_dir / "delete_error.txt"
-        test_file.write_text("test")
-
-        def mock_unlink(*args: Any, **kwargs: Any) -> None:
-            raise OSError("Mocked IO error")
-
-        monkeypatch.setattr(Path, "unlink", mock_unlink)
-
-        with pytest.raises(StorageIOError, match="Hiba a törlés során"):
-            storage.delete("delete_error.txt")
-
-    def test_list_dir_not_directory(self, storage: FileStorage) -> None:
-        """Teszteli a könyvtár listázását, ha az útvonal nem könyvtár."""
-        test_file = storage._get_full_path("not_a_dir.txt")
-        test_file.write_text("test")
-
-        with pytest.raises(StorageIOError, match="nem könyvtár"):
-            storage.list_dir("not_a_dir.txt")
-
-    def test_list_dir_glob_error(
-        self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli a könyvtár listázását glob hiba esetén."""
-        test_dir = storage._get_full_path("glob_error_dir")
-        test_dir.mkdir(parents=True)
-
-        def mock_glob(*args: Any, **kwargs: Any) -> None:
-            raise Exception("Mocked glob error")
-
-        monkeypatch.setattr(Path, "glob", mock_glob)
-
-        with pytest.raises(StorageIOError, match="Hiba a könyvtár listázása során"):
-            storage.list_dir("glob_error_dir")
-
-```
-
-## `FILE: tests/core/storage/implementations/test_parquet_storage.py`
-
-```py
-"""ParquetStorageService tesztesetek - teljes lefedettséget biztosít.
-
-Ez a modul tartalmazza a ParquetStorageService osztály minden metódusának
-egységtesztjeit, biztosítva a 100% kódlefedettséget.
-
-Author: Neural AI Next Team
-Version: 2.0.0
-"""
-
-import asyncio
-import tempfile
-from datetime import datetime
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
-
-from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
-
-
-@pytest.fixture
-def temp_dir():
-    """Ideiglenes könyvtár fixture."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        yield Path(tmp_dir)
-
-
-@pytest.fixture
-def mock_hardware():
-    """Mock HardwareInterface fixture."""
-    hardware = MagicMock()
-    hardware.has_avx2.return_value = True
-    return hardware
-
-
-@pytest.fixture
-def mock_logger():
-    """Mock LoggerInterface fixture."""
-    return MagicMock()
-
-
-@pytest.fixture
-async def storage_service(temp_dir, mock_hardware, mock_logger):
-    """ParquetStorageService fixture teljes mock konfigurációval."""
-    service = ParquetStorageService(
-        base_path=str(temp_dir),
-        compression="snappy",
-        hardware=mock_hardware,
-        logger=mock_logger,
-    )
-    return service
-
-
-class TestParquetStorageService:
-    """ParquetStorageService osztály tesztesetek."""
-
-    @pytest.mark.asyncio
-    async def test_initialization_with_hardware_and_logger(
-        self, temp_dir, mock_hardware, mock_logger
-    ):
-        """Teszteli az inicializációt hardware és logger interfészekkel."""
-        service = ParquetStorageService(
-            base_path=str(temp_dir),
-            compression="snappy",
-            hardware=mock_hardware,
-            logger=mock_logger,
-        )
-
-        assert service.BASE_PATH == temp_dir
-        assert service.compression == "snappy"
-        assert service.hardware == mock_hardware
-        assert service.logger == mock_logger
-
-    @pytest.mark.asyncio
-    async def test_initialization_without_hardware_and_logger(self, temp_dir):
-        """Teszteli az inicializációt factory-k használatával."""
-        with patch(
-            "neural_ai.core.storage.implementations.parquet_storage.HardwareFactory"
-        ) as mock_factory:
-            mock_factory.get_hardware_interface.return_value = MagicMock()
-            mock_factory.get_hardware_interface.return_value.has_avx2.return_value = False
-
-            service = ParquetStorageService(base_path=str(temp_dir))
-
-            assert service.BASE_PATH == temp_dir
-            mock_factory.get_hardware_interface.assert_called_once()
-
-    def test_backend_selection_avx2(self, temp_dir, mock_hardware, mock_logger):
-        """Teszteli a PolarsBackend kiválasztását AVX2 támogatással."""
-        mock_hardware.has_avx2.return_value = True
-
-        with patch("neural_ai.core.storage.backends.polars_backend.PolarsBackend") as mock_backend:
-            service = ParquetStorageService(
-                base_path=str(temp_dir),
-                hardware=mock_hardware,
-                logger=mock_logger,
-            )
-
-            mock_backend.assert_called_once()
-            assert service.engine == "polars"
-            mock_logger.info.assert_called()
-
-    def test_backend_selection_no_avx2(self, temp_dir, mock_hardware, mock_logger):
-        """Teszteli a PandasBackend kiválasztását AVX2 nélkül."""
-        mock_hardware.has_avx2.return_value = False
-
-        with patch("neural_ai.core.storage.backends.pandas_backend.PandasBackend") as mock_backend:
-            service = ParquetStorageService(
-                base_path=str(temp_dir),
-                hardware=mock_hardware,
-                logger=mock_logger,
-            )
-
-            mock_backend.assert_called_once()
-            assert service.engine == "fastparquet"
-            mock_logger.warning.assert_called()
-
-    def test_get_path_with_unique_id(self, storage_service):
-        """Teszteli az elérési út generálást egyedi azonosítóval."""
-        date = datetime(2023, 12, 23)
-        path = storage_service._get_path("EURUSD", date, unique_id="abc123")
-
-        expected = (
-            storage_service.BASE_PATH
-            / "EURUSD"
-            / "year=2023"
-            / "month=12"
-            / "day=23"
-            / "tick_20231223_abc123.parquet"
-        )
-        assert path == expected
-
-    def test_get_path_without_unique_id(self, storage_service):
-        """Teszteli az elérési út generálást időbélyeggel."""
-        date = datetime(2023, 12, 23)
-
-        mock_now = MagicMock()
-        mock_now.strftime.return_value = "123045_123456"
-
-        with patch(
-            "neural_ai.core.storage.implementations.parquet_storage.datetime"
-        ) as mock_datetime:
-            mock_datetime.now.return_value = mock_now
-
-            path = storage_service._get_path("EURUSD", date)
-
-            assert "tick_20231223_123045_123456.parquet" in str(path)
-
-    @pytest.mark.asyncio
-    async def test_store_tick_data_success(self, storage_service, mock_logger):
-        """Teszteli a tick adatok sikeres tárolását."""
-        date = datetime(2023, 12, 23)
-
-        # Mock DataFrame
-        mock_df = MagicMock()
-        mock_df.columns = ["timestamp", "bid", "ask", "volume"]
-        mock_df.__len__ = MagicMock(return_value=100)
-
-        # Mock backend
-        storage_service.backend.write = MagicMock()
-
-        await storage_service.store_tick_data("EURUSD", mock_df, date)
-
-        # Ellenőrzi hogy a backend.write meghívódott
-        storage_service.backend.write.assert_called_once()
-
-        # Ellenőrzi a loggolást
-        mock_logger.info.assert_called()
-
-    @pytest.mark.asyncio
-    async def test_store_tick_data_empty_dataframe(self, storage_service):
-        """Teszteli az üres DataFrame visszautasítását."""
-        date = datetime(2023, 12, 23)
-        mock_df = MagicMock()
-        mock_df.__len__ = MagicMock(return_value=0)
-
-        with pytest.raises(ValueError, match="Cannot store empty DataFrame"):
-            await storage_service.store_tick_data("EURUSD", mock_df, date)
-
-    @pytest.mark.asyncio
-    async def test_store_tick_data_missing_columns(self, storage_service):
-        """Teszteli a hiányzó oszlopok visszautasítását."""
-        date = datetime(2023, 12, 23)
-        mock_df = MagicMock()
-        mock_df.columns = ["timestamp", "bid"]  # Hiányzik ask
-        mock_df.__len__ = MagicMock(return_value=100)
-
-        with pytest.raises(ValueError, match="Missing required columns"):
-            await storage_service.store_tick_data("EURUSD", mock_df, date)
-
-    @pytest.mark.asyncio
-    async def test_read_tick_data_no_files(self, storage_service):
-        """Teszteli az olvasást amikor nincsenek fájlok."""
-        start_date = datetime(2023, 12, 1)
-        end_date = datetime(2023, 12, 31)
-
-        result = await storage_service.read_tick_data("EURUSD", start_date, end_date)
-
-        # Üres DataFrame visszaadása
-        assert len(result) == 0
-
-    @pytest.mark.asyncio
-    async def test_read_tick_data_with_files(self, storage_service, temp_dir):
-        """Teszteli az olvasást létező fájlokkal."""
-        start_date = datetime(2023, 12, 23)
-        end_date = datetime(2023, 12, 23)
-
-        # Hozz létre egy teszt fájlt
-        date_dir = temp_dir / "EURUSD" / "year=2023" / "month=12" / "day=23"
-        date_dir.mkdir(parents=True, exist_ok=True)
-
-        test_file = date_dir / "tick_20231223_test.parquet"
-        test_file.write_text("dummy parquet content")
-
-        # Mock backend read
-        mock_df = MagicMock()
-        mock_df.columns = ["timestamp", "bid", "ask"]
-        mock_df.__len__ = MagicMock(return_value=50)
-
-        storage_service.backend.read = MagicMock(return_value=mock_df)
-        storage_service._concat_dataframes = MagicMock(return_value=mock_df)
-        storage_service._deduplicate_data = MagicMock(return_value=mock_df)
-        storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
-        storage_service._filter_by_timestamp = MagicMock(return_value=mock_df)
-
-        result = await storage_service.read_tick_data("EURUSD", start_date, end_date)
-
-        assert result == mock_df
-
-    @pytest.mark.asyncio
-    async def test_get_available_dates(self, storage_service, temp_dir):
-        """Teszteli az elérhető dátumok lekérdezést."""
-        # Hozz létre teszt könyvtár struktúrát
-        (temp_dir / "EURUSD" / "year=2023" / "month=12" / "day=23").mkdir(parents=True)
-        (temp_dir / "EURUSD" / "year=2023" / "month=12" / "day=24").mkdir(parents=True)
-
-        dates = await storage_service.get_available_dates("EURUSD")
-
-        expected_dates = [
-            datetime(2023, 12, 23),
-            datetime(2023, 12, 24),
-        ]
-        assert sorted(dates) == sorted(expected_dates)
-
-    @pytest.mark.asyncio
-    async def test_get_available_dates_no_symbol(self, storage_service):
-        """Teszteli az elérhető dátumokat nem létező szimbólum esetén."""
-        dates = await storage_service.get_available_dates("NONEXISTENT")
-
-        assert dates == []
-
-    @pytest.mark.asyncio
-    async def test_calculate_checksum_no_files(self, storage_service):
-        """Teszteli a checksum számítást amikor nincsenek fájlok."""
-        date = datetime(2023, 12, 23)
-
-        checksum = await storage_service.calculate_checksum("EURUSD", date)
-
-        assert checksum == ""
-
-    @pytest.mark.asyncio
-    async def test_calculate_checksum_with_files(self, storage_service, temp_dir):
-        """Teszteli a checksum számítást létező fájlokkal."""
-        date = datetime(2023, 12, 23)
-
-        # Hozz létre teszt fájlt
-        date_dir = temp_dir / "EURUSD" / "year=2023" / "month=12" / "day=23"
-        date_dir.mkdir(parents=True, exist_ok=True)
-
-        test_file = date_dir / "tick_20231223_test.parquet"
-        test_file.write_text("dummy")
-
-        # Mock DataFrame és CSV
-        mock_df = MagicMock()
-        mock_df.select.return_value.write_csv.return_value = "timestamp,bid,ask\n2023-12-23,1.1,1.2"
-
-        storage_service.backend.read = MagicMock(return_value=mock_df)
-        storage_service._concat_dataframes = MagicMock(return_value=mock_df)
-        storage_service._deduplicate_data = MagicMock(return_value=mock_df)
-        storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
-
-        with patch.object(storage_service, "engine", "polars"):
-            checksum = await storage_service.calculate_checksum("EURUSD", date)
-
-            assert isinstance(checksum, str)
-            assert len(checksum) == 64  # SHA256 hex length
-
-    @pytest.mark.asyncio
-    async def test_verify_data_integrity_valid(self, storage_service, temp_dir, mock_logger):
-        """Teszteli az adat integritás ellenőrzést érvényes adatokkal."""
-        date = datetime(2023, 12, 23)
-
-        # Hozz létre teszt fájlt
-        date_dir = temp_dir / "EURUSD" / "year=2023" / "month=12" / "day=23"
-        date_dir.mkdir(parents=True, exist_ok=True)
-
-        test_file = date_dir / "tick_20231223_test.parquet"
-        test_file.write_text("dummy")
-
-        # Mock DataFrame
-        mock_df = MagicMock()
-        mock_df.columns = ["timestamp", "bid", "ask", "volume", "source"]
-        mock_df.__len__ = MagicMock(return_value=50)
-
-        storage_service.backend.read = MagicMock(return_value=mock_df)
-        storage_service._concat_dataframes = MagicMock(return_value=mock_df)
-        storage_service._deduplicate_data = MagicMock(return_value=mock_df)
-        storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
-
-        with patch.object(storage_service, "engine", "pandas"):
-            mock_df.is_monotonic_increasing = True
-
-            result = await storage_service.verify_data_integrity("EURUSD", date)
-
-            assert result is True
-            mock_logger.info.assert_called()
-
-    @pytest.mark.asyncio
-    async def test_verify_data_integrity_no_files(self, storage_service):
-        """Teszteli az adat integritás ellenőrzést hiányzó fájlok esetén."""
-        date = datetime(2023, 12, 23)
-
-        result = await storage_service.verify_data_integrity("EURUSD", date)
-
-        assert result is False
-
-    @pytest.mark.asyncio
-    async def test_verify_data_integrity_missing_columns(self, storage_service, temp_dir):
-        """Teszteli az adat integritás ellenőrzést hiányzó oszlopokkal."""
-        date = datetime(2023, 12, 23)
-
-        # Hozz létre teszt fájlt
-        date_dir = temp_dir / "EURUSD" / "year=2023" / "month=12" / "day=23"
-        date_dir.mkdir(parents=True, exist_ok=True)
-
-        test_file = date_dir / "tick_20231223_test.parquet"
-        test_file.write_text("dummy")
-
-        # Mock DataFrame hiányzó timestamp oszloppal
-        mock_df = MagicMock()
-        mock_df.columns = ["bid", "ask"]
-
-        storage_service.backend.read = MagicMock(return_value=mock_df)
-        storage_service._concat_dataframes = MagicMock(return_value=mock_df)
-
-        result = await storage_service.verify_data_integrity("EURUSD", date)
-
-        assert result is False
-
-    @pytest.mark.asyncio
-    async def test_get_storage_stats(self, storage_service, temp_dir):
-        """Teszteli a tárolási statisztikák lekérdezést."""
-        # Hozz létre teszt fájlokat
-        test_file1 = (
-            temp_dir / "EURUSD" / "year=2023" / "month=12" / "day=23" / "tick_20231223_1.parquet"
-        )
-        test_file2 = (
-            temp_dir / "USDJPY" / "year=2023" / "month=12" / "day=24" / "tick_20231224_2.parquet"
-        )
-
-        test_file1.parent.mkdir(parents=True, exist_ok=True)
-        test_file2.parent.mkdir(parents=True, exist_ok=True)
-
-        test_file1.write_text("dummy content 1")
-        test_file2.write_text("dummy content 2")
-
-        stats = await storage_service.get_storage_stats()
-
-        assert stats["total_files"] == 2
-        assert "total_size_gb" in stats
-        assert "symbols" in stats
-        assert "EURUSD" in stats["symbols"]
-        assert "USDJPY" in stats["symbols"]
-
-    def test_concat_dataframes_polars(self, storage_service):
-        """Teszteli a DataFrame összefűzést Polars esetén."""
-        with patch("neural_ai.core.storage.implementations.parquet_storage.pl") as mock_pl:
-            mock_df1 = MagicMock()
-            mock_df2 = MagicMock()
-            mock_concat_result = MagicMock()
-
-            mock_pl.concat.return_value = mock_concat_result
-
-            with patch.object(storage_service, "engine", "polars"):
-                result = storage_service._concat_dataframes([mock_df1, mock_df2])
-
-                assert result == mock_concat_result
-                mock_pl.concat.assert_called_once_with([mock_df1, mock_df2])
-
-    def test_concat_dataframes_pandas(self, storage_service):
-        """Teszteli a DataFrame összefűzést Pandas esetén."""
-        with patch("neural_ai.core.storage.implementations.parquet_storage.pd") as mock_pd:
-            mock_df1 = MagicMock()
-            mock_df2 = MagicMock()
-            mock_concat_result = MagicMock()
-
-            mock_pd.concat.return_value = mock_concat_result
-
-            with patch.object(storage_service, "engine", "fastparquet"):
-                result = storage_service._concat_dataframes([mock_df1, mock_df2])
-
-                assert result == mock_concat_result
-                mock_pd.concat.assert_called_once_with([mock_df1, mock_df2], ignore_index=True)
-
-    def test_deduplicate_data_polars(self, storage_service):
-        """Teszteli a deduplikációt Polars esetén."""
-        with patch("neural_ai.core.storage.implementations.parquet_storage.pl") as mock_pl:
-            mock_df = MagicMock()
-            mock_df.columns = ["timestamp", "bid", "ask"]
-            mock_df.select.return_value.unique.return_value = mock_df
-
-            with patch.object(storage_service, "engine", "polars"):
-                result = storage_service._deduplicate_data(mock_df)
-
-                assert result == mock_df
-
-    def test_deduplicate_data_pandas(self, storage_service):
-        """Teszteli a deduplikációt Pandas esetén."""
-        with patch("neural_ai.core.storage.implementations.parquet_storage.pd") as mock_pd:
-            mock_df = MagicMock()
-            mock_df.columns = ["timestamp", "bid", "ask"]
-            mock_dedup_result = MagicMock()
-
-            mock_pd.DataFrame.drop_duplicates.return_value = mock_dedup_result
-
-            with patch.object(storage_service, "engine", "fastparquet"):
-                result = storage_service._deduplicate_data(mock_df)
-
-                assert result == mock_dedup_result
-
-    def test_sort_by_timestamp_polars(self, storage_service):
-        """Teszteli a rendezést timestamp szerint Polars esetén."""
-        with patch("neural_ai.core.storage.implementations.parquet_storage.pl") as mock_pl:
-            mock_df = MagicMock()
-            mock_sorted = MagicMock()
-            mock_df.sort.return_value = mock_sorted
-
-            with patch.object(storage_service, "engine", "polars"):
-                result = storage_service._sort_by_timestamp(mock_df)
-
-                assert result == mock_sorted
-                mock_df.sort.assert_called_once_with("timestamp")
-
-    def test_sort_by_timestamp_pandas(self, storage_service):
-        """Teszteli a rendezést timestamp szerint Pandas esetén."""
-        with patch("neural_ai.core.storage.implementations.parquet_storage.pd") as mock_pd:
-            mock_df = MagicMock()
-            mock_sorted = MagicMock()
-            mock_df.sort_values.return_value.reset_index.return_value = mock_sorted
-
-            with patch.object(storage_service, "engine", "fastparquet"):
-                result = storage_service._sort_by_timestamp(mock_df)
-
-                assert result == mock_sorted
-
-    def test_filter_by_timestamp(self, storage_service):
-        """Teszteli az időbélyeg szerinti szűrést."""
-        mock_df = MagicMock()
-        start_date = datetime(2023, 12, 1)
-        end_date = datetime(2023, 12, 31)
-
-        result = storage_service._filter_by_timestamp(mock_df, start_date, end_date)
-
-        # A jelenlegi implementáció változatlanul visszaadja a DataFrame-et
-        assert result == mock_df
-
-    def test_read_parquet_async(self, storage_service):
-        """Teszteli az aszinkron Parquet olvasást."""
-        mock_path = MagicMock()
-        mock_result = MagicMock()
-
-        storage_service.backend.read = MagicMock(return_value=mock_result)
-
-        async def run_test():
-            result = await storage_service._read_parquet_async(mock_path)
-            assert result == mock_result
-
-        asyncio.run(run_test())
-
-    # StorageInterface tesztek
-
-    def test_save_dataframe(self, storage_service):
-        """Teszteli a DataFrame mentését StorageInterface-en keresztül."""
-        mock_df = MagicMock()
-
-        with patch.object(storage_service, "store_tick_data") as mock_store:
-            storage_service.save_dataframe(
-                mock_df, "test_path", date=datetime(2023, 12, 23), symbol="EURUSD"
-            )
-
-            mock_store.assert_called_once()
-
-    def test_load_dataframe(self, storage_service):
-        """Teszteli a DataFrame betöltését StorageInterface-en keresztül."""
-        mock_result = MagicMock()
-
-        with patch.object(storage_service, "read_tick_data") as mock_read:
-            mock_read.return_value = mock_result
-
-            result = storage_service.load_dataframe(
-                "test_path",
-                start_date=datetime(2023, 12, 1),
-                end_date=datetime(2023, 12, 31),
-                symbol="EURUSD",
-            )
-
-            assert result == mock_result
-            mock_read.assert_called_once_with(
-                "EURUSD", datetime(2023, 12, 1), datetime(2023, 12, 31)
-            )
-
-    def test_exists(self, storage_service, temp_dir):
-        """Teszteli az útvonal létezésének ellenőrzését."""
-        test_file = temp_dir / "test_file.txt"
-        test_file.write_text("content")
-
-        assert storage_service.exists("test_file.txt")
-        assert not storage_service.exists("nonexistent.txt")
-
-    def test_get_metadata(self, storage_service, temp_dir):
-        """Teszteli a fájl metaadatainak lekérdezését."""
-        test_file = temp_dir / "test_file.txt"
-        test_file.write_text("content")
-
-        metadata = storage_service.get_metadata("test_file.txt")
-
-        assert "size" in metadata
-        assert "created" in metadata
-        assert "modified" in metadata
-        assert "accessed" in metadata
-        assert metadata["is_file"] is True
-        assert metadata["is_dir"] is False
-
-    def test_delete_file(self, storage_service, temp_dir):
-        """Teszteli a fájl törlését."""
-        test_file = temp_dir / "test_file.txt"
-        test_file.write_text("content")
-
-        storage_service.delete("test_file.txt")
-
-        assert not test_file.exists()
-
-    def test_delete_directory(self, storage_service, temp_dir):
-        """Teszteli a könyvtár törlését."""
-        test_dir = temp_dir / "test_dir"
-        test_dir.mkdir()
-        (test_dir / "file.txt").write_text("content")
-
-        storage_service.delete("test_dir")
-
-        assert not test_dir.exists()
-
-    def test_list_dir(self, storage_service, temp_dir):
-        """Teszteli a könyvtár tartalmának listázását."""
-        test_dir = temp_dir / "test_dir"
-        test_dir.mkdir()
-        (test_dir / "file1.txt").write_text("content1")
-        (test_dir / "file2.txt").write_text("content2")
-
-        files = storage_service.list_dir("test_dir")
-
-        assert len(files) == 2
-        assert all(isinstance(f, Path) for f in files)
-
-```
-
-## `FILE: tests/core/storage/interfaces/test_storage_factory_interface.py`
-
-```py
-"""StorageFactoryInterface teszt modul.
-
-Ez a modul tartalmazza a StorageFactoryInterface interfész tesztjeit.
-"""
-
-import inspect
-
-import pytest
-
-from neural_ai.core.storage.interfaces.factory_interface import (
-    StorageFactoryInterface,
-)
-
-
-class TestStorageFactoryInterface:
-    """StorageFactoryInterface interfész tesztjei."""
-
-    def test_is_protocol(self) -> None:
-        """Teszteli, hogy az interfész Protocol-t használ."""
-        # Az interfésznek Protocol típusnak kell lennie (nem feltétlenül ABC)
-        # A Protocol ellenőrzéséhez használjuk az inspect modult
-        assert inspect.isclass(StorageFactoryInterface)
-
-    def test_has_register_storage_method(self) -> None:
-        """Teszteli, hogy az interfész rendelkezik register_storage metódussal."""
-        # Ellenőrizzük, hogy a metódus létezik az interfészen
-        assert hasattr(StorageFactoryInterface, "register_storage")
-
-        # A metódusnak callable-nek kell lennie
-        register_method = StorageFactoryInterface.register_storage
-        assert callable(register_method)
-
-    def test_has_get_storage_method(self) -> None:
-        """Teszteli, hogy az interfész rendelkezik get_storage metódussal."""
-        # Ellenőrizzük, hogy a metódus létezik az interfészen
-        assert hasattr(StorageFactoryInterface, "get_storage")
-
-        # A metódusnak callable-nek kell lennie
-        get_storage_method = StorageFactoryInterface.get_storage
-        assert callable(get_storage_method)
-
-    def test_cannot_instantiate_directly(self) -> None:
-        """Teszteli, hogy az interfész nem példányosítható közvetlenül."""
-        # Az interfész nem példányosítható, mert Protocol
-        with pytest.raises(TypeError):
-            StorageFactoryInterface()  # type: ignore
-
-    def test_register_storage_signature(self) -> None:
-        """Teszteli a register_storage metódus aláírását."""
-        # A metódusnak két paraméterrel kell rendelkeznie: storage_type és storage_class
-        sig = inspect.signature(StorageFactoryInterface.register_storage)
-        params = list(sig.parameters.keys())
-
-        assert "storage_type" in params
-        assert "storage_class" in params
-
-    def test_get_storage_signature(self) -> None:
-        """Teszteli a get_storage metódus aláírását."""
-        # A metódusnak legalább egy paraméterrel kell rendelkeznie: storage_type
-        sig = inspect.signature(StorageFactoryInterface.get_storage)
-        params = list(sig.parameters.keys())
-
-        assert "storage_type" in params
-        # A **kwargs is kell, hogy legyen a végén
-        assert any(str(sig.parameters[p].kind) == "VAR_KEYWORD" for p in params)
-
-```
-
-## `FILE: tests/core/storage/interfaces/test_storage_interface.py`
-
-```py
-"""StorageInterface teszt modul.
-
-Ez a modul tartalmazza a StorageInterface interfész tesztjeit.
-"""
-
-import inspect
-
-import pytest
-
-from neural_ai.core.storage.interfaces.storage_interface import (
-    StorageInterface,
-)
-
-
-class TestStorageInterface:
-    """StorageInterface interfész tesztjei."""
-
-    def test_is_protocol(self) -> None:
-        """Teszteli, hogy az interfész Protocol-t használ."""
-        # Az interfésznek Protocol típusnak kell lennie (nem feltétlenül ABC)
-        assert inspect.isclass(StorageInterface)
-
-    def test_has_required_methods(self) -> None:
-        """Teszteli, hogy az interfész rendelkezik az összes szükséges metódussal."""
-        required_methods = [
-            "save_dataframe",
-            "load_dataframe",
-            "save_object",
-            "load_object",
-            "exists",
-            "get_metadata",
-            "delete",
-            "list_dir",
-        ]
-
-        for method_name in required_methods:
-            assert hasattr(StorageInterface, method_name), f"Missing method: {method_name}"
-
-            # A metódusoknak callable-nek kell lenniük
-            method = getattr(StorageInterface, method_name)
-            assert callable(method), f"Method {method_name} should be callable"
-
-    def test_cannot_instantiate_directly(self) -> None:
-        """Teszteli, hogy az interfész nem példányosítható közvetlenül."""
-        # Az interfész nem példányosítható, mert Protocol
-        with pytest.raises(TypeError):
-            StorageInterface()  # type: ignore
-
-    def test_save_dataframe_signature(self) -> None:
-        """Teszteli a save_dataframe metódus aláírását."""
-        sig = inspect.signature(StorageInterface.save_dataframe)
-        params = list(sig.parameters.keys())
-
-        assert "self" in params
-        assert "df" in params
-        assert "path" in params
-
-    def test_load_dataframe_signature(self) -> None:
-        """Teszteli a load_dataframe metódus aláírását."""
-        sig = inspect.signature(StorageInterface.load_dataframe)
-        params = list(sig.parameters.keys())
-
-        assert "self" in params
-        assert "path" in params
-
-    def test_save_object_signature(self) -> None:
-        """Teszteli a save_object metódus aláírását."""
-        sig = inspect.signature(StorageInterface.save_object)
-        params = list(sig.parameters.keys())
-
-        assert "self" in params
-        assert "obj" in params
-        assert "path" in params
-
-    def test_load_object_signature(self) -> None:
-        """Teszteli a load_object metódus aláírását."""
-        sig = inspect.signature(StorageInterface.load_object)
-        params = list(sig.parameters.keys())
-
-        assert "self" in params
-        assert "path" in params
-
-    def test_exists_signature(self) -> None:
-        """Teszteli az exists metódus aláírását."""
-        sig = inspect.signature(StorageInterface.exists)
-        params = list(sig.parameters.keys())
-
-        assert "self" in params
-        assert "path" in params
-
-    def test_get_metadata_signature(self) -> None:
-        """Teszteli a get_metadata metódus aláírását."""
-        sig = inspect.signature(StorageInterface.get_metadata)
-        params = list(sig.parameters.keys())
-
-        assert "self" in params
-        assert "path" in params
-
-    def test_delete_signature(self) -> None:
-        """Teszteli a delete metódus aláírását."""
-        sig = inspect.signature(StorageInterface.delete)
-        params = list(sig.parameters.keys())
-
-        assert "self" in params
-        assert "path" in params
-
-    def test_list_dir_signature(self) -> None:
-        """Teszteli a list_dir metódus aláírását."""
-        sig = inspect.signature(StorageInterface.list_dir)
-        params = list(sig.parameters.keys())
-
-        assert "self" in params
-        assert "path" in params
-
-```
-
-## `FILE: tests/core/storage/test_storage_factory.py`
-
-```py
-"""StorageFactory teszt modul.
-
-Ez a modul tartalmazza a StorageFactory osztály tesztjeit.
-"""
-
-from pathlib import Path
-from unittest.mock import MagicMock
-
-import pytest
-
-from neural_ai.core.storage.exceptions import StorageError
-from neural_ai.core.storage.factory import StorageFactory
-from neural_ai.core.storage.implementations.file_storage import FileStorage
-from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
-from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
-
-
-class TestStorageFactory:
-    """StorageFactory osztály tesztjei."""
-
-    def setup_method(self) -> None:
-        """Teszt metódus előtti beállítás - Singleton cache törlése."""
-        from neural_ai.core.base.implementations.singleton import SingletonMeta
-        SingletonMeta._instances.clear()
-
-    def test_register_storage(self) -> None:
-        """Teszteli a storage típus regisztrálását."""
-        # Mock storage osztály létrehozása
-        class MockStorage(StorageInterface):
-            def save_object(self, obj: object, path: str) -> None:
-                pass
-            def load_object(self, path: str) -> object:
-                return {}
-            def save_dataframe(self, df: object, path: str, **kwargs: object) -> None:
-                pass
-            def load_dataframe(self, path: str, **kwargs: object) -> object:
-                return {}
-            def delete(self, path: str) -> None:
-                pass
-            def exists(self, path: str) -> bool:
-                return True
-            def list_dir(self, path: str) -> list[str]:
-                return []
-            def get_metadata(self, path: str) -> dict[str, object]:
-                return {}
-
-        mock_storage_class = MockStorage
-
-        # Regisztráció
-        StorageFactory.register_storage("mock", mock_storage_class)
-
-        # Ellenőrzés
-        assert "mock" in StorageFactory._storage_types
-        assert StorageFactory._storage_types["mock"] is mock_storage_class
-
-    def test_register_storage_invalid_class(self) -> None:
-        """Teszteli a nem StorageInterface-t implementáló osztály regisztrálását."""
-        # Olyan osztály, ami nem implementálja a StorageInterface-t
-        class InvalidClass:
-            pass
-
-        # A regisztráció során nem történik ellenőrzés, ezért ez sikeres lesz
-        # (a Python dinamikus természete miatt)
-        StorageFactory.register_storage("invalid", InvalidClass)
-        assert "invalid" in StorageFactory._storage_types
-
-    def test_get_storage_file_type(self, tmp_path: Path) -> None:
-        """Teszteli a file storage létrehozását."""
-        storage = StorageFactory.get_storage("file", base_path=str(tmp_path))
-
-        assert isinstance(storage, FileStorage)
-        assert storage._base_path == tmp_path
-
-    def test_get_storage_parquet_type(self, tmp_path: Path) -> None:
-        """Teszteli a parquet storage létrehozását."""
-        mock_hardware: MagicMock = MagicMock()
-        mock_hardware.has_avx2.return_value = True
-
-        storage = StorageFactory.get_storage(
-            "parquet",
-            base_path=str(tmp_path),
-            hardware=mock_hardware
-        )
-
-        assert isinstance(storage, ParquetStorageService)
-        # A has_avx2 metódust többször is meghívhatják a backend kiválasztásakor
-        assert mock_hardware.has_avx2.called
-
-    def test_get_storage_with_kwargs(self, tmp_path: Path) -> None:
-        """Teszteli a storage létrehozást további paraméterekkel."""
-        storage = StorageFactory.get_storage(
-            "file",
-            base_path=str(tmp_path),
-            create_if_missing=True
-        )
-
-        assert isinstance(storage, FileStorage)
-
-    def test_get_storage_invalid_type(self) -> None:
-        """Teszteli a nem létező storage típus lekérését."""
-        with pytest.raises(StorageError, match="Ismeretlen storage típus"):
-            StorageFactory.get_storage("nonexistent")
-
-    def test_get_storage_instantiation_failure(self, tmp_path: Path) -> None:
-        """Teszteli a storage példányosítási hibát."""
-        # Regisztráljunk egy olyan osztályt, ami hibát dob a konstruktorban
-        class FailingStorage(StorageInterface):
-            def __init__(self, **kwargs: object) -> None:
-                raise TypeError("Test error")
-            def save_object(self, obj: object, path: str) -> None:
-                pass
-            def load_object(self, path: str) -> object:
-                return {}
-            def save_dataframe(self, df: object, path: str, **kwargs: object) -> None:
-                pass
-            def load_dataframe(self, path: str, **kwargs: object) -> object:
-                return {}
-            def delete(self, path: str) -> None:
-                pass
-            def exists(self, path: str) -> bool:
-                return True
-            def list_dir(self, path: str) -> list[str]:
-                return []
-            def get_metadata(self, path: str) -> dict[str, object]:
-                return {}
-
-        StorageFactory.register_storage("failing", FailingStorage)
-
-        with pytest.raises(StorageError, match="Nem sikerült létrehozni a storage példányt"):
-            StorageFactory.get_storage("failing", base_path=str(tmp_path))
-
-    def test_get_storage_unexpected_error(self, tmp_path: Path) -> None:
-        """Teszteli a váratlan hibát a storage létrehozásakor."""
-        # Regisztráljunk egy olyan osztályt, ami váratlan hibát dob
-        class UnexpectedErrorStorage(StorageInterface):
-            def __init__(self, **kwargs: object) -> None:
-                raise RuntimeError("Unexpected error")
-            def save_object(self, obj: object, path: str) -> None:
-                pass
-            def load_object(self, path: str) -> object:
-                return {}
-            def save_dataframe(self, df: object, path: str, **kwargs: object) -> None:
-                pass
-            def load_dataframe(self, path: str, **kwargs: object) -> object:
-                return {}
-            def delete(self, path: str) -> None:
-                pass
-            def exists(self, path: str) -> bool:
-                return True
-            def list_dir(self, path: str) -> list[str]:
-                return []
-            def get_metadata(self, path: str) -> dict[str, object]:
-                return {}
-
-        StorageFactory.register_storage("unexpected", UnexpectedErrorStorage)
-
-        with pytest.raises(StorageError, match="Váratlan hiba"):
-            StorageFactory.get_storage("unexpected", base_path=str(tmp_path))
-
-    def test_get_storage_default_base_path(self) -> None:
-        """Teszteli a storage létrehozást alapértelmezett útvonallal."""
-        storage = StorageFactory.get_storage("file")
-
-        assert isinstance(storage, FileStorage)
-        # Alapértelmezett útvonal a FileStorage konstruktorában Path.cwd()
-
-    def test_get_storage_with_hardware_none(self, tmp_path: Path) -> None:
-        """Teszteli a storage létrehozást hardware=None paraméterrel."""
-        storage = StorageFactory.get_storage("file", base_path=str(tmp_path), hardware=None)
-
-        assert isinstance(storage, FileStorage)
-        assert storage._base_path == tmp_path
-
-    def test_initial_storage_types(self) -> None:
-        """Teszteli a kezdeti storage típusokat."""
-        # Ellenőrizzük, hogy a kezdeti típusok jól lettek-e definiálva
-        initial_types = {"file", "parquet"}
-        assert initial_types.issubset(set(StorageFactory._storage_types.keys()))
-```
-
-## `FILE: tests/core/storage/test_storage_init.py`
-
-```py
-"""Storage __init__.py tesztek."""
-from importlib import metadata
-from unittest.mock import patch
-
-import pytest
-
-from neural_ai.core.storage import __schema_version__, __version__
-
-
-class TestStorageInit:
-    """Storage __init__.py tesztek."""
-
-    def test_version_is_available(self) -> None:
-        """A __version__ változó elérhető és string típusú."""
-        assert isinstance(__version__, str)
-        assert __version__ != ""
-
-    def test_schema_version_is_available(self) -> None:
-        """A __schema_version__ változó elérhető és string típusú."""
-        assert isinstance(__schema_version__, str)
-        assert __schema_version__ == "1.0"
-
-    def test_all_list_is_exported(self) -> None:
-        """Az __all__ lista tartalmazza az exportált elemeket."""
-        from neural_ai.core.storage import __all__
-
-        assert "__version__" in __all__
-        assert "__schema_version__" in __all__
-        assert "FileStorage" in __all__
-        assert "ParquetStorageService" in __all__
-        assert "StorageFactory" in __all__
-
-    def test_version_fallback_on_package_not_found(self) -> None:
-        """Verzió fallback tesztelése, ha a csomag nincs telepítve (27-29. sorok)."""
-        # Mockoljuk a metadata.version-t, hogy PackageNotFoundError-t dobjon
-        with patch.object(metadata, "version", side_effect=metadata.PackageNotFoundError):
-            # Újraimportáljuk a modult, hogy a fallback verziót használja
-            import importlib
-            import neural_ai.core.storage
-            
-            importlib.reload(neural_ai.core.storage)
-            
-            # Ellenőrizzük, hogy a fallback verzió lett-e beállítva
-            assert neural_ai.core.storage.__version__ == "1.0.0"
-            
-            # Visszaállítjuk az eredeti verziót
-            importlib.reload(neural_ai.core.storage)
-
-    def test_version_is_final(self) -> None:
-        """A __version__ változó Final típusú és nem módosítható."""
-        # A Final típus ellenőrzése fordítási időben történik,
-        # itt csak annyit ellenőrzünk, hogy a változó létezik és értéke string
-        assert hasattr(__version__, "__class__")
-        assert isinstance(__version__, str)
-```
-
 ## `FILE: tests/core/system/implementations/test_health_monitor.py`
 
 ```py
@@ -52946,7 +45639,7 @@ class TestBootstrapCore:
     @patch("neural_ai.core.config.factory.ConfigManagerFactory")
     @patch("neural_ai.core.events.factory.EventBusFactory")
     @patch("neural_ai.core.logger.factory.LoggerFactory")
-    @patch("neural_ai.core.storage.factory.StorageFactory")
+    @patch("neural_ai.data.storage.factory.StorageFactory")
     @patch("neural_ai.core.system.factory.SystemComponentFactory")
     @patch("neural_ai.core.utils.factory.HardwareFactory")
     def test_bootstrap_core_success(
@@ -52985,7 +45678,7 @@ class TestBootstrapCore:
     @patch("neural_ai.core.config.factory.ConfigManagerFactory")
     @patch("neural_ai.core.logger.factory.LoggerFactory")
     @patch("neural_ai.core.events.factory.EventBusFactory")
-    @patch("neural_ai.core.storage.factory.StorageFactory")
+    @patch("neural_ai.data.storage.factory.StorageFactory")
     @patch("neural_ai.core.system.factory.SystemComponentFactory")
     @patch("neural_ai.core.utils.factory.HardwareFactory")
     def test_bootstrap_core_with_custom_config(
@@ -53032,7 +45725,7 @@ class TestBootstrapCore:
                 with patch("neural_ai.core.logger.factory.LoggerFactory") as mock_log_fact:
                     with patch("neural_ai.core.events.factory.EventBusFactory") as mock_evt_fact:
                         with patch(
-                            "neural_ai.core.storage.factory.StorageFactory"
+                            "neural_ai.data.storage.factory.StorageFactory"
                         ) as mock_stor_fact:
                             with patch(
                                 "neural_ai.core.system.factory.SystemComponentFactory"
@@ -53060,7 +45753,7 @@ class TestBootstrapCore:
     @patch("neural_ai.core.config.factory.ConfigManagerFactory")
     @patch("neural_ai.core.events.factory.EventBusFactory")
     @patch("neural_ai.core.logger.factory.LoggerFactory")
-    @patch("neural_ai.core.storage.factory.StorageFactory")
+    @patch("neural_ai.data.storage.factory.StorageFactory")
     @patch("neural_ai.core.system.factory.SystemComponentFactory")
     @patch("neural_ai.core.utils.factory.HardwareFactory")
     @patch("neural_ai.collectors.jforex.factory.JForexFactory")
@@ -53118,7 +45811,7 @@ class TestBootstrapCore:
     @patch("neural_ai.core.config.factory.ConfigManagerFactory")
     @patch("neural_ai.core.events.factory.EventBusFactory")
     @patch("neural_ai.core.logger.factory.LoggerFactory")
-    @patch("neural_ai.core.storage.factory.StorageFactory")
+    @patch("neural_ai.data.storage.factory.StorageFactory")
     @patch("neural_ai.core.system.factory.SystemComponentFactory")
     @patch("neural_ai.core.utils.factory.HardwareFactory")
     def test_bootstrap_core_with_jforex_disabled(
@@ -54264,7 +46957,7 @@ sys.path.insert(0, str(project_root))
 
 import polars as pl
 
-from neural_ai.core.processing.factory import (
+from neural_ai.processors.processing.factory import (
     create_dimension_processor,
     create_time_alignment_service,
 )
@@ -54490,11 +47183,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from neural_ai.core import bootstrap_core
-from neural_ai.core.processing.factory import (
+from neural_ai.processors.processing.factory import (
     create_dimension_processor,
     create_time_alignment_service,
 )
-from neural_ai.core.processing.resampler_service.implementations.resampler_service import (
+from neural_ai.processors.processing.resampler_service.implementations.resampler_service import (
     ResamplerService,
 )
 
@@ -54659,7 +47352,7 @@ from datetime import datetime
 
 import polars as pl
 
-from neural_ai.core.processing.resampler_service.factory import ResamplerServiceFactory
+from neural_ai.processors.processing.resampler_service.factory import ResamplerServiceFactory
 
 
 async def main():
@@ -54779,7 +47472,7 @@ class ResamplingDemo:
         print(f"{Fore.GREEN}   - Storage: {self.storage.__class__.__name__}")
 
         # Type cast to access backend-specific attributes
-        from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
+        from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
 
         if isinstance(self.storage, ParquetStorageService):
             print(f"{Fore.GREEN}   - Backend: {self.storage.backend.name}\n")
@@ -54802,7 +47495,7 @@ class ResamplingDemo:
             print(f"{Fore.YELLOW}🔍 1. FÁZIS: DÁTUMOK FELFEDEZÉSE")
             print(f"{Fore.YELLOW}{'─' * 80}{Style.RESET_ALL}\n")
 
-            from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
+            from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
 
             storage = cast(ParquetStorageService, self.storage)
 
@@ -55039,7 +47732,7 @@ import datetime
 
 import polars as pl
 
-from neural_ai.core.processing.factory import create_time_alignment_service
+from neural_ai.processors.processing.factory import create_time_alignment_service
 
 
 def test_time_alignment():
@@ -55072,6 +47765,1842 @@ def test_time_alignment():
 
 if __name__ == "__main__":
     test_time_alignment()
+
+```
+
+## `FILE: tests/processors/processing/dimensions/d01_price/test_factory.py`
+
+```py
+"""D01PriceFactory unit tesztek."""
+
+from datetime import datetime, timedelta
+from unittest.mock import MagicMock
+
+from neural_ai.processors.processing.dimensions.d01_price.factory import D01PriceFactory
+from neural_ai.processors.processing.dimensions.d01_price.processor import D01PriceProcessor
+from neural_ai.processors.processing.interfaces.dimension_processor_interface import IDimensionProcessor
+
+
+class TestD01PriceFactory:
+    """D01PriceFactory unit teszt osztály."""
+
+    def test_create_returns_correct_type(self):
+        """Teszteli, hogy a create metódus helyes típust ad vissza."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
+        processor = D01PriceFactory.create(mock_config, mock_logger)
+
+        assert isinstance(processor, D01PriceProcessor)
+        assert isinstance(processor, IDimensionProcessor)
+
+    def test_create_returns_new_instance(self):
+        """Teszteli, hogy minden create hívás új példányt ad."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
+        processor1 = D01PriceFactory.create(mock_config, mock_logger)
+        processor2 = D01PriceFactory.create(mock_config, mock_logger)
+
+        assert processor1 is not processor2
+        assert isinstance(processor1, D01PriceProcessor)
+        assert isinstance(processor2, D01PriceProcessor)
+
+    def test_created_processor_has_correct_dimension_id(self):
+        """Teszteli, hogy a létrehozott processor helyes dimension_id-val rendelkezik."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
+        processor = D01PriceFactory.create(mock_config, mock_logger)
+
+        assert processor.dimension_id == 1
+
+    def test_created_processor_is_functional(self):
+        """Teszteli, hogy a létrehozott processor működőképes."""
+        import polars as pl
+
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
+        processor = D01PriceFactory.create(mock_config, mock_logger)
+
+        # Egyszerű teszt DataFrame (nagyobb dataset a Z-score-hoz)
+        timestamps = [
+            datetime(2023, 1, 1, 9, 0) + timedelta(minutes=i) for i in range(80)
+        ]  # 80 sor a rolling window-hez
+        test_df = pl.DataFrame(
+            {
+                "timestamp": timestamps,
+                "mid_open": [1.0500 + i * 0.0001 for i in range(80)],
+                "mid_high": [1.0520 + i * 0.0001 for i in range(80)],
+                "mid_low": [1.0480 + i * 0.0001 for i in range(80)],
+                "mid_close": [1.0510 + i * 0.0001 for i in range(80)],
+                "tick_volume": [1000 + i * 10 for i in range(80)],
+                "spread": [0.0002 + i * 0.00001 for i in range(80)],
+                "real_volume": [1500.0 + i * 5 for i in range(80)],
+            }
+        )
+
+        result = processor.process(test_df)
+
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) == 80
+        expected_columns = {
+            "timestamp",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "tick_volume",
+            "spread",
+            "real_volume",
+            "log_return",
+            "rolling_z_score",
+            "upper_shadow",
+            "lower_shadow",
+        }
+        assert set(result.columns) == expected_columns
+
+```
+
+## `FILE: tests/processors/processing/dimensions/d01_price/test_processor.py`
+
+```py
+"""D01PriceProcessor unit tesztek."""
+
+from datetime import datetime, timedelta
+from unittest.mock import MagicMock
+
+import numpy as np
+import polars as pl
+import pytest
+
+from neural_ai.processors.processing.dimensions.d01_price.processor import D01PriceProcessor
+
+
+class TestD01PriceProcessor:
+    """D01PriceProcessor unit teszt osztály."""
+
+    @pytest.fixture
+    def processor(self) -> D01PriceProcessor:
+        """D01PriceProcessor példány fixture."""
+        # Mock config és logger létrehozása
+        mock_config = MagicMock()
+        mock_config.get.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+        return D01PriceProcessor(mock_config, mock_logger)
+
+    @pytest.fixture
+    def sample_ohlcv_data(self) -> pl.DataFrame:
+        """Mint OHLCV adatok fixture."""
+        # 100 mock OHLCV rekord (nagyobb dataset a rolling Z-score-hoz)
+        timestamps = [datetime(2023, 1, 1, 9, 0, 0) + timedelta(minutes=i) for i in range(100)]
+        base_price = 1.0500
+
+        data = []
+        for ts in timestamps:
+            open_price = base_price + np.random.normal(0, 0.001)
+            close_price = open_price + np.random.normal(0, 0.002)
+            high_price = max(open_price, close_price) + abs(np.random.normal(0, 0.001))
+            low_price = min(open_price, close_price) - abs(np.random.normal(0, 0.001))
+
+            # Bid árak (spread figyelembevételével)
+            spread = abs(np.random.normal(0.0002, 0.0001))
+            bid_open = open_price - spread / 2
+            bid_high = high_price - spread / 2
+            bid_low = low_price - spread / 2
+            bid_close = close_price - spread / 2
+
+            data.append(
+                {
+                    "timestamp": ts,
+                    "bid_open": bid_open,
+                    "bid_high": bid_high,
+                    "bid_low": bid_low,
+                    "bid_close": bid_close,
+                    "mid_open": open_price,
+                    "mid_high": high_price,
+                    "mid_low": low_price,
+                    "mid_close": close_price,
+                    "tick_volume": int(np.random.normal(1000, 200)),
+                    "spread": spread,
+                    "real_volume": np.random.normal(1500, 300),
+                }
+            )
+
+            base_price = close_price
+
+        return pl.DataFrame(data)
+
+    def test_dimension_id(self, processor: D01PriceProcessor):
+        """Teszteli a dimension_id property-t."""
+        assert processor.dimension_id == 1
+
+    def test_process_valid_data(
+        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a process metódust érvényes adatokkal."""
+        result = processor.process(sample_ohlcv_data)
+
+        # Ellenőrizzük az eredmény típusát
+        assert isinstance(result, pl.DataFrame)
+
+        # Ellenőrizzük az oszlopokat
+        expected_columns = {
+            "timestamp",
+            "bid_open", "bid_high", "bid_low", "bid_close",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "tick_volume",
+            "spread",
+            "real_volume",
+            "log_return",
+            "rolling_z_score",
+            "upper_shadow",
+            "lower_shadow",
+        }
+        assert set(result.columns) == expected_columns
+
+        # Ellenőrizzük a sorok számát
+        assert len(result) == len(sample_ohlcv_data)
+
+        # Ellenőrizzük, hogy az adatok változatlanok (csak szelektálás)
+        assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
+        assert result["mid_open"].equals(sample_ohlcv_data["mid_open"])
+        assert result["mid_high"].equals(sample_ohlcv_data["mid_high"])
+        assert result["mid_low"].equals(sample_ohlcv_data["mid_low"])
+        assert result["mid_close"].equals(sample_ohlcv_data["mid_close"])
+        assert result["tick_volume"].equals(sample_ohlcv_data["tick_volume"])
+        assert result["spread"].equals(sample_ohlcv_data["spread"])
+        assert result["real_volume"].equals(sample_ohlcv_data["real_volume"])
+
+    def test_process_empty_dataframe(self, processor: D01PriceProcessor):
+        """Teszteli a process metódust üres DataFrame-mel."""
+        empty_df = pl.DataFrame(
+            schema={
+                "timestamp": pl.Datetime,
+                "bid_open": pl.Float64,
+                "bid_high": pl.Float64,
+                "bid_low": pl.Float64,
+                "bid_close": pl.Float64,
+                "mid_open": pl.Float64,
+                "mid_high": pl.Float64,
+                "mid_low": pl.Float64,
+                "mid_close": pl.Float64,
+                "tick_volume": pl.Int64,
+                "spread": pl.Float64,
+                "real_volume": pl.Float64,
+            }
+        )
+
+        result = processor.process(empty_df)
+
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) == 0
+        expected_columns = {
+            "timestamp",
+            "bid_open", "bid_high", "bid_low", "bid_close",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "tick_volume",
+            "spread",
+            "real_volume",
+            "log_return",
+            "rolling_z_score",
+            "upper_shadow",
+            "lower_shadow",
+        }
+        assert set(result.columns) == expected_columns
+
+    def test_process_missing_columns_raises_error(self, processor: D01PriceProcessor):
+        """Teszteli, hogy hiányzó oszlopok esetén ColumnNotFoundError-t dob."""
+        # Hiányzó bid_close és mid_close oszlop
+        incomplete_df = pl.DataFrame(
+            {
+                "timestamp": [datetime(2023, 1, 1, 9, 0, 0)],
+                "bid_open": [1.0499],
+                "bid_high": [1.0519],
+                "bid_low": [1.0479],
+                # bid_close és mid_close hiányzik
+                "mid_open": [1.0500],
+                "mid_high": [1.0520],
+                "mid_low": [1.0480],
+                "tick_volume": [1000],
+                "spread": [0.0002],
+                "real_volume": [1500.0],
+            }
+        )
+
+        # Polars select ColumnNotFoundError-t dob hiányzó oszlopokra
+        with pytest.raises(pl.exceptions.ColumnNotFoundError):
+            processor.process(incomplete_df)
+
+    def test_process_extra_columns_ignored(
+        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli, hogy extra oszlopok figyelmen kívül maradnak."""
+        # Extra oszlop hozzáadása
+        data_with_extra = sample_ohlcv_data.with_columns(extra_col=pl.lit("extra"))
+
+        result = processor.process(data_with_extra)
+
+        # Csak a szükséges oszlopok maradnak (és az újak)
+        expected_columns = {
+            "timestamp",
+            "bid_open", "bid_high", "bid_low", "bid_close",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "tick_volume",
+            "spread",
+            "real_volume",
+            "log_return",
+            "rolling_z_score",
+            "upper_shadow",
+            "lower_shadow",
+        }
+        assert set(result.columns) == expected_columns
+        assert "extra_col" not in result.columns
+
+    def test_process_data_types_preserved(
+        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli, hogy az adattípusok megmaradnak."""
+        result = processor.process(sample_ohlcv_data)
+
+        # Ellenőrizzük a fontos adattípusokat
+        assert result["timestamp"].dtype == pl.Datetime
+        assert result["mid_open"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_high"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_low"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_close"].dtype in [pl.Float32, pl.Float64]
+        assert result["tick_volume"].dtype in [pl.Int32, pl.Int64]
+        assert result["spread"].dtype in [pl.Float32, pl.Float64]
+        assert result["real_volume"].dtype in [pl.Float32, pl.Float64]
+
+    def test_process_order_preserved(
+        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli, hogy a sorok sorrendje megmarad."""
+        result = processor.process(sample_ohlcv_data)
+
+        # Ellenőrizzük, hogy a timestamp oszlop sorrendje azonos
+        assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
+
+    def test_process_tick_timeframe_shadows_none(
+        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a process metódust tick timeframe-mal, ahol shadows None."""
+        result = processor.process(sample_ohlcv_data, timeframe="tick")
+
+        # Ellenőrizzük az eredmény típusát
+        assert isinstance(result, pl.DataFrame)
+
+        # Oszlopok azonosak, kivéve hogy shadows None
+        expected_columns = {
+            "timestamp",
+            "bid_open", "bid_high", "bid_low", "bid_close",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "tick_volume",
+            "spread",
+            "real_volume",
+            "log_return",
+            "rolling_z_score",
+            "upper_shadow",
+            "lower_shadow",
+        }
+        assert set(result.columns) == expected_columns
+
+        # Shadows None kell legyenek
+        assert result["upper_shadow"].is_null().all()
+        assert result["lower_shadow"].is_null().all()
+
+        # Egyéb adatok megmaradnak
+        assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
+        assert result["mid_close"].equals(sample_ohlcv_data["mid_close"])
+
+    def test_process_ohlc_timeframe_with_shadows(
+        self, processor: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a process metódust OHLC timeframe-mal calc_shadows=True."""
+        result = processor.process(sample_ohlcv_data, timeframe="1m")
+
+        # Shadows nem None
+        assert not result["upper_shadow"].is_null().all()
+        assert not result["lower_shadow"].is_null().all()
+
+    @pytest.fixture
+    def processor_no_shadows(self) -> D01PriceProcessor:
+        """D01PriceProcessor példány fixture calc_shadows=False."""
+        mock_config = MagicMock()
+        mock_config.get.return_value = {"z_score_window": 60, "calc_shadows": False}
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": False}
+        mock_logger = MagicMock()
+        return D01PriceProcessor(mock_config, mock_logger)
+
+    def test_process_ohlc_timeframe_no_shadows(
+        self, processor_no_shadows: D01PriceProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a process metódust OHLC timeframe-mal calc_shadows=False."""
+        result = processor_no_shadows.process(sample_ohlcv_data, timeframe="1m")
+
+        # Shadows None
+        assert result["upper_shadow"].is_null().all()
+        assert result["lower_shadow"].is_null().all()
+
+```
+
+## `FILE: tests/processors/processing/dimensions/d02_support/test_exceptions.py`
+
+```py
+"""D02Support kivételek unit tesztek."""
+
+from neural_ai.processors.processing.dimensions.d02_support.exceptions.support_error import (
+    SupportError,
+    SupportResistanceLevelError,
+    SwingPointCalculationError,
+    TimeframeConfigurationError,
+)
+
+
+class TestSupportExceptions:
+    """Support kivételek unit teszt osztály."""
+
+    def test_support_error_creation(self):
+        """Teszteli a SupportError létrehozását."""
+        error = SupportError("Test error", "TEST_CODE")
+
+        assert str(error) == "Test error"
+        assert error.error_code == "TEST_CODE"
+
+    def test_support_error_without_code(self):
+        """Teszteli a SupportError létrehozását hibakód nélkül."""
+        error = SupportError("Test error")
+
+        assert str(error) == "Test error"
+        assert error.error_code is None
+
+    def test_swing_point_calculation_error(self):
+        """Teszteli a SwingPointCalculationError létrehozását."""
+        error = SwingPointCalculationError("Swing calculation failed", 5, "mid_high")
+
+        assert str(error) == "Swing calculation failed"
+        assert error.error_code == "SWING_POINT_CALCULATION_ERROR"
+        assert error.window_size == 5
+        assert error.column_name == "mid_high"
+
+    def test_support_resistance_level_error(self):
+        """Teszteli a SupportResistanceLevelError létrehozását."""
+        error = SupportResistanceLevelError("Level calculation failed", "support", "rolling_mean")
+
+        assert str(error) == "Level calculation failed"
+        assert error.error_code == "SUPPORT_RESISTANCE_LEVEL_ERROR"
+        assert error.level_type == "support"
+        assert error.aggregation_method == "rolling_mean"
+
+    def test_timeframe_configuration_error(self):
+        """Teszteli a TimeframeConfigurationError létrehozását."""
+        error = TimeframeConfigurationError("Config invalid", "H4", "swing_window")
+
+        assert str(error) == "Config invalid"
+        assert error.error_code == "TIMEFRAME_CONFIGURATION_ERROR"
+        assert error.timeframe == "H4"
+        assert error.config_key == "swing_window"
+
+    def test_exception_inheritance(self):
+        """Teszteli, hogy az összes kivétel örökli a SupportError-t."""
+        swing_error = SwingPointCalculationError("test")
+        level_error = SupportResistanceLevelError("test")
+        config_error = TimeframeConfigurationError("test")
+
+        assert isinstance(swing_error, SupportError)
+        assert isinstance(level_error, SupportError)
+        assert isinstance(config_error, SupportError)
+
+```
+
+## `FILE: tests/processors/processing/dimensions/d02_support/test_factory.py`
+
+```py
+"""D02SupportFactory unit tesztek."""
+
+from datetime import datetime, timedelta
+from unittest.mock import MagicMock
+
+from neural_ai.processors.processing.dimensions.d02_support.factory import D02SupportFactory
+from neural_ai.processors.processing.dimensions.d02_support.implementations.support_processor import (
+    D02SupportProcessor,
+)
+from neural_ai.processors.processing.interfaces.dimension_processor_interface import IDimensionProcessor
+
+
+class TestD02SupportFactory:
+    """D02SupportFactory unit teszt osztály."""
+
+    def test_create_returns_correct_type(self):
+        """Teszteli, hogy a create metódus helyes típust ad vissza."""
+        mock_config = MagicMock()
+        mock_config.get.return_value = {"swing_window": 5, "min_distance": 10}
+        mock_logger = MagicMock()
+
+        processor = D02SupportFactory.create(mock_config, mock_logger)
+
+        assert isinstance(processor, D02SupportProcessor)
+        assert isinstance(processor, IDimensionProcessor)
+
+    def test_create_returns_new_instance(self):
+        """Teszteli, hogy minden create hívás új példányt ad."""
+        mock_config = MagicMock()
+        mock_config.get.return_value = {"swing_window": 5, "min_distance": 10}
+        mock_logger = MagicMock()
+
+        processor1 = D02SupportFactory.create(mock_config, mock_logger)
+        processor2 = D02SupportFactory.create(mock_config, mock_logger)
+
+        assert processor1 is not processor2
+        assert isinstance(processor1, D02SupportProcessor)
+        assert isinstance(processor2, D02SupportProcessor)
+
+    def test_created_processor_has_correct_dimension_id(self):
+        """Teszteli, hogy a létrehozott processor helyes dimension_id-val rendelkezik."""
+        mock_config = MagicMock()
+        mock_config.get.return_value = {"swing_window": 5, "min_distance": 10}
+        mock_logger = MagicMock()
+
+        processor = D02SupportFactory.create(mock_config, mock_logger)
+
+        assert processor.dimension_id == 2
+
+    def test_created_processor_is_functional(self):
+        """Teszteli, hogy a létrehozott processor működőképes."""
+        import polars as pl
+
+        mock_config = MagicMock()
+        mock_config.get.return_value = {"swing_window": 5, "min_distance": 10}
+        mock_logger = MagicMock()
+
+        processor = D02SupportFactory.create(mock_config, mock_logger)
+
+        # Egyszerű teszt DataFrame swing pontokhoz
+        timestamps = [datetime(2023, 1, 1, 9, 0) + timedelta(minutes=i) for i in range(50)]
+        test_df = pl.DataFrame(
+            {
+                "timestamp": timestamps,
+                "mid_open": [1.0500 + i * 0.0001 for i in range(50)],
+                "mid_high": [1.0520 + i * 0.0001 for i in range(50)],
+                "mid_low": [1.0480 + i * 0.0001 for i in range(50)],
+                "mid_close": [1.0510 + i * 0.0001 for i in range(50)],
+                "tick_volume": [1000 + i * 10 for i in range(50)],
+                "spread": [0.0002 + i * 0.00001 for i in range(50)],
+                "real_volume": [1500.0 + i * 5 for i in range(50)],
+            }
+        )
+
+        result = processor.process(test_df)
+
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) == 50
+        expected_columns = {
+            "timestamp",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "tick_volume",
+            "spread",
+            "real_volume",
+            "swing_high",
+            "swing_low",
+            "resistance",
+            "support",
+        }
+        assert set(result.columns) == expected_columns
+
+    def test_processor_uses_timeframe_specific_config(self):
+        """Teszteli, hogy a processor timeframe-specifikus konfigurációt használ."""
+        import polars as pl
+
+        mock_config = MagicMock()
+        mock_config.get.return_value = {
+            "swing_window": 5,
+            "min_distance": 10,
+            "timeframe_configs": {
+                "h4": {"swing_window": 10, "min_distance": 20},
+                "d1": {"swing_window": 15, "min_distance": 30},
+            },
+        }
+        mock_logger = MagicMock()
+
+        processor = D02SupportFactory.create(mock_config, mock_logger)
+
+        # Egyszerű teszt DataFrame
+        timestamps = [datetime(2023, 1, 1, 9, 0) + timedelta(minutes=i) for i in range(50)]
+        test_df = pl.DataFrame(
+            {
+                "timestamp": timestamps,
+                "mid_open": [1.0500 + i * 0.0001 for i in range(50)],
+                "mid_high": [1.0520 + i * 0.0001 for i in range(50)],
+                "mid_low": [1.0480 + i * 0.0001 for i in range(50)],
+                "mid_close": [1.0510 + i * 0.0001 for i in range(50)],
+                "tick_volume": [1000 + i * 10 for i in range(50)],
+                "spread": [0.0002 + i * 0.00001 for i in range(50)],
+                "real_volume": [1500.0 + i * 5 for i in range(50)],
+            }
+        )
+
+        # Teszteljük H4 timeframe-mal
+        result_h4 = processor.process(test_df, timeframe="H4")
+        assert isinstance(result_h4, pl.DataFrame)
+
+        # A teszt sikeres, ha nem dob exception-t és helyes eredményt ad
+
+```
+
+## `FILE: tests/processors/processing/dimensions/d02_support/test_processor.py`
+
+```py
+"""D02SupportProcessor unit tesztek."""
+
+from datetime import datetime, timedelta
+from unittest.mock import MagicMock
+
+import numpy as np
+import polars as pl
+import pytest
+
+from neural_ai.processors.processing.dimensions.d02_support.implementations.support_processor import (
+    D02SupportProcessor,
+)
+
+
+class TestD02SupportProcessor:
+    """D02SupportProcessor unit teszt osztály."""
+
+    @pytest.fixture
+    def processor(self) -> D02SupportProcessor:
+        """D02SupportProcessor példány fixture."""
+        # Mock config és logger létrehozása
+        mock_config = MagicMock()
+        mock_config.get.return_value = {
+            "swing_window": 5,
+            "min_distance": 10,
+            "volume_confirmation": True,
+            "min_touches": 2
+        }
+        mock_logger = MagicMock()
+        return D02SupportProcessor(mock_config, mock_logger)
+
+    @pytest.fixture
+    def sample_ohlcv_data(self) -> pl.DataFrame:
+        """Mint OHLCV adatok fixture swing pontok teszteléséhez."""
+        # 50 mock OHLCV rekord swing pontok generálásához
+        timestamps = [datetime(2023, 1, 1, 9, 0, 0) + timedelta(minutes=i) for i in range(50)]
+        base_price = 1.0500
+
+        data = []
+        for i, ts in enumerate(timestamps):
+            # Swing minták létrehozása: magasabb alacsonyabb periódusok
+            if i < 10:  # Első szakasz: emelkedő trend
+                open_price = base_price + i * 0.0005
+                close_price = open_price + 0.0003
+                high_price = close_price + 0.0002
+                low_price = open_price - 0.0001
+            elif i < 25:  # Második szakasz: csökkenő trend
+                open_price = base_price - (i - 10) * 0.0004
+                close_price = open_price - 0.0002
+                high_price = open_price + 0.0001
+                low_price = close_price - 0.0003
+            else:  # Harmadik szakasz: oldalazó
+                open_price = base_price + np.random.normal(0, 0.0002)
+                close_price = open_price + np.random.normal(0, 0.0001)
+                high_price = max(open_price, close_price) + abs(np.random.normal(0, 0.0001))
+                low_price = min(open_price, close_price) - abs(np.random.normal(0, 0.0001))
+
+            data.append(
+                {
+                    "timestamp": ts,
+                    "open": open_price,
+                    "high": high_price + 0.001,  # Teljes high magasabb
+                    "low": low_price - 0.001,  # Teljes low alacsonyabb
+                    "close": close_price,
+                    "mid_open": open_price,
+                    "mid_high": high_price,
+                    "mid_low": low_price,
+                    "mid_close": close_price,
+                    "tick_volume": int(np.random.normal(1000, 200)),
+                    "spread": abs(np.random.normal(0.0002, 0.0001)),
+                    "real_volume": np.random.normal(1500, 300),
+                }
+            )
+
+            base_price = close_price
+
+        return pl.DataFrame(data)
+
+    def test_dimension_id(self, processor: D02SupportProcessor):
+        """Teszteli a dimension_id property-t."""
+        assert processor.dimension_id == 2
+
+    def test_process_valid_data(
+        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a process metódust érvényes adatokkal."""
+        result = processor.process(sample_ohlcv_data)
+
+        # Ellenőrizzük az eredmény típusát
+        assert isinstance(result, pl.DataFrame)
+
+        # Ellenőrizzük az új oszlopokat
+        expected_new_columns = {
+            "swing_high_body",
+            "swing_low_body",
+            "swing_high_wick",
+            "swing_low_wick",
+            "nearest_resistance",
+            "nearest_support",
+            "resistance_strength",
+            "support_strength",
+        }
+        assert all(col in result.columns for col in expected_new_columns)
+
+        # Ellenőrizzük, hogy az eredeti oszlopok megmaradtak
+        original_columns = {
+            "timestamp",
+            "open",
+            "high",
+            "low",
+            "close",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "tick_volume",
+            "spread",
+            "real_volume",
+        }
+        assert all(col in result.columns for col in original_columns)
+
+        # Ellenőrizzük a sorok számát
+        assert len(result) == len(sample_ohlcv_data)
+
+    def test_process_swing_high_body_detection(
+        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a body swing high pontok helyes detektálását."""
+        result = processor.process(sample_ohlcv_data)
+
+        # Swing high body Float vagy None lehet
+        assert result["swing_high_body"].dtype in [pl.Float32, pl.Float64]
+
+        # Legalább egy swing high pontnak kell lennie (a minta adatokban)
+        assert result["swing_high_body"].drop_nulls().len() > 0
+
+    def test_process_swing_low_body_detection(
+        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a body swing low pontok helyes detektálását."""
+        result = processor.process(sample_ohlcv_data)
+
+        # Swing low body Float vagy None lehet
+        assert result["swing_low_body"].dtype in [pl.Float32, pl.Float64]
+
+        # Legalább egy swing low pontnak kell lennie
+        assert result["swing_low_body"].drop_nulls().len() > 0
+
+    def test_process_swing_high_wick_detection(
+        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a wick swing high pontok helyes detektálását."""
+        result = processor.process(sample_ohlcv_data)
+
+        # Swing high wick Float vagy None lehet
+        assert result["swing_high_wick"].dtype in [pl.Float32, pl.Float64]
+
+        # Legalább egy swing high pontnak kell lennie (a minta adatokban)
+        assert result["swing_high_wick"].drop_nulls().len() > 0
+
+    def test_process_swing_low_wick_detection(
+        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a wick swing low pontok helyes detektálását."""
+        result = processor.process(sample_ohlcv_data)
+
+        # Swing low wick Float vagy None lehet
+        assert result["swing_low_wick"].dtype in [pl.Float32, pl.Float64]
+
+        # Legalább egy swing low pontnak kell lennie
+        assert result["swing_low_wick"].drop_nulls().len() > 0
+
+    def test_process_empty_dataframe(self, processor: D02SupportProcessor):
+        """Teszteli a process metódust üres DataFrame-mel."""
+        empty_df = pl.DataFrame(
+            schema={
+                "timestamp": pl.Datetime,
+                "open": pl.Float64,
+                "high": pl.Float64,
+                "low": pl.Float64,
+                "close": pl.Float64,
+                "mid_open": pl.Float64,
+                "mid_high": pl.Float64,
+                "mid_low": pl.Float64,
+                "mid_close": pl.Float64,
+                "tick_volume": pl.Int64,
+                "spread": pl.Float64,
+                "real_volume": pl.Float64,
+            }
+        )
+
+        result = processor.process(empty_df)
+
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) == 0
+
+        # Új oszlopok jelen kell legyenek
+        expected_columns = {
+            "timestamp",
+            "open",
+            "high",
+            "low",
+            "close",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "tick_volume",
+            "spread",
+            "real_volume",
+            "swing_high_body",
+            "swing_low_body",
+            "swing_high_wick",
+            "swing_low_wick",
+            "nearest_resistance",
+            "nearest_support",
+            "resistance_strength",
+            "support_strength",
+        }
+        assert set(result.columns) == expected_columns
+
+    def test_process_missing_columns_raises_error(self, processor: D02SupportProcessor):
+        """Teszteli, hogy hiányzó oszlopok esetén ColumnNotFoundError-t dob."""
+        # Hiányzó oszlopok (mid_high és high)
+        incomplete_df = pl.DataFrame(
+            {
+                "timestamp": [datetime(2023, 1, 1, 9, 0, 0)],
+                "open": [1.0500],
+                # high hiányzik
+                "low": [1.0480],
+                "close": [1.0510],
+                "mid_open": [1.0500],
+                # mid_high hiányzik
+                "mid_low": [1.0480],
+                "mid_close": [1.0510],
+                "tick_volume": [1000],
+                "spread": [0.0002],
+                "real_volume": [1500.0],
+            }
+        )
+
+        # Polars ColumnNotFoundError-t dob hiányzó oszlopokra
+        with pytest.raises(pl.exceptions.ColumnNotFoundError):
+            processor.process(incomplete_df)
+
+    def test_process_order_preserved(
+        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli, hogy a sorok sorrendje megmarad."""
+        result = processor.process(sample_ohlcv_data)
+
+        # Ellenőrizzük, hogy a timestamp oszlop sorrendje azonos
+        assert result["timestamp"].equals(sample_ohlcv_data["timestamp"])
+
+    def test_process_data_types_preserved(
+        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli, hogy az adattípusok megmaradnak."""
+        result = processor.process(sample_ohlcv_data)
+
+        # Ellenőrizzük a fontos adattípusokat
+        assert result["timestamp"].dtype == pl.Datetime
+        assert result["open"].dtype in [pl.Float32, pl.Float64]
+        assert result["high"].dtype in [pl.Float32, pl.Float64]
+        assert result["low"].dtype in [pl.Float32, pl.Float64]
+        assert result["close"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_open"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_high"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_low"].dtype in [pl.Float32, pl.Float64]
+        assert result["mid_close"].dtype in [pl.Float32, pl.Float64]
+        assert result["tick_volume"].dtype in [pl.Int32, pl.Int64]
+        assert result["spread"].dtype in [pl.Float32, pl.Float64]
+        assert result["real_volume"].dtype in [pl.Float32, pl.Float64]
+
+        # Új oszlopok típusai
+        assert result["swing_high_body"].dtype in [pl.Float32, pl.Float64]
+        assert result["swing_low_body"].dtype in [pl.Float32, pl.Float64]
+        assert result["swing_high_wick"].dtype in [pl.Float32, pl.Float64]
+        assert result["swing_low_wick"].dtype in [pl.Float32, pl.Float64]
+
+    def test_confirm_with_volume_enabled(
+        self, processor: D02SupportProcessor, sample_ohlcv_data: pl.DataFrame
+    ):
+        """Teszteli a _confirm_with_volume metódust volume_confirmation True esetén."""
+        # Swing mask: első 10 sor True, többi False
+        swing_mask = pl.col("timestamp").cum_count() <= 10
+
+        expr = processor._confirm_with_volume(sample_ohlcv_data, swing_mask)
+
+        # Alkalmazzuk az expr-t a df-re
+        result_df = sample_ohlcv_data.with_columns(volume_multiplier=expr)
+
+        # Ellenőrizzük, hogy az első 10 sorban különböző értékek vannak (1.0 vagy 1.2)
+        first_10 = result_df.head(10)["volume_multiplier"].to_list()
+        others = result_df.slice(10)["volume_multiplier"].to_list()
+
+        # Első 10-ben lehet 1.2 vagy 1.0 attól függően, hogy teljesül-e a feltétel
+        assert all(v in [1.0, 1.2] for v in first_10)
+        # Többi mindig 1.0 (swing_mask False)
+        assert all(v == 1.0 for v in others)
+
+    def test_confirm_with_volume_disabled(self, processor: D02SupportProcessor):
+        """Teszteli a _confirm_with_volume metódust volume_confirmation False esetén."""
+        # Mock config módosítása volume_confirmation False-ra
+        processor.dim_config = {"volume_confirmation": False}
+
+        df = pl.DataFrame({"real_volume": [1000, 2000, 3000]})
+        swing_mask = pl.lit(True)
+
+        expr = processor._confirm_with_volume(df, swing_mask)
+
+        # Alkalmazzuk
+        result_df = df.with_columns(volume_multiplier=expr)
+
+        # Mindig 1.0 kell legyen
+        assert all(result_df["volume_multiplier"] == 1.0)
+
+    def test_merge_levels_empty_swings(self, processor: D02SupportProcessor):
+        """Teszteli a _merge_levels metódust üres swing DataFrame-mel."""
+        df = pl.DataFrame(schema={"price": pl.Float64, "weight": pl.Float64, "type": pl.Utf8})
+        result = processor._merge_levels(df)
+
+        assert result.is_empty()
+
+    def test_merge_levels_single_swing_high(self, processor: D02SupportProcessor):
+        """Teszteli a _merge_levels metódust egyetlen high swing-gel."""
+        df = pl.DataFrame({"price": [1.0500], "weight": [1000.0], "type": ["high"]})
+        result = processor._merge_levels(df)
+
+        expected = pl.DataFrame({"price": [1.0500], "weight": [1000.0], "type": ["high"]})
+
+        assert result.equals(expected)
+
+    def test_merge_levels_single_swing_low(self, processor: D02SupportProcessor):
+        """Teszteli a _merge_levels metódust egyetlen low swing-gel."""
+        df = pl.DataFrame({"price": [1.0480], "weight": [1000.0], "type": ["low"]})
+        result = processor._merge_levels(df)
+
+        expected = pl.DataFrame({"price": [1.0480], "weight": [1000.0], "type": ["low"]})
+
+        assert result.equals(expected)
+
+    def test_merge_levels_multiple_swings_no_merge(self, processor: D02SupportProcessor):
+        """Teszteli a _merge_levels metódust több swing-gel, amelyek nem kerülnek összevonásra."""
+        df = pl.DataFrame({
+            "price": [1.0500, 1.0520, 1.0480],
+            "weight": [1000.0, 1000.0, 1000.0],
+            "type": ["high", "high", "low"]
+        })
+        result = processor._merge_levels(df)
+
+        expected = pl.DataFrame({
+            "price": [1.0480, 1.0500, 1.0520],
+            "weight": [1000.0, 1000.0, 1000.0],
+            "type": ["low", "high", "high"]
+        })
+
+        assert result.equals(expected)
+
+    def test_merge_levels_merge_close_swings(self, processor: D02SupportProcessor):
+        """Teszteli a _merge_levels metódust közel lévő swing-ek összevonásával."""
+        df = pl.DataFrame({
+            "price": [1.0500, 1.0502],
+            "weight": [1000.0, 2000.0],
+            "type": ["high", "high"]
+        })
+        result = processor._merge_levels(df)
+
+        # Súlyozott átlag számítása
+        expected_price = (1.0500 * 1000 + 1.0502 * 2000) / 3000
+
+        assert len(result) == 1
+        assert result["type"][0] == "high"
+        assert result["weight"][0] == 3000.0
+        assert abs(result["price"][0] - expected_price) < 1e-6
+
+    def test_merge_levels_sorted_by_price(self, processor: D02SupportProcessor):
+        """Teszteli, hogy a swing-ek ár szerint rendezettek maradnak."""
+        df = pl.DataFrame({
+            "price": [1.0520, 1.0480, 1.0500],
+            "weight": [1000.0, 1000.0, 1000.0],
+            "type": ["high", "low", "high"]
+        })
+        result = processor._merge_levels(df)
+
+        # Rendezve kell lenni ár szerint
+        prices = result["price"].to_list()
+        assert prices == sorted(prices)
+
+    def test_calculate_level_strength_empty_levels(self, processor: D02SupportProcessor):
+        """Teszteli a _calculate_level_strength metódust üres szintek listával."""
+        result = processor._calculate_level_strength([])
+
+        assert result == []
+
+    def test_calculate_level_strength_single_level(self, processor: D02SupportProcessor):
+        """Teszteli a _calculate_level_strength metódust egyetlen szinttel."""
+        levels = [{"price": 1.0500, "touches": 5, "type": "resistance"}]
+        result = processor._calculate_level_strength(levels)
+
+        expected_strength = (5 * 0.1) * 1.0  # volume_factor alapértelmezett 1.0, max_strength = 0.5, normalizált 1.0
+        assert len(result) == 1
+        assert result[0]["strength"] == 1.0  # Normalizált
+        assert result[0]["price"] == 1.0500
+        assert result[0]["touches"] == 5
+        assert result[0]["type"] == "resistance"
+
+    def test_calculate_level_strength_multiple_levels(self, processor: D02SupportProcessor):
+        """Teszteli a _calculate_level_strength metódust több szinttel."""
+        levels = [
+            {"price": 1.0500, "touches": 5, "type": "resistance"},
+            {"price": 1.0480, "touches": 10, "type": "support"},
+        ]
+        result = processor._calculate_level_strength(levels)
+
+        # Számítások:
+        # Level 1: (5 * 0.1) * 1.0 = 0.5
+        # Level 2: (10 * 0.1) * 1.0 = 1.0
+        # Max = 1.0
+        # Normalized: 0.5/1.0 = 0.5, 1.0/1.0 = 1.0
+
+        assert len(result) == 2
+        assert result[0]["strength"] == 0.5
+        assert result[1]["strength"] == 1.0
+
+    def test_calculate_level_strength_with_volume_factor(self, processor: D02SupportProcessor):
+        """Teszteli a _calculate_level_strength metódust volume_factor használatával."""
+        levels = [
+            {"price": 1.0500, "touches": 5, "type": "resistance", "volume_factor": 2.0},
+            {"price": 1.0480, "touches": 5, "type": "support", "volume_factor": 1.0},
+        ]
+        result = processor._calculate_level_strength(levels)
+
+        # Level 1: (5 * 0.1) * 2.0 = 1.0
+        # Level 2: (5 * 0.1) * 1.0 = 0.5
+        # Max = 1.0
+        # Normalized: 1.0/1.0 = 1.0, 0.5/1.0 = 0.5
+
+        assert len(result) == 2
+        assert result[0]["strength"] == 1.0
+        assert result[1]["strength"] == 0.5
+
+    def test_calculate_level_strength_normalization(self, processor: D02SupportProcessor):
+        """Teszteli a normalizálást 0-1 közé."""
+        levels = [
+            {"price": 1.0500, "touches": 1, "type": "resistance"},
+            {"price": 1.0480, "touches": 2, "type": "support"},
+            {"price": 1.0520, "touches": 4, "type": "resistance"},
+        ]
+        result = processor._calculate_level_strength(levels)
+
+        # Számítások:
+        # 0.1, 0.2, 0.4 -> max=0.4
+        # Normalized: 0.25, 0.5, 1.0
+
+        assert len(result) == 3
+        assert abs(result[0]["strength"] - 0.25) < 1e-6
+        assert abs(result[1]["strength"] - 0.5) < 1e-6
+        assert result[2]["strength"] == 1.0
+
+    def test_categorize_zones_empty_levels(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust üres szintek listával."""
+        result = processor._categorize_zones([])
+
+        expected = {
+            "support": {"strong": [], "moderate": [], "weak": []},
+            "resistance": {"strong": [], "moderate": [], "weak": []}
+        }
+
+        assert result == expected
+
+    def test_categorize_zones_strong_support(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust strong support szinttel."""
+        levels = [
+            {"price": 1.0480, "touches": 3, "type": "support", "strength": 0.8}
+        ]
+        result = processor._categorize_zones(levels)
+
+        assert len(result["support"]["strong"]) == 1
+        assert result["support"]["strong"][0]["price"] == 1.0480
+        assert len(result["support"]["moderate"]) == 0
+        assert len(result["support"]["weak"]) == 0
+        assert len(result["resistance"]["strong"]) == 0
+
+    def test_categorize_zones_strong_resistance(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust strong resistance szinttel."""
+        levels = [
+            {"price": 1.0520, "touches": 2, "type": "resistance", "strength": 0.9}
+        ]
+        result = processor._categorize_zones(levels)
+
+        assert len(result["resistance"]["strong"]) == 1
+        assert result["resistance"]["strong"][0]["price"] == 1.0520
+        assert len(result["resistance"]["moderate"]) == 0
+        assert len(result["resistance"]["weak"]) == 0
+        assert len(result["support"]["strong"]) == 0
+
+    def test_categorize_zones_moderate_level(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust moderate szinttel."""
+        levels = [
+            {"price": 1.0480, "touches": 1, "type": "support", "strength": 0.5}
+        ]
+        result = processor._categorize_zones(levels)
+
+        assert len(result["support"]["moderate"]) == 1
+        assert result["support"]["moderate"][0]["price"] == 1.0480
+        assert len(result["support"]["strong"]) == 0
+        assert len(result["support"]["weak"]) == 0
+
+    def test_categorize_zones_weak_level(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust weak szinttel."""
+        levels = [
+            {"price": 1.0480, "touches": 1, "type": "support", "strength": 0.2}
+        ]
+        result = processor._categorize_zones(levels)
+
+        assert len(result["support"]["weak"]) == 1
+        assert result["support"]["weak"][0]["price"] == 1.0480
+        assert len(result["support"]["strong"]) == 0
+        assert len(result["support"]["moderate"]) == 0
+
+    def test_categorize_zones_edge_case_strength_07(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust strength = 0.7 esetén."""
+        levels = [
+            {"price": 1.0520, "touches": 3, "type": "resistance", "strength": 0.7}
+        ]
+        result = processor._categorize_zones(levels)
+
+        # strength == 0.7, tehát moderate (nem > 0.7)
+        assert len(result["resistance"]["moderate"]) == 1
+        assert len(result["resistance"]["strong"]) == 0
+
+    def test_categorize_zones_edge_case_strength_03(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust strength = 0.3 esetén."""
+        levels = [
+            {"price": 1.0520, "touches": 3, "type": "resistance", "strength": 0.3}
+        ]
+        result = processor._categorize_zones(levels)
+
+        # strength == 0.3, 0.3 <= 0.7, tehát moderate
+        assert len(result["resistance"]["moderate"]) == 1
+        assert len(result["resistance"]["strong"]) == 0
+
+    def test_categorize_zones_low_touches_but_high_strength(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust alacsony touches de magas strength esetén."""
+        levels = [
+            {"price": 1.0480, "touches": 1, "type": "support", "strength": 0.5}
+        ]
+        result = processor._categorize_zones(levels)
+
+        # touches < min_touches (2), de strength > 0.4, tehát moderate
+        assert len(result["support"]["moderate"]) == 1
+        assert len(result["support"]["strong"]) == 0
+
+    def test_categorize_zones_multiple_levels(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust több szinttel különböző kategóriákban."""
+        levels = [
+            {"price": 1.0480, "touches": 3, "type": "support", "strength": 0.8},  # strong
+            {"price": 1.0520, "touches": 2, "type": "resistance", "strength": 0.5},  # moderate
+            {"price": 1.0500, "touches": 1, "type": "support", "strength": 0.2},  # weak
+            {"price": 1.0540, "touches": 4, "type": "resistance", "strength": 0.9},  # strong
+        ]
+        result = processor._categorize_zones(levels)
+
+        assert len(result["support"]["strong"]) == 1
+        assert len(result["support"]["moderate"]) == 0
+        assert len(result["support"]["weak"]) == 1
+        assert len(result["resistance"]["strong"]) == 1
+        assert len(result["resistance"]["moderate"]) == 1
+        assert len(result["resistance"]["weak"]) == 0
+
+    def test_categorize_zones_min_touches_boundary(self, processor: D02SupportProcessor):
+        """Teszteli a _categorize_zones metódust min_touches határán."""
+        levels = [
+            {"price": 1.0520, "touches": 2, "type": "resistance", "strength": 0.8}  # touches == min_touches
+        ]
+        result = processor._categorize_zones(levels)
+
+        # touches >= min_touches és strength > 0.7, tehát strong
+        assert len(result["resistance"]["strong"]) == 1
+
+```
+
+## `FILE: tests/processors/processing/resampler_service/test_resampler_service.py`
+
+```py
+"""ResamplerService tesztek."""
+
+from datetime import datetime
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pandas as pd
+import polars as pl
+import pytest
+
+from neural_ai.processors.processing.resampler_service.exceptions.resampler_error import (
+    DataLoadError,
+    InvalidTimeframeError,
+    ResamplingError,
+)
+from neural_ai.processors.processing.resampler_service.factory import ResamplerServiceFactory
+from neural_ai.processors.processing.resampler_service.implementations.resampler_service import (
+    ResamplerService,
+)
+from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
+    ResamplerInterface,
+)
+
+
+class TestResamplerService:
+    """ResamplerService tesztek."""
+
+    @pytest.fixture
+    def mock_storage(self) -> MagicMock:
+        """Mock StorageInterface létrehozása."""
+        return MagicMock()
+
+    @pytest.fixture
+    def resampler(self, mock_storage: MagicMock) -> ResamplerService:
+        """ResamplerService példány létrehozása."""
+        return ResamplerService(storage=mock_storage)
+
+    @pytest.fixture
+    def mock_storage_with_read_tick_data(self) -> MagicMock:
+        """Mock StorageInterface read_tick_data metódussal."""
+        storage = MagicMock()
+        storage.read_tick_data = AsyncMock(return_value=pl.DataFrame())
+        return storage
+
+    @pytest.fixture
+    def sample_tick_data(self) -> pl.DataFrame:
+        """Minta tick adatok létrehozása."""
+        # 10 másodperc adatok 1 másodperces frekvenciával
+        date_range = pd.date_range(
+            start=datetime(2024, 1, 1, 12, 0, 0), end=datetime(2024, 1, 1, 12, 0, 10), freq="1s"
+        )
+
+        return pl.DataFrame(
+            {
+                "timestamp": date_range,
+                "bid": [1.05 + i * 0.001 for i in range(len(date_range))],
+                "ask": [1.051 + i * 0.001 for i in range(len(date_range))],
+                "bid_volume": [50 + i * 5 for i in range(len(date_range))],
+                "ask_volume": [50 + i * 5 for i in range(len(date_range))],
+            }
+        )
+
+    @pytest.mark.asyncio
+    async def test_resample_valid_timeframe(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt érvényes időkerettel."""
+        # Mock a _load_tick_data metódust
+        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler.resample(
+            symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="polars"
+        )
+
+        # Ellenőrzés
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) > 0
+        assert "mid_open" in result.columns
+        assert "mid_high" in result.columns
+        assert "mid_low" in result.columns
+        assert "mid_close" in result.columns
+        assert "bid_open" in result.columns
+        assert "spread" in result.columns
+        assert "real_volume" in result.columns
+        assert "tick_volume" in result.columns
+
+    @pytest.mark.asyncio
+    async def test_resample_valid_timeframe_pandas(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt érvényes időkerettel pandas visszaadással."""
+        # Mock a _load_tick_data metódust
+        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler.resample(
+            symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="pandas"
+        )
+
+        # Ellenőrzés
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) > 0
+        assert "mid_open" in result.columns
+        assert "mid_high" in result.columns
+        assert "mid_low" in result.columns
+        assert "mid_close" in result.columns
+        assert "bid_open" in result.columns
+        assert "spread" in result.columns
+        assert "real_volume" in result.columns
+        assert "tick_volume" in result.columns
+        # Ellenőrzi, hogy az index timestamp-e
+        assert isinstance(result.index, pd.DatetimeIndex)
+
+    @pytest.mark.asyncio
+    async def test_load_tick_data_with_storage(
+        self, sample_tick_data: pl.DataFrame, mock_storage_with_read_tick_data: MagicMock
+    ):
+        """Teszt _load_tick_data metódus tényleges storage hívással."""
+        resampler = ResamplerService(storage=mock_storage_with_read_tick_data)
+        mock_storage_with_read_tick_data.read_tick_data.return_value = sample_tick_data
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler._load_tick_data("EURUSD", start, end)
+
+        assert isinstance(result, pl.DataFrame)
+        mock_storage_with_read_tick_data.read_tick_data.assert_called_once_with(
+            "EURUSD", start, end
+        )
+
+    @pytest.mark.asyncio
+    async def test_load_tick_data_no_data(self, mock_storage_with_read_tick_data: MagicMock):
+        """Teszt _load_tick_data metódus üres adattal."""
+        resampler = ResamplerService(storage=mock_storage_with_read_tick_data)
+        mock_storage_with_read_tick_data.read_tick_data.return_value = None
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler._load_tick_data("EURUSD", start, end)
+
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) == 0
+
+    @pytest.mark.asyncio
+    async def test_load_tick_data_storage_error(self, mock_storage_with_read_tick_data: MagicMock):
+        """Teszt _load_tick_data metódus storage hiba esetén."""
+        resampler = ResamplerService(storage=mock_storage_with_read_tick_data)
+        mock_storage_with_read_tick_data.read_tick_data.side_effect = Exception("Storage hiba")
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        with pytest.raises(DataLoadError):
+            await resampler._load_tick_data("EURUSD", start, end)
+
+    @pytest.mark.asyncio
+    async def test_load_tick_data_no_read_method(self, mock_storage: MagicMock):
+        """Teszt _load_tick_data metódus hiányzó read_tick_data esetén."""
+        resampler = ResamplerService(storage=mock_storage)
+        # getatr None-t ad vissza
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        with pytest.raises(DataLoadError):
+            await resampler._load_tick_data("EURUSD", start, end)
+
+    @pytest.mark.asyncio
+    async def test_resample_invalid_return_type(self, resampler: ResamplerService):
+        """Teszt érvénytelen return_type esetén."""
+        resampler._load_tick_data = AsyncMock(return_value=pl.DataFrame())
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        with pytest.raises(ResamplingError):
+            await resampler.resample(
+                symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="invalid"
+            )
+
+    @pytest.mark.asyncio
+    async def test_resample_invalid_timeframe(self, resampler: ResamplerService):
+        """Teszt érvénytelen időkerettel."""
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        with pytest.raises(InvalidTimeframeError):
+            await resampler.resample(symbol="EURUSD", start=start, end=end, timeframe="invalid")
+
+    @pytest.mark.asyncio
+    async def test_resample_data_load_error(self, resampler: ResamplerService):
+        """Teszt adatok betöltési hibájával."""
+        # Mock a _load_tick_data metódust, hogy dobjon kivételt
+        resampler._load_tick_data = AsyncMock(side_effect=Exception("Betöltési hiba"))
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        with pytest.raises(DataLoadError):
+            await resampler.resample(symbol="EURUSD", start=start, end=end, timeframe="1m")
+
+    @pytest.mark.asyncio
+    async def test_resample_resampling_error(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt átalakítási hibával."""
+        # Mock a _load_tick_data metódust
+        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
+
+        # Mock a _convert_to_ohlcv metódust, hogy dobjon kivételt
+        resampler._convert_to_ohlcv = MagicMock(side_effect=Exception("Átalakítási hiba"))
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        with pytest.raises(ResamplingError):
+            await resampler.resample(symbol="EURUSD", start=start, end=end, timeframe="1m")
+
+    @pytest.mark.asyncio
+    async def test_resample_different_timeframes(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt különböző időkeretekkel."""
+        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        timeframes = ["1m", "5m", "15m", "1h"]
+
+        for timeframe in timeframes:
+            result = await resampler.resample(
+                symbol="EURUSD", start=start, end=end, timeframe=timeframe, return_type="polars"
+            )
+
+            assert isinstance(result, pl.DataFrame)
+            assert len(result.columns) >= 9  # Kiterjesztett OHLCV metrikák
+
+    def test_validate_timeframe_valid(self, resampler: ResamplerService):
+        """Teszt érvényes időkeret validálását."""
+        valid_timeframes = ["tick", "1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"]
+
+        for timeframe in valid_timeframes:
+            # Nem dob kivételt
+            resampler._validate_timeframe(timeframe)
+
+    def test_validate_timeframe_invalid(self, resampler: ResamplerService):
+        """Teszt érvénytelen időkeret validálását."""
+        with pytest.raises(InvalidTimeframeError):
+            resampler._validate_timeframe("invalid_timeframe")
+
+    def test_convert_to_ohlcv(self, resampler: ResamplerService, sample_tick_data: pl.DataFrame):
+        """Teszt kiterjesztett OHLCV átalakítást."""
+        result = resampler._convert_to_ohlcv(sample_tick_data, "1m")
+
+        # Ellenőrzés
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) > 0
+        expected_columns = [
+            "timestamp",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "bid_open",
+            "bid_high",
+            "bid_low",
+            "bid_close",
+            "spread",
+            "real_volume",
+            "tick_volume",
+            "bid_volume",
+            "ask_volume",
+        ]
+        assert all(col in result.columns for col in expected_columns)
+
+    def test_convert_to_ohlcv_empty_data(self, resampler: ResamplerService):
+        """Teszt üres adatokkal."""
+        # Üres DataFrame létrehozása megfelelő sémával
+        empty_data = pl.DataFrame(
+            {
+                "timestamp": pl.Series([], dtype=pl.Datetime),
+                "bid": pl.Series([], dtype=pl.Float64),
+                "ask": pl.Series([], dtype=pl.Float64),
+                "bid_volume": pl.Series([], dtype=pl.Int64),
+                "ask_volume": pl.Series([], dtype=pl.Float64),
+            }
+        )
+
+        result = resampler._convert_to_ohlcv(empty_data, "1m")
+
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) == 0
+
+    def test_convert_to_ohlcv_missing_columns(self, resampler: ResamplerService):
+        """Teszt hiányzó oszlopokkal."""
+        # Hiányzó ask_volume oszlop
+        invalid_data = pl.DataFrame(
+            {
+                "timestamp": pd.date_range(
+                    start=datetime(2024, 1, 1, 12, 0, 0),
+                    end=datetime(2024, 1, 1, 12, 0, 10),
+                    freq="1s",
+                ),
+                "bid": [1.05 + i * 0.001 for i in range(11)],
+                "ask": [1.051 + i * 0.001 for i in range(11)],
+                "bid_volume": [50 + i * 5 for i in range(11)],
+                # ask_volume hiányzik
+            }
+        )
+
+        with pytest.raises(ValueError, match="Missing required columns"):
+            resampler._convert_to_ohlcv(invalid_data, "1m")
+
+    @pytest.mark.asyncio
+    async def test_resample_ohlcv_calculation(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt OHLCV számítás helyességét."""
+        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler.resample(
+            symbol="EURUSD", start=start, end=end, timeframe="1m", return_type="polars"
+        )
+
+        # Ellenőrzés, hogy az OHLCV értékek logikailag helyesek-e
+        for row in result.rows(named=True):
+            # Mid OHLC ellenőrzések
+            assert row["mid_high"] >= row["mid_low"], "Mid High nem lehet kisebb mint Mid Low"
+            assert row["mid_open"] >= row["mid_low"], "Mid Open nem lehet kisebb mint Mid Low"
+            assert row["mid_close"] >= row["mid_low"], "Mid Close nem lehet kisebb mint Mid Low"
+            assert row["mid_high"] >= row["mid_open"], "Mid High nem lehet kisebb mint Mid Open"
+            assert row["mid_high"] >= row["mid_close"], "Mid High nem lehet kisebb mint Mid Close"
+            # Bid OHLC ellenőrzések
+            assert row["bid_high"] >= row["bid_low"], "Bid High nem lehet kisebb mint Bid Low"
+            assert row["bid_open"] >= row["bid_low"], "Bid Open nem lehet kisebb mint Bid Low"
+            assert row["bid_close"] >= row["bid_low"], "Bid Close nem lehet kisebb mint Bid Low"
+            assert row["bid_high"] >= row["bid_open"], "Bid High nem lehet kisebb mint Bid Open"
+            assert row["bid_high"] >= row["bid_close"], "Bid High nem lehet kisebb mint Bid Close"
+            # Egyéb ellenőrzések
+            assert row["spread"] >= 0, "Spread nem lehet negatív"
+            assert row["real_volume"] >= 0, "Real Volume nem lehet negatív"
+            assert row["tick_volume"] >= 0, "Tick Volume nem lehet negatív"
+
+    @pytest.mark.asyncio
+    async def test_resample_tick_timeframe(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt tick timeframe bypass aggregációval."""
+        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler.resample(
+            symbol="EURUSD", start=start, end=end, timeframe="tick", return_type="polars"
+        )
+
+        # Ellenőrzés
+        assert isinstance(result, pl.DataFrame)
+        # Sorok száma megegyezik (bypass aggregáció)
+        assert len(result) == len(sample_tick_data)
+        assert "mid_close" in result.columns
+        assert "spread" in result.columns
+        assert "tick_volume" in result.columns
+        # Minden tick_volume 1
+        assert all(result["tick_volume"] == 1)
+        # mid_close = (bid + ask) / 2
+        expected_mid_close = (sample_tick_data["bid"] + sample_tick_data["ask"]) / 2
+        assert result["mid_close"].equals(expected_mid_close)
+        # spread = ask - bid
+        expected_spread = sample_tick_data["ask"] - sample_tick_data["bid"]
+        assert result["spread"].equals(expected_spread)
+        # real_volume = bid_volume + ask_volume
+        expected_real_volume = sample_tick_data["bid_volume"] + sample_tick_data["ask_volume"]
+        assert result["real_volume"].equals(expected_real_volume)
+
+    @pytest.mark.asyncio
+    async def test_resample_tick_timeframe_pandas(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt tick timeframe bypass pandas visszaadással."""
+        resampler._load_tick_data = AsyncMock(return_value=sample_tick_data)
+
+        start = datetime(2024, 1, 1, 12, 0, 0)
+        end = datetime(2024, 1, 1, 12, 0, 10)
+
+        result = await resampler.resample(
+            symbol="EURUSD", start=start, end=end, timeframe="tick", return_type="pandas"
+        )
+
+        # Ellenőrzés
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) == len(sample_tick_data)
+        assert isinstance(result.index, pd.DatetimeIndex)
+
+    def test_convert_to_ohlcv_tick_timeframe(
+        self, resampler: ResamplerService, sample_tick_data: pl.DataFrame
+    ):
+        """Teszt _convert_to_ohlcv tick timeframe-mal."""
+        result = resampler._convert_to_ohlcv(sample_tick_data, "tick")
+
+        # Ellenőrzés
+        assert isinstance(result, pl.DataFrame)
+        assert len(result) == len(sample_tick_data)
+        expected_columns = [
+            "timestamp",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
+            "bid_open",
+            "bid_high",
+            "bid_low",
+            "bid_close",
+            "spread",
+            "real_volume",
+            "tick_volume",
+            "bid_volume",
+            "ask_volume",
+        ]
+        assert all(col in result.columns for col in expected_columns)
+        # OHLC értékek megegyeznek minden soron belül (open=high=low=close)
+        for row in result.rows(named=True):
+            mid_price = (row["bid"] + row["ask"]) / 2
+            # Mid OHLC minden sorban azonos
+            assert row["mid_open"] == mid_price
+            assert row["mid_high"] == mid_price
+            assert row["mid_low"] == mid_price
+            assert row["mid_close"] == mid_price
+            # Bid OHLC minden sorban azonos
+            assert row["bid_open"] == row["bid"]
+            assert row["bid_high"] == row["bid"]
+            assert row["bid_low"] == row["bid"]
+            assert row["bid_close"] == row["bid"]
+            # Egyéb ellenőrzések
+            assert row["spread"] == row["ask"] - row["bid"]
+            assert row["real_volume"] == row["bid_volume"] + row["ask_volume"]
+            assert row["tick_volume"] == 1
+
+    def test_validate_timeframe_tick_case_insensitive(self, resampler: ResamplerService):
+        """Teszt tick timeframe case insensitive validálását."""
+        # Különböző case-ek
+        tick_variants = ["tick", "Tick", "TICK", "tiCK"]
+
+        for variant in tick_variants:
+            # Nem dob kivételt
+            resampler._validate_timeframe(variant)
+
+
+class TestResamplerServiceFactory:
+    """ResamplerServiceFactory tesztek."""
+
+    def test_create(self):
+        """Teszt ResamplerService létrehozását."""
+        mock_storage = MagicMock()
+        resampler = ResamplerServiceFactory.create(storage=mock_storage)
+
+        assert isinstance(resampler, ResamplerInterface)
+        assert isinstance(resampler, ResamplerService)
+
+    @patch("neural_ai.processors.processing.resampler_service.factory.DIContainer")
+    @patch("neural_ai.data.storage.factory.StorageFactory.get_storage")
+    def test_get_instance(self, mock_get_storage: MagicMock, mock_container_class: MagicMock):
+        """Teszt ResamplerService példány lekérését."""
+        # Mock a DI konténert
+        mock_container = MagicMock()
+        mock_container_class.return_value = mock_container
+
+        # Mock a get metódust, hogy dobjon kivételt (nincs regisztrálva)
+        mock_container.get.side_effect = Exception("Nincs regisztrálva")
+
+        # Mock a storage factory-t
+        mock_storage = MagicMock()
+        mock_get_storage.return_value = mock_storage
+
+        # Teszt
+        resampler = ResamplerServiceFactory.get_instance()
+
+        assert isinstance(resampler, ResamplerInterface)
+        mock_container.register.assert_called_once()
+
+    @patch("neural_ai.processors.processing.resampler_service.factory.DIContainer")
+    def test_get_instance_cached(self, mock_container_class: MagicMock):
+        """Teszt gyorsítótárazott példány lekérését."""
+        # Mock a DI konténert
+        mock_container = MagicMock()
+        mock_container_class.return_value = mock_container
+
+        # Mock a get metódust, hogy visszaadjon egy példányt
+        mock_resampler = MagicMock()
+        mock_container.get.return_value = mock_resampler
+
+        # Teszt
+        resampler = ResamplerServiceFactory.get_instance()
+
+        assert resampler == mock_resampler
+        mock_container.register.assert_not_called()
+
+
+class TestResamplerErrorHierarchy:
+    """ResamplerError hierarchia tesztek."""
+
+    def test_resampler_error_creation(self):
+        """Teszt ResamplerError létrehozását."""
+        from neural_ai.processors.processing.resampler_service.exceptions.resampler_error import (
+            ResamplerError,
+        )
+
+        error = ResamplerError(
+            message="Teszt hiba",
+            details="Részletes információk",
+            original_error=ValueError("Eredeti hiba"),
+        )
+
+        assert str(error) == "Teszt hiba"
+        assert error.details == "Részletes információk"
+        assert error.component == "ResamplerService"
+        assert isinstance(error.original_error, ValueError)
+
+    def test_data_load_error_creation(self):
+        """Teszt DataLoadError létrehozását."""
+        original_error = OSError("Fájl nem található")
+
+        error = DataLoadError(
+            symbol="EURUSD",
+            start="2024-01-01 12:00:00",
+            end="2024-01-01 13:00:00",
+            original_error=original_error,
+        )
+
+        assert "EURUSD" in str(error)
+        assert error.details is not None
+        assert "2024-01-01 12:00:00" in error.details
+        assert error.original_error == original_error
+
+    def test_resampling_error_creation(self):
+        """Teszt ResamplingError létrehozását."""
+        original_error = RuntimeError("Feldolgozási hiba")
+
+        error = ResamplingError(symbol="EURUSD", timeframe="1m", original_error=original_error)
+
+        assert "EURUSD" in str(error)
+        assert error.details is not None
+        assert "1m" in error.details
+        assert error.original_error == original_error
+
+    def test_invalid_timeframe_error_creation(self):
+        """Teszt InvalidTimeframeError létrehozását."""
+        error = InvalidTimeframeError("invalid_tf")
+
+        assert "invalid_tf" in str(error)
+        assert error.details is not None
+        assert "Pandas offset formátum" in error.details
+
+```
+
+## `FILE: tests/processors/processing/test_processing_factory.py`
+
+```py
+"""Processing Factory unit tesztek."""
+
+from unittest.mock import MagicMock
+
+import pytest
+
+from neural_ai.processors.processing.dimensions.d01_price.processor import D01PriceProcessor
+from neural_ai.processors.processing.factory import (
+    create_dimension_processor,
+    create_time_alignment_service,
+)
+from neural_ai.processors.processing.implementations.time_alignment_service import TimeAlignmentService
+from neural_ai.processors.processing.interfaces.dimension_processor_interface import IDimensionProcessor
+from neural_ai.processors.processing.interfaces.time_alignment_interface import ITimeAlignmentService
+
+
+class TestProcessingFactory:
+    """Processing Factory unit teszt osztály."""
+
+    def test_create_time_alignment_service(self):
+        """Teszteli a create_time_alignment_service függvényt."""
+        service = create_time_alignment_service()
+
+        assert isinstance(service, TimeAlignmentService)
+        assert isinstance(service, ITimeAlignmentService)
+
+    def test_create_dimension_processor_d1(self):
+        """Teszteli a create_dimension_processor függvényt D1 dimenzióval."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
+        processor = create_dimension_processor(1, mock_config, mock_logger)
+
+        assert isinstance(processor, D01PriceProcessor)
+        assert isinstance(processor, IDimensionProcessor)
+        assert processor.dimension_id == 1
+
+    def test_create_dimension_processor_invalid_id(self):
+        """Teszteli a create_dimension_processor függvényt érvénytelen ID-val."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
+        with pytest.raises(ValueError, match="Ismeretlen dimenzió ID: 999"):
+            create_dimension_processor(999, mock_config, mock_logger)
+
+    def test_create_dimension_processor_negative_id(self):
+        """Teszteli a create_dimension_processor függvényt negatív ID-val."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
+        with pytest.raises(ValueError, match="Ismeretlen dimenzió ID: -1"):
+            create_dimension_processor(-1, mock_config, mock_logger)
+
+    def test_create_dimension_processor_zero_id(self):
+        """Teszteli a create_dimension_processor függvényt 0 ID-val."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_logger = MagicMock()
+
+        with pytest.raises(ValueError, match="Ismeretlen dimenzió ID: 0"):
+            create_dimension_processor(0, mock_config, mock_logger)
+
+    def test_create_dimension_processor_d2(self):
+        """Teszteli a create_dimension_processor függvényt D2 dimenzióval."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = {"window_size": 20, "threshold": 0.1}
+        mock_logger = MagicMock()
+
+        processor = create_dimension_processor(2, mock_config, mock_logger)
+
+        assert isinstance(processor, IDimensionProcessor)
+        assert processor.dimension_id == 2
 
 ```
 
@@ -55684,7 +50213,7 @@ class TestValidateTickPipeline:
         """Teszt resample hiba esetén."""
         # Mock-oljuk a ResamplerServiceFactory.create-ot, hogy hibát dobjon
         with patch(
-            "neural_ai.core.processing.resampler_service.factory.ResamplerServiceFactory"
+            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory"
         ) as mock_factory:
             mock_resampler = MagicMock()
             mock_factory.create.return_value = mock_resampler
@@ -55699,7 +50228,7 @@ class TestValidateTickPipeline:
     async def test_validate_tick_pipeline_d1_failure(self):
         """Teszt D1 processor hiba esetén."""
         # Mock-oljuk a create_dimension_processor-t, hogy hibát dobjon
-        with patch("neural_ai.core.processing.factory.create_dimension_processor") as mock_create:
+        with patch("neural_ai.processors.processing.factory.create_dimension_processor") as mock_create:
             mock_processor = MagicMock()
             mock_create.return_value = mock_processor
             mock_processor.process.side_effect = Exception("D1 hiba")
@@ -55714,7 +50243,7 @@ class TestValidateTickPipeline:
         """Teszt validációs hiba esetén."""
         # Mock-oljuk a ResamplerServiceFactory-t, hogy rossz eredményt adjon
         with patch(
-            "neural_ai.core.processing.resampler_service.factory.ResamplerServiceFactory"
+            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory"
         ) as mock_factory:
             mock_resampler = MagicMock()
             mock_factory.create.return_value = mock_resampler
@@ -55768,9 +50297,9 @@ class TestValidateTickPipeline:
 
         with (
             patch(
-                "neural_ai.core.processing.resampler_service.factory.ResamplerServiceFactory"
+                "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory"
             ) as mock_factory,
-            patch("neural_ai.core.processing.factory.create_dimension_processor") as mock_create,
+            patch("neural_ai.processors.processing.factory.create_dimension_processor") as mock_create,
         ):
             mock_resampler = MagicMock()
             mock_factory.create.return_value = mock_resampler
@@ -57849,7 +52378,7 @@ class TestStrategyService:
         mock_resampler.resample = AsyncMock(return_value=mock_candles)
 
         with patch(
-            "neural_ai.core.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
+            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
             return_value=mock_resampler,
         ):
             result = await strategy_service.get_candles(
@@ -57877,7 +52406,7 @@ class TestStrategyService:
         mock_resampler.resample = AsyncMock(return_value=mock_candles)
 
         with patch(
-            "neural_ai.core.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
+            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
             return_value=mock_resampler,
         ):
             await strategy_service.get_candles(symbol="EURUSD", date="2024-03-20", timeframe="5m")
@@ -57901,7 +52430,7 @@ class TestStrategyService:
         timeframes = ["1m", "5m", "15m", "1h", "4h", "1d"]
 
         with patch(
-            "neural_ai.core.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
+            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
             return_value=mock_resampler,
         ):
             for timeframe in timeframes:
@@ -58200,7 +52729,7 @@ class TestStrategyService:
         }.get(comp)
 
         with patch(
-            "neural_ai.core.processing.factory.create_dimension_processor",
+            "neural_ai.processors.processing.factory.create_dimension_processor",
             return_value=mock_processor,
         ) as mock_create_processor:
             result = await strategy_service.analyze_market_structure(
@@ -58257,7 +52786,7 @@ class TestStrategyService:
                 return_value=mock_candles_df,
             ) as mock_get_candles,
             patch(
-                "neural_ai.core.processing.factory.create_dimension_processor",
+                "neural_ai.processors.processing.factory.create_dimension_processor",
                 return_value=mock_processor,
             ) as mock_create_processor,
         ):

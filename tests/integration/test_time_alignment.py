@@ -2,7 +2,7 @@ import datetime
 
 import polars as pl
 
-from neural_ai.processors.processing.factory import create_time_alignment_service
+from neural_ai.processors.factory import create_time_alignment_service
 
 
 def test_time_alignment():

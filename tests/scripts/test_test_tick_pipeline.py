@@ -27,7 +27,7 @@ class TestValidateTickPipeline:
         """Teszt resample hiba esetén."""
         # Mock-oljuk a ResamplerServiceFactory.create-ot, hogy hibát dobjon
         with patch(
-            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory"
+            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory"
         ) as mock_factory:
             mock_resampler = MagicMock()
             mock_factory.create.return_value = mock_resampler
@@ -42,7 +42,7 @@ class TestValidateTickPipeline:
     async def test_validate_tick_pipeline_d1_failure(self):
         """Teszt D1 processor hiba esetén."""
         # Mock-oljuk a create_dimension_processor-t, hogy hibát dobjon
-        with patch("neural_ai.processors.processing.factory.create_dimension_processor") as mock_create:
+        with patch("neural_ai.processors.factory.create_dimension_processor") as mock_create:
             mock_processor = MagicMock()
             mock_create.return_value = mock_processor
             mock_processor.process.side_effect = Exception("D1 hiba")
@@ -57,7 +57,7 @@ class TestValidateTickPipeline:
         """Teszt validációs hiba esetén."""
         # Mock-oljuk a ResamplerServiceFactory-t, hogy rossz eredményt adjon
         with patch(
-            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory"
+            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory"
         ) as mock_factory:
             mock_resampler = MagicMock()
             mock_factory.create.return_value = mock_resampler
@@ -111,9 +111,9 @@ class TestValidateTickPipeline:
 
         with (
             patch(
-                "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory"
+                "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory"
             ) as mock_factory,
-            patch("neural_ai.processors.processing.factory.create_dimension_processor") as mock_create,
+            patch("neural_ai.processors.factory.create_dimension_processor") as mock_create,
         ):
             mock_resampler = MagicMock()
             mock_factory.create.return_value = mock_resampler

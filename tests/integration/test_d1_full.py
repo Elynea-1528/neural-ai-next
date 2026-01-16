@@ -18,7 +18,7 @@ sys.path.insert(0, str(project_root))
 
 import polars as pl
 
-from neural_ai.processors.processing.factory import (
+from neural_ai.processors.factory import (
     create_dimension_processor,
     create_time_alignment_service,
 )

@@ -6,7 +6,7 @@ from datetime import datetime
 
 import polars as pl
 
-from neural_ai.processors.processing.resampler_service.factory import ResamplerServiceFactory
+from neural_ai.processors.resampler_service.factory import ResamplerServiceFactory
 
 
 async def main():
