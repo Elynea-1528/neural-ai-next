@@ -138,3 +138,30 @@ flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
                     hardware_info = HardwareInfo()
                     features = hardware_info.get_cpu_features()
                     assert features == set()
+
+    def test_has_avx2_linux_no_flags_line(self) -> None:
+        """Teszteli az AVX2 támogatás detektálását, ha nincs 'flags' sor a cpuinfo-ban."""
+        mock_cpuinfo = """
+processor   : 0
+vendor_id   : GenuineIntel
+cpu family  : 6
+model       : 158
+"""
+        with patch("builtins.open", mock_open(read_data=mock_cpuinfo)):
+            with patch("platform.system", return_value="Linux"):
+                hardware_info = HardwareInfo()
+                assert hardware_info.has_avx2() is False
+
+    def test_get_cpu_features_linux_no_flags_line(self) -> None:
+        """Teszteli a CPU feature-ök lekérdezését, ha nincs 'flags' sor a cpuinfo-ban."""
+        mock_cpuinfo = """
+processor   : 0
+vendor_id   : GenuineIntel
+cpu family  : 6
+model       : 158
+"""
+        with patch("builtins.open", mock_open(read_data=mock_cpuinfo)):
+            with patch("platform.system", return_value="Linux"):
+                hardware_info = HardwareInfo()
+                features = hardware_info.get_cpu_features()
+                assert features == set()
