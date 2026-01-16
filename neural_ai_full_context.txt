@@ -1,5 +1,5 @@
 === NEURAL AI NEXT CONTEXT (FULL) ===
-Generated: 2026-01-16 14:35:08
+Generated: 2026-01-16 23:09:39
 
 
 ==================================================
@@ -757,41 +757,42 @@ FILE: configs/processors.yaml
 # Processors Configuration
 # Configuration for dimension processors (D1-D15)
 
-# D1 - Alap adatok
-d01:
-  required_timeframes: ["tick", "1m", "5m", "15m", "1h", "4h", "1d"]
-  z_score_window: 60
-  use_mid_price: true
-  calc_shadows: true
-  timeframe_configs:
-    tick:
-      z_score_window: 2000
-    1m:
-      z_score_window: 60
-    H1:
-      z_score_window: 24
-    D1:
-      z_score_window: 20
+processors:
+  # D1 - Alap adatok
+  d01:
+    required_timeframes: ["tick", "1m", "5m", "15m", "1h", "4h", "1d"]
+    z_score_window: 60
+    use_mid_price: true
+    calc_shadows: true
+    timeframe_configs:
+      tick:
+        z_score_window: 2000
+      1m:
+        z_score_window: 60
+      H1:
+        z_score_window: 24
+      D1:
+        z_score_window: 20
 
-# D2 - Support/Resistance
-d02:
-  swing_threshold: 0.001
-  level_merge: 0.002
-  min_candles: 5
-  strength_window: 100
-  use_close_open: true
-  use_high_low: true
-  primary_weight: 0.7
-  secondary_weight: 0.3
-  volume_confirmation: true
-  min_touches: 2
-  timeframe_configs:
-    M1:
-      swing_window: 5
-    H1:
-      swing_window: 5
-    D1:
-      swing_window: 3
+  # D2 - Support/Resistance
+  d02:
+    swing_window: 5
+    min_distance: 10
+    use_close_open: true
+    use_high_low: true
+    primary_weight: 0.7
+    secondary_weight: 0.3
+    level_merge: 0.0005
+    min_touches: 2
+    volume_confirmation: true
+    strength_window: 100
+    timeframe_configs:
+      M1:
+        swing_window: 5
+      H1:
+        swing_window: 5
+      D1:
+        swing_window: 3
 
 ==================================================
 FILE: configs/storage.yaml
@@ -2473,620 +2474,316 @@ Frissítés: UI Radio Button for data source selection, enhanced visualization.
 ==================================================
 FILE: docs/development/architecture_standards.md
 ==================================================
-# 🏗️ Neural AI Next - Architecture Standards
+# 🏛️ NEURAL AI NEXT - ARCHITECTURE STANDARDS v4.0 (THE ULTIMATE CODEX)
 
-## 📋 Tartalomjegyzék
-
-1. [Modularitás és Mappaszerkezet](#1-modularitás-és-mappaszerkezet)
-2. [Core Architektúra](#2-core-architektúra)
-3. [Dependency Injection (DI) Szabályok](#3-dependency-injection-di-szabályok)
-4. [Típuskezelés (Type Hints)](#4-típuskezelés-type-hints)
-5. [Linter Szigorú Alkalmazása](#5-linter-szigorú-alkalmazása)
-6. [Tesztelés Követelmények](#6-tesztelés-követelmények)
-7. [Dokumentáció Mirror Structure](#7-dokumentáció-mirror-structure)
-8. [Atomic Commit Protokoll](#8-atomic-commit-protokoll)
+**Verzió:** 4.0 (Post-DDD Refactor) | **Státusz:** ✅ ÉLŐ | **Enforcement:** STRICT (Zéró Tolerancia)
 
 ---
 
-## 1. Modularitás és Mappaszerkezet
+## 📜 PREAMBULUM
+Ez a dokumentum a Neural AI Next rendszer fejlesztésének **ALAPTÖRVÉNYE**. Minden fejlesztőnek (legyen az ember vagy AI) kötelező betartania. A szabályoktól való eltérés azonnali `Build Failure`-t vagy Code Review elutasítást von maga után.
 
-### 1.1 Alapelvek
-
-Minden modul (`neural_ai/core/xyz`) **SZIGORÚAN** kövesse ezt a szerkezetet:
-
-```
-neural_ai/core/xyz/
-├── __init__.py              # ⚠️ CSAK Factory-t és Interface-t exportál!
-├── factory.py               # Az EGYETLEN belépési pont
-├── interfaces/              # Abstract Base Classes (ABC)
-│   ├── __init__.py
-│   └── xyz_interface.py
-├── implementations/         # Konkrét implementációk
-│   ├── __init__.py
-│   └── concrete_impl.py
-├── exceptions/              # Saját hibák
-│   ├── __init__.py
-│   └── xyz_error.py
-└── backends/                # Opcionális: backend-specifikus kód
-    ├── __init__.py
-    └── backend_impl.py
-```
-
-### 1.2 `__init__.py` Explicit Export Szabálya
-
-**⚠️ KRITIKUS SZABÁLY:** Minden `__init__.py` fájl kizárólag a **Factory-t** és a **publikus Interface-t** exportálhatja. Tilos bármilyen implementációt, konstanst vagy belső osztályt direktben exportálni.
-
-#### ✅ HELYES PÉLDA:
-
-```python
-# neural_ai/core/logger/__init__.py
-from neural_ai.core.logger.factory import LoggerFactory
-from neural_ai.core.logger.interfaces import ILogger, ILoggerFactory
-
-__all__ = ['LoggerFactory', 'ILogger', 'ILoggerFactory']
-```
-
-#### ❌ TILOS PÉLDA:
-
-```python
-# ❌ TILOS: Implementáció exportálása
-from neural_ai.core.logger.implementations import ColoredLogger
-
-__all__ = ['ColoredLogger']  # TILOS!
-```
-
-```python
-# ❌ TILOS: Konstans exportálása
-from neural_ai.core.logger.constants import LOG_LEVELS
-
-__all__ = ['LOG_LEVELS']  # TILOS!
-```
-
-**Indoklás:** Az `__init__.py` célja a **publikus API** definiálása. A felhasználónak nem szabad tudnia a belső implementációkról. A Factory pattern biztosítja a lazacsatolást, ezért csak az interfészek és a factory legyenek láthatóak.
+A rendszer filozófiája: **"High Performance, Strict Typing, Loose Coupling"**.
 
 ---
 
-## 2. Core Architektúra
+## 📋 TARTALOMJEGYZÉK
 
-### 2.1 Core Gyökér Bootstrap Központ
+1.  [Rendszerarchitektúra és Hierarchia (Global Map)](#1-rendszerarchitektúra-és-hierarchia-global-map)
+2.  [Modul Tervezési Minta (The Atomic Unit)](#2-modul-tervezési-minta-the-atomic-unit)
+3.  [Bootstrap és Inicializációs Protokoll](#3-bootstrap-és-inicializációs-protokoll)
+4.  [Importálási Szabványok (Import Policy)](#4-importálási-szabványok-import-policy)
+5.  [Dependency Injection (DI) és Factory Pattern](#5-dependency-injection-di-és-factory-pattern)
+6.  [Típusbiztonság és Konfiguráció (Strict Mode)](#6-típusbiztonság-és-konfiguráció-strict-mode)
+7.  [Adatfeldolgozás és Processzorok (Polars Engine)](#7-adatfeldolgozás-és-processzorok-polars-engine)
+8.  [Megfigyelhetőség (Logging & Telemetry)](#8-megfigyelhetőség-logging--telemetry)
+9.  [Minőségbiztosítási Protokoll (QA)](#9-minőségbiztosítási-protokoll-qa)
 
-A `neural_ai/core` mappa a rendszer **bootstrap központja**, ahol minden modul a saját Factory-jén keresztül inicializálódik, és a DI container biztosítja a függőségeket.
+---
 
-#### Architektúra Diagram:
+## 1. RENDSZERARCHITEKTÚRA ÉS HIERARCHIA (GLOBAL MAP)
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    neural_ai/core/__init__.py               │
-│                  (Bootstrap Entry Point)                     │
-└───────────────────────┬─────────────────────────────────────┘
-                        │
-        ┌───────────────┼───────────────┐
-        │               │               │
-        ▼               ▼               ▼
-┌───────────────┐ ┌───────────────┐ ┌───────────────┐
-│   Config      │ │    Logger     │ │      DB       │
-│   Factory     │ │   Factory     │ │   Factory     │
-└───────┬───────┘ └───────┬───────┘ └───────┬───────┘
-        │                 │                 │
-        ▼                 ▼                 ▼
-┌───────────────┐ ┌───────────────┐ ┌───────────────┐
-│ DI Container  │ │ DI Container  │ │ DI Container  │
-│ (injects      │ │ (injects      │ │ (injects      │
-│  dependencies)│ │  dependencies)│ │  dependencies)│
-└───────────────┘ └───────────────┘ └───────────────┘
-```
+A rendszer **Domain-Driven Design (DDD)** elveket követ, négy fő rétegre osztva. A függőségek iránya szigorúan **fentről lefelé** mutathat. A lenti rétegek soha nem tudhatnak a fenti rétegekről.
 
-#### Bootstrap Folyamat:
+### 1.1 Rétegek (Layers)
 
-1. **Application Start:** A `main.py` meghívja a `neural_ai.core.__init__.py`-t.
-2. **Factory Initialization:** Minden modul Factory-je létrehozza a DI containert.
-3. **Dependency Registration:** A DI container regisztrálja az összes szükséges függőséget (Config, Logger, DB session, stb.).
-4. **Dependency Injection:** A Factory-k konstruktor injection-nel átadják a függőségeket az implementációknak.
-5. **Service Locator:** A core modul elérhetővé teszi a Factory-ket a teljes rendszer számára.
+| Réteg | Mappa | Felelősség | Függőségek |
+|:---|:---|:---|:---|
+| **1. Presentation** | `neural_ai/ui` | Felhasználói interakció (Streamlit). Csak megjelenít, nem számol. | Processors, Collectors, Core |
+| **2. Domain** | `neural_ai/processors` | **AZ AGY.** Tiszta üzleti logika. Dimenziók, Indikátorok, AI előkészítés. | Data, Core |
+| **3. Persistence** | `neural_ai/data` | **A RAKTÁR.** Adatok mentése, betöltése, perzisztálása (Parquet, SQL). | Core |
+| **4. Input** | `neural_ai/collectors` | **ÉRZÉKSZERVEK.** Külső adatok (JForex, MT5) fogadása és normalizálása. | Core |
+| **5. Infrastructure** | `neural_ai/core` | **AZ ALAPOK.** Technikai keretrendszer (Log, Config, EventBus). | *Nincs (Önálló)* |
 
-#### Példa Bootstrap Kód:
+### 1.2 Mappastruktúra (Canonical Tree)
 
-```python
-# neural_ai/core/__init__.py
-from neural_ai.core.base import DIContainer
-from neural_ai.core.config import ConfigFactory
-from neural_ai.core.logger import LoggerFactory
-from neural_ai.core.db import DatabaseFactory
-
-# Globális DI Container (Singleton)
-_container = DIContainer()
-
-# Függőségek regisztrálása
-_container.register(IConfig, ConfigFactory.create())
-_container.register(ILogger, LoggerFactory.create())
-_container.register(IDatabase, DatabaseFactory.create())
-
-# Publikus API
-def get_config() -> IConfig:
-    return _container.resolve(IConfig)
-
-def get_logger() -> ILogger:
-    return _container.resolve(ILogger)
-
-def get_database() -> IDatabase:
-    return _container.resolve(IDatabase)
+```text
+neural_ai/
+├── ui/                  # [Presentation Layer]
+│   ├── pages/           # View (Streamlit oldalak)
+│   ├── services/        # ViewModel (Közvetítő logika)
+│   └── components/      # UI Widgetek (Charts, Cards)
+│
+├── processors/          # [Domain Layer]
+│   ├── pipeline.py      # Pipeline Orchestrator (Karmester)
+│   ├── resampler/       # Tick -> OHLCV transzformáció
+│   └── dimensions/      # D1-D15 Elemző Logikák
+│       ├── d01_price/
+│       ├── d02_support/
+│       └── d03_trend/
+│
+├── data/                # [Persistence Layer]
+│   ├── storage/         # Parquet IO (Írás/Olvasás)
+│   └── ingestion/       # MarketDataPersister (Buffer & Save)
+│
+├── collectors/          # [Input Layer]
+│   ├── jforex/          # Bi5 letöltő és Live Bridge
+│   └── mt5/             # MetaTrader csatlakozó
+│
+└── core/                # [Infrastructure Layer]
+    ├── base/            # DI Container, Singleton, Interfaces
+    ├── config/          # Konfiguráció kezelés (YAML, .env)
+    ├── logger/          # Strukturált naplózás (Structlog)
+    ├── events/          # Eseménybusz (ZeroMQ Pub/Sub)
+    ├── db/              # Adatbázis (SQLAlchemy Async)
+    ├── system/          # HealthMonitor, Telemetry
+    └── utils/           # HardwareInfo (AVX2), Decorators
 ```
 
 ---
 
-## 3. Dependency Injection (DI) Szabályok
+## 2. MODUL TERVEZÉSI MINTA (THE ATOMIC UNIT)
 
-### 3.1 Szigorú Constructor Injection
+Minden funkcionális egységnek (pl. `data/storage` vagy `processors/resampler`) követnie kell a **Szétválasztott Implementáció (Separated Interface)** mintát. Ez teszi lehetővé a cserélhetőséget és a tesztelhetőséget.
 
-**Minden osztály** kötelezően kapja meg a függőségeit **konstruktor paramétereken** keresztül. Tilos a direkt példányosítás vagy a globális importok.
+### 2.1 Belső Mappaszerkezet
 
-#### ✅ HELYES PÉLDA:
+```text
+xyz_module/
+├── interfaces/              # 1. A SZERZŐDÉS (Contract)
+│   ├── __init__.py          # Exportálja az interfészt (ABC)
+│   └── feature_interface.py # Abstract Base Class
+│
+├── implementations/         # 2. A MEGVALÓSÍTÁS (Hidden)
+│   ├── __init__.py          # ÜRES! Ne exportálj innen semmit!
+│   └── concrete_impl.py     # A tényleges kód
+│
+├── exceptions/              # 3. HIBAKEZELÉS (Typed)
+│   ├── __init__.py
+│   └── feature_error.py     # Specifikus hibák
+│
+├── factory.py               # 4. GYÁRTÓSOR (Assembly)
+│                            # Az EGYETLEN hely, ami ismeri az implementációt.
+│
+└── __init__.py              # 5. PUBLIKUS API (Facade)
+                             # Csak az Interfészt és a Factory-t exportálja.
+```
+
+### 2.2 Exportálási Törvény (`__init__.py`)
+**TILOS** implementációt exportálni a modul gyökeréből. A külvilág számára az implementáció láthatatlan kell legyen.
+
+#### ✅ HELYES (Facade):
+```python
+# neural_ai/data/storage/__init__.py
+from .factory import StorageFactory
+from .interfaces import StorageInterface
+
+__all__ = ['StorageFactory', 'StorageInterface']
+```
+
+---
+
+## 3. BOOTSTRAP ÉS INICIALIZÁCIÓS PROTOKOLL
+
+A rendszer nem véletlenszerűen indul. A `neural_ai.core.bootstrap_core()` függvény felel a komponensek determinisztikus, függőségi sorrendben történő felépítéséért.
+
+**Inicializációs Lánc (Dependency Chain):**
+
+1.  **HardwareInfo (`core.utils`):**
+    *   *Függőség:* Nincs.
+    *   *Cél:* Detektálja az AVX2/CUDA képességeket az optimalizációhoz.
+2.  **ConfigManager (`core.config`):**
+    *   *Függőség:* Nincs.
+    *   *Cél:* Betölti a `.env` és `yaml` fájlokat.
+3.  **Logger (`core.logger`):**
+    *   *Függőség:* Config (Log level).
+    *   *Cél:* Hibaüzenetek és státusz naplózása.
+4.  **EventBus (`core.events`):**
+    *   *Függőség:* Config (Portok), Logger.
+    *   *Cél:* ZeroMQ socketek megnyitása.
+5.  **Storage (`data.storage`):**
+    *   *Függőség:* Config, Logger, HardwareInfo.
+    *   *Cél:* Backend (Polars/Pandas) kiválasztása hardver alapján.
+6.  **Database (`core.db`):**
+    *   *Függőség:* Config (Connection String), Logger.
+    *   *Cél:* Async Engine létrehozása.
+7.  **SystemMonitor (`core.system`):**
+    *   *Függőség:* Mindenki más.
+    *   *Cél:* Health Check regisztráció.
+
+---
+
+## 4. IMPORTÁLÁSI SZABVÁNYOK (IMPORT POLICY)
+
+A refaktorálhatóság és a `pylance` stabilitása érdekében szigorú import szabályok érvényesek.
+
+### 4.1 Abszolút Import Szabály
+A modulokon keresztüli hivatkozásnál **KÖTELEZŐ** az abszolút útvonal használata.
+
+*   ✅ **HELYES:** `from neural_ai.core.logger.interfaces import LoggerInterface`
+*   ❌ **TILOS:** `from ...core.logger.interfaces import LoggerInterface`
+
+### 4.2 Relatív Import Kivétel
+Relatív import (`.`, `..`) kizárólag **csomagon belül** (intra-package) engedélyezett, például az `__init__.py`-ban, vagy amikor egy implementáció importálja a saját kivételeit.
+
+### 4.3 Type Checking Import (Circular Dependency)
+A körkörös hivatkozások elkerülése érdekében (pl. Interface <-> Implementation) használd a `TYPE_CHECKING` blokkot és string-hivatkozást.
 
 ```python
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from neural_ai.core.logger.interfaces import ILogger
-    from neural_ai.core.config.interfaces import IConfig
+    # Ez az import nem fut le runtime-ban, csak a linter látja
+    from neural_ai.data.storage.interfaces import StorageInterface
 
-class MyService:
-    def __init__(self, logger: ILogger, config: IConfig):
-        self._logger = logger
-        self._config = config
-    
-    def do_something(self):
-        self._logger.info("Service működik")
+class DataProcessor:
+    # Stringként hivatkozunk a típusra
+    def __init__(self, storage: "StorageInterface"):
+        self.storage = storage
 ```
 
-#### ❌ TILOS PÉLDAK:
+---
 
+## 5. DEPENDENCY INJECTION (DI) ÉS FACTORY PATTERN
+
+A kódnak "Service Locator" mentesnek kell lennie. Az osztályok nem "keresik" a függőségeiket, hanem "megkapják" azokat.
+
+### 5.1 Konstruktor Injektálás
+Minden függőséget a konstruktorban (`__init__`) kell átadni. Az osztály nem példányosíthatja a saját loggerét vagy configját.
+
+#### ❌ HELYTELEN (Hidden Dependency):
 ```python
-# ❌ TILOS: Globális import és direkt használat
-from neural_ai.core.logger import LoggerFactory
-
-class MyService:
+class BadService:
     def __init__(self):
-        self._logger = LoggerFactory.create()  # TILOS!
+        # A logger a "semmiből" jön -> Tesztelhetetlen!
+        self.logger = LoggerFactory.get_logger(__name__)
 ```
 
+#### ✅ HELYES (Explicit Dependency):
 ```python
-# ❌ TILOS: Direkt példányosítás
-from neural_ai.core.logger.implementations import ColoredLogger
-
-class MyService:
-    def __init__(self):
-        self._logger = ColoredLogger()  # TILOS!
+class GoodService:
+    def __init__(self, logger: LoggerInterface, config: ConfigManagerInterface):
+        self.logger = logger
+        self.config = config
 ```
 
-### 3.2 Factory Pattern Kötelező Használata
+### 5.2 Factory Pattern Felelőssége
+A `factory.py` az **egyetlen** hely, ahol:
+1.  A `DIContainer` használata engedélyezett.
+2.  A konkrét osztályok (`ConcreteClass`) példányosítása történik.
+3.  A `TypedDict` alapú konfiguráció validálása és castolása zajlik.
 
-Minden modulnak **kizárólag** a saját Factory-jén keresztül szabad példányokat létrehoznia.
+---
 
-#### Példa Factory:
+## 6. TÍPUSBIZTONSÁG ÉS KONFIGURÁCIÓ (STRICT MODE)
+
+A rendszer `python.analysis.typeCheckingMode: "strict"` alatt fut. Ez nem javaslat, ez követelmény.
+
+### 6.1 Config TypedDict (KÖTELEZŐ!)
+A `config.get()` metódus alapból `Any` típust ad vissza, ami strict módban hiba. Minden konfigurációs objektumhoz definiálni kell egy `TypedDict`-et a Factory-ban.
 
 ```python
-# neural_ai/core/logger/factory.py
-from neural_ai.core.logger.interfaces import ILogger, ILoggerFactory
-from neural_ai.core.logger.implementations import ColoredLogger, DefaultLogger
-from neural_ai.core.base import DIContainer
+from typing import TypedDict, cast, NotRequired
 
-class LoggerFactory(ILoggerFactory):
-    @staticmethod
-    def create(logger_type: str = "default") -> ILogger:
-        container = DIContainer.get_instance()
-        config = container.resolve(IConfig)
-        
-        if logger_type == "colored":
-            return ColoredLogger(config)
-        else:
-            return DefaultLogger(config)
+# 1. Struktúra definíció
+class JForexConfig(TypedDict, total=False):
+    base_url: str
+    timeout: int
+    enabled: bool
+
+# 2. Biztonságos kinyerés a Factory-ban
+raw_config = config.get("jforex")
+# Castoljuk a nyers dict-et a definiált típusra
+typed_cfg = cast(JForexConfig, raw_config if isinstance(raw_config, dict) else {})
+
+# 3. Típusos használat
+timeout = typed_cfg.get("timeout", 30)  # Pylance tudja: ez int!
 ```
 
-### 3.3 DI Container Használata
+### 6.2 Zéró `Any` Tolerancia
+Az `Any` használata **TILOS** a saját kódban, kivéve a legszükségesebb boundary layer (pl. JSON parsing) eseteket, de ott is azonnal `cast`-olni kell. Minden függvény paraméterének és visszatérési értékének típusosnak kell lennie.
 
-A DI Container felelős a függőségek életciklusáért és injektálásáért.
+---
 
-#### DI Container Implementáció:
+## 7. ADATFELDOLGOZÁS ÉS PROCESSZOROK (POLARS ENGINE)
+
+### 7.1 Polars First Policy
+Minden nagy tömegű adatfeldolgozás (Resampler, Dimenziók) **Polars DataFrame** (`pl.DataFrame`) alapú.
+*   **Pandas:** Csak a UI rétegben (megjelenítéshez) használható.
+*   **Iteráció:** `for row in df` használata **TILOS** a processzorokban. Használj `pl.Expr`-t a vektorizált műveletekhez.
+
+### 7.2 Processzor Hierarchia
+*   **Pipeline Orchestrator:** (`pipeline.py`) - Ez hívja meg sorban a processzorokat.
+*   **Resampler:** (Tick -> OHLCV). Ez az első lépés.
+*   **D1 (Base Data):** Általános indikátorok (Z-Score, Returns).
+*   **D2-D15 (Specialized):** Specifikus üzleti logika.
+
+### 7.3 Adatáramlás (The Flow)
+1.  Bemenet: `Time Aligned OHLCV DataFrame`.
+2.  Feldolgozás: `IDimensionProcessor.process()`.
+3.  Kimenet: `Feature DataFrame` (ugyanannyi sorral, mint a bemenet, új oszlopokkal).
+
+---
+
+## 8. LOGOLÁS, HIBAKEZELÉS ÉS MEGFIGYELHETŐSÉG
+
+### 8.1 Nincs Print
+A `print()` utasítás használata a `neural_ai/` mappában **TILOS** (kivéve CLI toolok `if __name__ == "__main__"` blokkját). Minden kimenetnek a Loggeren keresztül kell mennie.
+
+### 8.2 Strukturált Logolás
+Használd az `extra` paramétert a kontextus átadására. Ne fűzz össze stringeket!
 
 ```python
-# neural_ai/core/base/implementations/di_container.py
-from typing import Dict, Type, Any
+# HELYTELEN:
+logger.info(f"Feldolgozva: {count} sor, symbol: {symbol}")
 
-class DIContainer:
-    _instance = None
-    _registry: Dict[Type, Any] = {}
-    
-    @staticmethod
-    def get_instance():
-        if DIContainer._instance is None:
-            DIContainer._instance = DIContainer()
-        return DIContainer._instance
-    
-    def register(self, interface: Type, implementation: Any):
-        self._registry[interface] = implementation
-    
-    def resolve(self, interface: Type) -> Any:
-        if interface not in self._registry:
-            raise ValueError(f"Nincs regisztrálva implementáció: {interface}")
-        return self._registry[interface]
+# HELYES (Structured - JSON-ben kereshető lesz):
+logger.info("Feldolgozás kész", extra={"rows": count, "symbol": symbol})
+```
+
+### 8.3 Hibakezelés (Exception Chaining)
+Soha ne nyelj el hibát üres `except`-tel. Használd a `from e` szintaxist az eredeti hiba megőrzésére, hogy a Traceback ne vesszen el.
+
+```python
+try:
+    ...
+except ValueError as e:
+    raise ConfigError("Érvénytelen konfiguráció") from e
 ```
 
 ---
 
-## 4. Típuskezelés (Type Hints)
+## 9. MINŐSÉGBIZTOSÍTÁSI PROTOKOLL (QA)
 
-### 4.1 Strict Type Hints Kötelező
+### 9.1 Teszt Tükrözés (Mirror Testing)
+A `tests/` mappa szerkezete bitre pontosan kövesse a `neural_ai/` szerkezetét.
+*   Source: `neural_ai/processors/dimensions/d01_price/processor.py`
+*   Test: `tests/processors/dimensions/d01_price/test_processor.py`
 
-**Minden függvénynek és metódusnak** legyen pontos típusannotációja. Az `Any` típus használata **SZIGORÚAN TILOS**.
+### 9.2 Quality Gate (A Kapuőr)
+Commitolás előtt kötelező ellenőrizni:
+1.  **Ruff:** 0 hiba (Linting).
+2.  **Pylance:** 0 hiba (Strict Type Checking).
+3.  **Tests:** Minden teszt zöld.
+4.  **Coverage:** Törekedj a 100%-ra, de a kritikus üzleti logikánál (Processors, Data) ez kötelező.
 
-#### ✅ HELYES PÉLDA:
-
-```python
-from typing import List, Dict, Optional, Union
-
-def process_data(
-    data: List[Dict[str, Union[str, int]]],
-    config: Optional[IConfig] = None
-) -> Dict[str, int]:
-    result = {}
-    # ... feldolgozás
-    return result
-```
-
-#### ❌ TILOS PÉLDA:
-
-```python
-from typing import Any
-
-def process_data(data: Any, config: Any = None) -> Any:  # TILOS!
-    pass
-```
-
-### 4.2 Helyes Használat: `Optional`, `List`, `Dict`, `cast`
-
-#### `Optional` használata:
-
-```python
-from typing import Optional
-
-def find_user(user_id: int) -> Optional[User]:
-    if user_id in database:
-        return database[user_id]
-    return None  # ✅ Valid
-```
-
-#### `cast` használata típuskonverzióhoz:
-
-```python
-from typing import cast
-
-def parse_response(response: Dict[str, Any]) -> UserData:
-    # Típuskonverzió, ha biztosak vagyunk a formátumban
-    return cast(UserData, response)
-```
-
-### 4.3 `TYPE_CHECKING` Blokk Körkörös Importokhoz
-
-Ha körkörös import probléma merül fel, használj `TYPE_CHECKING` blokkot.
-
-#### Példa:
-
-```python
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from neural_ai.core.logger.interfaces import ILogger
-    from neural_ai.core.config.interfaces import IConfig
-
-class MyService:
-    def __init__(self, logger: ILogger, config: IConfig):
-        self._logger = logger
-        self._config = config
-```
-
-**Indoklás:** A `TYPE_CHECKING` blokkban lévő importok csak a típusellenőrzéskor futnak le, így elkerülve a körkörös import problémákat.
+### 9.3 Atomic Commit
+Egy commit = Egy logikai egység (Feat, Fix, Refactor, Docs). Soha ne keverd a formázást a logikai módosítással egy commitban. Az üzenet legyen konvencionális: `feat(processor): add d3 trend logic`.
 
 ---
 
-## 5. Linter Szigorú Alkalmazása
-
-### 5.1 Ruff Használata
-
-A projekt **kizárólag** a [Ruff](https://github.com/astral-sh/ruff) lintert használja a kódminőség biztosításához.
-
-### 5.2 Ruff Konfiguráció
-
-A Ruff konfiguráció a `pyproject.toml`-ban található:
-
-```toml
-[tool.ruff]
-line-length = 100
-target-version = "py312"
-
-[tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "N",   # pep8-naming
-    "UP",  # pyupgrade
-]
-ignore = []
-
-[tool.ruff.lint.isort]
-known-first-party = ["neural_ai"]
+**Ez a szabvány a projekt bibliája. Ha a kód eltér ettől, a kód a hibás. Nincs kivétel.**
 ```
-
-### 5.3 0 Hiba Követelmény
-
-**Minden commit előtt** a Ruff-nak **0 hibát** kell mutatnia. A fejlesztés során futtasd a lintelést gyakran.
-
-### 5.4 Futtatási Parancsok Abszolút Útvonalakkal
-
-**⚠️ KÖTELEZŐ:** A parancsokat mindig abszolút útvonalakkal futtasd!
-
-#### Lintelés:
-
-```bash
-/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check .
-```
-
-#### Automatikus javítás:
-
-```bash
-/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check . --fix
-```
-
-#### Formázás:
-
-```bash
-/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff format .
-```
-
----
-
-## 6. Tesztelés Követelmények
-
-### 6.1 Pytest Használata
-
-A projekt a [pytest](https://docs.pytest.org/) keretrendszert használja tesztelésre.
-
-### 6.2 100% Coverage Követelmény
-
-**Minden új kódnak** el kell érnie a **100% Statement (S) és 100% Branch (B) coverage-t**.
-
-#### Coverage Metrika:
-
-```
-Coverage: [Stmt: 100% | Brch: 100%]
-```
-
-### 6.3 Tesztfájl Struktúra
-
-A tesztfájlok a `tests/` mappában helyezkednek el, és **tükrözik a forráskód szerkezetét**:
-
-```
-tests/
-├── core/
-│   ├── base/
-│   │   ├── test_factory.py
-│   │   └── test_container.py
-│   ├── config/
-│   │   ├── test_config_interface.py
-│   │   └── implementations/
-│   │       └── test_yaml_config_manager.py
-│   └── db/
-│       └── test_session.py
-└── integration/
-    └── test_end_to_end.py
-```
-
-### 6.4 Commit Előtti Kötelező Ellenőrzés
-
-**Minden commit előtt** kötelező a tesztek futtatása és a sikeres lefutásuk.
-
-#### Teszt Futtatása:
-
-```bash
-# Teljes tesztcsomag
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest
-
-# Egy adott tesztfájl
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/core/base/test_factory.py
-
-# Coverage report-pal
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest --cov=neural_ai --cov-report=term-missing
-```
-
-#### Tesztelési Protokoll:
-
-1. **Írd meg a kódot.**
-2. **Írd meg a teszteket.**
-3. **Futtasd a teszteket:** `pytest -v`
-4. **Ellenőrizd a coverage-t:** `pytest --cov=neural_ai --cov-report=term-missing`
-5. **Ha minden teszt sikeres ÉS 100% coverage:** Mehet a commit.
-6. **Ha a teszt bukik:** Javítsd a kódot vagy a tesztet, majd ismételd a folyamatot.
-
----
-
-## 7. Dokumentáció Mirror Structure
-
-### 7.1 `docs/components/` Mappastruktúra
-
-A dokumentációnak **tükrönie kell** a forráskód mappaszerkezetét.
-
-#### Példa Mirror Structure:
-
-```
-Forráskód:                          Dokumentáció:
-neural_ai/                          docs/components/
-├── core/                           ├── neural_ai/
-│   ├── __init__.py                 │   ├── core/
-│   ├── base/                       │   │   ├── __init__.md
-│   │   ├── factory.py              │   │   ├── factory.md
-│   │   └── interfaces/             │   │   └── interfaces/
-│   │       └── component.py        │   │       └── component.md
-│   ├── config/                     │   ├── config/
-│   │   ├── factory.py              │   │   ├── factory.md
-│   │   └── implementations/        │   │   └── implementations/
-│   │       └── yaml_manager.py     │   │       └── yaml_manager.md
-│   └── db/                         │   └── db/
-│       └── session.py              │       └── session.md
-└── experts/                        └── experts/
-    └── mt5/                            └── mt5/
-        └── expert.mq5                      └── expert.md
-```
-
-### 7.2 Kötelező Mirror Szabály
-
-**Minden forráskód fájlnak** meg kell jelennie a dokumentációban a megfelelő helyen. A dokumentáció célja a kód funkcionalitásának, architektúrájának és használatának részletes leírása.
-
-### 7.3 Dokumentáció Frissítés
-
-**Minden kódmódosítás után** kötelező a megfelelő dokumentáció frissítése.
-
-#### Dokumentációs Sablon:
-
-```markdown
-# [Fájlnév] - [Rövid leírás]
-
-## 🎯 Cél és Feladat
-
-[Mi a fájl célja és fő feladata?]
-
-## 🏗️ Architektúra
-
-[Osztálydiagram vagy architektúrai leírás]
-
-## 🔧 Használat
-
-### Példa Kód
-
-```python
-from neural_ai.core.config import ConfigFactory
-
-config = ConfigFactory.create()
-value = config.get("database.host")
-```
-
-## 📝 API Referencia
-
-[Függvények és osztályok listája]
-
-## 🐛 Hibakezelés
-
-[Gyakori hibák és megoldásaik]
-```
-
----
-
-## 8. Atomic Commit Protokoll
-
-### 8.1 Git Commit Szabályok
-
-**Minden egyes funkcionalitás vagy javítás** külön commitban kell legyen. Tilos több változást egy commitba csomagolni.
-
-### 8.2 Commit Üzenet Formátum
-
-A commit üzeneteknek kötelezően követniük kell az alábbi formátumot:
-
-```
-<type>(<scope>): <subject>
-
-<body>
-```
-
-#### Típusok (Type):
-
-- `feat`: Új funkció
-- `fix`: Hibajavítás
-- `refactor`: Kód refaktorálás (nincs funkcionalitás változás)
-- `docs`: Dokumentáció változás
-- `test`: Tesztek hozzáadása vagy javítása
-- `chore`: Build folyamat vagy segédeszközök változása
-- `style`: Formázás (nincs kód változás)
-- `perf`: Teljesítmény javítás
-
-#### Scope:
-
-A módosított modul neve (pl. `config`, `logger`, `db`, `storage`).
-
-#### Példák:
-
-```
-feat(config): YAML config manager implementáció
-
-- YAML fájl betöltés és validálás
-- Environment változók felülírásának támogatása
-- Tesztek 100% coverage-ral
-```
-
-```
-fix(debug): EventBus memory leak javítás
-
-- ZeroMQ socketek helyes lezárása
-- AsyncIO taskok cancellálása
-- Tesztek frissítve
-```
-
-```
-docs(standards): architecture standards bővítése DI, típusok, linter, tesztelés, docs, commit protokoll
-
-- Új szakaszok hozzáadva a DI, típuskezelés, linter, tesztelés, dokumentáció és commit protokollhoz
-- Példakódok illusztrálva
-- Formázás ellenőrizve
-```
-
-### 8.3 Tranzakcionális Mentés Csak Sikeres Tesztek Után
-
-**⚠️ KRITIKUS SZABÁLY:** Commitot **CSAK** akkor szabad létrehozni, ha minden teszt sikeresen lefutott.
-
-#### Commit Folyamat:
-
-1. **Kód írása és módosítása.**
-2. **Tesztelés:** `pytest -v`
-3. **Coverage ellenőrzés:** `pytest --cov=neural_ai --cov-report=term-missing`
-4. **Lintelés:** `ruff check .`
-5. **Ha minden sikeres:**
-   ```bash
-   git add <módosított fájlok>
-   git commit -m "<type>(<scope>): <subject>"
-   git push
-   ```
-6. **Ha valami hibás:** Javítsd ki, majd ismételd a folyamatot.
-
-### 8.4 Atomic Commit Előnyei
-
-- **Könnyű visszavonás:** Ha egy commit hibás, egyszerűen visszavonható.
-- **Tiszta történet:** A git history könnyen követhető és érthető.
-- **Jobb code review:** A review-k fókuszáltabbak lehetnek.
-- **Kisebb kockázat:** A kis, izolált változtatások kevésbé vezetnek váratlan hibákhoz.
-
----
-
-## 📚 Összefoglalás
-
-Ez a dokumentum a Neural AI Next projekt architektúra szabványait definiálja. Minden fejlesztőnek kötelező betartania ezeket a szabályokat a kódminőség, a karbantarthatóság és a csapatmunka érdekében.
-
-**Kulcsszabályok emlékeztető:**
-
-1. ✅ **Modularitás:** Minden modul követi az `interfaces/`, `implementations/`, `exceptions/`, `factory.py` szerkezetet.
-2. ✅ **DI Pattern:** Szigorú constructor injection, Factory használata, tiltott globális importok.
-3. ✅ **Típusok:** Strict type hints, `Any` tilos, `TYPE_CHECKING` blokk körkörös importokhoz.
-4. ✅ **Linter:** Ruff 0 hiba, abszolút útvonalak használata.
-5. ✅ **Tesztelés:** 100% Stmt és Branch coverage, commit előtt kötelező ellenőrzés.
-6. ✅ **Dokumentáció:** Mirror structure a `docs/components/`-ban.
-7. ✅ **Commit:** Atomic commit, formális üzenet, csak sikeres tesztek után.
-
-Adat Elnevezés:
-bid_open, bid_close... -> Kereskedéshez / Chart.
-mid_open, mid_close... -> AI Tanításhoz / Elemzéshez.
-open, close -> TILOS a backendben (túl kétértelmű). Csak a UI rétegben engedélyezett (display only).
-
-**Utolsó frissítés:** 2025-12-25
 
 ==================================================
 FILE: docs/models/hierarchical/structure.md
@@ -11358,7 +11055,7 @@ try:
     _version: str = metadata.version("neural-ai-next")
 except metadata.PackageNotFoundError:
     # Fallback a pyproject.toml-ból, ha a csomag nincs telepítve
-    _version = "0.5.0"
+    _version = "1.0.0"
 
 __version__: Final[str] = _version
 
@@ -12317,7 +12014,8 @@ class JForexLiveFeed(ILiveFeed):
         Az ask_volume és bid_volume mezőket kiolvassa a JSON-ből és hozzáadja az event-hez.
 
         Args:
-            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float, ask_volume/bid_volume float)
+            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float,
+                ask_volume/bid_volume float)
         """
         try:
             # Timestamp konverziója ms-ből datetime objektummá
@@ -12328,15 +12026,15 @@ class JForexLiveFeed(ILiveFeed):
                 timestamp = datetime.now(UTC)
 
             # Volume értékek kiolvasása
-            ask_vol = float(data.get("ask_volume", 0.0))
-            bid_vol = float(data.get("bid_volume", 0.0))
+            ask_vol = cast(float, data.get("ask_volume", 0.0))
+            bid_vol = cast(float, data.get("bid_volume", 0.0))
 
             # MarketDataEvent létrehozása
             event = MarketDataEvent(
                 symbol=str(data.get("symbol", "")),
                 timestamp=timestamp,
-                bid=float(data.get("bid", 0.0)),
-                ask=float(data.get("ask", 0.0)),
+                bid=cast(float, data.get("bid", 0.0)),
+                ask=cast(float, data.get("ask", 0.0)),
                 volume=(ask_vol + bid_vol) if (ask_vol or bid_vol) else None,
                 ask_volume=ask_vol,
                 bid_volume=bid_vol,
@@ -18084,17 +17782,17 @@ class EventBusInterface(ABC):
         Returns:
             Az EventBus konfigurációja
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def start(self) -> None:
         """Elindítja az EventBus-t és létrehozza a socketeket."""
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def stop(self) -> None:
         """Leállítja az EventBus-t és felszabadítja az erőforrásokat."""
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def publish(self, event_type: str, event: "BaseModel") -> None:
@@ -18108,7 +17806,7 @@ class EventBusInterface(ABC):
             EventBusError: Ha az EventBus nincs elindítva
             PublishError: Ha a publisher socket nincs inicializálva
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def subscribe(self, event_type: str, callback: EventCallback) -> None:
@@ -18121,7 +17819,7 @@ class EventBusInterface(ABC):
         Note:
             A callback-nek aszinkronnak kell lennie (async def)
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def unsubscribe(self, event_type: str, callback: EventCallback) -> None:
@@ -18131,7 +17829,7 @@ class EventBusInterface(ABC):
             event_type: Az esemény típusa
             callback: A callback függvény, amelyet eltávolítunk
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def run_forever(self) -> None:
@@ -18143,7 +17841,7 @@ class EventBusInterface(ABC):
         Note:
             Ez egy blokkoló metódus, csak teszteléshez vagy külön task-ként használd
         """
-        pass
+        pass  # pragma: no cover
 
 
 ==================================================
@@ -20414,7 +20112,7 @@ class HealthMonitorInterface(ABC):
         Returns:
             SystemHealth: A rendszer teljes egészségügyi állapota
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def check_component(self, component_name: str) -> ComponentHealth:
@@ -20429,7 +20127,7 @@ class HealthMonitorInterface(ABC):
         Raises:
             ValueError: Ha a komponens nem létezik
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def get_registered_components(self) -> list[str]:
@@ -20438,7 +20136,7 @@ class HealthMonitorInterface(ABC):
         Returns:
             list[str]: A monitorozott komponensek nevei
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def register_component(self, component_name: str) -> None:
@@ -20447,7 +20145,7 @@ class HealthMonitorInterface(ABC):
         Args:
             component_name: A komponens neve
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def unregister_component(self, component_name: str) -> None:
@@ -20456,7 +20154,7 @@ class HealthMonitorInterface(ABC):
         Args:
             component_name: A komponens neve
         """
-        pass
+        pass  # pragma: no cover
 
 
 class HealthCheckInterface(ABC):
@@ -20473,7 +20171,7 @@ class HealthCheckInterface(ABC):
         Returns:
             ComponentHealth: Az ellenőrzés eredménye
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def get_name(self) -> str:
@@ -20482,7 +20180,7 @@ class HealthCheckInterface(ABC):
         Returns:
             str: Az ellenőrzés neve
         """
-        pass
+        pass  # pragma: no cover
 
 
 ==================================================
@@ -21128,7 +20826,7 @@ class HardwareInterface(ABC):
         Returns:
             bool: True, ha a CPU támogatja az AVX2-t, False egyébként.
         """
-        raise NotImplementedError
+        pass  # pragma: no cover
 
     @abstractmethod
     def get_cpu_features(self) -> set[str]:
@@ -21137,7 +20835,7 @@ class HardwareInterface(ABC):
         Returns:
             set[str]: A CPU által támogatott feature flag-ek halmaza.
         """
-        raise NotImplementedError
+        pass  # pragma: no cover
 
     @abstractmethod
     def supports_simd(self) -> bool:
@@ -21146,7 +20844,7 @@ class HardwareInterface(ABC):
         Returns:
             bool: True, ha a CPU támogatja az alapvető SIMD utasításokat.
         """
-        raise NotImplementedError
+        pass  # pragma: no cover
 
 
 ==================================================
@@ -21168,6 +20866,7 @@ __all__ = [
 ==================================================
 FILE: neural_ai/processors/dimensions/__init__.py
 ==================================================
+"""Dimenzió processzorok csomagja."""
 
 
 ==================================================
@@ -21359,11 +21058,42 @@ class D01PriceProcessor(BaseDimensionProcessor):
             upper_shadow = pl.lit(None).cast(pl.Float64)
             lower_shadow = pl.lit(None).cast(pl.Float64)
 
+        # Bid és ask adatok számítása spread alapján (ha nincs már bid)
+        if "bid_open" not in df.columns:
+            bid_open = pl.col("mid_open") - (pl.col("spread") / 2)
+            bid_high = pl.col("mid_high") - (pl.col("spread") / 2)
+            bid_low = pl.col("mid_low") - (pl.col("spread") / 2)
+            bid_close = pl.col("mid_close") - (pl.col("spread") / 2)
+        else:
+            bid_open = pl.col("bid_open")
+            bid_high = pl.col("bid_high")
+            bid_low = pl.col("bid_low")
+            bid_close = pl.col("bid_close")
+
+        if "ask_open" not in df.columns:
+            ask_open = pl.col("mid_open") + (pl.col("spread") / 2)
+            ask_high = pl.col("mid_high") + (pl.col("spread") / 2)
+            ask_low = pl.col("mid_low") + (pl.col("spread") / 2)
+            ask_close = pl.col("mid_close") + (pl.col("spread") / 2)
+        else:
+            ask_open = pl.col("ask_open")
+            ask_high = pl.col("ask_high")
+            ask_low = pl.col("ask_low")
+            ask_close = pl.col("ask_close")
+
         # Alap oszlopok kiválasztása
         columns = [
             "timestamp",
-            # Bid adatok (VISSZAPÓTOLVA)
-            "bid_open", "bid_high", "bid_low", "bid_close",
+            # Bid adatok
+            bid_open.alias("bid_open"),
+            bid_high.alias("bid_high"),
+            bid_low.alias("bid_low"),
+            bid_close.alias("bid_close"),
+            # Ask adatok
+            ask_open.alias("ask_open"),
+            ask_high.alias("ask_high"),
+            ask_low.alias("ask_low"),
+            ask_close.alias("ask_close"),
             # Mid adatok
             "mid_open", "mid_high", "mid_low", "mid_close",
             # Metadata
@@ -21668,23 +21398,23 @@ class D02SupportProcessor(BaseDimensionProcessor):
         # Wick swing pontok számítása
         swing_high_wick = (
             pl.when(
-                pl.col("high")
-                == pl.col("high").rolling_max(
+                pl.col("mid_high")
+                == pl.col("mid_high").rolling_max(
                     window_size=min_candles, center=True
                 )
             )
-            .then(pl.col("high"))
+            .then(pl.col("mid_high"))
             .otherwise(None)
         )
 
         swing_low_wick = (
             pl.when(
-                pl.col("low")
-                == pl.col("low").rolling_min(
+                pl.col("mid_low")
+                == pl.col("mid_low").rolling_min(
                     window_size=min_candles, center=True
                 )
             )
-            .then(pl.col("low"))
+            .then(pl.col("mid_low"))
             .otherwise(None)
         )
 
@@ -21979,31 +21709,31 @@ class D02SupportProcessor(BaseDimensionProcessor):
         resistance_dict = {level["price"]: level["strength"] for level in resistance_levels}
 
         # Függvények nearest számításhoz
-        def find_nearest_support(close: float) -> tuple[float | None, float | None]:
-            candidates = [p for p in support_dict if p <= close]
+        def find_nearest_support(mid_close: float) -> tuple[float | None, float | None]:
+            candidates = [p for p in support_dict if p <= mid_close]
             if not candidates:
                 return None, None
             nearest_price = max(candidates)
             return nearest_price, support_dict[nearest_price]
 
-        def find_nearest_resistance(close: float) -> tuple[float | None, float | None]:
-            candidates = [p for p in resistance_dict if p >= close]
+        def find_nearest_resistance(mid_close: float) -> tuple[float | None, float | None]:
+            candidates = [p for p in resistance_dict if p >= mid_close]
             if not candidates:
                 return None, None
             nearest_price = min(candidates)
             return nearest_price, resistance_dict[nearest_price]
 
         # Oszlopok hozzáadása
-        nearest_support_expr = pl.col("close").map_elements(
+        nearest_support_expr = pl.col("mid_close").map_elements(
             lambda c: find_nearest_support(c)[0], return_dtype=pl.Float64
         ).alias("nearest_support")
-        support_strength_expr = pl.col("close").map_elements(
+        support_strength_expr = pl.col("mid_close").map_elements(
             lambda c: find_nearest_support(c)[1], return_dtype=pl.Float64
         ).alias("support_strength")
-        nearest_resistance_expr = pl.col("close").map_elements(
+        nearest_resistance_expr = pl.col("mid_close").map_elements(
             lambda c: find_nearest_resistance(c)[0], return_dtype=pl.Float64
         ).alias("nearest_resistance")
-        resistance_strength_expr = pl.col("close").map_elements(
+        resistance_strength_expr = pl.col("mid_close").map_elements(
             lambda c: find_nearest_resistance(c)[1], return_dtype=pl.Float64
         ).alias("resistance_strength")
 
@@ -22096,11 +21826,14 @@ def create_dimension_processor(
 ==================================================
 FILE: neural_ai/processors/implementations/__init__.py
 ==================================================
+"""Processor implementációk csomagja."""
 
 
 ==================================================
 FILE: neural_ai/processors/implementations/time_alignment_service.py
 ==================================================
+"""Időszinkronizációs szolgáltatás implementáció."""
+
 import polars as pl
 
 from neural_ai.processors.interfaces.time_alignment_interface import ITimeAlignmentService
@@ -22177,11 +21910,14 @@ class TimeAlignmentService(ITimeAlignmentService):
 ==================================================
 FILE: neural_ai/processors/interfaces/__init__.py
 ==================================================
+"""Processor interfészek csomagja."""
 
 
 ==================================================
 FILE: neural_ai/processors/interfaces/dimension_processor_interface.py
 ==================================================
+"""Dimenzió processzor interfész modul."""
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
@@ -22207,18 +21943,29 @@ class IDimensionProcessor(ABC):
 ==================================================
 FILE: neural_ai/processors/interfaces/tensor_converter_interface.py
 ==================================================
-from abc import ABC
+"""Tensor konverter interfész modul."""
+
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import numpy as np
 
 
 class ITensorConverter(ABC):
     """Tensor konverter interfész."""
 
-    pass
+    @abstractmethod
+    def convert_to_tensor(self, data: "np.ndarray") -> "np.ndarray":
+        """Adatok konvertálása tensor formátumba."""
+        pass
 
 
 ==================================================
 FILE: neural_ai/processors/interfaces/time_alignment_interface.py
 ==================================================
+"""Időszinkronizációs interfész modul."""
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
@@ -22427,9 +22174,12 @@ FILE: neural_ai/processors/resampler_service/implementations/resampler_service.p
 """ResamplerService implementáció - Tick adatokból OHLCV gyertyák létrehozása."""
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import polars as pl
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.processors.resampler_service.exceptions.resampler_error import (
@@ -22469,7 +22219,7 @@ class ResamplerService(ResamplerInterface):
         end: datetime,
         timeframe: str = "1m",
         return_type: str = "polars",
-    ) -> pl.DataFrame:
+    ) -> Union[pl.DataFrame, "pd.DataFrame"]:
         """Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
 
         Args:
@@ -22480,7 +22230,7 @@ class ResamplerService(ResamplerInterface):
             return_type: A visszaadott DataFrame típusa ('pandas' vagy 'polars')
 
         Returns:
-            pl.DataFrame: OHLCV gyertyákat tartalmazó Polars DataFrame
+            Union[pl.DataFrame, pd.DataFrame]: OHLCV gyertyákat tartalmazó DataFrame
 
         Raises:
             InvalidTimeframeError: Ha az időkeret érvénytelen
@@ -22505,7 +22255,19 @@ class ResamplerService(ResamplerInterface):
             ohlcv_data = self._convert_to_ohlcv(tick_data, timeframe)
 
             # Mindig Polars DataFrame visszaadása (Zero-Copy)
-            return ohlcv_data
+            # Return type kezelés
+            if return_type.lower() == "pandas":
+                # Konvertálás pandas-ra
+                import pandas as pd
+                return ohlcv_data.to_pandas().set_index("timestamp")
+            elif return_type.lower() == "polars":
+                return ohlcv_data
+            else:
+                raise ResamplingError(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    original_error=ValueError(f"Invalid return_type: {return_type}. Must be 'pandas' or 'polars'"),
+                )
         except Exception as e:
             raise ResamplingError(symbol=symbol, timeframe=timeframe, original_error=e) from e
 
@@ -22915,13 +22677,13 @@ from typing import Any
 
 class BaseWidget:
     """Base Widget - Alap widget osztály.
-    
+
     Ez az osztály az összes UI komponens alapját képezi.
     """
 
     def __init__(self, config: dict[str, Any] | None = None) -> None:
         """A widget inicializálása.
-        
+
         Args:
             config: A widget konfigurációja
         """
@@ -22930,7 +22692,7 @@ class BaseWidget:
 
     def render(self) -> str:
         """A widget tartalmának renderelése.
-        
+
         Returns:
             str: A renderelt tartalom
         """
@@ -22947,7 +22709,7 @@ class BaseWidget:
     @property
     def is_visible(self) -> bool:
         """A widget láthatóságát ellenőrző property.
-        
+
         Returns:
             bool: True, ha a widget látható, egyébként False
         """
@@ -23041,7 +22803,8 @@ class CoreBridge(metaclass=SingletonMeta):
 
         Args:
             component_type: A lekérdezni kívánt komponens típusa.
-                Támogatott típusok: 'parquet_storage', 'bi5_downloader', 'strategy_service', 'config'
+            Támogatott típusok: 'parquet_storage', 'bi5_downloader',
+            'strategy_service', 'config'
 
         Returns:
             Optional[object]: A lekérdezett komponens vagy None, ha nem található
@@ -23463,14 +23226,14 @@ if TYPE_CHECKING:
 @runtime_checkable
 class AIServiceInterface(Protocol):
     """AI Service interfész - Mesterséges intelligencia kezeléséért felelős.
-    
+
     Ez az interfész definiálja a modellek betöltését, konfigurálását és
     futtatását végző metódusokat.
     """
 
     def get_available_models(self) -> list[dict[str, str]]:
         """Elérhető AI modellek lekérdezése.
-        
+
         Returns:
             List[Dict[str, str]]: A modellek listája
         """
@@ -23478,11 +23241,11 @@ class AIServiceInterface(Protocol):
 
     def load_model(self, model_id: str, config: dict[str, Any] | None = None) -> bool:
         """AI modell betöltése.
-        
+
         Args:
             model_id: A modell azonosítója
             config: A modell konfigurációja
-            
+
         Returns:
             bool: True, ha sikeres a betöltés
         """
@@ -23494,11 +23257,11 @@ class AIServiceInterface(Protocol):
         input_data: dict[str, Any]
     ) -> dict[str, Any]:
         """Inferencia futtatása a modellen.
-        
+
         Args:
             model_id: A modell azonosítója
             input_data: A bemeneti adatok
-            
+
         Returns:
             Dict[str, Any]: Az inferencia eredménye
         """
@@ -23506,10 +23269,10 @@ class AIServiceInterface(Protocol):
 
     def get_model_info(self, model_id: str) -> dict[str, Any]:
         """Modell információk lekérdezése.
-        
+
         Args:
             model_id: A modell azonosítója
-            
+
         Returns:
             Dict[str, Any]: A modell metaadatai
         """
@@ -23522,12 +23285,12 @@ class AIServiceInterface(Protocol):
         config: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Modell betanítása.
-        
+
         Args:
             model_id: A modell azonosítója
             training_data: A tanítóadatok
             config: A tanítás konfigurációja
-            
+
         Returns:
             Dict[str, Any]: A tanítás eredménye
         """
@@ -23535,10 +23298,10 @@ class AIServiceInterface(Protocol):
 
     def get_training_status(self, training_id: str) -> dict[str, Any]:
         """Tanítás állapotának lekérdezése.
-        
+
         Args:
             training_id: A tanítás azonosítója
-            
+
         Returns:
             Dict[str, Any]: A tanítás állapota
         """
@@ -23643,14 +23406,14 @@ if TYPE_CHECKING:
 @runtime_checkable
 class DashboardServiceInterface(Protocol):
     """Dashboard Service interfész - Fő irányítópult kezeléséért felelős.
-    
+
     Ez az interfész definiálja a dashboard adatok lekérdezését és
     kezelését végző metódusokat.
     """
 
     def get_system_overview(self) -> dict[str, Any]:
         """Rendszer áttekintő adatok lekérdezése.
-        
+
         Returns:
             Dict[str, Any]: A rendszer aktuális állapota
         """
@@ -23658,7 +23421,7 @@ class DashboardServiceInterface(Protocol):
 
     def get_health_status(self) -> dict[str, str]:
         """Rendszer egészségügyi állapotának lekérdezése.
-        
+
         Returns:
             Dict[str, str]: A komponensek állapota (OK/ERROR/WARNING)
         """
@@ -23666,7 +23429,7 @@ class DashboardServiceInterface(Protocol):
 
     def get_performance_metrics(self) -> dict[str, float]:
         """Teljesítmény metrikák lekérdezése.
-        
+
         Returns:
             Dict[str, float]: A rendszer teljesítményadatok
         """
@@ -23674,20 +23437,19 @@ class DashboardServiceInterface(Protocol):
 
     def get_recent_activities(self) -> list[dict[str, Any]]:
         """Legutóbbi tevékenységek lekérdezése.
-        
+
         Returns:
             List[Dict[str, Any]]: A tevékenységek listája
         """
         ...
 
     def refresh_data(self) -> None:
-        """Dashboard adatok frissítése.
-        """
+        """Dashboard adatok frissítése."""
         ...
 
     def subscribe_to_updates(self, callback: Any) -> None:
         """Feliratkozás dashboard frissítésekre.
-        
+
         Args:
             callback: A hívandó callback függvény
         """
@@ -23712,14 +23474,14 @@ if TYPE_CHECKING:
 @runtime_checkable
 class LiveOpsServiceInterface(Protocol):
     """Live Ops Service interfész - Valós idejű műveletekért felelős.
-    
+
     Ez az interfész definiálja a live kereskedést és monitorozást
     végző metódusokat.
     """
 
     def get_active_positions(self) -> list[dict[str, Any]]:
         """Aktív pozíciók lekérdezése.
-        
+
         Returns:
             List[Dict[str, Any]]: Az aktív pozíciók listája
         """
@@ -23727,7 +23489,7 @@ class LiveOpsServiceInterface(Protocol):
 
     def get_account_status(self) -> dict[str, Any]:
         """Fiók állapotának lekérdezése.
-        
+
         Returns:
             Dict[str, Any]: A fiók aktuális állapota
         """
@@ -23743,7 +23505,7 @@ class LiveOpsServiceInterface(Protocol):
         take_profit: float | None = None
     ) -> str:
         """Új rendelés leadása.
-        
+
         Args:
             symbol: A kereskedendő szimbólum
             order_type: A rendelés típusa (BUY/SELL)
@@ -23751,7 +23513,7 @@ class LiveOpsServiceInterface(Protocol):
             price: A rendelés ára (opcionális)
             stop_loss: Stop loss szint (opcionális)
             take_profit: Take profit szint (opcionális)
-            
+
         Returns:
             str: A rendelés azonosítója
         """
@@ -23765,13 +23527,13 @@ class LiveOpsServiceInterface(Protocol):
         take_profit: float | None = None
     ) -> bool:
         """Meglévő rendelés módosítása.
-        
+
         Args:
             order_id: A rendelés azonosítója
             price: Az új ár
             stop_loss: Az új stop loss
             take_profit: Az új take profit
-            
+
         Returns:
             bool: True, ha sikeres a módosítás
         """
@@ -23779,10 +23541,10 @@ class LiveOpsServiceInterface(Protocol):
 
     def cancel_order(self, order_id: str) -> bool:
         """Rendelés visszavonása.
-        
+
         Args:
             order_id: A rendelés azonosítója
-            
+
         Returns:
             bool: True, ha sikeres a visszavonás
         """
@@ -23790,10 +23552,10 @@ class LiveOpsServiceInterface(Protocol):
 
     def close_position(self, position_id: str) -> bool:
         """Pozíció lezárása.
-        
+
         Args:
             position_id: A pozíció azonosítója
-            
+
         Returns:
             bool: True, ha sikeres a lezárás
         """
@@ -23801,10 +23563,10 @@ class LiveOpsServiceInterface(Protocol):
 
     def get_market_data(self, symbol: str) -> dict[str, Any]:
         """Piaci adatok lekérdezése.
-        
+
         Args:
             symbol: A szimbólum
-            
+
         Returns:
             Dict[str, Any]: A piaci adatok
         """
@@ -23816,7 +23578,7 @@ class LiveOpsServiceInterface(Protocol):
         callback: Any
     ) -> None:
         """Feliratkozás piaci frissítésekre.
-        
+
         Args:
             symbol: A szimbólum
             callback: A hívandó callback függvény
@@ -23825,7 +23587,7 @@ class LiveOpsServiceInterface(Protocol):
 
     def get_performance_summary(self) -> dict[str, Any]:
         """Teljesítmény összegzés lekérdezése.
-        
+
         Returns:
             Dict[str, Any]: A teljesítmény adatok
         """
@@ -23851,13 +23613,13 @@ if TYPE_CHECKING:
 @runtime_checkable
 class NavigationServiceInterface(Protocol):
     """Navigation Service interfész - Oldalak közötti navigációért felelős.
-    
+
     Ez az interfész definiálja a navigációs logikát kezelő metódusokat.
     """
 
     def navigate_to(self, page_name: str, params: dict[str, Any] | None = None) -> None:
         """Navigálás egy adott oldalra.
-        
+
         Args:
             page_name: A céloldal neve
             params: Navigációs paraméterek
@@ -23865,13 +23627,12 @@ class NavigationServiceInterface(Protocol):
         ...
 
     def go_back(self) -> None:
-        """Visszalépés az előző oldalra.
-        """
+        """Visszalépés az előző oldalra."""
         ...
 
     def get_current_page(self) -> Optional["PageInterface"]:
         """Az aktuális oldal lekérdezése.
-        
+
         Returns:
             Optional[PageInterface]: Az aktuális oldal vagy None
         """
@@ -23879,7 +23640,7 @@ class NavigationServiceInterface(Protocol):
 
     def get_page_history(self) -> list[str]:
         """A navigációs előzmények lekérdezése.
-        
+
         Returns:
             list[str]: Az oldalnevek listája
         """
@@ -23887,7 +23648,7 @@ class NavigationServiceInterface(Protocol):
 
     def register_page(self, page_name: str, page: "PageInterface") -> None:
         """Oldal regisztrálása a navigációs rendszerben.
-        
+
         Args:
             page_name: Az oldal neve
             page: Az oldal példánya
@@ -23896,7 +23657,7 @@ class NavigationServiceInterface(Protocol):
 
     def subscribe(self, callback: Callable[[str, dict[str, Any]], None]) -> None:
         """Feliratkozás navigációs eseményekre.
-        
+
         Args:
             callback: A hívandó callback függvény
         """
@@ -23920,13 +23681,13 @@ if TYPE_CHECKING:
 @runtime_checkable
 class PageInterface(Protocol):
     """Page interfész - Oldal komponensek alapja.
-    
+
     Ez az interfész definiálja az oldalak által implementálandó metódusokat.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface", **kwargs: Any) -> None:
         """Oldal inicializálása.
-        
+
         Args:
             bridge: A backend bridge példány
             **kwargs: További paraméterek
@@ -23935,7 +23696,7 @@ class PageInterface(Protocol):
 
     def render(self) -> Any:
         """Az oldal tartalmának renderelése.
-        
+
         Returns:
             Any: A renderelt tartalom
         """
@@ -23943,21 +23704,20 @@ class PageInterface(Protocol):
 
     def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
         """Akció, amikor az oldalra navigálnak.
-        
+
         Args:
             params: Navigációs paraméterek
         """
         ...
 
     def on_navigate_from(self) -> None:
-        """Akció, amikor elnavigálnak az oldalról.
-        """
+        """Akció, amikor elnavigálnak az oldalról."""
         ...
 
     @property
     def title(self) -> str:
         """Az oldal címét visszaadó property.
-        
+
         Returns:
             str: Az oldal címe
         """
@@ -23966,7 +23726,7 @@ class PageInterface(Protocol):
     @property
     def is_loaded(self) -> bool:
         """Az oldal betöltöttségi állapotát ellenőrző property.
-        
+
         Returns:
             bool: True, ha az oldal betöltött, egyébként False
         """
@@ -24329,26 +24089,48 @@ class DevCenterPage(PageInterface):
     """Dev Center oldal."""
 
     def __init__(self, bridge: CoreBridgeInterface, **kwargs: Any) -> None:
+        """A Dev Center oldal inicializálása.
+
+        Args:
+            bridge: A backend bridge példány
+            **kwargs: További opcionális paraméterek
+        """
         self._bridge = bridge
         self._loaded = False
         self._title = "🛠️ Dev Center"
 
     def render(self) -> None:
+        """A Dev Center oldal megjelenítése."""
         st.title(self._title)
         st.markdown("Fejlesztői eszközök és konfigurációk.")
 
     def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+        """Navigálás az oldalra.
+
+        Args:
+            params: Opcionális navigációs paraméterek
+        """
         self._loaded = True
 
     def on_navigate_from(self) -> None:
-        pass
+        """Navigálás az oldalról."""
 
     @property
     def title(self) -> str:
+        """Az oldal címe.
+
+        Returns:
+            str: Az oldal címe
+        """
         return self._title
 
     @property
     def is_loaded(self) -> bool:
+        """Az oldal betöltött állapota.
+
+        Returns:
+            bool: True, ha az oldal betöltött
+        """
         return self._loaded
 
 
@@ -24731,26 +24513,48 @@ class AILabPage(PageInterface):
     """AI Lab oldal."""
 
     def __init__(self, bridge: CoreBridgeInterface, **kwargs: Any) -> None:
+        """A AI Lab oldal inicializálása.
+
+        Args:
+            bridge: A backend bridge példány
+            **kwargs: További opcionális paraméterek
+        """
         self._bridge = bridge
         self._loaded = False
         self._title = "🧠 AI Lab"
 
     def render(self) -> None:
+        """A AI Lab oldal megjelenítése."""
         st.title(self._title)
         st.markdown("AI modellek kezelése és futtatása.")
 
     def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+        """Navigálás az oldalra.
+
+        Args:
+            params: Opcionális navigációs paraméterek
+        """
         self._loaded = True
 
     def on_navigate_from(self) -> None:
-        pass
+        """Navigálás az oldalról."""
 
     @property
     def title(self) -> str:
+        """Az oldal címe.
+
+        Returns:
+            str: Az oldal címe
+        """
         return self._title
 
     @property
     def is_loaded(self) -> bool:
+        """Az oldal betöltött állapota.
+
+        Returns:
+            bool: True, ha az oldal betöltött
+        """
         return self._loaded
 
 
@@ -24775,6 +24579,7 @@ interaktív módon vizsgálhatják a gyertyadiagramokat és stratégiákat.
 from datetime import date
 from typing import TYPE_CHECKING, Any
 
+import pandas as pd
 import polars as pl
 import streamlit as st
 
@@ -25153,7 +24958,10 @@ class StrategyLabPage(PageInterface):
                 d2_pd = st.session_state.d2_analysis.to_pandas()
                 # Biztosítsd, hogy a dátum oszlop neve egyezzen
                 # Merge left join-nal (hogy a chart adatok megmaradjanak)
-                df_plot = pd.merge(df_plot, d2_pd[['timestamp', 'swing_high_body', 'swing_low_body', 'swing_high_wick', 'swing_low_wick']], left_on='date', right_on='timestamp', how='left')
+                swing_cols = ['timestamp', 'swing_high_body', 'swing_low_body',
+                              'swing_high_wick', 'swing_low_wick']
+                df_plot = pd.merge(df_plot, d2_pd[swing_cols],
+                                   left_on='date', right_on='timestamp', how='left')
 
             # Body swings kirajzolása egyszerű szűréssel
             if st.session_state.show_body_swings:
@@ -25535,8 +25343,6 @@ FILE: neural_ai/ui/pages/06_⚡_Live_Ops.py
 
 from typing import Any
 
-import streamlit as st
-
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
 
@@ -25545,26 +25351,46 @@ class LiveOpsPage(PageInterface):
     """Live Ops oldal."""
 
     def __init__(self, bridge: CoreBridgeInterface, **kwargs: Any) -> None:
+        """A Live Ops oldal inicializálása.
+
+        Args:
+            bridge: A backend bridge példány
+            **kwargs: További opcionális paraméterek
+        """
         self._bridge = bridge
         self._loaded = False
         self._title = "⚡ Live Ops"
 
     def render(self) -> None:
-        st.title(self._title)
-        st.markdown("Valós idejű kereskedés és monitorozás.")
+        """A Live Ops oldal megjelenítése."""
 
     def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+        """Navigálás az oldalra.
+
+        Args:
+            params: Opcionális navigációs paraméterek
+        """
         self._loaded = True
 
     def on_navigate_from(self) -> None:
-        pass
+        """Navigálás az oldalról."""
 
     @property
     def title(self) -> str:
+        """Az oldal címe.
+
+        Returns:
+            str: Az oldal címe
+        """
         return self._title
 
     @property
     def is_loaded(self) -> bool:
+        """Az oldal betöltött állapota.
+
+        Returns:
+            bool: True, ha az oldal betöltött
+        """
         return self._loaded
 
 
@@ -25582,8 +25408,9 @@ FILE: neural_ai/ui/pages/__init__.py
 ==================================================
 """UI oldalak csomagja.
 
-Ez a csomag tartalmazza a különböző főoldalakat (Launchpad, Dev Center, Data Hub, AI Lab, Strategy Lab, Live Ops),
-amelyek a felhasználói felület különböző szekcióit reprezentálják.
+Ez a csomag tartalmazza a különböző főoldalakat (Launchpad, Dev Center,
+Data Hub, AI Lab, Strategy Lab, Live Ops), amelyek a felhasználói
+felület különböző szekcióit reprezentálják.
 """
 
 from neural_ai.ui.pages.launchpad_page import LaunchpadPage
@@ -25636,14 +25463,14 @@ if TYPE_CHECKING:
 
 class AIService(AIServiceInterface):
     """AI Service - Mesterséges intelligencia kezeléséért felelős.
-    
+
     Ez az osztály implementálja a modellek betöltését, konfigurálását és
     futtatását végző metódusokat.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface") -> None:
         """Az AI Service inicializálása.
-        
+
         Args:
             bridge: A backend bridge példány
         """
@@ -25673,7 +25500,7 @@ class AIService(AIServiceInterface):
 
     def get_available_models(self) -> list[dict[str, str]]:
         """Elérhető AI modellek lekérdezése.
-        
+
         Returns:
             List[Dict[str, str]]: A modellek listája
         """
@@ -25694,11 +25521,11 @@ class AIService(AIServiceInterface):
         config: dict[str, Any] | None = None
     ) -> bool:
         """AI modell betöltése.
-        
+
         Args:
             model_id: A modell azonosítója
             config: A modell konfigurációja
-            
+
         Returns:
             bool: True, ha sikeres a betöltés
         """
@@ -25725,11 +25552,11 @@ class AIService(AIServiceInterface):
         input_data: dict[str, Any]
     ) -> dict[str, Any]:
         """Inferencia futtatása a modellen.
-        
+
         Args:
             model_id: A modell azonosítója
             input_data: A bemeneti adatok
-            
+
         Returns:
             Dict[str, Any]: Az inferencia eredménye
         """
@@ -25750,10 +25577,10 @@ class AIService(AIServiceInterface):
 
     def get_model_info(self, model_id: str) -> dict[str, Any]:
         """Modell információk lekérdezése.
-        
+
         Args:
             model_id: A modell azonosítója
-            
+
         Returns:
             Dict[str, Any]: A modell metaadatai
         """
@@ -25779,12 +25606,12 @@ class AIService(AIServiceInterface):
         config: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Modell betanítása.
-        
+
         Args:
             model_id: A modell azonosítója
             training_data: A tanítóadatok
             config: A tanítás konfigurációja
-            
+
         Returns:
             Dict[str, Any]: A tanítás eredménye
         """
@@ -25813,10 +25640,10 @@ class AIService(AIServiceInterface):
 
     def get_training_status(self, training_id: str) -> dict[str, Any]:
         """Tanítás állapotának lekérdezése.
-        
+
         Args:
             training_id: A tanítás azonosítója
-            
+
         Returns:
             Dict[str, Any]: A tanítás állapota
         """
@@ -26066,14 +25893,14 @@ if TYPE_CHECKING:
 
 class LiveOpsService(LiveOpsServiceInterface):
     """Live Ops Service - Valós idejű műveletekért felelős.
-    
+
     Ez az osztály implementálja a live kereskedést és monitorozást
     végző metódusokat.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface") -> None:
         """A Live Ops Service inicializálása.
-        
+
         Args:
             bridge: A backend bridge példány
         """
@@ -26084,7 +25911,7 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def get_active_positions(self) -> list[dict[str, Any]]:
         """Aktív pozíciók lekérdezése.
-        
+
         Returns:
             List[Dict[str, Any]]: Az aktív pozíciók listája
         """
@@ -26105,7 +25932,7 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def get_account_status(self) -> dict[str, Any]:
         """Fiók állapotának lekérdezése.
-        
+
         Returns:
             Dict[str, Any]: A fiók aktuális állapota
         """
@@ -26133,7 +25960,7 @@ class LiveOpsService(LiveOpsServiceInterface):
         take_profit: float | None = None
     ) -> str:
         """Új rendelés leadása.
-        
+
         Args:
             symbol: A kereskedendő szimbólum
             order_type: A rendelés típusa (BUY/SELL)
@@ -26141,7 +25968,7 @@ class LiveOpsService(LiveOpsServiceInterface):
             price: A rendelés ára (opcionális)
             stop_loss: Stop loss szint (opcionális)
             take_profit: Take profit szint (opcionális)
-            
+
         Returns:
             str: A rendelés azonosítója
         """
@@ -26170,13 +25997,13 @@ class LiveOpsService(LiveOpsServiceInterface):
         take_profit: float | None = None
     ) -> bool:
         """Meglévő rendelés módosítása.
-        
+
         Args:
             order_id: A rendelés azonosítója
             price: Az új ár
             stop_loss: Az új stop loss
             take_profit: Az új take profit
-            
+
         Returns:
             bool: True, ha sikeres a módosítás
         """
@@ -26201,10 +26028,10 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def cancel_order(self, order_id: str) -> bool:
         """Rendelés visszavonása.
-        
+
         Args:
             order_id: A rendelés azonosítója
-            
+
         Returns:
             bool: True, ha sikeres a visszavonás
         """
@@ -26219,10 +26046,10 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def close_position(self, position_id: str) -> bool:
         """Pozíció lezárása.
-        
+
         Args:
             position_id: A pozíció azonosítója
-            
+
         Returns:
             bool: True, ha sikeres a lezárás
         """
@@ -26237,10 +26064,10 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def get_market_data(self, symbol: str) -> dict[str, Any]:
         """Piaci adatok lekérdezése.
-        
+
         Args:
             symbol: A szimbólum
-            
+
         Returns:
             Dict[str, Any]: A piaci adatok
         """
@@ -26264,7 +26091,7 @@ class LiveOpsService(LiveOpsServiceInterface):
         callback: Callable[[dict[str, Any]], None]
     ) -> None:
         """Feliratkozás piaci frissítésekre.
-        
+
         Args:
             symbol: A szimbólum
             callback: A hívandó callback függvény
@@ -26276,7 +26103,7 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def get_performance_summary(self) -> dict[str, Any]:
         """Teljesítmény összegzés lekérdezése.
-        
+
         Returns:
             Dict[str, Any]: A teljesítmény adatok
         """
@@ -26319,14 +26146,14 @@ if TYPE_CHECKING:
 
 class NavigationService(NavigationServiceInterface):
     """Navigation Service - Oldalak közötti navigációért felelős.
-    
+
     Ez az osztály implementálja a navigációs logikát kezelő metódusokat,
     és nyilvántartja a navigációs előzményeket.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface") -> None:
         """A Navigation Service inicializálása.
-        
+
         Args:
             bridge: A backend bridge példány
         """
@@ -26342,7 +26169,7 @@ class NavigationService(NavigationServiceInterface):
         params: dict[str, Any] | None = None
     ) -> None:
         """Navigálás egy adott oldalra.
-        
+
         Args:
             page_name: A céloldal neve
             params: Navigációs paraméterek
@@ -26366,8 +26193,7 @@ class NavigationService(NavigationServiceInterface):
         self._notify_subscribers(page_name, params or {})
 
     def go_back(self) -> None:
-        """Visszalépés az előző oldalra.
-        """
+        """Visszalépés az előző oldalra."""
         if len(self._history) < 2:
             return  # Nincs hova visszamenni
 
@@ -26386,7 +26212,7 @@ class NavigationService(NavigationServiceInterface):
 
     def get_current_page(self) -> PageInterface | None:
         """Az aktuális oldal lekérdezése.
-        
+
         Returns:
             Optional[PageInterface]: Az aktuális oldal vagy None
         """
@@ -26396,7 +26222,7 @@ class NavigationService(NavigationServiceInterface):
 
     def get_page_history(self) -> list[str]:
         """A navigációs előzmények lekérdezése.
-        
+
         Returns:
             List[str]: Az oldalnevek listája
         """
@@ -26408,7 +26234,7 @@ class NavigationService(NavigationServiceInterface):
         page: PageInterface
     ) -> None:
         """Oldal regisztrálása a navigációs rendszerben.
-        
+
         Args:
             page_name: Az oldal neve
             page: Az oldal példánya
@@ -26425,7 +26251,7 @@ class NavigationService(NavigationServiceInterface):
         callback: Callable[[str, dict[str, Any]], None]
     ) -> None:
         """Feliratkozás navigációs eseményekre.
-        
+
         Args:
             callback: A hívandó callback függvény
         """
@@ -26437,7 +26263,7 @@ class NavigationService(NavigationServiceInterface):
         params: dict[str, Any]
     ) -> None:
         """Értesítés küldése a feliratkozóknak.
-        
+
         Args:
             page_name: Az oldal neve
             params: A navigációs paraméterek
@@ -27300,7 +27126,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "neural-ai-next"
-version = "0.5.0"
+version = "1.0.0"
 description = "Hierarchical trading system with machine learning"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -31195,6 +31021,94 @@ class TestJForexLiveFeed:
         live_feed._running = False
         assert live_feed.is_running() is False
 
+    @pytest.fixture
+    def mock_config_empty(self) -> MagicMock:
+        """Mock config létrehozása üres configgal."""
+        config = MagicMock()
+        config.get.return_value = {}
+        return config
+
+    @pytest.fixture
+    def live_feed_empty_config(
+        self, mock_logger: MagicMock, mock_event_bus: AsyncMock, mock_config_empty: MagicMock
+    ) -> JForexLiveFeed:
+        """JForexLiveFeed példány létrehozása üres configgal."""
+        return JForexLiveFeed(logger=mock_logger, event_bus=mock_event_bus, config=mock_config_empty)
+
+    def test_init_with_empty_config_logs_warning(
+        self, live_feed_empty_config: JForexLiveFeed, mock_logger: MagicMock
+    ) -> None:
+        """Teszteli, hogy üres config esetén warning log jelenik meg."""
+        # Az inicializálás során warningnak kell lennie
+        mock_logger.warning.assert_called_once_with("jforex_live_config_missing - Using defaults (5555)")
+
+    @pytest.fixture
+    def mock_config_with_data(self) -> MagicMock:
+        """Mock config létrehozása config adatokkal."""
+        config = MagicMock()
+        def mock_get(section, key=None, **kwargs):
+            if section == "collectors" and key == "jforex_live":
+                return {
+                    "host": "127.0.0.1",
+                    "tick_port": 5555,
+                    "command_port": 5556,
+                }
+            return None
+        config.get.side_effect = mock_get
+        return config
+
+    @pytest.fixture
+    def live_feed_with_config(
+        self, mock_logger: MagicMock, mock_event_bus: AsyncMock, mock_config_with_data: MagicMock
+    ) -> JForexLiveFeed:
+        """JForexLiveFeed példány létrehozása config adatokkal."""
+        return JForexLiveFeed(logger=mock_logger, event_bus=mock_event_bus, config=mock_config_with_data)
+
+    def test_init_with_config_logs_debug(
+        self, live_feed_with_config: JForexLiveFeed, mock_logger: MagicMock
+    ) -> None:
+        """Teszteli, hogy config adatok esetén debug log jelenik meg."""
+        # Az inicializálás során debug log-nak kell lennie
+        mock_logger.debug.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_start_raises_exception_on_zmq_failure(
+        self, live_feed: JForexLiveFeed, mock_logger: MagicMock
+    ) -> None:
+        """Teszteli, hogy start exception-t dob ZMQ hiba esetén."""
+        with patch("zmq.asyncio.Context", side_effect=Exception("ZMQ Error")):
+            with pytest.raises(Exception, match="ZMQ Error"):
+                await live_feed.start()
+
+            # Ellenőrizzük, hogy error log lett írva
+            mock_logger.error.assert_called_once()
+            # És stop lett hívva
+            assert not live_feed.is_running()
+
+    @pytest.mark.asyncio
+    async def test_listen_loop_handles_socket_none(
+        self, live_feed: JForexLiveFeed, mock_logger: MagicMock
+    ) -> None:
+        """Teszteli, hogy listen loop kezeli, ha socket None."""
+        # Socket None-ra állítása
+        live_feed._socket = None
+        live_feed._running = True
+
+        # Rövid időre futtatjuk a loop-ot
+        task = asyncio.create_task(live_feed._listen_loop())
+        await asyncio.sleep(0.2)  # Várunk egy kicsit, hogy lefusson a sleep
+
+        # Leállítjuk
+        live_feed._running = False
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+
+        # Nem szabad error-t logolni, mert csak sleep volt
+        mock_logger.error.assert_not_called()
+
 
 ==================================================
 FILE: tests/core/base/exceptions/test_base_error.py
@@ -31978,6 +31892,7 @@ class TestCoreComponents:
         components.set_database(MagicMock())
         components.set_event_bus(MagicMock())
         components.set_hardware(MagicMock())
+        components.set_health_monitor(MagicMock())
 
         assert components.validate()
 
@@ -31989,6 +31904,78 @@ class TestCoreComponents:
         # storage, database, event_bus, hardware hiányzik
 
         assert not components.validate()
+
+    def test_persister_property_none(self) -> None:
+        """Teszteli a persister property-t ha nincs persister komponens."""
+        components: CoreComponents = CoreComponents()
+
+        assert components.persister is None
+
+    def test_persister_property_with_instance(self) -> None:
+        """Teszteli a persister property-t ha van persister komponens."""
+        components: CoreComponents = CoreComponents()
+        mock_persister: MagicMock = MagicMock()
+        components.set_persister(mock_persister)
+
+        assert components.persister is mock_persister
+
+    def test_live_feed_property_none(self) -> None:
+        """Teszteli a live_feed property-t ha nincs live_feed komponens."""
+        components: CoreComponents = CoreComponents()
+
+        assert components.live_feed is None
+
+    def test_live_feed_property_with_instance(self) -> None:
+        """Teszteli a live_feed property-t ha van live_feed komponens."""
+        components: CoreComponents = CoreComponents()
+        mock_live_feed: MagicMock = MagicMock()
+        components.set_live_feed(mock_live_feed)
+
+        assert components.live_feed is mock_live_feed
+
+    def test_set_persister(self) -> None:
+        """Teszteli a set_persister metódust."""
+        components: CoreComponents = CoreComponents()
+        mock_persister: MagicMock = MagicMock()
+        components.set_persister(mock_persister)
+
+        assert components.persister is mock_persister
+
+    def test_set_live_feed(self) -> None:
+        """Teszteli a set_live_feed metódust."""
+        components: CoreComponents = CoreComponents()
+        mock_live_feed: MagicMock = MagicMock()
+        components.set_live_feed(mock_live_feed)
+
+        assert components.live_feed is mock_live_feed
+
+    def test_has_persister_false(self) -> None:
+        """Teszteli a has_persister metódust ha nincs persister."""
+        components: CoreComponents = CoreComponents()
+
+        assert not components.has_persister()
+
+    def test_has_persister_true(self) -> None:
+        """Teszteli a has_persister metódust ha van persister."""
+        components: CoreComponents = CoreComponents()
+        mock_persister: MagicMock = MagicMock()
+        components.set_persister(mock_persister)
+
+        assert components.has_persister()
+
+    def test_has_live_feed_false(self) -> None:
+        """Teszteli a has_live_feed metódust ha nincs live_feed."""
+        components: CoreComponents = CoreComponents()
+
+        assert not components.has_live_feed()
+
+    def test_has_live_feed_true(self) -> None:
+        """Teszteli a has_live_feed metódust ha van live_feed."""
+        components: CoreComponents = CoreComponents()
+        mock_live_feed: MagicMock = MagicMock()
+        components.set_live_feed(mock_live_feed)
+
+        assert components.has_live_feed()
 
 
 ==================================================
@@ -32206,6 +32193,16 @@ class TestDIContainer:
 
         assert container.get("preload_comp").value == "preload"
 
+    def test_preload_components_not_found(self) -> None:
+        """Teszteli a komponensek előtöltését nem létező komponenssel."""
+        container = DIContainer()
+
+        # Nem dob kivételt, csak figyelmen kívül hagyja
+        container.preload_components(["not_found_comp"])
+
+        # Üres konténer marad
+        assert len(container._lazy_components) == 0
+
     def test_clear(self) -> None:
         """Teszteli a konténer ürítését."""
         container = DIContainer()
@@ -32253,6 +32250,16 @@ class TestDIContainer:
 
         with pytest.raises(Exception):  # SingletonViolationError
             container.register("singleton_comp", instance2)
+
+    def test_enforce_singleton_no_violation(self) -> None:
+        """Teszteli, hogy azonos instance regisztrálása nem okoz problémát."""
+        container = DIContainer()
+        instance = MockComponent("same")
+
+        # Első regisztráció
+        container.register("same_comp", instance)
+        # Második regisztráció ugyanazzal az instance-szal - nem dob kivételt
+        container.register("same_comp", instance)
 
     def test_get_memory_usage(self) -> None:
         """Teszteli a memória használat lekérését."""
@@ -34224,6 +34231,24 @@ class TestCoreComponentFactory:
             assert components is not None
             assert components.has_logger()
             assert components.has_storage()
+
+    @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
+    @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
+    def test_create_minimal_with_config_file_no_logger_section(
+        self, mock_get_logger: MagicMock, mock_get_manager: MagicMock
+    ) -> None:
+        """Teszteli a minimális komponensek létrehozását config fájllal, de logger section nélkül."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = None  # No logger section
+        mock_get_manager.return_value = mock_config
+
+        with patch("pathlib.Path.exists", return_value=True):
+            components = CoreComponentFactory.create_minimal()
+
+            assert components is not None
+            assert components.has_logger()
+            assert components.has_storage()
+            assert components.has_config()
 
     @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
     def test_create_logger(self, mock_get_logger: MagicMock) -> None:
@@ -44055,6 +44080,8 @@ FILE: tests/core/logger/test_logger_init.py
 ==================================================
 """Logger __init__.py export tesztjei."""
 
+from unittest.mock import patch
+
 from neural_ai.core.logger import (
     ColoredLogger,
     DefaultLogger,
@@ -44190,6 +44217,30 @@ class TestLoggerInitExports:
                 module = importlib.import_module("neural_ai.core.logger")
                 export = getattr(module, export_name)
                 assert export is not None
+
+    @patch('importlib.metadata.version')
+    def test_version_fallback_on_package_not_found(self, mock_version) -> None:
+        """Teszteli a fallback mechanizmust, ha a csomag nincs telepítve."""
+        from importlib.metadata import PackageNotFoundError
+
+        mock_version.side_effect = PackageNotFoundError("No package found")
+
+        import sys
+
+        original = sys.modules.get('neural_ai.core.logger')
+
+        try:
+            if 'neural_ai.core.logger' in sys.modules:
+                del sys.modules['neural_ai.core.logger']
+
+            import neural_ai.core.logger as reloaded_logger
+
+            assert reloaded_logger.__version__ == "1.0.0"
+            assert isinstance(reloaded_logger.__version__, str)
+
+        finally:
+            if original is not None:
+                sys.modules['neural_ai.core.logger'] = original
 
 
 ==================================================
@@ -44847,6 +44898,19 @@ class TestHealthMonitorInterface:
         assert hasattr(monitor, 'get_registered_components')
         assert hasattr(monitor, 'register_component')
         assert hasattr(monitor, 'unregister_component')
+
+        # Hívjuk meg a metódusokat a coverage növeléséhez
+        health = monitor.check_health()
+        assert isinstance(health, SystemHealth)
+
+        component_health = monitor.check_component("test_component")
+        assert isinstance(component_health, ComponentHealth)
+
+        components = monitor.get_registered_components()
+        assert isinstance(components, list)
+
+        monitor.register_component("test_component")
+        monitor.unregister_component("test_component")
 
 
 class TestHealthCheckInterface:
@@ -46461,6 +46525,33 @@ flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
                     features = hardware_info.get_cpu_features()
                     assert features == set()
 
+    def test_has_avx2_linux_no_flags_line(self) -> None:
+        """Teszteli az AVX2 támogatás detektálását, ha nincs 'flags' sor a cpuinfo-ban."""
+        mock_cpuinfo = """
+processor   : 0
+vendor_id   : GenuineIntel
+cpu family  : 6
+model       : 158
+"""
+        with patch("builtins.open", mock_open(read_data=mock_cpuinfo)):
+            with patch("platform.system", return_value="Linux"):
+                hardware_info = HardwareInfo()
+                assert hardware_info.has_avx2() is False
+
+    def test_get_cpu_features_linux_no_flags_line(self) -> None:
+        """Teszteli a CPU feature-ök lekérdezését, ha nincs 'flags' sor a cpuinfo-ban."""
+        mock_cpuinfo = """
+processor   : 0
+vendor_id   : GenuineIntel
+cpu family  : 6
+model       : 158
+"""
+        with patch("builtins.open", mock_open(read_data=mock_cpuinfo)):
+            with patch("platform.system", return_value="Linux"):
+                hardware_info = HardwareInfo()
+                features = hardware_info.get_cpu_features()
+                assert features == set()
+
 
 ==================================================
 FILE: tests/core/utils/test_utils_factory.py
@@ -47542,6 +47633,14 @@ class TestD01PriceFactory:
         assert len(result) == 80
         expected_columns = {
             "timestamp",
+            "bid_open",
+            "bid_high",
+            "bid_low",
+            "bid_close",
+            "ask_open",
+            "ask_high",
+            "ask_low",
+            "ask_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -47644,6 +47743,7 @@ class TestD01PriceProcessor:
         expected_columns = {
             "timestamp",
             "bid_open", "bid_high", "bid_low", "bid_close",
+            "ask_open", "ask_high", "ask_low", "ask_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -47697,6 +47797,7 @@ class TestD01PriceProcessor:
         expected_columns = {
             "timestamp",
             "bid_open", "bid_high", "bid_low", "bid_close",
+            "ask_open", "ask_high", "ask_low", "ask_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -47747,6 +47848,7 @@ class TestD01PriceProcessor:
         expected_columns = {
             "timestamp",
             "bid_open", "bid_high", "bid_low", "bid_close",
+            "ask_open", "ask_high", "ask_low", "ask_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -47800,6 +47902,7 @@ class TestD01PriceProcessor:
         expected_columns = {
             "timestamp",
             "bid_open", "bid_high", "bid_low", "bid_close",
+            "ask_open", "ask_high", "ask_low", "ask_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -47853,75 +47956,7 @@ class TestD01PriceProcessor:
 
 
 ==================================================
-FILE: tests/processors/dimensions/d02_support/test_exceptions.py
-==================================================
-"""D02Support kivételek unit tesztek."""
-
-from neural_ai.processors.dimensions.d02_support.exceptions.support_error import (
-    SupportError,
-    SupportResistanceLevelError,
-    SwingPointCalculationError,
-    TimeframeConfigurationError,
-)
-
-
-class TestSupportExceptions:
-    """Support kivételek unit teszt osztály."""
-
-    def test_support_error_creation(self):
-        """Teszteli a SupportError létrehozását."""
-        error = SupportError("Test error", "TEST_CODE")
-
-        assert str(error) == "Test error"
-        assert error.error_code == "TEST_CODE"
-
-    def test_support_error_without_code(self):
-        """Teszteli a SupportError létrehozását hibakód nélkül."""
-        error = SupportError("Test error")
-
-        assert str(error) == "Test error"
-        assert error.error_code is None
-
-    def test_swing_point_calculation_error(self):
-        """Teszteli a SwingPointCalculationError létrehozását."""
-        error = SwingPointCalculationError("Swing calculation failed", 5, "mid_high")
-
-        assert str(error) == "Swing calculation failed"
-        assert error.error_code == "SWING_POINT_CALCULATION_ERROR"
-        assert error.window_size == 5
-        assert error.column_name == "mid_high"
-
-    def test_support_resistance_level_error(self):
-        """Teszteli a SupportResistanceLevelError létrehozását."""
-        error = SupportResistanceLevelError("Level calculation failed", "support", "rolling_mean")
-
-        assert str(error) == "Level calculation failed"
-        assert error.error_code == "SUPPORT_RESISTANCE_LEVEL_ERROR"
-        assert error.level_type == "support"
-        assert error.aggregation_method == "rolling_mean"
-
-    def test_timeframe_configuration_error(self):
-        """Teszteli a TimeframeConfigurationError létrehozását."""
-        error = TimeframeConfigurationError("Config invalid", "H4", "swing_window")
-
-        assert str(error) == "Config invalid"
-        assert error.error_code == "TIMEFRAME_CONFIGURATION_ERROR"
-        assert error.timeframe == "H4"
-        assert error.config_key == "swing_window"
-
-    def test_exception_inheritance(self):
-        """Teszteli, hogy az összes kivétel örökli a SupportError-t."""
-        swing_error = SwingPointCalculationError("test")
-        level_error = SupportResistanceLevelError("test")
-        config_error = TimeframeConfigurationError("test")
-
-        assert isinstance(swing_error, SupportError)
-        assert isinstance(level_error, SupportError)
-        assert isinstance(config_error, SupportError)
-
-
-==================================================
-FILE: tests/processors/dimensions/d02_support/test_factory.py
+FILE: tests/processors/dimensions/d02_support/test_d02_factory.py
 ==================================================
 """D02SupportFactory unit tesztek."""
 
@@ -48010,10 +48045,14 @@ class TestD02SupportFactory:
             "tick_volume",
             "spread",
             "real_volume",
-            "swing_high",
-            "swing_low",
-            "resistance",
-            "support",
+            "swing_high_body",
+            "swing_low_body",
+            "swing_high_wick",
+            "swing_low_wick",
+            "nearest_resistance",
+            "nearest_support",
+            "resistance_strength",
+            "support_strength",
         }
         assert set(result.columns) == expected_columns
 
@@ -48057,7 +48096,7 @@ class TestD02SupportFactory:
 
 
 ==================================================
-FILE: tests/processors/dimensions/d02_support/test_processor.py
+FILE: tests/processors/dimensions/d02_support/test_d02_processor.py
 ==================================================
 """D02SupportProcessor unit tesztek."""
 
@@ -48639,6 +48678,74 @@ class TestD02SupportProcessor:
 
         # touches >= min_touches és strength > 0.7, tehát strong
         assert len(result["resistance"]["strong"]) == 1
+
+
+==================================================
+FILE: tests/processors/dimensions/d02_support/test_exceptions.py
+==================================================
+"""D02Support kivételek unit tesztek."""
+
+from neural_ai.processors.dimensions.d02_support.exceptions.support_error import (
+    SupportError,
+    SupportResistanceLevelError,
+    SwingPointCalculationError,
+    TimeframeConfigurationError,
+)
+
+
+class TestSupportExceptions:
+    """Support kivételek unit teszt osztály."""
+
+    def test_support_error_creation(self):
+        """Teszteli a SupportError létrehozását."""
+        error = SupportError("Test error", "TEST_CODE")
+
+        assert str(error) == "Test error"
+        assert error.error_code == "TEST_CODE"
+
+    def test_support_error_without_code(self):
+        """Teszteli a SupportError létrehozását hibakód nélkül."""
+        error = SupportError("Test error")
+
+        assert str(error) == "Test error"
+        assert error.error_code is None
+
+    def test_swing_point_calculation_error(self):
+        """Teszteli a SwingPointCalculationError létrehozását."""
+        error = SwingPointCalculationError("Swing calculation failed", 5, "mid_high")
+
+        assert str(error) == "Swing calculation failed"
+        assert error.error_code == "SWING_POINT_CALCULATION_ERROR"
+        assert error.window_size == 5
+        assert error.column_name == "mid_high"
+
+    def test_support_resistance_level_error(self):
+        """Teszteli a SupportResistanceLevelError létrehozását."""
+        error = SupportResistanceLevelError("Level calculation failed", "support", "rolling_mean")
+
+        assert str(error) == "Level calculation failed"
+        assert error.error_code == "SUPPORT_RESISTANCE_LEVEL_ERROR"
+        assert error.level_type == "support"
+        assert error.aggregation_method == "rolling_mean"
+
+    def test_timeframe_configuration_error(self):
+        """Teszteli a TimeframeConfigurationError létrehozását."""
+        error = TimeframeConfigurationError("Config invalid", "H4", "swing_window")
+
+        assert str(error) == "Config invalid"
+        assert error.error_code == "TIMEFRAME_CONFIGURATION_ERROR"
+        assert error.timeframe == "H4"
+        assert error.config_key == "swing_window"
+
+    def test_exception_inheritance(self):
+        """Teszteli, hogy az összes kivétel örökli a SupportError-t."""
+        swing_error = SwingPointCalculationError("test")
+        level_error = SupportResistanceLevelError("test")
+        config_error = TimeframeConfigurationError("test")
+
+        assert isinstance(swing_error, SupportError)
+        assert isinstance(level_error, SupportError)
+        assert isinstance(config_error, SupportError)
 
 
 ==================================================
@@ -51411,7 +51518,7 @@ class TestStrategyLabPageSessionState:
         strategy_lab_page._candles = mock_df
         strategy_lab_module.st.session_state.price_type = "Bid"
 
-        with patch("streamlit.dataframe") as mock_dataframe:
+        with patch.object(strategy_lab_module.st, "dataframe") as mock_dataframe:
             strategy_lab_page._render_data_table()
 
             # Ellenőrizzük, hogy a megfelelő oszlopok kerültek megjelenítésre
@@ -51456,7 +51563,7 @@ class TestStrategyLabPageSessionState:
         strategy_lab_page._candles = mock_df
         strategy_lab_module.st.session_state.price_type = "Mid"
 
-        with patch("streamlit.dataframe") as mock_dataframe:
+        with patch.object(strategy_lab_module.st, "dataframe") as mock_dataframe:
             strategy_lab_page._render_data_table()
 
             # Ellenőrizzük, hogy a megfelelő oszlopok kerültek megjelenítésre
@@ -51472,19 +51579,19 @@ class TestStrategyLabPageSessionState:
             ]
             assert list(call_args.columns) == expected_cols
 
+    @patch.object(strategy_lab_module.st, "plotly_chart")
     @patch("plotly.graph_objects.Figure")
-    @patch("streamlit.plotly_chart")
     def test_render_candlestick_chart_with_bid_price_type(
         self,
-        mock_plotly_chart: MagicMock,
         mock_figure: MagicMock,
+        mock_plotly_chart: MagicMock,
         strategy_lab_page: StrategyLabPage,
     ) -> None:
         """Teszteli a candlestick chart renderelését Bid price type-pal.
 
         Args:
-            mock_plotly_chart: Mockolt plotly_chart.
             mock_figure: Mockolt Figure.
+            mock_plotly_chart: Mockolt plotly_chart.
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
@@ -51516,19 +51623,19 @@ class TestStrategyLabPageSessionState:
         candlestick_data = mock_fig_instance.data[0]
         assert hasattr(candlestick_data, "open")
 
+    @patch.object(strategy_lab_module.st, "plotly_chart")
     @patch("plotly.graph_objects.Figure")
-    @patch("streamlit.plotly_chart")
     def test_render_candlestick_chart_with_mid_price_type(
         self,
-        mock_plotly_chart: MagicMock,
         mock_figure: MagicMock,
+        mock_plotly_chart: MagicMock,
         strategy_lab_page: StrategyLabPage,
     ) -> None:
         """Teszteli a candlestick chart renderelését Mid price type-pal.
 
         Args:
-            mock_plotly_chart: Mockolt plotly_chart.
             mock_figure: Mockolt Figure.
+            mock_plotly_chart: Mockolt plotly_chart.
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
@@ -52384,6 +52491,7 @@ class TestStrategyService:
 
         # Mock Polars DataFrame
         mock_df = MagicMock()
+        mock_df.__len__ = Mock(return_value=1)
         mock_processed_df = MagicMock()
 
         # Mock processor
@@ -52434,6 +52542,7 @@ class TestStrategyService:
 
         # Mock Polars DataFrame-ok
         mock_candles_df = MagicMock()
+        mock_candles_df.__len__ = Mock(return_value=1)
         mock_processed_df = MagicMock()
 
         # Mock processor
