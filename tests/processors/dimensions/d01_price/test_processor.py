@@ -82,6 +82,7 @@ class TestD01PriceProcessor:
         expected_columns = {
             "timestamp",
             "bid_open", "bid_high", "bid_low", "bid_close",
+            "ask_open", "ask_high", "ask_low", "ask_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -135,6 +136,7 @@ class TestD01PriceProcessor:
         expected_columns = {
             "timestamp",
             "bid_open", "bid_high", "bid_low", "bid_close",
+            "ask_open", "ask_high", "ask_low", "ask_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -185,6 +187,7 @@ class TestD01PriceProcessor:
         expected_columns = {
             "timestamp",
             "bid_open", "bid_high", "bid_low", "bid_close",
+            "ask_open", "ask_high", "ask_low", "ask_close",
             "mid_open",
             "mid_high",
             "mid_low",
@@ -238,6 +241,7 @@ class TestD01PriceProcessor:
         expected_columns = {
             "timestamp",
             "bid_open", "bid_high", "bid_low", "bid_close",
+            "ask_open", "ask_high", "ask_low", "ask_close",
             "mid_open",
             "mid_high",
             "mid_low",

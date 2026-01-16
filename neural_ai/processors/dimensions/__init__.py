@@ -1,0 +1,1 @@
+"""Dimenzió processzorok csomagja."""

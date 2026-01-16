@@ -85,10 +85,14 @@ class TestD02SupportFactory:
             "tick_volume",
             "spread",
             "real_volume",
-            "swing_high",
-            "swing_low",
-            "resistance",
-            "support",
+            "swing_high_body",
+            "swing_low_body",
+            "swing_high_wick",
+            "swing_low_wick",
+            "nearest_resistance",
+            "nearest_support",
+            "resistance_strength",
+            "support_strength",
         }
         assert set(result.columns) == expected_columns
 

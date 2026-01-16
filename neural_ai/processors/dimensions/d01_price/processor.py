@@ -82,11 +82,42 @@ class D01PriceProcessor(BaseDimensionProcessor):
             upper_shadow = pl.lit(None).cast(pl.Float64)
             lower_shadow = pl.lit(None).cast(pl.Float64)
 
+        # Bid és ask adatok számítása spread alapján (ha nincs már bid)
+        if "bid_open" not in df.columns:
+            bid_open = pl.col("mid_open") - (pl.col("spread") / 2)
+            bid_high = pl.col("mid_high") - (pl.col("spread") / 2)
+            bid_low = pl.col("mid_low") - (pl.col("spread") / 2)
+            bid_close = pl.col("mid_close") - (pl.col("spread") / 2)
+        else:
+            bid_open = pl.col("bid_open")
+            bid_high = pl.col("bid_high")
+            bid_low = pl.col("bid_low")
+            bid_close = pl.col("bid_close")
+
+        if "ask_open" not in df.columns:
+            ask_open = pl.col("mid_open") + (pl.col("spread") / 2)
+            ask_high = pl.col("mid_high") + (pl.col("spread") / 2)
+            ask_low = pl.col("mid_low") + (pl.col("spread") / 2)
+            ask_close = pl.col("mid_close") + (pl.col("spread") / 2)
+        else:
+            ask_open = pl.col("ask_open")
+            ask_high = pl.col("ask_high")
+            ask_low = pl.col("ask_low")
+            ask_close = pl.col("ask_close")
+
         # Alap oszlopok kiválasztása
         columns = [
             "timestamp",
-            # Bid adatok (VISSZAPÓTOLVA)
-            "bid_open", "bid_high", "bid_low", "bid_close",
+            # Bid adatok
+            bid_open.alias("bid_open"),
+            bid_high.alias("bid_high"),
+            bid_low.alias("bid_low"),
+            bid_close.alias("bid_close"),
+            # Ask adatok
+            ask_open.alias("ask_open"),
+            ask_high.alias("ask_high"),
+            ask_low.alias("ask_low"),
+            ask_close.alias("ask_close"),
             # Mid adatok
             "mid_open", "mid_high", "mid_low", "mid_close",
             # Metadata

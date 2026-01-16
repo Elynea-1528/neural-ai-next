@@ -1,3 +1,5 @@
+"""Időszinkronizációs szolgáltatás implementáció."""
+
 import polars as pl
 
 from neural_ai.processors.interfaces.time_alignment_interface import ITimeAlignmentService

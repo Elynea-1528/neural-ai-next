@@ -1,9 +1,12 @@
 """ResamplerService implementáció - Tick adatokból OHLCV gyertyák létrehozása."""
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import polars as pl
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.processors.resampler_service.exceptions.resampler_error import (
@@ -43,7 +46,7 @@ class ResamplerService(ResamplerInterface):
         end: datetime,
         timeframe: str = "1m",
         return_type: str = "polars",
-    ) -> pl.DataFrame:
+    ) -> Union[pl.DataFrame, "pd.DataFrame"]:
         """Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
 
         Args:
@@ -54,7 +57,7 @@ class ResamplerService(ResamplerInterface):
             return_type: A visszaadott DataFrame típusa ('pandas' vagy 'polars')
 
         Returns:
-            pl.DataFrame: OHLCV gyertyákat tartalmazó Polars DataFrame
+            Union[pl.DataFrame, pd.DataFrame]: OHLCV gyertyákat tartalmazó DataFrame
 
         Raises:
             InvalidTimeframeError: Ha az időkeret érvénytelen
@@ -79,7 +82,19 @@ class ResamplerService(ResamplerInterface):
             ohlcv_data = self._convert_to_ohlcv(tick_data, timeframe)
 
             # Mindig Polars DataFrame visszaadása (Zero-Copy)
-            return ohlcv_data
+            # Return type kezelés
+            if return_type.lower() == "pandas":
+                # Konvertálás pandas-ra
+                import pandas as pd
+                return ohlcv_data.to_pandas().set_index("timestamp")
+            elif return_type.lower() == "polars":
+                return ohlcv_data
+            else:
+                raise ResamplingError(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    original_error=ValueError(f"Invalid return_type: {return_type}. Must be 'pandas' or 'polars'"),
+                )
         except Exception as e:
             raise ResamplingError(symbol=symbol, timeframe=timeframe, original_error=e) from e
 

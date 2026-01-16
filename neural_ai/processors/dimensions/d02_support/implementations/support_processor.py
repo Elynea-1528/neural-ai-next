@@ -92,23 +92,23 @@ class D02SupportProcessor(BaseDimensionProcessor):
         # Wick swing pontok számítása
         swing_high_wick = (
             pl.when(
-                pl.col("high")
-                == pl.col("high").rolling_max(
+                pl.col("mid_high")
+                == pl.col("mid_high").rolling_max(
                     window_size=min_candles, center=True
                 )
             )
-            .then(pl.col("high"))
+            .then(pl.col("mid_high"))
             .otherwise(None)
         )
 
         swing_low_wick = (
             pl.when(
-                pl.col("low")
-                == pl.col("low").rolling_min(
+                pl.col("mid_low")
+                == pl.col("mid_low").rolling_min(
                     window_size=min_candles, center=True
                 )
             )
-            .then(pl.col("low"))
+            .then(pl.col("mid_low"))
             .otherwise(None)
         )
 
@@ -403,31 +403,31 @@ class D02SupportProcessor(BaseDimensionProcessor):
         resistance_dict = {level["price"]: level["strength"] for level in resistance_levels}
 
         # Függvények nearest számításhoz
-        def find_nearest_support(close: float) -> tuple[float | None, float | None]:
-            candidates = [p for p in support_dict if p <= close]
+        def find_nearest_support(mid_close: float) -> tuple[float | None, float | None]:
+            candidates = [p for p in support_dict if p <= mid_close]
             if not candidates:
                 return None, None
             nearest_price = max(candidates)
             return nearest_price, support_dict[nearest_price]
 
-        def find_nearest_resistance(close: float) -> tuple[float | None, float | None]:
-            candidates = [p for p in resistance_dict if p >= close]
+        def find_nearest_resistance(mid_close: float) -> tuple[float | None, float | None]:
+            candidates = [p for p in resistance_dict if p >= mid_close]
             if not candidates:
                 return None, None
             nearest_price = min(candidates)
             return nearest_price, resistance_dict[nearest_price]
 
         # Oszlopok hozzáadása
-        nearest_support_expr = pl.col("close").map_elements(
+        nearest_support_expr = pl.col("mid_close").map_elements(
             lambda c: find_nearest_support(c)[0], return_dtype=pl.Float64
         ).alias("nearest_support")
-        support_strength_expr = pl.col("close").map_elements(
+        support_strength_expr = pl.col("mid_close").map_elements(
             lambda c: find_nearest_support(c)[1], return_dtype=pl.Float64
         ).alias("support_strength")
-        nearest_resistance_expr = pl.col("close").map_elements(
+        nearest_resistance_expr = pl.col("mid_close").map_elements(
             lambda c: find_nearest_resistance(c)[0], return_dtype=pl.Float64
         ).alias("nearest_resistance")
-        resistance_strength_expr = pl.col("close").map_elements(
+        resistance_strength_expr = pl.col("mid_close").map_elements(
             lambda c: find_nearest_resistance(c)[1], return_dtype=pl.Float64
         ).alias("resistance_strength")
 
