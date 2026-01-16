@@ -224,6 +224,19 @@ class TestHealthMonitorInterface:
         assert hasattr(monitor, 'register_component')
         assert hasattr(monitor, 'unregister_component')
 
+        # Hívjuk meg a metódusokat a coverage növeléséhez
+        health = monitor.check_health()
+        assert isinstance(health, SystemHealth)
+
+        component_health = monitor.check_component("test_component")
+        assert isinstance(component_health, ComponentHealth)
+
+        components = monitor.get_registered_components()
+        assert isinstance(components, list)
+
+        monitor.register_component("test_component")
+        monitor.unregister_component("test_component")
+
 
 class TestHealthCheckInterface:
     """HealthCheckInterface tesztek."""

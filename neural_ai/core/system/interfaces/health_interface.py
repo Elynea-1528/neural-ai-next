@@ -91,7 +91,7 @@ class HealthMonitorInterface(ABC):
         Returns:
             SystemHealth: A rendszer teljes egészségügyi állapota
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def check_component(self, component_name: str) -> ComponentHealth:
@@ -106,7 +106,7 @@ class HealthMonitorInterface(ABC):
         Raises:
             ValueError: Ha a komponens nem létezik
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def get_registered_components(self) -> list[str]:
@@ -115,7 +115,7 @@ class HealthMonitorInterface(ABC):
         Returns:
             list[str]: A monitorozott komponensek nevei
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def register_component(self, component_name: str) -> None:
@@ -124,7 +124,7 @@ class HealthMonitorInterface(ABC):
         Args:
             component_name: A komponens neve
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def unregister_component(self, component_name: str) -> None:
@@ -133,7 +133,7 @@ class HealthMonitorInterface(ABC):
         Args:
             component_name: A komponens neve
         """
-        pass
+        pass  # pragma: no cover
 
 
 class HealthCheckInterface(ABC):
@@ -150,7 +150,7 @@ class HealthCheckInterface(ABC):
         Returns:
             ComponentHealth: Az ellenőrzés eredménye
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def get_name(self) -> str:
@@ -159,4 +159,4 @@ class HealthCheckInterface(ABC):
         Returns:
             str: Az ellenőrzés neve
         """
-        pass
+        pass  # pragma: no cover
