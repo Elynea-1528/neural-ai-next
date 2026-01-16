@@ -6,7 +6,12 @@ különösen az adatbázis-alapú dinamikus konfigurációkezelőkhöz.
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    from neural_ai.core.logger.interfaces import LoggerInterface
 
 # Type alias a konfiguráció változásokat figyelő callback-ekhez
 ConfigListener = Callable[[str, Any], Awaitable[None]]
@@ -23,14 +28,14 @@ class AsyncConfigManagerInterface(ABC):
     def __init__(
         self,
         filename: str | None = None,
-        session: Any | None = None,
-        logger: Any | None = None,
+        session: "AsyncSession | None" = None,
+        logger: "LoggerInterface | None" = None,
     ) -> None:
         """Inicializálja az aszinkron konfigurációkezelőt.
 
         Args:
             filename: Konfigurációs fájl útvonala (opcionális, lehet None)
-            session: Adatbázis session (opcionális)
+            session: Adatbázis session interfész (opcionális)
             logger: Logger interfész (opcionális)
         """
 

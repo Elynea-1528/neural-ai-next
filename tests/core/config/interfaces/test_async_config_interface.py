@@ -139,8 +139,8 @@ class TestAsyncConfigManagerInterface:
         # __init__
         init_method = AsyncConfigManagerInterface.__init__
         assert init_method.__annotations__["filename"] == str | None
-        assert init_method.__annotations__["session"] == Any | None
-        assert init_method.__annotations__["logger"] == Any | None
+        assert init_method.__annotations__["session"] == "AsyncSession | None"
+        assert init_method.__annotations__["logger"] == "LoggerInterface | None"
         assert init_method.__annotations__["return"] is None
 
         # get
