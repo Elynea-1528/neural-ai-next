@@ -158,7 +158,7 @@ class PolarsBackend(StorageBackend):
                         pl_df = self._polars_wrapper.pl.DataFrame(data)
             except Exception as e:
                 logger.error(f"DataFrame conversion failed: {e}")
-                raise ValueError(f"Invalid DataFrame data: {e}")
+                raise ValueError(f"Invalid DataFrame data: {e}") from e
 
             # Írás particionálással vagy anélkül
             if partition_by:

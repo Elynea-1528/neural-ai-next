@@ -89,7 +89,7 @@ class TestParquetStorageService:
         """Teszteli a PolarsBackend kiválasztását AVX2 támogatással."""
         mock_hardware.has_avx2.return_value = True
 
-        with patch("neural_ai.data.storage.backends.polars_backend.PolarsBackend") :
+        with patch("neural_ai.data.storage.backends.polars_backend.PolarsBackend") as mock_backend:
             service = ParquetStorageService(
                 base_path=str(temp_dir),
                 hardware=mock_hardware,
@@ -104,7 +104,7 @@ class TestParquetStorageService:
         """Teszteli a PandasBackend kiválasztását AVX2 nélkül."""
         mock_hardware.has_avx2.return_value = False
 
-        with patch("neural_ai.data.storage.backends.pandas_backend.PandasBackend") :
+        with patch("neural_ai.data.storage.backends.pandas_backend.PandasBackend") as mock_backend:
             service = ParquetStorageService(
                 base_path=str(temp_dir),
                 hardware=mock_hardware,
@@ -159,13 +159,17 @@ class TestParquetStorageService:
         # Mock backend
         storage_service.backend.write = MagicMock()
 
-        await storage_service.store_tick_data("EURUSD", mock_df, date)
+        # Mock path.stat to avoid FileNotFoundError
+        with patch("pathlib.Path.stat") as mock_stat:
+            mock_stat.return_value = MagicMock(st_size=1024)
 
-        # Ellenőrzi hogy a backend.write meghívódott
-        storage_service.backend.write.assert_called_once()
+            await storage_service.store_tick_data("EURUSD", mock_df, date)
 
-        # Ellenőrzi a loggolást
-        mock_logger.info.assert_called()
+            # Ellenőrzi hogy a backend.write meghívódott
+            storage_service.backend.write.assert_called_once()
+
+            # Ellenőrzi a loggolást
+            mock_logger.info.assert_called()
 
     @pytest.mark.asyncio
     async def test_store_tick_data_empty_dataframe(self, storage_service):
@@ -223,9 +227,16 @@ class TestParquetStorageService:
         storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
         storage_service._filter_by_timestamp = MagicMock(return_value=mock_df)
 
-        result = await storage_service.read_tick_data("EURUSD", start_date, end_date)
+        with patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl, \
+             patch("neural_ai.data.storage.implementations.parquet_storage.pd") as mock_pd:
+            mock_pl.DataFrame.return_value = mock_df
+            mock_pd.DataFrame.return_value = mock_df
+            mock_pl.concat.return_value = mock_df
+            mock_pd.concat.return_value = mock_df
 
-        assert result == mock_df
+            result = await storage_service.read_tick_data("EURUSD", start_date, end_date)
+
+            assert result == mock_df
 
     @pytest.mark.asyncio
     async def test_get_available_dates(self, storage_service, temp_dir):
@@ -279,7 +290,14 @@ class TestParquetStorageService:
         storage_service._deduplicate_data = MagicMock(return_value=mock_df)
         storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
 
-        with patch.object(storage_service, "engine", "polars"):
+        with patch.object(storage_service, "engine", "polars"), \
+             patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl, \
+             patch("neural_ai.data.storage.implementations.parquet_storage.pd") as mock_pd:
+            mock_pl.DataFrame.return_value = mock_df
+            mock_pd.DataFrame.return_value = mock_df
+            mock_pl.concat.return_value = mock_df
+            mock_pd.concat.return_value = mock_df
+
             checksum = await storage_service.calculate_checksum("EURUSD", date)
 
             assert isinstance(checksum, str)
@@ -307,7 +325,13 @@ class TestParquetStorageService:
         storage_service._deduplicate_data = MagicMock(return_value=mock_df)
         storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
 
-        with patch.object(storage_service, "engine", "pandas"):
+        with patch.object(storage_service, "engine", "pandas"), \
+             patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl, \
+             patch("neural_ai.data.storage.implementations.parquet_storage.pd") as mock_pd:
+            mock_pl.DataFrame.return_value = mock_df
+            mock_pd.DataFrame.return_value = mock_df
+            mock_pl.concat.return_value = mock_df
+            mock_pd.concat.return_value = mock_df
             mock_df.is_monotonic_increasing = True
 
             result = await storage_service.verify_data_integrity("EURUSD", date)

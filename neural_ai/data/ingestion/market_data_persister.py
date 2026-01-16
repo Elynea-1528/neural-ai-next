@@ -140,7 +140,8 @@ class MarketDataPersister:
 
         if total_remaining > 0:
             self.logger.warning(
-                f"Buffer kiürítése után is maradt {total_remaining} event a bufferben! (Előtte: {sum(buffer_before.values())}, Utána: {total_remaining})"
+                f"Buffer kiürítése után is maradt {total_remaining} event a bufferben! "
+                f"(Előtte: {sum(buffer_before.values())}, Utána: {total_remaining})"
             )
         else:
             self.logger.info(
@@ -213,7 +214,8 @@ class MarketDataPersister:
                 if current_hour > self.current_hour:
                     # Új óra kezdődött, kiürítjük a buffert
                     self.logger.info(
-                        f"Új óra kezdődött, buffer kiürítése, old_hour={self.current_hour}, new_hour={current_hour}"
+                        f"Új óra kezdődött, buffer kiürítése, "
+                        f"old_hour={self.current_hour}, new_hour={current_hour}"
                     )
                     await self._flush_all_buffers()
                     self.current_hour = current_hour
@@ -309,14 +311,17 @@ class MarketDataPersister:
                 self.storage.save_dataframe(df, path, **kwargs)
 
             self.logger.info(
-                f"Tick adatok elmentve, symbol={symbol}, date={date.strftime('%Y-%m-%d')}, rows={len(events)}"
+                f"Tick adatok elmentve, symbol={symbol}, "
+                f"date={date.strftime('%Y-%m-%d')}, rows={len(events)}"
             )
 
         except Exception as e:
             import traceback
 
             self.logger.error(
-                f"Hiba az adatok mentésekor, symbol={symbol}, date={date.strftime('%Y-%m-%d')}, error={str(e)}, traceback={traceback.format_exc()}"
+                f"Hiba az adatok mentésekor, symbol={symbol}, "
+                f"date={date.strftime('%Y-%m-%d')}, error={str(e)}, "
+                f"traceback={traceback.format_exc()}"
             )
             raise
 
@@ -352,10 +357,10 @@ class MarketDataPersister:
 
                     return df
 
-                except ImportError:
+                except ImportError as err:
                     raise RuntimeError(
                         "Polars nincs telepítve, de a Polars backend van kiválasztva"
-                    )
+                    ) from err
             else:
                 # Ha Pandas backend-et használunk, akkor Pandas DataFrame-et hozunk létre
                 try:
@@ -375,12 +380,13 @@ class MarketDataPersister:
 
                     return df
 
-                except ImportError:
+                except ImportError as err:
                     raise RuntimeError(
                         "Pandas nincs telepítve, de a Pandas backend van kiválasztva"
-                    )
+                    ) from err
         else:
-            # Ha nem ParquetStorageService-t használunk, akkor alapértelmezésként Pandas-t használunk
+            # Ha nem ParquetStorageService-t használunk, akkor
+            # alapértelmezésként Pandas-t használunk
             try:
                 import pandas as pd
 
@@ -417,5 +423,5 @@ class MarketDataPersister:
 
                     return df
 
-                except ImportError:
-                    raise RuntimeError("Sem pandas, sem polars nincs telepítve")
+                except ImportError as err:
+                    raise RuntimeError("Sem pandas, sem polars nincs telepítve") from err

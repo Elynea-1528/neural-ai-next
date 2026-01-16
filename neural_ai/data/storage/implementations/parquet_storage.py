@@ -133,7 +133,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 self.logger.debug(log_msg)
             else:
                 logger.info(log_msg)
-            logger.warning("Legacy CPU detected. Running in Compatibility Mode with PandasBackend.")
+            # DEBUG log a backend kiválasztáshoz
+            log_msg = "Legacy CPU detected. Running in Compatibility Mode with PandasBackend."
+            if self.logger:
+                self.logger.warning(log_msg)
+            else:
+                logger.warning(log_msg)
 
     def _get_path(self, symbol: str, date: datetime, unique_id: str | None = None) -> Path:
         """Elérési út generálása a megadott szimbólumhoz és dátumhoz.
