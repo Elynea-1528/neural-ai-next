@@ -75,6 +75,7 @@ class TestMarketDataPersisterStartStop:
     async def test_start_success(self) -> None:
         """Teszteli a sikeres indítást."""
         mock_event_bus = MagicMock()
+        mock_event_bus.run_forever = AsyncMock()
         mock_storage = MagicMock()
         mock_logger = MagicMock()
 
@@ -641,6 +642,7 @@ class TestMarketDataPersisterIntegration:
     async def test_full_workflow(self) -> None:
         """Teszteli a teljes munkafolyamatot."""
         mock_event_bus = MagicMock()
+        mock_event_bus.run_forever = AsyncMock()
         mock_storage = AsyncMock()
 
         persister = MarketDataPersister(

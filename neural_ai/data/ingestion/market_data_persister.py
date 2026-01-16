@@ -399,4 +399,23 @@ class MarketDataPersister:
                 return df
 
             except ImportError:
-                raise RuntimeError("Pandas nincs telepítve")
+                # Ha pandas nincs, próbáljuk polars-t
+                try:
+                    import polars as pl
+
+                    data: dict[str, list[Any]] = {
+                        "timestamp": [e.timestamp for e in events],
+                        "bid": [e.bid for e in events],
+                        "ask": [e.ask for e in events],
+                        "ask_volume": [e.ask_volume for e in events],
+                        "bid_volume": [e.bid_volume for e in events],
+                        "source": [e.source for e in events],
+                    }
+
+                    df = pl.DataFrame(data)
+                    df = df.sort("timestamp")
+
+                    return df
+
+                except ImportError:
+                    raise RuntimeError("Sem pandas, sem polars nincs telepítve")
