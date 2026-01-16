@@ -54,17 +54,17 @@ class EventBusInterface(ABC):
         Returns:
             Az EventBus konfigurációja
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def start(self) -> None:
         """Elindítja az EventBus-t és létrehozza a socketeket."""
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def stop(self) -> None:
         """Leállítja az EventBus-t és felszabadítja az erőforrásokat."""
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def publish(self, event_type: str, event: "BaseModel") -> None:
@@ -78,7 +78,7 @@ class EventBusInterface(ABC):
             EventBusError: Ha az EventBus nincs elindítva
             PublishError: Ha a publisher socket nincs inicializálva
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def subscribe(self, event_type: str, callback: EventCallback) -> None:
@@ -91,7 +91,7 @@ class EventBusInterface(ABC):
         Note:
             A callback-nek aszinkronnak kell lennie (async def)
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     def unsubscribe(self, event_type: str, callback: EventCallback) -> None:
@@ -101,7 +101,7 @@ class EventBusInterface(ABC):
             event_type: Az esemény típusa
             callback: A callback függvény, amelyet eltávolítunk
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def run_forever(self) -> None:
@@ -113,4 +113,4 @@ class EventBusInterface(ABC):
         Note:
             Ez egy blokkoló metódus, csak teszteléshez vagy külön task-ként használd
         """
-        pass
+        pass  # pragma: no cover
