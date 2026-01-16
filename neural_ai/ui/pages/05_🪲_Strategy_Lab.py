@@ -381,25 +381,11 @@ class StrategyLabPage(PageInterface):
             st.session_state.show_body_swings or st.session_state.show_wick_swings
         ) and st.session_state.d2_analysis is not None:
             # Adat-összefésülés: D2 adatok konvertálása és összefésülése
-            d2_df = (
-                st.session_state.d2_analysis.to_pandas()
-                if hasattr(st.session_state.d2_analysis, "to_pandas")
-                else st.session_state.d2_analysis
-            )
-
-            # Reset index mindkét DataFrame-en a biztos összhangért
-            d2_df = d2_df.reset_index(drop=True)
-
-            # Swing oszlopok átmásolása a rajzoló DataFrame-be
-            cols_to_copy = [
-                "swing_high_body",
-                "swing_low_body",
-                "swing_high_wick",
-                "swing_low_wick",
-            ]
-            for col in cols_to_copy:
-                if col in d2_df.columns:
-                    df_plot[col] = d2_df[col]
+            if st.session_state.d2_analysis is not None:
+                d2_pd = st.session_state.d2_analysis.to_pandas()
+                # Biztosítsd, hogy a dátum oszlop neve egyezzen
+                # Merge left join-nal (hogy a chart adatok megmaradjanak)
+                df_plot = pd.merge(df_plot, d2_pd[['timestamp', 'swing_high_body', 'swing_low_body', 'swing_high_wick', 'swing_low_wick']], left_on='date', right_on='timestamp', how='left')
 
             # Body swings kirajzolása egyszerű szűréssel
             if st.session_state.show_body_swings:

@@ -93,27 +93,15 @@ amelyek strukturált eredményeket adnak vissza a további feldolgozáshoz vagy 
 
 ### Visszatérési értékek
 ```python
-{
-    'weight': float,
-    'support_levels': List[Dict],  # Support szintek és erősségük
-    'resistance_levels': List[Dict],  # Resistance szintek és erősségük
-    'swing_points': {
-        'swing_highs': numpy.ndarray,  # Boolean maszk
-        'swing_lows': numpy.ndarray    # Boolean maszk
-    },
-    'zones': {
-        'support': {
-            'strong': List[Dict],    # Erős support szintek
-            'moderate': List[Dict],  # Közepes support szintek
-            'weak': List[Dict]       # Gyenge support szintek
-        },
-        'resistance': {
-            'strong': List[Dict],    # Erős resistance szintek
-            'moderate': List[Dict],  # Közepes resistance szintek
-            'weak': List[Dict]       # Gyenge resistance szintek
-        }
-    }
-}
+pl.DataFrame oszlopokkal:
+- swing_high_body: float | None  # Test alapú swing high pontok
+- swing_low_body: float | None   # Test alapú swing low pontok
+- swing_high_wick: float | None  # Wick alapú swing high pontok
+- swing_low_wick: float | None   # Wick alapú swing low pontok
+- nearest_support: float | None   # Legközelebbi support szint
+- nearest_resistance: float | None  # Legközelebbi resistance szint
+- support_strength: float | None   # Support szint erőssége (0-1)
+- resistance_strength: float | None  # Resistance szint erőssége (0-1)
 ```
 
 ## D3 - Trend komponensek

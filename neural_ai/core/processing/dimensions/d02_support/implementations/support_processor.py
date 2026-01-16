@@ -27,6 +27,11 @@ class D02SupportProcessor(BaseDimensionProcessor):
         """
         super().__init__(config, logger)
 
+        # Config validáció
+        if "swing_window" not in self.dim_config:
+            self.logger.error("swing_window paraméter hiányzik a configból, default 5 használata")
+            self.dim_config["swing_window"] = 5
+
     def _find_swing_points_close_open(self, df: pl.DataFrame) -> pl.DataFrame:
         """Swing pontok keresése záró/nyitó árak alapján.
 
@@ -128,9 +133,17 @@ class D02SupportProcessor(BaseDimensionProcessor):
         if df.is_empty():
             return df
 
+        if df.height > 5000:
+            self.logger.warning(
+                "Too many swing points for heavy clustering, skipping merge optimization"
+            )
+            return df
+
         level_merge = self.dim_config.get("level_merge")
         if level_merge is None:
-            self.logger.warning("level_merge paraméter hiányzik a configból, default 0.0005 használata")
+            self.logger.warning(
+                "level_merge paraméter hiányzik a configból, default 0.0005 használata"
+            )
             level_merge = 0.0005
         threshold = cast(float, level_merge)
 
@@ -193,7 +206,9 @@ class D02SupportProcessor(BaseDimensionProcessor):
         base_weight = 0.1
         strength_window = self.dim_config.get("strength_window")
         if strength_window is None:
-            self.logger.warning("strength_window paraméter hiányzik a configból, default 10 használata")
+            self.logger.warning(
+                "strength_window paraméter hiányzik a configból, default 10 használata"
+            )
             strength_window = 10
         strength_window = cast(int, strength_window)
         # Használjuk a strength_window-t base_weight módosítására
@@ -280,7 +295,9 @@ class D02SupportProcessor(BaseDimensionProcessor):
         """
         volume_confirmation = self.dim_config.get("volume_confirmation")
         if volume_confirmation is None:
-            self.logger.warning("volume_confirmation paraméter hiányzik a configból, default False használata")
+            self.logger.warning(
+                "volume_confirmation paraméter hiányzik a configból, default False használata"
+            )
             volume_confirmation = False
         volume_confirmation = cast(bool, volume_confirmation)
         if not volume_confirmation:
