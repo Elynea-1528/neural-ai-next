@@ -34,7 +34,7 @@ from neural_ai.core import bootstrap_core
 
 if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 async def download_historical_data(symbol: str, start_date: datetime, end_date: datetime) -> None:

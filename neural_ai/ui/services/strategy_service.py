@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.processing.resampler_service.interfaces.resampler_interface import (
+    from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
         ResamplerInterface,
     )
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
@@ -265,7 +265,7 @@ class StrategyService(StrategyServiceInterface):
             pl.DataFrame: A resample-ölt OHLCV gyertyák DataFrame-ben
         """
         # ResamplerService példányosítása Factory-n keresztül
-        from neural_ai.core.processing.resampler_service.factory import (
+        from neural_ai.processors.processing.resampler_service.factory import (
             ResamplerServiceFactory,
         )
 
@@ -515,7 +515,7 @@ class StrategyService(StrategyServiceInterface):
         logger.info(f"D2 elemzés indítása: {symbol} {timeframe}")
 
         # 3. D2 processor létrehozása Factory-n keresztül
-        from neural_ai.core.processing.factory import create_dimension_processor
+        from neural_ai.processors.processing.factory import create_dimension_processor
 
         processor = create_dimension_processor(dimension_id=2, config=config, logger=logger)
 

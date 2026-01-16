@@ -16,7 +16,7 @@ import polars as pl
 from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
 
 if TYPE_CHECKING:
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 
 
@@ -334,7 +334,7 @@ class DataService(DataServiceInterface):
                 raise RuntimeError("A ParquetStorage komponens nem érhető el a mentéshez")
 
             # Típus ellenőrzés (futási időben)
-            from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+            from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
             if not isinstance(storage, StorageInterface):
                 raise RuntimeError("A storage komponens nem implementálja a StorageInterface-t")
@@ -569,7 +569,7 @@ class DataService(DataServiceInterface):
             raise RuntimeError("A ParquetStorage komponens nem érhető el")
 
         # Típus ellenőrzés
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         if not isinstance(storage, StorageInterface):
             raise RuntimeError("A komponens nem implementálja a StorageInterface-t")
@@ -675,7 +675,7 @@ class DataService(DataServiceInterface):
             raise RuntimeError("A ParquetStorage komponens nem érhető el")
 
         # Típus ellenőrzés
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         if not isinstance(storage, StorageInterface):
             raise RuntimeError("A komponens nem implementálja a StorageInterface-t")

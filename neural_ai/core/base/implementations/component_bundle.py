@@ -14,9 +14,9 @@ if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
-    from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
+    from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 T = TypeVar("T")
@@ -76,7 +76,7 @@ class CoreComponents:
         """
         from typing import cast
 
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         result = self._container.resolve(StorageInterface)
         return cast(Optional["StorageInterface"], result)
@@ -132,7 +132,7 @@ class CoreComponents:
         """
         from typing import cast
 
-        from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
+        from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
 
         result = self._container.resolve(MarketDataPersister)
         return cast(Optional["MarketDataPersister"], result)
@@ -191,7 +191,7 @@ class CoreComponents:
         Args:
             storage: A tároló implementáció példánya.
         """
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         self._container.register_instance(StorageInterface, storage)
 
@@ -231,7 +231,7 @@ class CoreComponents:
         Args:
             persister: A market data persister implementáció példánya.
         """
-        from neural_ai.core.ingestion.market_data_persister import MarketDataPersister
+        from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
 
         self._container.register_instance(MarketDataPersister, persister)
 

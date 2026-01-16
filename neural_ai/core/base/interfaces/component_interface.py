@@ -11,7 +11,7 @@ from neural_ai.core.base.interfaces.container_interface import DIContainerInterf
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 class CoreComponentsInterface(ABC):

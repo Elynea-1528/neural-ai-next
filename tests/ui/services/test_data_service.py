@@ -102,7 +102,7 @@ class TestDataService(unittest.TestCase):
     @patch("asyncio.run")
     def test_list_available_data(self, mock_run: MagicMock) -> None:
         """Teszteli az elérhető adatok listázását (csak tick_data)."""
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         mock_storage = Mock(spec=StorageInterface)
         mock_storage.get_storage_stats = Mock(
@@ -131,7 +131,7 @@ class TestDataService(unittest.TestCase):
     @patch("asyncio.run")
     def test_list_available_data_with_symbol(self, mock_run: MagicMock) -> None:
         """Teszteli az elérhető adatok listázását egyedi szimbólummal."""
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         mock_storage = Mock(spec=StorageInterface)
         mock_storage.get_storage_stats = Mock(
@@ -158,7 +158,7 @@ class TestDataService(unittest.TestCase):
     @patch("asyncio.run")
     def test_list_available_data_no_files(self, mock_run: MagicMock) -> None:
         """Teszteli az elérhető adatok listázását, ha nincs fájl."""
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         mock_storage = Mock(spec=StorageInterface)
         mock_storage.get_storage_stats = Mock(
@@ -182,7 +182,7 @@ class TestDataService(unittest.TestCase):
 
     def test_get_storage_path(self) -> None:
         """Teszteli a tárolási útvonal lekérdezését."""
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         mock_storage = Mock(spec=StorageInterface)
         mock_storage.BASE_PATH = "/data/tick"
@@ -194,7 +194,7 @@ class TestDataService(unittest.TestCase):
 
     def test_get_storage_path_default(self) -> None:
         """Teszteli az alapértelmezett tárolási útvonal lekérdezését."""
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         mock_storage = Mock(spec=StorageInterface)
         del mock_storage.BASE_PATH

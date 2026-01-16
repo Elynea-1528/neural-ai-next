@@ -67,7 +67,7 @@ class ResamplingDemo:
         print(f"{Fore.GREEN}   - Storage: {self.storage.__class__.__name__}")
 
         # Type cast to access backend-specific attributes
-        from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
+        from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
 
         if isinstance(self.storage, ParquetStorageService):
             print(f"{Fore.GREEN}   - Backend: {self.storage.backend.name}\n")
@@ -90,7 +90,7 @@ class ResamplingDemo:
             print(f"{Fore.YELLOW}🔍 1. FÁZIS: DÁTUMOK FELFEDEZÉSE")
             print(f"{Fore.YELLOW}{'─' * 80}{Style.RESET_ALL}\n")
 
-            from neural_ai.core.storage.implementations.parquet_storage import ParquetStorageService
+            from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
 
             storage = cast(ParquetStorageService, self.storage)
 

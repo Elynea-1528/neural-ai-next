@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
     from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 

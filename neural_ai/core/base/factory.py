@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 class CoreComponentFactory(metaclass=SingletonMeta):
@@ -80,7 +80,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
     def _get_storage(self) -> "StorageInterface":
         """Lazy loadinggel tölti be a storage komponenst."""
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         storage = self._container.resolve(StorageInterface)
         if storage is not None:
@@ -227,8 +227,8 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-        from neural_ai.core.storage.implementations.file_storage import FileStorage
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.implementations.file_storage import FileStorage
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         container = DIContainer()
 
@@ -301,8 +301,8 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-        from neural_ai.core.storage.implementations.file_storage import FileStorage
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.implementations.file_storage import FileStorage
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         config = None
         log_config: dict[str, Any] = {}
@@ -413,6 +413,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("storage", config)
 
         # Create storage instance
-        from neural_ai.core.storage.implementations.file_storage import FileStorage
+        from neural_ai.data.storage.implementations.file_storage import FileStorage
 
         return FileStorage(base_path=base_directory)

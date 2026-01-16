@@ -72,7 +72,7 @@ class TestBootstrapCore:
     @patch("neural_ai.core.config.factory.ConfigManagerFactory")
     @patch("neural_ai.core.events.factory.EventBusFactory")
     @patch("neural_ai.core.logger.factory.LoggerFactory")
-    @patch("neural_ai.core.storage.factory.StorageFactory")
+    @patch("neural_ai.data.storage.factory.StorageFactory")
     @patch("neural_ai.core.system.factory.SystemComponentFactory")
     @patch("neural_ai.core.utils.factory.HardwareFactory")
     def test_bootstrap_core_success(
@@ -111,7 +111,7 @@ class TestBootstrapCore:
     @patch("neural_ai.core.config.factory.ConfigManagerFactory")
     @patch("neural_ai.core.logger.factory.LoggerFactory")
     @patch("neural_ai.core.events.factory.EventBusFactory")
-    @patch("neural_ai.core.storage.factory.StorageFactory")
+    @patch("neural_ai.data.storage.factory.StorageFactory")
     @patch("neural_ai.core.system.factory.SystemComponentFactory")
     @patch("neural_ai.core.utils.factory.HardwareFactory")
     def test_bootstrap_core_with_custom_config(
@@ -158,7 +158,7 @@ class TestBootstrapCore:
                 with patch("neural_ai.core.logger.factory.LoggerFactory") as mock_log_fact:
                     with patch("neural_ai.core.events.factory.EventBusFactory") as mock_evt_fact:
                         with patch(
-                            "neural_ai.core.storage.factory.StorageFactory"
+                            "neural_ai.data.storage.factory.StorageFactory"
                         ) as mock_stor_fact:
                             with patch(
                                 "neural_ai.core.system.factory.SystemComponentFactory"
@@ -186,7 +186,7 @@ class TestBootstrapCore:
     @patch("neural_ai.core.config.factory.ConfigManagerFactory")
     @patch("neural_ai.core.events.factory.EventBusFactory")
     @patch("neural_ai.core.logger.factory.LoggerFactory")
-    @patch("neural_ai.core.storage.factory.StorageFactory")
+    @patch("neural_ai.data.storage.factory.StorageFactory")
     @patch("neural_ai.core.system.factory.SystemComponentFactory")
     @patch("neural_ai.core.utils.factory.HardwareFactory")
     @patch("neural_ai.collectors.jforex.factory.JForexFactory")
@@ -244,7 +244,7 @@ class TestBootstrapCore:
     @patch("neural_ai.core.config.factory.ConfigManagerFactory")
     @patch("neural_ai.core.events.factory.EventBusFactory")
     @patch("neural_ai.core.logger.factory.LoggerFactory")
-    @patch("neural_ai.core.storage.factory.StorageFactory")
+    @patch("neural_ai.data.storage.factory.StorageFactory")
     @patch("neural_ai.core.system.factory.SystemComponentFactory")
     @patch("neural_ai.core.utils.factory.HardwareFactory")
     def test_bootstrap_core_with_jforex_disabled(

@@ -146,7 +146,7 @@ class TestCoreComponentFactory:
 
     @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
     @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
-    @patch("neural_ai.core.storage.implementations.file_storage.FileStorage")
+    @patch("neural_ai.data.storage.implementations.file_storage.FileStorage")
     def test_create_components_with_all_paths(
         self, mock_file_storage: MagicMock, mock_get_logger: MagicMock, mock_get_manager: MagicMock
     ) -> None:
@@ -354,7 +354,7 @@ class TestCoreComponentFactory:
         """Teszteli a _get_storage metódust regisztrált storagel (87-88. sorok)."""
         from unittest.mock import MagicMock, patch
 
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         container: DIContainer = DIContainer()
         factory: CoreComponentFactory = CoreComponentFactory(container)
@@ -379,7 +379,7 @@ class TestCoreComponentFactory:
         from unittest.mock import MagicMock, patch
 
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         container: DIContainer = DIContainer()
 
@@ -438,7 +438,7 @@ class TestCoreComponentFactory:
         from unittest.mock import MagicMock, patch
 
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.storage.interfaces.storage_interface import StorageInterface
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         container: DIContainer = DIContainer()
 
