@@ -75,7 +75,7 @@ class TestParquetStorageService:
     async def test_initialization_without_hardware_and_logger(self, temp_dir):
         """Teszteli az inicializációt factory-k használatával."""
         with patch(
-            "neural_ai.data.storage.implementations.parquet_storage.HardwareFactory"
+            "neural_ai.core.utils.factory.HardwareFactory"
         ) as mock_factory:
             mock_factory.get_hardware_interface.return_value = MagicMock()
             mock_factory.get_hardware_interface.return_value.has_avx2.return_value = False
@@ -89,7 +89,7 @@ class TestParquetStorageService:
         """Teszteli a PolarsBackend kiválasztását AVX2 támogatással."""
         mock_hardware.has_avx2.return_value = True
 
-        with patch("neural_ai.data.storage.backends.polars_backend.PolarsBackend") as mock_backend:
+        with patch("neural_ai.data.storage.backends.polars_backend.PolarsBackend") :
             service = ParquetStorageService(
                 base_path=str(temp_dir),
                 hardware=mock_hardware,
@@ -104,7 +104,7 @@ class TestParquetStorageService:
         """Teszteli a PandasBackend kiválasztását AVX2 nélkül."""
         mock_hardware.has_avx2.return_value = False
 
-        with patch("neural_ai.data.storage.backends.pandas_backend.PandasBackend") as mock_backend:
+        with patch("neural_ai.data.storage.backends.pandas_backend.PandasBackend") :
             service = ParquetStorageService(
                 base_path=str(temp_dir),
                 hardware=mock_hardware,
