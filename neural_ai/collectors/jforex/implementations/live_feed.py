@@ -209,7 +209,8 @@ class JForexLiveFeed(ILiveFeed):
         Az ask_volume és bid_volume mezőket kiolvassa a JSON-ből és hozzáadja az event-hez.
 
         Args:
-            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float, ask_volume/bid_volume float)
+            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float,
+                ask_volume/bid_volume float)
         """
         try:
             # Timestamp konverziója ms-ből datetime objektummá
@@ -220,15 +221,15 @@ class JForexLiveFeed(ILiveFeed):
                 timestamp = datetime.now(UTC)
 
             # Volume értékek kiolvasása
-            ask_vol = float(data.get("ask_volume", 0.0))
-            bid_vol = float(data.get("bid_volume", 0.0))
+            ask_vol = cast(float, data.get("ask_volume", 0.0))
+            bid_vol = cast(float, data.get("bid_volume", 0.0))
 
             # MarketDataEvent létrehozása
             event = MarketDataEvent(
                 symbol=str(data.get("symbol", "")),
                 timestamp=timestamp,
-                bid=float(data.get("bid", 0.0)),
-                ask=float(data.get("ask", 0.0)),
+                bid=cast(float, data.get("bid", 0.0)),
+                ask=cast(float, data.get("ask", 0.0)),
                 volume=(ask_vol + bid_vol) if (ask_vol or bid_vol) else None,
                 ask_volume=ask_vol,
                 bid_volume=bid_vol,

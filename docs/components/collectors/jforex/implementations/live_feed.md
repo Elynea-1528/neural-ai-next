@@ -77,7 +77,8 @@ Feldolgozza a tick adatokat és publikálja az EventBus-on.
         Az ask_volume és bid_volume mezőket kiolvassa a JSON-ből és hozzáadja az event-hez.
 
         Args:
-            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float, ask_volume/bid_volume float)
+            data: A tick adatok dictionary-ben (timestamp ms-ban, bid/ask float,
+                ask_volume/bid_volume float)
 
 
 ---
