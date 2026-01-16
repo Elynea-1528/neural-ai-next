@@ -78,7 +78,7 @@ class SingletonMeta(ABCMeta):
 
             # 2. DI Container követelmény: _instance class variable
             # (Bár a dict-ben tároljuk, a DI ellenőrzés ezt is keresi)
-            cls._instance = instance  # type: ignore
+            cls._instance = instance
 
             cls._instances[cls] = instance  # type: ignore[attr-defined]
         return cast(T, cls._instances[cls])  # type: ignore[attr-defined]
