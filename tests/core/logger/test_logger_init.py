@@ -1,5 +1,7 @@
 """Logger __init__.py export tesztjei."""
 
+from unittest.mock import patch
+
 from neural_ai.core.logger import (
     ColoredLogger,
     DefaultLogger,
@@ -135,3 +137,27 @@ class TestLoggerInitExports:
                 module = importlib.import_module("neural_ai.core.logger")
                 export = getattr(module, export_name)
                 assert export is not None
+
+    @patch('importlib.metadata.version')
+    def test_version_fallback_on_package_not_found(self, mock_version) -> None:
+        """Teszteli a fallback mechanizmust, ha a csomag nincs telepítve."""
+        from importlib.metadata import PackageNotFoundError
+
+        mock_version.side_effect = PackageNotFoundError("No package found")
+
+        import sys
+
+        original = sys.modules.get('neural_ai.core.logger')
+
+        try:
+            if 'neural_ai.core.logger' in sys.modules:
+                del sys.modules['neural_ai.core.logger']
+
+            import neural_ai.core.logger as reloaded_logger
+
+            assert reloaded_logger.__version__ == "1.0.0"
+            assert isinstance(reloaded_logger.__version__, str)
+
+        finally:
+            if original is not None:
+                sys.modules['neural_ai.core.logger'] = original
