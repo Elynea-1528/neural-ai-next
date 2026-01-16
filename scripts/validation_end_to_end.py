@@ -33,7 +33,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from neural_ai.ui.core_bridge import CoreBridge
 
 if TYPE_CHECKING:
-    from pandas import DataFrame
+    pass
 
 
 def download_data() -> bool:

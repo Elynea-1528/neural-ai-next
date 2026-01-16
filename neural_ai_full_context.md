@@ -1,5 +1,5 @@
 # NEURAL AI NEXT CONTEXT (FULL)
-*Generated: 2026-01-16 13:36:29*
+*Generated: 2026-01-16 14:02:21*
 
 ## `FILE: .vscode/settings.json`
 
@@ -21249,7 +21249,7 @@ class HardwareInterface(ABC):
 
 ```
 
-## `FILE: neural_ai/processors/processing/__init__.py`
+## `FILE: neural_ai/processors/__init__.py`
 
 ```py
 """Processing modul.
@@ -21258,7 +21258,7 @@ Ez a modul felelős az adatfeldolgozási és átalakítási szolgáltatásokért
 beleértve a resampling, aggregáció és egyéb adatmanipulációs műveleteket.
 """
 
-from neural_ai.processors.processing.resampler_service import ResamplerServiceFactory
+from neural_ai.processors.resampler_service import ResamplerServiceFactory
 
 __all__ = [
     "ResamplerServiceFactory",
@@ -21266,13 +21266,13 @@ __all__ = [
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/__init__.py`
+## `FILE: neural_ai/processors/dimensions/__init__.py`
 
 ```py
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/base.py`
+## `FILE: neural_ai/processors/dimensions/base.py`
 
 ```py
 """BaseDimensionProcessor - Absztrakt alap osztály minden dimenzió processzor számára."""
@@ -21280,7 +21280,7 @@ __all__ = [
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from neural_ai.processors.processing.interfaces.dimension_processor_interface import (
+from neural_ai.processors.interfaces.dimension_processor_interface import (
     IDimensionProcessor,
 )
 
@@ -21328,13 +21328,13 @@ class BaseDimensionProcessor(IDimensionProcessor, ABC):
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/d01_price/__init__.py`
+## `FILE: neural_ai/processors/dimensions/d01_price/__init__.py`
 
 ```py
 """D01 Price Dimension Processzor modul."""
 
-from neural_ai.processors.processing.dimensions.d01_price.factory import D01PriceFactory
-from neural_ai.processors.processing.interfaces.dimension_processor_interface import (
+from neural_ai.processors.dimensions.d01_price.factory import D01PriceFactory
+from neural_ai.processors.interfaces.dimension_processor_interface import (
     IDimensionProcessor,
 )
 
@@ -21342,15 +21342,15 @@ __all__ = ["D01PriceFactory", "IDimensionProcessor"]
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/d01_price/factory.py`
+## `FILE: neural_ai/processors/dimensions/d01_price/factory.py`
 
 ```py
 """D01PriceProcessor Factory - Az alap adatok processzor létrehozásáért felelős."""
 
 from typing import TYPE_CHECKING
 
-from neural_ai.processors.processing.dimensions.d01_price.processor import D01PriceProcessor
-from neural_ai.processors.processing.interfaces.dimension_processor_interface import (
+from neural_ai.processors.dimensions.d01_price.processor import D01PriceProcessor
+from neural_ai.processors.interfaces.dimension_processor_interface import (
     IDimensionProcessor,
 )
 
@@ -21377,7 +21377,7 @@ class D01PriceFactory:
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/d01_price/processor.py`
+## `FILE: neural_ai/processors/dimensions/d01_price/processor.py`
 
 ```py
 """D01PriceProcessor - Alap adatok processzor."""
@@ -21386,7 +21386,7 @@ from typing import TYPE_CHECKING
 
 import polars as pl
 
-from neural_ai.processors.processing.dimensions.base import BaseDimensionProcessor
+from neural_ai.processors.dimensions.base import BaseDimensionProcessor
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -21499,13 +21499,13 @@ class D01PriceProcessor(BaseDimensionProcessor):
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/d02_support/__init__.py`
+## `FILE: neural_ai/processors/dimensions/d02_support/__init__.py`
 
 ```py
 """D02 Support/Resistance Dimension Processzor modul."""
 
-from neural_ai.processors.processing.dimensions.d02_support.factory import D02SupportFactory
-from neural_ai.processors.processing.interfaces.dimension_processor_interface import (
+from neural_ai.processors.dimensions.d02_support.factory import D02SupportFactory
+from neural_ai.processors.interfaces.dimension_processor_interface import (
     IDimensionProcessor,
 )
 
@@ -21513,18 +21513,18 @@ __all__ = ["D02SupportFactory", "IDimensionProcessor"]
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/d02_support/exceptions/__init__.py`
+## `FILE: neural_ai/processors/dimensions/d02_support/exceptions/__init__.py`
 
 ```py
 """D02 Support/Resistance kivételek."""
 
-from neural_ai.processors.processing.dimensions.d02_support.exceptions.support_error import SupportError
+from neural_ai.processors.dimensions.d02_support.exceptions.support_error import SupportError
 
 __all__ = ["SupportError"]
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/d02_support/exceptions/support_error.py`
+## `FILE: neural_ai/processors/dimensions/d02_support/exceptions/support_error.py`
 
 ```py
 """Kivételek a D02 Support/Resistance processzor modulhoz.
@@ -21638,17 +21638,17 @@ class TimeframeConfigurationError(SupportError):
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/d02_support/factory.py`
+## `FILE: neural_ai/processors/dimensions/d02_support/factory.py`
 
 ```py
 """D02SupportProcessor Factory - A Support/Resistance processzor létrehozásáért felelős."""
 
 from typing import TYPE_CHECKING
 
-from neural_ai.processors.processing.dimensions.d02_support.implementations.support_processor import (
+from neural_ai.processors.dimensions.d02_support.implementations.support_processor import (
     D02SupportProcessor,
 )
-from neural_ai.processors.processing.interfaces.dimension_processor_interface import (
+from neural_ai.processors.interfaces.dimension_processor_interface import (
     IDimensionProcessor,
 )
 
@@ -21675,14 +21675,14 @@ class D02SupportFactory:
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/d02_support/implementations/__init__.py`
+## `FILE: neural_ai/processors/dimensions/d02_support/implementations/__init__.py`
 
 ```py
 """D02 Support/Resistance implementációk."""
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/d02_support/implementations/support_processor.py`
+## `FILE: neural_ai/processors/dimensions/d02_support/implementations/support_processor.py`
 
 ```py
 """D02SupportProcessor - Support/Resistance szintek processzora."""
@@ -21691,7 +21691,7 @@ from typing import TYPE_CHECKING, cast
 
 import polars as pl
 
-from neural_ai.processors.processing.dimensions.base import BaseDimensionProcessor
+from neural_ai.processors.dimensions.base import BaseDimensionProcessor
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -22139,14 +22139,14 @@ class D02SupportProcessor(BaseDimensionProcessor):
 
 ```
 
-## `FILE: neural_ai/processors/processing/dimensions/d02_support/interfaces/__init__.py`
+## `FILE: neural_ai/processors/dimensions/d02_support/interfaces/__init__.py`
 
 ```py
 """D02 Support/Resistance interfészek."""
 
 ```
 
-## `FILE: neural_ai/processors/processing/factory.py`
+## `FILE: neural_ai/processors/factory.py`
 
 ```py
 """Processing Factory - Feldolgozási komponensek factory függvényei."""
@@ -22154,8 +22154,8 @@ class D02SupportProcessor(BaseDimensionProcessor):
 import importlib
 from typing import TYPE_CHECKING
 
-from neural_ai.processors.processing.interfaces.dimension_processor_interface import IDimensionProcessor
-from neural_ai.processors.processing.interfaces.time_alignment_interface import ITimeAlignmentService
+from neural_ai.processors.interfaces.dimension_processor_interface import IDimensionProcessor
+from neural_ai.processors.interfaces.time_alignment_interface import ITimeAlignmentService
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -22174,7 +22174,7 @@ def create_time_alignment_service() -> ITimeAlignmentService:
         ITimeAlignmentService: Az időszinkronizációs szolgáltatás példánya
     """
     module = importlib.import_module(
-        "neural_ai.processors.processing.implementations.time_alignment_service"
+        "neural_ai.processors.implementations.time_alignment_service"
     )
     cls = module.TimeAlignmentService
     return cls()
@@ -22200,25 +22200,25 @@ def create_dimension_processor(
         raise ValueError(f"Ismeretlen dimenzió ID: {dimension_id}")
 
     name = DIMENSIONS_CONFIG[dimension_id]
-    module_name = f"neural_ai.processors.processing.dimensions.d{dimension_id:02d}_{name}.factory"
+    module_name = f"neural_ai.processors.dimensions.d{dimension_id:02d}_{name}.factory"
     module = importlib.import_module(module_name)
     factory_class = getattr(module, FACTORY_CLASSES[dimension_id])
     return factory_class.create(config, logger)
 
 ```
 
-## `FILE: neural_ai/processors/processing/implementations/__init__.py`
+## `FILE: neural_ai/processors/implementations/__init__.py`
 
 ```py
 
 ```
 
-## `FILE: neural_ai/processors/processing/implementations/time_alignment_service.py`
+## `FILE: neural_ai/processors/implementations/time_alignment_service.py`
 
 ```py
 import polars as pl
 
-from neural_ai.processors.processing.interfaces.time_alignment_interface import ITimeAlignmentService
+from neural_ai.processors.interfaces.time_alignment_interface import ITimeAlignmentService
 
 
 class TimeAlignmentService(ITimeAlignmentService):
@@ -22290,13 +22290,13 @@ class TimeAlignmentService(ITimeAlignmentService):
 
 ```
 
-## `FILE: neural_ai/processors/processing/interfaces/__init__.py`
+## `FILE: neural_ai/processors/interfaces/__init__.py`
 
 ```py
 
 ```
 
-## `FILE: neural_ai/processors/processing/interfaces/dimension_processor_interface.py`
+## `FILE: neural_ai/processors/interfaces/dimension_processor_interface.py`
 
 ```py
 from abc import ABC, abstractmethod
@@ -22322,7 +22322,7 @@ class IDimensionProcessor(ABC):
 
 ```
 
-## `FILE: neural_ai/processors/processing/interfaces/tensor_converter_interface.py`
+## `FILE: neural_ai/processors/interfaces/tensor_converter_interface.py`
 
 ```py
 from abc import ABC
@@ -22335,7 +22335,7 @@ class ITensorConverter(ABC):
 
 ```
 
-## `FILE: neural_ai/processors/processing/interfaces/time_alignment_interface.py`
+## `FILE: neural_ai/processors/interfaces/time_alignment_interface.py`
 
 ```py
 from abc import ABC, abstractmethod
@@ -22362,13 +22362,13 @@ class ITimeAlignmentService(ABC):
 
 ```
 
-## `FILE: neural_ai/processors/processing/resampler_service/__init__.py`
+## `FILE: neural_ai/processors/resampler_service/__init__.py`
 
 ```py
 """ResamplerService modul - Tick adatokból OHLCV gyertyák létrehozásáért felelős."""
 
-from neural_ai.processors.processing.resampler_service.factory import ResamplerServiceFactory
-from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
+from neural_ai.processors.resampler_service.factory import ResamplerServiceFactory
+from neural_ai.processors.resampler_service.interfaces.resampler_interface import (
     ResamplerInterface,
 )
 
@@ -22379,7 +22379,7 @@ __all__ = [
 
 ```
 
-## `FILE: neural_ai/processors/processing/resampler_service/exceptions/resampler_error.py`
+## `FILE: neural_ai/processors/resampler_service/exceptions/resampler_error.py`
 
 ```py
 """ResamplerService kivételek."""
@@ -22480,7 +22480,7 @@ class InvalidTimeframeError(ResamplerError):
 
 ```
 
-## `FILE: neural_ai/processors/processing/resampler_service/factory.py`
+## `FILE: neural_ai/processors/resampler_service/factory.py`
 
 ```py
 """ResamplerService Factory - A ResamplerService létrehozásáért felelős."""
@@ -22488,10 +22488,10 @@ class InvalidTimeframeError(ResamplerError):
 from typing import TYPE_CHECKING
 
 from neural_ai.core.base.implementations.di_container import DIContainer
-from neural_ai.processors.processing.resampler_service.implementations.resampler_service import (
+from neural_ai.processors.resampler_service.implementations.resampler_service import (
     ResamplerService,
 )
-from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
+from neural_ai.processors.resampler_service.interfaces.resampler_interface import (
     ResamplerInterface,
 )
 
@@ -22544,7 +22544,7 @@ class ResamplerServiceFactory:
 
 ```
 
-## `FILE: neural_ai/processors/processing/resampler_service/implementations/resampler_service.py`
+## `FILE: neural_ai/processors/resampler_service/implementations/resampler_service.py`
 
 ```py
 """ResamplerService implementáció - Tick adatokból OHLCV gyertyák létrehozása."""
@@ -22555,12 +22555,12 @@ from typing import TYPE_CHECKING
 import polars as pl
 
 from neural_ai.core.logger.factory import LoggerFactory
-from neural_ai.processors.processing.resampler_service.exceptions.resampler_error import (
+from neural_ai.processors.resampler_service.exceptions.resampler_error import (
     DataLoadError,
     InvalidTimeframeError,
     ResamplingError,
 )
-from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
+from neural_ai.processors.resampler_service.interfaces.resampler_interface import (
     ResamplerInterface,
 )
 
@@ -22804,7 +22804,7 @@ class ResamplerService(ResamplerInterface):
 
 ```
 
-## `FILE: neural_ai/processors/processing/resampler_service/interfaces/resampler_interface.py`
+## `FILE: neural_ai/processors/resampler_service/interfaces/resampler_interface.py`
 
 ```py
 """ResamplerService Interface - Tick adatokból OHLCV gyertyák létrehozásáért felelős."""
@@ -26697,7 +26697,7 @@ if TYPE_CHECKING:
 
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
+    from neural_ai.processors.resampler_service.interfaces.resampler_interface import (
         ResamplerInterface,
     )
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
@@ -26948,7 +26948,7 @@ class StrategyService(StrategyServiceInterface):
             pl.DataFrame: A resample-ölt OHLCV gyertyák DataFrame-ben
         """
         # ResamplerService példányosítása Factory-n keresztül
-        from neural_ai.processors.processing.resampler_service.factory import (
+        from neural_ai.processors.resampler_service.factory import (
             ResamplerServiceFactory,
         )
 
@@ -27198,7 +27198,7 @@ class StrategyService(StrategyServiceInterface):
         logger.info(f"D2 elemzés indítása: {symbol} {timeframe}")
 
         # 3. D2 processor létrehozása Factory-n keresztül
-        from neural_ai.processors.processing.factory import create_dimension_processor
+        from neural_ai.processors.factory import create_dimension_processor
 
         processor = create_dimension_processor(dimension_id=2, config=config, logger=logger)
 
@@ -29849,8 +29849,8 @@ import polars as pl
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from neural_ai.core import bootstrap_core
-from neural_ai.processors.processing.dimensions.d02_support.factory import D02SupportFactory
-from neural_ai.processors.processing.resampler_service.factory import ResamplerServiceFactory
+from neural_ai.processors.dimensions.d02_support.factory import D02SupportFactory
+from neural_ai.processors.resampler_service.factory import ResamplerServiceFactory
 
 if TYPE_CHECKING:
     pass
@@ -30194,7 +30194,7 @@ async def validate_d2_swing_engine() -> bool:
             return False
 
         # D2 processzor létrehozása
-        from neural_ai.processors.processing.factory import create_dimension_processor
+        from neural_ai.processors.factory import create_dimension_processor
 
         d2_processor = create_dimension_processor(2, config, logger)
 
@@ -46957,7 +46957,7 @@ sys.path.insert(0, str(project_root))
 
 import polars as pl
 
-from neural_ai.processors.processing.factory import (
+from neural_ai.processors.factory import (
     create_dimension_processor,
     create_time_alignment_service,
 )
@@ -47183,11 +47183,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from neural_ai.core import bootstrap_core
-from neural_ai.processors.processing.factory import (
+from neural_ai.processors.factory import (
     create_dimension_processor,
     create_time_alignment_service,
 )
-from neural_ai.processors.processing.resampler_service.implementations.resampler_service import (
+from neural_ai.processors.resampler_service.implementations.resampler_service import (
     ResamplerService,
 )
 
@@ -47352,7 +47352,7 @@ from datetime import datetime
 
 import polars as pl
 
-from neural_ai.processors.processing.resampler_service.factory import ResamplerServiceFactory
+from neural_ai.processors.resampler_service.factory import ResamplerServiceFactory
 
 
 async def main():
@@ -47732,7 +47732,7 @@ import datetime
 
 import polars as pl
 
-from neural_ai.processors.processing.factory import create_time_alignment_service
+from neural_ai.processors.factory import create_time_alignment_service
 
 
 def test_time_alignment():
@@ -47768,7 +47768,7 @@ if __name__ == "__main__":
 
 ```
 
-## `FILE: tests/processors/processing/dimensions/d01_price/test_factory.py`
+## `FILE: tests/processors/dimensions/d01_price/test_factory.py`
 
 ```py
 """D01PriceFactory unit tesztek."""
@@ -47776,9 +47776,9 @@ if __name__ == "__main__":
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock
 
-from neural_ai.processors.processing.dimensions.d01_price.factory import D01PriceFactory
-from neural_ai.processors.processing.dimensions.d01_price.processor import D01PriceProcessor
-from neural_ai.processors.processing.interfaces.dimension_processor_interface import IDimensionProcessor
+from neural_ai.processors.dimensions.d01_price.factory import D01PriceFactory
+from neural_ai.processors.dimensions.d01_price.processor import D01PriceProcessor
+from neural_ai.processors.interfaces.dimension_processor_interface import IDimensionProcessor
 
 
 class TestD01PriceFactory:
@@ -47867,7 +47867,7 @@ class TestD01PriceFactory:
 
 ```
 
-## `FILE: tests/processors/processing/dimensions/d01_price/test_processor.py`
+## `FILE: tests/processors/dimensions/d01_price/test_processor.py`
 
 ```py
 """D01PriceProcessor unit tesztek."""
@@ -47879,7 +47879,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from neural_ai.processors.processing.dimensions.d01_price.processor import D01PriceProcessor
+from neural_ai.processors.dimensions.d01_price.processor import D01PriceProcessor
 
 
 class TestD01PriceProcessor:
@@ -48163,12 +48163,12 @@ class TestD01PriceProcessor:
 
 ```
 
-## `FILE: tests/processors/processing/dimensions/d02_support/test_exceptions.py`
+## `FILE: tests/processors/dimensions/d02_support/test_exceptions.py`
 
 ```py
 """D02Support kivételek unit tesztek."""
 
-from neural_ai.processors.processing.dimensions.d02_support.exceptions.support_error import (
+from neural_ai.processors.dimensions.d02_support.exceptions.support_error import (
     SupportError,
     SupportResistanceLevelError,
     SwingPointCalculationError,
@@ -48232,7 +48232,7 @@ class TestSupportExceptions:
 
 ```
 
-## `FILE: tests/processors/processing/dimensions/d02_support/test_factory.py`
+## `FILE: tests/processors/dimensions/d02_support/test_factory.py`
 
 ```py
 """D02SupportFactory unit tesztek."""
@@ -48240,11 +48240,11 @@ class TestSupportExceptions:
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock
 
-from neural_ai.processors.processing.dimensions.d02_support.factory import D02SupportFactory
-from neural_ai.processors.processing.dimensions.d02_support.implementations.support_processor import (
+from neural_ai.processors.dimensions.d02_support.factory import D02SupportFactory
+from neural_ai.processors.dimensions.d02_support.implementations.support_processor import (
     D02SupportProcessor,
 )
-from neural_ai.processors.processing.interfaces.dimension_processor_interface import IDimensionProcessor
+from neural_ai.processors.interfaces.dimension_processor_interface import IDimensionProcessor
 
 
 class TestD02SupportFactory:
@@ -48369,7 +48369,7 @@ class TestD02SupportFactory:
 
 ```
 
-## `FILE: tests/processors/processing/dimensions/d02_support/test_processor.py`
+## `FILE: tests/processors/dimensions/d02_support/test_processor.py`
 
 ```py
 """D02SupportProcessor unit tesztek."""
@@ -48381,7 +48381,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from neural_ai.processors.processing.dimensions.d02_support.implementations.support_processor import (
+from neural_ai.processors.dimensions.d02_support.implementations.support_processor import (
     D02SupportProcessor,
 )
 
@@ -48955,7 +48955,7 @@ class TestD02SupportProcessor:
 
 ```
 
-## `FILE: tests/processors/processing/resampler_service/test_resampler_service.py`
+## `FILE: tests/processors/resampler_service/test_resampler_service.py`
 
 ```py
 """ResamplerService tesztek."""
@@ -48967,16 +48967,16 @@ import pandas as pd
 import polars as pl
 import pytest
 
-from neural_ai.processors.processing.resampler_service.exceptions.resampler_error import (
+from neural_ai.processors.resampler_service.exceptions.resampler_error import (
     DataLoadError,
     InvalidTimeframeError,
     ResamplingError,
 )
-from neural_ai.processors.processing.resampler_service.factory import ResamplerServiceFactory
-from neural_ai.processors.processing.resampler_service.implementations.resampler_service import (
+from neural_ai.processors.resampler_service.factory import ResamplerServiceFactory
+from neural_ai.processors.resampler_service.implementations.resampler_service import (
     ResamplerService,
 )
-from neural_ai.processors.processing.resampler_service.interfaces.resampler_interface import (
+from neural_ai.processors.resampler_service.interfaces.resampler_interface import (
     ResamplerInterface,
 )
 
@@ -49427,7 +49427,7 @@ class TestResamplerServiceFactory:
         assert isinstance(resampler, ResamplerInterface)
         assert isinstance(resampler, ResamplerService)
 
-    @patch("neural_ai.processors.processing.resampler_service.factory.DIContainer")
+    @patch("neural_ai.processors.resampler_service.factory.DIContainer")
     @patch("neural_ai.data.storage.factory.StorageFactory.get_storage")
     def test_get_instance(self, mock_get_storage: MagicMock, mock_container_class: MagicMock):
         """Teszt ResamplerService példány lekérését."""
@@ -49448,7 +49448,7 @@ class TestResamplerServiceFactory:
         assert isinstance(resampler, ResamplerInterface)
         mock_container.register.assert_called_once()
 
-    @patch("neural_ai.processors.processing.resampler_service.factory.DIContainer")
+    @patch("neural_ai.processors.resampler_service.factory.DIContainer")
     def test_get_instance_cached(self, mock_container_class: MagicMock):
         """Teszt gyorsítótárazott példány lekérését."""
         # Mock a DI konténert
@@ -49471,7 +49471,7 @@ class TestResamplerErrorHierarchy:
 
     def test_resampler_error_creation(self):
         """Teszt ResamplerError létrehozását."""
-        from neural_ai.processors.processing.resampler_service.exceptions.resampler_error import (
+        from neural_ai.processors.resampler_service.exceptions.resampler_error import (
             ResamplerError,
         )
 
@@ -49523,7 +49523,7 @@ class TestResamplerErrorHierarchy:
 
 ```
 
-## `FILE: tests/processors/processing/test_processing_factory.py`
+## `FILE: tests/processors/test_processing_factory.py`
 
 ```py
 """Processing Factory unit tesztek."""
@@ -49532,14 +49532,14 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from neural_ai.processors.processing.dimensions.d01_price.processor import D01PriceProcessor
-from neural_ai.processors.processing.factory import (
+from neural_ai.processors.dimensions.d01_price.processor import D01PriceProcessor
+from neural_ai.processors.factory import (
     create_dimension_processor,
     create_time_alignment_service,
 )
-from neural_ai.processors.processing.implementations.time_alignment_service import TimeAlignmentService
-from neural_ai.processors.processing.interfaces.dimension_processor_interface import IDimensionProcessor
-from neural_ai.processors.processing.interfaces.time_alignment_interface import ITimeAlignmentService
+from neural_ai.processors.implementations.time_alignment_service import TimeAlignmentService
+from neural_ai.processors.interfaces.dimension_processor_interface import IDimensionProcessor
+from neural_ai.processors.interfaces.time_alignment_interface import ITimeAlignmentService
 
 
 class TestProcessingFactory:
@@ -50213,7 +50213,7 @@ class TestValidateTickPipeline:
         """Teszt resample hiba esetén."""
         # Mock-oljuk a ResamplerServiceFactory.create-ot, hogy hibát dobjon
         with patch(
-            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory"
+            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory"
         ) as mock_factory:
             mock_resampler = MagicMock()
             mock_factory.create.return_value = mock_resampler
@@ -50228,7 +50228,7 @@ class TestValidateTickPipeline:
     async def test_validate_tick_pipeline_d1_failure(self):
         """Teszt D1 processor hiba esetén."""
         # Mock-oljuk a create_dimension_processor-t, hogy hibát dobjon
-        with patch("neural_ai.processors.processing.factory.create_dimension_processor") as mock_create:
+        with patch("neural_ai.processors.factory.create_dimension_processor") as mock_create:
             mock_processor = MagicMock()
             mock_create.return_value = mock_processor
             mock_processor.process.side_effect = Exception("D1 hiba")
@@ -50243,7 +50243,7 @@ class TestValidateTickPipeline:
         """Teszt validációs hiba esetén."""
         # Mock-oljuk a ResamplerServiceFactory-t, hogy rossz eredményt adjon
         with patch(
-            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory"
+            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory"
         ) as mock_factory:
             mock_resampler = MagicMock()
             mock_factory.create.return_value = mock_resampler
@@ -50297,9 +50297,9 @@ class TestValidateTickPipeline:
 
         with (
             patch(
-                "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory"
+                "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory"
             ) as mock_factory,
-            patch("neural_ai.processors.processing.factory.create_dimension_processor") as mock_create,
+            patch("neural_ai.processors.factory.create_dimension_processor") as mock_create,
         ):
             mock_resampler = MagicMock()
             mock_factory.create.return_value = mock_resampler
@@ -52378,7 +52378,7 @@ class TestStrategyService:
         mock_resampler.resample = AsyncMock(return_value=mock_candles)
 
         with patch(
-            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
+            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory.get_instance",
             return_value=mock_resampler,
         ):
             result = await strategy_service.get_candles(
@@ -52406,7 +52406,7 @@ class TestStrategyService:
         mock_resampler.resample = AsyncMock(return_value=mock_candles)
 
         with patch(
-            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
+            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory.get_instance",
             return_value=mock_resampler,
         ):
             await strategy_service.get_candles(symbol="EURUSD", date="2024-03-20", timeframe="5m")
@@ -52430,7 +52430,7 @@ class TestStrategyService:
         timeframes = ["1m", "5m", "15m", "1h", "4h", "1d"]
 
         with patch(
-            "neural_ai.processors.processing.resampler_service.factory.ResamplerServiceFactory.get_instance",
+            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory.get_instance",
             return_value=mock_resampler,
         ):
             for timeframe in timeframes:
@@ -52729,7 +52729,7 @@ class TestStrategyService:
         }.get(comp)
 
         with patch(
-            "neural_ai.processors.processing.factory.create_dimension_processor",
+            "neural_ai.processors.factory.create_dimension_processor",
             return_value=mock_processor,
         ) as mock_create_processor:
             result = await strategy_service.analyze_market_structure(
@@ -52786,7 +52786,7 @@ class TestStrategyService:
                 return_value=mock_candles_df,
             ) as mock_get_candles,
             patch(
-                "neural_ai.processors.processing.factory.create_dimension_processor",
+                "neural_ai.processors.factory.create_dimension_processor",
                 return_value=mock_processor,
             ) as mock_create_processor,
         ):

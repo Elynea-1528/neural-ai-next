@@ -1,11 +1,9 @@
-"""
-Page interfész definíciója.
+"""Page interfész definíciója.
 
 Ez az interfész definiálja az oldal komponensek szerződését.
 """
 
-from typing import Protocol, runtime_checkable, Optional, Dict, Any
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
@@ -13,15 +11,13 @@ if TYPE_CHECKING:
 
 @runtime_checkable
 class PageInterface(Protocol):
-    """
-    Page interfész - Oldal komponensek alapja.
+    """Page interfész - Oldal komponensek alapja.
     
     Ez az interfész definiálja az oldalak által implementálandó metódusokat.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface", **kwargs: Any) -> None:
-        """
-        Oldal inicializálása.
+        """Oldal inicializálása.
         
         Args:
             bridge: A backend bridge példány
@@ -30,17 +26,15 @@ class PageInterface(Protocol):
         ...
 
     def render(self) -> Any:
-        """
-        Az oldal tartalmának renderelése.
+        """Az oldal tartalmának renderelése.
         
         Returns:
             Any: A renderelt tartalom
         """
         ...
 
-    def on_navigate_to(self, params: Optional[Dict[str, Any]] = None) -> None:
-        """
-        Akció, amikor az oldalra navigálnak.
+    def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+        """Akció, amikor az oldalra navigálnak.
         
         Args:
             params: Navigációs paraméterek
@@ -48,15 +42,13 @@ class PageInterface(Protocol):
         ...
 
     def on_navigate_from(self) -> None:
-        """
-        Akció, amikor elnavigálnak az oldalról.
+        """Akció, amikor elnavigálnak az oldalról.
         """
         ...
 
     @property
     def title(self) -> str:
-        """
-        Az oldal címét visszaadó property.
+        """Az oldal címét visszaadó property.
         
         Returns:
             str: Az oldal címe
@@ -65,8 +57,7 @@ class PageInterface(Protocol):
 
     @property
     def is_loaded(self) -> bool:
-        """
-        Az oldal betöltöttségi állapotát ellenőrző property.
+        """Az oldal betöltöttségi állapotát ellenőrző property.
         
         Returns:
             bool: True, ha az oldal betöltött, egyébként False

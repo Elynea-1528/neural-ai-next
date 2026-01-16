@@ -232,26 +232,26 @@ class TestRotatingFileLogger:
         # Először hozzunk létre egy loggert és adjunk hozzá egy handlert
         logger_name = "test_handler_removal_rotating"
         temp_logger = logging.getLogger(logger_name)
-        
+
         # Adjunk hozzá egy handler-t
         import io
         buffer = io.StringIO()
         handler = logging.StreamHandler(buffer)
         temp_logger.addHandler(handler)
         temp_logger.propagate = False
-        
+
         # Ellenőrizzük, hogy a handler hozzáadásra került
         assert len(temp_logger.handlers) == 1
-        
+
         # Most hozzuk létre a RotatingFileLogger-t ugyanazzal a névvel
         # Ez eltávolítania kell a meglévő handlert
         with tempfile.TemporaryDirectory() as tmpdir:
             log_file = Path(tmpdir) / "test_handler_removal.log"
             rotating_logger = RotatingFileLogger(logger_name, log_file=str(log_file))
-            
+
             # Ellenőrizzük, hogy csak egy handler van (az új)
             assert len(rotating_logger.logger.handlers) == 1
-            
+
             # Ellenőrizzük, hogy az új handler RotatingFileHandler vagy TimedRotatingFileHandler
             handler_type = type(rotating_logger.logger.handlers[0]).__name__
             assert "RotatingFileHandler" in handler_type or "TimedRotatingFileHandler" in handler_type

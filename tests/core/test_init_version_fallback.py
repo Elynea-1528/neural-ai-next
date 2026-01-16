@@ -6,8 +6,6 @@ kezelésének tesztjeit.
 
 from unittest.mock import patch
 
-import pytest
-
 import neural_ai
 
 
@@ -42,26 +40,25 @@ class TestVersionFallback:
         # Mock-oljuk a PackageNotFoundError kivételt
         from importlib.metadata import PackageNotFoundError
         mock_version.side_effect = PackageNotFoundError("Package not found")
-        
+
         # Újraimportáljuk a modult, hogy a mock hatásos legyen
-        import importlib
         import sys
-        
+
         # Elmentjük az eredeti modult
         original_module = sys.modules.get('neural_ai')
-        
+
         try:
             # Töröljük a modult a cache-ből
             if 'neural_ai' in sys.modules:
                 del sys.modules['neural_ai']
-            
+
             # Újraimportáljuk a modult a mock-kal
             import neural_ai as reloaded_neural_ai
-            
+
             # Ellenőrizzük, hogy a fallback verzió beállításra került-e
             assert reloaded_neural_ai.__version__ == "0.5.0"
             assert isinstance(reloaded_neural_ai.__version__, str)
-            
+
         finally:
             # Visszaállítjuk az eredeti modult
             if original_module is not None:
@@ -73,7 +70,7 @@ class TestVersionFallback:
         # de ellenőrizhetjük, hogy a változó nem módosítható
         import sys
         if sys.version_info >= (3, 8):
-            from typing import get_type_hints, Final
+            from typing import Final, get_type_hints
             hints = get_type_hints(neural_ai)
             assert '__version__' in hints
             # A Final[str] ellenőrzése

@@ -1,23 +1,20 @@
-"""
-Base Widget - Alap widget osztály.
+"""Base Widget - Alap widget osztály.
 
 Ez a modul implementálja az alap widget osztályt, amelyet
 az összes UI komponens örököl.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class BaseWidget:
-    """
-    Base Widget - Alap widget osztály.
+    """Base Widget - Alap widget osztály.
     
     Ez az osztály az összes UI komponens alapját képezi.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
-        """
-        A widget inicializálása.
+    def __init__(self, config: dict[str, Any] | None = None) -> None:
+        """A widget inicializálása.
         
         Args:
             config: A widget konfigurációja
@@ -26,8 +23,7 @@ class BaseWidget:
         self._visible = True
 
     def render(self) -> str:
-        """
-        A widget tartalmának renderelése.
+        """A widget tartalmának renderelése.
         
         Returns:
             str: A renderelt tartalom
@@ -44,8 +40,7 @@ class BaseWidget:
 
     @property
     def is_visible(self) -> bool:
-        """
-        A widget láthatóságát ellenőrző property.
+        """A widget láthatóságát ellenőrző property.
         
         Returns:
             bool: True, ha a widget látható, egyébként False

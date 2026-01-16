@@ -10,11 +10,11 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
+from neural_ai.ui.services.strategy_service import StrategyService
+
 # Mock vectorbt and polars to avoid import issues in tests
 sys.modules["vectorbt"] = Mock()
 sys.modules["polars"] = Mock()
-
-from neural_ai.ui.services.strategy_service import StrategyService
 
 
 class TestStrategyService:

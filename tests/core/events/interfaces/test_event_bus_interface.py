@@ -305,8 +305,9 @@ class TestEventBusInterface:
 
     def test_event_callback_type_alias(self) -> None:
         """Teszteli az EventCallback típus aliast."""
-        from neural_ai.core.events.interfaces.event_bus_interface import EventCallback
         from pydantic import BaseModel
+
+        from neural_ai.core.events.interfaces.event_bus_interface import EventCallback
 
         # Ellenőrizzük, hogy a típus alias létezik
         assert EventCallback is not None
@@ -395,17 +396,17 @@ class TestEventBusInterface:
 
         async def test_async_methods() -> None:
             bus = ConcreteTestBus()
-            
+
             # Teszteljük az összes metódust
             await bus.start()
             assert bus.started
-            
+
             await bus.publish("test", TestEvent())
             assert bus.published
-            
+
             await bus.stop()
             assert bus.stopped
-            
+
             await bus.run_forever()
             assert bus.ran
 
@@ -416,7 +417,7 @@ class TestEventBusInterface:
         bus = ConcreteTestBus()
         bus.subscribe("test", lambda e: None)  # type: ignore
         assert bus.subscribed
-        
+
         bus.unsubscribe("test", lambda e: None)  # type: ignore
         assert bus.unsubscribed
 

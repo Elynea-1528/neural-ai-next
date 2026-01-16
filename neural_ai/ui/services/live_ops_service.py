@@ -1,12 +1,11 @@
-"""
-Live Ops Service implementáció.
+"""Live Ops Service implementáció.
 
 Ez a modul implementálja a live műveletek szolgáltatást,
 amely a valós idejű kereskedést és monitorozást végzi.
 """
 
-from typing import Dict, Any, List, Optional, Callable
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 from neural_ai.ui.interfaces.live_ops_service_interface import LiveOpsServiceInterface
 
@@ -15,28 +14,25 @@ if TYPE_CHECKING:
 
 
 class LiveOpsService(LiveOpsServiceInterface):
-    """
-    Live Ops Service - Valós idejű műveletekért felelős.
+    """Live Ops Service - Valós idejű műveletekért felelős.
     
     Ez az osztály implementálja a live kereskedést és monitorozást
     végző metódusokat.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface") -> None:
-        """
-        A Live Ops Service inicializálása.
+        """A Live Ops Service inicializálása.
         
         Args:
             bridge: A backend bridge példány
         """
         self._bridge = bridge
-        self._positions: Dict[str, Dict[str, Any]] = {}
-        self._orders: Dict[str, Dict[str, Any]] = {}
-        self._market_subscribers: Dict[str, List[Callable[[Dict[str, Any]], None]]] = {}
+        self._positions: dict[str, dict[str, Any]] = {}
+        self._orders: dict[str, dict[str, Any]] = {}
+        self._market_subscribers: dict[str, list[Callable[[dict[str, Any]], None]]] = {}
 
-    def get_active_positions(self) -> List[Dict[str, Any]]:
-        """
-        Aktív pozíciók lekérdezése.
+    def get_active_positions(self) -> list[dict[str, Any]]:
+        """Aktív pozíciók lekérdezése.
         
         Returns:
             List[Dict[str, Any]]: Az aktív pozíciók listája
@@ -56,9 +52,8 @@ class LiveOpsService(LiveOpsServiceInterface):
                 })
         return positions
 
-    def get_account_status(self) -> Dict[str, Any]:
-        """
-        Fiók állapotának lekérdezése.
+    def get_account_status(self) -> dict[str, Any]:
+        """Fiók állapotának lekérdezése.
         
         Returns:
             Dict[str, Any]: A fiók aktuális állapota
@@ -74,7 +69,7 @@ class LiveOpsService(LiveOpsServiceInterface):
             "leverage": 100,
             "currency": "USD"
         }
-        
+
         return account_status
 
     def place_order(
@@ -82,12 +77,11 @@ class LiveOpsService(LiveOpsServiceInterface):
         symbol: str,
         order_type: str,
         volume: float,
-        price: Optional[float] = None,
-        stop_loss: Optional[float] = None,
-        take_profit: Optional[float] = None
+        price: float | None = None,
+        stop_loss: float | None = None,
+        take_profit: float | None = None
     ) -> str:
-        """
-        Új rendelés leadása.
+        """Új rendelés leadása.
         
         Args:
             symbol: A kereskedendő szimbólum
@@ -102,7 +96,7 @@ class LiveOpsService(LiveOpsServiceInterface):
         """
         # Generáljunk egy egyedi azonosítót
         order_id = f"order_{len(self._orders) + 1}"
-        
+
         self._orders[order_id] = {
             "symbol": symbol,
             "type": order_type,
@@ -120,12 +114,11 @@ class LiveOpsService(LiveOpsServiceInterface):
     def modify_order(
         self,
         order_id: str,
-        price: Optional[float] = None,
-        stop_loss: Optional[float] = None,
-        take_profit: Optional[float] = None
+        price: float | None = None,
+        stop_loss: float | None = None,
+        take_profit: float | None = None
     ) -> bool:
-        """
-        Meglévő rendelés módosítása.
+        """Meglévő rendelés módosítása.
         
         Args:
             order_id: A rendelés azonosítója
@@ -140,24 +133,23 @@ class LiveOpsService(LiveOpsServiceInterface):
             raise ValueError(f"Ismeretlen rendelés: {order_id}")
 
         order = self._orders[order_id]
-        
+
         if price is not None:
             order["price"] = price
-        
+
         if stop_loss is not None:
             order["stop_loss"] = stop_loss
-        
+
         if take_profit is not None:
             order["take_profit"] = take_profit
 
         order["modified_at"] = "2026-01-04T19:26:00Z"
-        
+
         print(f"Rendelés módosítva: {order_id}")
         return True
 
     def cancel_order(self, order_id: str) -> bool:
-        """
-        Rendelés visszavonása.
+        """Rendelés visszavonása.
         
         Args:
             order_id: A rendelés azonosítója
@@ -170,13 +162,12 @@ class LiveOpsService(LiveOpsServiceInterface):
 
         self._orders[order_id]["status"] = "cancelled"
         self._orders[order_id]["cancelled_at"] = "2026-01-04T19:26:00Z"
-        
+
         print(f"Rendelés visszavonva: {order_id}")
         return True
 
     def close_position(self, position_id: str) -> bool:
-        """
-        Pozíció lezárása.
+        """Pozíció lezárása.
         
         Args:
             position_id: A pozíció azonosítója
@@ -189,13 +180,12 @@ class LiveOpsService(LiveOpsServiceInterface):
 
         self._positions[position_id]["status"] = "closed"
         self._positions[position_id]["closed_at"] = "2026-01-04T19:26:00Z"
-        
+
         print(f"Pozíció lezárva: {position_id}")
         return True
 
-    def get_market_data(self, symbol: str) -> Dict[str, Any]:
-        """
-        Piaci adatok lekérdezése.
+    def get_market_data(self, symbol: str) -> dict[str, Any]:
+        """Piaci adatok lekérdezése.
         
         Args:
             symbol: A szimbólum
@@ -214,16 +204,15 @@ class LiveOpsService(LiveOpsServiceInterface):
             "volume": 1234567,
             "timestamp": "2026-01-04T19:26:00Z"
         }
-        
+
         return market_data
 
     def subscribe_to_market_updates(
         self,
         symbol: str,
-        callback: Callable[[Dict[str, Any]], None]
+        callback: Callable[[dict[str, Any]], None]
     ) -> None:
-        """
-        Feliratkozás piaci frissítésekre.
+        """Feliratkozás piaci frissítésekre.
         
         Args:
             symbol: A szimbólum
@@ -231,12 +220,11 @@ class LiveOpsService(LiveOpsServiceInterface):
         """
         if symbol not in self._market_subscribers:
             self._market_subscribers[symbol] = []
-        
+
         self._market_subscribers[symbol].append(callback)
 
-    def get_performance_summary(self) -> Dict[str, Any]:
-        """
-        Teljesítmény összegzés lekérdezése.
+    def get_performance_summary(self) -> dict[str, Any]:
+        """Teljesítmény összegzés lekérdezése.
         
         Returns:
             Dict[str, Any]: A teljesítmény adatok
@@ -255,5 +243,5 @@ class LiveOpsService(LiveOpsServiceInterface):
             "average_loss": -55.17,
             "profit_factor": 2.66
         }
-        
+
         return performance

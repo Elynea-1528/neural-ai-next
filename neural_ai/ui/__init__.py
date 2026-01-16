@@ -1,5 +1,4 @@
-"""
-UI modul - A Neural AI Next rendszer felhasználói felületének fő csomagja.
+"""UI modul - A Neural AI Next rendszer felhasználói felületének fő csomagja.
 
 Ez a csomag tartalmazza a teljes UI architektúrát MVVM minta szerint,
 interfészekkel, szolgáltatásokkal, komponensekkel és oldalakkal.

@@ -1,5 +1,4 @@
-"""
-UI komponensek csomagja.
+"""UI komponensek csomagja.
 
 Ez a csomag tartalmazza az újrafelhasználható UI komponenseket és widgeteket,
 amelyek a különböző oldalakon használhatók.

@@ -337,7 +337,9 @@ class TestConfigManagerFactory:
     def test_register_async_manager_should_validate_manager_type_not_empty(self) -> None:
         """Teszteli, hogy a register_async_manager ellenőrzi az üres típust (119. sor)."""
         # Given
-        from neural_ai.core.config.implementations.dynamic_config_manager import DynamicConfigManager
+        from neural_ai.core.config.implementations.dynamic_config_manager import (
+            DynamicConfigManager,
+        )
         empty_type = ""
 
         # When / Then

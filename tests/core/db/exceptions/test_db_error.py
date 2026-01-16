@@ -1,10 +1,9 @@
 """Adatbázis kivételek tesztek."""
-import pytest
 
 from neural_ai.core.base.exceptions import NeuralAIException
 from neural_ai.core.db.exceptions.db_error import (
-    DBConnectionError,
     DatabaseError,
+    DBConnectionError,
     TransactionError,
 )
 

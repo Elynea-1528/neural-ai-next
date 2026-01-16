@@ -144,10 +144,10 @@ class TestLoggerFactory:
             "loggers": {},
         }
         LoggerFactory.configure(config)
-        
+
         # Ellenőrizzük, hogy a fájl létrejött-e
         assert log_file.exists()
-        
+
         # Ellenőrizzük, hogy a rotating handler be van-e állítva
         root_logger = logging.getLogger()
         assert len(root_logger.handlers) > 0
@@ -170,7 +170,7 @@ class TestLoggerFactory:
             "loggers": {},
         }
         LoggerFactory.configure(config)
-        
+
         # Ellenőrizzük, hogy a fájl létrejött-e
         assert log_file.exists()
 
@@ -191,7 +191,7 @@ class TestLoggerFactory:
             "loggers": {},
         }
         LoggerFactory.configure(config)
-        
+
         # Ellenőrizzük, hogy a könyvtárak és a fájl létrejöttek-e
         assert log_file.exists()
         assert log_file.parent.exists()
@@ -208,7 +208,7 @@ class TestLoggerFactory:
             },
         }
         LoggerFactory.configure(config)
-        
+
         logger = logging.getLogger("test_logger")
         assert logger.level == logging.INFO
         assert logger.propagate is False

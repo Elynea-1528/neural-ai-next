@@ -4,7 +4,6 @@ Ez a modul tartalmazza a ConfigError és leszármazott osztályok
 részletes tesztelését, beleértve az attribútumok ellenőrzését.
 """
 
-import pytest
 
 from neural_ai.core.config.exceptions.config_error import (
     ConfigError,

@@ -12,16 +12,16 @@ Ez a script végrehajtja a teljes D1 dimenzió feldolgozási folyamatot:
 import sys
 from pathlib import Path
 
-# Projekt root hozzáadása a path-hoz
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
 import polars as pl
 
 from neural_ai.processors.factory import (
     create_dimension_processor,
     create_time_alignment_service,
 )
+
+# Projekt root hozzáadása a path-hoz
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 
 def load_tick_data() -> pl.DataFrame:

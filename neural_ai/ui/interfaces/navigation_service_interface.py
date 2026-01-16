@@ -1,12 +1,11 @@
-"""
-Navigation Service interfész definíciója.
+"""Navigation Service interfész definíciója.
 
 Ez az interfész definiálja a navigációs szolgáltatás szerződését,
 amely az oldalak közötti navigációt kezeli.
 """
 
-from typing import Protocol, runtime_checkable, Callable, Optional, Dict, Any
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from neural_ai.ui.interfaces.page_interface import PageInterface
@@ -14,15 +13,13 @@ if TYPE_CHECKING:
 
 @runtime_checkable
 class NavigationServiceInterface(Protocol):
-    """
-    Navigation Service interfész - Oldalak közötti navigációért felelős.
+    """Navigation Service interfész - Oldalak közötti navigációért felelős.
     
     Ez az interfész definiálja a navigációs logikát kezelő metódusokat.
     """
 
-    def navigate_to(self, page_name: str, params: Optional[Dict[str, Any]] = None) -> None:
-        """
-        Navigálás egy adott oldalra.
+    def navigate_to(self, page_name: str, params: dict[str, Any] | None = None) -> None:
+        """Navigálás egy adott oldalra.
         
         Args:
             page_name: A céloldal neve
@@ -31,14 +28,12 @@ class NavigationServiceInterface(Protocol):
         ...
 
     def go_back(self) -> None:
-        """
-        Visszalépés az előző oldalra.
+        """Visszalépés az előző oldalra.
         """
         ...
 
     def get_current_page(self) -> Optional["PageInterface"]:
-        """
-        Az aktuális oldal lekérdezése.
+        """Az aktuális oldal lekérdezése.
         
         Returns:
             Optional[PageInterface]: Az aktuális oldal vagy None
@@ -46,8 +41,7 @@ class NavigationServiceInterface(Protocol):
         ...
 
     def get_page_history(self) -> list[str]:
-        """
-        A navigációs előzmények lekérdezése.
+        """A navigációs előzmények lekérdezése.
         
         Returns:
             list[str]: Az oldalnevek listája
@@ -55,8 +49,7 @@ class NavigationServiceInterface(Protocol):
         ...
 
     def register_page(self, page_name: str, page: "PageInterface") -> None:
-        """
-        Oldal regisztrálása a navigációs rendszerben.
+        """Oldal regisztrálása a navigációs rendszerben.
         
         Args:
             page_name: Az oldal neve
@@ -64,9 +57,8 @@ class NavigationServiceInterface(Protocol):
         """
         ...
 
-    def subscribe(self, callback: Callable[[str, Dict[str, Any]], None]) -> None:
-        """
-        Feliratkozás navigációs eseményekre.
+    def subscribe(self, callback: Callable[[str, dict[str, Any]], None]) -> None:
+        """Feliratkozás navigációs eseményekre.
         
         Args:
             callback: A hívandó callback függvény

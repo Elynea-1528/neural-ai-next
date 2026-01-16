@@ -1,6 +1,6 @@
 """Tesztek a DynamicConfigManager osztályhoz."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
@@ -703,7 +703,7 @@ class TestDynamicConfigManagerCheckForUpdates:
     ) -> None:
         """Teszt: Változások észlelése és cache frissítése."""
         # Először beállítjuk az utolsó frissítés időpontját
-        config_manager._last_update = datetime.now(timezone.utc)
+        config_manager._last_update = datetime.now(UTC)
 
         # Mock konfiguráció, ami megváltozott
         updated_config = DynamicConfig(
@@ -735,7 +735,7 @@ class TestDynamicConfigManagerCheckForUpdates:
     ) -> None:
         """Teszt: Adatbázis hiba esetén a hiba naplózásra kerül."""
         config_manager._logger = mock_logger
-        config_manager._last_update = datetime.now(timezone.utc)
+        config_manager._last_update = datetime.now(UTC)
         mock_session.execute.side_effect = Exception("Database error")
 
         # A hiba nem szabad, hogy kivételt dobjon, csak naplózásra kerüljön

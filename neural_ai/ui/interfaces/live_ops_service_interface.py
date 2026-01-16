@@ -1,38 +1,33 @@
-"""
-Live Ops Service interfész definíciója.
+"""Live Ops Service interfész definíciója.
 
 Ez az interfész definiálja a live műveletek szolgáltatás szerződését,
 amely a valós idejű kereskedést és monitorozást végzi.
 """
 
-from typing import Protocol, runtime_checkable, Dict, Any, List, Optional
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
+    pass
 
 
 @runtime_checkable
 class LiveOpsServiceInterface(Protocol):
-    """
-    Live Ops Service interfész - Valós idejű műveletekért felelős.
+    """Live Ops Service interfész - Valós idejű műveletekért felelős.
     
     Ez az interfész definiálja a live kereskedést és monitorozást
     végző metódusokat.
     """
 
-    def get_active_positions(self) -> List[Dict[str, Any]]:
-        """
-        Aktív pozíciók lekérdezése.
+    def get_active_positions(self) -> list[dict[str, Any]]:
+        """Aktív pozíciók lekérdezése.
         
         Returns:
             List[Dict[str, Any]]: Az aktív pozíciók listája
         """
         ...
 
-    def get_account_status(self) -> Dict[str, Any]:
-        """
-        Fiók állapotának lekérdezése.
+    def get_account_status(self) -> dict[str, Any]:
+        """Fiók állapotának lekérdezése.
         
         Returns:
             Dict[str, Any]: A fiók aktuális állapota
@@ -44,12 +39,11 @@ class LiveOpsServiceInterface(Protocol):
         symbol: str,
         order_type: str,
         volume: float,
-        price: Optional[float] = None,
-        stop_loss: Optional[float] = None,
-        take_profit: Optional[float] = None
+        price: float | None = None,
+        stop_loss: float | None = None,
+        take_profit: float | None = None
     ) -> str:
-        """
-        Új rendelés leadása.
+        """Új rendelés leadása.
         
         Args:
             symbol: A kereskedendő szimbólum
@@ -67,12 +61,11 @@ class LiveOpsServiceInterface(Protocol):
     def modify_order(
         self,
         order_id: str,
-        price: Optional[float] = None,
-        stop_loss: Optional[float] = None,
-        take_profit: Optional[float] = None
+        price: float | None = None,
+        stop_loss: float | None = None,
+        take_profit: float | None = None
     ) -> bool:
-        """
-        Meglévő rendelés módosítása.
+        """Meglévő rendelés módosítása.
         
         Args:
             order_id: A rendelés azonosítója
@@ -86,8 +79,7 @@ class LiveOpsServiceInterface(Protocol):
         ...
 
     def cancel_order(self, order_id: str) -> bool:
-        """
-        Rendelés visszavonása.
+        """Rendelés visszavonása.
         
         Args:
             order_id: A rendelés azonosítója
@@ -98,8 +90,7 @@ class LiveOpsServiceInterface(Protocol):
         ...
 
     def close_position(self, position_id: str) -> bool:
-        """
-        Pozíció lezárása.
+        """Pozíció lezárása.
         
         Args:
             position_id: A pozíció azonosítója
@@ -109,9 +100,8 @@ class LiveOpsServiceInterface(Protocol):
         """
         ...
 
-    def get_market_data(self, symbol: str) -> Dict[str, Any]:
-        """
-        Piaci adatok lekérdezése.
+    def get_market_data(self, symbol: str) -> dict[str, Any]:
+        """Piaci adatok lekérdezése.
         
         Args:
             symbol: A szimbólum
@@ -126,8 +116,7 @@ class LiveOpsServiceInterface(Protocol):
         symbol: str,
         callback: Any
     ) -> None:
-        """
-        Feliratkozás piaci frissítésekre.
+        """Feliratkozás piaci frissítésekre.
         
         Args:
             symbol: A szimbólum
@@ -135,9 +124,8 @@ class LiveOpsServiceInterface(Protocol):
         """
         ...
 
-    def get_performance_summary(self) -> Dict[str, Any]:
-        """
-        Teljesítmény összegzés lekérdezése.
+    def get_performance_summary(self) -> dict[str, Any]:
+        """Teljesítmény összegzés lekérdezése.
         
         Returns:
             Dict[str, Any]: A teljesítmény adatok

@@ -1,12 +1,10 @@
-"""
-AI Service implementáció.
+"""AI Service implementáció.
 
 Ez a modul implementálja a mesterséges intelligencia szolgáltatást,
 amely a modellek kezelését és futtatását végzi.
 """
 
-from typing import Dict, Any, List, Optional
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from neural_ai.ui.interfaces.ai_service_interface import AIServiceInterface
 
@@ -15,22 +13,20 @@ if TYPE_CHECKING:
 
 
 class AIService(AIServiceInterface):
-    """
-    AI Service - Mesterséges intelligencia kezeléséért felelős.
+    """AI Service - Mesterséges intelligencia kezeléséért felelős.
     
     Ez az osztály implementálja a modellek betöltését, konfigurálását és
     futtatását végző metódusokat.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface") -> None:
-        """
-        Az AI Service inicializálása.
+        """Az AI Service inicializálása.
         
         Args:
             bridge: A backend bridge példány
         """
         self._bridge = bridge
-        self._models: Dict[str, Dict[str, Any]] = {
+        self._models: dict[str, dict[str, Any]] = {
             "hierarchical_v1": {
                 "name": "Hierarchikus Modell v1",
                 "description": "D1-D15 processzorokat tartalmazó hierarchikus modell",
@@ -50,12 +46,11 @@ class AIService(AIServiceInterface):
                 "status": "training"
             }
         }
-        self._loaded_models: Dict[str, Any] = {}
-        self._training_jobs: Dict[str, Dict[str, Any]] = {}
+        self._loaded_models: dict[str, Any] = {}
+        self._training_jobs: dict[str, dict[str, Any]] = {}
 
-    def get_available_models(self) -> List[Dict[str, str]]:
-        """
-        Elérhető AI modellek lekérdezése.
+    def get_available_models(self) -> list[dict[str, str]]:
+        """Elérhető AI modellek lekérdezése.
         
         Returns:
             List[Dict[str, str]]: A modellek listája
@@ -74,10 +69,9 @@ class AIService(AIServiceInterface):
     def load_model(
         self,
         model_id: str,
-        config: Optional[Dict[str, Any]] = None
+        config: dict[str, Any] | None = None
     ) -> bool:
-        """
-        AI modell betöltése.
+        """AI modell betöltése.
         
         Args:
             model_id: A modell azonosítója
@@ -106,10 +100,9 @@ class AIService(AIServiceInterface):
     def run_inference(
         self,
         model_id: str,
-        input_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """
-        Inferencia futtatása a modellen.
+        input_data: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Inferencia futtatása a modellen.
         
         Args:
             model_id: A modell azonosítója
@@ -133,9 +126,8 @@ class AIService(AIServiceInterface):
 
         return result
 
-    def get_model_info(self, model_id: str) -> Dict[str, Any]:
-        """
-        Modell információk lekérdezése.
+    def get_model_info(self, model_id: str) -> dict[str, Any]:
+        """Modell információk lekérdezése.
         
         Args:
             model_id: A modell azonosítója
@@ -161,11 +153,10 @@ class AIService(AIServiceInterface):
     def train_model(
         self,
         model_id: str,
-        training_data: List[Dict[str, Any]],
-        config: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
-        """
-        Modell betanítása.
+        training_data: list[dict[str, Any]],
+        config: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Modell betanítása.
         
         Args:
             model_id: A modell azonosítója
@@ -180,7 +171,7 @@ class AIService(AIServiceInterface):
 
         # Mock tanítási folyamat indítása
         training_id = f"training_{model_id}_{len(self._training_jobs)}"
-        
+
         self._training_jobs[training_id] = {
             "model_id": model_id,
             "status": "running",
@@ -198,9 +189,8 @@ class AIService(AIServiceInterface):
 
         return result
 
-    def get_training_status(self, training_id: str) -> Dict[str, Any]:
-        """
-        Tanítás állapotának lekérdezése.
+    def get_training_status(self, training_id: str) -> dict[str, Any]:
+        """Tanítás állapotának lekérdezése.
         
         Args:
             training_id: A tanítás azonosítója
@@ -212,7 +202,7 @@ class AIService(AIServiceInterface):
             raise ValueError(f"Ismeretlen tanítás: {training_id}")
 
         job = self._training_jobs[training_id]
-        
+
         # Mock állapot frissítés
         status = {
             "training_id": training_id,

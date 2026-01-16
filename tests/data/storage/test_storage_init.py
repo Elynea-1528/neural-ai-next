@@ -2,8 +2,6 @@
 from importlib import metadata
 from unittest.mock import patch
 
-import pytest
-
 from neural_ai.data.storage import __schema_version__, __version__
 
 
@@ -36,13 +34,14 @@ class TestStorageInit:
         with patch.object(metadata, "version", side_effect=metadata.PackageNotFoundError):
             # Újraimportáljuk a modult, hogy a fallback verziót használja
             import importlib
+
             import neural_ai.data.storage
-            
+
             importlib.reload(neural_ai.data.storage)
-            
+
             # Ellenőrizzük, hogy a fallback verzió lett-e beállítva
             assert neural_ai.data.storage.__version__ == "1.0.0"
-            
+
             # Visszaállítjuk az eredeti verziót
             importlib.reload(neural_ai.data.storage)
 

@@ -282,7 +282,7 @@ class FileStorage(StorageInterface):
             fmt = full_path.suffix.lower().lstrip(".")
             if not fmt:
                 raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
-            
+
             # Excel kiterjesztések esetén a formátumot 'excel'-re állítjuk
             if fmt in ['xlsx', 'xls']:
                 fmt = 'excel'
@@ -353,7 +353,7 @@ class FileStorage(StorageInterface):
             fmt = full_path.suffix.lower().lstrip(".")
             if not fmt:
                 raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
-            
+
             # Excel kiterjesztések esetén a formátumot 'excel'-re állítjuk
             if fmt in ['xlsx', 'xls']:
                 fmt = 'excel'

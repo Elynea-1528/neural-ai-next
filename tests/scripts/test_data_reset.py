@@ -10,7 +10,6 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from scripts.data_reset import (
     check_directory_exists,
     create_directories_if_needed,

@@ -22,6 +22,8 @@ import sys
 from datetime import timedelta
 from typing import TYPE_CHECKING, cast
 
+from neural_ai.core import bootstrap_core
+
 # Importok a saját modulokból
 
 # Importok a TYPE_CHECKING blokkban
@@ -34,9 +36,6 @@ from colorama import Fore, Style
 
 # Inicializálás a színes konzolhoz
 colorama.init(autoreset=True)
-
-# Importok a saját modulokból
-from neural_ai.core import bootstrap_core
 
 
 class ResamplingDemo:

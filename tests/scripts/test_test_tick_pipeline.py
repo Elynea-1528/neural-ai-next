@@ -6,7 +6,6 @@ Ez a modul tartalmazza a test_tick_pipeline.py szkript tesztjeit.
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from scripts.test_tick_pipeline import validate_tick_pipeline
 
 

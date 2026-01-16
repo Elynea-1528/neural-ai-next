@@ -1,38 +1,33 @@
-"""
-AI Service interfész definíciója.
+"""AI Service interfész definíciója.
 
 Ez az interfész definiálja a mesterséges intelligencia szolgáltatás szerződését,
 amely a modellek kezelését és futtatását végzi.
 """
 
-from typing import Protocol, runtime_checkable, Dict, Any, List, Optional
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
+    pass
 
 
 @runtime_checkable
 class AIServiceInterface(Protocol):
-    """
-    AI Service interfész - Mesterséges intelligencia kezeléséért felelős.
+    """AI Service interfész - Mesterséges intelligencia kezeléséért felelős.
     
     Ez az interfész definiálja a modellek betöltését, konfigurálását és
     futtatását végző metódusokat.
     """
 
-    def get_available_models(self) -> List[Dict[str, str]]:
-        """
-        Elérhető AI modellek lekérdezése.
+    def get_available_models(self) -> list[dict[str, str]]:
+        """Elérhető AI modellek lekérdezése.
         
         Returns:
             List[Dict[str, str]]: A modellek listája
         """
         ...
 
-    def load_model(self, model_id: str, config: Optional[Dict[str, Any]] = None) -> bool:
-        """
-        AI modell betöltése.
+    def load_model(self, model_id: str, config: dict[str, Any] | None = None) -> bool:
+        """AI modell betöltése.
         
         Args:
             model_id: A modell azonosítója
@@ -46,10 +41,9 @@ class AIServiceInterface(Protocol):
     def run_inference(
         self,
         model_id: str,
-        input_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """
-        Inferencia futtatása a modellen.
+        input_data: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Inferencia futtatása a modellen.
         
         Args:
             model_id: A modell azonosítója
@@ -60,9 +54,8 @@ class AIServiceInterface(Protocol):
         """
         ...
 
-    def get_model_info(self, model_id: str) -> Dict[str, Any]:
-        """
-        Modell információk lekérdezése.
+    def get_model_info(self, model_id: str) -> dict[str, Any]:
+        """Modell információk lekérdezése.
         
         Args:
             model_id: A modell azonosítója
@@ -75,11 +68,10 @@ class AIServiceInterface(Protocol):
     def train_model(
         self,
         model_id: str,
-        training_data: List[Dict[str, Any]],
-        config: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
-        """
-        Modell betanítása.
+        training_data: list[dict[str, Any]],
+        config: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Modell betanítása.
         
         Args:
             model_id: A modell azonosítója
@@ -91,9 +83,8 @@ class AIServiceInterface(Protocol):
         """
         ...
 
-    def get_training_status(self, training_id: str) -> Dict[str, Any]:
-        """
-        Tanítás állapotának lekérdezése.
+    def get_training_status(self, training_id: str) -> dict[str, Any]:
+        """Tanítás állapotának lekérdezése.
         
         Args:
             training_id: A tanítás azonosítója

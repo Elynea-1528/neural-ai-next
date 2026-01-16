@@ -4,11 +4,12 @@ Ez a modul tartalmazza a UtilError és HardwareDetectionError osztályok
 tesztelését, valamint az __init__.py exportjainak ellenőrzését.
 """
 
-import pytest
 
 from neural_ai.core.utils.exceptions import HardwareDetectionError, UtilError
 from neural_ai.core.utils.exceptions.util_error import (
     HardwareDetectionError as UtilHardwareDetectionError,
+)
+from neural_ai.core.utils.exceptions.util_error import (
     UtilError as UtilUtilError,
 )
 
@@ -74,7 +75,9 @@ class TestInitExports:
 
     def test_init_exports_hardware_detection_error(self) -> None:
         """Teszteli, hogy az __init__.py exportálja-e a HardwareDetectionError-t."""
-        from neural_ai.core.utils.exceptions import HardwareDetectionError as InitHardwareDetectionError
+        from neural_ai.core.utils.exceptions import (
+            HardwareDetectionError as InitHardwareDetectionError,
+        )
         assert InitHardwareDetectionError is UtilHardwareDetectionError
 
     def test_init_all_list(self) -> None:
@@ -87,6 +90,6 @@ class TestInitExports:
     def test_direct_import_from_module(self) -> None:
         """Teszteli a közvetlen importot a modulból."""
         # Ez a teszt lefedi a 6-9 sorokat az __init__.py-ben
-        from neural_ai.core.utils.exceptions.util_error import UtilError, HardwareDetectionError
+        from neural_ai.core.utils.exceptions.util_error import HardwareDetectionError, UtilError
         assert UtilError is not None
         assert HardwareDetectionError is not None

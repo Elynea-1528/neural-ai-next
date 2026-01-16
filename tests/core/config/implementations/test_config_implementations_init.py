@@ -1,7 +1,8 @@
 """Config implementációk __init__ moduljának tesztelése."""
 
 from unittest.mock import patch
-from neural_ai.core.config.implementations import __version__, SCHEMA_VERSION
+
+from neural_ai.core.config.implementations import SCHEMA_VERSION, __version__
 
 
 class TestConfigImplementationsInit:
@@ -18,26 +19,26 @@ class TestConfigImplementationsInit:
         with patch('importlib.metadata.version') as mock_version:
             from importlib.metadata import PackageNotFoundError
             mock_version.side_effect = PackageNotFoundError("Package not found")
-            
+
             import sys
-            
+
             # Távolítsuk el a modult a cache-ből
             if 'neural_ai.core.config.implementations' in sys.modules:
                 del sys.modules['neural_ai.core.config.implementations']
-            
+
             # Importáljuk újra a modult a mockkal
             from neural_ai.core.config.implementations import __version__ as fallback_version
-            
+
             assert fallback_version == "1.0.0"
 
     def test_all_imports_available(self) -> None:
         """Teszteli, hogy minden import elérhető-e."""
         from neural_ai.core.config.implementations import (
+            SCHEMA_VERSION,
             YAMLConfigManager,
             __version__,
-            SCHEMA_VERSION,
         )
-        
+
         assert YAMLConfigManager is not None
         assert __version__ is not None
         assert SCHEMA_VERSION is not None
@@ -45,11 +46,11 @@ class TestConfigImplementationsInit:
     def test_all_list_contains_expected_exports(self) -> None:
         """Teszteli, hogy a __all__ lista tartalmazza-e a várt exportokat."""
         from neural_ai.core.config.implementations import __all__
-        
+
         expected_exports = [
             "YAMLConfigManager",
             "__version__",
             "SCHEMA_VERSION",
         ]
-        
+
         assert set(__all__) == set(expected_exports)
