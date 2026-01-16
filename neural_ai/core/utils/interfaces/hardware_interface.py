@@ -28,7 +28,7 @@ class HardwareInterface(ABC):
         Returns:
             bool: True, ha a CPU támogatja az AVX2-t, False egyébként.
         """
-        raise NotImplementedError
+        pass  # pragma: no cover
 
     @abstractmethod
     def get_cpu_features(self) -> set[str]:
@@ -37,7 +37,7 @@ class HardwareInterface(ABC):
         Returns:
             set[str]: A CPU által támogatott feature flag-ek halmaza.
         """
-        raise NotImplementedError
+        pass  # pragma: no cover
 
     @abstractmethod
     def supports_simd(self) -> bool:
@@ -46,4 +46,4 @@ class HardwareInterface(ABC):
         Returns:
             bool: True, ha a CPU támogatja az alapvető SIMD utasításokat.
         """
-        raise NotImplementedError
+        pass  # pragma: no cover
