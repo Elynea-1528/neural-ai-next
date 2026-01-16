@@ -11,6 +11,9 @@ from pathlib import Path
 PROJECT_ROOT = Path("/home/elynea/Dokumentumok/neural-ai-next")
 OUTPUT_FILENAME = "neural_ai_full_context.txt"
 OUTPUT_FILE = PROJECT_ROOT / OUTPUT_FILENAME
+OUTPUT_FILENAME_MD = "neural_ai_full_context.md"
+OUTPUT_FILE_MD = PROJECT_ROOT / OUTPUT_FILENAME_MD
+
 
 # ITT A LÉNYEG: A mappa neve a képről!
 DRIVE_SUBFOLDER = "Google AI Studio"
@@ -39,6 +42,7 @@ IGNORE_EXTENSIONS = {
     ".lock",
     ".DS_Store",
     ".txt",
+    ".md",
 }
 
 IGNORE_DIRS = {
@@ -97,7 +101,7 @@ def sync_to_drive(source_file: Path):
         print("⚠️  Google Drive nincs felcsatolva. Csak helyi mentés történt.")
         return
 
-    dest_file = dest_folder / OUTPUT_FILENAME
+    dest_file = dest_folder / source_file.name
 
     print(f"☁️  Szinkronizálás (Linux cp): {dest_file} ...")
 
@@ -165,27 +169,47 @@ def pack_project(mode="full"):
     unique_files = sorted(list(set(all_files)))
     count = 0
 
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as out:
-        out.write(f"=== NEURAL AI NEXT CONTEXT ({mode.upper()}) ===\n")
-        out.write(f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as out_txt, open(OUTPUT_FILE_MD, "w", encoding="utf-8") as out_md:
+        # Write headers
+        header_txt = f"=== NEURAL AI NEXT CONTEXT ({mode.upper()}) ===\n"
+        header_txt += f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+        out_txt.write(header_txt)
+
+        header_md = f"# NEURAL AI NEXT CONTEXT ({mode.upper()})\n"
+        header_md += f"*Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}*\n\n"
+        out_md.write(header_md)
 
         for path in unique_files:
             if path.is_file() and not is_ignored(path):
-                if path.name == OUTPUT_FILENAME or "pack" in path.name:
+                if path.name in [OUTPUT_FILENAME, OUTPUT_FILENAME_MD] or "pack" in path.name:
                     continue
                 try:
                     rel = path.relative_to(PROJECT_ROOT)
                     content = path.read_text(encoding="utf-8", errors="ignore")
-                    out.write(f"\n{'=' * 50}\nFILE: {rel}\n{'=' * 50}\n{content}\n")
-                    count += 1
-                except:
-                    pass
 
-    size_mb = os.path.getsize(OUTPUT_FILE) / (1024 * 1024)
-    print(f"📄 Helyi fájl kész: {count} fájl ({size_mb:.2f} MB)")
+                    # Write to TXT file
+                    out_txt.write(f"\n{'=' * 50}\nFILE: {rel}\n{'=' * 50}\n{content}\n")
+
+                    # Write to MD file
+                    lang = path.suffix[1:] if path.suffix else "text"
+                    out_md.write(f"## `FILE: {rel}`\n\n")
+                    out_md.write(f"```{lang}\n")
+                    out_md.write(content)
+                    out_md.write(f"\n```\n\n")
+
+                    count += 1
+                except Exception as e:
+                    print(f"⚠️  Hiba a(z) '{path}' feldolgozása közben: {e}")
+
+    size_mb_txt = os.path.getsize(OUTPUT_FILE) / (1024 * 1024)
+    print(f"📄 Helyi fájl kész (.txt): {count} fájl ({size_mb_txt:.2f} MB)")
+
+    size_mb_md = os.path.getsize(OUTPUT_FILE_MD) / (1024 * 1024)
+    print(f"📄 Helyi fájl kész (.md):  {count} fájl ({size_mb_md:.2f} MB)")
 
     # AUTO SYNC
     sync_to_drive(OUTPUT_FILE)
+    sync_to_drive(OUTPUT_FILE_MD)
 
 
 if __name__ == "__main__":
