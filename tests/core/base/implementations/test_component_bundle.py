@@ -224,3 +224,75 @@ class TestCoreComponents:
         # storage, database, event_bus, hardware hiányzik
 
         assert not components.validate()
+
+    def test_persister_property_none(self) -> None:
+        """Teszteli a persister property-t ha nincs persister komponens."""
+        components: CoreComponents = CoreComponents()
+
+        assert components.persister is None
+
+    def test_persister_property_with_instance(self) -> None:
+        """Teszteli a persister property-t ha van persister komponens."""
+        components: CoreComponents = CoreComponents()
+        mock_persister: MagicMock = MagicMock()
+        components.set_persister(mock_persister)
+
+        assert components.persister is mock_persister
+
+    def test_live_feed_property_none(self) -> None:
+        """Teszteli a live_feed property-t ha nincs live_feed komponens."""
+        components: CoreComponents = CoreComponents()
+
+        assert components.live_feed is None
+
+    def test_live_feed_property_with_instance(self) -> None:
+        """Teszteli a live_feed property-t ha van live_feed komponens."""
+        components: CoreComponents = CoreComponents()
+        mock_live_feed: MagicMock = MagicMock()
+        components.set_live_feed(mock_live_feed)
+
+        assert components.live_feed is mock_live_feed
+
+    def test_set_persister(self) -> None:
+        """Teszteli a set_persister metódust."""
+        components: CoreComponents = CoreComponents()
+        mock_persister: MagicMock = MagicMock()
+        components.set_persister(mock_persister)
+
+        assert components.persister is mock_persister
+
+    def test_set_live_feed(self) -> None:
+        """Teszteli a set_live_feed metódust."""
+        components: CoreComponents = CoreComponents()
+        mock_live_feed: MagicMock = MagicMock()
+        components.set_live_feed(mock_live_feed)
+
+        assert components.live_feed is mock_live_feed
+
+    def test_has_persister_false(self) -> None:
+        """Teszteli a has_persister metódust ha nincs persister."""
+        components: CoreComponents = CoreComponents()
+
+        assert not components.has_persister()
+
+    def test_has_persister_true(self) -> None:
+        """Teszteli a has_persister metódust ha van persister."""
+        components: CoreComponents = CoreComponents()
+        mock_persister: MagicMock = MagicMock()
+        components.set_persister(mock_persister)
+
+        assert components.has_persister()
+
+    def test_has_live_feed_false(self) -> None:
+        """Teszteli a has_live_feed metódust ha nincs live_feed."""
+        components: CoreComponents = CoreComponents()
+
+        assert not components.has_live_feed()
+
+    def test_has_live_feed_true(self) -> None:
+        """Teszteli a has_live_feed metódust ha van live_feed."""
+        components: CoreComponents = CoreComponents()
+        mock_live_feed: MagicMock = MagicMock()
+        components.set_live_feed(mock_live_feed)
+
+        assert components.has_live_feed()

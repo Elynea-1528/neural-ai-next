@@ -210,6 +210,16 @@ class TestDIContainer:
 
         assert container.get("preload_comp").value == "preload"
 
+    def test_preload_components_not_found(self) -> None:
+        """Teszteli a komponensek előtöltését nem létező komponenssel."""
+        container = DIContainer()
+
+        # Nem dob kivételt, csak figyelmen kívül hagyja
+        container.preload_components(["not_found_comp"])
+
+        # Üres konténer marad
+        assert len(container._lazy_components) == 0
+
     def test_clear(self) -> None:
         """Teszteli a konténer ürítését."""
         container = DIContainer()
@@ -257,6 +267,16 @@ class TestDIContainer:
 
         with pytest.raises(Exception):  # SingletonViolationError
             container.register("singleton_comp", instance2)
+
+    def test_enforce_singleton_no_violation(self) -> None:
+        """Teszteli, hogy azonos instance regisztrálása nem okoz problémát."""
+        container = DIContainer()
+        instance = MockComponent("same")
+
+        # Első regisztráció
+        container.register("same_comp", instance)
+        # Második regisztráció ugyanazzal az instance-szal - nem dob kivételt
+        container.register("same_comp", instance)
 
     def test_get_memory_usage(self) -> None:
         """Teszteli a memória használat lekérését."""

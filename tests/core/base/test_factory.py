@@ -207,6 +207,24 @@ class TestCoreComponentFactory:
             assert components.has_logger()
             assert components.has_storage()
 
+    @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
+    @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
+    def test_create_minimal_with_config_file_no_logger_section(
+        self, mock_get_logger: MagicMock, mock_get_manager: MagicMock
+    ) -> None:
+        """Teszteli a minimális komponensek létrehozását config fájllal, de logger section nélkül."""
+        mock_config = MagicMock()
+        mock_config.get_section.return_value = None  # No logger section
+        mock_get_manager.return_value = mock_config
+
+        with patch("pathlib.Path.exists", return_value=True):
+            components = CoreComponentFactory.create_minimal()
+
+            assert components is not None
+            assert components.has_logger()
+            assert components.has_storage()
+            assert components.has_config()
+
     @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
     def test_create_logger(self, mock_get_logger: MagicMock) -> None:
         """Teszteli a logger létrehozását."""
