@@ -12,26 +12,48 @@ class AILabPage(PageInterface):
     """AI Lab oldal."""
 
     def __init__(self, bridge: CoreBridgeInterface, **kwargs: Any) -> None:
+        """A AI Lab oldal inicializálása.
+
+        Args:
+            bridge: A backend bridge példány
+            **kwargs: További opcionális paraméterek
+        """
         self._bridge = bridge
         self._loaded = False
         self._title = "🧠 AI Lab"
 
     def render(self) -> None:
+        """A AI Lab oldal megjelenítése."""
         st.title(self._title)
         st.markdown("AI modellek kezelése és futtatása.")
 
     def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+        """Navigálás az oldalra.
+
+        Args:
+            params: Opcionális navigációs paraméterek
+        """
         self._loaded = True
 
     def on_navigate_from(self) -> None:
-        pass
+        """Navigálás az oldalról."""
 
     @property
     def title(self) -> str:
+        """Az oldal címe.
+
+        Returns:
+            str: Az oldal címe
+        """
         return self._title
 
     @property
     def is_loaded(self) -> bool:
+        """Az oldal betöltött állapota.
+
+        Returns:
+            bool: True, ha az oldal betöltött
+        """
         return self._loaded
 
 

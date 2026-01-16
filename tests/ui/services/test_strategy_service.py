@@ -481,6 +481,7 @@ class TestStrategyService:
 
         # Mock Polars DataFrame
         mock_df = MagicMock()
+        mock_df.__len__ = Mock(return_value=1)
         mock_processed_df = MagicMock()
 
         # Mock processor
@@ -531,6 +532,7 @@ class TestStrategyService:
 
         # Mock Polars DataFrame-ok
         mock_candles_df = MagicMock()
+        mock_candles_df.__len__ = Mock(return_value=1)
         mock_processed_df = MagicMock()
 
         # Mock processor

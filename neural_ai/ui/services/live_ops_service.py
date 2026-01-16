@@ -15,14 +15,14 @@ if TYPE_CHECKING:
 
 class LiveOpsService(LiveOpsServiceInterface):
     """Live Ops Service - Valós idejű műveletekért felelős.
-    
+
     Ez az osztály implementálja a live kereskedést és monitorozást
     végző metódusokat.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface") -> None:
         """A Live Ops Service inicializálása.
-        
+
         Args:
             bridge: A backend bridge példány
         """
@@ -33,7 +33,7 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def get_active_positions(self) -> list[dict[str, Any]]:
         """Aktív pozíciók lekérdezése.
-        
+
         Returns:
             List[Dict[str, Any]]: Az aktív pozíciók listája
         """
@@ -54,7 +54,7 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def get_account_status(self) -> dict[str, Any]:
         """Fiók állapotának lekérdezése.
-        
+
         Returns:
             Dict[str, Any]: A fiók aktuális állapota
         """
@@ -82,7 +82,7 @@ class LiveOpsService(LiveOpsServiceInterface):
         take_profit: float | None = None
     ) -> str:
         """Új rendelés leadása.
-        
+
         Args:
             symbol: A kereskedendő szimbólum
             order_type: A rendelés típusa (BUY/SELL)
@@ -90,7 +90,7 @@ class LiveOpsService(LiveOpsServiceInterface):
             price: A rendelés ára (opcionális)
             stop_loss: Stop loss szint (opcionális)
             take_profit: Take profit szint (opcionális)
-            
+
         Returns:
             str: A rendelés azonosítója
         """
@@ -119,13 +119,13 @@ class LiveOpsService(LiveOpsServiceInterface):
         take_profit: float | None = None
     ) -> bool:
         """Meglévő rendelés módosítása.
-        
+
         Args:
             order_id: A rendelés azonosítója
             price: Az új ár
             stop_loss: Az új stop loss
             take_profit: Az új take profit
-            
+
         Returns:
             bool: True, ha sikeres a módosítás
         """
@@ -150,10 +150,10 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def cancel_order(self, order_id: str) -> bool:
         """Rendelés visszavonása.
-        
+
         Args:
             order_id: A rendelés azonosítója
-            
+
         Returns:
             bool: True, ha sikeres a visszavonás
         """
@@ -168,10 +168,10 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def close_position(self, position_id: str) -> bool:
         """Pozíció lezárása.
-        
+
         Args:
             position_id: A pozíció azonosítója
-            
+
         Returns:
             bool: True, ha sikeres a lezárás
         """
@@ -186,10 +186,10 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def get_market_data(self, symbol: str) -> dict[str, Any]:
         """Piaci adatok lekérdezése.
-        
+
         Args:
             symbol: A szimbólum
-            
+
         Returns:
             Dict[str, Any]: A piaci adatok
         """
@@ -213,7 +213,7 @@ class LiveOpsService(LiveOpsServiceInterface):
         callback: Callable[[dict[str, Any]], None]
     ) -> None:
         """Feliratkozás piaci frissítésekre.
-        
+
         Args:
             symbol: A szimbólum
             callback: A hívandó callback függvény
@@ -225,7 +225,7 @@ class LiveOpsService(LiveOpsServiceInterface):
 
     def get_performance_summary(self) -> dict[str, Any]:
         """Teljesítmény összegzés lekérdezése.
-        
+
         Returns:
             Dict[str, Any]: A teljesítmény adatok
         """

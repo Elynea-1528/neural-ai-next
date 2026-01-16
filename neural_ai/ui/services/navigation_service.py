@@ -16,14 +16,14 @@ if TYPE_CHECKING:
 
 class NavigationService(NavigationServiceInterface):
     """Navigation Service - Oldalak közötti navigációért felelős.
-    
+
     Ez az osztály implementálja a navigációs logikát kezelő metódusokat,
     és nyilvántartja a navigációs előzményeket.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface") -> None:
         """A Navigation Service inicializálása.
-        
+
         Args:
             bridge: A backend bridge példány
         """
@@ -39,7 +39,7 @@ class NavigationService(NavigationServiceInterface):
         params: dict[str, Any] | None = None
     ) -> None:
         """Navigálás egy adott oldalra.
-        
+
         Args:
             page_name: A céloldal neve
             params: Navigációs paraméterek
@@ -63,8 +63,7 @@ class NavigationService(NavigationServiceInterface):
         self._notify_subscribers(page_name, params or {})
 
     def go_back(self) -> None:
-        """Visszalépés az előző oldalra.
-        """
+        """Visszalépés az előző oldalra."""
         if len(self._history) < 2:
             return  # Nincs hova visszamenni
 
@@ -83,7 +82,7 @@ class NavigationService(NavigationServiceInterface):
 
     def get_current_page(self) -> PageInterface | None:
         """Az aktuális oldal lekérdezése.
-        
+
         Returns:
             Optional[PageInterface]: Az aktuális oldal vagy None
         """
@@ -93,7 +92,7 @@ class NavigationService(NavigationServiceInterface):
 
     def get_page_history(self) -> list[str]:
         """A navigációs előzmények lekérdezése.
-        
+
         Returns:
             List[str]: Az oldalnevek listája
         """
@@ -105,7 +104,7 @@ class NavigationService(NavigationServiceInterface):
         page: PageInterface
     ) -> None:
         """Oldal regisztrálása a navigációs rendszerben.
-        
+
         Args:
             page_name: Az oldal neve
             page: Az oldal példánya
@@ -122,7 +121,7 @@ class NavigationService(NavigationServiceInterface):
         callback: Callable[[str, dict[str, Any]], None]
     ) -> None:
         """Feliratkozás navigációs eseményekre.
-        
+
         Args:
             callback: A hívandó callback függvény
         """
@@ -134,7 +133,7 @@ class NavigationService(NavigationServiceInterface):
         params: dict[str, Any]
     ) -> None:
         """Értesítés küldése a feliratkozóknak.
-        
+
         Args:
             page_name: Az oldal neve
             params: A navigációs paraméterek

@@ -9,13 +9,13 @@ from typing import Any
 
 class BaseWidget:
     """Base Widget - Alap widget osztály.
-    
+
     Ez az osztály az összes UI komponens alapját képezi.
     """
 
     def __init__(self, config: dict[str, Any] | None = None) -> None:
         """A widget inicializálása.
-        
+
         Args:
             config: A widget konfigurációja
         """
@@ -24,7 +24,7 @@ class BaseWidget:
 
     def render(self) -> str:
         """A widget tartalmának renderelése.
-        
+
         Returns:
             str: A renderelt tartalom
         """
@@ -41,7 +41,7 @@ class BaseWidget:
     @property
     def is_visible(self) -> bool:
         """A widget láthatóságát ellenőrző property.
-        
+
         Returns:
             bool: True, ha a widget látható, egyébként False
         """

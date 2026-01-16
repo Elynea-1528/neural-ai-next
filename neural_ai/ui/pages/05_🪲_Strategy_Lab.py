@@ -7,6 +7,7 @@ interaktív módon vizsgálhatják a gyertyadiagramokat és stratégiákat.
 from datetime import date
 from typing import TYPE_CHECKING, Any
 
+import pandas as pd
 import polars as pl
 import streamlit as st
 
@@ -385,7 +386,10 @@ class StrategyLabPage(PageInterface):
                 d2_pd = st.session_state.d2_analysis.to_pandas()
                 # Biztosítsd, hogy a dátum oszlop neve egyezzen
                 # Merge left join-nal (hogy a chart adatok megmaradjanak)
-                df_plot = pd.merge(df_plot, d2_pd[['timestamp', 'swing_high_body', 'swing_low_body', 'swing_high_wick', 'swing_low_wick']], left_on='date', right_on='timestamp', how='left')
+                swing_cols = ['timestamp', 'swing_high_body', 'swing_low_body',
+                              'swing_high_wick', 'swing_low_wick']
+                df_plot = pd.merge(df_plot, d2_pd[swing_cols],
+                                   left_on='date', right_on='timestamp', how='left')
 
             # Body swings kirajzolása egyszerű szűréssel
             if st.session_state.show_body_swings:

@@ -82,7 +82,8 @@ class CoreBridge(metaclass=SingletonMeta):
 
         Args:
             component_type: A lekérdezni kívánt komponens típusa.
-                Támogatott típusok: 'parquet_storage', 'bi5_downloader', 'strategy_service', 'config'
+            Támogatott típusok: 'parquet_storage', 'bi5_downloader',
+            'strategy_service', 'config'
 
         Returns:
             Optional[object]: A lekérdezett komponens vagy None, ha nem található

@@ -13,14 +13,14 @@ if TYPE_CHECKING:
 @runtime_checkable
 class LiveOpsServiceInterface(Protocol):
     """Live Ops Service interfész - Valós idejű műveletekért felelős.
-    
+
     Ez az interfész definiálja a live kereskedést és monitorozást
     végző metódusokat.
     """
 
     def get_active_positions(self) -> list[dict[str, Any]]:
         """Aktív pozíciók lekérdezése.
-        
+
         Returns:
             List[Dict[str, Any]]: Az aktív pozíciók listája
         """
@@ -28,7 +28,7 @@ class LiveOpsServiceInterface(Protocol):
 
     def get_account_status(self) -> dict[str, Any]:
         """Fiók állapotának lekérdezése.
-        
+
         Returns:
             Dict[str, Any]: A fiók aktuális állapota
         """
@@ -44,7 +44,7 @@ class LiveOpsServiceInterface(Protocol):
         take_profit: float | None = None
     ) -> str:
         """Új rendelés leadása.
-        
+
         Args:
             symbol: A kereskedendő szimbólum
             order_type: A rendelés típusa (BUY/SELL)
@@ -52,7 +52,7 @@ class LiveOpsServiceInterface(Protocol):
             price: A rendelés ára (opcionális)
             stop_loss: Stop loss szint (opcionális)
             take_profit: Take profit szint (opcionális)
-            
+
         Returns:
             str: A rendelés azonosítója
         """
@@ -66,13 +66,13 @@ class LiveOpsServiceInterface(Protocol):
         take_profit: float | None = None
     ) -> bool:
         """Meglévő rendelés módosítása.
-        
+
         Args:
             order_id: A rendelés azonosítója
             price: Az új ár
             stop_loss: Az új stop loss
             take_profit: Az új take profit
-            
+
         Returns:
             bool: True, ha sikeres a módosítás
         """
@@ -80,10 +80,10 @@ class LiveOpsServiceInterface(Protocol):
 
     def cancel_order(self, order_id: str) -> bool:
         """Rendelés visszavonása.
-        
+
         Args:
             order_id: A rendelés azonosítója
-            
+
         Returns:
             bool: True, ha sikeres a visszavonás
         """
@@ -91,10 +91,10 @@ class LiveOpsServiceInterface(Protocol):
 
     def close_position(self, position_id: str) -> bool:
         """Pozíció lezárása.
-        
+
         Args:
             position_id: A pozíció azonosítója
-            
+
         Returns:
             bool: True, ha sikeres a lezárás
         """
@@ -102,10 +102,10 @@ class LiveOpsServiceInterface(Protocol):
 
     def get_market_data(self, symbol: str) -> dict[str, Any]:
         """Piaci adatok lekérdezése.
-        
+
         Args:
             symbol: A szimbólum
-            
+
         Returns:
             Dict[str, Any]: A piaci adatok
         """
@@ -117,7 +117,7 @@ class LiveOpsServiceInterface(Protocol):
         callback: Any
     ) -> None:
         """Feliratkozás piaci frissítésekre.
-        
+
         Args:
             symbol: A szimbólum
             callback: A hívandó callback függvény
@@ -126,7 +126,7 @@ class LiveOpsServiceInterface(Protocol):
 
     def get_performance_summary(self) -> dict[str, Any]:
         """Teljesítmény összegzés lekérdezése.
-        
+
         Returns:
             Dict[str, Any]: A teljesítmény adatok
         """

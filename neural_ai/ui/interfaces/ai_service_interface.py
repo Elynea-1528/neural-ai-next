@@ -13,14 +13,14 @@ if TYPE_CHECKING:
 @runtime_checkable
 class AIServiceInterface(Protocol):
     """AI Service interfész - Mesterséges intelligencia kezeléséért felelős.
-    
+
     Ez az interfész definiálja a modellek betöltését, konfigurálását és
     futtatását végző metódusokat.
     """
 
     def get_available_models(self) -> list[dict[str, str]]:
         """Elérhető AI modellek lekérdezése.
-        
+
         Returns:
             List[Dict[str, str]]: A modellek listája
         """
@@ -28,11 +28,11 @@ class AIServiceInterface(Protocol):
 
     def load_model(self, model_id: str, config: dict[str, Any] | None = None) -> bool:
         """AI modell betöltése.
-        
+
         Args:
             model_id: A modell azonosítója
             config: A modell konfigurációja
-            
+
         Returns:
             bool: True, ha sikeres a betöltés
         """
@@ -44,11 +44,11 @@ class AIServiceInterface(Protocol):
         input_data: dict[str, Any]
     ) -> dict[str, Any]:
         """Inferencia futtatása a modellen.
-        
+
         Args:
             model_id: A modell azonosítója
             input_data: A bemeneti adatok
-            
+
         Returns:
             Dict[str, Any]: Az inferencia eredménye
         """
@@ -56,10 +56,10 @@ class AIServiceInterface(Protocol):
 
     def get_model_info(self, model_id: str) -> dict[str, Any]:
         """Modell információk lekérdezése.
-        
+
         Args:
             model_id: A modell azonosítója
-            
+
         Returns:
             Dict[str, Any]: A modell metaadatai
         """
@@ -72,12 +72,12 @@ class AIServiceInterface(Protocol):
         config: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Modell betanítása.
-        
+
         Args:
             model_id: A modell azonosítója
             training_data: A tanítóadatok
             config: A tanítás konfigurációja
-            
+
         Returns:
             Dict[str, Any]: A tanítás eredménye
         """
@@ -85,10 +85,10 @@ class AIServiceInterface(Protocol):
 
     def get_training_status(self, training_id: str) -> dict[str, Any]:
         """Tanítás állapotának lekérdezése.
-        
+
         Args:
             training_id: A tanítás azonosítója
-            
+
         Returns:
             Dict[str, Any]: A tanítás állapota
         """

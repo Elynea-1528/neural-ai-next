@@ -12,13 +12,13 @@ if TYPE_CHECKING:
 @runtime_checkable
 class PageInterface(Protocol):
     """Page interfész - Oldal komponensek alapja.
-    
+
     Ez az interfész definiálja az oldalak által implementálandó metódusokat.
     """
 
     def __init__(self, bridge: "CoreBridgeInterface", **kwargs: Any) -> None:
         """Oldal inicializálása.
-        
+
         Args:
             bridge: A backend bridge példány
             **kwargs: További paraméterek
@@ -27,7 +27,7 @@ class PageInterface(Protocol):
 
     def render(self) -> Any:
         """Az oldal tartalmának renderelése.
-        
+
         Returns:
             Any: A renderelt tartalom
         """
@@ -35,21 +35,20 @@ class PageInterface(Protocol):
 
     def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
         """Akció, amikor az oldalra navigálnak.
-        
+
         Args:
             params: Navigációs paraméterek
         """
         ...
 
     def on_navigate_from(self) -> None:
-        """Akció, amikor elnavigálnak az oldalról.
-        """
+        """Akció, amikor elnavigálnak az oldalról."""
         ...
 
     @property
     def title(self) -> str:
         """Az oldal címét visszaadó property.
-        
+
         Returns:
             str: Az oldal címe
         """
@@ -58,7 +57,7 @@ class PageInterface(Protocol):
     @property
     def is_loaded(self) -> bool:
         """Az oldal betöltöttségi állapotát ellenőrző property.
-        
+
         Returns:
             bool: True, ha az oldal betöltött, egyébként False
         """

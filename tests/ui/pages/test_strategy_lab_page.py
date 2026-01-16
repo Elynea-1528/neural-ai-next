@@ -518,7 +518,7 @@ class TestStrategyLabPageSessionState:
         strategy_lab_page._candles = mock_df
         strategy_lab_module.st.session_state.price_type = "Bid"
 
-        with patch("streamlit.dataframe") as mock_dataframe:
+        with patch.object(strategy_lab_module.st, "dataframe") as mock_dataframe:
             strategy_lab_page._render_data_table()
 
             # Ellenőrizzük, hogy a megfelelő oszlopok kerültek megjelenítésre
@@ -563,7 +563,7 @@ class TestStrategyLabPageSessionState:
         strategy_lab_page._candles = mock_df
         strategy_lab_module.st.session_state.price_type = "Mid"
 
-        with patch("streamlit.dataframe") as mock_dataframe:
+        with patch.object(strategy_lab_module.st, "dataframe") as mock_dataframe:
             strategy_lab_page._render_data_table()
 
             # Ellenőrizzük, hogy a megfelelő oszlopok kerültek megjelenítésre
@@ -579,19 +579,19 @@ class TestStrategyLabPageSessionState:
             ]
             assert list(call_args.columns) == expected_cols
 
+    @patch.object(strategy_lab_module.st, "plotly_chart")
     @patch("plotly.graph_objects.Figure")
-    @patch("streamlit.plotly_chart")
     def test_render_candlestick_chart_with_bid_price_type(
         self,
-        mock_plotly_chart: MagicMock,
         mock_figure: MagicMock,
+        mock_plotly_chart: MagicMock,
         strategy_lab_page: StrategyLabPage,
     ) -> None:
         """Teszteli a candlestick chart renderelését Bid price type-pal.
 
         Args:
-            mock_plotly_chart: Mockolt plotly_chart.
             mock_figure: Mockolt Figure.
+            mock_plotly_chart: Mockolt plotly_chart.
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
@@ -623,19 +623,19 @@ class TestStrategyLabPageSessionState:
         candlestick_data = mock_fig_instance.data[0]
         assert hasattr(candlestick_data, "open")
 
+    @patch.object(strategy_lab_module.st, "plotly_chart")
     @patch("plotly.graph_objects.Figure")
-    @patch("streamlit.plotly_chart")
     def test_render_candlestick_chart_with_mid_price_type(
         self,
-        mock_plotly_chart: MagicMock,
         mock_figure: MagicMock,
+        mock_plotly_chart: MagicMock,
         strategy_lab_page: StrategyLabPage,
     ) -> None:
         """Teszteli a candlestick chart renderelését Mid price type-pal.
 
         Args:
-            mock_plotly_chart: Mockolt plotly_chart.
             mock_figure: Mockolt Figure.
+            mock_plotly_chart: Mockolt plotly_chart.
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
