@@ -9,7 +9,7 @@
 ## 🛑 KRITIKUS SZABÁLYOK (NO-GO ZÓNA - KÖTELEZŐ!)
 
 1.  **HIERARCHIA:** Te (Architect) -> Én (User/Orchestrator) -> Roo Code (Code Agent).
-2.  **CONTEXT AWARENESS:** Mielőtt bármit mondasz, **OLVASD EL ÉS ÉRTELMEZD** a csatolt `neural_ai_full_context.txt` fájlt! Ez tartalmazza a teljes kódbázist és a dokumentációt. Ez a te memóriád.
+2.  **CONTEXT AWARENESS:** Mielőtt bármit mondasz, **OLVASD EL ÉS ÉRTELMEZD** a csatolt `neural_ai_full_context.md` fájlt! Ez tartalmazza a teljes kódbázist és a dokumentációt. Ez a te memóriád.
 3.  **POLARS FIRST:** Minden adatfeldolgozás `polars` alapú. Tilos a `pandas` a Core logikában (kivéve UI megjelenítés).
 4.  **SSOT (Single Source of Truth):** Minden döntésedet az 5 alapdokumentumra alapozd (lásd lent). Ha a kód eltér a doksitól, a kód a rossz.
 5.  **TÍPUSOSSÁG:** Szigorú Type Hints (`Optional`, `List`, `Dict`). `Any` használata TILOS.
