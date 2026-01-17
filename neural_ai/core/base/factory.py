@@ -7,7 +7,7 @@ a lazy loadinget, bootstrap inicializálást és NullObject pattern-t fallback-k
 
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, TypedDict, cast
 
 from neural_ai.core.base.exceptions import (
     ConfigurationError,
@@ -17,6 +17,32 @@ from neural_ai.core.base.implementations.di_container import DIContainer
 from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.utils.decorators import trace
+
+
+class BaseConfig(TypedDict, total=False):
+    """Alap konfigurációs schema."""
+
+
+class LoggerConfig(BaseConfig):
+    """Logger komponens konfigurációja."""
+
+    name: str
+    level: str
+    format: str
+    log_file: str
+
+
+class ConfigManagerConfig(BaseConfig):
+    """Config manager komponens konfigurációja."""
+
+    config_file_path: str
+
+
+class StorageConfig(BaseConfig):
+    """Storage komponens konfigurációja."""
+
+    base_directory: str
+
 
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
@@ -166,14 +192,15 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         # Type-specific validations
         if component_type == "storage":
             # Check if storage directory is configured
-            if not config.get("base_directory"):
+            storage_config = cast(StorageConfig, config)
+            if not storage_config.get("base_directory"):
                 raise ConfigurationError(
                     "Storage base_directory not configured. "
                     "Provide 'base_directory' in config dictionary."
                 )
 
             # Check if base_directory is a valid path
-            base_dir = Path(config["base_directory"])
+            base_dir = Path(storage_config["base_directory"])
             if not base_dir.parent.exists():
                 raise ConfigurationError(
                     f"Storage base_directory parent does not exist: {base_dir.parent}"
@@ -181,20 +208,22 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         elif component_type == "logger":
             # Check if logger name is provided
-            if not config.get("name"):
+            logger_config = cast(LoggerConfig, config)
+            if not logger_config.get("name"):
                 raise ConfigurationError(
                     "Logger name not configured. Provide 'name' in config dictionary."
                 )
 
         elif component_type == "config_manager":
             # Check if config file path is provided
-            if not config.get("config_file_path"):
+            config_manager_config = cast(ConfigManagerConfig, config)
+            if not config_manager_config.get("config_file_path"):
                 raise ConfigurationError(
                     "Config file path not configured. Provide 'config_file_path' in config dict."
                 )
 
             # Check if config file exists
-            config_path = Path(config["config_file_path"])
+            config_path = Path(config_manager_config["config_file_path"])
             if not config_path.exists():
                 raise ConfigurationError(f"Config file does not exist: {config_path}")
 
@@ -421,4 +450,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         logger = LoggerFactory.get_logger(name="storage")
         config_manager = ConfigManagerFactory.get_manager("config.yml")  # fallback
         event_bus = EventBusFactory.get_event_bus(logger=logger)
-        return FileStorage(logger=logger, config=config_manager, event_bus=event_bus, base_path=base_directory)
+        return FileStorage(
+            logger=logger, config=config_manager, event_bus=event_bus, base_path=base_directory
+        )

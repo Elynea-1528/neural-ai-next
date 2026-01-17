@@ -6,6 +6,26 @@ Ez a modul biztosítja a core komponensek (config, logger, storage) létrehozás
 és kezelését dependency injection pattern használatával. A factory támogatja
 a lazy loadinget, bootstrap inicializálást és NullObject pattern-t fallback-ként.
 
+## TypedDict Definíciók
+
+### `BaseConfig`
+Alap konfigurációs schema minden komponenshez.
+
+### `LoggerConfig`
+Logger komponens konfigurációja.
+- `name`: A logger neve (kötelező)
+- `level`: A log szint (opcionális)
+- `format`: A log formátum (opcionális)
+- `log_file`: A log fájl elérési útja (opcionális)
+
+### `ConfigManagerConfig`
+Config manager komponens konfigurációja.
+- `config_file_path`: A konfigurációs fájl elérési útja (kötelező)
+
+### `StorageConfig`
+Storage komponens konfigurációja.
+- `base_directory`: A tároló alapkönyvtára (kötelező)
+
 ## Osztályok
 
 ### `CoreComponentFactory`
