@@ -8,6 +8,15 @@ import yaml
 
 from neural_ai.core.config.exceptions import ConfigLoadError
 from neural_ai.core.config.interfaces import ConfigManagerInterface
+from neural_ai.core.config.interfaces.types import (
+    CollectorsConfig,
+    DatabaseConfig,
+    EventsConfig,
+    LoggingConfig,
+    ProcessorsConfig,
+    StorageConfig,
+    SystemConfig,
+)
 
 if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces import LoggerInterface
@@ -23,7 +32,7 @@ class ValidationContext:
 
     path: str
     errors: dict[str, str]
-    value: Any | None
+    value: str | int | float | bool | list[Any] | dict[str, Any] | None
     schema: dict[str, Any]
 
 
@@ -34,7 +43,7 @@ class YAMLConfigManager(ConfigManagerInterface):
     és betöltéskor ellenőrzi a kompatibilitást.
     """
 
-    _TYPE_MAP: dict[str, type[Any]] = {
+    _TYPE_MAP: dict[str, type] = {
         "str": str,
         "int": int,
         "float": float,
@@ -130,6 +139,62 @@ class YAMLConfigManager(ConfigManagerInterface):
             self._logger.debug(f"Config get: {'.'.join(keys)} -> {current}")
 
         return current
+
+    def get_system_config(self) -> SystemConfig:
+        """Rendszer konfiguráció lekérése.
+
+        Returns:
+            SystemConfig: A rendszer konfigurációs adatai TypedDict formátumban.
+        """
+        return cast(SystemConfig, self.get_section("system"))
+
+    def get_storage_config(self) -> StorageConfig:
+        """Tárolási konfiguráció lekérése.
+
+        Returns:
+            StorageConfig: A tárolási konfigurációs adatai TypedDict formátumban.
+        """
+        return cast(StorageConfig, self.get_section("storage"))
+
+    def get_processors_config(self) -> ProcessorsConfig:
+        """Processzorok konfiguráció lekérése.
+
+        Returns:
+            ProcessorsConfig: A processzorok konfigurációs adatai TypedDict formátumban.
+        """
+        return cast(ProcessorsConfig, self.get_section("processors"))
+
+    def get_logging_config(self) -> LoggingConfig:
+        """Naplózási konfiguráció lekérése.
+
+        Returns:
+            LoggingConfig: A naplózási konfigurációs adatai TypedDict formátumban.
+        """
+        return cast(LoggingConfig, self.get_section("logging"))
+
+    def get_database_config(self) -> DatabaseConfig:
+        """Adatbázis konfiguráció lekérése.
+
+        Returns:
+            DatabaseConfig: Az adatbázis konfigurációs adatai TypedDict formátumban.
+        """
+        return cast(DatabaseConfig, self.get_section("database"))
+
+    def get_events_config(self) -> EventsConfig:
+        """Esemény rendszer konfiguráció lekérése.
+
+        Returns:
+            EventsConfig: Az esemény rendszer konfigurációs adatai TypedDict formátumban.
+        """
+        return cast(EventsConfig, self.get_section("events"))
+
+    def get_collectors_config(self) -> CollectorsConfig:
+        """Gyűjtők konfiguráció lekérése.
+
+        Returns:
+            CollectorsConfig: A gyűjtők konfigurációs adatai TypedDict formátumban.
+        """
+        return cast(CollectorsConfig, self.get_section("collectors"))
 
     def get_section(self, section: str) -> dict[str, Any]:
         """Teljes konfigurációs szekció lekérése.

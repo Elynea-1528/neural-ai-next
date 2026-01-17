@@ -8,7 +8,7 @@ import asyncio
 from collections.abc import Awaitable, Callable
 from contextlib import suppress
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -64,13 +64,17 @@ class DynamicConfigManager(AsyncConfigManagerInterface):
 
         self.session: AsyncSession = session
         self._logger: LoggerInterface | None = logger
-        self._cache: dict[str, Any] = {}
+        self._cache: dict[str, str | int | float | bool | list[Any] | dict[str, Any]] = {}
         self._listeners: list[ConfigListener] = []
         self._last_update: datetime | None = None
         self._hot_reload_task: asyncio.Task[None] | None = None
         self._stop_hot_reload = asyncio.Event()
 
-    async def get(self, *keys: str, default: Any = None) -> Any:
+    async def get(
+        self,
+        *keys: str,
+        default: str | int | float | bool | list[Any] | dict[str, Any] | None = None,
+    ) -> str | int | float | bool | list[Any] | dict[str, Any] | None:
         """Konfigurációs érték lekérdezése.
 
         Args:
@@ -106,8 +110,9 @@ class DynamicConfigManager(AsyncConfigManagerInterface):
                 return default
 
             # Cache-be mentés
-            self._cache[key] = config.value
-            return config.value
+            typed_value = cast(str | int | float | bool | list[Any] | dict[str, Any], config.value)
+            self._cache[key] = typed_value
+            return typed_value
 
         except Exception as e:
             if self._logger:
@@ -529,8 +534,11 @@ class DynamicConfigManager(AsyncConfigManagerInterface):
             for config in updated_configs:
                 old_value = self._cache.get(config.key)
                 if old_value != config.value:
-                    self._cache[config.key] = config.value
-                    await self._notify_listeners(config.key, config.value)
+                    typed_value = cast(
+                        str | int | float | bool | list[Any] | dict[str, Any], config.value
+                    )
+                    self._cache[config.key] = typed_value
+                    await self._notify_listeners(config.key, typed_value)
 
             self._last_update = datetime.now(UTC)
 
