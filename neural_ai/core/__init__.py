@@ -10,7 +10,29 @@ A modul biztosítja a core komponensek megfelelő inicializálását és
 függőségi injektálását, elkerülve a körkörös függőségeket.
 """
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, TypedDict, cast
+
+from neural_ai.core.utils.decorators import trace
+
+
+class LoggingConfig(TypedDict, total=False):
+    """Logging konfiguráció típusa."""
+
+    level: str
+
+
+class StorageConfig(TypedDict, total=False):
+    """Storage konfiguráció típusa."""
+
+    type: str
+    base_path: str
+
+
+class LiveConfig(TypedDict, total=False):
+    """Live feed konfiguráció típusa."""
+
+    enabled: bool
+
 
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
@@ -30,6 +52,7 @@ if TYPE_CHECKING:
     from neural_ai.data.storage.interfaces.storage_interface import StorageInterface  # noqa: F401
 
 
+@trace
 def get_version() -> str:
     """Dynamikusan betölti a csomag verzióját.
 
@@ -41,10 +64,11 @@ def get_version() -> str:
         from importlib import metadata
 
         return metadata.version("neural-ai-next")
-    except Exception:
+    except metadata.PackageNotFoundError:
         return "unknown"
 
 
+@trace
 def get_schema_version() -> str:
     """Visszaadja az aktuális séma verziót.
 
@@ -54,6 +78,7 @@ def get_schema_version() -> str:
     return "1.0.0"
 
 
+@trace
 def bootstrap_core(
     config_path: str | None = None, log_level: str | None = None
 ) -> "CoreComponents":
@@ -120,7 +145,7 @@ def bootstrap_core(
     container.register_instance(ConfigManagerInterface, config)
 
     # 2. Logger inicializálása a konfiggal
-    logging_config = config.get_section("logging") or {}
+    logging_config = cast(LoggingConfig, config.get_section("logging") or {})
     LoggerFactory.configure(logging_config)
     # Alap logger példány létrehozása
     logger = LoggerFactory.get_logger(name="NeuralAI.Bootstrap", logger_type="default")
@@ -155,7 +180,7 @@ def bootstrap_core(
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
     logger.info("⏳ 7. Storage indítása...")
-    storage_conf = config.get("storage") or {}  # Szekció lekérése
+    storage_conf = cast(StorageConfig, config.get("storage") or {})  # Szekció lekérése
     storage_type = storage_conf.get("type", "file")  # Típus (file/parquet)
 
     try:
@@ -198,7 +223,7 @@ def bootstrap_core(
     # 8. MarketDataPersister inicializálása
     logger.info("⏳ 9. MarketDataPersister indítása...")
     market_data_persister = MarketDataPersister(
-        event_bus=event_bus, storage=storage, logger=logger, buffer_size_limit=50_000
+        config=config, event_bus=event_bus, storage=storage, logger=logger
     )
     container.register_instance(MarketDataPersister, market_data_persister)
     logger.debug("-> MarketDataPersister regisztrálva")
@@ -206,7 +231,7 @@ def bootstrap_core(
     # 9. JForex Live Feed inicializálása (ha engedélyezve van)
     logger.info("⏳ 10. JForex Live Feed ellenőrzése...")
     # Figyelem: A collectors.yaml tartalma a 'collectors' kulcs alatt van!
-    live_conf: dict[str, Any] = config.get("collectors", "jforex_live") or {}
+    live_conf = cast(LiveConfig, config.get("collectors", "jforex_live") or {})
     if live_conf.get("enabled", False):
         from neural_ai.collectors.jforex.factory import JForexFactory
         from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
@@ -222,6 +247,7 @@ def bootstrap_core(
     return CoreComponents(container=container)
 
 
+@trace
 def get_core_components() -> "CoreComponents":
     """Globális core komponensek lekérdezése.
 
