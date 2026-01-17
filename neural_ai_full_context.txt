@@ -1,5 +1,5 @@
 === NEURAL AI NEXT CONTEXT (FULL) ===
-Generated: 2026-01-17 15:05:43
+Generated: 2026-01-17 16:50:35
 
 
 ==================================================
@@ -765,54 +765,54 @@ handlers:
     encoding: "utf-8"
 
 loggers:
-  # --- GYÖKÉR ---
+  # --- FŐ ALKALMAZÁS LOGGER ---
+  # Minden belső logger ebből örököl. A handlereket itt definiáljuk központilag.
   neural_ai:
     level: INFO
     handlers: [console, file]
-    propagate: false
+    propagate: false # Ne küldje tovább a root-ra, elkerülve a duplikált logokat.
 
-  # --- CORE (INFRASTRUCTURE) ---
-  neural_ai.core.base: { level: INFO, handlers: [console, file] }      # DI Container, Singleton
-  neural_ai.core.config: { level: INFO, handlers: [console, file] }    # Config Manager
-  neural_ai.core.db: { level: INFO, handlers: [console, file] }        # Database Manager
-  neural_ai.core.events: { level: INFO, handlers: [console, file] }    # EventBus (ZeroMQ)
-  neural_ai.core.logger: { level: WARNING, handlers: [console, file] } # Logger Factory (ne logolja önmagát)
-  neural_ai.core.system: { level: INFO, handlers: [console, file] }    # Health Monitor
-  neural_ai.core.utils: { level: INFO, handlers: [console, file] }     # Hardware Info
+  # --- SPECIFIKUS MODULOK FELÜLBÍRÁLÁSA (OVERRIDE) ---
+  # Csak a szintet (level) írjuk felül, a handlereket öröklik.
+  neural_ai.core.logger:
+    level: WARNING # Megakadályozza a rekurzív logolást a logger factory-ban.
+  neural_ai.data.storage:
+    level: DEBUG   # Részletesebb logolás az adattároló rétegben.
+  neural_ai.ui.components:
+    level: WARNING
 
-  # --- DATA (PERSISTENCE) ---
-  neural_ai.data.storage: { level: DEBUG, handlers: [console, file] }  # Fixed: Added handlers
-  neural_ai.data.ingestion: { level: INFO, handlers: [console, file] } # MarketDataPersister
+  neural_ai.core.events:
+    level: INFO
+  neural_ai.core.db:
+    level: INFO
+  neural_ai.collectors.jforex:
+    level: INFO
+  neural_ai.processors.resampler_service:
+    level: INFO
 
-  # --- COLLECTORS (INPUT) ---
-  neural_ai.collectors.jforex: { level: INFO, handlers: [console, file] }
-  neural_ai.collectors.mt5: { level: INFO, handlers: [console, file] }
-
-  # --- PROCESSORS (DOMAIN) ---
-  neural_ai.processors.resampler_service: { level: INFO, handlers: [console, file] }
-  neural_ai.processors.dimensions.d01_price: { level: INFO, handlers: [console, file] }
-  neural_ai.processors.dimensions.d02_support: { level: INFO, handlers: [console, file] }
-  # (Ide jön majd a d03_trend, stb.)
-
-  # --- UI (PRESENTATION) ---
-  neural_ai.ui.services: { level: INFO, handlers: [console, file] }
-  neural_ai.ui.pages: { level: INFO, handlers: [console, file] }
-  neural_ai.ui.components: { level: WARNING, handlers: [console, file] }
-
-  # --- TRACE SYSTEM ---
+  # --- TRACE RENDSZER ---
+  # Különálló logger a @trace dekorátorok számára, saját fájllal.
   neural_ai.trace:
     level: DEBUG
     handlers: [trace_file]
     propagate: false
 
-  # --- EXTERNAL LIBS (Zajszűrés) ---
-  aiosqlite: { level: WARNING }
-  asyncio: { level: WARNING }
-  parso: { level: WARNING }
-  watchdog: { level: WARNING }
-  matplotlib: { level: WARNING }
-  numba: { level: WARNING }
+  # --- KÜLSŐ KÖNYVTÁRAK ZAJCSÖKKENTÉSE ---
+  # Nincs handlerük, a root loggerre propagálnak.
+  aiosqlite:
+    level: WARNING
+  asyncio:
+    level: WARNING
+  parso:
+    level: WARNING
+  watchdog:
+    level: WARNING
+  matplotlib:
+    level: WARNING
+  numba:
+    level: WARNING
 
+# Gyökér logger, ami minden mást (főleg külső libeket) elkap.
 root:
   level: INFO
   handlers: [console]
@@ -821,8 +821,18 @@ root:
 FILE: configs/processors.yaml
 ==================================================
 # Processors Configuration
-# Configuration for dimension processors (D1-D15)
+# Defines settings for dimension processors (D1-D15)
 
+# --- Szekció definíciók (YAML Horgonyok) ---
+# Közös piaci órák definíciója a redundancia elkerülése érdekében
+market_hours_default: &market_hours_default
+  enabled: true
+  log_filtering: true
+  timezone: "UTC"
+  weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+  hours: ["00:00", "23:59"]
+
+# --- Processzor Konfigurációk ---
 processors:
   # D1 - Alap adatok
   d01:
@@ -830,20 +840,15 @@ processors:
     z_score_window: 60
     use_mid_price: true
     calc_shadows: true
-    market_hours:
-      enabled: true
-      log_filtering: true
-      timezone: "UTC"
-      weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-      hours: ["00:00", "23:59"]
+    market_hours: *market_hours_default # Horgony újrahasznosítása
     timeframe_configs:
       tick:
         z_score_window: 2000
-      1m:
+      "1m": # Időkeret név egységesítve
         z_score_window: 60
-      H1:
+      "1h": # Időkeret név egységesítve
         z_score_window: 24
-      D1:
+      "1d": # Időkeret név egységesítve
         z_score_window: 20
 
   # D2 - Support/Resistance
@@ -858,18 +863,13 @@ processors:
     min_touches: 2
     volume_confirmation: true
     strength_window: 100
-    market_hours:
-      enabled: true
-      log_filtering: true
-      timezone: "UTC"
-      weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-      hours: ["00:00", "23:59"]
+    market_hours: *market_hours_default # Horgony újrahasznosítása
     timeframe_configs:
-      M1:
+      "1m": # Időkeret név egységesítve
         swing_window: 5
-      H1:
+      "1h": # Időkeret név egységesítve
         swing_window: 5
-      D1:
+      "1d": # Időkeret név egységesítve
         swing_window: 3
 
 ==================================================
@@ -12435,24 +12435,7 @@ A modul biztosítja a core komponensek megfelelő inicializálását és
 függőségi injektálását, elkerülve a körkörös függőségeket.
 """
 
-from typing import TYPE_CHECKING, Any, TypedDict, cast
-
-
-# TypedDict definíciók a konfiguráció típusbiztonságához
-class LoggingConfig(TypedDict, total=False):
-    level: str
-    format: str
-    file: str
-
-
-class StorageConfig(TypedDict, total=False):
-    type: str
-    base_path: str
-
-
-class JForexLiveConfig(TypedDict, total=False):
-    enabled: bool
-
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
@@ -12484,12 +12467,7 @@ def get_version() -> str:
 
         return metadata.version("neural-ai-next")
     except Exception:
-        # Logger létrehozása hiba esetén
-        from neural_ai.core.logger.factory import LoggerFactory
-
-        logger = LoggerFactory.get_logger("neural_ai.core.version")
-        logger.error("Verzió betöltése sikertelen", exc_info=True)
-        raise
+        return "unknown"
 
 
 def get_schema_version() -> str:
@@ -12567,11 +12545,10 @@ def bootstrap_core(
     container.register_instance(ConfigManagerInterface, config)
 
     # 2. Logger inicializálása a konfiggal
-    logging_config = cast(LoggingConfig, config.get_section("logging") or {})
-    LoggerFactory.configure(logging_config)  # type: ignore
+    logging_config = config.get_section("logging") or {}
+    LoggerFactory.configure(logging_config)
     # Alap logger példány létrehozása
     logger = LoggerFactory.get_logger(name="NeuralAI.Bootstrap", logger_type="default")
-    logger.debug("bootstrap_core függvény hívva")
     container.register_instance(LoggerInterface, logger)
 
     # Visszajelzés az előző lépésekről
@@ -12603,7 +12580,7 @@ def bootstrap_core(
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
     logger.info("⏳ 7. Storage indítása...")
-    storage_conf = cast(StorageConfig, config.get("storage") or {})  # Szekció lekérése
+    storage_conf = config.get("storage") or {}  # Szekció lekérése
     storage_type = storage_conf.get("type", "file")  # Típus (file/parquet)
 
     try:
@@ -12654,7 +12631,7 @@ def bootstrap_core(
     # 9. JForex Live Feed inicializálása (ha engedélyezve van)
     logger.info("⏳ 10. JForex Live Feed ellenőrzése...")
     # Figyelem: A collectors.yaml tartalma a 'collectors' kulcs alatt van!
-    live_conf = cast(JForexLiveConfig, config.get("collectors", "jforex_live") or {})
+    live_conf: dict[str, Any] = config.get("collectors", "jforex_live") or {}
     if live_conf.get("enabled", False):
         from neural_ai.collectors.jforex.factory import JForexFactory
         from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
@@ -18927,7 +18904,7 @@ A factory kizárólag structlog renderereket használ:
 
 import logging
 import sys
-from typing import Any, cast
+from typing import TYPE_CHECKING, cast
 
 import structlog
 from structlog.processors import JSONRenderer
@@ -18935,13 +18912,11 @@ from structlog.stdlib import ProcessorFormatter
 from structlog.types import Processor
 
 from neural_ai.core.config.interfaces.types import LoggingConfig
-from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
-from neural_ai.core.logger.implementations.default_logger import DefaultLogger
-from neural_ai.core.logger.implementations.rotating_file_logger import (
-    RotatingFileLogger,
-)
 from neural_ai.core.logger.interfaces.factory_interface import LoggerFactoryInterface
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+if TYPE_CHECKING:
+    pass
 
 
 class LoggerFactory(LoggerFactoryInterface):
@@ -18958,19 +18933,46 @@ class LoggerFactory(LoggerFactoryInterface):
     Attributes:
         _logger_types: Regisztrált logger típusok és osztályaik.
         _instances: Létrehozott logger példányok gyorsítótárban.
+        _factory_logger: A factory saját logger példánya strukturált logoláshoz.
     """
 
-    _logger_types: dict[str, type[LoggerInterface]] = cast(
-        dict[str, type[LoggerInterface]],
-        {
-            "default": DefaultLogger,
-            "colored": ColoredLogger,
-            "rotating": RotatingFileLogger,
-        },
-    )
-
+    _logger_types: dict[str, type[LoggerInterface]] = {}
     _instances: dict[str, LoggerInterface] = {}
+    _factory_logger: LoggerInterface | None = None
     _schema_version: str = "1.0.0"
+
+    @classmethod
+    def _lazy_load_implementations(cls) -> None:
+        """Lazy betölti a konkrét implementációkat a körkörös importok elkerülésére.
+
+        Ez a metódus biztosítja, hogy a konkrét implementációk csak akkor kerüljenek
+        betöltésre, amikor valóban szükség van rájuk.
+        """
+        if not cls._logger_types:
+            # Konkrét implementációk lazy betöltése
+            from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
+            from neural_ai.core.logger.implementations.default_logger import DefaultLogger
+            from neural_ai.core.logger.implementations.rotating_file_logger import (
+                RotatingFileLogger,
+            )
+
+            cls._logger_types.update(
+                {
+                    "default": DefaultLogger,
+                    "colored": ColoredLogger,
+                    "rotating": RotatingFileLogger,
+                }
+            )
+
+    @classmethod
+    def _get_factory_logger(cls) -> LoggerInterface:
+        """Visszaadja a factory saját logger példányát strukturált logoláshoz."""
+        if cls._factory_logger is None:
+            # Direkt példányosítás a rekurzió elkerülésére
+            from neural_ai.core.logger.implementations.default_logger import DefaultLogger
+
+            cls._factory_logger = DefaultLogger(name="LoggerFactory")
+        return cls._factory_logger
 
     @classmethod
     def register_logger(cls, logger_type: str, logger_class: type[LoggerInterface]) -> None:
@@ -18978,19 +18980,23 @@ class LoggerFactory(LoggerFactoryInterface):
 
         Args:
             logger_type: A logger típus neve.
-            logger_class: A logger osztály.
+            logger_class: A logger osztály, amely implementálja a LoggerInterface-t.
 
         Raises:
             TypeError: Ha a logger_class nem implementálja a LoggerInterface-t.
         """
         cls._logger_types[logger_type] = logger_class
+        cls._get_factory_logger().info(
+            "Új logger típus regisztrálva",
+            extra={"logger_type": logger_type, "logger_class": logger_class.__name__},
+        )
 
     @classmethod
     def get_logger(
         cls,
         name: str,
         logger_type: str = "default",
-        **kwargs: Any,
+        **kwargs: object,
     ) -> LoggerInterface:
         """Logger példány létrehozása vagy visszaadása.
 
@@ -19004,7 +19010,6 @@ class LoggerFactory(LoggerFactoryInterface):
 
         Raises:
             ValueError: Ha a 'rotating' típushoz nincs megadva 'log_file'.
-            TypeError: Ha a létrehozott logger nem implementálja az interfészt.
 
         Példa:
             >>> logger = LoggerFactory.get_logger("my_app")
@@ -19015,13 +19020,23 @@ class LoggerFactory(LoggerFactoryInterface):
             ...     log_file="/var/log/app.log"
             ... )
         """
+        # Lazy load implementációk
+        cls._lazy_load_implementations()
+
         # Ha már létezik ilyen nevű logger, azt adjuk vissza
         if name in cls._instances:
+            cls._get_factory_logger().debug(
+                "Logger példány visszaadása gyorsítótárból", extra={"logger_name": name}
+            )
             return cls._instances[name]
 
         # Ha nincs megadott típus vagy nem létezik, használjuk az alapértelmezettet
         if logger_type not in cls._logger_types:
             logger_type = "default"
+            cls._get_factory_logger().warning(
+                "Ismeretlen logger típus, alapértelmezett használata",
+                extra={"requested_type": logger_type, "fallback_type": "default"},
+            )
 
         # Rotating logger esetén kötelező a log_file paraméter
         if logger_type == "rotating" and "log_file" not in kwargs:
@@ -19033,47 +19048,27 @@ class LoggerFactory(LoggerFactoryInterface):
         logger = logger_class(name=name, **kwargs)
 
         cls._instances[name] = logger
+        cls._get_factory_logger().info(
+            "Új logger példány létrehozva", extra={"logger_name": name, "logger_type": logger_type}
+        )
         return logger
 
     @classmethod
-    def configure(cls, config: dict[str, Any]) -> None:
+    def configure(cls, config: dict[str, object]) -> None:
         """Logger rendszer konfigurálása structlog-gal.
 
-        A metódus kizárólag structlog renderereket használ:
-        - Console: structlog.dev.ConsoleRenderer(colors=True)
-        - File: structlog.processors.JSONRenderer()
-
         Args:
-            config: Konfigurációs dict a következő struktúrával:
-                {
-                    'default_level': 'DEBUG',
-                    'handlers': {
-                        'console': {
-                            'enabled': True,
-                            'level': 'DEBUG',
-                            'colored': True
-                        },
-                        'file': {
-                            'enabled': True,
-                            'filename': 'logs/neural_ai.log',
-                            'level': 'DEBUG',
-                            'json_format': True,
-                            'rotating': True,
-                            'max_bytes': 10485760,
-                            'backup_count': 5
-                        }
-                    },
-                    'loggers': {
-                        'neural_ai': {'level': 'DEBUG', 'propagate': True},
-                        'aiosqlite': {'level': 'WARNING'},
-                        'asyncio': {'level': 'WARNING'}
-                    }
-                }
+            config: Konfigurációs TypedDict, amely LoggingConfig típusú.
         """
         from pathlib import Path
 
         # TypedDict használata config casting-gal
         typed_config = cast(LoggingConfig, config)
+
+        cls._get_factory_logger().info(
+            "Logger rendszer konfigurálása megkezdve",
+            extra={"config_keys": list(typed_config.keys())},
+        )
 
         # Alap structlog konfiguráció
         structlog.configure(
@@ -19094,7 +19089,8 @@ class LoggerFactory(LoggerFactoryInterface):
         )
 
         # Alap beállítások
-        default_level = getattr(logging, typed_config.get("default_level", "DEBUG"))
+        default_level_name = typed_config.get("default_level", "DEBUG")
+        default_level = getattr(logging, default_level_name)
 
         # Root logger konfigurálása
         root_logger = logging.getLogger()
@@ -19111,7 +19107,8 @@ class LoggerFactory(LoggerFactoryInterface):
         console_config = handlers.get("console", {})
         if console_config.get("enabled", False):
             console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setLevel(getattr(logging, console_config.get("level", "DEBUG")))
+            console_level_name = console_config.get("level", "DEBUG")
+            console_handler.setLevel(getattr(logging, console_level_name))
 
             # Console renderer - mindig színes
             console_processors: list[Processor] = [
@@ -19127,6 +19124,9 @@ class LoggerFactory(LoggerFactoryInterface):
             )
 
             root_logger.addHandler(console_handler)
+            cls._get_factory_logger().debug(
+                "Console handler hozzáadva", extra={"level": console_level_name}
+            )
 
         # File handler structlog-gal
         file_config = handlers.get("file", {})
@@ -19149,7 +19149,8 @@ class LoggerFactory(LoggerFactoryInterface):
                 else:
                     file_handler = logging.FileHandler(filename, encoding="utf-8")
 
-                file_handler.setLevel(getattr(logging, file_config.get("level", "DEBUG")))
+                file_level_name = file_config.get("level", "DEBUG")
+                file_handler.setLevel(getattr(logging, file_level_name))
 
                 # File renderer - mindig JSON
                 file_processors: list[Processor] = [
@@ -19165,6 +19166,9 @@ class LoggerFactory(LoggerFactoryInterface):
                 )
 
                 root_logger.addHandler(file_handler)
+                cls._get_factory_logger().debug(
+                    "File handler hozzáadva", extra={"filename": filename, "level": file_level_name}
+                )
 
         # Trace file handler - külön loggerhez
         trace_file_config = handlers.get("trace_file", {})
@@ -19174,7 +19178,8 @@ class LoggerFactory(LoggerFactoryInterface):
                 "class", "logging.handlers.RotatingFileHandler"
             )
             filename = trace_file_config.get("filename", "logs/trace.log")
-            level = getattr(logging, trace_file_config.get("level", "DEBUG"))
+            level_name = trace_file_config.get("level", "DEBUG")
+            level = getattr(logging, level_name)
             encoding = trace_file_config.get("encoding", "utf-8")
 
             # Mappa létrehozása
@@ -19209,17 +19214,26 @@ class LoggerFactory(LoggerFactoryInterface):
             )
 
             # A trace_handler-t később hozzáadjuk a megfelelő loggerhez
+            cls._get_factory_logger().debug(
+                "Trace handler létrehozva", extra={"filename": filename, "level": level_name}
+            )
 
         # Egyedi logger konfigurációk beállítása
         loggers_config = typed_config.get("loggers", {})
         for logger_name, logger_settings in loggers_config.items():
             logger_instance = logging.getLogger(logger_name)
             if "level" in logger_settings:
-                logger_instance.setLevel(getattr(logging, logger_settings["level"]))
+                level_name = logger_settings["level"]
+                logger_instance.setLevel(getattr(logging, level_name))
             if "propagate" in logger_settings:
                 logger_instance.propagate = logger_settings["propagate"]
             if "handlers" in logger_settings and logger_name == "neural_ai.trace" and trace_handler:
                 logger_instance.addHandler(trace_handler)
+
+        cls._get_factory_logger().info(
+            "Logger rendszer konfigurálása befejezve",
+            extra={"configured_loggers": list(loggers_config.keys())},
+        )
 
     @classmethod
     def get_schema_version(cls) -> str:
