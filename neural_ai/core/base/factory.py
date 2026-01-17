@@ -254,8 +254,8 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         # 3. Storage komponens létrehozása a konfiggal és loggerrel
         storage: StorageInterface | None = None
-        if storage_path:
-            storage = FileStorage(base_path=storage_path)
+        if storage_path and logger:
+            storage = FileStorage(logger=logger, base_path=storage_path)
             container.register_instance(StorageInterface, storage)
 
         # 4. Komponensek összekötése
@@ -322,7 +322,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             }
 
         logger = LoggerFactory.get_logger(name="core", config=log_config)
-        storage = FileStorage()
+        storage = FileStorage(logger=logger)
 
         # Create a temporary container to validate dependencies
         container = DIContainer()
@@ -413,6 +413,8 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("storage", config)
 
         # Create storage instance
+        from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.data.storage.implementations.file_storage import FileStorage
 
-        return FileStorage(base_path=base_directory)
+        logger = LoggerFactory.get_logger(name="storage")
+        return FileStorage(logger=logger, base_path=base_directory)
