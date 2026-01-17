@@ -832,69 +832,14 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
         A ParquetStorageService saját store_tick_data metódusát használja.
         """
-        from datetime import datetime
-
-        # Alapértelmezett dátum a mai nap
-        date = kwargs.get("date", datetime.now())
-        symbol = kwargs.get("symbol", "DEFAULT")
-
-        # Aszinkron hívás szinkron wrapper-ben
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Ha már fut egy loop, akkor task-ként indítjuk
-                task = loop.create_task(self.store_tick_data(symbol, df, date))
-                # Várakozás a task befejezésére
-                while not task.done():
-                    pass
-            else:
-                # Ha nincs futó loop, akkor futtatjuk
-                loop.run_until_complete(self.store_tick_data(symbol, df, date))
-        except RuntimeError:
-            # Ha nincs event loop, létrehozunk egyet
-            asyncio.run(self.store_tick_data(symbol, df, date))
+        raise NotImplementedError("ParquetStorageService save_dataframe adapter nincs implementálva")
 
     def load_dataframe(self, path: str, **kwargs: Any) -> "pd.DataFrame":
         """DataFrame betöltése a megadott útvonalról.
 
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
         """
-        from datetime import datetime, timedelta
-
-        # Dátumtartomány kinyerése a path-ból vagy kwargs-ból
-        start_date = kwargs.get("start_date", datetime.now() - timedelta(days=1))
-        end_date = kwargs.get("end_date", datetime.now())
-        symbol = kwargs.get("symbol", "DEFAULT")
-
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Ha már fut egy loop, akkor task-ként indítjuk
-                task = loop.create_task(self.read_tick_data(symbol, start_date, end_date))
-                # Várakozás a task befejezésére
-                while not task.done():
-                    pass
-                result = task.result()
-            else:
-                # Ha nincs futó loop, akkor futtatjuk
-                result = loop.run_until_complete(self.read_tick_data(symbol, start_date, end_date))
-        except RuntimeError:
-            # Ha nincs event loop, létrehozunk egyet
-            result = asyncio.run(self.read_tick_data(symbol, start_date, end_date))
-
-        # Konvertálás pandas DataFrame-re ha szükséges
-        import pandas as pd
-
-        if not isinstance(result, pd.DataFrame):
-            try:
-                import polars as pl
-
-                if isinstance(result, pl.DataFrame):
-                    result = result.to_pandas()
-            except ImportError:
-                pass
-
-        return result
+        raise NotImplementedError("ParquetStorageService load_dataframe adapter nincs implementálva")
 
     def save_object(self, obj: object, path: str, **kwargs: Any) -> None:
         """Objektum mentése a megadott útvonalra.

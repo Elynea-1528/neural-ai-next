@@ -14,11 +14,11 @@ from unittest.mock import MagicMock
 import pandas as pd
 import pytest
 
-from neural_ai.core.base.exceptions import (
-    InsufficientDiskSpaceError,
-    PermissionDeniedError,
-    StorageWriteError,
-)
+# from neural_ai.core.base.exceptions import (
+#     InsufficientDiskSpaceError,
+#     PermissionDeniedError,
+#     StorageWriteError,
+# )
 from neural_ai.data.storage.exceptions import (
     StorageFormatError,
     StorageIOError,
@@ -348,7 +348,7 @@ class TestFileStorage:
         """Teszteli a lemezterület ellenőrzését elégtelen terület esetén."""
         test_file = temp_dir / "disk_test.txt"
         # Nagyon nagy méretet kérünk (1 TB), hogy biztosan ne férjen rá
-        with pytest.raises(InsufficientDiskSpaceError):
+        with pytest.raises(StorageIOError):
             storage._check_disk_space(test_file, 1024 * 1024 * 1024 * 1024)
 
     def test_check_disk_space_os_error(
@@ -365,7 +365,7 @@ class TestFileStorage:
 
         monkeypatch.setattr(os_module, "statvfs", mock_statvfs)
 
-        with pytest.raises(StorageIOError, match="Failed to check disk space"):
+        with pytest.raises(StorageIOError, match="Nem sikerült ellenőrizni a lemezterületet"):
             storage._check_disk_space(test_file, 1024)
 
     def test_check_permissions_write_denied(self, storage: FileStorage, temp_dir: Path) -> None:
@@ -377,7 +377,7 @@ class TestFileStorage:
         # Állítsuk be csak olvashatóra a könyvtárat
         test_dir.chmod(0o444)
 
-        with pytest.raises(PermissionDeniedError, match="No write permission"):
+        with pytest.raises(StorageIOError, match="Nincs írási jogosultság"):
             storage._check_permissions(test_file, check_write=True)
 
         # Visszaállítjuk az eredeti jogosultságot
@@ -389,7 +389,7 @@ class TestFileStorage:
         test_file.write_text("test")
         test_file.chmod(0o000)  # Semmilyen jogosultság
 
-        with pytest.raises(PermissionDeniedError, match="No read permission"):
+        with pytest.raises(StorageIOError, match="Nincs olvasási jogosultság"):
             storage._check_permissions(test_file, check_write=False)
 
         # Visszaállítjuk az eredeti jogosultságot
@@ -401,7 +401,7 @@ class TestFileStorage:
         """Teszteli a jogosultság ellenőrzését nem létező szülőkönyvtár esetén."""
         test_file = temp_dir / "nonexistent_dir" / "test.txt"
 
-        with pytest.raises(PermissionDeniedError, match="Parent directory does not exist"):
+        with pytest.raises(StorageIOError, match="A szülő könyvtár nem létezik"):
             storage._check_permissions(test_file, check_write=True)
 
     def test_get_storage_info_os_error(
@@ -417,7 +417,7 @@ class TestFileStorage:
 
         monkeypatch.setattr(os_module, "statvfs", mock_statvfs)
 
-        with pytest.raises(StorageIOError, match="Failed to get storage info"):
+        with pytest.raises(StorageIOError, match="Nem sikerült lekérdezni a tárolási információkat"):
             storage.get_storage_info(temp_dir)
 
     def test_atomic_write_bytes(self, storage: FileStorage) -> None:
@@ -468,7 +468,7 @@ class TestFileStorage:
 
         monkeypatch.setattr(builtins, "open", mock_open)
 
-        with pytest.raises(StorageWriteError, match="Failed to write temporary file"):
+        with pytest.raises(StorageIOError, match="Nem sikerült írni az ideiglenes fájlt"):
             storage._atomic_write(test_file, "content", fmt="json")
 
     def test_save_dataframe_format_detection_failure(self, storage: FileStorage) -> None:
@@ -506,7 +506,7 @@ class TestFileStorage:
 
         # Most a save_dataframe-nek kivételt kell dobnia, mert a lemezterület ellenőrzés
         # észlelni fogja, hogy nincs elég hely
-        with pytest.raises((InsufficientDiskSpaceError, StorageIOError)):
+        with pytest.raises(StorageIOError):
             storage.save_dataframe(sample_dataframe, "test.csv")
 
     def test_save_dataframe_io_error(
