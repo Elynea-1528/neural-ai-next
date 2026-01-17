@@ -13,8 +13,7 @@ from collections import defaultdict
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
-import structlog
-
+from neural_ai.core.config.interfaces.types import IngestionConfig
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 
 if TYPE_CHECKING:
@@ -47,21 +46,23 @@ class MarketDataPersister:
         self,
         event_bus: "EventBusInterface",
         storage: "StorageInterface",
-        logger: "LoggerInterface | None" = None,
-        buffer_size_limit: int = 10_000,
+        logger: "LoggerInterface",
+        config: IngestionConfig,
     ) -> None:
         """Inicializálja a MarketDataPersister-t.
 
         Args:
             event_bus: Az EventBus interfész példánya
             storage: A Storage interfész példánya
-            logger: A Logger interfész példánya (opcionális)
-            buffer_size_limit: A buffer méretkorlátja tick-ekben
+            logger: A Logger interfész példánya
+            config: Az ingestion konfiguráció
         """
         self.event_bus = event_bus
         self.storage = storage
-        self.logger = logger if logger else structlog.get_logger()
-        self.buffer_size_limit = buffer_size_limit
+        self.logger = logger
+        self.config = config
+        self.buffer_size_limit = config.get("buffer_size_limit", 10_000)
+        self.flush_interval_minutes = config.get("flush_interval_minutes", 60)
 
         # Buffer szimbólumonként csoportosítva
         self.buffer: dict[str, list[MarketDataEvent]] = defaultdict(list)
@@ -70,7 +71,10 @@ class MarketDataPersister:
 
         self.logger.info(
             "MarketDataPersister inicializálva",
-            extra={"buffer_size_limit": buffer_size_limit}
+            extra={
+                "buffer_size_limit": self.buffer_size_limit,
+                "flush_interval_minutes": self.flush_interval_minutes
+            }
         )
 
     async def start(self) -> None:

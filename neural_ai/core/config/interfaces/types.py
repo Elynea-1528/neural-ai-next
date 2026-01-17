@@ -185,6 +185,12 @@ class CollectorsConfig(TypedDict, total=False):
     jforex_live: JForexLiveConfig
 
 
+class IngestionConfig(TypedDict, total=False):
+    """Adatbevitel konfiguráció."""
+    buffer_size_limit: int
+    flush_interval_minutes: int
+
+
 class ConfigSchema(TypedDict, total=False):
     """Általános konfigurációs séma típus."""
     system: SystemConfig
@@ -194,3 +200,4 @@ class ConfigSchema(TypedDict, total=False):
     database: DatabaseConfig
     events: EventsConfig
     collectors: CollectorsConfig
+    ingestion: IngestionConfig
