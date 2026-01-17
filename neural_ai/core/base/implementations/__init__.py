@@ -5,6 +5,8 @@ Ez a modul tartalmazza a Neural AI Next base komponens rendszerének
 singleton mintát és komponens gyűjteményeket.
 """
 
+import structlog
+
 from neural_ai.core.base.implementations.di_container import DIContainer, LazyComponent
 from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
 from neural_ai.core.base.implementations.singleton import SingletonMeta
@@ -16,3 +18,9 @@ __all__ = [
     "lazy_property",
     "SingletonMeta",
 ]
+
+_logger = structlog.get_logger(__name__)
+_logger.info(
+    "Base implementations module initialized",
+    extra={"module": "neural_ai.core.base.implementations"},
+)
