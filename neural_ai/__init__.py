@@ -18,6 +18,8 @@ Példa:
 from importlib import metadata
 from typing import Final
 
+from neural_ai.core.logger.factory import LoggerFactory
+
 try:
     _version: str = metadata.version("neural-ai-next")
 except metadata.PackageNotFoundError:
@@ -28,6 +30,13 @@ __version__: Final[str] = _version
 
 # Konfigurációs séma verzió - a 10. fejezet szerint
 __schema_version__: Final[str] = "1.0"
+
+# Inicializációs logger létrehozása és logolás
+_logger = LoggerFactory.get_logger("neural_ai")
+_logger.info(
+    "Neural-AI-Next modul inicializálva",
+    extra={"version": _version, "schema_version": __schema_version__},
+)
 
 __all__: Final[list[str]] = [
     "__version__",
