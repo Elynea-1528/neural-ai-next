@@ -16,7 +16,10 @@ from neural_ai.core.base.exceptions import (
 from neural_ai.core.base.implementations.di_container import DIContainer
 from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
 from neural_ai.core.base.implementations.singleton import SingletonMeta
+from neural_ai.core.logger.factory import LoggerFactory  # Added for DI compliance
 from neural_ai.core.utils.decorators import trace
+
+DEFAULT_CONFIG_FILE = "config.yml"
 
 
 class BaseConfig(TypedDict, total=False):
@@ -85,11 +88,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             return cast(LoggerInterface, logger)
 
         # Fallback to default logger (NullObject pattern)
-        from neural_ai.core.logger.implementations.default_logger import (
-            DefaultLogger,
-        )
-
-        return DefaultLogger(name="CoreComponentFactory")
+        return LoggerFactory.get_logger(name="CoreComponentFactory")
 
     def _get_config_manager(self) -> "ConfigManagerInterface":
         """Lazy loadinggel tölti be a config manager komponenst."""
@@ -254,7 +253,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.base.implementations.component_bundle import CoreComponents
         from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         from neural_ai.data.storage.implementations.file_storage import FileStorage
         from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
@@ -293,7 +291,10 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         # 5. Komponensek validálása
         if not components.validate():
             if logger:
-                logger.warning("Nem minden core komponens került inicializálásra")
+                logger.warning(
+                    "Nem minden core komponens került inicializálásra",
+                    extra={"component": "CoreComponentFactory"},
+                )
 
         return components
 
@@ -328,7 +329,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.config.exceptions import ConfigLoadError
         from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         from neural_ai.data.storage.implementations.file_storage import FileStorage
         from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
@@ -337,7 +337,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         log_config: dict[str, Any] = {}
 
         try:
-            config = ConfigManagerFactory.get_manager("config.yml")
+            config = ConfigManagerFactory.get_manager(DEFAULT_CONFIG_FILE)
             if config:
                 logger_section = config.get_section("logger")
                 if logger_section:
@@ -386,7 +386,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("logger", config)
 
         # Create logger using LoggerFactory
-        from neural_ai.core.logger.factory import LoggerFactory
 
         return LoggerFactory.get_logger(name=name, config=config)
 
@@ -444,11 +443,10 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         # Create storage instance
         from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.events.factory import EventBusFactory
-        from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.data.storage.implementations.file_storage import FileStorage
 
         logger = LoggerFactory.get_logger(name="storage")
-        config_manager = ConfigManagerFactory.get_manager("config.yml")  # fallback
+        config_manager = ConfigManagerFactory.get_manager(DEFAULT_CONFIG_FILE)  # fallback
         event_bus = EventBusFactory.get_event_bus(logger=logger)
         return FileStorage(
             logger=logger, config=config_manager, event_bus=event_bus, base_path=base_directory
