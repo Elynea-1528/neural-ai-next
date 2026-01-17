@@ -171,7 +171,7 @@ class JForexLiveFeed(ILiveFeed):
         dekódolja a JSON adatokat, és továbbítja a `_process_tick_data` metódusnak
         a teljes feldolgozásért és publikálásért.
         """
-        print(f"DEBUG: ZMQ Receiver Loop start on port {self._tick_port}")
+        self.logger.debug("zmq_receiver_loop_start", port=self._tick_port)
 
         while self._running:
             try:
@@ -194,7 +194,6 @@ class JForexLiveFeed(ILiveFeed):
                 # DIAGNOSZTIKA: Mi a baj?
                 import traceback
 
-                print("!!! CRITICAL LIVE FEED ERROR !!!")
                 traceback.print_exc()
 
                 self.logger.error("jforex_live_feed_listen_loop_error", error=str(e))

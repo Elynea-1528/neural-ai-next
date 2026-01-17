@@ -1,9 +1,23 @@
 """JForex Collector Factory."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict, cast
 
 from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
 from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
+
+
+class JForexConfig(TypedDict, total=False):
+    """JForex konfiguráció séma."""
+    base_url: str
+    timeout: int
+
+
+class JForexLiveConfig(TypedDict, total=False):
+    """JForex live feed konfiguráció séma."""
+    host: str
+    tick_port: int
+    command_port: int
+    enabled: bool
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -13,9 +27,9 @@ if TYPE_CHECKING:
 
 
 class JForexFactory:
-    """Factory for creating JForex Collector components.
+    """Factory JForex Collector komponensek létrehozására.
 
-    Provides dependency injection for JForex downloader instances.
+    Dependency injection-t biztosít a JForex letöltő példányokhoz.
     """
 
     @staticmethod
@@ -25,16 +39,16 @@ class JForexFactory:
         event_bus: "EventBusInterface | None",
         storage: "StorageInterface",
     ) -> IJForexDownloader:
-        """Create a JForex downloader instance with DI.
+        """JForex letöltő példány létrehozása DI-vel.
 
         Args:
-            config: Configuration manager instance
-            logger: Logger instance
-            event_bus: Event bus for publishing market data
-            storage: Storage interface for data persistence
+            config: Konfiguráció kezelő példány
+            logger: Logger példány
+            event_bus: Event bus piaci adatok publikálására
+            storage: Storage interfész adat perzisztenciához
 
         Returns:
-            JForex downloader instance implementing IJForexDownloader
+            JForex letöltő példány, ami megvalósítja az IJForexDownloader-t
         """
         # Import here to avoid circular dependencies
         import aiohttp
@@ -43,9 +57,9 @@ class JForexFactory:
 
         # Get JForex configuration
         try:
-            jforex_config = config.get("jforex", {}) or {}
+            jforex_config = cast(JForexConfig, config.get("jforex", {}) or {})
         except (KeyError, ValueError, AttributeError):
-            jforex_config = {}
+            jforex_config = cast(JForexConfig, {})
 
         # Create HTTP client with timeout
         timeout_value = jforex_config.get("timeout", 30) if jforex_config else 30
@@ -69,24 +83,24 @@ class JForexFactory:
     def create_live_feed(
         config: "ConfigManagerInterface", logger: "LoggerInterface", event_bus: "EventBusInterface"
     ) -> ILiveFeed:
-        """Create a JForex live feed instance with DI.
+        """JForex live feed példány létrehozása DI-vel.
 
         Args:
-            config: Configuration manager instance
-            logger: Logger instance
-            event_bus: Event bus for publishing market data
+            config: Konfiguráció kezelő példány
+            logger: Logger példány
+            event_bus: Event bus piaci adatok publikálására
 
         Returns:
-            JForex live feed instance implementing ILiveFeed
+            JForex live feed példány, ami megvalósítja az ILiveFeed-et
         """
         # Import here to avoid circular dependencies
         from neural_ai.collectors.jforex.implementations.live_feed import JForexLiveFeed
 
         # Get JForex live configuration
         try:
-            live_config = config.get("jforex_live", {}) or {}
+            live_config = cast(JForexLiveConfig, config.get("jforex_live", {}) or {})
         except (KeyError, ValueError, AttributeError):
-            live_config = {}
+            live_config = cast(JForexLiveConfig, {})
 
         # Check if live feed is enabled
         enabled = live_config.get("enabled", False) if live_config else False

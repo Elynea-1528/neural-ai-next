@@ -9,27 +9,27 @@ if TYPE_CHECKING:
 
 
 class IJForexDownloader(ABC):
-    """Interface for JForex .bi5 data downloader.
+    """JForex .bi5 adat letöltő interfész.
 
-    This interface defines the contract for downloading and processing
-    Dukascopy's native .bi5 tick data format.
+    Ez az interfész definiálja a szerződést a Dukascopy natív .bi5 tick adat
+    formátum letöltéséhez és feldolgozásához.
     """
 
     @abstractmethod
     async def download_tick_data(self, symbol: str, date: datetime) -> list["TickData"]:
-        """Download and decode tick data for a specific symbol and date.
+        """Tick adatok letöltése és dekódolása adott szimbólumhoz és dátumhoz.
 
         Args:
-            symbol: Trading symbol (e.g., 'EURUSD', 'GBPUSD')
-            date: Date for which to download data
+            symbol: Kereskedelmi szimbólum (pl. 'EURUSD', 'GBPUSD')
+            date: Dátum, amelyhez az adatokat le kell tölteni
 
         Returns:
-            List of TickData objects containing bid/ask prices
+            TickData objektumok listája bid/ask árakkal
 
         Raises:
-            DownloadError: If download fails (network issues, server errors)
-            DecodeError: If data decoding fails (corrupted file)
-            DataNotAvailableError: If data is not available (weekend, holiday)
+            DownloadError: Ha a letöltés sikertelen (hálózati problémák, szerverhibák)
+            DecodeError: Ha az adat dekódolása sikertelen (sérült fájl)
+            DataNotAvailableError: Ha az adat nem elérhető (hétvége, ünnep)
         """
         pass
 
@@ -37,35 +37,35 @@ class IJForexDownloader(ABC):
     async def get_available_dates(
         self, symbol: str, start_date: datetime, end_date: datetime
     ) -> list[datetime]:
-        """Get list of dates with available data for a symbol.
+        """Szimbólum elérhető adatainak dátumlistája.
 
         Args:
-            symbol: Trading symbol
-            start_date: Start of date range
-            end_date: End of date range
+            symbol: Kereskedelmi szimbólum
+            start_date: Dátumtartomány kezdete
+            end_date: Dátumtartomány vége
 
         Returns:
-            List of datetime objects for dates with available data
+            Elérhető adatokkal rendelkező dátumok datetime objektumai
         """
         pass
 
     @abstractmethod
     def validate_bi5_data(self, data: bytes) -> bool:
-        """Validate .bi5 data integrity.
+        """.bi5 adat integritásának ellenőrzése.
 
         Args:
-            data: Raw .bi5 data bytes
+            data: Nyers .bi5 adat bájtok
 
         Returns:
-            True if data is valid, False otherwise
+            True ha az adat érvényes, különben False
         """
         pass
 
     @abstractmethod
     async def close(self) -> None:
-        """Close the downloader and release resources.
+        """Letöltő bezárása és erőforrások felszabadítása.
 
-        This method ensures that all network connections are properly closed
-        and resources are released when the downloader is no longer needed.
+        Ez a metódus biztosítja, hogy minden hálózati kapcsolat megfelelően
+        bezáródjon és az erőforrások felszabaduljanak, amikor a letöltőre már nincs szükség.
         """
         pass

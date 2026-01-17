@@ -2,33 +2,33 @@
 
 
 class JForexError(Exception):
-    """Base exception for all JForex Collector errors."""
+    """Alap kivétel minden JForex Collector hibához."""
 
     pass
 
 
 class DownloadError(JForexError):
-    """Raised when data download fails.
+    """Adat letöltési hiba esetén dobódik.
 
-    This includes network errors, server errors, and timeout issues.
+    Ide tartoznak a hálózati hibák, szerverhibák és időtúllépések.
     """
 
     pass
 
 
 class DecodeError(JForexError):
-    """Raised when .bi5 data decoding fails.
+    """.bi5 adat dekódolási hiba esetén dobódik.
 
-    This includes LZMA decompression errors and struct unpacking errors.
+    Ide tartoznak az LZMA dekompressziós hibák és a struct kicsomagolási hibák.
     """
 
     pass
 
 
 class DataNotAvailableError(JForexError):
-    """Raised when data is not available for the requested date.
+    """A kért dátumhoz nem elérhető adat esetén dobódik.
 
-    This typically occurs on weekends, holidays, or when the market was closed.
+    Ez általában hétvégéken, ünnepeken vagy amikor a piac zárva volt történik.
     """
 
     pass

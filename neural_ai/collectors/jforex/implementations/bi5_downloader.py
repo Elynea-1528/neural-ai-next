@@ -33,9 +33,9 @@ if TYPE_CHECKING:
 
 
 class Bi5Downloader(IJForexDownloader):
-    """JForex Bi5 data downloader implementation.
+    """JForex Bi5 adat letöltő implementáció.
 
-    Downloads and decodes Dukascopy's native .bi5 tick data format.
+    Letölti és dekódolja a Dukascopy natív .bi5 tick adat formátumát.
     """
 
     def __init__(
@@ -343,7 +343,7 @@ class Bi5Downloader(IJForexDownloader):
             # Ha nincs EventBus (Direct Storage Mode), egyszerűen visszatérünk
             return
 
-        self._logger.info(f"_publish_ticks: {len(ticks)} tick publikálása")
+        self._logger.info("ticks_publishing", tick_count=len(ticks))
 
         # Import MarketDataEvent here to avoid circular imports
         from neural_ai.core.events.interfaces.event_models import MarketDataEvent

@@ -6,18 +6,18 @@ from datetime import datetime
 
 @dataclass
 class TickData:
-    """Tick data model for JForex market data.
+    """Tick adat modell JForex piaci adatokhoz.
 
-    Represents a single tick (bid/ask price pair) from Dukascopy.
+    Egyetlen tick-et reprezentál (bid/ask ár pár) a Dukascopy-tól.
 
     Attributes:
-        timestamp: UTC timestamp of the tick
-        symbol: Trading symbol (e.g., 'EURUSD')
-        bid: Bid price (5 decimal places for forex)
-        ask: Ask price (5 decimal places for forex)
-        ask_volume: Ask volume (optional, for 20-byte format)
-        bid_volume: Bid volume (optional, for 20-byte format)
-        source: Data source identifier (default: 'jforex')
+        timestamp: Tick UTC időbélyege
+        symbol: Kereskedelmi szimbólum (pl. 'EURUSD')
+        bid: Bid ár (5 tizedesjeggyel forexhez)
+        ask: Ask ár (5 tizedesjeggyel forexhez)
+        ask_volume: Ask volume (opcionális, 20-bájtos formátumhoz)
+        bid_volume: Bid volume (opcionális, 20-bájtos formátumhoz)
+        source: Adatforrás azonosító (alapértelmezett: 'jforex')
     """
 
     timestamp: datetime
@@ -30,18 +30,18 @@ class TickData:
 
     @property
     def spread(self) -> float:
-        """Calculate spread in pips.
+        """Spread kiszámítása pip-ben.
 
         Returns:
-            Spread in pips (1 pip = 0.0001 for most forex pairs)
+            Spread pip-ben (1 pip = 0.0001 a legtöbb forex párnál)
         """
         return round((self.ask - self.bid) * 10000, 1)
 
     @property
     def mid_price(self) -> float:
-        """Calculate mid price (average of bid and ask).
+        """Mid ár kiszámítása (bid és ask átlaga).
 
         Returns:
-            Mid price rounded to 5 decimal places
+            Mid ár, 5 tizedesjegyre kerekítve
         """
         return round((self.bid + self.ask) / 2, 5)
