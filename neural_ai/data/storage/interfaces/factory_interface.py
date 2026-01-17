@@ -1,4 +1,4 @@
-"""Storage factory interfész a különböző tárolási megoldások létrehozásához.
+"""Tárolási factory interfész a különböző tárolási megoldások létrehozásához.
 
 Ez az interfész egy gyártó (factory) mintát definiál, amely lehetővé teszi a tárolási
 implementációk dinamikus regisztrálását és példányosítását. Az interfész segítségével
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class StorageFactoryInterface(ABC):
-    """Storage factory interfész a tárolási implementációk gyártásához.
+    """Tárolási factory interfész a tárolási implementációk gyártásához.
 
     Ez egy absztrakt alaposztály, amely meghatározza a tárolási factory-k
     alapvető viselkedését. A konkrét implementációknak ezt az interfészt kell

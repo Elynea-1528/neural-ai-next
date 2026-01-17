@@ -72,13 +72,13 @@ class PandasBackend(StorageBackend):
         is_async: True
     """
 
-    def __init__(self) -> None:
+    def __init__(self, logger: Any, **kwargs: Any) -> None:
         """Inicializálja a PandasBackend példányt.
 
         A lazy import miatt a pandas és fastparquet csomagok csak akkor
         töltődnek be, amikor az első műveletet végrehajtjuk.
         """
-        super().__init__(name="pandas", supported_formats=["parquet"], is_async=True)
+        super().__init__(logger, name="pandas", supported_formats=["parquet"], is_async=True)
         self._pandas_wrapper = PandasDataFrame()
         self._initialized = False
 

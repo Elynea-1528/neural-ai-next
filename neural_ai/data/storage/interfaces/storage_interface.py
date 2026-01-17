@@ -1,4 +1,4 @@
-"""Storage interfész modul.
+"""Tárolási interfész modul.
 
 Ez a modul definiálja a tárolási műveletek absztrakt interfészét,
 amelyet minden konkrét tárolási implementációnak implementálnia kell.

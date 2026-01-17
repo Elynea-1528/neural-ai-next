@@ -1,6 +1,6 @@
-"""Neural AI storage komponens.
+"""Neural AI adattárolási komponens.
 
-Ez a modul a storage komponens fő exportjait tartalmazza, beleértve a FileStorage
+Ez a modul az adattárolási komponens fő exportjait tartalmazza, beleértve a FileStorage
 és StorageFactory osztályokat, valamint a hozzájuk tartozó interfészeket és típusokat.
 
 A modul támogatja a függőség injektálást (Dependency Injection) a logger és config

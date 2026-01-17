@@ -89,13 +89,13 @@ class PolarsBackend(StorageBackend):
         is_async: True
     """
 
-    def __init__(self):
+    def __init__(self, logger: Any, **kwargs: Any):
         """Inicializálja a PolarsBackend példányt.
 
         A lazy import miatt a polars és pyarrow csomagok csak akkor
         töltődnek be, amikor az első műveletet végrehajtjuk.
         """
-        super().__init__(name="polars", supported_formats=["parquet"], is_async=True)
+        super().__init__(logger, name="polars", supported_formats=["parquet"], is_async=True)
         self._polars_wrapper = PolarsDataFrame()
         self._initialized = False
 

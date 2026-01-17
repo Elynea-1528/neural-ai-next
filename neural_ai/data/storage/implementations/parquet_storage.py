@@ -7,8 +7,8 @@ particionálást használ a gyors lekérdezés érdekében.
 A szolgáltatás hardver-gyorsítást detektál és automatikusan kiválasztja a legoptimálisabb
 backend-et (PolarsBackend AVX2 támogatással, vagy PandasBackend kompatibilitási módban).
 
-Author: Neural AI Next Team
-Version: 2.0.0
+Szerző: Neural AI Next csapat
+Verzió: 2.0.0
 """
 
 import asyncio
@@ -35,6 +35,10 @@ if TYPE_CHECKING:
 
 
 logger = structlog.get_logger()
+
+# Modul szintű változók a teszteléshez (lazy import támogatáshoz)
+pl = None
+pd = None
 
 
 class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
@@ -111,7 +115,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if self.hardware.has_avx2():
             from neural_ai.data.storage.backends.polars_backend import PolarsBackend
 
-            self.backend = PolarsBackend()
+            self.backend = PolarsBackend(logger=self.logger, name="polars", supported_formats=["parquet"])
             self.engine = "polars"
             # DEBUG log a backend kiválasztáshoz
             log_msg = f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
@@ -125,7 +129,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         else:
             from neural_ai.data.storage.backends.pandas_backend import PandasBackend
 
-            self.backend = PandasBackend()
+            self.backend = PandasBackend(logger=self.logger, name="pandas", supported_formats=["parquet"])
             self.engine = "fastparquet"
             # DEBUG log a backend kiválasztáshoz
             log_msg = f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
@@ -189,7 +193,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Raises:
             ValueError: Ha a DataFrame üres vagy nem tartalmazza a szükséges oszlopokat
 
-        Example:
+        Példa:
             >>> import polars as pl
             >>> from datetime import datetime
             >>>
@@ -258,7 +262,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Returns:
             A Tick adatokat tartalmazó DataFrame
 
-        Example:
+        Példa:
             >>> from datetime import datetime, timedelta
             >>>
             >>> service = ParquetStorageService()
@@ -266,7 +270,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             >>> end = datetime(2023, 12, 31)
             >>>
             >>> data = await service.read_tick_data('EURUSD', start, end)
-            >>> print(f"Loaded {len(data)} ticks")
+            >>> print(f"Betöltött {len(data)} tick-ek")
         """
         paths: list[Path] = []
 
@@ -597,10 +601,10 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Returns:
             Az elérhető dátumok listája
 
-        Example:
+        Példa:
             >>> service = ParquetStorageService()
             >>> dates = await service.get_available_dates('EURUSD')
-            >>> print(f"Available dates: {len(dates)}")
+            >>> print(f"Elérhető dátumok: {len(dates)}")
         """
         symbol_path = self.BASE_PATH / symbol.upper()
 
@@ -628,10 +632,10 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Returns:
             A checksum SHA256 hash (az összes fájlra vonatkozik az adott napon)
 
-        Example:
+        Példa:
             >>> service = ParquetStorageService()
             >>> checksum = await service.calculate_checksum('EURUSD', datetime.now())
-            >>> print(f"Checksum: {checksum}")
+            >>> print(f"Ellenőrző összeg: {checksum}")
 
         Note:
             A checksum mostantól az összes fájlra vonatkozik az adott napon,
@@ -697,10 +701,10 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Returns:
             True ha az adatok integritása megfelelő, egyébként False
 
-        Example:
+        Példa:
             >>> service = ParquetStorageService()
             >>> is_valid = await service.verify_data_integrity('EURUSD', datetime.now())
-            >>> print(f"Data integrity: {is_valid}")
+            >>> print(f"Adatintegritás: {is_valid}")
 
         Note:
             Az integritás ellenőrzés mostantól az összes fájlra vonatkozik az adott napon.
@@ -784,10 +788,10 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Returns:
             A statisztikákat tartalmazó dictionary
 
-        Example:
+        Példa:
             >>> service = ParquetStorageService()
             >>> stats = await service.get_storage_stats('EURUSD')
-            >>> print(f"Total files: {stats['total_files']}")
+            >>> print(f"Összes fájlok: {stats['total_files']}")
         """
         stats = {"total_files": 0, "total_size_gb": 0.0, "symbols": {}}
 

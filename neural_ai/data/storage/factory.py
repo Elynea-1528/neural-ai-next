@@ -1,8 +1,8 @@
-"""Storage factory implementáció a különböző tároló komponensek létrehozásához.
+"""Adattárolási factory implementáció a különböző tároló komponensek létrehozásához.
 
-Ez a modul felelős a storage implementációk példányosításáért a factory
+Ez a modul felelős a tárolási implementációk példányosításáért a factory
 minta segítségével. Alapértelmezetten a FileStorage implementációt támogatja,
-de további storage típusok is regisztrálhatók dinamikusan.
+de további tárolási típusok is regisztrálhatók dinamikusan.
 """
 
 from pathlib import Path
@@ -23,11 +23,11 @@ logger = structlog.get_logger(__name__)
 
 
 class StorageFactory(StorageFactoryInterface):
-    """Factory osztály storage komponensek létrehozásához.
+    """Factory osztály tárolási komponensek létrehozásához.
 
-    Ez az osztály felelős a különböző storage implementációk példányosításáért.
+    Ez az osztály felelős a különböző tárolási implementációk példányosításáért.
     Alapértelmezetten a FileStorage implementációt támogatja, de további
-    storage típusok is regisztrálhatók.
+    tárolási típusok is regisztrálhatók.
     """
 
     _storage_types: dict[str, type[StorageInterface]] = {
@@ -37,11 +37,11 @@ class StorageFactory(StorageFactoryInterface):
 
     @classmethod
     def register_storage(cls, storage_type: str, storage_class: type[StorageInterface]) -> None:
-        """Új storage típus regisztrálása a factory számára.
+        """Új tárolási típus regisztrálása a factory számára.
 
         Args:
-            storage_type: A storage típus egyedi azonosítója (pl. "s3", "database").
-            storage_class: A storage osztály, amely implementálja a StorageInterface-t.
+            storage_type: A tárolási típus egyedi azonosítója (pl. "s3", "database").
+            storage_class: A tárolási osztály, amely implementálja a StorageInterface-t.
 
         Raises:
             ValueError: Ha a storage_class nem implementálja a StorageInterface-t.
@@ -67,19 +67,19 @@ class StorageFactory(StorageFactoryInterface):
         hardware: "HardwareInterface | None" = None,
         **kwargs: object,
     ) -> StorageInterface:
-        """Storage példány létrehozása a megadott típus alapján.
+        """Tárolási példány létrehozása a megadott típus alapján.
 
         Args:
-            storage_type: A kért storage típus azonosítója (alapértelmezett: "file").
-            base_path: Alap könyvtár útvonal a file alapú tároláshoz.
+            storage_type: A kért tárolási típus azonosítója (alapértelmezett: "file").
+            base_path: Alap könyvtár útvonal a fájl alapú tároláshoz.
             hardware: A hardverképességek detektálásáért felelős interfész (opcionális).
-            **kwargs: További paraméterek a storage osztály konstruktorának.
+            **kwargs: További paraméterek a tárolási osztály konstruktorának.
 
         Returns:
-            StorageInterface: Az inicializált storage példány.
+            StorageInterface: Az inicializált tárolási példány.
 
         Raises:
-            StorageError: Ha nem található a kért storage típus vagy a
+            StorageError: Ha nem található a kért tárolási típus vagy a
                 példányosítása sikertelen.
 
         Example:

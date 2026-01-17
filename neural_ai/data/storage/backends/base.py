@@ -7,19 +7,17 @@ amely definiálja a kötelező interfészt minden tárolási implementációhoz.
 from abc import ABC, abstractmethod
 from typing import Any, Protocol
 
-import structlog
+from neural_ai.core.logger.interfaces import LoggerInterface
 
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
-
-logger = structlog.get_logger(__name__)
 
 
 class DataFrameProtocol(Protocol):
     """Protokoll a DataFrame-szerű objektumok típusozásához."""
 
     @property
-    def columns(self) -> Any:
+    def columns(self) -> list[str]:
         """Lekéri a DataFrame oszlopait."""
         ...
 
@@ -45,15 +43,23 @@ class StorageBackend(ABC):
         is_async: Logikai érték, amely jelzi, hogy a backend támogatja-e az aszinkron műveleteket
     """
 
-    def __init__(self, name: str, supported_formats: list[str], is_async: bool = True):
+    def __init__(
+        self,
+        logger: LoggerInterface,
+        name: str,
+        supported_formats: list[str],
+        is_async: bool = True,
+    ) -> None:
         """Inicializálja a StorageBackend példányt.
 
         Args:
+            logger: A logger interfész példánya
             name: A backend egyedi neve
             supported_formats: A támogatott fájlformátumok listája
             is_async: Logikai érték, amely jelzi, hogy a backend
                 támogatja-e az aszinkron műveleteket
         """
+        self._logger = logger
         self.name: str = name
         self.supported_formats: list[str] = supported_formats
         self.is_async: bool = is_async

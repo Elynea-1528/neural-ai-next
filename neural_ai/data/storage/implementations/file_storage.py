@@ -1,7 +1,7 @@
 """FileStorage implementáció.
 
 A modulban található:
-    - FileStorage: Fájlrendszer alapú storage implementáció
+    - FileStorage: Fájlrendszer alapú tárolási implementáció
 """
 
 import json
@@ -14,11 +14,11 @@ from typing import TYPE_CHECKING, Any, Optional, cast
 import pandas as pd
 import structlog
 
-from neural_ai.core.base.exceptions import (
-    InsufficientDiskSpaceError,
-    PermissionDeniedError,
-    StorageWriteError,
-)
+# from neural_ai.core.base.exceptions import (
+#     InsufficientDiskSpaceError,
+#     PermissionDeniedError,
+#     StorageWriteError,
+# )
 from neural_ai.data.storage.exceptions import (
     StorageFormatError,
     StorageIOError,
@@ -34,7 +34,7 @@ logger = structlog.get_logger(__name__)
 
 
 class FileStorage(StorageInterface):
-    """Fájlrendszer alapú storage implementáció."""
+    """Fájlrendszer alapú tárolási implementáció."""
 
     def __init__(
         self,
@@ -102,25 +102,25 @@ class FileStorage(StorageInterface):
         }
 
     def _check_disk_space(self, file_path: Path, required_bytes: int) -> None:
-        """Check if there's enough disk space for the operation.
+        """Ellenőrzi, hogy van-e elég lemezterület a művelethez.
 
         Args:
-            file_path: The target file path
-            required_bytes: Required bytes for the operation
+            file_path: A célfájl útvonala
+            required_bytes: Szükséges bájtok száma a művelethez
 
         Raises:
-            InsufficientDiskSpaceError: If there's not enough disk space
+            InsufficientDiskSpaceError: Ha nincs elég lemezterület
         """
         try:
             stat = os.statvfs(file_path.parent)
             free_bytes = stat.f_bavail * stat.f_frsize
             if free_bytes < required_bytes:
-                raise InsufficientDiskSpaceError(
-                    f"Insufficient disk space: {free_bytes / 1024 / 1024:.2f} MB available, "
-                    f"{required_bytes / 1024 / 1024:.2f} MB required"
+                raise StorageIOError(
+                    f"Nincs elég lemezterület: {free_bytes / 1024 / 1024:.2f} MB elérhető, "
+                    f"{required_bytes / 1024 / 1024:.2f} MB szükséges"
                 )
         except OSError as e:
-            raise StorageIOError(f"Failed to check disk space: {e}") from e
+            raise StorageIOError(f"Nem sikerült ellenőrizni a lemezterületet: {e}") from e
 
     def _check_permissions(self, file_path: Path, check_write: bool = True) -> None:
         """Ellenőrzi a fájl/könyvtár jogosultságokat.
@@ -135,29 +135,29 @@ class FileStorage(StorageInterface):
         """
         try:
             if not file_path.parent.exists():
-                raise PermissionDeniedError(f"Parent directory does not exist: {file_path.parent}")
+                raise StorageIOError(f"A szülő könyvtár nem létezik: {file_path.parent}")
 
             if check_write and not os.access(str(file_path.parent), os.W_OK):
-                raise PermissionDeniedError(
-                    f"No write permission for directory: {file_path.parent}"
+                raise StorageIOError(
+                    f"Nincs írási jogosultság a könyvtárhoz: {file_path.parent}"
                 )
 
             if file_path.exists() and not os.access(str(file_path), os.R_OK):
-                raise PermissionDeniedError(f"No read permission for file: {file_path}")
+                raise StorageIOError(f"Nincs olvasási jogosultság a fájlhoz: {file_path}")
         except OSError as e:
-            raise StorageIOError(f"Failed to check permissions: {e}") from e
+            raise StorageIOError(f"Nem sikerült ellenőrizni a jogosultságokat: {e}") from e
 
     def get_storage_info(self, directory: str | Path) -> dict[str, Any]:
-        """Get storage information for a directory.
+        """Tárolási információk lekérdezése egy könyvtárhoz.
 
         Args:
-            directory: The directory path to check
+            directory: Az ellenőrizendő könyvtár útvonala
 
         Returns:
-            Dict[str, Any]: Storage information including total, used, and free space
+            Dict[str, Any]: Tárolási információk, beleértve a teljes, használt és szabad területet
 
         Raises:
-            StorageIOError: If unable to get storage information
+            StorageIOError: Ha nem lehet lekérdezni a tárolási információkat
         """
         try:
             directory = Path(directory)
@@ -246,14 +246,14 @@ class FileStorage(StorageInterface):
         except OSError as e:
             if temp_path.exists():
                 temp_path.unlink()
-            raise StorageWriteError(f"Failed to write temporary file: {e}") from e
+            raise StorageIOError(f"Nem sikerült írni az ideiglenes fájlt: {e}") from e
 
         try:
             os.replace(temp_path, file_path)
         except OSError as e:
             if temp_path.exists():
                 temp_path.unlink()
-            raise StorageWriteError(f"Failed to replace file: {e}") from e
+            raise StorageIOError(f"Nem sikerült lecserélni a fájlt: {e}") from e
 
     def save_dataframe(
         self,
@@ -300,7 +300,7 @@ class FileStorage(StorageInterface):
         try:
             estimated_size = df.memory_usage(deep=True).sum()
             self._check_disk_space(full_path, int(estimated_size * 1.1))
-        except (InsufficientDiskSpaceError, StorageIOError):
+        except (StorageIOError):
             raise
         except Exception as e:
             if self.logger:
@@ -422,7 +422,7 @@ class FileStorage(StorageInterface):
 
             estimated_size = sys.getsizeof(str(obj))
             self._check_disk_space(full_path, int(estimated_size * 1.1))
-        except (InsufficientDiskSpaceError, StorageIOError):
+        except (StorageIOError):
             raise
         except Exception as e:
             if self.logger:
