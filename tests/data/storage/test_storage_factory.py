@@ -8,7 +8,6 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.data.storage.exceptions import StorageError
 from neural_ai.data.storage.factory import StorageFactory
 from neural_ai.data.storage.implementations.file_storage import FileStorage

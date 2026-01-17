@@ -59,6 +59,20 @@ class EventBusFactory:
         await event_bus.start()
         return event_bus
 
+    @staticmethod
+    def get_event_bus(logger: "LoggerInterface") -> "EventBusInterface":
+        """Létrehozza az EventBus példányt alapértelmezett konfigurációval.
+
+        Args:
+            logger: Logger interfész
+
+        Returns:
+            EventBusInterface: Az EventBus példány
+        """
+        from neural_ai.core.events.implementations.zeromq_bus import EventBus
+
+        return EventBus(logger=logger)
+
     def create_from_config(self) -> "EventBusInterface":
         """Létrehozza az EventBus példányt konfigurációkezelő alapján.
 

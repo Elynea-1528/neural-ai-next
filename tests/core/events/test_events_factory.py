@@ -16,7 +16,6 @@ from neural_ai.core.events.interfaces.event_bus_interface import (
     EventBusConfig,
     EventBusInterface,
 )
-from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class TestEventBusFactoryCreate:
@@ -28,9 +27,12 @@ class TestEventBusFactoryCreate:
         mock_event_bus = MagicMock()
         mock_event_bus_class.return_value = mock_event_bus
 
-        result = EventBusFactory.create()
+        mock_logger = MagicMock()
+        mock_config_manager = MagicMock()
+        factory = EventBusFactory(mock_logger, mock_config_manager)
+        result = factory.create()
 
-        mock_event_bus_class.assert_called_once_with(None)
+        mock_event_bus_class.assert_called_once_with(None, mock_logger)
         assert result == mock_event_bus
 
     @patch("neural_ai.core.events.implementations.zeromq_bus.EventBus")
@@ -40,14 +42,20 @@ class TestEventBusFactoryCreate:
         mock_event_bus_class.return_value = mock_event_bus
 
         config = EventBusConfig(pub_port=6666, sub_port=6667)
-        result = EventBusFactory.create(config)
+        mock_logger = MagicMock()
+        mock_config_manager = MagicMock()
+        factory = EventBusFactory(mock_logger, mock_config_manager)
+        result = factory.create(config)
 
-        mock_event_bus_class.assert_called_once_with(config)
+        mock_event_bus_class.assert_called_once_with(config, mock_logger)
         assert result == mock_event_bus
 
     def test_create_returns_interface(self) -> None:
         """Teszteli, hogy az EventBusFactory EventBusInterface-t ad vissza."""
-        result = EventBusFactory.create()
+        mock_logger = MagicMock()
+        mock_config_manager = MagicMock()
+        factory = EventBusFactory(mock_logger, mock_config_manager)
+        result = factory.create()
 
         assert isinstance(result, EventBusInterface)
 
@@ -64,9 +72,12 @@ class TestEventBusFactoryCreateAndStart:
         mock_event_bus = AsyncMock()
         mock_event_bus_class.return_value = mock_event_bus
 
-        result = await EventBusFactory.create_and_start()
+        mock_logger = MagicMock()
+        mock_config_manager = MagicMock()
+        factory = EventBusFactory(mock_logger, mock_config_manager)
+        result = await factory.create_and_start()
 
-        mock_event_bus_class.assert_called_once_with(None)
+        mock_event_bus_class.assert_called_once_with(None, mock_logger)
         mock_event_bus.start.assert_awaited_once()
         assert result == mock_event_bus
 
@@ -80,16 +91,22 @@ class TestEventBusFactoryCreateAndStart:
         mock_event_bus_class.return_value = mock_event_bus
 
         config = EventBusConfig(pub_port=6666, sub_port=6667)
-        result = await EventBusFactory.create_and_start(config)
+        mock_logger = MagicMock()
+        mock_config_manager = MagicMock()
+        factory = EventBusFactory(mock_logger, mock_config_manager)
+        result = await factory.create_and_start(config)
 
-        mock_event_bus_class.assert_called_once_with(config)
+        mock_event_bus_class.assert_called_once_with(config, mock_logger)
         mock_event_bus.start.assert_awaited_once()
         assert result == mock_event_bus
 
     @pytest.mark.asyncio
     async def test_create_and_start_returns_interface(self) -> None:
         """Teszteli, hogy a create_and_start EventBusInterface-t ad vissza."""
-        result = await EventBusFactory.create_and_start()
+        mock_logger = MagicMock()
+        mock_config_manager = MagicMock()
+        factory = EventBusFactory(mock_logger, mock_config_manager)
+        result = await factory.create_and_start()
 
         assert isinstance(result, EventBusInterface)
 
@@ -112,7 +129,9 @@ class TestEventBusFactoryCreateFromConfig:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 
-            result = EventBusFactory.create_from_config(mock_config_manager)
+            mock_logger = MagicMock()
+            factory = EventBusFactory(mock_logger, mock_config_manager)
+            result = factory.create_from_config()
 
             mock_config_manager.get_section.assert_called_once_with("events")
             mock_event_bus_class.assert_called_once()
@@ -133,7 +152,9 @@ class TestEventBusFactoryCreateFromConfig:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 
-            _ = EventBusFactory.create_from_config(mock_config_manager)
+            mock_logger = MagicMock()
+            factory = EventBusFactory(mock_logger, mock_config_manager)
+            _ = factory.create_from_config()
 
             mock_config_manager.get_section.assert_called_once_with("events")
             mock_event_bus_class.assert_called_once()
@@ -153,7 +174,9 @@ class TestEventBusFactoryCreateFromConfig:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 
-            _ = EventBusFactory.create_from_config(mock_config_manager)
+            mock_logger = MagicMock()
+            factory = EventBusFactory(mock_logger, mock_config_manager)
+            _ = factory.create_from_config()
 
             mock_config_manager.get_section.assert_called_once_with("events")
             mock_event_bus_class.assert_called_once()
@@ -176,7 +199,9 @@ class TestEventBusFactoryCreateFromConfig:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 
-            _ = EventBusFactory.create_from_config(mock_config_manager)
+            mock_logger = MagicMock()
+            factory = EventBusFactory(mock_logger, mock_config_manager)
+            _ = factory.create_from_config()
 
             mock_config_manager.get_section.assert_called_once_with("events")
             mock_event_bus_class.assert_called_once()
@@ -190,25 +215,31 @@ class TestEventBusFactoryCreateFromConfig:
         mock_config_manager = MagicMock(spec=ConfigManagerInterface)
         mock_config_manager.get_section.return_value = {}
 
-        result = EventBusFactory.create_from_config(mock_config_manager)
+        mock_logger = MagicMock()
+        factory = EventBusFactory(mock_logger, mock_config_manager)
+        result = factory.create_from_config()
 
         assert isinstance(result, EventBusInterface)
 
 
 class TestEventBusFactoryStaticMethods:
-    """EventBusFactory statikus metódusok tesztek."""
+    """EventBusFactory példány metódusok tesztek."""
 
-    def test_factory_methods_are_static(self) -> None:
-        """Teszteli, hogy a factory metódusok valóban statikusak."""
-        # Ellenőrizzük, hogy a metódusok statikusak-e
-        # Ha nem lennének statikusak, akkor self paramétert várnának
+    def test_factory_methods_are_instance_methods(self) -> None:
+        """Teszteli, hogy a factory metódusok példány metódusok."""
+        # Ellenőrizzük, hogy a metódusok példány metódusok-e
+        # self paramétert kell várniuk
         import inspect
 
-        create_sig = inspect.signature(EventBusFactory.create)
-        assert "self" not in create_sig.parameters
+        mock_logger = MagicMock()
+        mock_config_manager = MagicMock()
+        factory = EventBusFactory(mock_logger, mock_config_manager)
 
-        create_and_start_sig = inspect.signature(EventBusFactory.create_and_start)
-        assert "self" not in create_and_start_sig.parameters
+        create_sig = inspect.signature(factory.create)
+        assert "self" in create_sig.parameters
 
-        create_from_config_sig = inspect.signature(EventBusFactory.create_from_config)
-        assert "self" not in create_from_config_sig.parameters
+        create_and_start_sig = inspect.signature(factory.create_and_start)
+        assert "self" in create_and_start_sig.parameters
+
+        create_from_config_sig = inspect.signature(factory.create_from_config)
+        assert "self" in create_from_config_sig.parameters

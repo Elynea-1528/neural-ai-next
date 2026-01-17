@@ -266,8 +266,19 @@ class TestCoreComponentFactory:
         with pytest.raises(ConfigurationError, match="Config file path not configured"):
             CoreComponentFactory.create_config_manager("", {})
 
-    def test_create_storage(self) -> None:
+    @patch("neural_ai.core.events.factory.EventBusFactory.get_event_bus")
+    @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
+    @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
+    def test_create_storage(self, mock_get_manager: MagicMock, mock_get_logger: MagicMock, mock_get_event_bus: MagicMock) -> None:
         """Teszteli a storage létrehozását."""
+        mock_config = MagicMock()
+        mock_logger = MagicMock()
+        mock_event_bus = MagicMock()
+
+        mock_get_manager.return_value = mock_config
+        mock_get_logger.return_value = mock_logger
+        mock_get_event_bus.return_value = mock_event_bus
+
         with tempfile.TemporaryDirectory() as temp_dir:
             storage = CoreComponentFactory.create_storage(temp_dir, {"key": "value"})
 

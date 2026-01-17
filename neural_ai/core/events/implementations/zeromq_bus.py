@@ -24,8 +24,9 @@ from neural_ai.core.utils.decorators import trace
 if TYPE_CHECKING:
     from typing import Any
 
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from pydantic import BaseModel
+
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 logger = structlog.get_logger(__name__)
