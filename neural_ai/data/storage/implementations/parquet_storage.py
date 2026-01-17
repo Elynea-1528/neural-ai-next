@@ -18,8 +18,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-import structlog
-
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.utils.decorators import trace
 from neural_ai.data.storage.exceptions import StorageIOError, StorageNotFoundError
@@ -32,9 +30,6 @@ if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
     from neural_ai.data.storage.backends.base import StorageBackend
-
-
-logger = structlog.get_logger()
 
 # Modul szintű változók a teszteléshez (lazy import támogatáshoz)
 pl = None
@@ -62,11 +57,11 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
     def __init__(
         self,
+        logger: "LoggerInterface",
         base_path: str | Path | None = None,
         compression: str = "snappy",
         hardware: "HardwareInterface | None" = None,
-        logger: "LoggerInterface | None" = None,  # <--- EZ HIÁNYZOTT
-        **kwargs: Any,  # <--- ÉS EZ A BIZTONSÁGÉRT
+        **kwargs: Any,
     ) -> None:
         """Inicializálja a ParquetStorageService-t backend selectorral.
 
@@ -75,10 +70,10 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         egyébként a PandasBackend-et kompatibilitási módban.
 
         Args:
+            logger: A naplózásért felelős interfész
             base_path: Az alapútvonal a tároláshoz (opcionális)
             compression: A tömörítési algoritmus (alapértelmezett: 'snappy')
             hardware: A hardverképességek detektálásáért felelős interfész (opcionális)
-            logger: A naplózásért felelős interfész (opcionális)
             **kwargs: További opcionális paraméterek
         """
         self.BASE_PATH = Path(base_path) if base_path else Path("data/tick")
@@ -206,8 +201,8 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             >>> service = ParquetStorageService()
             >>> await service.store_tick_data('EURUSD', data, datetime.now())
         """
-        # Logger biztonság: ha nincs logger, használjuk a globálisat
-        log = self.logger if self.logger else logger
+        # Logger használata
+        log = self.logger
 
         if len(data) == 0:
             raise ValueError("Cannot store empty DataFrame")
@@ -288,7 +283,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             current_date += timedelta(days=1)
 
         if not paths:
-            logger.warning(
+            self.logger.warning(
                 "No data found for date range",
                 symbol=symbol,
                 start_date=start_date.isoformat(),
@@ -311,12 +306,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if dfs:
             result = self._concat_dataframes(dfs)
 
-            logger.debug(f"Rows before deduplication: {len(result)}")
+            self.logger.debug(f"Rows before deduplication: {len(result)}")
 
             # Deduplikáció: egyedi sorok szűrése timestamp + source alapján
             result = self._deduplicate_data(result)
 
-            logger.debug(f"Rows after deduplication: {len(result)}")
+            self.logger.debug(f"Rows after deduplication: {len(result)}")
 
             # Rendezés timestamp szerint
             result = self._sort_by_timestamp(result)
@@ -324,7 +319,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             # Dátum szerinti szűrés (pontosabb)
             result = self._filter_by_timestamp(result, start_date, end_date)
 
-            logger.debug(f"Rows after filter: {len(result)}")
+            self.logger.debug(f"Rows after filter: {len(result)}")
         else:
             if self.engine == "polars":
                 import polars as pl
@@ -335,7 +330,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
                 result = pd.DataFrame()
 
-        logger.info(
+        self.logger.info(
             "Tick data loaded successfully",
             symbol=symbol,
             rows=len(result),
@@ -431,7 +426,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 return deduplicated
             except Exception as e:
                 # Ha bármi hiba történik, adjuk vissza az eredeti adatot
-                logger.warning(f"Deduplikáció sikertelen, visszaadom az eredeti adatot: {e}")
+                self.logger.warning(f"Deduplikáció sikertelen, visszaadom az eredeti adatot: {e}")
                 return data
         else:
             import pandas as pd
@@ -473,7 +468,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 )
             except Exception as e:
                 # Ha bármi hiba történik, adjuk vissza az eredeti adatot
-                logger.warning(f"Deduplikáció sikertelen, visszaadom az eredeti adatot: {e}")
+                self.logger.warning(f"Deduplikáció sikertelen, visszaadom az eredeti adatot: {e}")
                 return data
 
     def _filter_columns(self, data: Any) -> Any:
@@ -514,7 +509,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 ]
                 return pl_df.select(available_columns)
             except Exception as e:
-                logger.warning(f"Oszlop szűrés sikertelen, visszaadom az eredeti adatot: {e}")
+                self.logger.warning(f"Oszlop szűrés sikertelen, visszaadom az eredeti adatot: {e}")
                 return data
         else:
             import pandas as pd
@@ -544,7 +539,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 ]
                 return pd_df[available_columns]
             except Exception as e:
-                logger.warning(f"Oszlop szűrés sikertelen, visszaadom az eredeti adatot: {e}")
+                self.logger.warning(f"Oszlop szűrés sikertelen, visszaadom az eredeti adatot: {e}")
                 return data
 
     def _sort_by_timestamp(self, data: Any) -> Any:
@@ -685,7 +680,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
             return hashlib.sha256(data_str.encode()).hexdigest()
         except Exception as e:
-            logger.error(f"Failed to calculate checksum: {e}")
+            self.logger.error(f"Failed to calculate checksum: {e}")
             return ""
 
     @trace
@@ -760,7 +755,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 pd_df = cast(pd.DataFrame, combined_df)
                 assert pd_df["timestamp"].is_monotonic_increasing, "Data not sorted by timestamp"
 
-            logger.info(
+            self.logger.info(
                 "Data integrity verified",
                 symbol=symbol,
                 date=date.isoformat(),
@@ -772,7 +767,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             return True
 
         except Exception as e:
-            logger.error(
+            self.logger.error(
                 "Data integrity check failed", symbol=symbol, date=date.isoformat(), error=str(e)
             )
             return False

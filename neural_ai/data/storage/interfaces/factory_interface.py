@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
@@ -43,6 +44,7 @@ class StorageFactoryInterface(ABC):
     @abstractmethod
     def get_storage(
         cls,
+        logger: "LoggerInterface",
         storage_type: str = "file",
         base_path: str | Path | None = None,
         **kwargs: dict[str, object],
@@ -50,6 +52,7 @@ class StorageFactoryInterface(ABC):
         """Tárolási példány létrehozása a megadott típus alapján.
 
         Args:
+            logger: A naplózásért felelős interfész.
             storage_type: A kért tárolási típus azonosítója. Alapértelmezett: 'file'.
             base_path: Az alap könyvtár útvonala a fájl alapú tároláshoz.
             **kwargs: További, a tárolási implementáció specifikus paraméterek.

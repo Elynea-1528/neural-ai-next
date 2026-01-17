@@ -8,8 +8,6 @@ de további tárolási típusok is regisztrálhatók dinamikusan.
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import structlog
-
 from neural_ai.data.storage.exceptions import StorageError
 from neural_ai.data.storage.implementations.file_storage import FileStorage
 from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
@@ -17,9 +15,8 @@ from neural_ai.data.storage.interfaces.factory_interface import StorageFactoryIn
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
-
-logger = structlog.get_logger(__name__)
 
 
 class StorageFactory(StorageFactoryInterface):
@@ -53,15 +50,11 @@ class StorageFactory(StorageFactoryInterface):
             >>> StorageFactory.register_storage("s3", S3Storage)
         """
         cls._storage_types[storage_type] = storage_class
-        logger.debug(
-            "Storage type registered",
-            storage_type=storage_type,
-            storage_class=str(storage_class)
-        )
 
     @classmethod
     def get_storage(
         cls,
+        logger: "LoggerInterface",
         storage_type: str = "file",
         base_path: str | Path | None = None,
         hardware: "HardwareInterface | None" = None,
@@ -70,6 +63,7 @@ class StorageFactory(StorageFactoryInterface):
         """Tárolási példány létrehozása a megadott típus alapján.
 
         Args:
+            logger: A naplózásért felelős interfész.
             storage_type: A kért tárolási típus azonosítója (alapértelmezett: "file").
             base_path: Alap könyvtár útvonal a fájl alapú tároláshoz.
             hardware: A hardverképességek detektálásáért felelős interfész (opcionális).
@@ -83,10 +77,10 @@ class StorageFactory(StorageFactoryInterface):
                 példányosítása sikertelen.
 
         Example:
-            >>> storage = StorageFactory.get_storage("file", base_path="data")
+            >>> storage = StorageFactory.get_storage(logger_instance, "file", base_path="data")
             >>> storage.save_object({"key": "value"}, "config.json")
             >>> # Egyéni paraméterekkel
-            >>> storage = StorageFactory.get_storage("file", base_path="data",
+            >>> storage = StorageFactory.get_storage(logger_instance, "file", base_path="data",
             ...                                       create_if_missing=True)
         """
         if storage_type not in cls._storage_types:
@@ -104,6 +98,9 @@ class StorageFactory(StorageFactoryInterface):
         # A hardware hozzáadása a kwargs-hoz, ha meg van adva
         if hardware is not None:
             kwargs["hardware"] = hardware
+
+        # Logger hozzáadása a kwargs-hoz
+        kwargs["logger"] = logger
 
         try:
             logger.debug(
