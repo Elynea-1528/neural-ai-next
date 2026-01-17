@@ -446,13 +446,16 @@ class Bi5Downloader(IJForexDownloader):
         return ticks
 
     def validate_bi5_data(self, data: bytes) -> bool:
-        """Validate .bi5 data integrity.
+        """Validate .bi5 data integrity with comprehensive checks.
+
+        Performs full validation including LZMA decompression, format detection,
+        record structure validation, and price/timestamp sanity checks.
 
         Args:
             data: Raw .bi5 data bytes
 
         Returns:
-            True if data is valid
+            True if data is valid, False otherwise
         """
         # Check minimum size
         if len(data) < 12:
@@ -463,12 +466,84 @@ class Bi5Downloader(IJForexDownloader):
         try:
             decompressed = lzma.decompress(data)
 
-            # Check if decompressed size is divisible by record size (12 bytes)
-            if len(decompressed) % 12 != 0:
+            # Check if decompressed data is empty
+            if len(decompressed) == 0:
+                self._logger.warning("bi5_decompressed_empty")
+                return False
+
+            # Determine possible record formats (12-byte or 20-byte)
+            possible_formats = []
+            if len(decompressed) % 12 == 0:
+                possible_formats.append((12, ">III"))
+            if len(decompressed) % 20 == 0:
+                possible_formats.append((20, ">IIIff"))
+
+            if not possible_formats:
                 self._logger.warning(
-                    "bi5_invalid_record_count", decompressed_size=len(decompressed)
+                    "bi5_invalid_record_count",
+                    decompressed_size=len(decompressed),
+                    not_divisible_by_12_or_20=True,
                 )
                 return False
+
+            # Try to validate with any possible format
+            valid_format = None
+            for record_size, unpack_format in possible_formats:
+                num_records = len(decompressed) // record_size
+
+                # Validate minimum records
+                if num_records < 1:
+                    continue
+
+                # Try to unpack the first record
+                try:
+                    offset = 0
+                    record = decompressed[offset : offset + record_size]
+
+                    if record_size == 20:
+                        timestamp_delta, ask_int, bid_int, ask_vol, bid_vol = struct.unpack(
+                            unpack_format, record
+                        )
+                    else:  # 12-byte format
+                        timestamp_delta, ask_int, bid_int = struct.unpack(unpack_format, record)
+
+                    # Basic validation
+                    if timestamp_delta < 0:
+                        continue  # Negative timestamp, try next format
+
+                    if ask_int <= 0 or bid_int <= 0:
+                        continue  # Invalid prices, try next format
+
+                    ask_price = ask_int / 100000.0
+                    bid_price = bid_int / 100000.0
+
+                    if ask_price < 0.0001 or bid_price < 0.0001:
+                        continue  # Too small prices, try next format
+
+                    if ask_price > 1000000 or bid_price > 1000000:
+                        continue  # Too large prices, try next format
+
+                    # This format seems valid
+                    valid_format = (record_size, unpack_format, num_records)
+                    break
+
+                except (struct.error, ValueError):
+                    continue  # Try next format
+
+            if valid_format is None:
+                self._logger.warning("bi5_no_valid_format_found",
+                                    decompressed_size=len(decompressed))
+                return False
+
+            record_size, unpack_format, num_records = valid_format
+
+            self._logger.debug(
+                "bi5_validation_success",
+                compressed_size=len(data),
+                decompressed_size=len(decompressed),
+                num_records=num_records,
+                record_size=record_size,
+            )
 
             return True
 

@@ -10,6 +10,10 @@ class JForexConfig(TypedDict, total=False):
     """JForex konfiguráció séma."""
     base_url: str
     timeout: int
+    retry_attempts: int
+    storage_base_path: str
+    validation_enabled: bool
+    max_download_size_mb: int
 
 
 class JForexLiveConfig(TypedDict, total=False):
@@ -56,15 +60,25 @@ class JForexFactory:
         from neural_ai.collectors.jforex.implementations.bi5_downloader import Bi5Downloader
 
         # Get JForex configuration
-        try:
-            jforex_config = cast(JForexConfig, config.get("jforex", {}) or {})
-        except (KeyError, ValueError, AttributeError):
+        jforex_config_raw = config.get("jforex")
+        if jforex_config_raw is None:
             jforex_config = cast(JForexConfig, {})
+        else:
+            jforex_config = cast(JForexConfig, jforex_config_raw)
 
         # Create HTTP client with timeout
         timeout_value = jforex_config.get("timeout", 30) if jforex_config else 30
         timeout = aiohttp.ClientTimeout(total=timeout_value)
         http_client = aiohttp.ClientSession(timeout=timeout)
+
+        # Get additional configuration options
+        retry_attempts = jforex_config.get("retry_attempts", 3) if jforex_config else 3
+        storage_base_path = jforex_config.get("storage_base_path",
+                                              "data/tick") if jforex_config else "data/tick"
+        validation_enabled = jforex_config.get("validation_enabled",
+                                               True) if jforex_config else True
+        max_download_size_mb = jforex_config.get("max_download_size_mb",
+                                                 50) if jforex_config else 50
 
         # Create downloader instance
         downloader = Bi5Downloader(
@@ -75,7 +89,15 @@ class JForexFactory:
             storage=storage,
         )
 
-        logger.info("jforex_downloader_created", base_url=jforex_config.get("base_url", "default"))
+        logger.info(
+            "jforex_downloader_created",
+            base_url=jforex_config.get("base_url", "default"),
+            timeout=timeout_value,
+            retry_attempts=retry_attempts,
+            storage_base_path=storage_base_path,
+            validation_enabled=validation_enabled,
+            max_download_size_mb=max_download_size_mb,
+        )
 
         return downloader
 
@@ -98,8 +120,12 @@ class JForexFactory:
 
         # Get JForex live configuration
         try:
-            live_config = cast(JForexLiveConfig, config.get("jforex_live", {}) or {})
-        except (KeyError, ValueError, AttributeError):
+            live_config_raw = config.get("jforex_live")
+            if live_config_raw is None:
+                live_config = cast(JForexLiveConfig, {})
+            else:
+                live_config = cast(JForexLiveConfig, live_config_raw)
+        except KeyError:
             live_config = cast(JForexLiveConfig, {})
 
         # Check if live feed is enabled
