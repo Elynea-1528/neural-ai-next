@@ -1,5 +1,5 @@
 # NEURAL AI NEXT CONTEXT (FULL)
-*Generated: 2026-01-17 22:26:47*
+*Generated: 2026-01-17 23:37:13*
 
 ## `FILE: .vscode/settings.json`
 
@@ -11150,6 +11150,8 @@ Példa:
 from importlib import metadata
 from typing import Final
 
+from neural_ai.core.logger.factory import LoggerFactory
+
 try:
     _version: str = metadata.version("neural-ai-next")
 except metadata.PackageNotFoundError:
@@ -11160,6 +11162,13 @@ __version__: Final[str] = _version
 
 # Konfigurációs séma verzió - a 10. fejezet szerint
 __schema_version__: Final[str] = "1.0"
+
+# Inicializációs logger létrehozása és logolás
+_logger = LoggerFactory.get_logger("neural_ai")
+_logger.info(
+    "Neural-AI-Next modul inicializálva",
+    extra={"version": _version, "schema_version": __schema_version__},
+)
 
 __all__: Final[list[str]] = [
     "__version__",
@@ -12455,7 +12464,29 @@ A modul biztosítja a core komponensek megfelelő inicializálását és
 függőségi injektálását, elkerülve a körkörös függőségeket.
 """
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypedDict, cast
+
+from neural_ai.core.utils.decorators import trace
+
+
+class LoggingConfig(TypedDict, total=False):
+    """Logging konfiguráció típusa."""
+
+    level: str
+
+
+class StorageConfig(TypedDict, total=False):
+    """Storage konfiguráció típusa."""
+
+    type: str
+    base_path: str
+
+
+class LiveConfig(TypedDict, total=False):
+    """Live feed konfiguráció típusa."""
+
+    enabled: bool
+
 
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
@@ -12475,6 +12506,7 @@ if TYPE_CHECKING:
     from neural_ai.data.storage.interfaces.storage_interface import StorageInterface  # noqa: F401
 
 
+@trace
 def get_version() -> str:
     """Dynamikusan betölti a csomag verzióját.
 
@@ -12486,10 +12518,11 @@ def get_version() -> str:
         from importlib import metadata
 
         return metadata.version("neural-ai-next")
-    except Exception:
+    except metadata.PackageNotFoundError:
         return "unknown"
 
 
+@trace
 def get_schema_version() -> str:
     """Visszaadja az aktuális séma verziót.
 
@@ -12499,6 +12532,7 @@ def get_schema_version() -> str:
     return "1.0.0"
 
 
+@trace
 def bootstrap_core(
     config_path: str | None = None, log_level: str | None = None
 ) -> "CoreComponents":

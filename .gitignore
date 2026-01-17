@@ -70,3 +70,5 @@ condaenv.*.txt
 mt5_data/
 
 # txt files
+neural_ai_full_context.txt
+neural_ai_full_context.md
