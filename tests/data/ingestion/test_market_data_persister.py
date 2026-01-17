@@ -51,21 +51,15 @@ class TestMarketDataPersisterInit:
         """Teszteli az egyéni buffer mérettel történő inicializálást."""
         mock_event_bus = MagicMock()
         mock_storage = MagicMock()
+        mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, buffer_size_limit=5_000
+            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, buffer_size_limit=5_000
         )
 
         assert persister.buffer_size_limit == 5_000
 
-    def test_init_without_logger_uses_structlog(self) -> None:
-        """Teszteli, hogy logger nélkül structlog-ot használ."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
-
-        assert persister.logger is not None
 
 
 class TestMarketDataPersisterStartStop:
@@ -160,9 +154,10 @@ class TestMarketDataPersisterOnMarketData:
         """Teszteli egyetlen event fogadását."""
         mock_event_bus = MagicMock()
         mock_storage = MagicMock()
+        mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, buffer_size_limit=5
+            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, buffer_size_limit=5
         )
         persister.running = True
 
@@ -185,8 +180,9 @@ class TestMarketDataPersisterOnMarketData:
         """Teszteli batch eventek fogadását."""
         mock_event_bus = MagicMock()
         mock_storage = MagicMock()
+        mock_logger = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
+        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger)
         persister.running = True
 
         events = [

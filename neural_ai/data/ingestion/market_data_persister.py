@@ -18,11 +18,11 @@ import structlog
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 
 if TYPE_CHECKING:
-    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import (
+        EventBusInterface,
+    )
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
-
-logger = structlog.get_logger()
 
 
 class MarketDataPersister:
@@ -69,7 +69,8 @@ class MarketDataPersister:
         self.running = False
 
         self.logger.info(
-            f"MarketDataPersister inicializálva, buffer_size_limit={buffer_size_limit}"
+            "MarketDataPersister inicializálva",
+            extra={"buffer_size_limit": buffer_size_limit}
         )
 
     async def start(self) -> None:
@@ -126,12 +127,18 @@ class MarketDataPersister:
 
         # Maradék buffer kiürítése (FONTOS: védett try-except blokk!)
         buffer_before = {k: len(v) for k, v in self.buffer.items() if v}
-        self.logger.info(f"Maradék buffer kiürítése... Buffer állapot (előtte): {buffer_before}")
+        self.logger.info(
+            "Maradék buffer kiürítése",
+            extra={"buffer_before": buffer_before}
+        )
 
         try:
             await self._flush_all_buffers()
         except Exception as e:
-            self.logger.error(f"Hiba a buffer kiürítésekor: {e}")
+            self.logger.error(
+                "Hiba a buffer kiürítésekor",
+                extra={"error": str(e)}
+            )
             # Fontos: még hiba esetén is folytatjuk, hogy a többi leállítási lépés lefusson
 
         # Ellenőrizzük, hogy tényleg kiürült-e a buffer
@@ -140,23 +147,34 @@ class MarketDataPersister:
 
         if total_remaining > 0:
             self.logger.warning(
-                f"Buffer kiürítése után is maradt {total_remaining} event a bufferben! "
-                f"(Előtte: {sum(buffer_before.values())}, Utána: {total_remaining})"
+                "Buffer kiürítése után maradt event a bufferben",
+                extra={
+                    "total_remaining": total_remaining,
+                    "before": sum(buffer_before.values()),
+                    "after": total_remaining
+                }
             )
         else:
             self.logger.info(
-                f"Buffer sikeresen kiürítve. (Előtte: {sum(buffer_before.values())}, Utána: 0)"
+                "Buffer sikeresen kiürítve",
+                extra={
+                    "before": sum(buffer_before.values()),
+                    "after": 0
+                }
             )
 
         self.logger.info("MarketDataPersister leállítva")
 
-    async def on_market_data(self, event: Any) -> None:
+    async def on_market_data(self, event: MarketDataEvent | list[MarketDataEvent]) -> None:
         """Fogadja a market data eventeket (vagy batch listát) és bufferezi őket.
 
         Args:
             event: Egy MarketDataEvent VAGY MarketDataEvent-ek listája.
         """
-        self.logger.info(f"on_market_data called with event type: {type(event)}")
+        self.logger.info(
+            "on_market_data called",
+            extra={"event_type": str(type(event))}
+        )
         new_events: list[MarketDataEvent] = []
 
         # 1. ESET: Lista (Batch) érkezett
@@ -164,14 +182,17 @@ class MarketDataPersister:
             # Type check: ensure all items are MarketDataEvent
             for item in event:
                 if hasattr(item, "symbol"):
-                    new_events.append(cast(MarketDataEvent, item))
+                    new_events.append(item)  # item is MarketDataEvent
 
         # 2. ESET: Egyetlen Event érkezett
         elif hasattr(event, "symbol"):  # Pydantic model check
-            new_events = [cast(MarketDataEvent, event)]
+            new_events = [event]  # event is MarketDataEvent
 
         else:
-            self.logger.warning(f"unknown_event_format: {type(event)}")
+            self.logger.warning(
+                "unknown_event_format",
+                extra={"event_type": str(type(event))}
+            )
             return
 
         if not new_events:
@@ -189,12 +210,14 @@ class MarketDataPersister:
 
         # Logolás (de csak okosan, nem dumpoljuk a teljes listát!)
         self.logger.debug(
-            f"market_data_received: count={len(new_events)}, total_buffered={total_buffered}"
+            "market_data_received",
+            extra={"count": len(new_events), "total_buffered": total_buffered}
         )
 
         if total_buffered >= self.buffer_size_limit:
             self.logger.info(
-                f"Buffer méretkorlát elérve, kiürítés indítása, total_buffered={total_buffered}"
+                "Buffer méretkorlát elérve, kiürítés indítása",
+                extra={"total_buffered": total_buffered}
             )
             await self._flush_all_buffers()
 
@@ -214,25 +237,38 @@ class MarketDataPersister:
                 if current_hour > self.current_hour:
                     # Új óra kezdődött, kiürítjük a buffert
                     self.logger.info(
-                        f"Új óra kezdődött, buffer kiürítése, "
-                        f"old_hour={self.current_hour}, new_hour={current_hour}"
+                        "Új óra kezdődött, buffer kiürítése",
+                        extra={
+                            "old_hour": self.current_hour.isoformat(),
+                            "new_hour": current_hour.isoformat()
+                        }
                     )
                     await self._flush_all_buffers()
                     self.current_hour = current_hour
 
             except Exception as e:
-                self.logger.error(f"Hiba a periodikus flush során: {e}")
+                self.logger.error(
+                    "Hiba a periodikus flush során",
+                    extra={"error": str(e)}
+                )
 
     async def _flush_all_buffers(self) -> None:
         """Kiüríti az összes buffert és elmenti a tárolóba.
 
         Szimbólumonként csoportosítva konvertálja DataFrame-é és menti.
         """
-        self.logger.info(f"_flush_all_buffers called, buffer keys: {list(self.buffer.keys())}")
+        buffer_keys = list(self.buffer.keys())
+        self.logger.info(
+            "_flush_all_buffers called",
+            extra={"buffer_keys": buffer_keys}
+        )
 
         # Részletes buffer állapot logolása
         buffer_stats = {symbol: len(events) for symbol, events in self.buffer.items() if events}
-        self.logger.info(f"Buffer statisztika: {buffer_stats}")
+        self.logger.info(
+            "Buffer statisztika",
+            extra={"buffer_stats": buffer_stats}
+        )
 
         if not any(self.buffer.values()):
             # Nincs mit kiüríteni
@@ -243,17 +279,30 @@ class MarketDataPersister:
         for symbol, events in self.buffer.items():
             if events:
                 try:
-                    self.logger.info(f"Buffer kiürítése {symbol} szimbólumhoz: {len(events)} event")
+                    event_count = len(events)
+                    self.logger.info(
+                        "Buffer kiürítése szimbólumhoz",
+                        extra={"symbol": symbol, "event_count": event_count}
+                    )
                     await self._flush_symbol_buffer(symbol, events)
-                    total_saved += len(events)
-                    self.logger.info(f"{symbol} buffer kiürítve: {len(events)} event elmentve")
+                    total_saved += event_count
+                    self.logger.info(
+                        "Szimbólum buffer kiürítve",
+                        extra={"symbol": symbol, "events_saved": event_count}
+                    )
                 except Exception as e:
-                    self.logger.error(f"Hiba a buffer kiürítésekor {symbol} szimbólumhoz: {e}")
+                    self.logger.error(
+                        "Hiba a buffer kiürítésekor szimbólumhoz",
+                        extra={"symbol": symbol, "error": str(e)}
+                    )
 
         # Buffer ürítése
         self.buffer.clear()
 
-        self.logger.info(f"Összes buffer kiürítve. Összesen {total_saved} event lett elmentve.")
+        self.logger.info(
+            "Összes buffer kiürítve",
+            extra={"total_saved": total_saved}
+        )
 
     async def _flush_symbol_buffer(self, symbol: str, events: list[MarketDataEvent]) -> None:
         """Kiüríti egy adott szimbólum bufferét.
@@ -299,29 +348,43 @@ class MarketDataPersister:
             from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
 
             if isinstance(self.storage, ParquetStorageService):
+                row_count = len(df)
                 self.logger.info(
-                    f"Tárolás ParquetStorageService-be: {symbol}, {date}, {len(df)} sor"
+                    "Tárolás ParquetStorageService-be",
+                    extra={"symbol": symbol, "date": date.isoformat(), "row_count": row_count}
                 )
                 await self.storage.store_tick_data(symbol, df, date)
             else:
                 # Fallback: használjuk a save_dataframe metódust
-                self.logger.info(f"Tárolás save_dataframe-mal: {symbol}, {date}, {len(df)} sor")
+                row_count = len(df)
+                self.logger.info(
+                    "Tárolás save_dataframe-mal",
+                    extra={"symbol": symbol, "date": date.isoformat(), "row_count": row_count}
+                )
                 path = f"/data/tick/{symbol}/{date.strftime('%Y/%m/%d')}/data.parquet"
                 kwargs: dict[str, Any] = {"symbol": symbol, "date": date}
                 self.storage.save_dataframe(df, path, **kwargs)
 
             self.logger.info(
-                f"Tick adatok elmentve, symbol={symbol}, "
-                f"date={date.strftime('%Y-%m-%d')}, rows={len(events)}"
+                "Tick adatok elmentve",
+                extra={
+                    "symbol": symbol,
+                    "date": date.strftime('%Y-%m-%d'),
+                    "rows": len(events)
+                }
             )
 
         except Exception as e:
             import traceback
 
             self.logger.error(
-                f"Hiba az adatok mentésekor, symbol={symbol}, "
-                f"date={date.strftime('%Y-%m-%d')}, error={str(e)}, "
-                f"traceback={traceback.format_exc()}"
+                "Hiba az adatok mentésekor",
+                extra={
+                    "symbol": symbol,
+                    "date": date.strftime('%Y-%m-%d'),
+                    "error": str(e),
+                    "traceback": traceback.format_exc()
+                }
             )
             raise
 
@@ -347,8 +410,7 @@ class MarketDataPersister:
                         "timestamp": [e.timestamp for e in events],
                         "bid": [e.bid for e in events],
                         "ask": [e.ask for e in events],
-                        "ask_volume": [e.ask_volume for e in events],
-                        "bid_volume": [e.bid_volume for e in events],
+                        "volume": [e.volume for e in events],
                         "source": [e.source for e in events],
                     }
 
@@ -370,8 +432,7 @@ class MarketDataPersister:
                         "timestamp": [e.timestamp for e in events],
                         "bid": [e.bid for e in events],
                         "ask": [e.ask for e in events],
-                        "ask_volume": [e.ask_volume for e in events],
-                        "bid_volume": [e.bid_volume for e in events],
+                        "volume": [e.volume for e in events],
                         "source": [e.source for e in events],
                     }
 
@@ -394,8 +455,7 @@ class MarketDataPersister:
                     "timestamp": [e.timestamp for e in events],
                     "bid": [e.bid for e in events],
                     "ask": [e.ask for e in events],
-                    "ask_volume": [e.ask_volume for e in events],
-                    "bid_volume": [e.bid_volume for e in events],
+                    "volume": [e.volume for e in events],
                     "source": [e.source for e in events],
                 }
 
@@ -413,8 +473,7 @@ class MarketDataPersister:
                         "timestamp": [e.timestamp for e in events],
                         "bid": [e.bid for e in events],
                         "ask": [e.ask for e in events],
-                        "ask_volume": [e.ask_volume for e in events],
-                        "bid_volume": [e.bid_volume for e in events],
+                        "volume": [e.volume for e in events],
                         "source": [e.source for e in events],
                     }
 
