@@ -113,7 +113,9 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         if self.hardware.has_avx2():
             from neural_ai.data.storage.backends.polars_backend import PolarsBackend
 
-            self.backend = PolarsBackend(logger=self.logger, name="polars", supported_formats=["parquet"])
+            self.backend = PolarsBackend(
+                logger=self.logger, name="polars", supported_formats=["parquet"]
+            )
             self.engine = "polars"
             # DEBUG log a backend kiválasztáshoz
             log_msg = f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
@@ -125,13 +127,17 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         else:
             from neural_ai.data.storage.backends.pandas_backend import PandasBackend
 
-            self.backend = PandasBackend(logger=self.logger, name="pandas", supported_formats=["parquet"])
+            self.backend = PandasBackend(
+                logger=self.logger, name="pandas", supported_formats=["parquet"]
+            )
             self.engine = "fastparquet"
             # DEBUG log a backend kiválasztáshoz
             log_msg = f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
             if self.logger:
                 self.logger.debug(log_msg)
-                self.logger.warning("Legacy CPU detected. Running in Compatibility Mode with PandasBackend.")
+                self.logger.warning(
+                    "Legacy CPU detected. Running in Compatibility Mode with PandasBackend."
+                )
             else:
                 # Ha nincs logger, nem logolunk
                 pass
@@ -824,14 +830,18 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
         A ParquetStorageService saját store_tick_data metódusát használja.
         """
-        raise NotImplementedError("ParquetStorageService save_dataframe adapter nincs implementálva")
+        raise NotImplementedError(
+            "ParquetStorageService save_dataframe adapter nincs implementálva"
+        )
 
     def load_dataframe(self, path: str, **kwargs: Any) -> "pd.DataFrame":
         """DataFrame betöltése a megadott útvonalról.
 
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
         """
-        raise NotImplementedError("ParquetStorageService load_dataframe adapter nincs implementálva")
+        raise NotImplementedError(
+            "ParquetStorageService load_dataframe adapter nincs implementálva"
+        )
 
     def save_object(self, obj: object, path: str, **kwargs: Any) -> None:
         """Objektum mentése a megadott útvonalra.
