@@ -35,54 +35,45 @@ handlers:
     encoding: "utf-8"
 
 loggers:
-  # --- GYÖKÉR ---
+  # --- FŐ ALKALMAZÁS LOGGER ---
+  # Minden belső logger ebből örököl. A handlereket itt definiáljuk központilag.
   neural_ai:
     level: INFO
     handlers: [console, file]
-    propagate: false
+    propagate: false # Ne küldje tovább a root-ra, elkerülve a duplikált logokat.
 
-  # --- CORE (INFRASTRUCTURE) ---
-  neural_ai.core.base: { level: INFO, handlers: [console, file] }      # DI Container, Singleton
-  neural_ai.core.config: { level: INFO, handlers: [console, file] }    # Config Manager
-  neural_ai.core.db: { level: INFO, handlers: [console, file] }        # Database Manager
-  neural_ai.core.events: { level: INFO, handlers: [console, file] }    # EventBus (ZeroMQ)
-  neural_ai.core.logger: { level: WARNING, handlers: [console, file] } # Logger Factory (ne logolja önmagát)
-  neural_ai.core.system: { level: INFO, handlers: [console, file] }    # Health Monitor
-  neural_ai.core.utils: { level: INFO, handlers: [console, file] }     # Hardware Info
+  # --- SPECIFIKUS MODULOK FELÜLBÍRÁLÁSA (OVERRIDE) ---
+  # Csak a szintet (level) írjuk felül, a handlereket öröklik.
+  neural_ai.core.logger:
+    level: WARNING # Megakadályozza a rekurzív logolást a logger factory-ban.
+  neural_ai.data.storage:
+    level: DEBUG   # Részletesebb logolás az adattároló rétegben.
+  neural_ai.ui.components:
+    level: WARNING
 
-  # --- DATA (PERSISTENCE) ---
-  neural_ai.data.storage: { level: DEBUG, handlers: [console, file] }  # Fixed: Added handlers
-  neural_ai.data.ingestion: { level: INFO, handlers: [console, file] } # MarketDataPersister
-
-  # --- COLLECTORS (INPUT) ---
-  neural_ai.collectors.jforex: { level: INFO, handlers: [console, file] }
-  neural_ai.collectors.mt5: { level: INFO, handlers: [console, file] }
-
-  # --- PROCESSORS (DOMAIN) ---
-  neural_ai.processors.resampler_service: { level: INFO, handlers: [console, file] }
-  neural_ai.processors.dimensions.d01_price: { level: INFO, handlers: [console, file] }
-  neural_ai.processors.dimensions.d02_support: { level: INFO, handlers: [console, file] }
-  # (Ide jön majd a d03_trend, stb.)
-
-  # --- UI (PRESENTATION) ---
-  neural_ai.ui.services: { level: INFO, handlers: [console, file] }
-  neural_ai.ui.pages: { level: INFO, handlers: [console, file] }
-  neural_ai.ui.components: { level: WARNING, handlers: [console, file] }
-
-  # --- TRACE SYSTEM ---
+  # --- TRACE RENDSZER ---
+  # Különálló logger a @trace dekorátorok számára, saját fájllal.
   neural_ai.trace:
     level: DEBUG
     handlers: [trace_file]
     propagate: false
 
-  # --- EXTERNAL LIBS (Zajszűrés) ---
-  aiosqlite: { level: WARNING }
-  asyncio: { level: WARNING }
-  parso: { level: WARNING }
-  watchdog: { level: WARNING }
-  matplotlib: { level: WARNING }
-  numba: { level: WARNING }
+  # --- KÜLSŐ KÖNYVTÁRAK ZAJCSÖKKENTÉSE ---
+  # Nincs handlerük, a root loggerre propagálnak.
+  aiosqlite:
+    level: WARNING
+  asyncio:
+    level: WARNING
+  parso:
+    level: WARNING
+  watchdog:
+    level: WARNING
+  matplotlib:
+    level: WARNING
+  numba:
+    level: WARNING
 
+# Gyökér logger, ami minden mást (főleg külső libeket) elkap.
 root:
   level: INFO
   handlers: [console]

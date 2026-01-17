@@ -1,5 +1,5 @@
 # NEURAL AI NEXT CONTEXT (FULL)
-*Generated: 2026-01-17 13:42:05*
+*Generated: 2026-01-17 15:05:43*
 
 ## `FILE: .vscode/settings.json`
 
@@ -775,33 +775,32 @@ loggers:
     propagate: false
 
   # --- CORE (INFRASTRUCTURE) ---
-  neural_ai.core.base: { level: INFO }      # DI Container, Singleton
-  neural_ai.core.config: { level: INFO }    # Config Manager
-  neural_ai.core.db: { level: INFO }        # Database Manager
-  neural_ai.core.events: { level: INFO }    # EventBus (ZeroMQ)
-  neural_ai.core.logger: { level: WARNING } # Logger Factory (ne logolja önmagát)
-  neural_ai.core.system: { level: INFO }    # Health Monitor
-  neural_ai.core.utils: { level: INFO }     # Hardware Info
+  neural_ai.core.base: { level: INFO, handlers: [console, file] }      # DI Container, Singleton
+  neural_ai.core.config: { level: INFO, handlers: [console, file] }    # Config Manager
+  neural_ai.core.db: { level: INFO, handlers: [console, file] }        # Database Manager
+  neural_ai.core.events: { level: INFO, handlers: [console, file] }    # EventBus (ZeroMQ)
+  neural_ai.core.logger: { level: WARNING, handlers: [console, file] } # Logger Factory (ne logolja önmagát)
+  neural_ai.core.system: { level: INFO, handlers: [console, file] }    # Health Monitor
+  neural_ai.core.utils: { level: INFO, handlers: [console, file] }     # Hardware Info
 
   # --- DATA (PERSISTENCE) ---
-  neural_ai.data.storage:
-    level: DEBUG            # <--- ITT KERESSÜK A HIBÁT!
-  neural_ai.data.ingestion: { level: INFO } # MarketDataPersister
+  neural_ai.data.storage: { level: DEBUG, handlers: [console, file] }  # Fixed: Added handlers
+  neural_ai.data.ingestion: { level: INFO, handlers: [console, file] } # MarketDataPersister
 
   # --- COLLECTORS (INPUT) ---
-  neural_ai.collectors.jforex: { level: INFO }
-  neural_ai.collectors.mt5: { level: INFO }
+  neural_ai.collectors.jforex: { level: INFO, handlers: [console, file] }
+  neural_ai.collectors.mt5: { level: INFO, handlers: [console, file] }
 
   # --- PROCESSORS (DOMAIN) ---
-  neural_ai.processors.resampler_service: { level: INFO }
-  neural_ai.processors.dimensions.d01_price: { level: INFO }
-  neural_ai.processors.dimensions.d02_support: { level: INFO }
+  neural_ai.processors.resampler_service: { level: INFO, handlers: [console, file] }
+  neural_ai.processors.dimensions.d01_price: { level: INFO, handlers: [console, file] }
+  neural_ai.processors.dimensions.d02_support: { level: INFO, handlers: [console, file] }
   # (Ide jön majd a d03_trend, stb.)
 
   # --- UI (PRESENTATION) ---
-  neural_ai.ui.services: { level: INFO }
-  neural_ai.ui.pages: { level: INFO }
-  neural_ai.ui.components: { level: WARNING }
+  neural_ai.ui.services: { level: INFO, handlers: [console, file] }
+  neural_ai.ui.pages: { level: INFO, handlers: [console, file] }
+  neural_ai.ui.components: { level: WARNING, handlers: [console, file] }
 
   # --- TRACE SYSTEM ---
   neural_ai.trace:
@@ -12471,7 +12470,24 @@ A modul biztosítja a core komponensek megfelelő inicializálását és
 függőségi injektálását, elkerülve a körkörös függőségeket.
 """
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypedDict, cast
+
+
+# TypedDict definíciók a konfiguráció típusbiztonságához
+class LoggingConfig(TypedDict, total=False):
+    level: str
+    format: str
+    file: str
+
+
+class StorageConfig(TypedDict, total=False):
+    type: str
+    base_path: str
+
+
+class JForexLiveConfig(TypedDict, total=False):
+    enabled: bool
+
 
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
@@ -12503,7 +12519,12 @@ def get_version() -> str:
 
         return metadata.version("neural-ai-next")
     except Exception:
-        return "unknown"
+        # Logger létrehozása hiba esetén
+        from neural_ai.core.logger.factory import LoggerFactory
+
+        logger = LoggerFactory.get_logger("neural_ai.core.version")
+        logger.error("Verzió betöltése sikertelen", exc_info=True)
+        raise
 
 
 def get_schema_version() -> str:
@@ -12581,10 +12602,11 @@ def bootstrap_core(
     container.register_instance(ConfigManagerInterface, config)
 
     # 2. Logger inicializálása a konfiggal
-    logging_config = config.get_section("logging") or {}
-    LoggerFactory.configure(logging_config)
+    logging_config = cast(LoggingConfig, config.get_section("logging") or {})
+    LoggerFactory.configure(logging_config)  # type: ignore
     # Alap logger példány létrehozása
     logger = LoggerFactory.get_logger(name="NeuralAI.Bootstrap", logger_type="default")
+    logger.debug("bootstrap_core függvény hívva")
     container.register_instance(LoggerInterface, logger)
 
     # Visszajelzés az előző lépésekről
@@ -12616,7 +12638,7 @@ def bootstrap_core(
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
     logger.info("⏳ 7. Storage indítása...")
-    storage_conf = config.get("storage") or {}  # Szekció lekérése
+    storage_conf = cast(StorageConfig, config.get("storage") or {})  # Szekció lekérése
     storage_type = storage_conf.get("type", "file")  # Típus (file/parquet)
 
     try:
@@ -12667,7 +12689,7 @@ def bootstrap_core(
     # 9. JForex Live Feed inicializálása (ha engedélyezve van)
     logger.info("⏳ 10. JForex Live Feed ellenőrzése...")
     # Figyelem: A collectors.yaml tartalma a 'collectors' kulcs alatt van!
-    live_conf: dict[str, Any] = config.get("collectors", "jforex_live") or {}
+    live_conf = cast(JForexLiveConfig, config.get("collectors", "jforex_live") or {})
     if live_conf.get("enabled", False):
         from neural_ai.collectors.jforex.factory import JForexFactory
         from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
