@@ -85,7 +85,6 @@ class ResamplerService(ResamplerInterface):
             # Return type kezelés
             if return_type.lower() == "pandas":
                 # Konvertálás pandas-ra
-                import pandas as pd
                 return ohlcv_data.to_pandas().set_index("timestamp")
             elif return_type.lower() == "polars":
                 return ohlcv_data
@@ -93,7 +92,9 @@ class ResamplerService(ResamplerInterface):
                 raise ResamplingError(
                     symbol=symbol,
                     timeframe=timeframe,
-                    original_error=ValueError(f"Invalid return_type: {return_type}. Must be 'pandas' or 'polars'"),
+                    original_error=ValueError(
+                        f"Invalid return_type: {return_type}. Must be 'pandas' or 'polars'"
+                    ),
                 )
         except Exception as e:
             raise ResamplingError(symbol=symbol, timeframe=timeframe, original_error=e) from e

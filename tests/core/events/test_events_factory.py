@@ -16,6 +16,7 @@ from neural_ai.core.events.interfaces.event_bus_interface import (
     EventBusConfig,
     EventBusInterface,
 )
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class TestEventBusFactoryCreate:

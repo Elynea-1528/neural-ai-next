@@ -149,7 +149,10 @@ class DocumentationGenerator:
         relative_dir = directory.relative_to(self.source_dir)
         title = f"# {relative_dir} - Komponens dokumentáció\n"
 
-        intro = f"\nEz a mappa a(z) `neural_ai{os.sep}{relative_dir}` modul dokumentációját tartalmazza.\n\n"
+        intro = (
+            f"\nEz a mappa a(z) `neural_ai{os.sep}{relative_dir}` "
+            "modul dokumentációját tartalmazza.\n\n"
+        )
 
         files_section = "## Fájlok\n\n"
         for file in sorted(files):

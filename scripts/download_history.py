@@ -33,6 +33,7 @@ from neural_ai.collectors.jforex.factory import JForexFactory
 from neural_ai.core import bootstrap_core
 
 if TYPE_CHECKING:
+    from neural_ai.collectors.jforex.interfaces.tick_data import TickData
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 

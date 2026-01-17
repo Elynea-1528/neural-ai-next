@@ -196,7 +196,8 @@ def compare_data(raw_counts: dict[str, int], sys_counts: dict[str, int]) -> None
 
     print("=" * 70)
     print(
-        f"ÖSSZESEN: {total_raw} (nyers) vs {total_sys} (rendszer) | KÜLÖNBSÉG: {total_raw - total_sys}"
+        f"ÖSSZESEN: {total_raw} (nyers) vs {total_sys} (rendszer) | "
+        f"KÜLÖNBSÉG: {total_raw - total_sys}"
     )
     print("=" * 70)
 

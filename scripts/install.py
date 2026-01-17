@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Neural AI Next - Unified Zero-Touch Installer
+"""Neural AI Next - Unified Zero-Touch Installer.
+
 =============================================
 
 Automatizált telepítő a teljes környezet és brókerek beállításához.

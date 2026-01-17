@@ -17,10 +17,10 @@ from pathlib import Path
 
 def find_jforex_folder() -> Path:
     """Megkeresi a JForex telepítési mappát.
-    
+
     Returns:
         Path: A JForex Strategies mappa útvonala
-        
+
     Raises:
         FileNotFoundError: Ha nem található JForex mappa
     """
@@ -68,10 +68,10 @@ def find_jforex_folder() -> Path:
 
 def run_gradle_build(bridge_path: Path) -> bool:
     """Lefuttatja a Gradle buildet a JForex bridge mappában.
-    
+
     Args:
         bridge_path: A jforex-bridge mappa útvonala
-        
+
     Returns:
         bool: True ha a build sikeres, False egyébként
     """
@@ -116,11 +116,11 @@ def run_gradle_build(bridge_path: Path) -> bool:
 
 def deploy_files(bridge_path: Path, jforex_path: Path) -> bool:
     """Bemásolja a szükséges fájlokat a JForex mappába.
-    
+
     Args:
         bridge_path: A jforex-bridge mappa útvonala
         jforex_path: A JForex Strategies mappa útvonala
-        
+
     Returns:
         bool: True ha a telepítés sikeres, False egyébként
     """
@@ -128,7 +128,10 @@ def deploy_files(bridge_path: Path, jforex_path: Path) -> bool:
 
     try:
         # 1. Java stratégia fájl másolása
-        java_source = bridge_path / "src" / "main" / "java" / "com" / "neuralai" / "bridge" / "NeuralBridgeStrategy.java"
+        java_source = (
+            bridge_path / "src" / "main" / "java" / "com" / "neuralai" /
+            "bridge" / "NeuralBridgeStrategy.java"
+        )
         if not java_source.exists():
             print(f"❌ Java forrásfájl nem található: {java_source}")
             return False
@@ -171,7 +174,7 @@ def deploy_files(bridge_path: Path, jforex_path: Path) -> bool:
 
 def print_summary(jforex_path: Path):
     """Kiírja a telepítés utáni összefoglalót.
-    
+
     Args:
         jforex_path: A JForex Strategies mappa útvonala
     """
@@ -198,8 +201,7 @@ def print_summary(jforex_path: Path):
 
 
 def main():
-    """Fő végrehajtási függvény.
-    """
+    """Fő végrehajtási függvény."""
     print("\n" + "="*60)
     print("🧠 NEURAL AI - JFOREX BRIDGE AUTO-DEPLOY")
     print("="*60)
