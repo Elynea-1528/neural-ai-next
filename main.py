@@ -18,9 +18,6 @@ from contextlib import suppress
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from neural_ai.core import bootstrap_core
-from neural_ai.core.config.factory import ConfigManagerFactory
-from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 # Körkörös importok elkerüléséhez
@@ -46,7 +43,7 @@ async def run_live_mode() -> None:
         SystemExit: Ha kritikus hiba történik az alkalmazás indítása során.
     """
     # Core komponensek inicializálása típusos változóval
-    components: CoreComponents = bootstrap_core()
+    components: CoreComponents = get_core_components()
 
     # Komponensek lekérése
     logger: LoggerInterface | None = components.logger
@@ -256,12 +253,9 @@ def parse_date(date_str: str) -> datetime:
 
 def main() -> None:
     """Főprogram."""
-    # Logger konfigurálása alapértelmezett módon
-    config = ConfigManagerFactory.create_manager("yaml")
-    config.load_directory("configs")
-    logging_config = config.get_section("logging") or {}
-    LoggerFactory.configure(logging_config)
-    logger = LoggerFactory.get_logger("main")
+    # Core komponensek inicializálása
+    components = get_core_components()
+    logger = components.logger
 
     args = parse_arguments()
 
