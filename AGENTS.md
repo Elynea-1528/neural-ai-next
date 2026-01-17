@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Ez a fájl útmutatást nyújt az AI asszisztensek számára ebben a repositoryban való munkához.
+Ez a fájl útmutatást nyújt az AI assztensek számára ebben a repositoryban való munkához.
 
 ## Projekt Áttekintés
 - **Adatok**: 25 évnyi TICK ADAT (nem OHLCV!)
@@ -26,6 +26,7 @@ Ez a fájl útmutatást nyújt az AI asszisztensek számára ebben a repositoryb
 - **Adattárolás**: Csak particionált Parquet fájlok (FastParquet); CSV/JSON TILOS
 - **QA Kapu**: Minden változás előtt kötelező a `ruff check` és `pytest` sikeres lefutása
 - **Típus Ellenőrzés**: Pylance strict mód kényszerített (`python.analysis.typeCheckingMode: "strict"`)
+- **Problems Tab Compliance**: Minden VSCode Problems fülben látható linter/Ruff/MyPy hiba SZIGORÚAN javítandó
 
 ## Architektúra Szabványok (v4.0 kivonat)
 - **Réteges Architektúra**: Presentation→Domain→Persistence→Input→Infrastructure (függőségek csak lefelé)
