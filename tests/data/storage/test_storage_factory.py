@@ -8,6 +8,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.data.storage.exceptions import StorageError
 from neural_ai.data.storage.factory import StorageFactory
 from neural_ai.data.storage.implementations.file_storage import FileStorage
@@ -66,7 +67,7 @@ class TestStorageFactory:
 
     def test_get_storage_file_type(self, tmp_path: Path) -> None:
         """Teszteli a file storage létrehozását."""
-        storage = StorageFactory.get_storage("file", base_path=str(tmp_path))
+        storage = StorageFactory.get_storage(storage_type="file", base_path=str(tmp_path))
 
         assert isinstance(storage, FileStorage)
         assert storage._base_path == tmp_path
@@ -77,7 +78,7 @@ class TestStorageFactory:
         mock_hardware.has_avx2.return_value = True
 
         storage = StorageFactory.get_storage(
-            "parquet",
+            storage_type="parquet",
             base_path=str(tmp_path),
             hardware=mock_hardware
         )
@@ -89,7 +90,7 @@ class TestStorageFactory:
     def test_get_storage_with_kwargs(self, tmp_path: Path) -> None:
         """Teszteli a storage létrehozást további paraméterekkel."""
         storage = StorageFactory.get_storage(
-            "file",
+            storage_type="file",
             base_path=str(tmp_path),
             create_if_missing=True
         )
@@ -99,7 +100,7 @@ class TestStorageFactory:
     def test_get_storage_invalid_type(self) -> None:
         """Teszteli a nem létező storage típus lekérését."""
         with pytest.raises(StorageError, match="Ismeretlen storage típus"):
-            StorageFactory.get_storage("nonexistent")
+            StorageFactory.get_storage(storage_type="nonexistent")
 
     def test_get_storage_instantiation_failure(self, tmp_path: Path) -> None:
         """Teszteli a storage példányosítási hibát."""
@@ -127,7 +128,7 @@ class TestStorageFactory:
         StorageFactory.register_storage("failing", FailingStorage)
 
         with pytest.raises(StorageError, match="Nem sikerült létrehozni a storage példányt"):
-            StorageFactory.get_storage("failing", base_path=str(tmp_path))
+            StorageFactory.get_storage(storage_type="failing", base_path=str(tmp_path))
 
     def test_get_storage_unexpected_error(self, tmp_path: Path) -> None:
         """Teszteli a váratlan hibát a storage létrehozásakor."""
@@ -155,18 +156,18 @@ class TestStorageFactory:
         StorageFactory.register_storage("unexpected", UnexpectedErrorStorage)
 
         with pytest.raises(StorageError, match="Váratlan hiba"):
-            StorageFactory.get_storage("unexpected", base_path=str(tmp_path))
+            StorageFactory.get_storage(storage_type="unexpected", base_path=str(tmp_path))
 
     def test_get_storage_default_base_path(self) -> None:
         """Teszteli a storage létrehozást alapértelmezett útvonallal."""
-        storage = StorageFactory.get_storage("file")
+        storage = StorageFactory.get_storage(storage_type="file")
 
         assert isinstance(storage, FileStorage)
         # Alapértelmezett útvonal a FileStorage konstruktorában Path.cwd()
 
     def test_get_storage_with_hardware_none(self, tmp_path: Path) -> None:
         """Teszteli a storage létrehozást hardware=None paraméterrel."""
-        storage = StorageFactory.get_storage("file", base_path=str(tmp_path), hardware=None)
+        storage = StorageFactory.get_storage(storage_type="file", base_path=str(tmp_path), hardware=None)
 
         assert isinstance(storage, FileStorage)
         assert storage._base_path == tmp_path

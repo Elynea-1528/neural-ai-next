@@ -1,5 +1,5 @@
 # NEURAL AI NEXT CONTEXT (FULL)
-*Generated: 2026-01-16 23:09:39*
+*Generated: 2026-01-17 09:19:44*
 
 ## `FILE: .vscode/settings.json`
 
@@ -11148,33 +11148,33 @@ __all__ = [
 
 
 class JForexError(Exception):
-    """Base exception for all JForex Collector errors."""
+    """Alap kivétel minden JForex Collector hibához."""
 
     pass
 
 
 class DownloadError(JForexError):
-    """Raised when data download fails.
+    """Adat letöltési hiba esetén dobódik.
 
-    This includes network errors, server errors, and timeout issues.
+    Ide tartoznak a hálózati hibák, szerverhibák és időtúllépések.
     """
 
     pass
 
 
 class DecodeError(JForexError):
-    """Raised when .bi5 data decoding fails.
+    """.bi5 adat dekódolási hiba esetén dobódik.
 
-    This includes LZMA decompression errors and struct unpacking errors.
+    Ide tartoznak az LZMA dekompressziós hibák és a struct kicsomagolási hibák.
     """
 
     pass
 
 
 class DataNotAvailableError(JForexError):
-    """Raised when data is not available for the requested date.
+    """A kért dátumhoz nem elérhető adat esetén dobódik.
 
-    This typically occurs on weekends, holidays, or when the market was closed.
+    Ez általában hétvégéken, ünnepeken vagy amikor a piac zárva volt történik.
     """
 
     pass
@@ -11186,10 +11186,24 @@ class DataNotAvailableError(JForexError):
 ```py
 """JForex Collector Factory."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict, cast
 
 from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
 from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
+
+
+class JForexConfig(TypedDict, total=False):
+    """JForex konfiguráció séma."""
+    base_url: str
+    timeout: int
+
+
+class JForexLiveConfig(TypedDict, total=False):
+    """JForex live feed konfiguráció séma."""
+    host: str
+    tick_port: int
+    command_port: int
+    enabled: bool
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -11199,9 +11213,9 @@ if TYPE_CHECKING:
 
 
 class JForexFactory:
-    """Factory for creating JForex Collector components.
+    """Factory JForex Collector komponensek létrehozására.
 
-    Provides dependency injection for JForex downloader instances.
+    Dependency injection-t biztosít a JForex letöltő példányokhoz.
     """
 
     @staticmethod
@@ -11211,16 +11225,16 @@ class JForexFactory:
         event_bus: "EventBusInterface | None",
         storage: "StorageInterface",
     ) -> IJForexDownloader:
-        """Create a JForex downloader instance with DI.
+        """JForex letöltő példány létrehozása DI-vel.
 
         Args:
-            config: Configuration manager instance
-            logger: Logger instance
-            event_bus: Event bus for publishing market data
-            storage: Storage interface for data persistence
+            config: Konfiguráció kezelő példány
+            logger: Logger példány
+            event_bus: Event bus piaci adatok publikálására
+            storage: Storage interfész adat perzisztenciához
 
         Returns:
-            JForex downloader instance implementing IJForexDownloader
+            JForex letöltő példány, ami megvalósítja az IJForexDownloader-t
         """
         # Import here to avoid circular dependencies
         import aiohttp
@@ -11229,9 +11243,9 @@ class JForexFactory:
 
         # Get JForex configuration
         try:
-            jforex_config = config.get("jforex", {}) or {}
+            jforex_config = cast(JForexConfig, config.get("jforex", {}) or {})
         except (KeyError, ValueError, AttributeError):
-            jforex_config = {}
+            jforex_config = cast(JForexConfig, {})
 
         # Create HTTP client with timeout
         timeout_value = jforex_config.get("timeout", 30) if jforex_config else 30
@@ -11255,24 +11269,24 @@ class JForexFactory:
     def create_live_feed(
         config: "ConfigManagerInterface", logger: "LoggerInterface", event_bus: "EventBusInterface"
     ) -> ILiveFeed:
-        """Create a JForex live feed instance with DI.
+        """JForex live feed példány létrehozása DI-vel.
 
         Args:
-            config: Configuration manager instance
-            logger: Logger instance
-            event_bus: Event bus for publishing market data
+            config: Konfiguráció kezelő példány
+            logger: Logger példány
+            event_bus: Event bus piaci adatok publikálására
 
         Returns:
-            JForex live feed instance implementing ILiveFeed
+            JForex live feed példány, ami megvalósítja az ILiveFeed-et
         """
         # Import here to avoid circular dependencies
         from neural_ai.collectors.jforex.implementations.live_feed import JForexLiveFeed
 
         # Get JForex live configuration
         try:
-            live_config = config.get("jforex_live", {}) or {}
+            live_config = cast(JForexLiveConfig, config.get("jforex_live", {}) or {})
         except (KeyError, ValueError, AttributeError):
-            live_config = {}
+            live_config = cast(JForexLiveConfig, {})
 
         # Check if live feed is enabled
         enabled = live_config.get("enabled", False) if live_config else False
@@ -11350,9 +11364,9 @@ if TYPE_CHECKING:
 
 
 class Bi5Downloader(IJForexDownloader):
-    """JForex Bi5 data downloader implementation.
+    """JForex Bi5 adat letöltő implementáció.
 
-    Downloads and decodes Dukascopy's native .bi5 tick data format.
+    Letölti és dekódolja a Dukascopy natív .bi5 tick adat formátumát.
     """
 
     def __init__(
@@ -11660,7 +11674,7 @@ class Bi5Downloader(IJForexDownloader):
             # Ha nincs EventBus (Direct Storage Mode), egyszerűen visszatérünk
             return
 
-        self._logger.info(f"_publish_ticks: {len(ticks)} tick publikálása")
+        self._logger.info("ticks_publishing", tick_count=len(ticks))
 
         # Import MarketDataEvent here to avoid circular imports
         from neural_ai.core.events.interfaces.event_models import MarketDataEvent
@@ -12007,7 +12021,7 @@ class JForexLiveFeed(ILiveFeed):
         dekódolja a JSON adatokat, és továbbítja a `_process_tick_data` metódusnak
         a teljes feldolgozásért és publikálásért.
         """
-        print(f"DEBUG: ZMQ Receiver Loop start on port {self._tick_port}")
+        self.logger.debug("zmq_receiver_loop_start", port=self._tick_port)
 
         while self._running:
             try:
@@ -12030,7 +12044,6 @@ class JForexLiveFeed(ILiveFeed):
                 # DIAGNOSZTIKA: Mi a baj?
                 import traceback
 
-                print("!!! CRITICAL LIVE FEED ERROR !!!")
                 traceback.print_exc()
 
                 self.logger.error("jforex_live_feed_listen_loop_error", error=str(e))
@@ -12124,27 +12137,27 @@ if TYPE_CHECKING:
 
 
 class IJForexDownloader(ABC):
-    """Interface for JForex .bi5 data downloader.
+    """JForex .bi5 adat letöltő interfész.
 
-    This interface defines the contract for downloading and processing
-    Dukascopy's native .bi5 tick data format.
+    Ez az interfész definiálja a szerződést a Dukascopy natív .bi5 tick adat
+    formátum letöltéséhez és feldolgozásához.
     """
 
     @abstractmethod
     async def download_tick_data(self, symbol: str, date: datetime) -> list["TickData"]:
-        """Download and decode tick data for a specific symbol and date.
+        """Tick adatok letöltése és dekódolása adott szimbólumhoz és dátumhoz.
 
         Args:
-            symbol: Trading symbol (e.g., 'EURUSD', 'GBPUSD')
-            date: Date for which to download data
+            symbol: Kereskedelmi szimbólum (pl. 'EURUSD', 'GBPUSD')
+            date: Dátum, amelyhez az adatokat le kell tölteni
 
         Returns:
-            List of TickData objects containing bid/ask prices
+            TickData objektumok listája bid/ask árakkal
 
         Raises:
-            DownloadError: If download fails (network issues, server errors)
-            DecodeError: If data decoding fails (corrupted file)
-            DataNotAvailableError: If data is not available (weekend, holiday)
+            DownloadError: Ha a letöltés sikertelen (hálózati problémák, szerverhibák)
+            DecodeError: Ha az adat dekódolása sikertelen (sérült fájl)
+            DataNotAvailableError: Ha az adat nem elérhető (hétvége, ünnep)
         """
         pass
 
@@ -12152,36 +12165,36 @@ class IJForexDownloader(ABC):
     async def get_available_dates(
         self, symbol: str, start_date: datetime, end_date: datetime
     ) -> list[datetime]:
-        """Get list of dates with available data for a symbol.
+        """Szimbólum elérhető adatainak dátumlistája.
 
         Args:
-            symbol: Trading symbol
-            start_date: Start of date range
-            end_date: End of date range
+            symbol: Kereskedelmi szimbólum
+            start_date: Dátumtartomány kezdete
+            end_date: Dátumtartomány vége
 
         Returns:
-            List of datetime objects for dates with available data
+            Elérhető adatokkal rendelkező dátumok datetime objektumai
         """
         pass
 
     @abstractmethod
     def validate_bi5_data(self, data: bytes) -> bool:
-        """Validate .bi5 data integrity.
+        """.bi5 adat integritásának ellenőrzése.
 
         Args:
-            data: Raw .bi5 data bytes
+            data: Nyers .bi5 adat bájtok
 
         Returns:
-            True if data is valid, False otherwise
+            True ha az adat érvényes, különben False
         """
         pass
 
     @abstractmethod
     async def close(self) -> None:
-        """Close the downloader and release resources.
+        """Letöltő bezárása és erőforrások felszabadítása.
 
-        This method ensures that all network connections are properly closed
-        and resources are released when the downloader is no longer needed.
+        Ez a metódus biztosítja, hogy minden hálózati kapcsolat megfelelően
+        bezáródjon és az erőforrások felszabaduljanak, amikor a letöltőre már nincs szükség.
         """
         pass
 
@@ -12389,14 +12402,16 @@ def bootstrap_core(
 
     # 4. Adatbázis inicializálása (Config+Logger)
     logger.info("⏳ 5. Adatbázis indítása...")
-    # Helyesen a DatabaseFactory-t használjuk, és átadjuk a már betöltött configot
-    database = DatabaseFactory.create_manager(config_manager=config)
+    # DatabaseFactory példányosítása DI-val
+    db_factory = DatabaseFactory(logger=logger, config_manager=config)
+    database = db_factory.create_manager()
     container.register_instance(DatabaseManager, database)
     logger.debug("-> Adatbázis manager regisztrálva")
 
     # 5. EventBus inicializálása (Config+Logger)
     logger.info("⏳ 6. EventBus indítása...")
-    event_bus = EventBusFactory.create_from_config(config)
+    event_bus_factory = EventBusFactory(logger, config)
+    event_bus = event_bus_factory.create_from_config()
     container.register_instance(EventBusInterface, event_bus)
     logger.debug("-> EventBus regisztrálva")
 
@@ -14019,7 +14034,7 @@ class SingletonMeta(ABCMeta):
 
             # 2. DI Container követelmény: _instance class variable
             # (Bár a dict-ben tároljuk, a DI ellenőrzés ezt is keresi)
-            cls._instance = instance  # type: ignore
+            cls._instance = instance
 
             cls._instances[cls] = instance  # type: ignore[attr-defined]
         return cast(T, cls._instances[cls])  # type: ignore[attr-defined]
@@ -15953,7 +15968,12 @@ különösen az adatbázis-alapú dinamikus konfigurációkezelőkhöz.
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    from neural_ai.core.logger.interfaces import LoggerInterface
 
 # Type alias a konfiguráció változásokat figyelő callback-ekhez
 ConfigListener = Callable[[str, Any], Awaitable[None]]
@@ -15970,14 +15990,14 @@ class AsyncConfigManagerInterface(ABC):
     def __init__(
         self,
         filename: str | None = None,
-        session: Any | None = None,
-        logger: Any | None = None,
+        session: "AsyncSession | None" = None,
+        logger: "LoggerInterface | None" = None,
     ) -> None:
         """Inicializálja az aszinkron konfigurációkezelőt.
 
         Args:
             filename: Konfigurációs fájl útvonala (opcionális, lehet None)
-            session: Adatbázis session (opcionális)
+            session: Adatbázis session interfész (opcionális)
             logger: Logger interfész (opcionális)
         """
 
@@ -16429,6 +16449,8 @@ Ez a modul biztosítja az adatbázis kezelő komponensek létrehozását a facto
 minta segítségével, beleértve a session maker-t és a DatabaseManager-t.
 """
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -16439,6 +16461,19 @@ from neural_ai.core.db.implementations.sqlalchemy_session import (
     get_engine,
 )
 
+if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces import LoggerInterface
+
+
+# TypedDict a database konfigurációhoz
+from typing import TypedDict
+
+
+class DatabaseConfig(TypedDict):
+    """Adatbázis konfigurációs struktúra."""
+
+    url: str
+
 
 class DatabaseFactory:
     """Factory osztály adatbázis komponensek létrehozásához.
@@ -16447,36 +16482,41 @@ class DatabaseFactory:
     beleértve a session factory-ket és a DatabaseManager-t.
     """
 
-    @staticmethod
-    def get_session_maker(
-        config_manager: ConfigManagerInterface | None = None,
-    ) -> async_sessionmaker[AsyncSession]:
-        """Session maker létrehozása vagy visszaadása.
+    def __init__(
+        self,
+        logger: "LoggerInterface",
+        config_manager: ConfigManagerInterface,
+    ) -> None:
+        """Inicializálja az adatbázis factory-t.
 
         Args:
-            config_manager: Opcionális konfiguráció kezelő.
+            logger: Logger interfész a naplózáshoz.
+            config_manager: Konfiguráció kezelő interfész.
+        """
+        self.logger = logger
+        self.config_manager = config_manager
+
+    def get_session_maker(
+        self,
+    ) -> async_sessionmaker[AsyncSession]:
+        """Session maker létrehozása vagy visszaadása.
 
         Returns:
             Az async_sessionmaker objektum.
         """
-        return get_async_session_maker(config_manager)
+        return get_async_session_maker(self.config_manager)
 
-    @staticmethod
     def get_engine(
-        config_manager: ConfigManagerInterface | None = None,
+        self,
     ) -> AsyncEngine:
         """Adatbázis engine létrehozása vagy visszaadása.
-
-        Args:
-            config_manager: Opcionális konfiguráció kezelő.
 
         Returns:
             Az SQLAlchemy async engine.
         """
-        return get_engine(config_manager)
+        return get_engine(self.config_manager)
 
-    @staticmethod
-    def create_engine(db_url: str, echo: bool = False) -> AsyncEngine:
+    def create_engine(self, db_url: str, echo: bool = False) -> AsyncEngine:
         """Egyéni adatbázis engine létrehozása.
 
         Args:
@@ -16488,19 +16528,15 @@ class DatabaseFactory:
         """
         return create_engine(db_url, echo=echo)
 
-    @staticmethod
     def create_manager(
-        config_manager: ConfigManagerInterface | None = None,
+        self,
     ) -> DatabaseManager:
         """DatabaseManager példány létrehozása.
-
-        Args:
-            config_manager: Opcionális konfiguráció kezelő.
 
         Returns:
             Az inicializált DatabaseManager példány.
         """
-        return DatabaseManager(config_manager)
+        return DatabaseManager(self.config_manager, self.logger)
 
 ```
 
@@ -16839,6 +16875,18 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 from neural_ai.core.db.exceptions import DBConnectionError
 
 if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces import LoggerInterface
+
+# TypedDict a database konfigurációhoz
+from typing import TypedDict
+
+
+class DatabaseConfig(TypedDict):
+    """Adatbázis konfigurációs struktúra."""
+
+    url: str
+
+if TYPE_CHECKING:
     pass
 
 # Globális változók a session factory-nek
@@ -16863,7 +16911,12 @@ def get_database_url(config_manager: ConfigManagerInterface | None = None) -> st
         config_manager = ConfigManagerFactory.get_manager("config.yaml")
 
     # Elsődlegesen a namespaced konfigban keressük
-    db_url = cast(str | None, config_manager.get("database", "connection", "url"))
+    db_config_raw = config_manager.get("database", "connection")
+    if db_config_raw and isinstance(db_config_raw, dict):
+        db_config = cast(DatabaseConfig, db_config_raw)
+        db_url = db_config["url"]
+    else:
+        db_url = None
 
     # Ha nincs, akkor a régi env fallback
     if not db_url:
@@ -17014,11 +17067,14 @@ async def get_db_session_direct() -> AsyncSession:
     return session_maker()
 
 
-async def init_db() -> None:
+async def init_db(logger: "LoggerInterface") -> None:
     """Adatbázis inicializálása.
 
     Létrehozza az összes táblát az adatbázisban a modellek alapján.
     Ez a függvény az alkalmazás indításakor hívandó.
+
+    Args:
+        logger: Logger interfész a naplózáshoz.
     """
     from .models import Base  # Körkörös import elkerülése
 
@@ -17027,13 +17083,19 @@ async def init_db() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    print("✅ Adatbázis inicializálva és táblák létrehozva.")
+    logger.info(
+        "Adatbázis inicializálva és táblák létrehozva",
+        extra={"module": "sqlalchemy_session", "function": "init_db"}
+    )
 
 
-async def close_db() -> None:
+async def close_db(logger: "LoggerInterface") -> None:
     """Adatbázis kapcsolat lezárása.
 
     Ez a függvény az alkalmazás leállításakor hívandó.
+
+    Args:
+        logger: Logger interfész a naplózáshoz.
     """
     global _engine, _async_session_maker
 
@@ -17042,7 +17104,10 @@ async def close_db() -> None:
         _engine = None
         _async_session_maker = None
 
-    print("✅ Adatbázis kapcsolat lezárva.")
+    logger.info(
+        "Adatbázis kapcsolat lezárva",
+        extra={"module": "sqlalchemy_session", "function": "close_db"}
+    )
 
 
 class DatabaseManager(metaclass=SingletonMeta):
@@ -17053,15 +17118,22 @@ class DatabaseManager(metaclass=SingletonMeta):
 
     Attributes:
         config_manager: A konfiguráció kezelő példány.
+        logger: A logger interfész.
     """
 
-    def __init__(self, config_manager: ConfigManagerInterface | None = None):
+    def __init__(
+        self,
+        config_manager: ConfigManagerInterface | None = None,
+        logger: "LoggerInterface | None" = None,
+    ):
         """Inicializálja az adatbázis kezelőt.
 
         Args:
             config_manager: Opcionális konfiguráció kezelő.
+            logger: Opcionális logger interfész.
         """
         self.config_manager = config_manager or ConfigManagerFactory.get_manager("config.yaml")
+        self.logger = logger  # Logger DI
         self._engine: AsyncEngine | None = None
         self._session_maker: async_sessionmaker[AsyncSession] | None = None
 
@@ -17085,6 +17157,12 @@ class DatabaseManager(metaclass=SingletonMeta):
 
         async with self._engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+
+        if self.logger:
+            self.logger.info(
+                "DatabaseManager inicializálva",
+                extra={"module": "DatabaseManager", "function": "initialize"}
+            )
 
     @asynccontextmanager
     async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
@@ -17149,6 +17227,12 @@ class DatabaseManager(metaclass=SingletonMeta):
             await self._engine.dispose()
             self._engine = None
             self._session_maker = None
+
+        if self.logger:
+            self.logger.info(
+                "DatabaseManager lezárva",
+                extra={"module": "DatabaseManager", "function": "close"}
+            )
 
 ```
 
@@ -17294,6 +17378,7 @@ if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.events.implementations.zeromq_bus import EventBusConfig
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class EventBusFactory:
@@ -17304,8 +17389,12 @@ class EventBusFactory:
     más implementációk is hozzáadhatók (pl. Redis, Kafka, stb.).
     """
 
-    @staticmethod
-    def create(config: "EventBusConfig | None" = None) -> "EventBusInterface":
+    def __init__(self, logger: "LoggerInterface", config_manager: "ConfigManagerInterface") -> None:
+        self._logger = logger
+        self._config_manager = config_manager
+        self._logger.debug("EventBusFactory inicializálva", factory_id=id(self))
+
+    def create(self, config: "EventBusConfig | None" = None) -> "EventBusInterface":
         """Létrehozza az EventBus példányt.
 
         Args:
@@ -17319,10 +17408,9 @@ class EventBusFactory:
         """
         from neural_ai.core.events.implementations.zeromq_bus import EventBus
 
-        return EventBus(config)
+        return EventBus(config, self._logger)
 
-    @staticmethod
-    async def create_and_start(config: "EventBusConfig | None" = None) -> "EventBusInterface":
+    async def create_and_start(self, config: "EventBusConfig | None" = None) -> "EventBusInterface":
         """Létrehozza és elindítja az EventBus példányt.
 
         Args:
@@ -17331,16 +17419,12 @@ class EventBusFactory:
         Returns:
             EventBusInterface: Az elindított EventBus példány
         """
-        event_bus = EventBusFactory.create(config)
+        event_bus = self.create(config)
         await event_bus.start()
         return event_bus
 
-    @staticmethod
-    def create_from_config(config_manager: "ConfigManagerInterface") -> "EventBusInterface":
+    def create_from_config(self) -> "EventBusInterface":
         """Létrehozza az EventBus példányt konfigurációkezelő alapján.
-
-        Args:
-            config_manager: Konfigurációkezelő, amelyből az EventBus beállításokat olvassuk
 
         Returns:
             EventBusInterface: Az EventBus példány
@@ -17351,10 +17435,13 @@ class EventBusFactory:
         """
         from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
 
+        self._logger.debug("EventBus létrehozása konfigurációból")
         # Biztonságos lekérdezés (ha nincs szekció, üres dict)
         try:
-            data = config_manager.get_section("events")
-        except (KeyError, ValueError):
+            data = self._config_manager.get_section("events")
+            self._logger.debug("Konfigurációs adatok lekérdezve", data=data)
+        except (KeyError, ValueError) as e:
+            self._logger.warning("Konfigurációs szekció hiányzik, alapértelmezett értékek használata", error=str(e))
             data = {}
 
         bus_config = EventBusConfig(
@@ -17362,7 +17449,8 @@ class EventBusFactory:
             sub_port=data.get("sub_port", 5556),
             use_inproc=data.get("use_inproc", False),
         )
-        return EventBusFactory.create(bus_config)
+        self._logger.debug("EventBus konfiguráció létrehozva", config=bus_config)
+        return self.create(bus_config)
 
 ```
 
@@ -17412,6 +17500,7 @@ from neural_ai.core.utils.decorators import trace
 if TYPE_CHECKING:
     from typing import Any
 
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from pydantic import BaseModel
 
 
@@ -17443,7 +17532,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         """Visszaadja az EventBus konfigurációját."""
         return self._config
 
-    def __init__(self, config: EventBusConfig | None = None) -> None:
+    def __init__(self, config: EventBusConfig | None = None, logger: "LoggerInterface | None" = None) -> None:
         """Inicializálja az EventBus-t.
 
         Args:
@@ -17471,7 +17560,10 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         self._publisher: zmq.asyncio.Socket | None = None
         self._subscribers: dict[str, list[EventCallback]] = {}
         self._running = False
-        self._logger = structlog.get_logger(self.__class__.__name__)
+        if logger is not None:
+            self._logger = logger
+        else:
+            self._logger = structlog.get_logger(self.__class__.__name__)
 
     @trace
     async def start(self) -> None:
@@ -18267,7 +18359,13 @@ except metadata.PackageNotFoundError:
     _version = "1.0.0"
 
 __version__: Final[str] = _version
-__schema_version__: Final[str] = LoggerFactory.get_schema_version()
+
+# Sémaváltozat késleltetett betöltéssel (körkörös import elkerülése érdekében)
+def _get_schema_version() -> str:
+    from neural_ai.core.logger.factory import LoggerFactory
+    return LoggerFactory.get_schema_version()
+
+__schema_version__: Final[str] = _get_schema_version()
 
 __all__: Final[list[str]] = [
     # Verzióinformációk
@@ -19575,6 +19673,64 @@ __all__ = [
 
 ```
 
+## `FILE: neural_ai/core/system/exceptions/__init__.py`
+
+```py
+"""Rendszer egészségügyi komponens kivételeinek modulja.
+
+Ez a csomag tartalmazza a rendszer egészségügyi komponenshez tartozó kivételosztályokat.
+"""
+
+from neural_ai.core.system.exceptions.health_error import (
+    ComponentNotFoundError,
+    HealthCheckError,
+    HealthError,
+    HealthMonitorError,
+)
+
+__all__ = [
+    "HealthError",
+    "HealthMonitorError",
+    "HealthCheckError",
+    "ComponentNotFoundError",
+]
+
+```
+
+## `FILE: neural_ai/core/system/exceptions/health_error.py`
+
+```py
+"""Rendszer egészségügyi komponens kivételei.
+
+Ez a modul tartalmazza a rendszer egészségügyi komponenshez tartozó kivételeket.
+"""
+
+
+class HealthError(Exception):
+    """Alap kivétel a rendszer egészségügyi komponenshez."""
+
+    pass
+
+
+class HealthMonitorError(HealthError):
+    """HealthMonitor általános hiba."""
+
+    pass
+
+
+class HealthCheckError(HealthError):
+    """Egészségügyi ellenőrzés hiba."""
+
+    pass
+
+
+class ComponentNotFoundError(HealthMonitorError):
+    """Komponens nem található hiba."""
+
+    pass
+
+```
+
 ## `FILE: neural_ai/core/system/factory.py`
 
 ```py
@@ -20273,174 +20429,6 @@ class HealthCheckInterface(ABC):
             str: Az ellenőrzés neve
         """
         pass  # pragma: no cover
-
-```
-
-## `FILE: neural_ai/core/system/interfaces/health_interface.py,cover`
-
-```py,cover
-> """Rendszer egészségügyi monitorozás interfészei.
-  
-> Ez a modul a rendszer egészségügyi állapotának monitorozásához szükséges
-> interfészeket definiálja, beleértve a komponens állapotokat, erőforrás-használatot
-> és rendszer metrikákat.
-> """
-  
-> from abc import ABC, abstractmethod
-> from dataclasses import dataclass
-> from datetime import datetime
-> from enum import Enum
-  
-  
-> class ComponentStatus(Enum):
->     """Komponens állapot enum.
-  
->     A rendszer komponenseinek állapotát definiálja.
->     """
->     HEALTHY = "healthy"
->     WARNING = "warning"
->     CRITICAL = "critical"
->     UNKNOWN = "unknown"
->     OFFLINE = "offline"
-  
-  
-> class HealthStatus(Enum):
->     """Rendszer egészségügyi állapot enum.
-  
->     A teljes rendszer egészségügyi állapotát definiálja.
->     """
->     OK = "ok"
->     DEGRADED = "degraded"
->     CRITICAL = "critical"
->     UNKNOWN = "unknown"
-  
-  
-> @dataclass
-> class ComponentHealth:
->     """Komponens egészségügyi információi.
-  
->     Egy adott komponens egészségügyi állapotát és metrikáit tartalmazza.
-  
->     Attributes:
->         name: A komponens neve
->         status: A komponens állapota (ComponentStatus enum)
->         message: Részletes üzenet vagy hiba
->         timestamp: Az állapot ellenőrzésének időpontja
->         metrics: Opcionális metrikák (pl. response time, error rate)
->     """
->     name: str
->     status: ComponentStatus
->     message: str
->     timestamp: datetime
->     metrics: dict[str, float] | None = None
-  
-  
-> @dataclass
-> class SystemHealth:
->     """Rendszer egészségügyi információi.
-  
->     A teljes rendszer egészségügyi állapotát és komponenseinek állapotát tartalmazza.
-  
->     Attributes:
->         overall_status: A rendszer általános állapota (HealthStatus enum)
->         message: Részletes üzenet
->         timestamp: Az ellenőrzés időpontja
->         components: A komponensek egészségügyi információi
->         system_metrics: Rendszer szintű metrikák (CPU, memória, stb.)
->     """
->     overall_status: HealthStatus
->     message: str
->     timestamp: datetime
->     components: list[ComponentHealth]
->     system_metrics: dict[str, float] | None = None
-  
-  
-> class HealthMonitorInterface(ABC):
->     """Rendszer egészségügyi monitorozás interfész.
-  
->     Ez az interfész definiálja a rendszer egészségügyi állapotának
->     monitorozásához szükséges metódusokat.
->     """
-  
->     @abstractmethod
->     def check_health(self) -> SystemHealth:
->         """Ellenőrzi a teljes rendszer egészségügyi állapotát.
-  
->         A metódus összegyűjti az összes komponens és a rendszer
->         egészségügyi információit, majd összesíti azokat.
-  
->         Returns:
->             SystemHealth: A rendszer teljes egészségügyi állapota
->         """
-!         pass
-  
->     @abstractmethod
->     def check_component(self, component_name: str) -> ComponentHealth:
->         """Ellenőrzi egy adott komponens egészségügyi állapotát.
-  
->         Args:
->             component_name: A komponens neve
-  
->         Returns:
->             ComponentHealth: A komponens egészségügyi információi
-  
->         Raises:
->             ValueError: Ha a komponens nem létezik
->         """
-!         pass
-  
->     @abstractmethod
->     def get_registered_components(self) -> list[str]:
->         """Visszaadja a monitorozott komponensek listáját.
-  
->         Returns:
->             list[str]: A monitorozott komponensek nevei
->         """
-!         pass
-  
->     @abstractmethod
->     def register_component(self, component_name: str) -> None:
->         """Regisztrál egy új komponenst a monitorozásra.
-  
->         Args:
->             component_name: A komponens neve
->         """
-!         pass
-  
->     @abstractmethod
->     def unregister_component(self, component_name: str) -> None:
->         """Eltávolít egy komponenst a monitorozás alól.
-  
->         Args:
->             component_name: A komponens neve
->         """
-!         pass
-  
-  
-> class HealthCheckInterface(ABC):
->     """Egyedi egészségügyi ellenőrzés interfész.
-  
->     Ez az interfész egy specifikus egészségügyi ellenőrzést definiál,
->     amelyet a HealthMonitorInterface implementációk használhatnak.
->     """
-  
->     @abstractmethod
->     def check(self) -> ComponentHealth:
->         """Végrehajtja az egészségügyi ellenőrzést.
-  
->         Returns:
->             ComponentHealth: Az ellenőrzés eredménye
->         """
-!         pass
-  
->     @abstractmethod
->     def get_name(self) -> str:
->         """Visszaadja az ellenőrzés nevét.
-  
->         Returns:
->             str: Az ellenőrzés neve
->         """
-!         pass
 
 ```
 
@@ -22384,7 +22372,6 @@ class ResamplerService(ResamplerInterface):
             # Return type kezelés
             if return_type.lower() == "pandas":
                 # Konvertálás pandas-ra
-                import pandas as pd
                 return ohlcv_data.to_pandas().set_index("timestamp")
             elif return_type.lower() == "polars":
                 return ohlcv_data
@@ -22392,7 +22379,9 @@ class ResamplerService(ResamplerInterface):
                 raise ResamplingError(
                     symbol=symbol,
                     timeframe=timeframe,
-                    original_error=ValueError(f"Invalid return_type: {return_type}. Must be 'pandas' or 'polars'"),
+                    original_error=ValueError(
+                        f"Invalid return_type: {return_type}. Must be 'pandas' or 'polars'"
+                    ),
                 )
         except Exception as e:
             raise ResamplingError(symbol=symbol, timeframe=timeframe, original_error=e) from e
@@ -27661,10 +27650,10 @@ from pathlib import Path
 
 def find_jforex_folder() -> Path:
     """Megkeresi a JForex telepítési mappát.
-    
+
     Returns:
         Path: A JForex Strategies mappa útvonala
-        
+
     Raises:
         FileNotFoundError: Ha nem található JForex mappa
     """
@@ -27712,10 +27701,10 @@ def find_jforex_folder() -> Path:
 
 def run_gradle_build(bridge_path: Path) -> bool:
     """Lefuttatja a Gradle buildet a JForex bridge mappában.
-    
+
     Args:
         bridge_path: A jforex-bridge mappa útvonala
-        
+
     Returns:
         bool: True ha a build sikeres, False egyébként
     """
@@ -27760,11 +27749,11 @@ def run_gradle_build(bridge_path: Path) -> bool:
 
 def deploy_files(bridge_path: Path, jforex_path: Path) -> bool:
     """Bemásolja a szükséges fájlokat a JForex mappába.
-    
+
     Args:
         bridge_path: A jforex-bridge mappa útvonala
         jforex_path: A JForex Strategies mappa útvonala
-        
+
     Returns:
         bool: True ha a telepítés sikeres, False egyébként
     """
@@ -27772,7 +27761,10 @@ def deploy_files(bridge_path: Path, jforex_path: Path) -> bool:
 
     try:
         # 1. Java stratégia fájl másolása
-        java_source = bridge_path / "src" / "main" / "java" / "com" / "neuralai" / "bridge" / "NeuralBridgeStrategy.java"
+        java_source = (
+            bridge_path / "src" / "main" / "java" / "com" / "neuralai" /
+            "bridge" / "NeuralBridgeStrategy.java"
+        )
         if not java_source.exists():
             print(f"❌ Java forrásfájl nem található: {java_source}")
             return False
@@ -27815,7 +27807,7 @@ def deploy_files(bridge_path: Path, jforex_path: Path) -> bool:
 
 def print_summary(jforex_path: Path):
     """Kiírja a telepítés utáni összefoglalót.
-    
+
     Args:
         jforex_path: A JForex Strategies mappa útvonala
     """
@@ -27842,8 +27834,7 @@ def print_summary(jforex_path: Path):
 
 
 def main():
-    """Fő végrehajtási függvény.
-    """
+    """Fő végrehajtási függvény."""
     print("\n" + "="*60)
     print("🧠 NEURAL AI - JFOREX BRIDGE AUTO-DEPLOY")
     print("="*60)
@@ -27933,6 +27924,7 @@ from neural_ai.collectors.jforex.factory import JForexFactory
 from neural_ai.core import bootstrap_core
 
 if TYPE_CHECKING:
+    from neural_ai.collectors.jforex.interfaces.tick_data import TickData
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
@@ -28502,7 +28494,10 @@ class DocumentationGenerator:
         relative_dir = directory.relative_to(self.source_dir)
         title = f"# {relative_dir} - Komponens dokumentáció\n"
 
-        intro = f"\nEz a mappa a(z) `neural_ai{os.sep}{relative_dir}` modul dokumentációját tartalmazza.\n\n"
+        intro = (
+            f"\nEz a mappa a(z) `neural_ai{os.sep}{relative_dir}` "
+            "modul dokumentációját tartalmazza.\n\n"
+        )
 
         files_section = "## Fájlok\n\n"
         for file in sorted(files):
@@ -28592,7 +28587,8 @@ if __name__ == "__main__":
 
 ```py
 #!/usr/bin/env python3
-"""Neural AI Next - Unified Zero-Touch Installer
+"""Neural AI Next - Unified Zero-Touch Installer.
+
 =============================================
 
 Automatizált telepítő a teljes környezet és brókerek beállításához.
@@ -37077,8 +37073,8 @@ class TestAsyncConfigManagerInterface:
         # __init__
         init_method = AsyncConfigManagerInterface.__init__
         assert init_method.__annotations__["filename"] == str | None
-        assert init_method.__annotations__["session"] == Any | None
-        assert init_method.__annotations__["logger"] == Any | None
+        assert init_method.__annotations__["session"] == "AsyncSession | None"
+        assert init_method.__annotations__["logger"] == "LoggerInterface | None"
         assert init_method.__annotations__["return"] is None
 
         # get
@@ -39695,18 +39691,18 @@ class TestDatabaseURL:
     def test_get_database_url_with_provided_config(self) -> None:
         """Teszteli az adatbázis URL lekérdezést megadott konfiggal."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
-        mock_config.get.return_value = "sqlite+aiosqlite:///test.db"
+        mock_config.get.return_value = {"url": "sqlite+aiosqlite:///test.db"}
 
         url = get_database_url(mock_config)
 
         assert url == "sqlite+aiosqlite:///test.db"
-        mock_config.get.assert_called_with("database", "connection", "url")
+        mock_config.get.assert_called_with("database", "connection")
 
     def test_get_database_url_fallback_to_env(self) -> None:
         """Teszteli az adatbázis URL lekérdezést env fallbackkel."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         mock_config.get.side_effect = lambda *args: (
-            None if args == ("database", "connection", "url")
+            None if args == ("database", "connection")
             else "sqlite+aiosqlite:///fallback.db"
         )
 
@@ -40030,6 +40026,7 @@ class TestDatabaseInitialization:
         """Teszteli az init_db függvényt."""
         # Ez a teszt csak ellenőrzi, hogy a függvény lefut-e hiba nélkül
         # Mock-oljuk a get_engine-t, hogy ne kelljen config fájl
+        mock_logger = MagicMock()
         with patch(
             'neural_ai.core.db.implementations.sqlalchemy_session.get_engine'
         ) as mock_get_engine:
@@ -40038,11 +40035,12 @@ class TestDatabaseInitialization:
             mock_engine.begin.return_value.__aenter__ = AsyncMock()
             mock_engine.begin.return_value.__aexit__ = AsyncMock()
 
-            await init_db()
+            await init_db(mock_logger)
 
     @pytest.mark.asyncio
     async def test_close_db(self) -> None:
         """Teszteli a close_db függvényt."""
+        mock_logger = MagicMock()
         # Mock-oljuk a globális változókat
         mock_engine = MagicMock()
         mock_engine.dispose = AsyncMock()
@@ -40055,7 +40053,7 @@ class TestDatabaseInitialization:
             None
         ):
 
-            await close_db()
+            await close_db(mock_logger)
 
             mock_engine.dispose.assert_called_once()
             # Ellenőrizzük, hogy a globális változók None-ra lettek-e állítva
@@ -40155,6 +40153,7 @@ Ez a modul tartalmazza a DatabaseFactory osztály és annak metódusainak tesztj
 
 from unittest.mock import MagicMock, patch
 
+import pytest
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -40165,113 +40164,129 @@ from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
 class TestDatabaseFactory:
     """DatabaseFactory osztály tesztjei."""
 
+    @pytest.fixture
+    def mock_logger(self) -> MagicMock:
+        """Mock logger fixture."""
+        return MagicMock()
+
+    @pytest.fixture
+    def mock_config(self) -> MagicMock:
+        """Mock config manager fixture."""
+        return MagicMock(spec=ConfigManagerInterface)
+
+    @pytest.fixture
+    def factory(self, mock_logger: MagicMock, mock_config: MagicMock) -> DatabaseFactory:
+        """DatabaseFactory fixture."""
+        return DatabaseFactory(logger=mock_logger, config_manager=mock_config)
+
     @patch("neural_ai.core.db.factory.get_async_session_maker")
-    def test_get_session_maker_without_config(self, mock_get_session_maker: MagicMock) -> None:
+    def test_get_session_maker_without_config(
+        self, mock_get_session_maker: MagicMock, factory: DatabaseFactory
+    ) -> None:
         """Teszteli a session maker lekérdezést konfig nélkül."""
         mock_session_maker = MagicMock()
         mock_get_session_maker.return_value = mock_session_maker
-        session_maker = DatabaseFactory.get_session_maker()
+        session_maker = factory.get_session_maker()
 
         assert session_maker is not None
         assert session_maker is mock_session_maker
 
     @patch("neural_ai.core.db.factory.get_async_session_maker")
-    def test_get_session_maker_with_config(self, mock_get_session_maker: MagicMock) -> None:
+    def test_get_session_maker_with_config(
+        self, mock_get_session_maker: MagicMock, factory: DatabaseFactory
+    ) -> None:
         """Teszteli a session maker lekérdezést konfiggal."""
         mock_session_maker = MagicMock()
         mock_get_session_maker.return_value = mock_session_maker
-        mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
-        session_maker = DatabaseFactory.get_session_maker(mock_config)
+        session_maker = factory.get_session_maker()
 
         assert session_maker is not None
         assert session_maker is mock_session_maker
 
     @patch("neural_ai.core.db.factory.get_engine")
-    def test_get_engine_without_config(self, mock_get_engine: MagicMock) -> None:
+    def test_get_engine_without_config(self, mock_get_engine: MagicMock, factory: DatabaseFactory) -> None:
         """Teszteli az engine lekérdezést konfig nélkül."""
         mock_engine = MagicMock()
         mock_get_engine.return_value = mock_engine
 
-        engine = DatabaseFactory.get_engine()
+        engine = factory.get_engine()
 
         assert engine is mock_engine
-        mock_get_engine.assert_called_once_with(None)
+        mock_get_engine.assert_called_once_with(factory.config_manager)
 
     @patch("neural_ai.core.db.factory.get_engine")
-    def test_get_engine_with_config(self, mock_get_engine: MagicMock) -> None:
+    def test_get_engine_with_config(self, mock_get_engine: MagicMock, factory: DatabaseFactory) -> None:
         """Teszteli az engine lekérdezést konfiggal."""
-        mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         mock_engine = MagicMock()
         mock_get_engine.return_value = mock_engine
 
-        engine = DatabaseFactory.get_engine(mock_config)
+        engine = factory.get_engine()
 
         assert engine is mock_engine
-        mock_get_engine.assert_called_once_with(mock_config)
+        mock_get_engine.assert_called_once_with(factory.config_manager)
 
-    def test_create_engine_with_custom_url(self) -> None:
+    def test_create_engine_with_custom_url(self, factory: DatabaseFactory) -> None:
         """Teszteli az egyéni engine létrehozást."""
         custom_url = "sqlite+aiosqlite:///:memory:"
-        engine = DatabaseFactory.create_engine(custom_url, echo=False)
+        engine = factory.create_engine(custom_url, echo=False)
 
         assert engine is not None
         assert isinstance(engine, AsyncEngine)
 
-    def test_create_engine_with_echo_enabled(self) -> None:
+    def test_create_engine_with_echo_enabled(self, factory: DatabaseFactory) -> None:
         """Teszteli az engine létrehozást echo módban."""
         custom_url = "sqlite+aiosqlite:///:memory:"
-        engine = DatabaseFactory.create_engine(custom_url, echo=True)
+        engine = factory.create_engine(custom_url, echo=True)
 
         assert engine is not None
         assert isinstance(engine, AsyncEngine)
 
     @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
-    def test_create_manager_without_config(self, mock_get_manager: MagicMock) -> None:
+    def test_create_manager_without_config(self, mock_get_manager: MagicMock, factory: DatabaseFactory) -> None:
         """Teszteli a DatabaseManager létrehozást konfig nélkül."""
         mock_config = MagicMock()
         mock_config.get.return_value = "INFO"
         mock_get_manager.return_value = mock_config
-        manager = DatabaseFactory.create_manager()
+        manager = factory.create_manager()
 
         assert manager is not None
         assert isinstance(manager, DatabaseManager)
 
-    def test_create_manager_with_config(self) -> None:
+    def test_create_manager_with_config(self, factory: DatabaseFactory) -> None:
         """Teszteli a DatabaseManager létrehozást konfiggal."""
-        mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
-        manager = DatabaseFactory.create_manager(mock_config)
+        manager = factory.create_manager()
 
         assert manager is not None
         assert isinstance(manager, DatabaseManager)
         assert manager.config_manager is not None
 
     @patch("neural_ai.core.db.factory.get_async_session_maker")
-    def test_get_session_maker_caches_result(self, mock_get_session: MagicMock) -> None:
+    def test_get_session_maker_caches_result(self, mock_get_session: MagicMock, factory: DatabaseFactory) -> None:
         """Teszteli, hogy a session maker cache-elődik a modul szintjén."""
         mock_session_maker = MagicMock()
         mock_get_session.return_value = mock_session_maker
 
-        result1 = DatabaseFactory.get_session_maker()
-        result2 = DatabaseFactory.get_session_maker()
+        result1 = factory.get_session_maker()
+        result2 = factory.get_session_maker()
 
         assert result1 is result2
         # A modul szintű cache miatt csak egyszer hívódik meg a globális függvény
         mock_get_session.assert_called()
 
     @patch("neural_ai.core.db.factory.get_engine")
-    def test_get_engine_caches_result(self, mock_get_engine: MagicMock) -> None:
+    def test_get_engine_caches_result(self, mock_get_engine: MagicMock, factory: DatabaseFactory) -> None:
         """Teszteli, hogy az engine cache-elődik a modul szintjén."""
         mock_engine = MagicMock()
         mock_get_engine.return_value = mock_engine
 
-        result1 = DatabaseFactory.get_engine()
-        result2 = DatabaseFactory.get_engine()
+        result1 = factory.get_engine()
+        result2 = factory.get_engine()
 
         assert result1 is result2
         # A modul szintű cache miatt csak egyszer hívódik meg a globális függvény
         mock_get_engine.assert_called()
 
-    def test_create_engine_different_urls(self) -> None:
+    def test_create_engine_different_urls(self, factory: DatabaseFactory) -> None:
         """Teszteli az engine létrehozást különböző URL-ekkel."""
         urls = [
             "sqlite+aiosqlite:///:memory:",
@@ -40279,14 +40294,14 @@ class TestDatabaseFactory:
         ]
 
         for url in urls:
-            engine = DatabaseFactory.create_engine(url)
+            engine = factory.create_engine(url)
             assert engine is not None
             assert isinstance(engine, AsyncEngine)
 
     @patch("neural_ai.core.db.factory.get_async_session_maker")
     @patch("neural_ai.core.db.factory.get_engine")
     def test_factory_methods_return_consistent_types(
-        self, mock_get_engine: MagicMock, mock_get_session_maker: MagicMock
+        self, mock_get_engine: MagicMock, mock_get_session_maker: MagicMock, factory: DatabaseFactory
     ) -> None:
         """Teszteli, hogy a factory metódusok konzisztens típusokat adnak vissza."""
         mock_session_maker = MagicMock()
@@ -40295,26 +40310,26 @@ class TestDatabaseFactory:
         mock_get_engine.return_value = mock_engine
 
         # Session maker teszt
-        session_maker = DatabaseFactory.get_session_maker()
+        session_maker = factory.get_session_maker()
         assert session_maker is mock_session_maker
 
         # Engine teszt
-        engine = DatabaseFactory.get_engine()
+        engine = factory.get_engine()
         assert engine is mock_engine
 
         # Manager teszt
-        manager = DatabaseFactory.create_manager()
+        manager = factory.create_manager()
         assert isinstance(manager, DatabaseManager)
 
     @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
-    def test_factory_is_stateless(self, mock_get_manager: MagicMock) -> None:
+    def test_factory_is_stateless(self, mock_get_manager: MagicMock, factory: DatabaseFactory) -> None:
         """Teszteli, hogy a factory osztály állapotmentes-e."""
         mock_config = MagicMock()
         mock_config.get.return_value = "INFO"
         mock_get_manager.return_value = mock_config
         # Két különböző hívást kell ugyanazt az eredményt adnia
-        manager1 = DatabaseFactory.create_manager()
-        manager2 = DatabaseFactory.create_manager()
+        manager1 = factory.create_manager()
+        manager2 = factory.create_manager()
 
         # A manager Singleton, ezért ugyanazt a példányt kell visszaadnia
         assert manager1 is manager2
@@ -42817,6 +42832,7 @@ from neural_ai.core.events.interfaces.event_bus_interface import (
     EventBusConfig,
     EventBusInterface,
 )
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class TestEventBusFactoryCreate:

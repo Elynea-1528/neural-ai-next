@@ -43,10 +43,12 @@ def mock_logger():
 async def storage_service(temp_dir, mock_hardware, mock_logger):
     """ParquetStorageService fixture teljes mock konfigurációval."""
     service = ParquetStorageService(
+        logger=mock_logger,
+        config=None,
+        event_bus=None,
         base_path=str(temp_dir),
         compression="snappy",
         hardware=mock_hardware,
-        logger=mock_logger,
     )
     return service
 
@@ -60,10 +62,12 @@ class TestParquetStorageService:
     ):
         """Teszteli az inicializációt hardware és logger interfészekkel."""
         service = ParquetStorageService(
+            logger=mock_logger,
+            config=None,
+            event_bus=None,
             base_path=str(temp_dir),
             compression="snappy",
             hardware=mock_hardware,
-            logger=mock_logger,
         )
 
         assert service.BASE_PATH == temp_dir

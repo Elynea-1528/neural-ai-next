@@ -8,6 +8,9 @@ de további tárolási típusok is regisztrálhatók dinamikusan.
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from neural_ai.core.config.factory import ConfigManagerFactory
+from neural_ai.core.events.factory import EventBusFactory
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.data.storage.exceptions import StorageError
 from neural_ai.data.storage.implementations.file_storage import FileStorage
 from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
@@ -15,6 +18,8 @@ from neural_ai.data.storage.interfaces.factory_interface import StorageFactoryIn
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
@@ -54,7 +59,9 @@ class StorageFactory(StorageFactoryInterface):
     @classmethod
     def get_storage(
         cls,
-        logger: "LoggerInterface",
+        logger: "LoggerInterface | None" = None,
+        config: "ConfigInterface | None" = None,
+        event_bus: "EventBusInterface | None" = None,
         storage_type: str = "file",
         base_path: str | Path | None = None,
         hardware: "HardwareInterface | None" = None,
@@ -64,6 +71,8 @@ class StorageFactory(StorageFactoryInterface):
 
         Args:
             logger: A naplózásért felelős interfész.
+            config: A konfigurációért felelős interfész.
+            event_bus: Az eseménybusz interfész.
             storage_type: A kért tárolási típus azonosítója (alapértelmezett: "file").
             base_path: Alap könyvtár útvonal a fájl alapú tároláshoz.
             hardware: A hardverképességek detektálásáért felelős interfész (opcionális).
@@ -100,7 +109,23 @@ class StorageFactory(StorageFactoryInterface):
             kwargs["hardware"] = hardware
 
         # Logger hozzáadása a kwargs-hoz
+        if logger is None:
+            logger = LoggerFactory.get_logger(name="storage")
         kwargs["logger"] = logger
+
+        # Config hozzáadása a kwargs-hoz
+        if config is None:
+            config = ConfigManagerFactory.get_manager("config.yml")
+        kwargs["config"] = config
+
+        # EventBus hozzáadása a kwargs-hoz
+        if event_bus is None:
+            if config is not None:
+                event_bus_factory = EventBusFactory(logger, config)
+                event_bus = event_bus_factory.create()
+            else:
+                event_bus = None
+        kwargs["event_bus"] = event_bus
 
         try:
             logger.debug(

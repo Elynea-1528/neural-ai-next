@@ -11,12 +11,25 @@ Szerző: Neural AI Next csapat
 Verzió: 2.0.0
 """
 
+"""ParquetStorageService - Particionált Parquet tároló szolgáltatás.
+
+Ez a modul implementálja a Tick adatok particionált Parquet formátumban történő tárolását
+és lekérdezését a Neural AI Next rendszer számára. A tárolás dátum és szimbólum alapú
+particionálást használ a gyors lekérdezés érdekében.
+
+A szolgáltatás hardver-gyorsítást detektál és automatikusan kiválasztja a legoptimálisabb
+backend-et (PolarsBackend AVX2 támogatással, vagy PandasBackend kompatibilitási módban).
+
+Szerző: Neural AI Next csapat
+Verzió: 2.0.0
+"""
+
 import asyncio
 import hashlib
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, TypedDict, cast
 
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.utils.decorators import trace
@@ -27,9 +40,31 @@ if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
 
+    from neural_ai.core.config.interfaces.config_interface import ConfigInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
     from neural_ai.data.storage.backends.base import StorageBackend
+
+
+# TypedDict definiálása read/write opciókhoz
+class ParquetWriteOptions(TypedDict, total=False):
+    """Parquet írás opciók konfigurációja."""
+    compression: str
+    unique_id: str | None
+
+
+class ParquetReadOptions(TypedDict, total=False):
+    """Parquet olvasás opciók konfigurációja."""
+    start_date: datetime
+    end_date: datetime
+
+
+class StorageConfig(TypedDict, total=False):
+    """Tárolási konfiguráció."""
+    compression: str
+    base_path: str | Path
+    engine: str
 
 # Modul szintű változók a teszteléshez (lazy import támogatáshoz)
 pl = None
@@ -58,6 +93,8 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
     def __init__(
         self,
         logger: "LoggerInterface",
+        config: "ConfigInterface | None" = None,
+        event_bus: "EventBusInterface | None" = None,
         base_path: str | Path | None = None,
         compression: str = "snappy",
         hardware: "HardwareInterface | None" = None,
@@ -71,16 +108,21 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
         Args:
             logger: A naplózásért felelős interfész
+            config: A konfigurációért felelős interfész
+            event_bus: Az eseménybusz interfész
             base_path: Az alapútvonal a tároláshoz (opcionális)
             compression: A tömörítési algoritmus (alapértelmezett: 'snappy')
             hardware: A hardverképességek detektálásáért felelős interfész (opcionális)
             **kwargs: További opcionális paraméterek
         """
-        self.BASE_PATH = Path(base_path) if base_path else Path("data/tick")
-        self.engine = "fastparquet"
-        self.compression = compression
+        self.logger = logger
+        self.config = config
+        self.event_bus = event_bus
+        self.storage_config = cast(StorageConfig, config.get("storage", {}) if config else {})
+        self.BASE_PATH = Path(base_path) if base_path else Path(self.storage_config.get("base_path", "data/tick"))
+        self.engine = self.storage_config.get("engine", "fastparquet")
+        self.compression = compression or self.storage_config.get("compression", "snappy")
         self.backend: StorageBackend
-        self.logger = logger  # <--- Elmentjük
 
         # Dependency Injection a HardwareInterface-hez
         if hardware is None:

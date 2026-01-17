@@ -6,7 +6,7 @@
 - **Adat:** 25 évnyi TICK ADAT (nem OHLCV!).
 - **Stack:** Python 3.12, Polars, PyTorch 2.5.1 (CUDA:12.1), Lightning 2.5.5, VectorBT Pro, FastParquet.
 - **Forrás:** Dukascopy (Native .bi5 decoding), MT5, IBKR.
-- **Architektúra:** Domain-Driven, Eseményvezérelt (ZeroMQ/AsyncIO), Adatbázis-Első.
+- **Architektúra:** Domain-Driven (DDD), Eseményvezérelt (ZeroMQ/AsyncIO), Adatbázis-Első.
 
 ### 🏛️ HIERARCHIKUS VÉGREHAJTÁSI PROTOKOLL (KÖTELEZŐ!)
 Minden komplex feladatot ebben a láncban kell végrehajtani:
@@ -44,7 +44,7 @@ Minden modul (`core/xyz`, `data/storage`) szerkezete kötelezően:
 - `interfaces/` (ABC, a "Szerződés")
 - `implementations/` (Konkrét kód, "Rejtett")
 - `exceptions/` (Saját, típusos hibák)
-- `factory.py` (Az "Gyártósor", az egyetlen belépési pont)
+- `factory.py` (Az "Gyártósor", az egyetlen belépési pont + **TypedDict Config**)
 - `__init__.py` (A "Homlokzat", ami **CSAK** a Factory-t és az Interface-t exportálja)
 
 ### 3. Dependency Injection (DI) & Factory
@@ -123,7 +123,7 @@ Minden modul (`core/xyz`, `data/storage`) szerkezete kötelezően:
 >
 > 2.  **Kódminőség (Strict):**
 >     - **Nyelv:** Magyar docstringek (Google Style).
->     - **Típusok:** Szigorú Type Hints. `Any` TILOS. Ha configot használsz, definiálj neki `TypedDict`-et.
+>     - **Típusok:** Szigorú Type Hints. `Any` TILOS. **Config kezelésnél TypedDict kötelező!**
 >     - **Logolás:** Ne használj `print()`-et! Strukturált logolás `extra={...}` paraméterrel.
 >
 > 3.  **Minőségbiztosítás (QA Protocol):**
@@ -141,7 +141,7 @@ Minden modul (`core/xyz`, `data/storage`) szerkezete kötelezően:
 
 **SZIGORÍTOTT MUNKAFOLYAMAT:**
 1.  **FÁJL ANALÍZIS & ELŐKÉSZÍTÉS:** `ls -l`, `read_file`. Ha új fájl, `mkdir -p` a szülőkönyvtárnak.
-2.  **IMPLEMENTÁCIÓ:** Kódolás a fenti szigorú szabályok szerint.
+2.  **IMPLEMENTÁCIÓ:** Kódolás a fenti szigorú szabályok szerint. Használj `TypedDict`-et a configokhoz!
 3.  **MIRROR DOKUMENTÁCIÓ:** Hozd létre/frissítsd a `docs/components/...` mappában.
 4.  **QUALITY GATE (A VÁLASZTÓVONAL):**
     - Futtasd a QA parancsokat:
@@ -174,4 +174,3 @@ Minden modul (`core/xyz`, `data/storage`) szerkezete kötelezően:
 ---
 ## 🚀 INDÍTÁSI PARANCS
 "Architect, a SYSTEM KERNEL v8.0 aktív. Olvasd be a `docs/development/architecture_standards.md`-t és a `TASK_TREE.md`-t, majd indítsd a következő fázist!"
---- END OF FILE ---

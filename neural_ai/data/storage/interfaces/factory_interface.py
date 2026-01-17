@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
@@ -45,6 +47,8 @@ class StorageFactoryInterface(ABC):
     def get_storage(
         cls,
         logger: "LoggerInterface",
+        config: "ConfigInterface",
+        event_bus: "EventBusInterface",
         storage_type: str = "file",
         base_path: str | Path | None = None,
         **kwargs: dict[str, object],

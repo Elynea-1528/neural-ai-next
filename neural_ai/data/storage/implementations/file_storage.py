@@ -9,7 +9,7 @@ import os
 from collections.abc import Callable, Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, TypedDict, cast
 
 import pandas as pd
 
@@ -27,7 +27,16 @@ from neural_ai.data.storage.exceptions import (
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+
+class StorageConfig(TypedDict, total=False):
+    """Tárolási konfiguráció."""
+    base_path: str | Path
+    compression: str
+    engine: str
 
 
 class FileStorage(StorageInterface):
@@ -36,6 +45,8 @@ class FileStorage(StorageInterface):
     def __init__(
         self,
         logger: "LoggerInterface",
+        config: "ConfigInterface | None" = None,
+        event_bus: "EventBusInterface | None" = None,
         base_path: str | Path | None = None,
         **kwargs: Any,
     ) -> None:
@@ -43,11 +54,16 @@ class FileStorage(StorageInterface):
 
         Args:
             logger: Logger példány
+            config: Konfiguráció interfész
+            event_bus: Eseménybusz interfész
             base_path: Alap könyvtár útvonala
             **kwargs: További paraméterek (pl. hardware), amiket figyelmen kívül hagyunk.
         """
-        self._base_path = Path(base_path) if base_path else Path.cwd()
         self.logger = logger
+        self.config = config
+        self.event_bus = event_bus
+        self.storage_config = cast(StorageConfig, config.get("storage", {}) if config else {})
+        self._base_path = Path(base_path) if base_path else Path(self.storage_config.get("base_path", "."))
         self._setup_format_handlers()
         self._initialized = True
         # A kwargs-al nem csinálunk semmit, csak hagyjuk, hogy létezzen.

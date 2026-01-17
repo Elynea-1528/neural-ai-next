@@ -413,8 +413,12 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("storage", config)
 
         # Create storage instance
+        from neural_ai.core.config.factory import ConfigManagerFactory
+        from neural_ai.core.events.factory import EventBusFactory
         from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.data.storage.implementations.file_storage import FileStorage
 
         logger = LoggerFactory.get_logger(name="storage")
-        return FileStorage(logger=logger, base_path=base_directory)
+        config_manager = ConfigManagerFactory.get_manager("config.yml")  # fallback
+        event_bus = EventBusFactory.get_event_bus(logger=logger)
+        return FileStorage(logger=logger, config=config_manager, event_bus=event_bus, base_path=base_directory)
