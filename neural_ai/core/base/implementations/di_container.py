@@ -69,6 +69,7 @@ class DIContainer(DIContainerInterface):
         self._factories: dict[object, Callable[[], object]] = {}
         self._lazy_components: dict[str, LazyComponent[object]] = {}
         self._logger = structlog.get_logger(__name__)
+        self._logger.info("DI konténer inicializálva")
 
     @trace
     def register_instance(self, interface: InterfaceT, instance: InterfaceT) -> None:
@@ -182,6 +183,7 @@ class DIContainer(DIContainerInterface):
 
         raise ComponentNotFoundError(f"Component '{component_name}' not found")
 
+    @trace
     def get_lazy_components(self) -> dict[str, bool]:
         """Get status of all lazy components.
 
@@ -191,6 +193,7 @@ class DIContainer(DIContainerInterface):
         """
         return {name: component.is_loaded for name, component in self._lazy_components.items()}
 
+    @trace
     def preload_components(self, component_names: list[str]) -> None:
         """Preload specific components.
 
@@ -202,12 +205,14 @@ class DIContainer(DIContainerInterface):
                 self._logger.info("Komponens előtöltése", component_name=name)
                 self.get(name)
 
+    @trace
     def clear(self) -> None:
         """Clear the container."""
         self._instances.clear()
         self._factories.clear()
         self._lazy_components.clear()
 
+    @trace
     def _verify_singleton(self, instance: object, component_name: str) -> None:
         """Ellenőrzi, hogy az instance követi-e a singleton mintát.
 
@@ -219,6 +224,7 @@ class DIContainer(DIContainerInterface):
         # warnings.warn(f"Singleton verifikáció {component_name} számára", UserWarning)
         pass
 
+    @trace
     def _enforce_singleton(self, component_name: str, instance: object) -> None:
         """Enforce singleton pattern by preventing duplicate registration.
 
@@ -237,6 +243,7 @@ class DIContainer(DIContainerInterface):
                     "Singleton pattern violated."
                 )
 
+    @trace
     def register(self, component_name: str, instance: object) -> None:
         """Komponens példány regisztrálása.
 
@@ -258,9 +265,9 @@ class DIContainer(DIContainerInterface):
         self._enforce_singleton(component_name, instance)
 
         self._instances[component_name] = instance
-        # Note: In a real implementation, you would log this action
-        # For example: self._logger.info(f"Registered component: {component_name}")
+        self._logger.info("Komponens regisztrálva", component_name=component_name)
 
+    @trace
     def get_memory_usage(self) -> dict[str, int | dict[str, int]]:
         """Get memory usage statistics."""
         stats: dict[str, int | dict[str, int]] = {
