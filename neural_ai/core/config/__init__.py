@@ -30,7 +30,7 @@ Példa a modul használatára:
         config_manager = factory.create_manager('yaml')
         value = config_manager.get('database.host', 'localhost')
     except ConfigError as e:
-        print(f"Konfigurációs hiba: {e}")
+        logger.error("Konfigurációs hiba: %s", e, extra={"error": str(e)})
     ```
 
 További információkért lásd:
