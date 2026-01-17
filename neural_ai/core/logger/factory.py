@@ -189,6 +189,7 @@ class LoggerFactory(LoggerFactoryInterface):
 
         # Handlerek beállítása
         handlers = typed_config.get("handlers", {})
+        trace_handler = None
 
         # Console handler structlog-gal
         console_config = handlers.get("console", {})
@@ -237,7 +238,7 @@ class LoggerFactory(LoggerFactoryInterface):
                 # File renderer - mindig JSON
                 file_processors: list[Processor] = [
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-                    JSONRenderer(),
+                    JSONRenderer(ensure_ascii=False),
                 ]
 
                 file_handler.setFormatter(
@@ -249,6 +250,50 @@ class LoggerFactory(LoggerFactoryInterface):
 
                 root_logger.addHandler(file_handler)
 
+        # Trace file handler - külön loggerhez
+        trace_file_config = handlers.get("trace_file", {})
+        if trace_file_config:
+            # A handler class alapján példányosítjuk
+            handler_class_path = trace_file_config.get(
+                "class", "logging.handlers.RotatingFileHandler"
+            )
+            filename = trace_file_config.get("filename", "logs/trace.log")
+            level = getattr(logging, trace_file_config.get("level", "DEBUG"))
+            encoding = trace_file_config.get("encoding", "utf-8")
+
+            # Mappa létrehozása
+            trace_file_path = Path(filename)
+            trace_file_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # RotatingFileHandler példányosítása
+            if "RotatingFileHandler" in handler_class_path:
+                from logging.handlers import RotatingFileHandler
+
+                maxBytes = trace_file_config.get("maxBytes", 10485760)
+                backupCount = trace_file_config.get("backupCount", 5)
+                trace_handler = RotatingFileHandler(
+                    filename, maxBytes=maxBytes, backupCount=backupCount, encoding=encoding
+                )
+            else:
+                trace_handler = logging.FileHandler(filename, encoding=encoding)
+
+            trace_handler.setLevel(level)
+
+            # JSON formatter
+            trace_processors: list[Processor] = [
+                structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                JSONRenderer(ensure_ascii=False),
+            ]
+
+            trace_handler.setFormatter(
+                ProcessorFormatter(
+                    foreign_pre_chain=[],
+                    processors=trace_processors,
+                )
+            )
+
+            # A trace_handler-t később hozzáadjuk a megfelelő loggerhez
+
         # Egyedi logger konfigurációk beállítása
         loggers_config = typed_config.get("loggers", {})
         for logger_name, logger_settings in loggers_config.items():
@@ -257,6 +302,8 @@ class LoggerFactory(LoggerFactoryInterface):
                 logger_instance.setLevel(getattr(logging, logger_settings["level"]))
             if "propagate" in logger_settings:
                 logger_instance.propagate = logger_settings["propagate"]
+            if "handlers" in logger_settings and logger_name == "neural_ai.trace" and trace_handler:
+                logger_instance.addHandler(trace_handler)
 
     @classmethod
     def get_schema_version(cls) -> str:

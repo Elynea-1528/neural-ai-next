@@ -39,6 +39,9 @@ class ResamplerServiceFactory:
         Raises:
             ComponentNotFoundError: Ha a komponens nem található a konténerben
         """
+        from neural_ai.core.logger.factory import LoggerFactory
+
+        logger = LoggerFactory.get_logger("neural_ai.processors.resampler_service")
         container = DIContainer()
 
         # A komponens neve, amivel regisztrálva van

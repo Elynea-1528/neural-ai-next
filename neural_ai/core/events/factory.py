@@ -26,7 +26,9 @@ class EventBusFactory:
     """
 
     def __init__(self, logger: "LoggerInterface", config_manager: "ConfigManagerInterface") -> None:
-        self._logger = logger
+        from neural_ai.core.logger.factory import LoggerFactory
+
+        self._logger = LoggerFactory.get_logger("neural_ai.core.events")
         self._config_manager = config_manager
         self._logger.debug("EventBusFactory inicializálva", factory_id=id(self))
 
@@ -91,7 +93,9 @@ class EventBusFactory:
             data = self._config_manager.get_section("events")
             self._logger.debug("Konfigurációs adatok lekérdezve", data=data)
         except (KeyError, ValueError) as e:
-            self._logger.warning("Konfigurációs szekció hiányzik, alapértelmezett értékek használata", error=str(e))
+            self._logger.warning(
+                "Konfigurációs szekció hiányzik, alapértelmezett értékek használata", error=str(e)
+            )
             data = {}
 
         bus_config = EventBusConfig(

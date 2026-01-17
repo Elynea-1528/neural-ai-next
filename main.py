@@ -19,6 +19,9 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from neural_ai.core import bootstrap_core
+from neural_ai.core.config.factory import ConfigManagerFactory
+from neural_ai.core.logger.factory import LoggerFactory
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 # Körkörös importok elkerüléséhez
 if TYPE_CHECKING:
@@ -113,10 +116,13 @@ async def run_live_mode() -> None:
             logger.info("✅ Rendszer leállítva")
 
 
-async def run_download_mode(symbol: str, start_date: datetime, end_date: datetime) -> None:
+async def run_download_mode(
+    logger: LoggerInterface, symbol: str, start_date: datetime, end_date: datetime
+) -> None:
     """Történelmi adatok letöltése a megadott tartományban.
 
     Args:
+        logger: Logger példány a naplózáshoz
         symbol: A pénzpár szimbóluma (pl. 'EURUSD')
         start_date: A letöltés kezdő dátuma
         end_date: A letöltés záró dátuma
@@ -124,18 +130,18 @@ async def run_download_mode(symbol: str, start_date: datetime, end_date: datetim
     # Importáljuk a download_historical_data függvényt a scripts modulból
     from scripts.download_history import download_historical_data
 
-    print("=" * 60)
-    print("🧠 NEURAL AI NEXT - TÖRTÉNELMI ADAT LETÖLTŐ (CLI MODE)")
-    print("=" * 60)
-    print()
+    logger.info("=" * 60)
+    logger.info("🧠 NEURAL AI NEXT - TÖRTÉNELMI ADAT LETÖLTŐ (CLI MODE)")
+    logger.info("=" * 60)
 
     await download_historical_data(symbol, start_date, end_date)
 
 
-def run_dashboard_mode(host: str, port: int, headless: bool) -> None:
+def run_dashboard_mode(logger: LoggerInterface, host: str, port: int, headless: bool) -> None:
     """Dashboard indítása Streamlit-en keresztül.
 
     Args:
+        logger: Logger példány a naplózáshoz
         host: A szerver hosztja (pl. 'localhost' vagy '0.0.0.0')
         port: A szerver portja (pl. 8501)
         headless: Ha True, headless módban fut (nincs browser automatikus megnyitása)
@@ -157,24 +163,22 @@ def run_dashboard_mode(host: str, port: int, headless: bool) -> None:
     if headless:
         streamlit_cmd.extend(["--server.headless", "true"])
 
-    print("=" * 60)
-    print("🧠 NEURAL AI NEXT - DASHBOARD")
-    print("=" * 60)
-    print(f"🌐 Hoszt: {host}")
-    print(f"🚪 Port: {port}")
-    print(f"👻 Headless: {'Igen' if headless else 'Nem'}")
-    print()
-    print("⏳ Dashboard indítása...")
-    print()
+    logger.info("=" * 60)
+    logger.info("🧠 NEURAL AI NEXT - DASHBOARD")
+    logger.info("=" * 60)
+    logger.info(f"🌐 Hoszt: {host}")
+    logger.info(f"🚪 Port: {port}")
+    logger.info(f"👻 Headless: {'Igen' if headless else 'Nem'}")
+    logger.info("⏳ Dashboard indítása...")
 
     try:
         # Streamlit indítása
         subprocess.run(streamlit_cmd, check=True)
     except subprocess.CalledProcessError as e:
-        print(f"❌ Hiba a Streamlit indításakor: {e}")
+        logger.error(f"❌ Hiba a Streamlit indításakor: {e}")
         sys.exit(1)
     except KeyboardInterrupt:
-        print("\n🛑 Dashboard leállítva.")
+        logger.info("🛑 Dashboard leállítva.")
         sys.exit(0)
 
 
@@ -252,15 +256,22 @@ def parse_date(date_str: str) -> datetime:
 
 def main() -> None:
     """Főprogram."""
+    # Logger konfigurálása alapértelmezett módon
+    config = ConfigManagerFactory.create_manager("yaml")
+    config.load_directory("configs")
+    logging_config = config.get_section("logging") or {}
+    LoggerFactory.configure(logging_config)
+    logger = LoggerFactory.get_logger("main")
+
     args = parse_arguments()
 
     if args.command == "live":
         try:
             asyncio.run(run_live_mode())
         except KeyboardInterrupt:
-            print("\n🛑 Rendszer leállítva.")
+            logger.info("🛑 Rendszer leállítva.")
         except Exception as e:
-            print(f"❌ Váratlan hiba: {e}")
+            logger.error(f"❌ Váratlan hiba: {e}")
             sys.exit(1)
 
     elif args.command == "download":
@@ -269,46 +280,48 @@ def main() -> None:
             start_date = parse_date(args.start)
             end_date = parse_date(args.end).replace(hour=23, minute=59, second=59)
         except ValueError as e:
-            print(f"❌ {e}")
+            logger.error(f"❌ {e}")
             sys.exit(1)
 
         # Ellenőrzések
         if start_date > end_date:
-            print("❌ A kezdő dátum nem lehet későbbi, mint a záró dátum")
+            logger.error("❌ A kezdő dátum nem lehet későbbi, mint a záró dátum")
             sys.exit(1)
 
         if start_date > datetime.now(UTC):
-            print("❌ A kezdő dátum nem lehet a jövőben")
+            logger.error("❌ A kezdő dátum nem lehet a jövőben")
             sys.exit(1)
 
         # Letöltés indítása
         try:
-            asyncio.run(run_download_mode(args.symbol.upper(), start_date, end_date))
+            asyncio.run(run_download_mode(logger, args.symbol.upper(), start_date, end_date))
         except KeyboardInterrupt:
-            print("\n⚠️  Letöltés megszakítva a felhasználó által")
+            logger.warning("⚠️  Letöltés megszakítva a felhasználó által")
             sys.exit(130)
         except Exception as e:
-            print(f"❌ Váratlan hiba: {e}")
+            logger.error(f"❌ Váratlan hiba: {e}")
             sys.exit(1)
 
     elif args.command == "dashboard":
         # Dashboard indítása
         try:
-            run_dashboard_mode(args.host, args.port, args.headless)
+            run_dashboard_mode(logger, args.host, args.port, args.headless)
         except KeyboardInterrupt:
-            print("\n🛑 Dashboard leállítva.")
+            logger.info("🛑 Dashboard leállítva.")
         except Exception as e:
-            print(f"❌ Váratlan hiba: {e}")
+            logger.error(f"❌ Váratlan hiba: {e}")
             sys.exit(1)
 
     else:
-        print("❌ Érvénytelen parancs. Használd 'live', 'download' vagy 'dashboard' parancsot.")
-        print("   Példa: python main.py live")
-        print(
+        logger.error(
+            "❌ Érvénytelen parancs. Használd 'live', 'download' vagy 'dashboard' parancsot."
+        )
+        logger.error("   Példa: python main.py live")
+        logger.error(
             "   Példa: python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20"
         )
-        print("   Példa: python main.py dashboard")
-        print("   Példa: python main.py dashboard --host 0.0.0.0 --port 8501 --headless")
+        logger.error("   Példa: python main.py dashboard")
+        logger.error("   Példa: python main.py dashboard --host 0.0.0.0 --port 8501 --headless")
         sys.exit(1)
 
 

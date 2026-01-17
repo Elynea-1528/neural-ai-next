@@ -1,22 +1,89 @@
-default_level: "INFO"
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  json:
+    class: pythonjsonlogger.jsonlogger.JsonFormatter
+    format: "%(asctime)s %(name)s %(levelname)s %(message)s"
+  colored:
+    class: structlog.stdlib.ProcessorFormatter
+    processor: structlog.dev.ConsoleRenderer(colors=True)
+
 handlers:
   console:
-    enabled: true
-    level: "INFO"
-    colored: true  # Structlog ConsoleRenderer
+    class: logging.StreamHandler
+    formatter: colored
+    level: INFO
+    stream: ext://sys.stdout
+
   file:
-    enabled: true
+    class: logging.handlers.RotatingFileHandler
     filename: "logs/neural_ai.log"
-    level: "DEBUG"
-    json_format: true # Structlog JSONRenderer
-    rotating: true
-    max_bytes: 10485760
-    backup_count: 5
+    formatter: json
+    level: DEBUG
+    maxBytes: 10485760
+    backupCount: 5
+    encoding: "utf-8"
+
+  trace_file:
+    class: logging.handlers.RotatingFileHandler
+    filename: "logs/trace.log"
+    formatter: json
+    level: DEBUG
+    maxBytes: 10485760
+    backupCount: 3
+    encoding: "utf-8"
+
 loggers:
-  neural_ai: { level: "DEBUG", propagate: true }
-  # Nyomkövetési logger a tracing üzenetek konfigurálható kezeléséhez
-  neural_ai.trace: { level: "DEBUG" }
-  # Külső zajszűrés
-  aiosqlite: { level: "WARNING" }
-  asyncio: { level: "WARNING" }
-  parso: { level: "WARNING" }
+  # --- GYÖKÉR ---
+  neural_ai:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+
+  # --- CORE (INFRASTRUCTURE) ---
+  neural_ai.core.base: { level: INFO }      # DI Container, Singleton
+  neural_ai.core.config: { level: INFO }    # Config Manager
+  neural_ai.core.db: { level: INFO }        # Database Manager
+  neural_ai.core.events: { level: INFO }    # EventBus (ZeroMQ)
+  neural_ai.core.logger: { level: WARNING } # Logger Factory (ne logolja önmagát)
+  neural_ai.core.system: { level: INFO }    # Health Monitor
+  neural_ai.core.utils: { level: INFO }     # Hardware Info
+
+  # --- DATA (PERSISTENCE) ---
+  neural_ai.data.storage:
+    level: DEBUG            # <--- ITT KERESSÜK A HIBÁT!
+  neural_ai.data.ingestion: { level: INFO } # MarketDataPersister
+
+  # --- COLLECTORS (INPUT) ---
+  neural_ai.collectors.jforex: { level: INFO }
+  neural_ai.collectors.mt5: { level: INFO }
+
+  # --- PROCESSORS (DOMAIN) ---
+  neural_ai.processors.resampler_service: { level: INFO }
+  neural_ai.processors.dimensions.d01_price: { level: INFO }
+  neural_ai.processors.dimensions.d02_support: { level: INFO }
+  # (Ide jön majd a d03_trend, stb.)
+
+  # --- UI (PRESENTATION) ---
+  neural_ai.ui.services: { level: INFO }
+  neural_ai.ui.pages: { level: INFO }
+  neural_ai.ui.components: { level: WARNING }
+
+  # --- TRACE SYSTEM ---
+  neural_ai.trace:
+    level: DEBUG
+    handlers: [trace_file]
+    propagate: false
+
+  # --- EXTERNAL LIBS (Zajszűrés) ---
+  aiosqlite: { level: WARNING }
+  asyncio: { level: WARNING }
+  parso: { level: WARNING }
+  watchdog: { level: WARNING }
+  matplotlib: { level: WARNING }
+  numba: { level: WARNING }
+
+root:
+  level: INFO
+  handlers: [console]

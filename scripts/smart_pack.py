@@ -26,7 +26,7 @@ OUTPUT_FILE_MD = PROJECT_ROOT / OUTPUT_FILENAME_MD
 DRIVE_SUBFOLDER = "Google AI Studio"
 
 # Mit vegyünk bele (Full mód)
-INCLUDE_DIRS = ["neural_ai", "scripts", "configs", "docs", "external", "tests"]
+INCLUDE_DIRS = ["neural_ai", "scripts", "configs", "docs", "external"]
 INCLUDE_FILES = ["pyproject.toml", "main.py", "README.md", ".gitignore", ".vscode/settings.json"]
 
 # Mit hagyjunk ki (Zajszűrés)

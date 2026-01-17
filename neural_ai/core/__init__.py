@@ -113,19 +113,13 @@ def bootstrap_core(
     # DI container létrehozása
     container = DIContainer()
 
-    # Ideiglenes logger a bootstrap folyamat elejéhez
-    print("🚀 Neural AI Next - Rendszer indítása...")
-
     # 1. Konfiguráció létrehozása (először, hogy legyen konfig a loggernek)
-    print("⏳ 1. Konfiguráció betöltése...")
     config = ConfigManagerFactory.create_manager("yaml")
     # Betöltjük a configs/ mappát
     config.load_directory("configs")
     container.register_instance(ConfigManagerInterface, config)
-    print("   ✅ Config betöltve")
 
     # 2. Logger inicializálása a konfiggal
-    print("⏳ 2. Logger konfigurálása...")
     logging_config = config.get_section("logging") or {}
     LoggerFactory.configure(logging_config)
     # Alap logger példány létrehozása
@@ -133,10 +127,10 @@ def bootstrap_core(
     container.register_instance(LoggerInterface, logger)
 
     # Visszajelzés az előző lépésekről
-    logger.info("🚀 Rendszer indítása...")
-    logger.debug("✅ 1. Hardver: Detektálva")
-    logger.debug("✅ 2. Config: Betöltve")
-    logger.debug("✅ 3. Logger: Konfigurálva")
+    logger.info("🚀 Neural AI Next - Rendszer indítása...")
+    logger.info("⏳ 1. Konfiguráció betöltése...")
+    logger.debug("✅ 1. Config: Betöltve")
+    logger.debug("✅ 2. Logger: Konfigurálva")
 
     # 3. Hardware inicializálása
     logger.info("⏳ 4. Hardver információ gyűjtése...")
@@ -164,14 +158,18 @@ def bootstrap_core(
     storage_conf = config.get("storage") or {}  # Szekció lekérése
     storage_type = storage_conf.get("type", "file")  # Típus (file/parquet)
 
-    storage = StorageFactory.get_storage(
-        storage_type=storage_type,
-        base_path=storage_conf.get("base_path"),
-        logger=logger,
-        hardware=hardware,
-    )
-    container.register_instance(StorageInterface, storage)
-    logger.debug(f"-> Storage engine: {storage_type}")
+    try:
+        storage = StorageFactory.get_storage(
+            storage_type=storage_type,
+            base_path=storage_conf.get("base_path"),
+            logger=logger,
+            hardware=hardware,
+        )
+        container.register_instance(StorageInterface, storage)
+        logger.debug(f"-> Storage engine: {storage_type}")
+    except Exception:
+        logger.critical("Storage init failed", exc_info=True)
+        raise
 
     # 7. Rendszer monitorozás inicializálása
     logger.info("⏳ 8. Rendszer monitorozás indítása...")

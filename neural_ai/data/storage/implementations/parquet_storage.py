@@ -50,21 +50,25 @@ if TYPE_CHECKING:
 # TypedDict definiálása read/write opciókhoz
 class ParquetWriteOptions(TypedDict, total=False):
     """Parquet írás opciók konfigurációja."""
+
     compression: str
     unique_id: str | None
 
 
 class ParquetReadOptions(TypedDict, total=False):
     """Parquet olvasás opciók konfigurációja."""
+
     start_date: datetime
     end_date: datetime
 
 
 class StorageConfig(TypedDict, total=False):
     """Tárolási konfiguráció."""
+
     compression: str
     base_path: str | Path
     engine: str
+
 
 # Modul szintű változók a teszteléshez (lazy import támogatáshoz)
 pl = None
@@ -119,7 +123,11 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         self.config = config
         self.event_bus = event_bus
         self.storage_config = cast(StorageConfig, config.get("storage", {}) if config else {})
-        self.BASE_PATH = Path(base_path) if base_path else Path(self.storage_config.get("base_path", "data/tick"))
+        self.BASE_PATH = (
+            Path(base_path)
+            if base_path
+            else Path(self.storage_config.get("base_path", "data/tick"))
+        )
         self.engine = self.storage_config.get("engine", "fastparquet")
         self.compression = compression or self.storage_config.get("compression", "snappy")
         self.backend: StorageBackend
@@ -134,6 +142,14 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
         # Hardver detekció és backend kiválasztás
         self._select_backend()
+
+        # Debug log az inicializáláshoz
+        self.logger.debug(
+            "Initializing ParquetStorageService",
+            base_path=str(self.BASE_PATH),
+            engine=self.engine,
+            compression=self.compression,
+        )
 
         # Logolás a saját loggerrel (ha van), vagy a globálissal
         log_msg = f"ParquetStorageService initialized with {self.backend.name} backend"
@@ -245,6 +261,9 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         """
         # Logger használata
         log = self.logger
+        log.debug(
+            "Starting tick data storage", symbol=symbol, date=date.isoformat(), rows=len(data)
+        )
 
         if len(data) == 0:
             raise ValueError("Cannot store empty DataFrame")
@@ -307,6 +326,12 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             >>> data = await service.read_tick_data('EURUSD', start, end)
             >>> print(f"Betöltött {len(data)} tick-ek")
         """
+        self.logger.debug(
+            "Starting tick data reading",
+            symbol=symbol,
+            start_date=start_date.isoformat(),
+            end_date=end_date.isoformat(),
+        )
         paths: list[Path] = []
 
         # Összes Parquet fájl megtalálása a dátumtartományban

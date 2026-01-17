@@ -8,6 +8,7 @@ from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
 
 class JForexConfig(TypedDict, total=False):
     """JForex konfiguráció séma."""
+
     base_url: str
     timeout: int
     retry_attempts: int
@@ -18,10 +19,12 @@ class JForexConfig(TypedDict, total=False):
 
 class JForexLiveConfig(TypedDict, total=False):
     """JForex live feed konfiguráció séma."""
+
     host: str
     tick_port: int
     command_port: int
     enabled: bool
+
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -54,6 +57,9 @@ class JForexFactory:
         Returns:
             JForex letöltő példány, ami megvalósítja az IJForexDownloader-t
         """
+        from neural_ai.core.logger.factory import LoggerFactory
+
+        logger = LoggerFactory.get_logger("neural_ai.collectors.jforex")
         # Import here to avoid circular dependencies
         import aiohttp
 
@@ -73,12 +79,15 @@ class JForexFactory:
 
         # Get additional configuration options
         retry_attempts = jforex_config.get("retry_attempts", 3) if jforex_config else 3
-        storage_base_path = jforex_config.get("storage_base_path",
-                                              "data/tick") if jforex_config else "data/tick"
-        validation_enabled = jforex_config.get("validation_enabled",
-                                               True) if jforex_config else True
-        max_download_size_mb = jforex_config.get("max_download_size_mb",
-                                                 50) if jforex_config else 50
+        storage_base_path = (
+            jforex_config.get("storage_base_path", "data/tick") if jforex_config else "data/tick"
+        )
+        validation_enabled = (
+            jforex_config.get("validation_enabled", True) if jforex_config else True
+        )
+        max_download_size_mb = (
+            jforex_config.get("max_download_size_mb", 50) if jforex_config else 50
+        )
 
         # Create downloader instance
         downloader = Bi5Downloader(
@@ -115,6 +124,9 @@ class JForexFactory:
         Returns:
             JForex live feed példány, ami megvalósítja az ILiveFeed-et
         """
+        from neural_ai.core.logger.factory import LoggerFactory
+
+        logger = LoggerFactory.get_logger("neural_ai.collectors.jforex")
         # Import here to avoid circular dependencies
         from neural_ai.collectors.jforex.implementations.live_feed import JForexLiveFeed
 

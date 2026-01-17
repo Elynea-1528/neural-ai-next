@@ -13,12 +13,13 @@ from neural_ai.core.events.factory import EventBusFactory
 from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.data.storage.exceptions import StorageError
 from neural_ai.data.storage.implementations.file_storage import FileStorage
-from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
+from neural_ai.data.storage.implementations.parquet_storage import (
+    ParquetStorageService,
+)
 from neural_ai.data.storage.interfaces.factory_interface import StorageFactoryInterface
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
-    from neural_ai.core.config.interfaces.config_interface import ConfigInterface
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
@@ -92,6 +93,34 @@ class StorageFactory(StorageFactoryInterface):
             >>> storage = StorageFactory.get_storage(logger_instance, "file", base_path="data",
             ...                                       create_if_missing=True)
         """
+        # Config validáció TypedDict-tel - későbbi használatra
+        # raw_config = config.get("storage") if config else {}
+        # storage_conf = cast(StorageConfig, raw_config if isinstance(raw_config, dict) else {})
+        """Tárolási példány létrehozása a megadott típus alapján.
+
+        Args:
+            logger: A naplózásért felelős interfész.
+            config: A konfigurációért felelős interfész.
+            event_bus: Az eseménybusz interfész.
+            storage_type: A kért tárolási típus azonosítója (alapértelmezett: "file").
+            base_path: Alap könyvtár útvonal a fájl alapú tároláshoz.
+            hardware: A hardverképességek detektálásáért felelős interfész (opcionális).
+            **kwargs: További paraméterek a tárolási osztály konstruktorának.
+
+        Returns:
+            StorageInterface: Az inicializált tárolási példány.
+
+        Raises:
+            StorageError: Ha nem található a kért tárolási típus vagy a
+                példányosítása sikertelen.
+
+        Example:
+            >>> storage = StorageFactory.get_storage(logger_instance, "file", base_path="data")
+            >>> storage.save_object({"key": "value"}, "config.json")
+            >>> # Egyéni paraméterekkel
+            >>> storage = StorageFactory.get_storage(logger_instance, "file", base_path="data",
+            ...                                       create_if_missing=True)
+        """
         if storage_type not in cls._storage_types:
             raise StorageError(
                 f"Ismeretlen storage típus: {storage_type}. "
@@ -110,7 +139,7 @@ class StorageFactory(StorageFactoryInterface):
 
         # Logger hozzáadása a kwargs-hoz
         if logger is None:
-            logger = LoggerFactory.get_logger(name="storage")
+            logger = LoggerFactory.get_logger(name="neural_ai.data.storage")
         kwargs["logger"] = logger
 
         # Config hozzáadása a kwargs-hoz
@@ -131,7 +160,7 @@ class StorageFactory(StorageFactoryInterface):
             logger.debug(
                 "Creating storage instance",
                 storage_type=storage_type,
-                storage_class=str(storage_class)
+                storage_class=str(storage_class),
             )
             storage = storage_class(**kwargs)
             logger.info("Storage instance created successfully", storage_type=storage_type)
@@ -140,14 +169,14 @@ class StorageFactory(StorageFactoryInterface):
             logger.error(
                 "Failed to create storage instance due to type error",
                 storage_type=storage_type,
-                error=str(e)
+                error=str(e),
             )
             raise StorageError(f"Nem sikerült létrehozni a storage példányt: {str(e)}") from e
         except Exception as e:
             logger.error(
                 "Unexpected error during storage instantiation",
                 storage_type=storage_type,
-                error=str(e)
+                error=str(e),
             )
             raise StorageError(
                 f"Váratlan hiba történt a storage példányosítása közben: {str(e)}"
