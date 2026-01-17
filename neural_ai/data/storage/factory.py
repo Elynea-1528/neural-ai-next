@@ -61,7 +61,7 @@ class StorageFactory(StorageFactoryInterface):
     def get_storage(
         cls,
         logger: "LoggerInterface | None" = None,
-        config: "ConfigInterface | None" = None,
+        config: "ConfigManagerInterface | None" = None,
         event_bus: "EventBusInterface | None" = None,
         storage_type: str = "file",
         base_path: str | Path | None = None,
