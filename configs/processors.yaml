@@ -8,6 +8,12 @@ processors:
     z_score_window: 60
     use_mid_price: true
     calc_shadows: true
+    market_hours:
+      enabled: true
+      log_filtering: true
+      timezone: "UTC"
+      weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+      hours: ["00:00", "23:59"]
     timeframe_configs:
       tick:
         z_score_window: 2000
@@ -30,6 +36,12 @@ processors:
     min_touches: 2
     volume_confirmation: true
     strength_window: 100
+    market_hours:
+      enabled: true
+      log_filtering: true
+      timezone: "UTC"
+      weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+      hours: ["00:00", "23:59"]
     timeframe_configs:
       M1:
         swing_window: 5

@@ -50,7 +50,17 @@ class TestD01PriceFactory:
         import polars as pl
 
         mock_config = MagicMock()
-        mock_config.get_section.return_value = {"z_score_window": 60, "calc_shadows": True}
+        mock_config.get.return_value = {
+            "z_score_window": 60,
+            "calc_shadows": True,
+            "market_hours": {
+                "enabled": True,
+                "log_filtering": True,
+                "weekdays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+                "hours": ["00:00", "23:59"],
+                "timezone": "UTC"
+            }
+        }
         mock_logger = MagicMock()
 
         processor = D01PriceFactory.create(mock_config, mock_logger)
