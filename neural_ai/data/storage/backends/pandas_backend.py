@@ -10,8 +10,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import structlog
-
 from neural_ai.data.storage.backends.base import StorageBackend
 
 if TYPE_CHECKING:
@@ -19,8 +17,6 @@ if TYPE_CHECKING:
 
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
-
-logger = structlog.get_logger(__name__)
 
 
 class PandasDataFrame:

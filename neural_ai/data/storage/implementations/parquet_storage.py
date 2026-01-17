@@ -102,8 +102,6 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         log_msg = f"ParquetStorageService initialized with {self.backend.name} backend"
         if self.logger:
             self.logger.info(log_msg)
-        else:
-            structlog.get_logger().info(log_msg)
 
     def _select_backend(self) -> None:
         """Backend kiválasztása hardver detekció alapján.
@@ -121,11 +119,9 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             log_msg = f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
             if self.logger:
                 self.logger.debug(log_msg)
-            else:
-                logger.info(log_msg)
-            logger.info(
-                "AVX2 support detected. Using PolarsBackend for accelerated data processing."
-            )
+                self.logger.info(
+                    "AVX2 support detected. Using PolarsBackend for accelerated data processing."
+                )
         else:
             from neural_ai.data.storage.backends.pandas_backend import PandasBackend
 
@@ -135,14 +131,10 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             log_msg = f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
             if self.logger:
                 self.logger.debug(log_msg)
+                self.logger.warning("Legacy CPU detected. Running in Compatibility Mode with PandasBackend.")
             else:
-                logger.info(log_msg)
-            # DEBUG log a backend kiválasztáshoz
-            log_msg = "Legacy CPU detected. Running in Compatibility Mode with PandasBackend."
-            if self.logger:
-                self.logger.warning(log_msg)
-            else:
-                logger.warning(log_msg)
+                # Ha nincs logger, nem logolunk
+                pass
 
     def _get_path(self, symbol: str, date: datetime, unique_id: str | None = None) -> Path:
         """Elérési út generálása a megadott szimbólumhoz és dátumhoz.

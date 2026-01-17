@@ -10,14 +10,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import structlog
-
 from neural_ai.data.storage.backends.base import StorageBackend
 
 if __name__ == "__main__":
     raise RuntimeError("Ez a modul nem futtatható közvetlenül.")
-
-logger = structlog.get_logger(__name__)
 
 # Modul szintű változók a lazy import támogatásához
 # Ezeket a tesztelés során lehet mock-olni
@@ -141,9 +137,6 @@ class PolarsBackend(StorageBackend):
 
             # Polars DataFrame konvertálás, ha szükséges
             try:
-                # Debug log a bejövő adat típusáról
-                logger.debug(f"Data type: {type(data)}")
-
                 # Ha már Polars DataFrame, használjuk közvetlenül
                 if isinstance(data, self._polars_wrapper.pl.DataFrame):
                     pl_df = data
@@ -157,7 +150,6 @@ class PolarsBackend(StorageBackend):
                         # Ha nincs to_pandas() metódus, próbáljuk közvetlenül
                         pl_df = self._polars_wrapper.pl.DataFrame(data)
             except Exception as e:
-                logger.error(f"DataFrame conversion failed: {e}")
                 raise ValueError(f"Invalid DataFrame data: {e}") from e
 
             # Írás particionálással vagy anélkül
