@@ -173,7 +173,7 @@ class FileStorage(StorageInterface):
                 "free_space_percent": (stat.f_bavail / stat.f_blocks) * 100,
             }
         except OSError as e:
-            raise StorageIOError(f"Failed to get storage info: {e}") from e
+            raise StorageIOError(f"Nem sikerült lekérdezni a tárolási információkat: {e}") from e
 
     def _get_full_path(self, path: str | Path) -> Path:
         """Teljes útvonal előállítása.
