@@ -16,6 +16,9 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 from neural_ai.core.config.interfaces.factory_interface import (
     ConfigManagerFactoryInterface,
 )
+from neural_ai.core.logger.implementations.default_logger import DefaultLogger
+from neural_ai.core.logger.interfaces import LoggerInterface
+from neural_ai.core.utils.decorators import trace
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,10 +39,12 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
     Attributes:
         _manager_types: Regisztrált szinkron konfiguráció kezelő típusok.
         _async_manager_types: Regisztrált aszinkron konfiguráció kezelő típusok.
+        _logger: Logger interfész a naplózáshoz.
     """
 
     _manager_types: dict[str, type[ConfigManagerInterface]] = {}
     _async_manager_types: dict[str, type[AsyncConfigManagerInterface]] = {}
+    _logger: "LoggerInterface | None" = None
 
     @classmethod
     def _lazy_load_implementations(cls) -> None:
@@ -48,16 +53,22 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         Ez a metódus biztosítja, hogy a konkrét implementációk csak akkor kerüljenek
         betöltésre, amikor valóban szükség van rájuk.
         """
+        if cls._logger is None:
+            cls._logger = DefaultLogger("neural_ai.core.config.factory")
+            cls._logger.info("ConfigManagerFactory inicializálva", component="ConfigManagerFactory")
+
         if not cls._manager_types:
             # YAML konfiguráció kezelő lazy betöltése
             from neural_ai.core.config.implementations.yaml_config_manager import (
                 YAMLConfigManager,
             )
 
-            cls._manager_types.update({
-                ".yml": YAMLConfigManager,
-                ".yaml": YAMLConfigManager,
-            })
+            cls._manager_types.update(
+                {
+                    ".yml": YAMLConfigManager,
+                    ".yaml": YAMLConfigManager,
+                }
+            )
 
         if not cls._async_manager_types:
             # Dinamikus konfiguráció kezelő lazy betöltése
@@ -65,15 +76,16 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
                 DynamicConfigManager,
             )
 
-            cls._async_manager_types.update({
-                "dynamic": DynamicConfigManager,
-                "database": DynamicConfigManager,
-            })
+            cls._async_manager_types.update(
+                {
+                    "dynamic": DynamicConfigManager,
+                    "database": DynamicConfigManager,
+                }
+            )
 
     @classmethod
-    def register_manager(
-        cls, extension: str, manager_class: type[ConfigManagerInterface]
-    ) -> None:
+    @trace
+    def register_manager(cls, extension: str, manager_class: type[ConfigManagerInterface]) -> None:
         """Új szinkron konfiguráció kezelő típus regisztrálása.
 
         Args:
@@ -102,6 +114,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         cls._manager_types[extension] = manager_class
 
     @classmethod
+    @trace
     def register_async_manager(
         cls, manager_type: str, manager_class: type[AsyncConfigManagerInterface]
     ) -> None:
@@ -130,6 +143,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         cls._async_manager_types[manager_type] = manager_class
 
     @classmethod
+    @trace
     def get_manager(
         cls, filename: str | Path, manager_type: str | None = None
     ) -> ConfigManagerInterface:
@@ -176,6 +190,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         )
 
     @classmethod
+    @trace
     async def get_async_manager(
         cls,
         manager_type: str,
@@ -215,9 +230,8 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         return manager_class(filename=None, session=session, logger=logger, **kwargs)
 
     @classmethod
-    def create_manager(
-        cls, manager_type: str, *args: Any, **kwargs: Any
-    ) -> ConfigManagerInterface:
+    @trace
+    def create_manager(cls, manager_type: str, *args: Any, **kwargs: Any) -> ConfigManagerInterface:
         """Szinkron konfiguráció kezelő létrehozása típus alapján.
 
         A metódus explicit típusmegadással hozza létre a konfiguráció kezelőt,
@@ -247,6 +261,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         raise ConfigLoadError(f"Ismeretlen konfig kezelő típus: {manager_type}")
 
     @classmethod
+    @trace
     def get_supported_extensions(cls) -> list[str]:
         """Támogatott fájl kiterjesztések lekérése.
 
@@ -257,6 +272,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         return list(cls._manager_types.keys())
 
     @classmethod
+    @trace
     def get_supported_async_types(cls) -> list[str]:
         """Támogatott aszinkron konfiguráció kezelő típusok lekérése.
 
