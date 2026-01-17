@@ -39,6 +39,10 @@ class CoreComponents:
         self._container = container or DIContainer()
         self._factory = CoreComponentFactory(self._container)
         self._logger = structlog.get_logger(__name__)
+        self._logger.info(
+            "Core komponensek inicializálása befejezve",
+            extra={"container_type": type(self._container).__name__},
+        )
 
     @property
     def config(self) -> Optional["ConfigManagerInterface"]:
