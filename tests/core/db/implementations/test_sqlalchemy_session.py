@@ -29,18 +29,18 @@ class TestDatabaseURL:
     def test_get_database_url_with_provided_config(self) -> None:
         """Teszteli az adatbázis URL lekérdezést megadott konfiggal."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
-        mock_config.get.return_value = "sqlite+aiosqlite:///test.db"
+        mock_config.get.return_value = {"url": "sqlite+aiosqlite:///test.db"}
 
         url = get_database_url(mock_config)
 
         assert url == "sqlite+aiosqlite:///test.db"
-        mock_config.get.assert_called_with("database", "connection", "url")
+        mock_config.get.assert_called_with("database", "connection")
 
     def test_get_database_url_fallback_to_env(self) -> None:
         """Teszteli az adatbázis URL lekérdezést env fallbackkel."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         mock_config.get.side_effect = lambda *args: (
-            None if args == ("database", "connection", "url")
+            None if args == ("database", "connection")
             else "sqlite+aiosqlite:///fallback.db"
         )
 
@@ -364,6 +364,7 @@ class TestDatabaseInitialization:
         """Teszteli az init_db függvényt."""
         # Ez a teszt csak ellenőrzi, hogy a függvény lefut-e hiba nélkül
         # Mock-oljuk a get_engine-t, hogy ne kelljen config fájl
+        mock_logger = MagicMock()
         with patch(
             'neural_ai.core.db.implementations.sqlalchemy_session.get_engine'
         ) as mock_get_engine:
@@ -372,11 +373,12 @@ class TestDatabaseInitialization:
             mock_engine.begin.return_value.__aenter__ = AsyncMock()
             mock_engine.begin.return_value.__aexit__ = AsyncMock()
 
-            await init_db()
+            await init_db(mock_logger)
 
     @pytest.mark.asyncio
     async def test_close_db(self) -> None:
         """Teszteli a close_db függvényt."""
+        mock_logger = MagicMock()
         # Mock-oljuk a globális változókat
         mock_engine = MagicMock()
         mock_engine.dispose = AsyncMock()
@@ -389,7 +391,7 @@ class TestDatabaseInitialization:
             None
         ):
 
-            await close_db()
+            await close_db(mock_logger)
 
             mock_engine.dispose.assert_called_once()
             # Ellenőrizzük, hogy a globális változók None-ra lettek-e állítva

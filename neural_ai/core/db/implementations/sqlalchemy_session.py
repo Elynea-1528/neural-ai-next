@@ -23,6 +23,18 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 from neural_ai.core.db.exceptions import DBConnectionError
 
 if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces import LoggerInterface
+
+# TypedDict a database konfigurációhoz
+from typing import TypedDict
+
+
+class DatabaseConfig(TypedDict):
+    """Adatbázis konfigurációs struktúra."""
+
+    url: str
+
+if TYPE_CHECKING:
     pass
 
 # Globális változók a session factory-nek
@@ -47,7 +59,12 @@ def get_database_url(config_manager: ConfigManagerInterface | None = None) -> st
         config_manager = ConfigManagerFactory.get_manager("config.yaml")
 
     # Elsődlegesen a namespaced konfigban keressük
-    db_url = cast(str | None, config_manager.get("database", "connection", "url"))
+    db_config_raw = config_manager.get("database", "connection")
+    if db_config_raw and isinstance(db_config_raw, dict):
+        db_config = cast(DatabaseConfig, db_config_raw)
+        db_url = db_config["url"]
+    else:
+        db_url = None
 
     # Ha nincs, akkor a régi env fallback
     if not db_url:
@@ -198,11 +215,14 @@ async def get_db_session_direct() -> AsyncSession:
     return session_maker()
 
 
-async def init_db() -> None:
+async def init_db(logger: "LoggerInterface") -> None:
     """Adatbázis inicializálása.
 
     Létrehozza az összes táblát az adatbázisban a modellek alapján.
     Ez a függvény az alkalmazás indításakor hívandó.
+
+    Args:
+        logger: Logger interfész a naplózáshoz.
     """
     from .models import Base  # Körkörös import elkerülése
 
@@ -211,13 +231,19 @@ async def init_db() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    print("✅ Adatbázis inicializálva és táblák létrehozva.")
+    logger.info(
+        "Adatbázis inicializálva és táblák létrehozva",
+        extra={"module": "sqlalchemy_session", "function": "init_db"}
+    )
 
 
-async def close_db() -> None:
+async def close_db(logger: "LoggerInterface") -> None:
     """Adatbázis kapcsolat lezárása.
 
     Ez a függvény az alkalmazás leállításakor hívandó.
+
+    Args:
+        logger: Logger interfész a naplózáshoz.
     """
     global _engine, _async_session_maker
 
@@ -226,7 +252,10 @@ async def close_db() -> None:
         _engine = None
         _async_session_maker = None
 
-    print("✅ Adatbázis kapcsolat lezárva.")
+    logger.info(
+        "Adatbázis kapcsolat lezárva",
+        extra={"module": "sqlalchemy_session", "function": "close_db"}
+    )
 
 
 class DatabaseManager(metaclass=SingletonMeta):
@@ -237,15 +266,22 @@ class DatabaseManager(metaclass=SingletonMeta):
 
     Attributes:
         config_manager: A konfiguráció kezelő példány.
+        logger: A logger interfész.
     """
 
-    def __init__(self, config_manager: ConfigManagerInterface | None = None):
+    def __init__(
+        self,
+        config_manager: ConfigManagerInterface | None = None,
+        logger: "LoggerInterface | None" = None,
+    ):
         """Inicializálja az adatbázis kezelőt.
 
         Args:
             config_manager: Opcionális konfiguráció kezelő.
+            logger: Opcionális logger interfész.
         """
         self.config_manager = config_manager or ConfigManagerFactory.get_manager("config.yaml")
+        self.logger = logger  # Logger DI
         self._engine: AsyncEngine | None = None
         self._session_maker: async_sessionmaker[AsyncSession] | None = None
 
@@ -269,6 +305,12 @@ class DatabaseManager(metaclass=SingletonMeta):
 
         async with self._engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+
+        if self.logger:
+            self.logger.info(
+                "DatabaseManager inicializálva",
+                extra={"module": "DatabaseManager", "function": "initialize"}
+            )
 
     @asynccontextmanager
     async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
@@ -333,3 +375,9 @@ class DatabaseManager(metaclass=SingletonMeta):
             await self._engine.dispose()
             self._engine = None
             self._session_maker = None
+
+        if self.logger:
+            self.logger.info(
+                "DatabaseManager lezárva",
+                extra={"module": "DatabaseManager", "function": "close"}
+            )

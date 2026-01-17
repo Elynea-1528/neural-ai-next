@@ -146,8 +146,9 @@ def bootstrap_core(
 
     # 4. Adatbázis inicializálása (Config+Logger)
     logger.info("⏳ 5. Adatbázis indítása...")
-    # Helyesen a DatabaseFactory-t használjuk, és átadjuk a már betöltött configot
-    database = DatabaseFactory.create_manager(config_manager=config)
+    # DatabaseFactory példányosítása DI-val
+    db_factory = DatabaseFactory(logger=logger, config_manager=config)
+    database = db_factory.create_manager()
     container.register_instance(DatabaseManager, database)
     logger.debug("-> Adatbázis manager regisztrálva")
 
