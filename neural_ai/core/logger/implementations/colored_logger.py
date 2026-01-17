@@ -6,10 +6,14 @@ biztosít a log üzenetekhez a Python standard logging könyvtárát felhasznál
 
 import logging
 import sys
-from typing import IO, Any
+from typing import IO, TYPE_CHECKING, Any
 
 from neural_ai.core.logger.formatters.logger_formatters import ColoredFormatter
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
 
 
 class ColoredLogger(LoggerInterface):
@@ -29,6 +33,8 @@ class ColoredLogger(LoggerInterface):
         level: int = logging.INFO,
         format_str: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         stream: IO[str] = sys.stdout,
+        config: "ConfigManagerInterface | None" = None,
+        event_bus: "EventBusInterface | None" = None,
         **kwargs: Any,
     ) -> None:
         """Logger inicializálása színes konzol kimenettel.
@@ -41,6 +47,8 @@ class ColoredLogger(LoggerInterface):
                 "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
             stream: A kimeneti stream, ahova a logok íródnak. Alapértelmezett
                 értéke a sys.stdout.
+            config: Opcionális konfigurációs interfész.
+            event_bus: Opcionális esemény busz interfész.
             **kwargs: További opcionális paraméterek, amelyeket a jövőbeli
                 bővíthetőség érdekében elfogad az osztály.
 
@@ -66,6 +74,10 @@ class ColoredLogger(LoggerInterface):
         # Handler hozzáadása és propagálás kikapcsolása
         self.logger.addHandler(handler)
         self.logger.propagate = False
+
+        # DI: függőségek tárolása
+        self._config = config
+        self._event_bus = event_bus
 
         # DI Container kompatibilitás: _initialized flag beállítása
         self._initialized = True

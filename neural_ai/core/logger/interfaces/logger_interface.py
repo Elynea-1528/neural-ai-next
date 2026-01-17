@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
 
 
 class LoggerInterface(ABC):
@@ -20,6 +21,7 @@ class LoggerInterface(ABC):
         self,
         name: str,
         config: Optional["ConfigManagerInterface"] = None,
+        event_bus: Optional["EventBusInterface"] = None,
         **kwargs: object,
     ) -> None:
         """Logger inicializálása.
@@ -27,6 +29,7 @@ class LoggerInterface(ABC):
         Args:
             name: A logger egyedi azonosítója.
             config: Opcionális konfigurációs interfész a logger beállításaihoz.
+            event_bus: Opcionális esemény busz interfész az aszinkron kommunikációhoz.
             **kwargs: További opcionális paraméterek (pl. file_path, level).
         """
         pass

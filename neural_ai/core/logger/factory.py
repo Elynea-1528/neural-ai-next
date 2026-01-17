@@ -18,6 +18,7 @@ from structlog.processors import JSONRenderer
 from structlog.stdlib import ProcessorFormatter
 from structlog.types import Processor
 
+from neural_ai.core.config.interfaces.types import LoggingConfig
 from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
 from neural_ai.core.logger.implementations.default_logger import DefaultLogger
 from neural_ai.core.logger.implementations.rotating_file_logger import (
@@ -155,6 +156,9 @@ class LoggerFactory(LoggerFactoryInterface):
         """
         from pathlib import Path
 
+        # TypedDict használata config casting-gal
+        typed_config = cast(LoggingConfig, config)
+
         # Alap structlog konfiguráció
         structlog.configure(
             processors=[
@@ -174,7 +178,7 @@ class LoggerFactory(LoggerFactoryInterface):
         )
 
         # Alap beállítások
-        default_level = getattr(logging, config.get("default_level", "DEBUG"))
+        default_level = getattr(logging, typed_config.get("default_level", "DEBUG"))
 
         # Root logger konfigurálása
         root_logger = logging.getLogger()
@@ -184,7 +188,7 @@ class LoggerFactory(LoggerFactoryInterface):
         root_logger.handlers.clear()
 
         # Handlerek beállítása
-        handlers = config.get("handlers", {})
+        handlers = typed_config.get("handlers", {})
 
         # Console handler structlog-gal
         console_config = handlers.get("console", {})
@@ -246,7 +250,7 @@ class LoggerFactory(LoggerFactoryInterface):
                 root_logger.addHandler(file_handler)
 
         # Egyedi logger konfigurációk beállítása
-        loggers_config = config.get("loggers", {})
+        loggers_config = typed_config.get("loggers", {})
         for logger_name, logger_settings in loggers_config.items():
             logger_instance = logging.getLogger(logger_name)
             if "level" in logger_settings:

@@ -255,3 +255,16 @@ class TestRotatingFileLogger:
             # Ellenőrizzük, hogy az új handler RotatingFileHandler vagy TimedRotatingFileHandler
             handler_type = type(rotating_logger.logger.handlers[0]).__name__
             assert "RotatingFileHandler" in handler_type or "TimedRotatingFileHandler" in handler_type
+
+    def test_di_dependencies_none(self) -> None:
+        """DI függőségek None értékkel történő elfogadásának tesztelése."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = Path(tmpdir) / "test_di.log"
+            logger = RotatingFileLogger(
+                "test_di_none",
+                log_file=str(log_file),
+                config=None,
+                event_bus=None
+            )
+            # Ellenőrizzük, hogy a logger létrejön None értékekkel
+            assert logger is not None

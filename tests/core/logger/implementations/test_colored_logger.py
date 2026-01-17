@@ -129,3 +129,9 @@ class TestColoredLogger:
         formatter = colored_logger.logger.handlers[0].formatter
         assert formatter is not None
         assert "Colored" in type(formatter).__name__
+
+    def test_di_dependencies_none(self) -> None:
+        """DI függőségek None értékkel történő elfogadásának tesztelése."""
+        logger = ColoredLogger("test_di_none", config=None, event_bus=None)
+        # Ellenőrizzük, hogy a logger létrejön None értékekkel
+        assert logger is not None

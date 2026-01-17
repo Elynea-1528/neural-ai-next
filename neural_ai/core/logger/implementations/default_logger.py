@@ -5,9 +5,13 @@ amely a Python beépített logging rendszerét használja.
 """
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
 
 
 class DefaultLogger(LoggerInterface):
@@ -21,7 +25,13 @@ class DefaultLogger(LoggerInterface):
         logger: A belső Python logger objektum
     """
 
-    def __init__(self, name: str, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        name: str,
+        config: "ConfigManagerInterface | None" = None,
+        event_bus: "EventBusInterface | None" = None,
+        **kwargs: Any,
+    ) -> None:
         """Logger inicializálása.
 
         A konstruktor létrehoz egy Python logger objektumot a megadott névvel,
@@ -30,6 +40,8 @@ class DefaultLogger(LoggerInterface):
 
         Args:
             name: A logger egyedi neve. Ez a név jelenik meg a log üzenetekben.
+            config: Opcionális konfigurációs interfész.
+            event_bus: Opcionális esemény busz interfész.
             **kwargs: Opcionális kulcsszó argumentumok:
                 - level (int): Log szint (pl. logging.DEBUG, logging.INFO).
                   Alapértelmezett: logging.INFO.
@@ -65,6 +77,10 @@ class DefaultLogger(LoggerInterface):
 
         # Propagate kikapcsolása a duplikált üzenetek elkerülésére
         self.logger.propagate = False
+
+        # DI: függőségek tárolása
+        self._config = config
+        self._event_bus = event_bus
 
         # DI Container kompatibilitás: _initialized flag beállítása
         self._initialized = True

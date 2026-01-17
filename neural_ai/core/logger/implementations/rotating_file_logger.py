@@ -5,9 +5,13 @@ import os
 import shutil
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
 
 
 class RotatingFileLogger(LoggerInterface):
@@ -31,6 +35,8 @@ class RotatingFileLogger(LoggerInterface):
         format_str: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         rotation_type: Literal["size", "time"] = "size",
         when: str = "D",
+        config: "ConfigManagerInterface | None" = None,
+        event_bus: "EventBusInterface | None" = None,
         **kwargs: object,
     ) -> None:
         """Logger inicializálása.
@@ -44,6 +50,8 @@ class RotatingFileLogger(LoggerInterface):
             format_str: A log üzenetek formátuma.
             rotation_type: A rotáció típusa ('size' vagy 'time').
             when: Időegység időalapú rotáció esetén ('S', 'M', 'H', 'D', stb.).
+            config: Opcionális konfigurációs interfész.
+            event_bus: Opcionális esemény busz interfész.
             **kwargs: További paraméterek (az interfész kompatibilitás miatt).
 
         Raises:
@@ -92,6 +100,10 @@ class RotatingFileLogger(LoggerInterface):
 
         # Propagate kikapcsolása a duplikált üzenetek elkerülésére
         self.logger.propagate = False
+
+        # DI: függőségek tárolása
+        self._config = config
+        self._event_bus = event_bus
 
     def debug(self, message: str, **kwargs: object) -> None:
         """Debug szintű üzenet logolása.

@@ -77,3 +77,9 @@ class TestDefaultLogger:
         initial_handler_count = len(logger1.logger.handlers)
         logger2 = DefaultLogger(logger_name)
         assert len(logger2.logger.handlers) == initial_handler_count
+
+    def test_di_dependencies_none(self) -> None:
+        """DI függőségek None értékkel történő elfogadásának tesztelése."""
+        logger = DefaultLogger("test_di_none", config=None, event_bus=None)
+        # Ellenőrizzük, hogy a logger létrejön None értékekkel
+        assert logger is not None
