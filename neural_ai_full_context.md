@@ -1,5 +1,5 @@
 # NEURAL AI NEXT CONTEXT (FULL)
-*Generated: 2026-01-17 23:37:13*
+*Generated: 2026-01-18 00:07:25*
 
 ## `FILE: .vscode/settings.json`
 
@@ -12464,7 +12464,7 @@ A modul biztosítja a core komponensek megfelelő inicializálását és
 függőségi injektálását, elkerülve a körkörös függőségeket.
 """
 
-from typing import TYPE_CHECKING, Any, TypedDict, cast
+from typing import TYPE_CHECKING, TypedDict, cast
 
 from neural_ai.core.utils.decorators import trace
 
@@ -12599,7 +12599,7 @@ def bootstrap_core(
     container.register_instance(ConfigManagerInterface, config)
 
     # 2. Logger inicializálása a konfiggal
-    logging_config = config.get_section("logging") or {}
+    logging_config = cast(LoggingConfig, config.get_section("logging") or {})
     LoggerFactory.configure(logging_config)
     # Alap logger példány létrehozása
     logger = LoggerFactory.get_logger(name="NeuralAI.Bootstrap", logger_type="default")
@@ -12634,7 +12634,7 @@ def bootstrap_core(
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
     logger.info("⏳ 7. Storage indítása...")
-    storage_conf = config.get("storage") or {}  # Szekció lekérése
+    storage_conf = cast(StorageConfig, config.get("storage") or {})  # Szekció lekérése
     storage_type = storage_conf.get("type", "file")  # Típus (file/parquet)
 
     try:
@@ -12677,7 +12677,7 @@ def bootstrap_core(
     # 8. MarketDataPersister inicializálása
     logger.info("⏳ 9. MarketDataPersister indítása...")
     market_data_persister = MarketDataPersister(
-        event_bus=event_bus, storage=storage, logger=logger, buffer_size_limit=50_000
+        config=config, event_bus=event_bus, storage=storage, logger=logger
     )
     container.register_instance(MarketDataPersister, market_data_persister)
     logger.debug("-> MarketDataPersister regisztrálva")
@@ -12685,7 +12685,7 @@ def bootstrap_core(
     # 9. JForex Live Feed inicializálása (ha engedélyezve van)
     logger.info("⏳ 10. JForex Live Feed ellenőrzése...")
     # Figyelem: A collectors.yaml tartalma a 'collectors' kulcs alatt van!
-    live_conf: dict[str, Any] = config.get("collectors", "jforex_live") or {}
+    live_conf = cast(LiveConfig, config.get("collectors", "jforex_live") or {})
     if live_conf.get("enabled", False):
         from neural_ai.collectors.jforex.factory import JForexFactory
         from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
@@ -12701,6 +12701,7 @@ def bootstrap_core(
     return CoreComponents(container=container)
 
 
+@trace
 def get_core_components() -> "CoreComponents":
     """Globális core komponensek lekérdezése.
 
@@ -12972,7 +12973,10 @@ from neural_ai.core.base.exceptions import (
 from neural_ai.core.base.implementations.di_container import DIContainer
 from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
 from neural_ai.core.base.implementations.singleton import SingletonMeta
+from neural_ai.core.logger.factory import LoggerFactory  # Added for DI compliance
 from neural_ai.core.utils.decorators import trace
+
+DEFAULT_CONFIG_FILE = "config.yml"
 
 
 class BaseConfig(TypedDict, total=False):
@@ -13041,11 +13045,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             return cast(LoggerInterface, logger)
 
         # Fallback to default logger (NullObject pattern)
-        from neural_ai.core.logger.implementations.default_logger import (
-            DefaultLogger,
-        )
-
-        return DefaultLogger(name="CoreComponentFactory")
+        return LoggerFactory.get_logger(name="CoreComponentFactory")
 
     def _get_config_manager(self) -> "ConfigManagerInterface":
         """Lazy loadinggel tölti be a config manager komponenst."""
@@ -13210,7 +13210,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.base.implementations.component_bundle import CoreComponents
         from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         from neural_ai.data.storage.implementations.file_storage import FileStorage
         from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
@@ -13249,7 +13248,10 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         # 5. Komponensek validálása
         if not components.validate():
             if logger:
-                logger.warning("Nem minden core komponens került inicializálásra")
+                logger.warning(
+                    "Nem minden core komponens került inicializálásra",
+                    extra={"component": "CoreComponentFactory"},
+                )
 
         return components
 
@@ -13284,7 +13286,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.config.exceptions import ConfigLoadError
         from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-        from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         from neural_ai.data.storage.implementations.file_storage import FileStorage
         from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
@@ -13293,7 +13294,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         log_config: dict[str, Any] = {}
 
         try:
-            config = ConfigManagerFactory.get_manager("config.yml")
+            config = ConfigManagerFactory.get_manager(DEFAULT_CONFIG_FILE)
             if config:
                 logger_section = config.get_section("logger")
                 if logger_section:
@@ -13342,7 +13343,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         CoreComponentFactory._validate_dependencies("logger", config)
 
         # Create logger using LoggerFactory
-        from neural_ai.core.logger.factory import LoggerFactory
 
         return LoggerFactory.get_logger(name=name, config=config)
 
@@ -13400,11 +13400,10 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         # Create storage instance
         from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.events.factory import EventBusFactory
-        from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.data.storage.implementations.file_storage import FileStorage
 
         logger = LoggerFactory.get_logger(name="storage")
-        config_manager = ConfigManagerFactory.get_manager("config.yml")  # fallback
+        config_manager = ConfigManagerFactory.get_manager(DEFAULT_CONFIG_FILE)  # fallback
         event_bus = EventBusFactory.get_event_bus(logger=logger)
         return FileStorage(
             logger=logger, config=config_manager, event_bus=event_bus, base_path=base_directory
@@ -13422,6 +13421,8 @@ Ez a modul tartalmazza a Neural AI Next base komponens rendszerének
 singleton mintát és komponens gyűjteményeket.
 """
 
+import structlog
+
 from neural_ai.core.base.implementations.di_container import DIContainer, LazyComponent
 from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
 from neural_ai.core.base.implementations.singleton import SingletonMeta
@@ -13433,6 +13434,12 @@ __all__ = [
     "lazy_property",
     "SingletonMeta",
 ]
+
+_logger = structlog.get_logger(__name__)
+_logger.info(
+    "Base implementations module initialized",
+    extra={"module": "neural_ai.core.base.implementations"},
+)
 
 ```
 
@@ -13480,6 +13487,10 @@ class CoreComponents:
         self._container = container or DIContainer()
         self._factory = CoreComponentFactory(self._container)
         self._logger = structlog.get_logger(__name__)
+        self._logger.info(
+            "Core komponensek inicializálása befejezve",
+            extra={"container_type": type(self._container).__name__},
+        )
 
     @property
     def config(self) -> Optional["ConfigManagerInterface"]:
@@ -13864,6 +13875,7 @@ class DIContainer(DIContainerInterface):
         self._factories: dict[object, Callable[[], object]] = {}
         self._lazy_components: dict[str, LazyComponent[object]] = {}
         self._logger = structlog.get_logger(__name__)
+        self._logger.info("DI konténer inicializálva")
 
     @trace
     def register_instance(self, interface: InterfaceT, instance: InterfaceT) -> None:
@@ -13977,6 +13989,7 @@ class DIContainer(DIContainerInterface):
 
         raise ComponentNotFoundError(f"Component '{component_name}' not found")
 
+    @trace
     def get_lazy_components(self) -> dict[str, bool]:
         """Get status of all lazy components.
 
@@ -13986,6 +13999,7 @@ class DIContainer(DIContainerInterface):
         """
         return {name: component.is_loaded for name, component in self._lazy_components.items()}
 
+    @trace
     def preload_components(self, component_names: list[str]) -> None:
         """Preload specific components.
 
@@ -13997,12 +14011,14 @@ class DIContainer(DIContainerInterface):
                 self._logger.info("Komponens előtöltése", component_name=name)
                 self.get(name)
 
+    @trace
     def clear(self) -> None:
         """Clear the container."""
         self._instances.clear()
         self._factories.clear()
         self._lazy_components.clear()
 
+    @trace
     def _verify_singleton(self, instance: object, component_name: str) -> None:
         """Ellenőrzi, hogy az instance követi-e a singleton mintát.
 
@@ -14014,6 +14030,7 @@ class DIContainer(DIContainerInterface):
         # warnings.warn(f"Singleton verifikáció {component_name} számára", UserWarning)
         pass
 
+    @trace
     def _enforce_singleton(self, component_name: str, instance: object) -> None:
         """Enforce singleton pattern by preventing duplicate registration.
 
@@ -14032,6 +14049,7 @@ class DIContainer(DIContainerInterface):
                     "Singleton pattern violated."
                 )
 
+    @trace
     def register(self, component_name: str, instance: object) -> None:
         """Komponens példány regisztrálása.
 
@@ -14053,9 +14071,9 @@ class DIContainer(DIContainerInterface):
         self._enforce_singleton(component_name, instance)
 
         self._instances[component_name] = instance
-        # Note: In a real implementation, you would log this action
-        # For example: self._logger.info(f"Registered component: {component_name}")
+        self._logger.info("Komponens regisztrálva", component_name=component_name)
 
+    @trace
     def get_memory_usage(self) -> dict[str, int | dict[str, int]]:
         """Get memory usage statistics."""
         stats: dict[str, int | dict[str, int]] = {
@@ -14121,6 +14139,10 @@ class LazyLoader[T]:
         self._value: T | None = None
         self._lock = threading.RLock()
         self._logger = structlog.get_logger(__name__)
+        self._logger.info(
+            "LazyLoader inicializálva",
+            extra={"loader_func": getattr(loader_func, "__name__", str(loader_func))},
+        )
 
     def _load(self) -> T:
         """Betölti az erőforrást, ha még nincs betöltve.
@@ -14220,9 +14242,13 @@ ami ezt a metaclass-t használja, csak egyetlen példány létezzen az alkalmaz�
 """
 
 from abc import ABCMeta
-from typing import TypeVar, cast
+from typing import TYPE_CHECKING, TypeVar, cast
 
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
+
+if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces import LoggerInterface
 
 T = TypeVar("T")
 
@@ -14252,6 +14278,9 @@ class SingletonMeta(ABCMeta):
     """
 
     _instances: dict[type, object] = {}
+    _logger: "LoggerInterface" = LoggerFactory.get_logger(
+        "neural_ai.core.base.implementations.singleton"
+    )
 
     @trace
     def __call__(cls: type[T], *args: object, **kwargs: object) -> T:
@@ -14295,6 +14324,12 @@ class SingletonMeta(ABCMeta):
             cls._instance = instance
 
             cls._instances[cls] = instance  # type: ignore[attr-defined]
+
+            # Singleton inicializálás logolása
+            cls._logger.info(  # type: ignore[attr-defined]
+                "Singleton példány inicializálva",
+                extra={"class_name": cls.__name__},
+            )
         return cast(T, cls._instances[cls])  # type: ignore[attr-defined]
 
 ```
