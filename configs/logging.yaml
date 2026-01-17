@@ -42,33 +42,32 @@ loggers:
     propagate: false
 
   # --- CORE (INFRASTRUCTURE) ---
-  neural_ai.core.base: { level: INFO }      # DI Container, Singleton
-  neural_ai.core.config: { level: INFO }    # Config Manager
-  neural_ai.core.db: { level: INFO }        # Database Manager
-  neural_ai.core.events: { level: INFO }    # EventBus (ZeroMQ)
-  neural_ai.core.logger: { level: WARNING } # Logger Factory (ne logolja önmagát)
-  neural_ai.core.system: { level: INFO }    # Health Monitor
-  neural_ai.core.utils: { level: INFO }     # Hardware Info
+  neural_ai.core.base: { level: INFO, handlers: [console, file] }      # DI Container, Singleton
+  neural_ai.core.config: { level: INFO, handlers: [console, file] }    # Config Manager
+  neural_ai.core.db: { level: INFO, handlers: [console, file] }        # Database Manager
+  neural_ai.core.events: { level: INFO, handlers: [console, file] }    # EventBus (ZeroMQ)
+  neural_ai.core.logger: { level: WARNING, handlers: [console, file] } # Logger Factory (ne logolja önmagát)
+  neural_ai.core.system: { level: INFO, handlers: [console, file] }    # Health Monitor
+  neural_ai.core.utils: { level: INFO, handlers: [console, file] }     # Hardware Info
 
   # --- DATA (PERSISTENCE) ---
-  neural_ai.data.storage:
-    level: DEBUG            # <--- ITT KERESSÜK A HIBÁT!
-  neural_ai.data.ingestion: { level: INFO } # MarketDataPersister
+  neural_ai.data.storage: { level: DEBUG, handlers: [console, file] }  # Fixed: Added handlers
+  neural_ai.data.ingestion: { level: INFO, handlers: [console, file] } # MarketDataPersister
 
   # --- COLLECTORS (INPUT) ---
-  neural_ai.collectors.jforex: { level: INFO }
-  neural_ai.collectors.mt5: { level: INFO }
+  neural_ai.collectors.jforex: { level: INFO, handlers: [console, file] }
+  neural_ai.collectors.mt5: { level: INFO, handlers: [console, file] }
 
   # --- PROCESSORS (DOMAIN) ---
-  neural_ai.processors.resampler_service: { level: INFO }
-  neural_ai.processors.dimensions.d01_price: { level: INFO }
-  neural_ai.processors.dimensions.d02_support: { level: INFO }
+  neural_ai.processors.resampler_service: { level: INFO, handlers: [console, file] }
+  neural_ai.processors.dimensions.d01_price: { level: INFO, handlers: [console, file] }
+  neural_ai.processors.dimensions.d02_support: { level: INFO, handlers: [console, file] }
   # (Ide jön majd a d03_trend, stb.)
 
   # --- UI (PRESENTATION) ---
-  neural_ai.ui.services: { level: INFO }
-  neural_ai.ui.pages: { level: INFO }
-  neural_ai.ui.components: { level: WARNING }
+  neural_ai.ui.services: { level: INFO, handlers: [console, file] }
+  neural_ai.ui.pages: { level: INFO, handlers: [console, file] }
+  neural_ai.ui.components: { level: WARNING, handlers: [console, file] }
 
   # --- TRACE SYSTEM ---
   neural_ai.trace:

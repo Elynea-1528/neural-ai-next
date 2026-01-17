@@ -139,7 +139,7 @@ class StorageFactory(StorageFactoryInterface):
 
         # Logger hozzáadása a kwargs-hoz
         if logger is None:
-            logger = LoggerFactory.get_logger(name="neural_ai.data.storage")
+            logger = LoggerFactory.get_logger("neural_ai.data.storage")
         kwargs["logger"] = logger
 
         # Config hozzáadása a kwargs-hoz
