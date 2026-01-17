@@ -153,7 +153,8 @@ def bootstrap_core(
 
     # 5. EventBus inicializálása (Config+Logger)
     logger.info("⏳ 6. EventBus indítása...")
-    event_bus = EventBusFactory.create_from_config(config)
+    event_bus_factory = EventBusFactory(logger, config)
+    event_bus = event_bus_factory.create_from_config()
     container.register_instance(EventBusInterface, event_bus)
     logger.debug("-> EventBus regisztrálva")
 

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.events.implementations.zeromq_bus import EventBusConfig
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class EventBusFactory:
@@ -24,8 +25,12 @@ class EventBusFactory:
     más implementációk is hozzáadhatók (pl. Redis, Kafka, stb.).
     """
 
-    @staticmethod
-    def create(config: "EventBusConfig | None" = None) -> "EventBusInterface":
+    def __init__(self, logger: "LoggerInterface", config_manager: "ConfigManagerInterface") -> None:
+        self._logger = logger
+        self._config_manager = config_manager
+        self._logger.debug("EventBusFactory inicializálva", factory_id=id(self))
+
+    def create(self, config: "EventBusConfig | None" = None) -> "EventBusInterface":
         """Létrehozza az EventBus példányt.
 
         Args:
@@ -39,10 +44,9 @@ class EventBusFactory:
         """
         from neural_ai.core.events.implementations.zeromq_bus import EventBus
 
-        return EventBus(config)
+        return EventBus(config, self._logger)
 
-    @staticmethod
-    async def create_and_start(config: "EventBusConfig | None" = None) -> "EventBusInterface":
+    async def create_and_start(self, config: "EventBusConfig | None" = None) -> "EventBusInterface":
         """Létrehozza és elindítja az EventBus példányt.
 
         Args:
@@ -51,16 +55,12 @@ class EventBusFactory:
         Returns:
             EventBusInterface: Az elindított EventBus példány
         """
-        event_bus = EventBusFactory.create(config)
+        event_bus = self.create(config)
         await event_bus.start()
         return event_bus
 
-    @staticmethod
-    def create_from_config(config_manager: "ConfigManagerInterface") -> "EventBusInterface":
+    def create_from_config(self) -> "EventBusInterface":
         """Létrehozza az EventBus példányt konfigurációkezelő alapján.
-
-        Args:
-            config_manager: Konfigurációkezelő, amelyből az EventBus beállításokat olvassuk
 
         Returns:
             EventBusInterface: Az EventBus példány
@@ -71,10 +71,13 @@ class EventBusFactory:
         """
         from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
 
+        self._logger.debug("EventBus létrehozása konfigurációból")
         # Biztonságos lekérdezés (ha nincs szekció, üres dict)
         try:
-            data = config_manager.get_section("events")
-        except (KeyError, ValueError):
+            data = self._config_manager.get_section("events")
+            self._logger.debug("Konfigurációs adatok lekérdezve", data=data)
+        except (KeyError, ValueError) as e:
+            self._logger.warning("Konfigurációs szekció hiányzik, alapértelmezett értékek használata", error=str(e))
             data = {}
 
         bus_config = EventBusConfig(
@@ -82,4 +85,5 @@ class EventBusFactory:
             sub_port=data.get("sub_port", 5556),
             use_inproc=data.get("use_inproc", False),
         )
-        return EventBusFactory.create(bus_config)
+        self._logger.debug("EventBus konfiguráció létrehozva", config=bus_config)
+        return self.create(bus_config)

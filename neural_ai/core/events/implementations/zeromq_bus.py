@@ -24,6 +24,7 @@ from neural_ai.core.utils.decorators import trace
 if TYPE_CHECKING:
     from typing import Any
 
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from pydantic import BaseModel
 
 
@@ -55,7 +56,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         """Visszaadja az EventBus konfigurációját."""
         return self._config
 
-    def __init__(self, config: EventBusConfig | None = None) -> None:
+    def __init__(self, config: EventBusConfig | None = None, logger: "LoggerInterface | None" = None) -> None:
         """Inicializálja az EventBus-t.
 
         Args:
@@ -83,7 +84,10 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         self._publisher: zmq.asyncio.Socket | None = None
         self._subscribers: dict[str, list[EventCallback]] = {}
         self._running = False
-        self._logger = structlog.get_logger(self.__class__.__name__)
+        if logger is not None:
+            self._logger = logger
+        else:
+            self._logger = structlog.get_logger(self.__class__.__name__)
 
     @trace
     async def start(self) -> None:
