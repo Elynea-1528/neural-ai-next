@@ -209,58 +209,65 @@ class StrategyLabPage(PageInterface):
 
     def _render_backtest_results(self) -> None:
         """Backtest eredmények megjelenítése."""
-        result = st.session_state.backtest_result
+        try:
+            result = st.session_state.backtest_result
 
-        if "error" in result and result["error"]:
-            st.error(f"Backtest hiba: {result['error']}")
-            return
+            if "error" in result and result["error"]:
+                st.error(f"Backtest hiba: {result['error']}")
+                return
 
-        st.divider()
-        st.subheader("📊 Backteszt Eredmények")
+            st.divider()
+            st.subheader("📊 Backteszt Eredmények")
 
-        stats = result.get("stats", {})
-        equity = result.get("equity", [])
-        trades = result.get("trades", {})
+            stats = result.get("stats", {})
+            equity = result.get("equity", [])
+            trades = result.get("trades", {})
 
-        # 1. Metrikák megjelenítése
-        if stats:
-            col1, col2, col3, col4 = st.columns(4)
+            # 1. Metrikák megjelenítése
+            if stats:
+                col1, col2, col3, col4 = st.columns(4)
 
-            # VectorBT statisztikák normálása
-            total_return = stats.get("Total Return [%]", 0.0)
-            win_rate = stats.get("Win Rate [%]", 0.0)
-            max_drawdown = stats.get("Max Drawdown [%]", 0.0)
-            total_trades = stats.get("Total Trades", 0)
+                # VectorBT statisztikák normálása
+                total_return = stats.get("Total Return [%]", 0.0)
+                win_rate = stats.get("Win Rate [%]", 0.0)
+                max_drawdown = stats.get("Max Drawdown [%]", 0.0)
+                total_trades = stats.get("Total Trades", 0)
 
-            with col1:
-                st.metric(
-                    label="Total Return",
-                    value=f"{total_return:.2f}%",
-                    delta_color="normal" if total_return >= 0 else "inverse",
-                )
-            with col2:
-                st.metric(label="Win Rate", value=f"{win_rate:.2f}%")
-            with col3:
-                st.metric(label="Max Drawdown", value=f"{max_drawdown:.2f}%")
-            with col4:
-                st.metric(label="Összes Kereskedés", value=total_trades)
+                with col1:
+                    st.metric(
+                        label="Total Return",
+                        value=f"{total_return:.2f}%",
+                        delta_color="normal" if total_return >= 0 else "inverse",
+                    )
+                with col2:
+                    st.metric(label="Win Rate", value=f"{win_rate:.2f}%")
+                with col3:
+                    st.metric(label="Max Drawdown", value=f"{max_drawdown:.2f}%")
+                with col4:
+                    st.metric(label="Összes Kereskedés", value=total_trades)
 
-        # 2. Equity Chart megjelenítése
-        if equity:
-            st.subheader("💰 Equity Görbe")
-            equity_df = {"Equity": equity}
-            st.line_chart(equity_df, height=300)
+            # 2. Equity Chart megjelenítése
+            if equity:
+                st.subheader("💰 Equity Görbe")
+                equity_df = {"Equity": equity}
+                st.line_chart(equity_df, height=300)
 
-        # 3. Trade List megjelenítése
-        if trades and trades.get("count", 0) > 0:
-            st.subheader("🔢 Kereskedések Listája")
-            st.write(f"**Összes kereskedés:** {trades.get('count', 0)}")
+            # 3. Trade List megjelenítése
+            if trades and trades.get("count", 0) > 0:
+                st.subheader("🔢 Kereskedések Listája")
+                st.write(f"**Összes kereskedés:** {trades.get('count', 0)}")
 
-            # P&L lista
-            pnl_list = trades.get("pnl", [])
-            if pnl_list:
-                trades_data = {"P&L": pnl_list, "Időtartam (bar)": trades.get("duration", [])}
-                st.dataframe(trades_data, width="stretch")
+                # P&L lista
+                pnl_list = trades.get("pnl", [])
+                if pnl_list:
+                    trades_data = {"P&L": pnl_list, "Időtartam (bar)": trades.get("duration", [])}
+                    st.dataframe(trades_data, width="stretch")
+        except Exception as e:
+            st.error(f"Hiba a backtest eredmények megjelenítésekor: {str(e)}")
+            # Logolás strukturált módon
+            logger = self._bridge.get_component("logger")
+            if logger:
+                logger.error("Backtest eredmény renderelés hiba", extra={"error": str(e), "page": "StrategyLab"})
 
     def _prepare_data_for_view(self, df: "pl.DataFrame", price_type: str) -> "pl.DataFrame":
         """Adatok előkészítése megjelenítéshez - oszlopok átnevezése price_type alapján.
@@ -289,311 +296,325 @@ class StrategyLabPage(PageInterface):
 
     def _render_candlestick_chart(self, signals: dict[str, list[int]] | None = None) -> None:
         """Interaktív Plotly candlestick chart megjelenítése jelekkel."""
-        import plotly.graph_objects as go
+        try:
+            import plotly.graph_objects as go
 
-        if self._candles is None or self._candles.is_empty():
-            return
+            if self._candles is None or self._candles.is_empty():
+                return
 
-        # Polars DataFrame konvertálása Pandas-ra megjelenítéshez
-        df_pd = self._candles.to_pandas()
-        # Adatok előkészítése oszlop-átnevezéssel
-        price_type = st.session_state.price_type
-        df = self._prepare_data_for_view(df_pd, price_type)
+            # Polars DataFrame konvertálása Pandas-ra megjelenítéshez
+            df_pd = self._candles.to_pandas()
+            # Adatok előkészítése oszlop-átnevezéssel
+            price_type = st.session_state.price_type
+            df = self._prepare_data_for_view(df_pd, price_type)
 
-        # Ellenőrzés, hogy az átnevezés sikeres volt-e
-        required_cols = ["open", "high", "low", "close"]
-        if not all(col in df.columns for col in required_cols):
-            st.error(
-                f"Az adatokban nem található OHLC oszlop a kiválasztott {price_type} típusnál."
+            # Ellenőrzés, hogy az átnevezés sikeres volt-e
+            required_cols = ["open", "high", "low", "close"]
+            if not all(col in df.columns for col in required_cols):
+                st.error(
+                    f"Az adatokban nem található OHLC oszlop a kiválasztott {price_type} típusnál."
+                )
+                return
+
+            # Dátum oszlop kezelése
+            if "timestamp" in df.columns:
+                df["date"] = df["timestamp"]
+            elif "datetime" in df.columns:
+                df["date"] = df["datetime"]
+            elif "date" not in df.columns:
+                df["date"] = df.index if hasattr(df.index, "__iter__") else range(len(df))
+
+            # Plotly candlestick chart létrehozása
+            fig = go.Figure(
+                data=[
+                    go.Candlestick(
+                        x=df["date"],
+                        open=df["open"],
+                        high=df["high"],
+                        low=df["low"],
+                        close=df["close"],
+                        name=f"{price_type} OHLC",
+                        increasing_line_color="#26a69a",
+                        decreasing_line_color="#ef5350",
+                    )
+                ]
             )
-            return
 
-        # Dátum oszlop kezelése
-        if "timestamp" in df.columns:
-            df["date"] = df["timestamp"]
-        elif "datetime" in df.columns:
-            df["date"] = df["datetime"]
-        elif "date" not in df.columns:
-            df["date"] = df.index if hasattr(df.index, "__iter__") else range(len(df))
+            # Belépési és kilépési jelek hozzáadása
+            if signals:
+                entries = signals.get("entries", [])
+                exits = signals.get("exits", [])
 
-        # Plotly candlestick chart létrehozása
-        fig = go.Figure(
-            data=[
-                go.Candlestick(
-                    x=df["date"],
-                    open=df["open"],
-                    high=df["high"],
-                    low=df["low"],
-                    close=df["close"],
-                    name=f"{price_type} OHLC",
-                    increasing_line_color="#26a69a",
-                    decreasing_line_color="#ef5350",
-                )
-            ]
-        )
-
-        # Belépési és kilépési jelek hozzáadása
-        if signals:
-            entries = signals.get("entries", [])
-            exits = signals.get("exits", [])
-
-            # Belépési jelek (zöld nyilak)
-            if entries:
-                entry_dates = [df["date"].iloc[i] for i in entries if i < len(df)]
-                entry_prices = [df["close"].iloc[i] for i in entries if i < len(df)]
-                fig.add_trace(
-                    go.Scatter(
-                        x=entry_dates,
-                        y=entry_prices,
-                        mode="markers",
-                        name="Belépés",
-                        marker={
-                            "symbol": "triangle-up",
-                            "size": 12,
-                            "color": "#00FF00",
-                            "line": {"width": 1, "color": "#00FF00"},
-                        },
-                    )
-                )
-
-            # Kilépési jelek (piros nyilak)
-            if exits:
-                exit_dates = [df["date"].iloc[i] for i in exits if i < len(df)]
-                exit_prices = [df["close"].iloc[i] for i in exits if i < len(df)]
-                fig.add_trace(
-                    go.Scatter(
-                        x=exit_dates,
-                        y=exit_prices,
-                        mode="markers",
-                        name="Kilépés",
-                        marker={
-                            "symbol": "triangle-down",
-                            "size": 12,
-                            "color": "#FF0000",
-                            "line": {"width": 1, "color": "#FF0000"},
-                        },
-                    )
-                )
-
-        # D2 swing pontok hozzáadása, ha aktívak a checkboxok és van elemzés
-        df_plot = df.reset_index(drop=True)  # Mindig létrehozzuk df_plot-ot
-
-        if (
-            st.session_state.show_body_swings or st.session_state.show_wick_swings
-        ) and st.session_state.d2_analysis is not None:
-            # Adat-összefésülés: D2 adatok konvertálása és összefésülése
-            if st.session_state.d2_analysis is not None:
-                d2_pd = st.session_state.d2_analysis.to_pandas()
-                # Biztosítsd, hogy a dátum oszlop neve egyezzen
-                # Merge left join-nal (hogy a chart adatok megmaradjanak)
-                swing_cols = ['timestamp', 'swing_high_body', 'swing_low_body',
-                              'swing_high_wick', 'swing_low_wick']
-                df_plot = pd.merge(df_plot, d2_pd[swing_cols],
-                                   left_on='date', right_on='timestamp', how='left')
-
-            # Body swings kirajzolása egyszerű szűréssel
-            if st.session_state.show_body_swings:
-                # Swing High (Body) - Resistance (piros triangle-down)
-                if "swing_high_body" in df_plot.columns:
-                    swings = df_plot.dropna(subset=["swing_high_body"])
-                    if not swings.empty:
-                        fig.add_trace(
-                            go.Scatter(
-                                x=swings["date"],
-                                y=swings["swing_high_body"] * 1.0005,
-                                mode="markers",
-                                name="Swing High (Body)",
-                                marker={
-                                    "symbol": "triangle-down",
-                                    "size": 12,
-                                    "color": "red",
-                                },
-                            )
+                # Belépési jelek (zöld nyilak)
+                if entries:
+                    entry_dates = [df["date"].iloc[i] for i in entries if i < len(df)]
+                    entry_prices = [df["close"].iloc[i] for i in entries if i < len(df)]
+                    fig.add_trace(
+                        go.Scatter(
+                            x=entry_dates,
+                            y=entry_prices,
+                            mode="markers",
+                            name="Belépés",
+                            marker={
+                                "symbol": "triangle-up",
+                                "size": 12,
+                                "color": "#00FF00",
+                                "line": {"width": 1, "color": "#00FF00"},
+                            },
                         )
-
-                # Swing Low (Body) - Support (zöld triangle-up)
-                if "swing_low_body" in df_plot.columns:
-                    swings = df_plot.dropna(subset=["swing_low_body"])
-                    if not swings.empty:
-                        fig.add_trace(
-                            go.Scatter(
-                                x=swings["date"],
-                                y=swings["swing_low_body"] * 0.9995,
-                                mode="markers",
-                                name="Swing Low (Body)",
-                                marker={
-                                    "symbol": "triangle-up",
-                                    "size": 12,
-                                    "color": "green",
-                                },
-                            )
-                        )
-
-            # Wick swings kirajzolása egyszerű szűréssel
-            if st.session_state.show_wick_swings:
-                # Swing High (Wick) - Resistance (piros x-thin)
-                if "swing_high_wick" in df_plot.columns:
-                    swings = df_plot.dropna(subset=["swing_high_wick"])
-                    if not swings.empty:
-                        fig.add_trace(
-                            go.Scatter(
-                                x=swings["date"],
-                                y=swings["swing_high_wick"] * 1.0005,
-                                mode="markers",
-                                name="Swing High (Wick)",
-                                marker={
-                                    "symbol": "x-thin",
-                                    "size": 10,
-                                    "color": "#FF0000",
-                                    "line": {"width": 2, "color": "#FF0000"},
-                                },
-                            )
-                        )
-
-                # Swing Low (Wick) - Support (zöld x-thin)
-                if "swing_low_wick" in df_plot.columns:
-                    swings = df_plot.dropna(subset=["swing_low_wick"])
-                    if not swings.empty:
-                        fig.add_trace(
-                            go.Scatter(
-                                x=swings["date"],
-                                y=swings["swing_low_wick"] * 0.9995,
-                                mode="markers",
-                                name="Swing Low (Wick)",
-                                marker={
-                                    "symbol": "x-thin",
-                                    "size": 10,
-                                    "color": "#00FF00",
-                                    "line": {"width": 2, "color": "#00FF00"},
-                                },
-                            )
-                        )
-
-        # Nearest resistance és support szintek megjelenítése horizontális vonalaként
-        if "nearest_resistance" in df_plot.columns and "resistance_strength" in df_plot.columns:
-            # Unique resistance szintek gyűjtése strength-szel
-            resistance_levels = df_plot.dropna(subset=["nearest_resistance", "resistance_strength"])
-            if not resistance_levels.empty:
-                unique_resistances = (
-                    resistance_levels.groupby("nearest_resistance")["resistance_strength"]
-                    .mean()
-                    .reset_index()
-                )
-                for _, row in unique_resistances.iterrows():
-                    level = row["nearest_resistance"]
-                    strength = row["resistance_strength"]
-                    opacity = strength * 0.8 + 0.2
-                    fig.add_hline(
-                        y=level,
-                        line_dash="dash",
-                        line_color=f"rgba(255, 0, 0, {opacity})",
-                        annotation_text=f"R: {level:.5f} (S:{strength:.2f})",
-                        annotation_position="top right",
                     )
 
-        if "nearest_support" in df_plot.columns and "support_strength" in df_plot.columns:
-            # Unique support szintek gyűjtése strength-szel
-            support_levels = df_plot.dropna(subset=["nearest_support", "support_strength"])
-            if not support_levels.empty:
-                unique_supports = (
-                    support_levels.groupby("nearest_support")["support_strength"]
-                    .mean()
-                    .reset_index()
-                )
-                for _, row in unique_supports.iterrows():
-                    level = row["nearest_support"]
-                    strength = row["support_strength"]
-                    opacity = strength * 0.8 + 0.2
-                    fig.add_hline(
-                        y=level,
-                        line_dash="dash",
-                        line_color=f"rgba(0, 255, 0, {opacity})",
-                        annotation_text=f"S: {level:.5f} (S:{strength:.2f})",
-                        annotation_position="bottom right",
+                # Kilépési jelek (piros nyilak)
+                if exits:
+                    exit_dates = [df["date"].iloc[i] for i in exits if i < len(df)]
+                    exit_prices = [df["close"].iloc[i] for i in exits if i < len(df)]
+                    fig.add_trace(
+                        go.Scatter(
+                            x=exit_dates,
+                            y=exit_prices,
+                            mode="markers",
+                            name="Kilépés",
+                            marker={
+                                "symbol": "triangle-down",
+                                "size": 12,
+                                "color": "#FF0000",
+                                "line": {"width": 1, "color": "#FF0000"},
+                            },
+                        )
                     )
 
-        # Chart formázása
-        fig.update_layout(
-            title="Candlestick Chart",
-            xaxis_title="Idő",
-            yaxis_title="Ár",
-            template="plotly_dark",
-            height=500,
-            xaxis_rangeslider_visible=False,
-            dragmode="zoom",
-        )
+            # D2 swing pontok hozzáadása, ha aktívak a checkboxok és van elemzés
+            df_plot = df.reset_index(drop=True)  # Mindig létrehozzuk df_plot-ot
 
-        st.plotly_chart(fig, width="stretch", config={"scrollZoom": True})
+            if (
+                st.session_state.show_body_swings or st.session_state.show_wick_swings
+            ) and st.session_state.d2_analysis is not None:
+                # Adat-összefésülés: D2 adatok konvertálása és összefésülése
+                if st.session_state.d2_analysis is not None:
+                    d2_pd = st.session_state.d2_analysis.to_pandas()
+                    # Biztosítsd, hogy a dátum oszlop neve egyezzen
+                    # Merge left join-nal (hogy a chart adatok megmaradjanak)
+                    swing_cols = ['timestamp', 'swing_high_body', 'swing_low_body',
+                                  'swing_high_wick', 'swing_low_wick']
+                    df_plot = pd.merge(df_plot, d2_pd[swing_cols],
+                                       left_on='date', right_on='timestamp', how='left')
 
-        # DEBUG Expander - D2 adatok megjelenítése
-        with st.expander("🔍 D2 Adat Debugger", expanded=True):
-            if st.session_state.d2_analysis is not None:
-                # Konvertálás Pandas-ra debug célból
-                debug_d2_df = (
-                    st.session_state.d2_analysis.to_pandas()
-                    if hasattr(st.session_state.d2_analysis, "to_pandas")
-                    else st.session_state.d2_analysis
-                )
-                # Swing pontokat tartalmazó sorok kiválasztása (legalább 1 swing érték)
-                debug_df = debug_d2_df[
-                    ["swing_high_body", "swing_low_body", "swing_high_wick", "swing_low_wick"]
-                ].dropna(thresh=1)
-                st.write(f"Talált Swing Pontok száma: {len(debug_df)}")
-                st.dataframe(debug_df.head(20), use_container_width=True)
-            else:
-                st.warning("Nincs D2 elemzési adat.")
+                # Body swings kirajzolása egyszerű szűréssel
+                if st.session_state.show_body_swings:
+                    # Swing High (Body) - Resistance (piros triangle-down)
+                    if "swing_high_body" in df_plot.columns:
+                        swings = df_plot.dropna(subset=["swing_high_body"])
+                        if not swings.empty:
+                            fig.add_trace(
+                                go.Scatter(
+                                    x=swings["date"],
+                                    y=swings["swing_high_body"] * 1.0005,
+                                    mode="markers",
+                                    name="Swing High (Body)",
+                                    marker={
+                                        "symbol": "triangle-down",
+                                        "size": 12,
+                                        "color": "red",
+                                    },
+                                )
+                            )
+
+                    # Swing Low (Body) - Support (zöld triangle-up)
+                    if "swing_low_body" in df_plot.columns:
+                        swings = df_plot.dropna(subset=["swing_low_body"])
+                        if not swings.empty:
+                            fig.add_trace(
+                                go.Scatter(
+                                    x=swings["date"],
+                                    y=swings["swing_low_body"] * 0.9995,
+                                    mode="markers",
+                                    name="Swing Low (Body)",
+                                    marker={
+                                        "symbol": "triangle-up",
+                                        "size": 12,
+                                        "color": "green",
+                                    },
+                                )
+                            )
+
+                # Wick swings kirajzolása egyszerű szűréssel
+                if st.session_state.show_wick_swings:
+                    # Swing High (Wick) - Resistance (piros x-thin)
+                    if "swing_high_wick" in df_plot.columns:
+                        swings = df_plot.dropna(subset=["swing_high_wick"])
+                        if not swings.empty:
+                            fig.add_trace(
+                                go.Scatter(
+                                    x=swings["date"],
+                                    y=swings["swing_high_wick"] * 1.0005,
+                                    mode="markers",
+                                    name="Swing High (Wick)",
+                                    marker={
+                                        "symbol": "x-thin",
+                                        "size": 10,
+                                        "color": "#FF0000",
+                                        "line": {"width": 2, "color": "#FF0000"},
+                                    },
+                                )
+                            )
+
+                    # Swing Low (Wick) - Support (zöld x-thin)
+                    if "swing_low_wick" in df_plot.columns:
+                        swings = df_plot.dropna(subset=["swing_low_wick"])
+                        if not swings.empty:
+                            fig.add_trace(
+                                go.Scatter(
+                                    x=swings["date"],
+                                    y=swings["swing_low_wick"] * 0.9995,
+                                    mode="markers",
+                                    name="Swing Low (Wick)",
+                                    marker={
+                                        "symbol": "x-thin",
+                                        "size": 10,
+                                        "color": "#00FF00",
+                                        "line": {"width": 2, "color": "#00FF00"},
+                                    },
+                                )
+                            )
+
+            # Nearest resistance és support szintek megjelenítése horizontális vonalaként
+            if "nearest_resistance" in df_plot.columns and "resistance_strength" in df_plot.columns:
+                # Unique resistance szintek gyűjtése strength-szel
+                resistance_levels = df_plot.dropna(subset=["nearest_resistance", "resistance_strength"])
+                if not resistance_levels.empty:
+                    unique_resistances = (
+                        resistance_levels.groupby("nearest_resistance")["resistance_strength"]
+                        .mean()
+                        .reset_index()
+                    )
+                    for _, row in unique_resistances.iterrows():
+                        level = row["nearest_resistance"]
+                        strength = row["resistance_strength"]
+                        opacity = strength * 0.8 + 0.2
+                        fig.add_hline(
+                            y=level,
+                            line_dash="dash",
+                            line_color=f"rgba(255, 0, 0, {opacity})",
+                            annotation_text=f"R: {level:.5f} (S:{strength:.2f})",
+                            annotation_position="top right",
+                        )
+
+            if "nearest_support" in df_plot.columns and "support_strength" in df_plot.columns:
+                # Unique support szintek gyűjtése strength-szel
+                support_levels = df_plot.dropna(subset=["nearest_support", "support_strength"])
+                if not support_levels.empty:
+                    unique_supports = (
+                        support_levels.groupby("nearest_support")["support_strength"]
+                        .mean()
+                        .reset_index()
+                    )
+                    for _, row in unique_supports.iterrows():
+                        level = row["nearest_support"]
+                        strength = row["support_strength"]
+                        opacity = strength * 0.8 + 0.2
+                        fig.add_hline(
+                            y=level,
+                            line_dash="dash",
+                            line_color=f"rgba(0, 255, 0, {opacity})",
+                            annotation_text=f"S: {level:.5f} (S:{strength:.2f})",
+                            annotation_position="bottom right",
+                        )
+
+            # Chart formázása
+            fig.update_layout(
+                title="Candlestick Chart",
+                xaxis_title="Idő",
+                yaxis_title="Ár",
+                template="plotly_dark",
+                height=500,
+                xaxis_rangeslider_visible=False,
+                dragmode="zoom",
+            )
+
+            st.plotly_chart(fig, width="stretch", config={"scrollZoom": True})
+
+            # DEBUG Expander - D2 adatok megjelenítése
+            with st.expander("🔍 D2 Adat Debugger", expanded=True):
+                if st.session_state.d2_analysis is not None:
+                    # Konvertálás Pandas-ra debug célból
+                    debug_d2_df = (
+                        st.session_state.d2_analysis.to_pandas()
+                        if hasattr(st.session_state.d2_analysis, "to_pandas")
+                        else st.session_state.d2_analysis
+                    )
+                    # Swing pontokat tartalmazó sorok kiválasztása (legalább 1 swing érték)
+                    debug_df = debug_d2_df[
+                        ["swing_high_body", "swing_low_body", "swing_high_wick", "swing_low_wick"]
+                    ].dropna(thresh=1)
+                    st.write(f"Talált Swing Pontok száma: {len(debug_df)}")
+                    st.dataframe(debug_df.head(20), use_container_width=True)
+                else:
+                    st.warning("Nincs D2 elemzési adat.")
+        except Exception as e:
+            st.error(f"Hiba a chart megjelenítésekor: {str(e)}")
+            # Logolás strukturált módon
+            logger = self._bridge.get_component("logger")
+            if logger:
+                logger.error("Chart renderelés hiba", extra={"error": str(e), "page": "StrategyLab"})
 
     def _render_data_table(self) -> None:
         """Az első 10 sor megjelenítése táblázatban Spread és Z-Score oszlopokkal."""
-        if self._candles is not None and not self._candles.is_empty():
-            # Polars DataFrame konvertálása Pandas-ra megjelenítéshez
-            df = self._candles.to_pandas()
-            # Oszlopnevek normalizálása
-            df.columns = [col.lower() for col in df.columns]
+        try:
+            if self._candles is not None and not self._candles.is_empty():
+                # Polars DataFrame konvertálása Pandas-ra megjelenítéshez
+                df = self._candles.to_pandas()
+                # Oszlopnevek normalizálása
+                df.columns = [col.lower() for col in df.columns]
 
-            # Price type alapján OHLC oszlopok kiválasztása megjelenítéshez
-            price_type = st.session_state.price_type
-            if price_type == "Mid":
-                ohlc_cols = ["mid_open", "mid_high", "mid_low", "mid_close"]
-            else:
-                ohlc_cols = ["bid_open", "bid_high", "bid_low", "bid_close"]
-                if not all(col in df.columns for col in ohlc_cols):
-                    ohlc_cols = ["open", "high", "low", "close"]
+                # Price type alapján OHLC oszlopok kiválasztása megjelenítéshez
+                price_type = st.session_state.price_type
+                if price_type == "Mid":
+                    ohlc_cols = ["mid_open", "mid_high", "mid_low", "mid_close"]
+                else:
+                    ohlc_cols = ["bid_open", "bid_high", "bid_low", "bid_close"]
+                    if not all(col in df.columns for col in ohlc_cols):
+                        ohlc_cols = ["open", "high", "low", "close"]
 
-            # Megjelenítendő oszlopok: OHLC, spread, z-score, volume, nearest levels, strengths
-            display_cols = []
-            display_cols.extend(ohlc_cols)
+                # Megjelenítendő oszlopok: OHLC, spread, z-score, volume, nearest levels, strengths
+                display_cols = []
+                display_cols.extend(ohlc_cols)
 
-            # Spread oszlop hozzáadása, ha létezik
-            if "spread" in df.columns:
-                display_cols.append("spread")
+                # Spread oszlop hozzáadása, ha létezik
+                if "spread" in df.columns:
+                    display_cols.append("spread")
 
-            # Z-Score oszlop hozzáadása (rolling_z_score)
-            if "rolling_z_score" in df.columns:
-                display_cols.append("rolling_z_score")
+                # Z-Score oszlop hozzáadása (rolling_z_score)
+                if "rolling_z_score" in df.columns:
+                    display_cols.append("rolling_z_score")
 
-            # Volume oszlop hozzáadása
-            volume_cols = ["real_volume", "tick_volume"]
-            for col in volume_cols:
-                if col in df.columns:
-                    display_cols.append(col)
+                # Volume oszlop hozzáadása
+                volume_cols = ["real_volume", "tick_volume"]
+                for col in volume_cols:
+                    if col in df.columns:
+                        display_cols.append(col)
 
-            # D2 oszlopok hozzáadása, ha elérhetők
-            d2_cols = [
-                "nearest_resistance",
-                "nearest_support",
-                "resistance_strength",
-                "support_strength",
-            ]
-            for col in d2_cols:
-                if col in df.columns:
-                    display_cols.append(col)
+                # D2 oszlopok hozzáadása, ha elérhetők
+                d2_cols = [
+                    "nearest_resistance",
+                    "nearest_support",
+                    "resistance_strength",
+                    "support_strength",
+                ]
+                for col in d2_cols:
+                    if col in df.columns:
+                        display_cols.append(col)
 
-            # Csak a meglévő oszlopokat tartjuk meg
-            available_cols = [col for col in display_cols if col in df.columns]
+                # Csak a meglévő oszlopokat tartjuk meg
+                available_cols = [col for col in display_cols if col in df.columns]
 
-            # Az első 10 sor megjelenítése
-            st.dataframe(df[available_cols].head(10), width="stretch")
+                # Az első 10 sor megjelenítése
+                st.dataframe(df[available_cols].head(10), width="stretch")
+        except Exception as e:
+            st.error(f"Hiba az adatok táblázatának megjelenítésekor: {str(e)}")
+            # Logolás strukturált módon
+            logger = self._bridge.get_component("logger")
+            if logger:
+                logger.error("Data table renderelés hiba", extra={"error": str(e), "page": "StrategyLab"})
 
     def _get_symbols(self) -> list[str]:
         """Szimbólumok lekérése a konfigurációból.
