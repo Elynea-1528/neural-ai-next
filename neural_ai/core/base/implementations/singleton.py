@@ -6,9 +6,13 @@ ami ezt a metaclass-t használja, csak egyetlen példány létezzen az alkalmaz�
 """
 
 from abc import ABCMeta
-from typing import TypeVar, cast
+from typing import TYPE_CHECKING, TypeVar, cast
 
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
+
+if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces import LoggerInterface
 
 T = TypeVar("T")
 
@@ -38,6 +42,9 @@ class SingletonMeta(ABCMeta):
     """
 
     _instances: dict[type, object] = {}
+    _logger: "LoggerInterface" = LoggerFactory.get_logger(
+        "neural_ai.core.base.implementations.singleton"
+    )
 
     @trace
     def __call__(cls: type[T], *args: object, **kwargs: object) -> T:
@@ -81,4 +88,10 @@ class SingletonMeta(ABCMeta):
             cls._instance = instance
 
             cls._instances[cls] = instance  # type: ignore[attr-defined]
+
+            # Singleton inicializálás logolása
+            cls._logger.info(  # type: ignore[attr-defined]
+                "Singleton példány inicializálva",
+                extra={"class_name": cls.__name__},
+            )
         return cast(T, cls._instances[cls])  # type: ignore[attr-defined]
