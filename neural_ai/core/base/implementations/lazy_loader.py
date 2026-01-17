@@ -41,6 +41,10 @@ class LazyLoader[T]:
         self._value: T | None = None
         self._lock = threading.RLock()
         self._logger = structlog.get_logger(__name__)
+        self._logger.info(
+            "LazyLoader inicializálva",
+            extra={"loader_func": getattr(loader_func, "__name__", str(loader_func))},
+        )
 
     def _load(self) -> T:
         """Betölti az erőforrást, ha még nincs betöltve.
