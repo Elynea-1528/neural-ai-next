@@ -56,20 +56,14 @@ def validate_tick_pipeline() -> bool:
 def _create_mock_config() -> dict[str, Any]:
     """Mock konfigurációs objektum létrehozása."""
     return {
-        "processors": {
-            "d01_price": {
-                "enabled": True,
-                "timeframe": "tick"
-            }
-        },
-        "resampler": {
-            "engine": "polars"
-        }
+        "processors": {"d01_price": {"enabled": True, "timeframe": "tick"}},
+        "resampler": {"engine": "polars"},
     }
 
 
 def _create_mock_logger() -> Any:
     """Mock logger objektum létrehozása."""
+
     class MockLogger:
         def info(self, message: str, **kwargs: Any) -> None:
             print(f"📝 {message}")
@@ -85,6 +79,7 @@ def _create_mock_logger() -> Any:
 
 def _create_mock_storage() -> Any:
     """Mock storage objektum létrehozása."""
+
     class MockStorage:
         def __init__(self, data: Any):
             self.data = data
@@ -108,16 +103,20 @@ def _generate_test_tick_data() -> "pl.DataFrame":
     bid_volumes = [10 + i % 5 for i in range(100)]
     ask_volumes = [12 + i % 3 for i in range(100)]
 
-    return pl.DataFrame({
-        "timestamp": timestamps,
-        "bid": bids,
-        "ask": asks,
-        "bid_volume": bid_volumes,
-        "ask_volume": ask_volumes
-    })
+    return pl.DataFrame(
+        {
+            "timestamp": timestamps,
+            "bid": bids,
+            "ask": asks,
+            "bid_volume": bid_volumes,
+            "ask_volume": ask_volumes,
+        }
+    )
 
 
-def _validate_resample(tick_data: "pl.DataFrame", config: dict[str, Any], logger: Any) -> Optional["pl.DataFrame"]:
+def _validate_resample(
+    tick_data: "pl.DataFrame", config: dict[str, Any], logger: Any
+) -> Optional["pl.DataFrame"]:
     """Resample komponens validációja.
 
     Args:
@@ -129,12 +128,9 @@ def _validate_resample(tick_data: "pl.DataFrame", config: dict[str, Any], logger
         Resample eredmény vagy None ha hiba
     """
     try:
-        from neural_ai.core.processing.resampler_service.factory import ResamplerServiceFactory
+        from neural_ai.processors.resampler_service.factory import ResamplerServiceFactory
 
-        resampler = ResamplerServiceFactory.get_resampler_service(
-            config=config,
-            logger=logger
-        )
+        resampler = ResamplerServiceFactory.get_instance()
 
         # Tick timeframe - bypass aggregáció
         result = asyncio.run(resampler.resample(tick_data, "tick"))
@@ -163,7 +159,9 @@ def _validate_resample(tick_data: "pl.DataFrame", config: dict[str, Any], logger
         return None
 
 
-def _validate_d1_processor(resample_data: "pl.DataFrame", config: dict[str, Any], logger: Any) -> bool:
+def _validate_d1_processor(
+    resample_data: "pl.DataFrame", config: dict[str, Any], logger: Any
+) -> bool:
     """D1 Dimension Processor validációja.
 
     Args:
