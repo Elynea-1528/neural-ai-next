@@ -31,7 +31,7 @@ class DynamicConfig(Base):
         is_active: A konfiguráció aktív-e.
     """
 
-    __tablename__ = "dynamic_configs"
+    __tablename__ = "dynamic_configs"  # type: ignore[assignment]
 
     key: Mapped[str] = mapped_column(
         String(255), unique=True, nullable=False, index=True, doc="A konfigurációs kulcs (egyedi)"
@@ -96,7 +96,7 @@ class LogEntry(Base):
         extra_data: További egyéni adatok (JSON formátumban).
     """
 
-    __tablename__ = "log_entries"
+    __tablename__ = "log_entries"  # type: ignore[assignment]
 
     level: Mapped[str] = mapped_column(
         String(20),
