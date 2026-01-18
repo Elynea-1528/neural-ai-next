@@ -20,12 +20,12 @@ class TestUIApplication:
         """Teszteli az alapértelmezett értékekkel történő inicializálást."""
         app = UIApplication()
 
-        assert app._config == {}
-        assert app._logger is None
-        assert app._bridge is None
-        assert app._factory is None
-        assert app._navigation is None
-        assert app._running is False
+        assert app.config == {}
+        assert app.logger is None
+        assert app.bridge is None
+        assert app.factory is None
+        assert app.navigation is None
+        assert app.is_running is False
 
     def test_init_with_parameters(self) -> None:
         """Teszteli a paraméterekkel történő inicializálást."""
@@ -34,12 +34,12 @@ class TestUIApplication:
 
         app = UIApplication(config=config, logger=logger)
 
-        assert app._config == config
-        assert app._logger == logger
-        assert app._bridge is None
-        assert app._factory is None
-        assert app._navigation is None
-        assert app._running is False
+        assert app.config == config
+        assert app.logger == logger
+        assert app.bridge is None
+        assert app.factory is None
+        assert app.navigation is None
+        assert app.is_running is False
 
     def test_initialize_success(self) -> None:
         """Teszteli a sikeres inicializálást."""
@@ -61,9 +61,9 @@ class TestUIApplication:
             result = app.initialize()
 
             assert result is True
-            assert app._bridge == mock_bridge
-            assert app._factory == mock_factory
-            assert app._navigation == mock_navigation
+            assert app.bridge == mock_bridge
+            assert app.factory == mock_factory
+            assert app.navigation == mock_navigation
             mock_bridge.initialize.assert_called_once()
             mock_factory.initialize.assert_called_once_with(mock_bridge)
             logger.info.assert_called()
@@ -87,9 +87,9 @@ class TestUIApplication:
             result = app.initialize()
 
             assert result is True
-            assert app._bridge == mock_bridge
-            assert app._factory == mock_factory
-            assert app._navigation == mock_navigation
+            assert app.bridge == mock_bridge
+            assert app.factory == mock_factory
+            assert app.navigation == mock_navigation
 
     def test_initialize_failure(self) -> None:
         """Teszteli a sikertelen inicializálást."""
@@ -102,22 +102,22 @@ class TestUIApplication:
             result = app.initialize()
 
             assert result is False
-            assert app._bridge is None
-            assert app._factory is None
-            assert app._navigation is None
+            assert app.bridge is None
+            assert app.factory is None
+            assert app.navigation is None
             logger.error.assert_called_once()
 
     def test_run_success(self) -> None:
         """Teszteli a sikeres indítást."""
         app = UIApplication()
-        app._factory = Mock()
-        app._navigation = Mock(spec=NavigationServiceInterface)
-        app._logger = Mock(spec=LoggerInterface)
+        app.factory = Mock()
+        app.navigation = Mock(spec=NavigationServiceInterface)
+        app.logger = Mock(spec=LoggerInterface)
 
         app.run()
 
-        assert app._running is True
-        app._logger.info.assert_called_once()
+        assert app.is_running is True
+        app.logger.info.assert_called_once()
 
     def test_run_not_initialized(self) -> None:
         """Teszteli a hibát, ha az alkalmazás nincs inicializálva."""
@@ -130,18 +130,18 @@ class TestUIApplication:
         """Teszteli a leállítást."""
         logger = Mock(spec=LoggerInterface)
         app = UIApplication(logger=logger)
-        app._running = True
+        app.is_running = True
 
         app.stop()
 
-        assert app._running is False
+        assert app.is_running is False
         logger.info.assert_called_once()
 
     def test_get_navigation_service_success(self) -> None:
         """Teszteli a Navigation Service sikeres lekérdezését."""
         mock_navigation = Mock(spec=NavigationServiceInterface)
         app = UIApplication()
-        app._navigation = mock_navigation
+        app.navigation = mock_navigation
 
         result = app.get_navigation_service()
 
@@ -158,7 +158,7 @@ class TestUIApplication:
         """Teszteli a Factory sikeres lekérdezését."""
         mock_factory = Mock()
         app = UIApplication()
-        app._factory = mock_factory
+        app.factory = mock_factory
 
         result = app.get_factory()
 
@@ -177,10 +177,10 @@ class TestUIApplication:
 
         assert app.is_running is False
 
-        app._running = True
+        app.is_running = True
         assert app.is_running is True
 
-        app._running = False
+        app.is_running = False
         assert app.is_running is False
 
     def test_is_initialized_property(self) -> None:
@@ -189,15 +189,15 @@ class TestUIApplication:
 
         assert app.is_initialized is False
 
-        app._factory = Mock()
-        app._navigation = Mock(spec=NavigationServiceInterface)
+        app.factory = Mock()
+        app.navigation = Mock(spec=NavigationServiceInterface)
         assert app.is_initialized is True
 
-        app._factory = None
+        app.factory = None
         assert app.is_initialized is False
 
-        app._factory = Mock()
-        app._navigation = None
+        app.factory = Mock()
+        app.navigation = None
         assert app.is_initialized is False
 
     def test_type_hints_get_navigation_service(self) -> None:

@@ -124,6 +124,15 @@ class UIApplication:
         """
         return self._running
 
+    @is_running.setter
+    def is_running(self, value: bool) -> None:
+        """Az alkalmazás futási állapotának beállítása.
+
+        Args:
+            value: Az új futási állapot
+        """
+        self._running = value
+
     @property
     def is_initialized(self) -> bool:
         """Az alkalmazás inicializáltságát ellenőrző property.
@@ -141,3 +150,93 @@ class UIApplication:
             Exception | None: A hiba, ha volt, egyébként None
         """
         return self._init_error
+
+    @property
+    def config(self) -> dict[str, Any]:
+        """Konfigurációs beállítások lekérdezése.
+
+        Returns:
+            dict[str, Any]: A konfigurációs szótár
+        """
+        return self._config
+
+    @config.setter
+    def config(self, value: dict[str, Any]) -> None:
+        """Konfigurációs beállítások beállítása.
+
+        Args:
+            value: Az új konfigurációs szótár
+        """
+        self._config = value
+
+    @property
+    def logger(self) -> Optional["LoggerInterface"]:
+        """Logger példány lekérdezése.
+
+        Returns:
+            LoggerInterface | None: A logger példány, vagy None
+        """
+        return self._logger
+
+    @logger.setter
+    def logger(self, value: Optional["LoggerInterface"]) -> None:
+        """Logger példány beállítása.
+
+        Args:
+            value: Az új logger példány
+        """
+        self._logger = value
+
+    @property
+    def bridge(self) -> CoreBridge | None:
+        """Core Bridge példány lekérdezése.
+
+        Returns:
+            CoreBridge | None: A bridge példány, vagy None
+        """
+        return self._bridge
+
+    @bridge.setter
+    def bridge(self, value: CoreBridge | None) -> None:
+        """Core Bridge példány beállítása.
+
+        Args:
+            value: Az új bridge példány
+        """
+        self._bridge = value
+
+    @property
+    def factory(self) -> UIServiceFactory | None:
+        """UI Service Factory példány lekérdezése.
+
+        Returns:
+            UIServiceFactory | None: A factory példány, vagy None
+        """
+        return self._factory
+
+    @factory.setter
+    def factory(self, value: UIServiceFactory | None) -> None:
+        """UI Service Factory példány beállítása.
+
+        Args:
+            value: Az új factory példány
+        """
+        self._factory = value
+
+    @property
+    def navigation(self) -> Optional["NavigationServiceInterface"]:
+        """Navigation Service példány lekérdezése.
+
+        Returns:
+            NavigationServiceInterface | None: A navigation példány, vagy None
+        """
+        return self._navigation
+
+    @navigation.setter
+    def navigation(self, value: Optional["NavigationServiceInterface"]) -> None:
+        """Navigation Service példány beállítása.
+
+        Args:
+            value: Az új navigation példány
+        """
+        self._navigation = value
