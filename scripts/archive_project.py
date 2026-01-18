@@ -22,8 +22,12 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
+from neural_ai.core.logger.factory import LoggerFactory
 
-def create_zip_archive(output_path: str, files_to_archive: list) -> None:
+logger = LoggerFactory.get_logger(__name__)
+
+
+def create_zip_archive(output_path: str, files_to_archive: list[str]) -> None:
     """ZIP archívum létrehozása."""
     # Kizárandó mappák és fájlok
     exclude_dirs = {"__pycache__", ".git", "logs", "data"}
@@ -45,16 +49,16 @@ def create_zip_archive(output_path: str, files_to_archive: list) -> None:
                             file_to_add = os.path.join(root, file)
                             # Kizárandó fájlok szűrése
                             if file in exclude_files or file.endswith(".pyc"):
-                                print(f"⚠ Kihagyva: {file_to_add}")
+                                logger.warning("Kihagyott fájl", extra={"file": file_to_add})
                                 continue
                             arcname = os.path.relpath(file_to_add, start=".")
                             zipf.write(file_to_add, arcname)
-                            print(f"✓ Hozzáadva: {arcname}")
+                            logger.info("Fájl hozzáadva az archívumba", extra={"file": arcname})
                 else:
                     # Fájl esetén közvetlen hozzáadás
                     file_name = os.path.basename(file_path)
                     if file_name in exclude_files or file_name.endswith(".pyc"):
-                        print(f"⚠ Kihagyva: {file_path}")
+                        logger.warning("Kihagyott fájl", extra={"file": file_path})
                         continue
                     arcname = (
                         os.path.basename(file_path) if file_path.startswith(".") else file_path
@@ -62,12 +66,12 @@ def create_zip_archive(output_path: str, files_to_archive: list) -> None:
                     if file_path.startswith("."):
                         arcname = file_path.replace("./", "", 1)
                     zipf.write(file_path, arcname)
-                    print(f"✓ Hozzáadva: {file_path}")
+                    logger.info("Fájl hozzáadva az archívumba", extra={"file": file_path})
             else:
-                print(f"⚠ Figyelmeztetés: {file_path} nem található, kihagyva")
+                logger.warning("Fájl nem található, kihagyva", extra={"file": file_path})
 
 
-def create_rar_archive(output_path: str, files_to_archive: list) -> None:
+def create_rar_archive(output_path: str, files_to_archive: list[str]) -> None:
     """RAR archívum létrehozása (ha a rar parancs elérhető)."""
     # Ellenőrizzük, hogy a rar parancs elérhető-e
     if not shutil.which("rar"):
