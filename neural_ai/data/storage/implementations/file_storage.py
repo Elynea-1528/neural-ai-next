@@ -1,23 +1,15 @@
 """FileStorage implementáció.
 
 A modulban található:
-    - FileStorage: Fájlrendszer alapú tárolási implementáció
+    - FileStorage: Fájlrendszer alapú tárolási implementáció Parquet formátummal.
 """
 
-import json
 import os
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypedDict, cast
 
-import pandas as pd
-
-# from neural_ai.core.base.exceptions import (
-#     InsufficientDiskSpaceError,
-#     PermissionDeniedError,
-#     StorageWriteError,
-# )
 from neural_ai.data.storage.exceptions import (
     StorageFormatError,
     StorageIOError,
@@ -27,13 +19,18 @@ from neural_ai.data.storage.exceptions import (
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
+    import pandas as pd
+
     from neural_ai.core.config.interfaces.config_interface import ConfigInterface
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+    from neural_ai.data.storage.backends.base import StorageBackend
 
 
 class StorageConfig(TypedDict, total=False):
     """Tárolási konfiguráció."""
+
     base_path: str | Path
     compression: str
     engine: str
@@ -48,71 +45,76 @@ class FileStorage(StorageInterface):
         config: "ConfigInterface | None" = None,
         event_bus: "EventBusInterface | None" = None,
         base_path: str | Path | None = None,
+        hardware: "HardwareInterface | None" = None,
         **kwargs: Any,
     ) -> None:
-        """Inicializálja a FileStorage példányt.
+        """Inicializálja a FileStorage példányt backend selectorral.
+
+        Hardver detekció alapján kiválasztja a megfelelő tárolási backend-et.
+        Ha AVX2 elérhető, PolarsBackend-et használ, különben PandasBackend-et.
 
         Args:
-            logger: Logger példány
+            logger: Logger interfész
             config: Konfiguráció interfész
             event_bus: Eseménybusz interfész
             base_path: Alap könyvtár útvonala
-            **kwargs: További paraméterek (pl. hardware), amiket figyelmen kívül hagyunk.
+            hardware: Hardver interfész (opcionális)
+            **kwargs: További paraméterek
         """
         self.logger = logger
         self.config = config
         self.event_bus = event_bus
         self.storage_config = cast(StorageConfig, config.get("storage", {}) if config else {})
-        self._base_path = Path(base_path) if base_path else Path(self.storage_config.get("base_path", "."))
-        self._setup_format_handlers()
+        self._base_path = (
+            Path(base_path) if base_path else Path(self.storage_config.get("base_path", "."))
+        )
+
+        # Dependency Injection a HardwareInterface-hez
+        if hardware is None:
+            from neural_ai.core.utils.factory import HardwareFactory
+
+            self.hardware = HardwareFactory.get_hardware_interface()
+        else:
+            self.hardware = hardware
+
+        # Backend kiválasztás
+        self._select_backend()
+
         self._initialized = True
-        # A kwargs-al nem csinálunk semmit, csak hagyjuk, hogy létezzen.
 
-    def _setup_format_handlers(self) -> None:
-        """Beállítja a formátum kezelőket."""
+    def _select_backend(self) -> None:
+        """Backend kiválasztása hardver detekció alapján.
 
-        def save_csv(df: pd.DataFrame, path: str, **kwargs: Any) -> None:
-            kwargs.setdefault("index", False)  # Alapértelmezetten ne mentse az indexet
-            # CSV esetén közvetlen mentés
-            df.to_csv(path, **kwargs)
+        Ez a metódus felelős a megfelelő tárolási backend kiválasztásáért
+        a hardver képességek alapján. Külön metódusba van kiszervezve,
+        hogy a tesztek könnyen mockolhassák.
+        """
+        if self.hardware.has_avx2():
+            from neural_ai.data.storage.backends.polars_backend import PolarsBackend
 
-        def load_csv(path: str, **kwargs: Any) -> pd.DataFrame:
-            return cast(pd.DataFrame, pd.read_csv(path, **kwargs))
+            self.backend: StorageBackend = PolarsBackend(
+                logger=self.logger, name="polars", supported_formats=["parquet"]
+            )
+            # Log a backend kiválasztáshoz
+            self.logger.debug(
+                f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
+            )
+            self.logger.info(
+                "AVX2 support detected. Using PolarsBackend for accelerated data processing."
+            )
+        else:
+            from neural_ai.data.storage.backends.pandas_backend import PandasBackend
 
-        def save_excel(df: pd.DataFrame, path: str, **kwargs: Any) -> None:
-            kwargs.setdefault("index", False)  # Alapértelmezetten ne mentse az indexet
-            # Excel esetén közvetlen mentés
-            df.to_excel(path, **kwargs)
-
-        def load_excel(path: str, **kwargs: Any) -> pd.DataFrame:
-            return cast(pd.DataFrame, pd.read_excel(path, **kwargs))
-
-        def save_json(obj: Any, path: str, **kwargs: Any) -> None:
-            # JSON esetén közvetlen mentés
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(obj, f, **kwargs)
-
-        def load_json(path: str, **kwargs: Any) -> Any:
-            with open(path, encoding="utf-8") as f:
-                return json.load(f, **kwargs)
-
-        self._DATAFRAME_FORMATS: dict[str, dict[str, Callable[..., Any]]] = {
-            "csv": {
-                "save": save_csv,
-                "load": load_csv,
-            },
-            "excel": {
-                "save": save_excel,
-                "load": load_excel,
-            },
-        }
-
-        self._OBJECT_FORMATS: dict[str, dict[str, Callable[..., Any]]] = {
-            "json": {
-                "save": save_json,
-                "load": load_json,
-            }
-        }
+            self.backend: StorageBackend = PandasBackend(
+                logger=self.logger, name="pandas", supported_formats=["parquet"]
+            )
+            # Log a backend kiválasztáshoz
+            self.logger.debug(
+                f"Selected backend: {self.backend.name} (AVX2={self.hardware.has_avx2()})"
+            )
+            self.logger.warning(
+                "Legacy CPU detected. Running in Compatibility Mode with PandasBackend."
+            )
 
     def _check_disk_space(self, file_path: Path, required_bytes: int) -> None:
         """Ellenőrzi, hogy van-e elég lemezterület a művelethez.
@@ -151,9 +153,7 @@ class FileStorage(StorageInterface):
                 raise StorageIOError(f"A szülő könyvtár nem létezik: {file_path.parent}")
 
             if check_write and not os.access(str(file_path.parent), os.W_OK):
-                raise StorageIOError(
-                    f"Nincs írási jogosultság a könyvtárhoz: {file_path.parent}"
-                )
+                raise StorageIOError(f"Nincs írási jogosultság a könyvtárhoz: {file_path.parent}")
 
             if file_path.exists() and not os.access(str(file_path), os.R_OK):
                 raise StorageIOError(f"Nincs olvasási jogosultság a fájlhoz: {file_path}")
@@ -200,111 +200,34 @@ class FileStorage(StorageInterface):
         path = Path(path)
         return path if path.is_absolute() else self._base_path / path
 
-    def _atomic_write(
-        self,
-        file_path: Path,
-        content: str | bytes | Any,
-        mode: str = "w",
-        fmt: str = "json",
-        **kwargs: Any,
-    ) -> None:
-        """Atomi fájlírás temp fájllal és átnevezéssel.
-
-        Args:
-            file_path: A célfájl útvonala
-            content: Az írandó tartalom (str, bytes, DataFrame, vagy bármilyen objektum)
-            mode: Fájl mód ('w' vagy 'wb')
-            fmt: Formátum ('json', 'csv', 'excel', stb.)
-            **kwargs: További paraméterek a formátum-specifikus mentéshez
-
-        Raises:
-            StorageWriteError: Ha az írás sikertelen
-            StorageFormatError: Ha a formátum nem támogatott
-            InsufficientDiskSpaceError: Ha nincs elég lemezterület
-            PermissionDeniedError: Ha nincs megfelelő jogosultság
-        """
-        # Ellenőrizzük a jogosultságokat
-        self._check_permissions(file_path, check_write=True)
-
-        # Ellenőrizzük a formátumot
-        if fmt not in self._DATAFRAME_FORMATS and fmt not in self._OBJECT_FORMATS:
-            raise StorageFormatError(
-                f"Nem támogatott formátum: {fmt}. "
-                f"Támogatott DataFrame formátumok: {list(self._DATAFRAME_FORMATS.keys())}. "
-                f"Támogatott objektum formátumok: {list(self._OBJECT_FORMATS.keys())}"
-            )
-
-        # Számoljuk ki a szükséges területet
-        if isinstance(content, str):
-            content_bytes = len(content.encode("utf-8"))
-        elif isinstance(content, bytes):
-            content_bytes = len(content)
-        else:
-            # Nem string/bytes tartalom esetén (pl. DataFrame), használjunk alapértelmezett méretet
-            # mivel ezeket a formátum-specifikus mentők kezelik
-            content_bytes = 1024 * 1024  # 1MB alapértelmezett
-
-        # Ellenőrizzük a lemezterületet (adjunk hozzá 10% puffert a fájlrendszer overhead-hez)
-        self._check_disk_space(file_path, int(content_bytes * 1.1))
-
-        temp_path = file_path.with_suffix(file_path.suffix + ".tmp")
-
-        try:
-            # DataFrame esetén
-            if fmt in self._DATAFRAME_FORMATS:
-                self._DATAFRAME_FORMATS[fmt]["save"](content, str(temp_path), **kwargs)
-            # Objektum esetén
-            elif fmt in self._OBJECT_FORMATS:
-                self._OBJECT_FORMATS[fmt]["save"](content, str(temp_path), **kwargs)
-        except OSError as e:
-            if temp_path.exists():
-                temp_path.unlink()
-            raise StorageIOError(f"Nem sikerült írni az ideiglenes fájlt: {e}") from e
-
-        try:
-            os.replace(temp_path, file_path)
-        except OSError as e:
-            if temp_path.exists():
-                temp_path.unlink()
-            raise StorageIOError(f"Nem sikerült lecserélni a fájlt: {e}") from e
-
     def save_dataframe(
         self,
-        df: pd.DataFrame,
+        df: "pd.DataFrame",
         path: str,
         fmt: str | None = None,
         **kwargs: Any,
     ) -> None:
-        """Menti a DataFrame objektumot.
+        """Menti a DataFrame objektumot Parquet formátumban.
 
         Args:
             df: A mentendő DataFrame
-            path: A mentés útvonala
-            fmt: A mentés formátuma (ha None, akkor a kiterjesztésből)
+            path: A mentés útvonala (.parquet kiterjesztéssel)
+            fmt: A mentés formátuma (csak 'parquet' támogatott)
             **kwargs: További formátum-specifikus paraméterek
 
         Raises:
-            StorageFormatError: Ha a formátum nem támogatott
+            StorageFormatError: Ha a formátum nem parquet
             StorageIOError: Ha a mentés sikertelen
-            InsufficientDiskSpaceError: Ha nincs elég lemezterület
-            PermissionDeniedError: Ha nincs írási jogosultság
         """
         full_path = self._get_full_path(path)
 
-        if fmt is None:
-            fmt = full_path.suffix.lower().lstrip(".")
-            if not fmt:
-                raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
+        # Csak Parquet támogatott
+        if fmt is not None and fmt != "parquet":
+            raise StorageFormatError("Csak Parquet formátum támogatott")
 
-            # Excel kiterjesztések esetén a formátumot 'excel'-re állítjuk
-            if fmt in ['xlsx', 'xls']:
-                fmt = 'excel'
-
-        if fmt not in self._DATAFRAME_FORMATS:
-            raise StorageFormatError(
-                f"Nem támogatott DataFrame formátum: {fmt}. "
-                f"Támogatott formátumok: {list(self._DATAFRAME_FORMATS.keys())}"
-            )
+        # Ellenőrizzük a kiterjesztést
+        if not full_path.suffix.lower() == ".parquet":
+            raise StorageFormatError("A fájlnak .parquet kiterjesztéssel kell rendelkeznie")
 
         # Ellenőrizzük a jogosultságokat
         self._check_permissions(full_path, check_write=True)
@@ -313,21 +236,18 @@ class FileStorage(StorageInterface):
         try:
             estimated_size = df.memory_usage(deep=True).sum()
             self._check_disk_space(full_path, int(estimated_size * 1.1))
-        except (StorageIOError):
+        except StorageIOError:
             raise
         except Exception as e:
-            self.logger.warning(f"Could not estimate DataFrame size: {e}")
+            self.logger.warning(f"Nem sikerült becsülni a DataFrame méretét: {e}")
 
         try:
             full_path.parent.mkdir(parents=True, exist_ok=True)
-            self._DATAFRAME_FORMATS[fmt]["save"](df, str(full_path), **kwargs)
-        except OSError as e:
-            self.logger.error(f"IO hiba a DataFrame mentése során: {full_path}")
-            raise StorageIOError(f"Hiba a DataFrame mentése során: {str(e)}") from e
+            # Backend-en keresztül mentjük
+            self.backend.write(df, str(full_path), **kwargs)
+            self.logger.info(f"DataFrame sikeresen mentve: {full_path}")
         except Exception as e:
-            self.logger.error(
-                f"Váratlan hiba a DataFrame mentése során: {full_path}",
-            )
+            self.logger.error(f"Hiba a DataFrame mentése során: {full_path}")
             raise StorageIOError(f"Hiba a DataFrame mentése során: {str(e)}") from e
 
     def load_dataframe(
@@ -335,12 +255,12 @@ class FileStorage(StorageInterface):
         path: str,
         fmt: str | None = None,
         **kwargs: Any,
-    ) -> pd.DataFrame:
-        """Betölti a DataFrame objektumot.
+    ) -> "pd.DataFrame":
+        """Betölti a DataFrame objektumot Parquet formátumból.
 
         Args:
-            path: A betöltendő fájl útvonala
-            fmt: A fájl formátuma (ha None, akkor a kiterjesztésből)
+            path: A betöltendő fájl útvonala (.parquet kiterjesztéssel)
+            fmt: A fájl formátuma (csak 'parquet' támogatott)
             **kwargs: További formátum-specifikus paraméterek
 
         Returns:
@@ -348,42 +268,31 @@ class FileStorage(StorageInterface):
 
         Raises:
             StorageNotFoundError: Ha a fájl nem található
-            StorageFormatError: Ha a formátum nem támogatott
+            StorageFormatError: Ha a formátum nem parquet
             StorageIOError: Ha a betöltés sikertelen
-            PermissionDeniedError: Ha nincs olvasási jogosultság
         """
         full_path = self._get_full_path(path)
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
 
+        # Csak Parquet támogatott
+        if fmt is not None and fmt != "parquet":
+            raise StorageFormatError("Csak Parquet formátum támogatott")
+
+        # Ellenőrizzük a kiterjesztést
+        if not full_path.suffix.lower() == ".parquet":
+            raise StorageFormatError("A fájlnak .parquet kiterjesztéssel kell rendelkeznie")
+
         # Ellenőrizzük az olvasási jogosultságot
         self._check_permissions(full_path, check_write=False)
 
-        if fmt is None:
-            fmt = full_path.suffix.lower().lstrip(".")
-            if not fmt:
-                raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
-
-            # Excel kiterjesztések esetén a formátumot 'excel'-re állítjuk
-            if fmt in ['xlsx', 'xls']:
-                fmt = 'excel'
-
-        if fmt not in self._DATAFRAME_FORMATS:
-            raise StorageFormatError(
-                f"Nem támogatott DataFrame formátum: {fmt}. "
-                f"Támogatott formátumok: {list(self._DATAFRAME_FORMATS.keys())}"
-            )
-
         try:
-            return cast(
-                pd.DataFrame,
-                self._DATAFRAME_FORMATS[fmt]["load"](str(full_path), **kwargs),
-            )
-        except OSError as e:
-            self.logger.error(f"IO hiba a DataFrame betöltése során: {full_path}")
-            raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}") from e
+            # Backend-en keresztül töltjük be
+            result = self.backend.read(str(full_path), **kwargs)
+            self.logger.info(f"DataFrame sikeresen betöltve: {full_path}")
+            return cast(pd.DataFrame, result)
         except Exception as e:
-            self.logger.error(f"Váratlan hiba a DataFrame betöltése során: {full_path}")
+            self.logger.error(f"Hiba a DataFrame betöltése során: {full_path}")
             raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}") from e
 
     def save_object(
@@ -393,33 +302,28 @@ class FileStorage(StorageInterface):
         fmt: str | None = None,
         **kwargs: Any,
     ) -> None:
-        """Menti a Python objektumot.
+        """Menti a Python objektumot pickle formátumban.
 
         Args:
             obj: A mentendő objektum
-            path: A mentés útvonala
-            fmt: A mentés formátuma (ha None, akkor a kiterjesztésből)
+            path: A mentés útvonala (.pkl kiterjesztéssel)
+            fmt: A mentés formátuma (csak 'pkl' támogatott)
             **kwargs: További formátum-specifikus paraméterek
 
         Raises:
-            StorageFormatError: Ha a formátum nem támogatott
+            StorageFormatError: Ha a formátum nem pkl
             StorageSerializationError: Ha az objektum nem szerializálható
             StorageIOError: Ha a mentés sikertelen
-            InsufficientDiskSpaceError: Ha nincs elég lemezterület
-            PermissionDeniedError: Ha nincs írási jogosultság
         """
         full_path = self._get_full_path(path)
 
-        if fmt is None:
-            fmt = full_path.suffix.lower().lstrip(".")
-            if not fmt:
-                raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
+        # Csak pickle támogatott
+        if fmt is not None and fmt != "pkl":
+            raise StorageFormatError("Csak pickle formátum támogatott objektumokhoz")
 
-        if fmt not in self._OBJECT_FORMATS:
-            raise StorageFormatError(
-                f"Nem támogatott objektum formátum: {fmt}. "
-                f"Támogatott formátumok: {list(self._OBJECT_FORMATS.keys())}"
-            )
+        # Ellenőrizzük a kiterjesztést
+        if not full_path.suffix.lower() == ".pkl":
+            raise StorageFormatError("Az objektum fájlnak .pkl kiterjesztéssel kell rendelkeznie")
 
         # Ellenőrizzük a jogosultságokat
         self._check_permissions(full_path, check_write=True)
@@ -430,14 +334,18 @@ class FileStorage(StorageInterface):
 
             estimated_size = sys.getsizeof(str(obj))
             self._check_disk_space(full_path, int(estimated_size * 1.1))
-        except (StorageIOError):
+        except StorageIOError:
             raise
         except Exception as e:
-            self.logger.warning(f"Could not estimate object size: {e}")
+            self.logger.warning(f"Nem sikerült becsülni az objektum méretét: {e}")
 
         try:
             full_path.parent.mkdir(parents=True, exist_ok=True)
-            self._OBJECT_FORMATS[fmt]["save"](obj, str(full_path), **kwargs)
+            import pickle
+
+            with open(full_path, "wb") as f:
+                pickle.dump(obj, f, **kwargs)
+            self.logger.info(f"Objektum sikeresen mentve: {full_path}")
         except (TypeError, ValueError) as e:
             raise StorageSerializationError(f"Az objektum nem szerializálható: {str(e)}") from e
         except Exception as e:
@@ -449,11 +357,11 @@ class FileStorage(StorageInterface):
         fmt: str | None = None,
         **kwargs: Any,
     ) -> Any:
-        """Betölti a Python objektumot.
+        """Betölti a Python objektumot pickle formátumból.
 
         Args:
-            path: A betöltendő fájl útvonala
-            fmt: A fájl formátuma (ha None, akkor a kiterjesztésből)
+            path: A betöltendő fájl útvonala (.pkl kiterjesztéssel)
+            fmt: A fájl formátuma (csak 'pkl' támogatott)
             **kwargs: További formátum-specifikus paraméterek
 
         Returns:
@@ -461,42 +369,37 @@ class FileStorage(StorageInterface):
 
         Raises:
             StorageNotFoundError: Ha a fájl nem található
-            StorageFormatError: Ha a formátum nem támogatott
+            StorageFormatError: Ha a formátum nem pkl
             StorageSerializationError: Ha az objektum nem deszerializálható
             StorageIOError: Ha a betöltés sikertelen
-            PermissionDeniedError: Ha nincs olvasási jogosultság
         """
         full_path = self._get_full_path(path)
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
 
+        # Csak pickle támogatott
+        if fmt is not None and fmt != "pkl":
+            raise StorageFormatError("Csak pickle formátum támogatott objektumokhoz")
+
+        # Ellenőrizzük a kiterjesztést
+        if not full_path.suffix.lower() == ".pkl":
+            raise StorageFormatError("Az objektum fájlnak .pkl kiterjesztéssel kell rendelkeznie")
+
         # Ellenőrizzük az olvasási jogosultságot
         self._check_permissions(full_path, check_write=False)
 
-        if fmt is None:
-            fmt = full_path.suffix.lower().lstrip(".")
-            if not fmt:
-                raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát")
-
-        if fmt not in self._OBJECT_FORMATS:
-            raise StorageFormatError(
-                f"Nem támogatott objektum formátum: {fmt}. "
-                f"Támogatott formátumok: {list(self._OBJECT_FORMATS.keys())}"
-            )
-
         try:
-            return self._OBJECT_FORMATS[fmt]["load"](str(full_path), **kwargs)
-        except json.JSONDecodeError as e:
-            self.logger.error(f"JSON dekódolási hiba az objektum betöltése során: {full_path}")
-            raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
+            import pickle
+
+            with open(full_path, "rb") as f:
+                result = pickle.load(f, **kwargs)
+            self.logger.info(f"Objektum sikeresen betöltve: {full_path}")
+            return result
         except (TypeError, ValueError) as e:
             self.logger.error(f"Szerializációs hiba az objektum betöltése során: {full_path}")
             raise StorageSerializationError(f"Az objektum nem deszerializálható: {str(e)}") from e
-        except OSError as e:
-            self.logger.error(f"IO hiba az objektum betöltése során: {full_path}")
-            raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
         except Exception as e:
-            self.logger.error(f"Váratlan hiba az objektum betöltése során: {full_path}")
+            self.logger.error(f"Hiba az objektum betöltése során: {full_path}")
             raise StorageIOError(f"Hiba az objektum betöltése során: {str(e)}") from e
 
     def exists(self, path: str) -> bool:

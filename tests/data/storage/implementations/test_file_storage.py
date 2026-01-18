@@ -93,55 +93,43 @@ class TestFileStorage:
         """Teszteli a nem létező fájl ellenőrzését."""
         assert storage.exists("nonexistent.txt") is False
 
-    def test_save_dataframe_csv(self, storage: FileStorage, sample_dataframe: pd.DataFrame) -> None:
-        """Teszteli a DataFrame mentését CSV formátumban."""
-        storage.save_dataframe(sample_dataframe, "test.csv")
-
-        # Ellenőrizzük, hogy a fájl létrejött
-        assert storage.exists("test.csv")
-
-        # Betöltjük és ellenőrizzük az adatokat
-        loaded = storage.load_dataframe("test.csv")
-        assert len(loaded) == 3
-        assert list(loaded.columns) == ["id", "name", "age"]
-
-    def test_save_dataframe_excel(
+    def test_save_dataframe_parquet(
         self, storage: FileStorage, sample_dataframe: pd.DataFrame
     ) -> None:
-        """Teszteli a DataFrame mentését Excel formátumban."""
-        # Ellenőrizzük, hogy az openpyxl csomag telepítve van-e
-        pytest.importorskip("openpyxl")
-
-        storage.save_dataframe(sample_dataframe, "test.xlsx")
+        """Teszteli a DataFrame mentését Parquet formátumban."""
+        storage.save_dataframe(sample_dataframe, "test.parquet")
 
         # Ellenőrizzük, hogy a fájl létrejött
-        assert storage.exists("test.xlsx")
+        assert storage.exists("test.parquet")
 
         # Betöltjük és ellenőrizzük az adatokat
-        loaded = storage.load_dataframe("test.xlsx")
+        loaded = storage.load_dataframe("test.parquet")
         assert len(loaded) == 3
+        assert list(loaded.columns) == ["id", "name", "age"]
 
     def test_save_dataframe_invalid_format(
         self, storage: FileStorage, sample_dataframe: pd.DataFrame
     ) -> None:
         """Teszteli a DataFrame mentését érvénytelen formátumban."""
-        with pytest.raises(StorageFormatError, match="Nem támogatott DataFrame formátum"):
-            storage.save_dataframe(sample_dataframe, "test.invalid")
+        with pytest.raises(StorageFormatError, match="Csak Parquet formátum támogatott"):
+            storage.save_dataframe(sample_dataframe, "test.txt", fmt="txt")
 
     def test_load_dataframe_not_found(self, storage: FileStorage) -> None:
         """Teszteli a DataFrame betöltését nem létező fájlból."""
         with pytest.raises(StorageNotFoundError, match="Fájl nem található"):
-            storage.load_dataframe("nonexistent.csv")
+            storage.load_dataframe("nonexistent.parquet")
 
-    def test_save_object_json(self, storage: FileStorage, sample_object: dict[str, object]) -> None:
-        """Teszteli a Python objektum mentését JSON formátumban."""
-        storage.save_object(sample_object, "test.json")
+    def test_save_object_pickle(
+        self, storage: FileStorage, sample_object: dict[str, object]
+    ) -> None:
+        """Teszteli a Python objektum mentését pickle formátumban."""
+        storage.save_object(sample_object, "test.pkl")
 
         # Ellenőrizzük, hogy a fájl létrejött
-        assert storage.exists("test.json")
+        assert storage.exists("test.pkl")
 
         # Betöltjük és ellenőrizzük az adatokat
-        loaded = storage.load_object("test.json")
+        loaded = storage.load_object("test.pkl")
         assert loaded == sample_object
 
     def test_save_object_invalid_format(
@@ -417,7 +405,9 @@ class TestFileStorage:
 
         monkeypatch.setattr(os_module, "statvfs", mock_statvfs)
 
-        with pytest.raises(StorageIOError, match="Nem sikerült lekérdezni a tárolási információkat"):
+        with pytest.raises(
+            StorageIOError, match="Nem sikerült lekérdezni a tárolási információkat"
+        ):
             storage.get_storage_info(temp_dir)
 
     def test_atomic_write_bytes(self, storage: FileStorage) -> None:
