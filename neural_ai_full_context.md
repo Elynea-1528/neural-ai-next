@@ -1,5 +1,5 @@
 # NEURAL AI NEXT CONTEXT (FULL)
-*Generated: 2026-01-18 11:06:32*
+*Generated: 2026-01-18 11:38:03*
 
 ## `FILE: .vscode/settings.json`
 
@@ -26504,6 +26504,27 @@ felület különböző szekcióit reprezentálják.
 """
 
 from neural_ai.ui.pages.launchpad_page import LaunchpadPage
+
+__all__ = ["LaunchpadPage"]
+
+```
+
+## `FILE: neural_ai/ui/pages/launchpad_page.py`
+
+```py
+"""Launchpad page wrapper for Streamlit compatibility."""
+
+import importlib.util
+from pathlib import Path
+
+# Dinamikus importálás speciális karakteres modulnév miatt
+spec = importlib.util.spec_from_file_location(
+    "launchpad", Path(__file__).parent / "01_🚀_Launchpad.py"
+)
+launchpad_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(launchpad_module)
+
+LaunchpadPage = launchpad_module.LaunchpadPage
 
 __all__ = ["LaunchpadPage"]
 

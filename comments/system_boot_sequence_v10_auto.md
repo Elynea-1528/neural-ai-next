@@ -12,7 +12,7 @@ A rendszer jelenleg instabil, fagyást okozhat. Kizárólag Statikus Kódanalíz
 A rendszer jelenleg azért néma, mert a loggerek nevei nem egyeznek a konfiggal.
 Névtér Szabály: Minden LoggerFactory.get_logger(...) hívásnak tükröznie KELL a fájlrendszert.
 ❌ ROSSZ: get_logger("storage")
-✅ HELYES: get_logger("neural_ai.data.storage")
+✅ HELYES: get_logger(__name__)
 Logger Inicializálás: TILOS structlog.get_logger(__name__) használata! Csak LoggerFactory.get_logger() engedélyezett.
 ❌ ROSSZ: self._logger = structlog.get_logger(__name__)
 ✅ HELYES: self._logger = LoggerFactory.get_logger(__name__)
