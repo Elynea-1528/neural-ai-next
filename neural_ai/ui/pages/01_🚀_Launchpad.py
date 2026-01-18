@@ -4,10 +4,15 @@ Ez a modul implementálja a fő indítólapot, amely a rendszer
 áttekintését és gyors elérést nyújt a különböző funkciókhoz.
 """
 
+from typing import TYPE_CHECKING
+
 import streamlit as st
 
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
+
+if TYPE_CHECKING:
+    pass
 
 
 class LaunchpadPage(PageInterface):
@@ -18,16 +23,20 @@ class LaunchpadPage(PageInterface):
     vizuális kártyák formájában.
     """
 
-    def __init__(self, bridge: CoreBridgeInterface, **kwargs: str | None) -> None:
+    def __init__(
+        self, bridge: CoreBridgeInterface, logger: "LoggerInterface", **kwargs: str | None
+    ) -> None:
         """A Launchpad oldal inicializálása.
 
         Args:
             bridge: A backend bridge példány, amely biztosítja a kapcsolatot
                 a core rendszerrel.
+            logger: Logger interfész a logoláshoz.
             **kwargs: Opcionális kulcsszó argumentumok, amelyek további
                 konfigurációt adhatnak meg.
         """
         self._bridge = bridge
+        self._logger = logger
         self._loaded = False
         self._title = "🚀 Launchpad"
 
@@ -122,7 +131,7 @@ class LaunchpadPage(PageInterface):
                 ha nincsenek paraméterek.
         """
         self._loaded = True
-        print(f"Navigálva a(z) {self._title} oldalra")
+        self._logger.info("Oldalra navigálás", extra={"page_title": self._title})
 
     def on_navigate_from(self) -> None:
         """Akció, amikor elnavigálnak az oldalról.
@@ -130,7 +139,7 @@ class LaunchpadPage(PageInterface):
         Ezt a metódust akkor hívja a rendszer, amikor a felhasználó
         elhagyja ezt az oldalt és egy másikra navigál.
         """
-        print(f"Elnavigálva a(z) {self._title} oldalról")
+        self._logger.info("Oldal elhagyása", extra={"page_title": self._title})
 
     @property
     def title(self) -> str:

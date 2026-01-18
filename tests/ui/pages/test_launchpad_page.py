@@ -42,38 +42,52 @@ class TestLaunchpadPage:
         return MagicMock(spec=CoreBridgeInterface)
 
     @pytest.fixture
-    def launchpad_page(self, mock_bridge: MagicMock) -> LaunchpadPage:
+    def mock_logger(self) -> MagicMock:
+        """Mock LoggerInterface létrehozása.
+
+        Returns:
+            MagicMock: A mockolt logger példány.
+        """
+        return MagicMock()
+
+    @pytest.fixture
+    def launchpad_page(self, mock_bridge: MagicMock, mock_logger: MagicMock) -> LaunchpadPage:
         """LaunchpadPage példány létrehozása teszteléshez.
 
         Args:
             mock_bridge: A mockolt bridge példány.
+            mock_logger: A mockolt logger példány.
 
         Returns:
             LaunchpadPage: A tesztelendő oldal példány.
         """
-        return LaunchpadPage(bridge=mock_bridge)
+        return LaunchpadPage(bridge=mock_bridge, logger=mock_logger)
 
-    def test_init(self, mock_bridge: MagicMock) -> None:
+    def test_init(self, mock_bridge: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az osztály inicializálását.
 
         Args:
             mock_bridge: A mockolt bridge példány.
+            mock_logger: A mockolt logger példány.
         """
-        page = LaunchpadPage(bridge=mock_bridge)
+        page = LaunchpadPage(bridge=mock_bridge, logger=mock_logger)
 
         assert page._bridge == mock_bridge
+        assert page._logger == mock_logger
         assert page._loaded is False
         assert page._title == "🚀 Launchpad"
 
-    def test_init_with_kwargs(self, mock_bridge: MagicMock) -> None:
+    def test_init_with_kwargs(self, mock_bridge: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az inicializálást további paraméterekkel.
 
         Args:
             mock_bridge: A mockolt bridge példány.
+            mock_logger: A mockolt logger példány.
         """
-        page = LaunchpadPage(bridge=mock_bridge, custom_param="value")
+        page = LaunchpadPage(bridge=mock_bridge, logger=mock_logger, custom_param="value")
 
         assert page._bridge == mock_bridge
+        assert page._logger == mock_logger
         assert page._loaded is False
         assert page._title == "🚀 Launchpad"
 
