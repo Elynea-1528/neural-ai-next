@@ -53,6 +53,16 @@ class DataService(DataServiceInterface):
             },
         }
 
+    @property
+    def bridge(self) -> "CoreBridgeInterface":
+        """A backend bridge példány visszaadása."""
+        return self._bridge
+
+    @property
+    def data_sources(self) -> dict[str, dict[str, str]]:
+        """Az adatforrások visszaadása."""
+        return self._data_sources
+
     def load_data(
         self, source: str, filters: dict[str, Any] | None = None, chunk_size: int = 10000
     ) -> Generator[list[dict[str, Any]], None, None]:

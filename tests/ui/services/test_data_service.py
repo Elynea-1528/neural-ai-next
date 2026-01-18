@@ -22,10 +22,10 @@ class TestDataService(unittest.TestCase):
 
     def test_init(self) -> None:
         """Teszteli a DataService inicializálását."""
-        self.assertEqual(self.data_service._bridge, self.mock_bridge)
-        self.assertIn("tick_data", self.data_service._data_sources)
-        self.assertIn("ohlc_data", self.data_service._data_sources)
-        self.assertIn("market_data", self.data_service._data_sources)
+        self.assertEqual(self.data_service.bridge, self.mock_bridge)
+        self.assertIn("tick_data", self.data_service.data_sources)
+        self.assertIn("ohlc_data", self.data_service.data_sources)
+        self.assertIn("market_data", self.data_service.data_sources)
 
     def test_load_data(self) -> None:
         """Teszteli az adatok betöltését."""
