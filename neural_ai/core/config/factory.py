@@ -102,15 +102,6 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         if not extension.startswith("."):
             extension = f".{extension}"
 
-        if not isinstance(manager_class, type):
-            raise TypeError(f"Érvénytelen manager_class: {manager_class}")
-
-        if not issubclass(manager_class, ConfigManagerInterface):
-            raise TypeError(
-                f"A manager_class-nak implementálnia kell a "
-                f"ConfigManagerInterface-t: {manager_class}"
-            )
-
         cls._manager_types[extension] = manager_class
 
     @classmethod
@@ -130,15 +121,6 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         """
         if not manager_type:
             raise ValueError("A manager_type nem lehet üres")
-
-        if not isinstance(manager_class, type):
-            raise TypeError(f"Érvénytelen manager_class: {manager_class}")
-
-        if not issubclass(manager_class, AsyncConfigManagerInterface):
-            raise TypeError(
-                f"A manager_class-nak implementálnia kell az "
-                f"AsyncConfigManagerInterface-t: {manager_class}"
-            )
 
         cls._async_manager_types[manager_type] = manager_class
 
