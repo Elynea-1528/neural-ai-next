@@ -51,6 +51,16 @@ class PandasDataFrame:
         """FastParquet modul lekérdezése."""
         return self._import_pandas()[1]
 
+    @property
+    def pandas(self) -> Any:
+        """Pandas modul lekérdezése (teszteléshez)."""
+        return self._pandas
+
+    @property
+    def fastparquet(self) -> Any:
+        """FastParquet modul lekérdezése (teszteléshez)."""
+        return self._fastparquet
+
 
 class PandasBackend(StorageBackend):
     """Pandas alapú tárolási backend FastParquet formátumhoz.
@@ -83,6 +93,16 @@ class PandasBackend(StorageBackend):
         if not self._initialized:
             self._pandas_wrapper._import_pandas()
             self._initialized = True
+
+    @property
+    def is_initialized(self) -> bool:
+        """Ellenőrzi, hogy a backend inicializálva van-e (teszteléshez)."""
+        return self._initialized
+
+    @property
+    def pandas_wrapper(self) -> PandasDataFrame:
+        """Visszaadja a pandas wrapper-t (teszteléshez)."""
+        return self._pandas_wrapper
 
     def write(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
         """DataFrame adatok írása Parquet formátumban FastParquet használatával.
@@ -314,6 +334,18 @@ class PandasBackend(StorageBackend):
             return existing_cols.issubset(new_cols)
         except Exception:
             return False
+
+    def validate_schema(self, existing: "pd.DataFrame", new: "pd.DataFrame") -> bool:
+        """Ellenőrzi, hogy a két DataFrame sémája kompatibilis-e (teszteléshez).
+
+        Args:
+            existing: A meglévő DataFrame
+            new: Az új DataFrame
+
+        Returns:
+            True, ha a sémák kompatibilisek, egyébként False
+        """
+        return self._validate_schema(existing, new)
 
     def supports_format(self, format_name: str) -> bool:
         """Ellenőrzi, hogy a backend támogatja-e a megadott formátumot.
