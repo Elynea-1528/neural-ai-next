@@ -1,5 +1,5 @@
 # NEURAL AI NEXT CONTEXT (FULL)
-*Generated: 2026-01-18 00:07:25*
+*Generated: 2026-01-18 11:06:32*
 
 ## `FILE: .vscode/settings.json`
 
@@ -777,12 +777,52 @@ loggers:
 
   # --- SPECIFIKUS MODULOK FELÜLBÍRÁLÁSA (OVERRIDE) ---
   # Csak a szintet (level) írjuk felül, a handlereket öröklik.
+
+  # CORE INFRASTRUCTURE (alapvető komponensek)
   neural_ai.core.logger:
     level: WARNING # Megakadályozza a rekurzív logolást a logger factory-ban.
+  neural_ai.core.config:
+    level: INFO    # Konfiguráció betöltés nyomonkövetése
+  neural_ai.core.events:
+    level: INFO    # Esemény rendszer működése
+  neural_ai.core.db:
+    level: INFO    # Adatbázis műveletek
+  neural_ai.core.system:
+    level: WARNING # Health monitoring (kevesebb zaj)
+  neural_ai.core.utils:
+    level: INFO    # Segédműveletek
+
+  # DATA LAYER (adattárolás és feldolgozás)
   neural_ai.data.storage:
     level: DEBUG   # Részletesebb logolás az adattároló rétegben.
+  neural_ai.data.ingestion:
+    level: DEBUG   # Market data bevitel követése
+
+  # DOMAIN LAYER (üzleti logika)
+  neural_ai.processors:
+    level: DEBUG   # Dimenzió processzorok részletes logolása
+  neural_ai.processors.dimensions:
+    level: DEBUG   # D1-D15 elemzők
+  neural_ai.processors.pipeline:
+    level: INFO    # Feldolgozási pipeline
+  neural_ai.processors.resampler:
+    level: DEBUG   # Tick → OHLCV konverzió
+
+  # PRESENTATION LAYER (felhasználói felület)
+  neural_ai.ui:
+    level: INFO    # UI általános műveletek
   neural_ai.ui.components:
-    level: WARNING
+    level: WARNING # UI komponensek (kevesebb zaj)
+  neural_ai.ui.pages:
+    level: INFO    # Oldal navigáció
+
+  # INPUT LAYER (külső adatok)
+  neural_ai.collectors:
+    level: DEBUG   # Adatgyűjtés részletes követése
+  neural_ai.collectors.jforex:
+    level: DEBUG   # Dukascopy adatgyűjtő
+  neural_ai.collectors.mt5:
+    level: INFO    # MetaTrader kapcsolat
 
   # --- TRACE RENDSZER ---
   # Különálló logger a @trace dekorátorok számára, saját fájllal.
@@ -11330,7 +11370,7 @@ class JForexFactory:
         """
         from neural_ai.core.logger.factory import LoggerFactory
 
-        logger = LoggerFactory.get_logger("neural_ai.collectors.jforex")
+        logger = LoggerFactory.get_logger(__name__)
         # Import here to avoid circular dependencies
         import aiohttp
 
@@ -11397,7 +11437,7 @@ class JForexFactory:
         """
         from neural_ai.core.logger.factory import LoggerFactory
 
-        logger = LoggerFactory.get_logger("neural_ai.collectors.jforex")
+        logger = LoggerFactory.get_logger(__name__)
         # Import here to avoid circular dependencies
         from neural_ai.collectors.jforex.implementations.live_feed import JForexLiveFeed
 
@@ -12602,7 +12642,7 @@ def bootstrap_core(
     logging_config = cast(LoggingConfig, config.get_section("logging") or {})
     LoggerFactory.configure(logging_config)
     # Alap logger példány létrehozása
-    logger = LoggerFactory.get_logger(name="NeuralAI.Bootstrap", logger_type="default")
+    logger = LoggerFactory.get_logger(__name__, logger_type="default")
     container.register_instance(LoggerInterface, logger)
 
     # Visszajelzés az előző lépésekről
@@ -13045,7 +13085,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             return cast(LoggerInterface, logger)
 
         # Fallback to default logger (NullObject pattern)
-        return LoggerFactory.get_logger(name="CoreComponentFactory")
+        return LoggerFactory.get_logger(__name__)
 
     def _get_config_manager(self) -> "ConfigManagerInterface":
         """Lazy loadinggel tölti be a config manager komponenst."""
@@ -13233,7 +13273,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
                 if logger_section:
                     log_config.update(logger_section)
 
-            logger = LoggerFactory.get_logger(name="core", config=log_config)
+            logger = LoggerFactory.get_logger(__name__, config=log_config)
             container.register_instance(LoggerInterface, logger)
 
         # 3. Storage komponens létrehozása a konfiggal és loggerrel
@@ -13307,7 +13347,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
                 "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             }
 
-        logger = LoggerFactory.get_logger(name="core", config=log_config)
+        logger = LoggerFactory.get_logger(__name__, config=log_config)
         storage = FileStorage(logger=logger)
 
         # Create a temporary container to validate dependencies
@@ -13402,7 +13442,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.events.factory import EventBusFactory
         from neural_ai.data.storage.implementations.file_storage import FileStorage
 
-        logger = LoggerFactory.get_logger(name="storage")
+        logger = LoggerFactory.get_logger(__name__)
         config_manager = ConfigManagerFactory.get_manager(DEFAULT_CONFIG_FILE)  # fallback
         event_bus = EventBusFactory.get_event_bus(logger=logger)
         return FileStorage(
@@ -13421,11 +13461,10 @@ Ez a modul tartalmazza a Neural AI Next base komponens rendszerének
 singleton mintát és komponens gyűjteményeket.
 """
 
-import structlog
-
 from neural_ai.core.base.implementations.di_container import DIContainer, LazyComponent
 from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
 from neural_ai.core.base.implementations.singleton import SingletonMeta
+from neural_ai.core.logger.factory import LoggerFactory
 
 __all__ = [
     "DIContainer",
@@ -13435,7 +13474,7 @@ __all__ = [
     "SingletonMeta",
 ]
 
-_logger = structlog.get_logger(__name__)
+_logger = LoggerFactory.get_logger("neural_ai.core.base.implementations")
 _logger.info(
     "Base implementations module initialized",
     extra={"module": "neural_ai.core.base.implementations"},
@@ -13450,9 +13489,8 @@ _logger.info(
 
 from typing import TYPE_CHECKING, Optional, TypeVar
 
-import structlog
-
 from neural_ai.core.base.factory import CoreComponentFactory
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 
 # Körkörös importok elkerüléséhez
@@ -13486,7 +13524,7 @@ class CoreComponents:
 
         self._container = container or DIContainer()
         self._factory = CoreComponentFactory(self._container)
-        self._logger = structlog.get_logger(__name__)
+        self._logger = LoggerFactory.get_logger(__name__)
         self._logger.info(
             "Core komponensek inicializálása befejezve",
             extra={"container_type": type(self._container).__name__},
@@ -13811,10 +13849,9 @@ import threading
 from collections.abc import Callable
 from typing import TypeVar, cast
 
-import structlog
-
 from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
 from neural_ai.core.base.interfaces import DIContainerInterface, LazyComponentInterface
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 
 T = TypeVar("T")
@@ -13874,7 +13911,7 @@ class DIContainer(DIContainerInterface):
         self._instances: dict[object, object] = {}
         self._factories: dict[object, Callable[[], object]] = {}
         self._lazy_components: dict[str, LazyComponent[object]] = {}
-        self._logger = structlog.get_logger(__name__)
+        self._logger = LoggerFactory.get_logger(__name__)
         self._logger.info("DI konténer inicializálva")
 
     @trace
@@ -14107,8 +14144,7 @@ import threading
 from collections.abc import Callable
 from typing import TypeVar, cast
 
-import structlog
-
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 
 T = TypeVar("T")
@@ -14138,7 +14174,7 @@ class LazyLoader[T]:
         self._loaded: bool = False
         self._value: T | None = None
         self._lock = threading.RLock()
-        self._logger = structlog.get_logger(__name__)
+        self._logger = LoggerFactory.get_logger(__name__)
         self._logger.info(
             "LazyLoader inicializálva",
             extra={"loader_func": getattr(loader_func, "__name__", str(loader_func))},
@@ -14278,9 +14314,8 @@ class SingletonMeta(ABCMeta):
     """
 
     _instances: dict[type, object] = {}
-    _logger: "LoggerInterface" = LoggerFactory.get_logger(
-        "neural_ai.core.base.implementations.singleton"
-    )
+    _logger: "LoggerInterface" = LoggerFactory.get_logger(__name__)
+    _instance: object
 
     @trace
     def __call__(cls: type[T], *args: object, **kwargs: object) -> T:
@@ -14321,7 +14356,7 @@ class SingletonMeta(ABCMeta):
 
             # 2. DI Container követelmény: _instance class variable
             # (Bár a dict-ben tároljuk, a DI ellenőrzés ezt is keresi)
-            cls._instance = instance
+            cls._instance = instance  # type: ignore[attr-defined]
 
             cls._instances[cls] = instance  # type: ignore[attr-defined]
 
@@ -14657,7 +14692,7 @@ Példa a modul használatára:
         config_manager = factory.create_manager('yaml')
         value = config_manager.get('database.host', 'localhost')
     except ConfigError as e:
-        print(f"Konfigurációs hiba: {e}")
+        logger.error("Konfigurációs hiba: %s", e, extra={"error": str(e)})
     ```
 
 További információkért lásd:
@@ -14919,6 +14954,9 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 from neural_ai.core.config.interfaces.factory_interface import (
     ConfigManagerFactoryInterface,
 )
+from neural_ai.core.logger.implementations.default_logger import DefaultLogger
+from neural_ai.core.logger.interfaces import LoggerInterface
+from neural_ai.core.utils.decorators import trace
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -14939,10 +14977,12 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
     Attributes:
         _manager_types: Regisztrált szinkron konfiguráció kezelő típusok.
         _async_manager_types: Regisztrált aszinkron konfiguráció kezelő típusok.
+        _logger: Logger interfész a naplózáshoz.
     """
 
     _manager_types: dict[str, type[ConfigManagerInterface]] = {}
     _async_manager_types: dict[str, type[AsyncConfigManagerInterface]] = {}
+    _logger: "LoggerInterface | None" = None
 
     @classmethod
     def _lazy_load_implementations(cls) -> None:
@@ -14951,16 +14991,22 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         Ez a metódus biztosítja, hogy a konkrét implementációk csak akkor kerüljenek
         betöltésre, amikor valóban szükség van rájuk.
         """
+        if cls._logger is None:
+            cls._logger = DefaultLogger("neural_ai.core.config.factory")
+            cls._logger.info("ConfigManagerFactory inicializálva", component="ConfigManagerFactory")
+
         if not cls._manager_types:
             # YAML konfiguráció kezelő lazy betöltése
             from neural_ai.core.config.implementations.yaml_config_manager import (
                 YAMLConfigManager,
             )
 
-            cls._manager_types.update({
-                ".yml": YAMLConfigManager,
-                ".yaml": YAMLConfigManager,
-            })
+            cls._manager_types.update(
+                {
+                    ".yml": YAMLConfigManager,
+                    ".yaml": YAMLConfigManager,
+                }
+            )
 
         if not cls._async_manager_types:
             # Dinamikus konfiguráció kezelő lazy betöltése
@@ -14968,15 +15014,16 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
                 DynamicConfigManager,
             )
 
-            cls._async_manager_types.update({
-                "dynamic": DynamicConfigManager,
-                "database": DynamicConfigManager,
-            })
+            cls._async_manager_types.update(
+                {
+                    "dynamic": DynamicConfigManager,
+                    "database": DynamicConfigManager,
+                }
+            )
 
     @classmethod
-    def register_manager(
-        cls, extension: str, manager_class: type[ConfigManagerInterface]
-    ) -> None:
+    @trace
+    def register_manager(cls, extension: str, manager_class: type[ConfigManagerInterface]) -> None:
         """Új szinkron konfiguráció kezelő típus regisztrálása.
 
         Args:
@@ -14993,18 +15040,10 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         if not extension.startswith("."):
             extension = f".{extension}"
 
-        if not isinstance(manager_class, type):
-            raise TypeError(f"Érvénytelen manager_class: {manager_class}")
-
-        if not issubclass(manager_class, ConfigManagerInterface):
-            raise TypeError(
-                f"A manager_class-nak implementálnia kell a "
-                f"ConfigManagerInterface-t: {manager_class}"
-            )
-
         cls._manager_types[extension] = manager_class
 
     @classmethod
+    @trace
     def register_async_manager(
         cls, manager_type: str, manager_class: type[AsyncConfigManagerInterface]
     ) -> None:
@@ -15021,18 +15060,10 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         if not manager_type:
             raise ValueError("A manager_type nem lehet üres")
 
-        if not isinstance(manager_class, type):
-            raise TypeError(f"Érvénytelen manager_class: {manager_class}")
-
-        if not issubclass(manager_class, AsyncConfigManagerInterface):
-            raise TypeError(
-                f"A manager_class-nak implementálnia kell az "
-                f"AsyncConfigManagerInterface-t: {manager_class}"
-            )
-
         cls._async_manager_types[manager_type] = manager_class
 
     @classmethod
+    @trace
     def get_manager(
         cls, filename: str | Path, manager_type: str | None = None
     ) -> ConfigManagerInterface:
@@ -15079,6 +15110,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         )
 
     @classmethod
+    @trace
     async def get_async_manager(
         cls,
         manager_type: str,
@@ -15118,9 +15150,8 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         return manager_class(filename=None, session=session, logger=logger, **kwargs)
 
     @classmethod
-    def create_manager(
-        cls, manager_type: str, *args: Any, **kwargs: Any
-    ) -> ConfigManagerInterface:
+    @trace
+    def create_manager(cls, manager_type: str, *args: Any, **kwargs: Any) -> ConfigManagerInterface:
         """Szinkron konfiguráció kezelő létrehozása típus alapján.
 
         A metódus explicit típusmegadással hozza létre a konfiguráció kezelőt,
@@ -15150,6 +15181,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         raise ConfigLoadError(f"Ismeretlen konfig kezelő típus: {manager_type}")
 
     @classmethod
+    @trace
     def get_supported_extensions(cls) -> list[str]:
         """Támogatott fájl kiterjesztések lekérése.
 
@@ -15160,6 +15192,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         return list(cls._manager_types.keys())
 
     @classmethod
+    @trace
     def get_supported_async_types(cls) -> list[str]:
         """Támogatott aszinkron konfiguráció kezelő típusok lekérése.
 
@@ -16133,7 +16166,7 @@ class YAMLConfigManager(ConfigManagerInterface):
             ctx.errors[ctx.path] = "Dictionary típusú érték szükséges a validáláshoz"
             return
 
-        config = cast(dict[str, Any], ctx.value)
+        config = ctx.value
         for key, schema_value in ctx.schema.items():
             current_path = f"{ctx.path}.{key}" if ctx.path else key
             config_value = config.get(key)
@@ -17089,9 +17122,7 @@ class DatabaseFactory:
             logger: Logger interfész a naplózáshoz.
             config_manager: Konfiguráció kezelő interfész.
         """
-        from neural_ai.core.logger.factory import LoggerFactory
-
-        self.logger = LoggerFactory.get_logger("neural_ai.core.db")
+        self.logger = logger
         self.config_manager = config_manager
 
     def get_session_maker(
@@ -17316,7 +17347,7 @@ class DynamicConfig(Base):
         is_active: A konfiguráció aktív-e.
     """
 
-    __tablename__ = "dynamic_configs"
+    __tablename__ = "dynamic_configs"  # type: ignore[assignment]
 
     key: Mapped[str] = mapped_column(
         String(255), unique=True, nullable=False, index=True, doc="A konfigurációs kulcs (egyedi)"
@@ -17381,7 +17412,7 @@ class LogEntry(Base):
         extra_data: További egyéni adatok (JSON formátumban).
     """
 
-    __tablename__ = "log_entries"
+    __tablename__ = "log_entries"  # type: ignore[assignment]
 
     level: Mapped[str] = mapped_column(
         String(20),
@@ -17988,9 +18019,13 @@ class EventBusFactory:
     """
 
     def __init__(self, logger: "LoggerInterface", config_manager: "ConfigManagerInterface") -> None:
-        from neural_ai.core.logger.factory import LoggerFactory
+        """Inicializálja az EventBusFactory-t.
 
-        self._logger = LoggerFactory.get_logger("neural_ai.core.events")
+        Args:
+            logger: Logger interfész a logoláshoz
+            config_manager: Konfigurációkezelő interfész
+        """
+        self._logger = logger
         self._config_manager = config_manager
         self._logger.debug("EventBusFactory inicializálva", factory_id=id(self))
 
@@ -18105,11 +18140,10 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional
 
-import structlog
-
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.events.exceptions import EventBusError, PublishError
 from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig, EventBusInterface
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 
 # Csak típusellenőrzéskor importáljuk, hogy elkerüljük a körkörös importot
@@ -18121,7 +18155,7 @@ if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
-logger = structlog.get_logger(__name__)
+logger = LoggerFactory.get_logger(__name__)
 
 # Típus aliasok a jobb olvashatóság érdekében
 EventCallback = Callable[["BaseModel"], "Any"]
@@ -18149,11 +18183,14 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         """Visszaadja az EventBus konfigurációját."""
         return self._config
 
-    def __init__(self, config: EventBusConfig | None = None, logger: "LoggerInterface | None" = None) -> None:
+    def __init__(
+        self, config: EventBusConfig | None = None, logger: "LoggerInterface | None" = None
+    ) -> None:
         """Inicializálja az EventBus-t.
 
         Args:
             config: EventBus konfiguráció (opcionális)
+            logger: Logger interfész (opcionális)
         """
         self._config = config or EventBusConfig()
 
@@ -18178,9 +18215,9 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         self._subscribers: dict[str, list[EventCallback]] = {}
         self._running = False
         if logger is not None:
-            self._logger = logger
+            self._logger = logger  # type: ignore[reportPrivateUsage]
         else:
-            self._logger = structlog.get_logger(self.__class__.__name__)
+            self._logger = LoggerFactory.get_logger(self.__class__.__name__)  # type: ignore[reportPrivateUsage]
 
     @trace
     async def start(self) -> None:
@@ -18188,7 +18225,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if self._running:
             return
 
-        self._logger.info("EventBus indítása...")
+        self._logger.info("EventBus indítása...")  # type: ignore[reportPrivateUsage]
 
         # Publisher socket létrehozása
         self._publisher = self._context.socket(self._zmq.PUB)
@@ -18206,15 +18243,15 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
         try:
             self._publisher.bind(pub_url)
-            self._logger.info("Publisher bind-olva", pub_url=pub_url)
+            self._logger.info("Publisher bind-olva", pub_url=pub_url)  # type: ignore[reportPrivateUsage]
 
             # Kis várakozás, hogy a bind teljesüljön
             await asyncio.sleep(0.1)
 
             self._running = True
-            self._logger.info("EventBus elindítva")
+            self._logger.info("EventBus elindítva")  # type: ignore[reportPrivateUsage]
         except Exception as e:
-            self._logger.error("Nem sikerült elindítani az EventBus-t", error=str(e), exc_info=True)
+            self._logger.error("Nem sikerült elindítani az EventBus-t", error=str(e), exc_info=True)  # type: ignore[reportPrivateUsage]
             # Zárjuk be a socketet, ha a bind sikertelen volt
             self._publisher.close()
             self._publisher = None
@@ -18226,7 +18263,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if not self._running:
             return
 
-        self._logger.info("EventBus leállítása...")
+        self._logger.info("EventBus leállítása...")  # type: ignore[reportPrivateUsage]
         self._running = False
 
         if self._publisher:
@@ -18236,7 +18273,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if self._own_context and self._context:
             self._context.term()
 
-        self._logger.info("EventBus leállítva")
+        self._logger.info("EventBus leállítva")  # type: ignore[reportPrivateUsage]
 
     @trace
     async def publish(self, event_type: str, event: "BaseModel | list[BaseModel]") -> None:
@@ -18275,7 +18312,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                 # Az asyncio socket send_multipart metódusa awaitable
                 await self._publisher.send_multipart([topic, message])
             except Exception as e:
-                self._logger.error(
+                self._logger.error(  # type: ignore[reportPrivateUsage]
                     "Hiba az esemény közzétételekor",
                     error=str(e),
                     event_type=event_type,
@@ -18284,7 +18321,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                 # A hiba el van kapva és logolva, de nem dobjuk tovább,
                 # hogy a rendszer stabil maradjon
 
-        self._logger.debug("Esemény közzétéve", event_type=event_type, count=len(events_to_publish))
+        self._logger.debug("Esemény közzétéve", event_type=event_type, count=len(events_to_publish))  # type: ignore[reportPrivateUsage]
 
     @trace
     def subscribe(self, event_type: str, callback: EventCallback) -> None:
@@ -18301,7 +18338,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             self._subscribers[event_type] = []
 
         self._subscribers[event_type].append(callback)
-        self._logger.info("Feliratkozás létrehozva", event_type=event_type)
+        self._logger.info("Feliratkozás létrehozva", event_type=event_type)  # type: ignore[reportPrivateUsage]
 
     @trace
     def unsubscribe(self, event_type: str, callback: EventCallback) -> None:
@@ -18314,7 +18351,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if event_type in self._subscribers:
             if callback in self._subscribers[event_type]:
                 self._subscribers[event_type].remove(callback)
-                self._logger.info("Leiratkozás", event_type=event_type)
+                self._logger.info("Leiratkozás", event_type=event_type)  # type: ignore[reportPrivateUsage]
 
     async def _dispatch_event(self, event_type: str, event_data: dict[str, Any]) -> None:
         """Esemény továbbítása a feliratkozóknak.
@@ -18337,11 +18374,11 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                 try:
                     await callback(event)
                 except Exception as e:
-                    self._logger.error(
+                    self._logger.error(  # type: ignore[reportPrivateUsage]
                         "Hiba a callback végrehajtásakor", error=str(e), exc_info=True
                     )
         except Exception as e:
-            self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)
+            self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)  # type: ignore[reportPrivateUsage]
 
     def _deserialize_event(
         self, event_type: str, event_data: dict[str, Any]
@@ -18382,10 +18419,10 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             elif event_type == "position":
                 return PositionEvent(**event_data)
             else:
-                self._logger.warning("Ismeretlen eseménytípus", event_type=event_type)
+                self._logger.warning("Ismeretlen eseménytípus", event_type=event_type)  # type: ignore[reportPrivateUsage]
                 return None
         except Exception as e:
-            self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)
+            self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)  # type: ignore[reportPrivateUsage]
             return None
 
     @trace
@@ -18414,7 +18451,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         # Feliratkozás az összes témakörre
         subscriber.setsockopt(self._zmq.SUBSCRIBE, b"")
 
-        self._logger.info("Subscriber csatlakozva", sub_url=sub_url)
+        self._logger.info("Subscriber csatlakozva", sub_url=sub_url)  # type: ignore[reportPrivateUsage]
 
         try:
             while self._running:
@@ -18439,11 +18476,11 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                     # Időtúllépés, ellenőrizzük a futási állapotot
                     continue
                 except Exception as e:
-                    self._logger.error("Hiba az esemény fogadásakor", error=str(e), exc_info=True)
+                    self._logger.error("Hiba az esemény fogadásakor", error=str(e), exc_info=True)  # type: ignore[reportPrivateUsage]
 
         finally:
             subscriber.close()
-            self._logger.info("Subscriber lezárva")
+            self._logger.info("Subscriber lezárva")  # type: ignore[reportPrivateUsage]
 
     async def __aenter__(self) -> "EventBus":
         """Aszinkron context manager.
@@ -19844,12 +19881,13 @@ class DefaultLogger(LoggerInterface):
         Args:
             message: A log üzenet szövege.
             **kwargs: További paraméterek, amelyek az extra kulcs alatt
-                kerülnek átadásra a loggernek.
+                kerülnek átadásra a loggernek. Ha exc_info van, külön kezeljük.
 
         Példa:
             >>> logger.error("Adatbázis kapcsolat hiba", db="main")
         """
-        self.logger.error(message, extra=kwargs if kwargs else None)
+        exc_info = kwargs.pop("exc_info", None)
+        self.logger.error(message, exc_info=exc_info, extra=kwargs if kwargs else None)
 
     def critical(self, message: str, **kwargs: Any) -> None:
         """Critical szintű üzenet logolása.
@@ -20463,7 +20501,11 @@ from neural_ai.core.system.interfaces.health_interface import (
 )
 
 if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 class SystemComponentFactory:
@@ -20486,7 +20528,11 @@ class SystemComponentFactory:
     def create_health_monitor(
         cls,
         name: str = "default",
+        config: "ConfigManagerInterface | None" = None,
         logger: "LoggerInterface | None" = None,
+        eventbus: "EventBusInterface | None" = None,
+        storage: "StorageInterface | None" = None,
+        hardware: "HardwareInterface | None" = None,
         **kwargs: Any,
     ) -> HealthMonitorInterface:
         """HealthMonitor példány létrehozása vagy visszaadása.
@@ -20496,7 +20542,11 @@ class SystemComponentFactory:
 
         Args:
             name: A HealthMonitor egyedi neve (alapértelmezett: "default")
+            config: ConfigManager interfész (opcionális)
             logger: Logger interfész a naplózásra (opcionális)
+            eventbus: EventBus interfész (opcionális)
+            storage: Storage interfész (opcionális)
+            hardware: Hardware interfész (opcionális)
             **kwargs: További paraméterek a HealthMonitor konstruktorának
 
         Returns:
@@ -20509,7 +20559,7 @@ class SystemComponentFactory:
             ...     name="main",
             ...     logger=logger
             ... )
-            >>> health = monitor.check_health()
+            >>> health = await monitor.check_health()
             >>> print(f"Rendszer állapota: {health.overall_status.value}")
         """
         # Ha már létezik ilyen nevű HealthMonitor, azt adjuk vissza
@@ -20519,8 +20569,15 @@ class SystemComponentFactory:
         # Lazy loading a konkrét implementációhoz
         from neural_ai.core.system.implementations.health_monitor import HealthMonitor
 
-        # Dependency Injection: logger átadása
-        monitor = HealthMonitor(logger=logger, **kwargs)
+        # Dependency Injection: összes komponens átadása
+        monitor = HealthMonitor(
+            config=config,
+            logger=logger,
+            eventbus=eventbus,
+            storage=storage,
+            hardware=hardware,
+            **kwargs,
+        )
 
         cls._health_monitors[name] = monitor
         return monitor
@@ -20707,16 +20764,34 @@ class HealthMonitor(HealthMonitorInterface):
         _logger: A naplózó interfész (opcionális)
     """
 
-    def __init__(self, logger: Optional["LoggerInterface"] = None) -> None:
+    def __init__(
+        self,
+        config: Optional["ConfigManagerInterface"] = None,
+        logger: Optional["LoggerInterface"] = None,
+        eventbus: Optional["EventBusInterface"] = None,
+        storage: Optional["StorageInterface"] = None,
+        hardware: Optional["HardwareInterface"] = None,
+    ) -> None:
         """Inicializálja a HealthMonitor osztályt.
 
         Args:
+            config: A konfiguráció kezelő interfész (opcionális)
             logger: A naplózó interfész (opcionális)
+            eventbus: Az eseménybusz interfész (opcionális)
+            storage: A tároló interfész (opcionális)
+            hardware: A hardver interfész (opcionális)
         """
         self._components: dict[str, HealthCheckInterface] = {}
+        self._config = config
         self._logger = logger
+        self._eventbus = eventbus
+        self._storage = storage
+        self._hardware = hardware
 
-    def check_health(self) -> SystemHealth:
+        # Bootstrap komponensek automatikus regisztrációja
+        self._register_bootstrap_components()
+
+    async def check_health(self) -> SystemHealth:
         """Ellenőrzi a teljes rendszer egészségügyi állapotát.
 
         A metódus összegyűjti az összes komponens és a rendszer
@@ -20738,7 +20813,7 @@ class HealthMonitor(HealthMonitorInterface):
         # Ellenőrizzük az összes regisztrált komponenst
         for component_name in self._components:
             try:
-                component_health = self.check_component(component_name)
+                component_health = await self.check_component(component_name)
                 component_healths.append(component_health)
 
                 if component_health.status == ComponentStatus.CRITICAL:
@@ -20784,7 +20859,7 @@ class HealthMonitor(HealthMonitorInterface):
             system_metrics=system_metrics,
         )
 
-    def check_component(self, component_name: str) -> ComponentHealth:
+    async def check_component(self, component_name: str) -> ComponentHealth:
         """Ellenőrzi egy adott komponens egészségügyi állapotát.
 
         Args:
@@ -20807,7 +20882,7 @@ class HealthMonitor(HealthMonitorInterface):
 
         try:
             health_check = self._components[component_name]
-            return health_check.check()
+            return await health_check.check()
         except Exception as e:
             # Ha hiba történik az ellenőrzés során, akkor CRITICAL státuszt adunk vissza
             return ComponentHealth(
@@ -20881,9 +20956,7 @@ class HealthMonitor(HealthMonitorInterface):
                 self._logger.info(f"'{component_name}' komponens eltávolítva")
         else:
             if self._logger:
-                self._logger.warning(
-                    f"A '{component_name}' komponens nem volt regisztrálva"
-                )
+                self._logger.warning(f"A '{component_name}' komponens nem volt regisztrálva")
 
     def _collect_system_metrics(self) -> dict[str, float]:
         """Gyűjti a rendszer szintű metrikákat.
@@ -20929,6 +21002,32 @@ class HealthMonitor(HealthMonitorInterface):
 
         return metrics
 
+    def _register_bootstrap_components(self) -> None:
+        """Regisztrálja az összes bootstrap komponenst egészségügyi ellenőrzésre.
+
+        Ez a metódus automatikusan regisztrálja az összes rendelkezésre álló
+        bootstrap komponenst, hogy a rendszer egészségügyi állapota teljes képet adjon.
+        """
+        # Config komponens regisztrációja
+        if self._config:
+            self.register_component("config")
+
+        # Logger komponens regisztrációja
+        if self._logger:
+            self.register_component("logger")
+
+        # EventBus komponens regisztrációja
+        if self._eventbus:
+            self.register_component("eventbus")
+
+        # Storage komponens regisztrációja
+        if self._storage:
+            self.register_component("storage")
+
+        # Hardware komponens regisztrációja
+        if self._hardware:
+            self.register_component("hardware")
+
 
 class DefaultHealthCheck(HealthCheckInterface):
     """Alapértelmezett egészségügyi ellenőrzés implementációja.
@@ -20952,7 +21051,7 @@ class DefaultHealthCheck(HealthCheckInterface):
         self._name = name
         self._logger = logger
 
-    def check(self) -> ComponentHealth:
+    async def check(self) -> ComponentHealth:
         """Végrehajtja az egészségügyi ellenőrzést.
 
         Returns:
@@ -20975,6 +21074,35 @@ class DefaultHealthCheck(HealthCheckInterface):
 
 ```
 
+## `FILE: neural_ai/core/system/interfaces/__init__.py`
+
+```py
+"""Rendszer egészségügyi komponens interfészei.
+
+Ez a csomag tartalmazza a rendszer egészségügyi monitorozáshoz szükséges interfészeket
+és típusokat.
+"""
+
+from neural_ai.core.system.interfaces.health_interface import (
+    ComponentHealth,
+    ComponentStatus,
+    HealthCheckInterface,
+    HealthMonitorInterface,
+    HealthStatus,
+    SystemHealth,
+)
+
+__all__ = [
+    "ComponentHealth",
+    "ComponentStatus",
+    "HealthCheckInterface",
+    "HealthMonitorInterface",
+    "HealthStatus",
+    "SystemHealth",
+]
+
+```
+
 ## `FILE: neural_ai/core/system/interfaces/health_interface.py`
 
 ```py
@@ -20989,6 +21117,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 
 
 class ComponentStatus(Enum):
@@ -20996,6 +21125,7 @@ class ComponentStatus(Enum):
 
     A rendszer komponenseinek állapotát definiálja.
     """
+
     HEALTHY = "healthy"
     WARNING = "warning"
     CRITICAL = "critical"
@@ -21008,6 +21138,7 @@ class HealthStatus(Enum):
 
     A teljes rendszer egészségügyi állapotát definiálja.
     """
+
     OK = "ok"
     DEGRADED = "degraded"
     CRITICAL = "critical"
@@ -21027,6 +21158,7 @@ class ComponentHealth:
         timestamp: Az állapot ellenőrzésének időpontja
         metrics: Opcionális metrikák (pl. response time, error rate)
     """
+
     name: str
     status: ComponentStatus
     message: str
@@ -21047,6 +21179,7 @@ class SystemHealth:
         components: A komponensek egészségügyi információi
         system_metrics: Rendszer szintű metrikák (CPU, memória, stb.)
     """
+
     overall_status: HealthStatus
     message: str
     timestamp: datetime
@@ -21062,7 +21195,7 @@ class HealthMonitorInterface(ABC):
     """
 
     @abstractmethod
-    def check_health(self) -> SystemHealth:
+    async def check_health(self) -> SystemHealth:
         """Ellenőrzi a teljes rendszer egészségügyi állapotát.
 
         A metódus összegyűjti az összes komponens és a rendszer
@@ -21074,7 +21207,7 @@ class HealthMonitorInterface(ABC):
         pass  # pragma: no cover
 
     @abstractmethod
-    def check_component(self, component_name: str) -> ComponentHealth:
+    async def check_component(self, component_name: str) -> ComponentHealth:
         """Ellenőrzi egy adott komponens egészségügyi állapotát.
 
         Args:
@@ -21098,11 +21231,14 @@ class HealthMonitorInterface(ABC):
         pass  # pragma: no cover
 
     @abstractmethod
-    def register_component(self, component_name: str) -> None:
+    def register_component(
+        self, component_name: str, health_check: Optional["HealthCheckInterface"] = None
+    ) -> None:
         """Regisztrál egy új komponenst a monitorozásra.
 
         Args:
             component_name: A komponens neve
+            health_check: Az egészségügyi ellenőrzés interfésze (opcionális)
         """
         pass  # pragma: no cover
 
@@ -21124,7 +21260,7 @@ class HealthCheckInterface(ABC):
     """
 
     @abstractmethod
-    def check(self) -> ComponentHealth:
+    async def check(self) -> ComponentHealth:
         """Végrehajtja az egészségügyi ellenőrzést.
 
         Returns:
@@ -21181,14 +21317,27 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any, TypeVar, cast
 
-import structlog
-
 # Típusváltozók a generikus típusokhoz
 F = TypeVar("F", bound=Callable[..., Any])
 R = TypeVar("R")
 
-# Logger inicializálása
-_TRACE_LOGGER = structlog.get_logger("neural_ai.trace")
+
+# Logger inicializálása - késleltetett import elkerülése érdekében
+def _get_trace_logger():
+    from neural_ai.core.logger.factory import LoggerFactory
+
+    return LoggerFactory.get_logger("neural_ai.trace")
+
+
+_TRACE_LOGGER = None
+
+
+def _ensure_trace_logger():
+    global _TRACE_LOGGER
+    if _TRACE_LOGGER is None:
+        _TRACE_LOGGER = _get_trace_logger()
+    return _TRACE_LOGGER
+
 
 # Biztonságos típusok halmaza
 _SAFE_TYPES = (str, int, float, bool, type(None))
@@ -21255,9 +21404,7 @@ def trace[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 
         # Argumentumok biztonságos szerializálása
         safe_args: list[str] = [_serialize_arg(arg) for arg in args]
-        safe_kwargs: dict[str, str] = {
-            key: _serialize_arg(value) for key, value in kwargs.items()
-        }
+        safe_kwargs: dict[str, str] = {key: _serialize_arg(value) for key, value in kwargs.items()}
 
         # Időmérés indítása
         start_time = time.perf_counter()
@@ -21269,14 +21416,14 @@ def trace[**P, R](func: Callable[P, R]) -> Callable[P, R]:
             # Futási idő kiszámítása
             duration_ms = (time.perf_counter() - start_time) * 1000
 
-            # Logolás a structlog-gal
-            _TRACE_LOGGER.debug(
+            # Logolás a LoggerFactory-val
+            _ensure_trace_logger().debug(
                 "function_call",
                 call_id=call_id,
                 function=func.__name__,
                 args=safe_args,
                 kwargs=safe_kwargs,
-                duration_ms=round(duration_ms, 3)
+                duration_ms=round(duration_ms, 3),
             )
 
             return result
@@ -21285,14 +21432,14 @@ def trace[**P, R](func: Callable[P, R]) -> Callable[P, R]:
             # Hiba esetén is logoljuk az információkat
             duration_ms = (time.perf_counter() - start_time) * 1000
 
-            _TRACE_LOGGER.debug(
+            _ensure_trace_logger().debug(
                 "function_call_error",
                 call_id=call_id,
                 function=func.__name__,
                 args=safe_args,
                 kwargs=safe_kwargs,
                 duration_ms=round(duration_ms, 3),
-                error=str(e)
+                error=str(e),
             )
 
             # A hiba továbbdobása
@@ -21434,13 +21581,12 @@ import os
 import platform
 from typing import TYPE_CHECKING
 
-import structlog
-
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 # Logger inicializálása
-logger = structlog.get_logger(__name__)
+logger = LoggerFactory.get_logger(__name__)
 
 if TYPE_CHECKING:
     pass
@@ -23047,7 +23193,7 @@ class ResamplerServiceFactory:
         """
         from neural_ai.core.logger.factory import LoggerFactory
 
-        logger = LoggerFactory.get_logger("neural_ai.processors.resampler_service")
+        logger = LoggerFactory.get_logger(__name__)
         container = DIContainer()
 
         # A komponens neve, amivel regisztrálva van
@@ -23110,7 +23256,7 @@ class ResamplerService(ResamplerInterface):
             storage: A tárolási interfész példány (Dependency Injection)
         """
         self._storage = storage
-        self._logger: LoggerInterface = LoggerFactory.get_logger("resampler_service")
+        self._logger: LoggerInterface = LoggerFactory.get_logger(__name__)
 
     async def resample(
         self,

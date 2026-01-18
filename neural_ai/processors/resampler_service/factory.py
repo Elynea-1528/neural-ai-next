@@ -41,7 +41,7 @@ class ResamplerServiceFactory:
         """
         from neural_ai.core.logger.factory import LoggerFactory
 
-        logger = LoggerFactory.get_logger("neural_ai.processors.resampler_service")
+        logger = LoggerFactory.get_logger(__name__)
         container = DIContainer()
 
         # A komponens neve, amivel regisztrálva van

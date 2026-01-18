@@ -37,7 +37,7 @@ class ResamplerService(ResamplerInterface):
             storage: A tárolási interfész példány (Dependency Injection)
         """
         self._storage = storage
-        self._logger: LoggerInterface = LoggerFactory.get_logger("resampler_service")
+        self._logger: LoggerInterface = LoggerFactory.get_logger(__name__)
 
     async def resample(
         self,

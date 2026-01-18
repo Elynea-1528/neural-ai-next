@@ -88,7 +88,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             return cast(LoggerInterface, logger)
 
         # Fallback to default logger (NullObject pattern)
-        return LoggerFactory.get_logger(name="CoreComponentFactory")
+        return LoggerFactory.get_logger(__name__)
 
     def _get_config_manager(self) -> "ConfigManagerInterface":
         """Lazy loadinggel tölti be a config manager komponenst."""
@@ -276,7 +276,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
                 if logger_section:
                     log_config.update(logger_section)
 
-            logger = LoggerFactory.get_logger(name="core", config=log_config)
+            logger = LoggerFactory.get_logger(__name__, config=log_config)
             container.register_instance(LoggerInterface, logger)
 
         # 3. Storage komponens létrehozása a konfiggal és loggerrel
@@ -350,7 +350,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
                 "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             }
 
-        logger = LoggerFactory.get_logger(name="core", config=log_config)
+        logger = LoggerFactory.get_logger(__name__, config=log_config)
         storage = FileStorage(logger=logger)
 
         # Create a temporary container to validate dependencies
@@ -445,7 +445,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.events.factory import EventBusFactory
         from neural_ai.data.storage.implementations.file_storage import FileStorage
 
-        logger = LoggerFactory.get_logger(name="storage")
+        logger = LoggerFactory.get_logger(__name__)
         config_manager = ConfigManagerFactory.get_manager(DEFAULT_CONFIG_FILE)  # fallback
         event_bus = EventBusFactory.get_event_bus(logger=logger)
         return FileStorage(

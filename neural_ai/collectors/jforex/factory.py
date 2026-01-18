@@ -59,7 +59,7 @@ class JForexFactory:
         """
         from neural_ai.core.logger.factory import LoggerFactory
 
-        logger = LoggerFactory.get_logger("neural_ai.collectors.jforex")
+        logger = LoggerFactory.get_logger(__name__)
         # Import here to avoid circular dependencies
         import aiohttp
 
@@ -126,7 +126,7 @@ class JForexFactory:
         """
         from neural_ai.core.logger.factory import LoggerFactory
 
-        logger = LoggerFactory.get_logger("neural_ai.collectors.jforex")
+        logger = LoggerFactory.get_logger(__name__)
         # Import here to avoid circular dependencies
         from neural_ai.collectors.jforex.implementations.live_feed import JForexLiveFeed
 

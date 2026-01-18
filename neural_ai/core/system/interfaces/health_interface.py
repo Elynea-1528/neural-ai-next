@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 
 
 class ComponentStatus(Enum):
@@ -16,6 +17,7 @@ class ComponentStatus(Enum):
 
     A rendszer komponenseinek állapotát definiálja.
     """
+
     HEALTHY = "healthy"
     WARNING = "warning"
     CRITICAL = "critical"
@@ -28,6 +30,7 @@ class HealthStatus(Enum):
 
     A teljes rendszer egészségügyi állapotát definiálja.
     """
+
     OK = "ok"
     DEGRADED = "degraded"
     CRITICAL = "critical"
@@ -47,6 +50,7 @@ class ComponentHealth:
         timestamp: Az állapot ellenőrzésének időpontja
         metrics: Opcionális metrikák (pl. response time, error rate)
     """
+
     name: str
     status: ComponentStatus
     message: str
@@ -67,6 +71,7 @@ class SystemHealth:
         components: A komponensek egészségügyi információi
         system_metrics: Rendszer szintű metrikák (CPU, memória, stb.)
     """
+
     overall_status: HealthStatus
     message: str
     timestamp: datetime
@@ -82,7 +87,7 @@ class HealthMonitorInterface(ABC):
     """
 
     @abstractmethod
-    def check_health(self) -> SystemHealth:
+    async def check_health(self) -> SystemHealth:
         """Ellenőrzi a teljes rendszer egészségügyi állapotát.
 
         A metódus összegyűjti az összes komponens és a rendszer
@@ -94,7 +99,7 @@ class HealthMonitorInterface(ABC):
         pass  # pragma: no cover
 
     @abstractmethod
-    def check_component(self, component_name: str) -> ComponentHealth:
+    async def check_component(self, component_name: str) -> ComponentHealth:
         """Ellenőrzi egy adott komponens egészségügyi állapotát.
 
         Args:
@@ -118,11 +123,14 @@ class HealthMonitorInterface(ABC):
         pass  # pragma: no cover
 
     @abstractmethod
-    def register_component(self, component_name: str) -> None:
+    def register_component(
+        self, component_name: str, health_check: Optional["HealthCheckInterface"] = None
+    ) -> None:
         """Regisztrál egy új komponenst a monitorozásra.
 
         Args:
             component_name: A komponens neve
+            health_check: Az egészségügyi ellenőrzés interfésze (opcionális)
         """
         pass  # pragma: no cover
 
@@ -144,7 +152,7 @@ class HealthCheckInterface(ABC):
     """
 
     @abstractmethod
-    def check(self) -> ComponentHealth:
+    async def check(self) -> ComponentHealth:
         """Végrehajtja az egészségügyi ellenőrzést.
 
         Returns:

@@ -42,9 +42,8 @@ class SingletonMeta(ABCMeta):
     """
 
     _instances: dict[type, object] = {}
-    _logger: "LoggerInterface" = LoggerFactory.get_logger(
-        "neural_ai.core.base.implementations.singleton"
-    )
+    _logger: "LoggerInterface" = LoggerFactory.get_logger(__name__)
+    _instance: object
 
     @trace
     def __call__(cls: type[T], *args: object, **kwargs: object) -> T:
@@ -85,7 +84,7 @@ class SingletonMeta(ABCMeta):
 
             # 2. DI Container követelmény: _instance class variable
             # (Bár a dict-ben tároljuk, a DI ellenőrzés ezt is keresi)
-            cls._instance = instance
+            cls._instance = instance  # type: ignore[attr-defined]
 
             cls._instances[cls] = instance  # type: ignore[attr-defined]
 

@@ -48,9 +48,7 @@ class DatabaseFactory:
             logger: Logger interfész a naplózáshoz.
             config_manager: Konfiguráció kezelő interfész.
         """
-        from neural_ai.core.logger.factory import LoggerFactory
-
-        self.logger = LoggerFactory.get_logger("neural_ai.core.db")
+        self.logger = logger
         self.config_manager = config_manager
 
     def get_session_maker(

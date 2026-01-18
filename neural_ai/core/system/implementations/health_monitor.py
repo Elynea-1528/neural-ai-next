@@ -34,16 +34,34 @@ class HealthMonitor(HealthMonitorInterface):
         _logger: A naplózó interfész (opcionális)
     """
 
-    def __init__(self, logger: Optional["LoggerInterface"] = None) -> None:
+    def __init__(
+        self,
+        config: Optional["ConfigManagerInterface"] = None,
+        logger: Optional["LoggerInterface"] = None,
+        eventbus: Optional["EventBusInterface"] = None,
+        storage: Optional["StorageInterface"] = None,
+        hardware: Optional["HardwareInterface"] = None,
+    ) -> None:
         """Inicializálja a HealthMonitor osztályt.
 
         Args:
+            config: A konfiguráció kezelő interfész (opcionális)
             logger: A naplózó interfész (opcionális)
+            eventbus: Az eseménybusz interfész (opcionális)
+            storage: A tároló interfész (opcionális)
+            hardware: A hardver interfész (opcionális)
         """
         self._components: dict[str, HealthCheckInterface] = {}
+        self._config = config
         self._logger = logger
+        self._eventbus = eventbus
+        self._storage = storage
+        self._hardware = hardware
 
-    def check_health(self) -> SystemHealth:
+        # Bootstrap komponensek automatikus regisztrációja
+        self._register_bootstrap_components()
+
+    async def check_health(self) -> SystemHealth:
         """Ellenőrzi a teljes rendszer egészségügyi állapotát.
 
         A metódus összegyűjti az összes komponens és a rendszer
@@ -65,7 +83,7 @@ class HealthMonitor(HealthMonitorInterface):
         # Ellenőrizzük az összes regisztrált komponenst
         for component_name in self._components:
             try:
-                component_health = self.check_component(component_name)
+                component_health = await self.check_component(component_name)
                 component_healths.append(component_health)
 
                 if component_health.status == ComponentStatus.CRITICAL:
@@ -111,7 +129,7 @@ class HealthMonitor(HealthMonitorInterface):
             system_metrics=system_metrics,
         )
 
-    def check_component(self, component_name: str) -> ComponentHealth:
+    async def check_component(self, component_name: str) -> ComponentHealth:
         """Ellenőrzi egy adott komponens egészségügyi állapotát.
 
         Args:
@@ -134,7 +152,7 @@ class HealthMonitor(HealthMonitorInterface):
 
         try:
             health_check = self._components[component_name]
-            return health_check.check()
+            return await health_check.check()
         except Exception as e:
             # Ha hiba történik az ellenőrzés során, akkor CRITICAL státuszt adunk vissza
             return ComponentHealth(
@@ -208,9 +226,7 @@ class HealthMonitor(HealthMonitorInterface):
                 self._logger.info(f"'{component_name}' komponens eltávolítva")
         else:
             if self._logger:
-                self._logger.warning(
-                    f"A '{component_name}' komponens nem volt regisztrálva"
-                )
+                self._logger.warning(f"A '{component_name}' komponens nem volt regisztrálva")
 
     def _collect_system_metrics(self) -> dict[str, float]:
         """Gyűjti a rendszer szintű metrikákat.
@@ -256,6 +272,32 @@ class HealthMonitor(HealthMonitorInterface):
 
         return metrics
 
+    def _register_bootstrap_components(self) -> None:
+        """Regisztrálja az összes bootstrap komponenst egészségügyi ellenőrzésre.
+
+        Ez a metódus automatikusan regisztrálja az összes rendelkezésre álló
+        bootstrap komponenst, hogy a rendszer egészségügyi állapota teljes képet adjon.
+        """
+        # Config komponens regisztrációja
+        if self._config:
+            self.register_component("config")
+
+        # Logger komponens regisztrációja
+        if self._logger:
+            self.register_component("logger")
+
+        # EventBus komponens regisztrációja
+        if self._eventbus:
+            self.register_component("eventbus")
+
+        # Storage komponens regisztrációja
+        if self._storage:
+            self.register_component("storage")
+
+        # Hardware komponens regisztrációja
+        if self._hardware:
+            self.register_component("hardware")
+
 
 class DefaultHealthCheck(HealthCheckInterface):
     """Alapértelmezett egészségügyi ellenőrzés implementációja.
@@ -279,7 +321,7 @@ class DefaultHealthCheck(HealthCheckInterface):
         self._name = name
         self._logger = logger
 
-    def check(self) -> ComponentHealth:
+    async def check(self) -> ComponentHealth:
         """Végrehajtja az egészségügyi ellenőrzést.
 
         Returns:

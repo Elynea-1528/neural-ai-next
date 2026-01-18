@@ -11,14 +11,27 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any, TypeVar, cast
 
-import structlog
-
 # Típusváltozók a generikus típusokhoz
 F = TypeVar("F", bound=Callable[..., Any])
 R = TypeVar("R")
 
-# Logger inicializálása
-_TRACE_LOGGER = structlog.get_logger("neural_ai.trace")
+
+# Logger inicializálása - késleltetett import elkerülése érdekében
+def _get_trace_logger():
+    from neural_ai.core.logger.factory import LoggerFactory
+
+    return LoggerFactory.get_logger("neural_ai.trace")
+
+
+_TRACE_LOGGER = None
+
+
+def _ensure_trace_logger():
+    global _TRACE_LOGGER
+    if _TRACE_LOGGER is None:
+        _TRACE_LOGGER = _get_trace_logger()
+    return _TRACE_LOGGER
+
 
 # Biztonságos típusok halmaza
 _SAFE_TYPES = (str, int, float, bool, type(None))
@@ -85,9 +98,7 @@ def trace[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 
         # Argumentumok biztonságos szerializálása
         safe_args: list[str] = [_serialize_arg(arg) for arg in args]
-        safe_kwargs: dict[str, str] = {
-            key: _serialize_arg(value) for key, value in kwargs.items()
-        }
+        safe_kwargs: dict[str, str] = {key: _serialize_arg(value) for key, value in kwargs.items()}
 
         # Időmérés indítása
         start_time = time.perf_counter()
@@ -99,14 +110,14 @@ def trace[**P, R](func: Callable[P, R]) -> Callable[P, R]:
             # Futási idő kiszámítása
             duration_ms = (time.perf_counter() - start_time) * 1000
 
-            # Logolás a structlog-gal
-            _TRACE_LOGGER.debug(
+            # Logolás a LoggerFactory-val
+            _ensure_trace_logger().debug(
                 "function_call",
                 call_id=call_id,
                 function=func.__name__,
                 args=safe_args,
                 kwargs=safe_kwargs,
-                duration_ms=round(duration_ms, 3)
+                duration_ms=round(duration_ms, 3),
             )
 
             return result
@@ -115,14 +126,14 @@ def trace[**P, R](func: Callable[P, R]) -> Callable[P, R]:
             # Hiba esetén is logoljuk az információkat
             duration_ms = (time.perf_counter() - start_time) * 1000
 
-            _TRACE_LOGGER.debug(
+            _ensure_trace_logger().debug(
                 "function_call_error",
                 call_id=call_id,
                 function=func.__name__,
                 args=safe_args,
                 kwargs=safe_kwargs,
                 duration_ms=round(duration_ms, 3),
-                error=str(e)
+                error=str(e),
             )
 
             # A hiba továbbdobása

@@ -5,10 +5,9 @@ import threading
 from collections.abc import Callable
 from typing import TypeVar, cast
 
-import structlog
-
 from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
 from neural_ai.core.base.interfaces import DIContainerInterface, LazyComponentInterface
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 
 T = TypeVar("T")
@@ -68,7 +67,7 @@ class DIContainer(DIContainerInterface):
         self._instances: dict[object, object] = {}
         self._factories: dict[object, Callable[[], object]] = {}
         self._lazy_components: dict[str, LazyComponent[object]] = {}
-        self._logger = structlog.get_logger(__name__)
+        self._logger = LoggerFactory.get_logger(__name__)
         self._logger.info("DI konténer inicializálva")
 
     @trace

@@ -16,7 +16,11 @@ from neural_ai.core.system.interfaces.health_interface import (
 )
 
 if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 class SystemComponentFactory:
@@ -39,7 +43,11 @@ class SystemComponentFactory:
     def create_health_monitor(
         cls,
         name: str = "default",
+        config: "ConfigManagerInterface | None" = None,
         logger: "LoggerInterface | None" = None,
+        eventbus: "EventBusInterface | None" = None,
+        storage: "StorageInterface | None" = None,
+        hardware: "HardwareInterface | None" = None,
         **kwargs: Any,
     ) -> HealthMonitorInterface:
         """HealthMonitor példány létrehozása vagy visszaadása.
@@ -49,7 +57,11 @@ class SystemComponentFactory:
 
         Args:
             name: A HealthMonitor egyedi neve (alapértelmezett: "default")
+            config: ConfigManager interfész (opcionális)
             logger: Logger interfész a naplózásra (opcionális)
+            eventbus: EventBus interfész (opcionális)
+            storage: Storage interfész (opcionális)
+            hardware: Hardware interfész (opcionális)
             **kwargs: További paraméterek a HealthMonitor konstruktorának
 
         Returns:
@@ -62,7 +74,7 @@ class SystemComponentFactory:
             ...     name="main",
             ...     logger=logger
             ... )
-            >>> health = monitor.check_health()
+            >>> health = await monitor.check_health()
             >>> print(f"Rendszer állapota: {health.overall_status.value}")
         """
         # Ha már létezik ilyen nevű HealthMonitor, azt adjuk vissza
@@ -72,8 +84,15 @@ class SystemComponentFactory:
         # Lazy loading a konkrét implementációhoz
         from neural_ai.core.system.implementations.health_monitor import HealthMonitor
 
-        # Dependency Injection: logger átadása
-        monitor = HealthMonitor(logger=logger, **kwargs)
+        # Dependency Injection: összes komponens átadása
+        monitor = HealthMonitor(
+            config=config,
+            logger=logger,
+            eventbus=eventbus,
+            storage=storage,
+            hardware=hardware,
+            **kwargs,
+        )
 
         cls._health_monitors[name] = monitor
         return monitor

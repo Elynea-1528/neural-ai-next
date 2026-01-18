@@ -39,7 +39,7 @@ class LazyLoader[T]:
         self._loaded: bool = False
         self._value: T | None = None
         self._lock = threading.RLock()
-        self._logger = LoggerFactory.get_logger("neural_ai.core.base.implementations.lazy_loader")
+        self._logger = LoggerFactory.get_logger(__name__)
         self._logger.info(
             "LazyLoader inicializálva",
             extra={"loader_func": getattr(loader_func, "__name__", str(loader_func))},

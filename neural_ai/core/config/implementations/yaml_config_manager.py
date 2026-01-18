@@ -329,7 +329,7 @@ class YAMLConfigManager(ConfigManagerInterface):
             ctx.errors[ctx.path] = "Dictionary típusú érték szükséges a validáláshoz"
             return
 
-        config = cast(dict[str, Any], ctx.value)
+        config = ctx.value
         for key, schema_value in ctx.schema.items():
             current_path = f"{ctx.path}.{key}" if ctx.path else key
             config_value = config.get(key)

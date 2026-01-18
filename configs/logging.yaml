@@ -44,12 +44,52 @@ loggers:
 
   # --- SPECIFIKUS MODULOK FELÜLBÍRÁLÁSA (OVERRIDE) ---
   # Csak a szintet (level) írjuk felül, a handlereket öröklik.
+
+  # CORE INFRASTRUCTURE (alapvető komponensek)
   neural_ai.core.logger:
     level: WARNING # Megakadályozza a rekurzív logolást a logger factory-ban.
+  neural_ai.core.config:
+    level: INFO    # Konfiguráció betöltés nyomonkövetése
+  neural_ai.core.events:
+    level: INFO    # Esemény rendszer működése
+  neural_ai.core.db:
+    level: INFO    # Adatbázis műveletek
+  neural_ai.core.system:
+    level: WARNING # Health monitoring (kevesebb zaj)
+  neural_ai.core.utils:
+    level: INFO    # Segédműveletek
+
+  # DATA LAYER (adattárolás és feldolgozás)
   neural_ai.data.storage:
     level: DEBUG   # Részletesebb logolás az adattároló rétegben.
+  neural_ai.data.ingestion:
+    level: DEBUG   # Market data bevitel követése
+
+  # DOMAIN LAYER (üzleti logika)
+  neural_ai.processors:
+    level: DEBUG   # Dimenzió processzorok részletes logolása
+  neural_ai.processors.dimensions:
+    level: DEBUG   # D1-D15 elemzők
+  neural_ai.processors.pipeline:
+    level: INFO    # Feldolgozási pipeline
+  neural_ai.processors.resampler:
+    level: DEBUG   # Tick → OHLCV konverzió
+
+  # PRESENTATION LAYER (felhasználói felület)
+  neural_ai.ui:
+    level: INFO    # UI általános műveletek
   neural_ai.ui.components:
-    level: WARNING
+    level: WARNING # UI komponensek (kevesebb zaj)
+  neural_ai.ui.pages:
+    level: INFO    # Oldal navigáció
+
+  # INPUT LAYER (külső adatok)
+  neural_ai.collectors:
+    level: DEBUG   # Adatgyűjtés részletes követése
+  neural_ai.collectors.jforex:
+    level: DEBUG   # Dukascopy adatgyűjtő
+  neural_ai.collectors.mt5:
+    level: INFO    # MetaTrader kapcsolat
 
   # --- TRACE RENDSZER ---
   # Különálló logger a @trace dekorátorok számára, saját fájllal.

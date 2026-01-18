@@ -10,13 +10,12 @@ import os
 import platform
 from typing import TYPE_CHECKING
 
-import structlog
-
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 
 # Logger inicializálása
-logger = structlog.get_logger(__name__)
+logger = LoggerFactory.get_logger(__name__)
 
 if TYPE_CHECKING:
     pass

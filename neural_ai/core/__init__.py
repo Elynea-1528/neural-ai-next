@@ -148,7 +148,7 @@ def bootstrap_core(
     logging_config = cast(LoggingConfig, config.get_section("logging") or {})
     LoggerFactory.configure(logging_config)
     # Alap logger példány létrehozása
-    logger = LoggerFactory.get_logger(name="NeuralAI.Bootstrap", logger_type="default")
+    logger = LoggerFactory.get_logger(__name__, logger_type="default")
     container.register_instance(LoggerInterface, logger)
 
     # Visszajelzés az előző lépésekről
