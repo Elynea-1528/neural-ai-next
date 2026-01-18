@@ -165,7 +165,11 @@ class D01PriceProcessor(BaseDimensionProcessor):
             lower_shadow.alias("lower_shadow"),
         ]
 
-        # Bid és ask volume hozzáadása, ha rendelkezésre állnak
+        # Eredeti tick oszlopok hozzáadása, ha rendelkezésre állnak (tick timeframe esetén)
+        if "bid" in df.columns:
+            columns.append(pl.col("bid"))
+        if "ask" in df.columns:
+            columns.append(pl.col("ask"))
         if "bid_volume" in df.columns:
             columns.append(pl.col("bid_volume"))
         if "ask_volume" in df.columns:
