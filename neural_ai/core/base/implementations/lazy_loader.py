@@ -9,8 +9,7 @@ import threading
 from collections.abc import Callable
 from typing import TypeVar, cast
 
-import structlog
-
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 
 T = TypeVar("T")
@@ -40,7 +39,7 @@ class LazyLoader[T]:
         self._loaded: bool = False
         self._value: T | None = None
         self._lock = threading.RLock()
-        self._logger = structlog.get_logger(__name__)
+        self._logger = LoggerFactory.get_logger("neural_ai.core.base.implementations.lazy_loader")
         self._logger.info(
             "LazyLoader inicializálva",
             extra={"loader_func": getattr(loader_func, "__name__", str(loader_func))},
