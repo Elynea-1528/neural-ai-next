@@ -130,7 +130,6 @@
     "rainbow_csv.color_scheme": "gradient_fast",
     "rainbow_csv.delimiter_hints": true,
     "parquetViewer.maxFileSizeMB": 100,
-    "material-icon-theme.activeIconPack": "material",
     "material-icon-theme.folders.theme": "specific",
     "python-envs.defaultEnvManager": "ms-python.python:conda",
     "python-envs.defaultPackageManager": "ms-python.python:conda",

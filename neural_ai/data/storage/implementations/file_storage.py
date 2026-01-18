@@ -188,6 +188,15 @@ class FileStorage(StorageInterface):
         except OSError as e:
             raise StorageIOError(f"Nem sikerült lekérdezni a tárolási információkat: {e}") from e
 
+    @property
+    def base_path(self) -> Path:
+        """A tárolási alapútvonal lekérdezése.
+
+        Returns:
+            Path: Az alapútvonal
+        """
+        return self._base_path
+
     def _get_full_path(self, path: str | Path) -> Path:
         """Teljes útvonal előállítása.
 

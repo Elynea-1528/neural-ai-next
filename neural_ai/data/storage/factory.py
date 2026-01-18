@@ -58,6 +58,15 @@ class StorageFactory(StorageFactoryInterface):
         cls._storage_types[storage_type] = storage_class
 
     @classmethod
+    def get_registered_types(cls) -> dict[str, type[StorageInterface]]:
+        """Visszaadja a regisztrált tárolási típusokat.
+
+        Returns:
+            A regisztrált tárolási típusok szótára.
+        """
+        return cls._storage_types.copy()
+
+    @classmethod
     def get_storage(
         cls,
         logger: "LoggerInterface | None" = None,
