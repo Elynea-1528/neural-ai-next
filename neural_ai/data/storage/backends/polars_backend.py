@@ -101,6 +101,11 @@ class PolarsBackend(StorageBackend):
             self._polars_wrapper._import_polars()
             self._initialized = True
 
+    @property
+    def polars_wrapper(self) -> PolarsDataFrame:
+        """Visszaadja a polars wrapper-t (teszteléshez)."""
+        return self._polars_wrapper
+
     def write(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
         """DataFrame adatok írása Parquet formátumban.
 
