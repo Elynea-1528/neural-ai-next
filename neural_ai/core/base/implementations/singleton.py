@@ -94,3 +94,15 @@ class SingletonMeta(ABCMeta):
                 extra={"class_name": cls.__name__},
             )
         return cast(T, cls._instances[cls])  # type: ignore[attr-defined]
+
+    @classmethod
+    def reset_singleton(cls, target_cls: type) -> None:
+        """Singleton példány resetelése tesztelés céljából.
+
+        Args:
+            target_cls: Az osztály, amelynek singleton példányát resetelni kell.
+        """
+        if target_cls in cls._instances:
+            del cls._instances[target_cls]
+        if hasattr(cls, "_instance"):
+            cls._instance = None

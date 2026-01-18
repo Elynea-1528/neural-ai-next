@@ -56,3 +56,7 @@ class ConfigManagerInterface(ABC):
         Returns:
             Tuple[bool, Optional[Dict[str, str]]]: (érvényes-e, hibák szótára)
         """
+
+
+# Álnév a kompatibilitás érdekében
+ConfigInterface = ConfigManagerInterface

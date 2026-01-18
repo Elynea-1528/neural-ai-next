@@ -278,3 +278,36 @@ class CoreBridge(metaclass=SingletonMeta):
             Optional[CoreComponents]: A core komponensek vagy None, ha nincs inicializálva
         """
         return self._core
+
+    @core.setter
+    def core(self, value: Optional["CoreComponents"]) -> None:
+        """A core komponensek beállítása (tesztelés céljából)."""
+        self._core = value
+
+    @property
+    def connected(self) -> bool:
+        """A backendkel való kapcsolat állapotát ellenőrző property.
+
+        Returns:
+            bool: True, ha a kapcsolat aktív, egyébként False
+        """
+        return self._connected
+
+    @connected.setter
+    def connected(self, value: bool) -> None:
+        """A kapcsolat állapotának beállítása (tesztelés céljából)."""
+        self._connected = value
+
+    @property
+    def strategy_service(self) -> Optional["StrategyServiceInterface"]:
+        """A strategy service elérését biztosító property.
+
+        Returns:
+            Optional[StrategyServiceInterface]: A strategy service vagy None
+        """
+        return self._strategy_service
+
+    @strategy_service.setter
+    def strategy_service(self, value: Optional["StrategyServiceInterface"]) -> None:
+        """A strategy service beállítása (tesztelés céljából)."""
+        self._strategy_service = value

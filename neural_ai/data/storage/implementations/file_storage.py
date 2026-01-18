@@ -64,7 +64,7 @@ class FileStorage(StorageInterface):
         self.logger = logger
         self.config = config
         self.event_bus = event_bus
-        self.storage_config = cast(StorageConfig, config.get("storage", {}) if config else {})
+        self.storage_config = cast(StorageConfig, config.get("storage") or {} if config else {})
         self._base_path = (
             Path(base_path) if base_path else Path(self.storage_config.get("base_path", "."))
         )

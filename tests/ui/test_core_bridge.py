@@ -15,15 +15,15 @@ class TestCoreBridge:
         """Reset singleton for test isolation."""
         from neural_ai.core.base.implementations.singleton import SingletonMeta
 
-        SingletonMeta._instance = None
+        SingletonMeta.reset_singleton(CoreBridge)
 
     @classmethod
     def teardown_method(cls):
         """Clean up after each test."""
         bridge = CoreBridge()
-        bridge._core = None
-        bridge._connected = False
-        bridge._strategy_service = None
+        bridge.core = None
+        bridge.connected = False
+        bridge.strategy_service = None
 
     def test_singleton_pattern(self):
         """Singleton minta tesztelése."""
@@ -38,8 +38,8 @@ class TestCoreBridge:
         bridge = CoreBridge()
 
         # Inicializálás előtt
-        assert not bridge._connected
-        assert bridge._core is None
+        assert not bridge.is_connected
+        assert bridge.core is None
         assert not bridge.is_connected
 
         # Mock bootstrap_core
@@ -50,8 +50,8 @@ class TestCoreBridge:
 
             bridge.initialize()
 
-            assert bridge._connected
-            assert bridge._core is mock_core
+            assert bridge.is_connected
+            assert bridge.core is mock_core
             assert bridge.is_connected
             mock_bootstrap.assert_called_once()
             mock_core.logger.info.assert_called_once_with("Core Bridge inicializálva")
@@ -75,7 +75,7 @@ class TestCoreBridge:
             bridge.initialize()
 
             mock_strategy_service.assert_called_once_with(bridge)
-            assert bridge._strategy_service is mock_strategy
+            assert bridge.strategy_service is mock_strategy
             mock_core.logger.debug.assert_called_once_with("Strategy Service inicializálva")
 
     def test_initialization_strategy_service_error(self):
@@ -96,7 +96,7 @@ class TestCoreBridge:
             bridge.initialize()
 
             mock_core.logger.error.assert_called_once()
-            assert bridge._strategy_service is None
+            assert bridge.strategy_service is None
 
     def test_get_component_not_initialized(self):
         """Komponens lekérés inicializálatlan bridge esetén."""
@@ -113,8 +113,8 @@ class TestCoreBridge:
         mock_core.logger = Mock()
         mock_storage = Mock()
         mock_core.storage = mock_storage
-        bridge._core = mock_core
-        bridge._connected = True
+        bridge.core = mock_core
+        bridge.connected = True
 
         result = bridge.get_component("parquet_storage")
 
@@ -128,8 +128,8 @@ class TestCoreBridge:
         mock_core = Mock()
         mock_core.logger = Mock()
         mock_core.storage = None
-        bridge._core = mock_core
-        bridge._connected = True
+        bridge.core = mock_core
+        bridge.connected = True
 
         result = bridge.get_component("parquet_storage")
 
@@ -148,8 +148,8 @@ class TestCoreBridge:
         mock_core.logger = mock_logger
         mock_core.storage = mock_storage
 
-        bridge._core = mock_core
-        bridge._connected = True
+        bridge.core = mock_core
+        bridge.connected = True
 
         mock_downloader = Mock()
         with patch("neural_ai.collectors.jforex.factory.JForexFactory") as mock_factory:
@@ -175,8 +175,8 @@ class TestCoreBridge:
         mock_core = Mock()
         mock_core.logger = Mock()
         mock_core.config = None
-        bridge._core = mock_core
-        bridge._connected = True
+        bridge.core = mock_core
+        bridge.connected = True
 
         with patch("neural_ai.collectors.jforex.factory.JForexFactory"):
             result = bridge.get_component("bi5_downloader")
@@ -192,9 +192,9 @@ class TestCoreBridge:
         mock_core.logger = Mock()
         mock_strategy = Mock()
         mock_core.logger = Mock()
-        bridge._core = mock_core
-        bridge._connected = True
-        bridge._strategy_service = mock_strategy
+        bridge.core = mock_core
+        bridge.connected = True
+        bridge.strategy_service = mock_strategy
 
         result = bridge.get_component("strategy_service")
 
@@ -207,9 +207,9 @@ class TestCoreBridge:
 
         mock_core = Mock()
         mock_core.logger = Mock()
-        bridge._core = mock_core
-        bridge._connected = True
-        bridge._strategy_service = None
+        bridge.core = mock_core
+        bridge.connected = True
+        bridge.strategy_service = None
 
         with patch(
             "neural_ai.ui.services.strategy_service.StrategyService",
@@ -230,8 +230,8 @@ class TestCoreBridge:
         mock_core.logger = Mock()
         mock_config = Mock()
         mock_core.config = mock_config
-        bridge._core = mock_core
-        bridge._connected = True
+        bridge.core = mock_core
+        bridge.connected = True
 
         result = bridge.get_component("config")
 
@@ -244,8 +244,8 @@ class TestCoreBridge:
         mock_core = Mock()
         mock_core.logger = Mock()
         mock_core.config = None
-        bridge._core = mock_core
-        bridge._connected = True
+        bridge.core = mock_core
+        bridge.connected = True
 
         result = bridge.get_component("config")
 
@@ -257,13 +257,28 @@ class TestCoreBridge:
 
         mock_core = Mock()
         mock_core.logger = Mock()
-        bridge._core = mock_core
-        bridge._connected = True
+        bridge.core = mock_core
+        bridge.connected = True
 
         result = bridge.get_component("unknown")
 
         assert result is None
         mock_core.logger.warning.assert_called_once_with("Ismeretlen komponens típus: unknown")
+
+    def test_get_component_logger(self):
+        """Logger komponens lekérés tesztelése."""
+        bridge = CoreBridge()
+
+        mock_core = Mock()
+        mock_core.logger = Mock()
+        mock_logger = Mock()
+        mock_core.logger = mock_logger
+        bridge.core = mock_core
+        bridge.connected = True
+
+        result = bridge.get_component("logger")
+
+        assert result is mock_logger
 
     def test_send_command_connected(self):
         """Parancs küldés csatlakoztatott bridge esetén."""
@@ -271,8 +286,8 @@ class TestCoreBridge:
 
         mock_core = Mock()
         mock_core.logger = Mock()
-        bridge._core = mock_core
-        bridge._connected = True
+        bridge.core = mock_core
+        bridge.connected = True
 
         result = bridge.send_command("test_command", {"param": "value"})
 
@@ -292,8 +307,8 @@ class TestCoreBridge:
 
         mock_core = Mock()
         mock_core.logger = Mock()
-        bridge._core = mock_core
-        bridge._connected = False
+        bridge.core = mock_core
+        bridge.connected = False
 
         result = bridge.send_command("test_command", {"param": "value"})
 
@@ -308,8 +323,8 @@ class TestCoreBridge:
         mock_core.database = Mock()
         mock_core.event_bus = Mock()
         mock_core.storage = Mock()
-        bridge._core = mock_core
-        bridge._connected = True
+        bridge.core = mock_core
+        bridge.connected = True
 
         result = bridge.get_system_info()
 
@@ -325,8 +340,8 @@ class TestCoreBridge:
 
         mock_core = Mock()
         mock_core.logger = Mock()
-        bridge._core = mock_core
-        bridge._connected = False
+        bridge.core = mock_core
+        bridge.connected = False
 
         result = bridge.get_system_info()
 
@@ -337,7 +352,7 @@ class TestCoreBridge:
         bridge = CoreBridge()
 
         mock_core = Mock()
-        bridge._core = mock_core
+        bridge.core = mock_core
 
         assert bridge.core is mock_core
 
@@ -346,5 +361,5 @@ class TestCoreBridge:
         bridge = CoreBridge()
 
         assert not bridge.is_connected
-        bridge._connected = True
+        bridge.connected = True
         assert bridge.is_connected
