@@ -13,11 +13,10 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional
 
-import structlog
-
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.events.exceptions import EventBusError, PublishError
 from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig, EventBusInterface
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 
 # Csak típusellenőrzéskor importáljuk, hogy elkerüljük a körkörös importot
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
-logger = structlog.get_logger(__name__)
+logger = LoggerFactory.get_logger(__name__)
 
 # Típus aliasok a jobb olvashatóság érdekében
 EventCallback = Callable[["BaseModel"], "Any"]
@@ -57,11 +56,14 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         """Visszaadja az EventBus konfigurációját."""
         return self._config
 
-    def __init__(self, config: EventBusConfig | None = None, logger: "LoggerInterface | None" = None) -> None:
+    def __init__(
+        self, config: EventBusConfig | None = None, logger: "LoggerInterface | None" = None
+    ) -> None:
         """Inicializálja az EventBus-t.
 
         Args:
             config: EventBus konfiguráció (opcionális)
+            logger: Logger interfész (opcionális)
         """
         self._config = config or EventBusConfig()
 
@@ -88,7 +90,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if logger is not None:
             self._logger = logger
         else:
-            self._logger = structlog.get_logger(self.__class__.__name__)
+            self._logger = LoggerFactory.get_logger(self.__class__.__name__)
 
     @trace
     async def start(self) -> None:

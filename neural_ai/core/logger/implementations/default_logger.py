@@ -130,12 +130,13 @@ class DefaultLogger(LoggerInterface):
         Args:
             message: A log üzenet szövege.
             **kwargs: További paraméterek, amelyek az extra kulcs alatt
-                kerülnek átadásra a loggernek.
+                kerülnek átadásra a loggernek. Ha exc_info van, külön kezeljük.
 
         Példa:
             >>> logger.error("Adatbázis kapcsolat hiba", db="main")
         """
-        self.logger.error(message, extra=kwargs if kwargs else None)
+        exc_info = kwargs.pop("exc_info", None)
+        self.logger.error(message, exc_info=exc_info, extra=kwargs if kwargs else None)
 
     def critical(self, message: str, **kwargs: Any) -> None:
         """Critical szintű üzenet logolása.

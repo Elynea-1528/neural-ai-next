@@ -26,9 +26,13 @@ class EventBusFactory:
     """
 
     def __init__(self, logger: "LoggerInterface", config_manager: "ConfigManagerInterface") -> None:
-        from neural_ai.core.logger.factory import LoggerFactory
+        """Inicializálja az EventBusFactory-t.
 
-        self._logger = LoggerFactory.get_logger("neural_ai.core.events")
+        Args:
+            logger: Logger interfész a logoláshoz
+            config_manager: Konfigurációkezelő interfész
+        """
+        self._logger = logger
         self._config_manager = config_manager
         self._logger.debug("EventBusFactory inicializálva", factory_id=id(self))
 

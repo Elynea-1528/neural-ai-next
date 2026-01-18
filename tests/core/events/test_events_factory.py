@@ -65,9 +65,7 @@ class TestEventBusFactoryCreateAndStart:
 
     @pytest.mark.asyncio
     @patch("neural_ai.core.events.implementations.zeromq_bus.EventBus")
-    async def test_create_and_start_default(
-        self, mock_event_bus_class: MagicMock
-    ) -> None:
+    async def test_create_and_start_default(self, mock_event_bus_class: MagicMock) -> None:
         """Teszteli az alapértelmezett EventBus létrehozást és indítását."""
         mock_event_bus = AsyncMock()
         mock_event_bus_class.return_value = mock_event_bus
@@ -83,9 +81,7 @@ class TestEventBusFactoryCreateAndStart:
 
     @pytest.mark.asyncio
     @patch("neural_ai.core.events.implementations.zeromq_bus.EventBus")
-    async def test_create_and_start_with_config(
-        self, mock_event_bus_class: MagicMock
-    ) -> None:
+    async def test_create_and_start_with_config(self, mock_event_bus_class: MagicMock) -> None:
         """Teszteli az EventBus létrehozást és indítását konfigurációval."""
         mock_event_bus = AsyncMock()
         mock_event_bus_class.return_value = mock_event_bus
@@ -228,18 +224,14 @@ class TestEventBusFactoryStaticMethods:
     def test_factory_methods_are_instance_methods(self) -> None:
         """Teszteli, hogy a factory metódusok példány metódusok."""
         # Ellenőrizzük, hogy a metódusok példány metódusok-e
-        # self paramétert kell várniuk
+        # self paramétert kell várniuk (unbound signature)
         import inspect
 
-        mock_logger = MagicMock()
-        mock_config_manager = MagicMock()
-        factory = EventBusFactory(mock_logger, mock_config_manager)
-
-        create_sig = inspect.signature(factory.create)
+        create_sig = inspect.signature(EventBusFactory.create)
         assert "self" in create_sig.parameters
 
-        create_and_start_sig = inspect.signature(factory.create_and_start)
+        create_and_start_sig = inspect.signature(EventBusFactory.create_and_start)
         assert "self" in create_and_start_sig.parameters
 
-        create_from_config_sig = inspect.signature(factory.create_from_config)
+        create_from_config_sig = inspect.signature(EventBusFactory.create_from_config)
         assert "self" in create_from_config_sig.parameters
