@@ -16,17 +16,18 @@ DIMENSIONS_CONFIG = {1: "price", 2: "support"}
 FACTORY_CLASSES = {1: "D01PriceFactory", 2: "D02SupportFactory"}
 
 
-def create_time_alignment_service() -> ITimeAlignmentService:
+def create_time_alignment_service(logger: "LoggerInterface") -> ITimeAlignmentService:
     """TimeAlignmentService factory függvény - dinamikus példányosítással.
+
+    Args:
+        logger: A naplózási interfész.
 
     Returns:
         ITimeAlignmentService: Az időszinkronizációs szolgáltatás példánya
     """
-    module = importlib.import_module(
-        "neural_ai.processors.implementations.time_alignment_service"
-    )
+    module = importlib.import_module("neural_ai.processors.implementations.time_alignment_service")
     cls = module.TimeAlignmentService
-    return cls()
+    return cls(logger)
 
 
 def create_dimension_processor(
