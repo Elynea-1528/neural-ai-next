@@ -7,6 +7,8 @@ amely a Python beépített logging rendszerét használja.
 import logging
 from typing import TYPE_CHECKING, Any
 
+import structlog
+
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 if TYPE_CHECKING:
@@ -55,28 +57,10 @@ class DefaultLogger(LoggerInterface):
             >>> logger = DefaultLogger("my_app",
             ...                       format="%(levelname)s: %(message)s")
         """
-        self.logger: logging.Logger = logging.getLogger(name)
+        self.logger = structlog.get_logger(name)
 
-        # Korábbi handlerek eltávolítása a duplikáció elkerülésére
-        for handler in self.logger.handlers[:]:
-            self.logger.removeHandler(handler)
-
-        # Log szint beállítása
-        level: int = kwargs.get("level", logging.INFO)
-        self.logger.setLevel(level)
-
-        # Handler hozzáadása ha nincs még
-        if not self.logger.handlers:
-            stream = kwargs.get("stream")
-            handler = logging.StreamHandler(stream)
-            formatter = logging.Formatter(
-                kwargs.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-            )
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-
-        # Propagate kikapcsolása a duplikált üzenetek elkerülésére
-        self.logger.propagate = False
+        # A központi LoggerFactory.configure() intézi a handler-eket és formázást
+        # Structlog automatikusan kezeli a színes kimenetet és JSON logging-ot
 
         # DI: függőségek tárolása
         self._config = config
@@ -144,41 +128,39 @@ class DefaultLogger(LoggerInterface):
         Args:
             message: A log üzenet szövege.
             **kwargs: További paraméterek, amelyek az extra kulcs alatt
-                kerülnek átadásra a loggernek.
+                kerülnek átadásra a loggernek. Ha exc_info van, külön kezeljük.
 
         Példa:
             >>> logger.critical("Kritikus rendszerhiba", component="auth")
         """
-        self.logger.critical(message, extra=kwargs if kwargs else None)
+        exc_info = kwargs.pop("exc_info", None)
+        self.logger.critical(message, exc_info=exc_info, extra=kwargs if kwargs else None)
 
     def set_level(self, level: int) -> None:
         """Logger log szintjének beállítása.
 
-        A metódus beállítja a logger és a hozzá tartozó handler minimális
-        log szintjét. Ez határozza meg, hogy melyik szintű üzenetek kerüljenek
-        naplózásra.
+        Structlog esetében ez a központi konfiguráción keresztül történik.
+        Ez a metódus csak kompatibilitás céljából van jelen.
 
         Args:
-            level: Az új log szint (pl. logging.DEBUG, logging.INFO,
-                logging.WARNING, logging.ERROR, logging.CRITICAL).
+            level: Az új log szint (nem használt structlog esetében).
 
         Példa:
-            >>> logger.set_level(logging.DEBUG)
+            >>> logger.set_level(logging.DEBUG)  # Nem csinál semmit
         """
-        self.logger.setLevel(level)
-        # Handler szintjének is beállítása konzisztencia érdekében
-        for handler in self.logger.handlers:
-            handler.setLevel(level)
+        # Structlog esetében a szint a központi konfigurációban van beállítva
+        pass
 
     def get_level(self) -> int:
         """Aktuális log szint lekérése.
 
+        Structlog esetében mindig INFO szintet ad vissza kompatibilitás céljából.
+
         Returns:
-            int: Az aktuális log szint numerikus értéke. A visszaadott érték
-                a logging modul konstansainak egyike (pl. logging.INFO -> 20).
+            int: INFO szint (logging.INFO = 20).
 
         Példa:
             >>> level = logger.get_level()
             >>> print(f"Aktuális log szint: {level}")
         """
-        return self.logger.level
+        return logging.INFO

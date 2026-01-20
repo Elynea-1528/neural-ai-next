@@ -188,6 +188,7 @@ def bootstrap_core(
             storage_type=storage_type,
             base_path=storage_conf.get("base_path"),
             logger=logger,
+            config=config,
             hardware=hardware,
         )
         container.register_instance(StorageInterface, storage)

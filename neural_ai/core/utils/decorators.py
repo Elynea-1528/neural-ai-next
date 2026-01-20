@@ -115,8 +115,8 @@ def trace[**P, R](func: Callable[P, R]) -> Callable[P, R]:
                 "function_call",
                 call_id=call_id,
                 function=func.__name__,
-                args=safe_args,
-                kwargs=safe_kwargs,
+                call_args=safe_args,
+                call_kwargs=safe_kwargs,
                 duration_ms=round(duration_ms, 3),
             )
 
@@ -130,8 +130,8 @@ def trace[**P, R](func: Callable[P, R]) -> Callable[P, R]:
                 "function_call_error",
                 call_id=call_id,
                 function=func.__name__,
-                args=safe_args,
-                kwargs=safe_kwargs,
+                call_args=safe_args,
+                call_kwargs=safe_kwargs,
                 duration_ms=round(duration_ms, 3),
                 error=str(e),
             )

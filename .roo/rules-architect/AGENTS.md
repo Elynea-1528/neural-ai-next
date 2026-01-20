@@ -1,10 +1,10 @@
 # Architect Mód Szabályok (Nem Nyilvánvaló Csak)
 
-- **Réteges Architektúra**: Presentation→Domain→Persistence→Input→Infrastructure (függőségek csak lefelé)
-- **Bootstrap Lánc**: HardwareInfo→Config→Logger→EventBus→Storage→Database→SystemMonitor (függőségi sorrend)
-- **DDD Minta**: Domain-Driven Design event-driven (ZeroMQ/AsyncIO), adatbázis-első megközelítéssel
-- **Modul Minta**: Minden modul: interfaces/ABC, implementations/konkret, exceptions/tipizált, factory/létrehozás, __init__/facade
-- **Dependency Injection**: Konstruktor injektálás; konkrét osztályok soha nem importálódnak közvetlenül
-- **Reality Check**: Mindig futtass `ls -R` / `find` parancsot tervezés előtt (nincs hallucinált fájl)
-- **Granular Dashboard**: Fájl szintű követés TASK_TREE.md-ben Stmt/Brch coverage metrikákkal
-- **Hierarchikus Rendszer**: Hivatkozz `docs/architecture/hierarchical_system/overview.md`-re rendszer tervezésnél
+- **OPERATION TOTAL RECALL**: A rendszer jelenleg néma és instabil. A tervezés fókuszában a LoggerFactory helyreállítása és a Trace dekorátorok bevezetése áll.
+- **Réteges Architektúra**: Presentation→Domain→Persistence→Input→Infrastructure (függőségek csak lefelé).
+- **Bootstrap Lánc**: HardwareInfo→Config→Logger→EventBus→Storage→Database→SystemMonitor (szigorú sorrend).
+- **Reality Check**: Minden delegálás előtt `ls -R` kötelező. Ne hallucinálj fájlokat!
+- **Granular Dashboard**: A `docs/development/TASK_TREE.md` az SSOT. Fájl szintű követés kötelező Stmt/Brch coverage metrikákkal.
+- **🛡️ BIZTONSÁGI PROTOKOLL**: **TESZTEK FUTTATÁSA TILOS!** Kizárólag Statikus Kódanalízis és Kódírás tervezhető.
+- **DI Szabály**: Konstruktor injektálás kötelező; konkrét osztályok soha nem importálódnak közvetlenül.
+- **TypedDict Definíció**: Minden modul `factory.py`-jában kötelező a konfigurációs TypedDict tervezése.

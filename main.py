@@ -18,6 +18,7 @@ from contextlib import suppress
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+from neural_ai.core import get_core_components
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 # Körkörös importok elkerüléséhez
@@ -256,6 +257,9 @@ def main() -> None:
     # Core komponensek inicializálása
     components = get_core_components()
     logger = components.logger
+
+    # Logger kötelező a rendszer működéséhez
+    assert logger is not None, "Logger is required but not initialized"
 
     args = parse_arguments()
 

@@ -1,6 +1,6 @@
 """D02SupportProcessor - Support/Resistance szintek processzora."""
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, TypedDict, Optional, List
 
 import polars as pl
 
@@ -9,6 +9,26 @@ from neural_ai.processors.dimensions.base import BaseDimensionProcessor
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+
+
+class MarketHoursConfig(TypedDict):
+    """Market hours konfigurációs TypedDict."""
+    enabled: bool
+    weekdays: List[str]
+    hours: List[str]
+    timezone: str
+    log_filtering: bool
+
+
+class D02SupportConfig(TypedDict):
+    """D02 Support Processor konfigurációs TypedDict."""
+    swing_window: Optional[int]
+    min_candles: Optional[int]
+    level_merge: Optional[float]
+    strength_window: Optional[int]
+    min_touches: Optional[int]
+    volume_confirmation: Optional[bool]
+    market_hours: Optional[MarketHoursConfig]
 
 
 class D02SupportProcessor(BaseDimensionProcessor):
@@ -26,6 +46,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
             logger: Logger interfész
         """
         super().__init__(config, logger)
+        self.dim_config: D02SupportConfig = cast(D02SupportConfig, self.dim_config)
 
         # Config validáció
         if "swing_window" not in self.dim_config:
@@ -48,7 +69,6 @@ class D02SupportProcessor(BaseDimensionProcessor):
         if min_candles is None:
             self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
             min_candles = 5
-        min_candles = cast(int, min_candles)
 
         # Body definíció: gyertya testének top és bottom (mid_open és mid_close alapján)
         body_top = pl.max_horizontal("mid_open", "mid_close")

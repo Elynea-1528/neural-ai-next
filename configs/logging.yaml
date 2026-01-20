@@ -1,119 +1,103 @@
-version: 1
-disable_existing_loggers: false
+# Structlog specifikus konfiguráció (nem standard logging dictConfig!)
+# Ez a config a LoggerFactory.configure() metódus számára készült
 
-formatters:
-  json:
-    class: pythonjsonlogger.jsonlogger.JsonFormatter
-    format: "%(asctime)s %(name)s %(levelname)s %(message)s"
-  colored:
-    class: structlog.stdlib.ProcessorFormatter
-    processor: structlog.dev.ConsoleRenderer(colors=True)
+# Alapértelmezett log szint
+default_level: "INFO"
 
+# Handler konfigurációk
 handlers:
   console:
-    class: logging.StreamHandler
-    formatter: colored
-    level: INFO
-    stream: ext://sys.stdout
+    enabled: true
+    level: "INFO"  # Console-ra INFO szint felettiek mennek (színesen)
+    colored: true     # Színes kimenet console-ra
 
   file:
-    class: logging.handlers.RotatingFileHandler
+    enabled: true
     filename: "logs/neural_ai.log"
-    formatter: json
-    level: DEBUG
-    maxBytes: 10485760
-    backupCount: 5
-    encoding: "utf-8"
+    level: "DEBUG"
+    json_format: true
+    rotating: true
+    max_bytes: 10485760
+    backup_count: 5
 
   trace_file:
-    class: logging.handlers.RotatingFileHandler
+    enabled: true
+    class: "logging.handlers.RotatingFileHandler"
     filename: "logs/trace.log"
-    formatter: json
-    level: DEBUG
+    level: "DEBUG"
     maxBytes: 10485760
     backupCount: 3
     encoding: "utf-8"
 
+# Specifikus logger konfigurációk
 loggers:
   # --- FŐ ALKALMAZÁS LOGGER ---
-  # Minden belső logger ebből örököl. A handlereket itt definiáljuk központilag.
   neural_ai:
-    level: INFO
-    handlers: [console, file]
-    propagate: false # Ne küldje tovább a root-ra, elkerülve a duplikált logokat.
-
-  # --- SPECIFIKUS MODULOK FELÜLBÍRÁLÁSA (OVERRIDE) ---
-  # Csak a szintet (level) írjuk felül, a handlereket öröklik.
-
-  # CORE INFRASTRUCTURE (alapvető komponensek)
-  neural_ai.core.logger:
-    level: WARNING # Megakadályozza a rekurzív logolást a logger factory-ban.
-  neural_ai.core.config:
-    level: INFO    # Konfiguráció betöltés nyomonkövetése
-  neural_ai.core.events:
-    level: INFO    # Esemény rendszer működése
-  neural_ai.core.db:
-    level: INFO    # Adatbázis műveletek
-  neural_ai.core.system:
-    level: WARNING # Health monitoring (kevesebb zaj)
-  neural_ai.core.utils:
-    level: INFO    # Segédműveletek
-
-  # DATA LAYER (adattárolás és feldolgozás)
-  neural_ai.data.storage:
-    level: DEBUG   # Részletesebb logolás az adattároló rétegben.
-  neural_ai.data.ingestion:
-    level: DEBUG   # Market data bevitel követése
-
-  # DOMAIN LAYER (üzleti logika)
-  neural_ai.processors:
-    level: DEBUG   # Dimenzió processzorok részletes logolása
-  neural_ai.processors.dimensions:
-    level: DEBUG   # D1-D15 elemzők
-  neural_ai.processors.pipeline:
-    level: INFO    # Feldolgozási pipeline
-  neural_ai.processors.resampler:
-    level: DEBUG   # Tick → OHLCV konverzió
-
-  # PRESENTATION LAYER (felhasználói felület)
-  neural_ai.ui:
-    level: INFO    # UI általános műveletek
-  neural_ai.ui.components:
-    level: WARNING # UI komponensek (kevesebb zaj)
-  neural_ai.ui.pages:
-    level: INFO    # Oldal navigáció
-
-  # INPUT LAYER (külső adatok)
-  neural_ai.collectors:
-    level: DEBUG   # Adatgyűjtés részletes követése
-  neural_ai.collectors.jforex:
-    level: DEBUG   # Dukascopy adatgyűjtő
-  neural_ai.collectors.mt5:
-    level: INFO    # MetaTrader kapcsolat
-
-  # --- TRACE RENDSZER ---
-  # Különálló logger a @trace dekorátorok számára, saját fájllal.
-  neural_ai.trace:
-    level: DEBUG
-    handlers: [trace_file]
+    level: "INFO"
     propagate: false
 
-  # --- KÜLSŐ KÖNYVTÁRAK ZAJCSÖKKENTÉSE ---
-  # Nincs handlerük, a root loggerre propagálnak.
-  aiosqlite:
-    level: WARNING
-  asyncio:
-    level: WARNING
-  parso:
-    level: WARNING
-  watchdog:
-    level: WARNING
-  matplotlib:
-    level: WARNING
-  numba:
-    level: WARNING
+  # --- SPECIFIKUS MODULOK FELÜLBÍRÁLÁSA ---
+  # CORE INFRASTRUCTURE
+  neural_ai.core.logger:
+    level: "WARNING"  # Megakadályozza a rekurzív logolást
+  neural_ai.core.config:
+    level: "INFO"
+  neural_ai.core.events:
+    level: "INFO"
+  neural_ai.core.db:
+    level: "INFO"
+  neural_ai.core.system:
+    level: "WARNING"
+  neural_ai.core.utils:
+    level: "INFO"
 
-# Gyökér logger, ami minden mást (főleg külső libeket) elkap.
-root:
-  level: INFO
-  handlers: [console]
+  # DATA LAYER
+  neural_ai.data.storage:
+    level: "DEBUG"
+  neural_ai.data.ingestion:
+    level: "DEBUG"
+
+  # DOMAIN LAYER
+  neural_ai.processors:
+    level: "DEBUG"
+  neural_ai.processors.dimensions:
+    level: "DEBUG"
+  neural_ai.processors.pipeline:
+    level: "INFO"
+  neural_ai.processors.resampler:
+    level: "DEBUG"
+
+  # PRESENTATION LAYER
+  neural_ai.ui:
+    level: "INFO"
+  neural_ai.ui.components:
+    level: "WARNING"
+  neural_ai.ui.pages:
+    level: "INFO"
+
+  # INPUT LAYER
+  neural_ai.collectors:
+    level: "DEBUG"
+  neural_ai.collectors.jforex:
+    level: "DEBUG"
+  neural_ai.collectors.mt5:
+    level: "INFO"
+
+  # TRACE RENDSZER
+  neural_ai.trace:
+    level: "DEBUG"
+    # A trace_handler hozzáadását a factory intézi
+
+  # KÜLSŐ LIBEK ZAJCSÖKKENTÉSE
+  aiosqlite:
+    level: "WARNING"
+  asyncio:
+    level: "WARNING"
+  parso:
+    level: "WARNING"
+  watchdog:
+    level: "WARNING"
+  matplotlib:
+    level: "WARNING"
+  numba:
+    level: "WARNING"

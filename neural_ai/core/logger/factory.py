@@ -279,8 +279,15 @@ class LoggerFactory(LoggerFactoryInterface):
 
             trace_handler.setLevel(level)
 
-            # JSON formatter
+            # JSON formatter processors-zal
             trace_processors: list[Processor] = [
+                structlog.stdlib.add_logger_name,
+                structlog.stdlib.add_log_level,
+                structlog.stdlib.PositionalArgumentsFormatter(),
+                structlog.processors.TimeStamper(fmt="iso"),
+                structlog.processors.StackInfoRenderer(),
+                structlog.processors.format_exc_info,
+                structlog.processors.UnicodeDecoder(),
                 structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                 JSONRenderer(ensure_ascii=False),
             ]

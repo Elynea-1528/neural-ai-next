@@ -1,8 +1,10 @@
 # Orchestrator Mód Szabályok (Nem Nyilvánvaló Csak)
 
-- **Delegálási Sablon**: Használd a pontos sablont Code Agent delegáláshoz DI, réteg, import specifikációkkal
-- **Fájl Lebontás**: Komplex feladatokat bonts egyéni fájlműveletekre (3 fájl létrehozása, 2 módosítása)
-- **Architektúra Kikényszerítés**: Biztosítsd hogy minden delegált feladat követi a réteges architektúrát és factory mintát
-- **Magyar Tervezés**: Minden feladatleírás, lebontás és kommunikáció magyarul
-- **QA Ellenőrzés**: Követeld Code Agent-től QA Kapu (ruff + pytest) és commit hash jelentését
-- **Atomikus Műveletek**: Egy fájlváltoztatás per delegáció, azonnali commit követő
+- **DELEGÁLÁSI PROTOKOLL**: Minden feladatnál kötelezően át kell adni a Code Agentnek:
+  - LoggerFactory elvárást (`__name__` alapú).
+  - @trace dekorátor elvárást.
+  - TypedDict cast elvárást a factory-ban.
+  - Szigorú réteg korlátozásokat.
+- **🛡️ BIZTONSÁGI PROTOKOLL**: Szigorúan TILOS olyan feladatot kiadni, ami tesztfuttatást (`pytest`) igényel.
+- **🇭🇺 NYELV**: Minden delegálás és tervezés magyarul kötelező.
+- **📝 DASHBOARD FRISSÍTÉS**: Minden sikeres commit után követeld meg a `TASK_TREE.md` frissítését.

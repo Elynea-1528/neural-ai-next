@@ -122,7 +122,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         self.logger = logger
         self.config = config
         self.event_bus = event_bus
-        self.storage_config = cast(StorageConfig, config.get("storage", {}) if config else {})
+        self.storage_config = cast(StorageConfig, config.get_section("storage") if config else {})
         self.BASE_PATH = (
             Path(base_path)
             if base_path
