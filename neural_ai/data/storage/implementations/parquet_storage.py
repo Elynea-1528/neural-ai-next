@@ -11,19 +11,6 @@ Szerző: Neural AI Next csapat
 Verzió: 2.0.0
 """
 
-"""ParquetStorageService - Particionált Parquet tároló szolgáltatás.
-
-Ez a modul implementálja a Tick adatok particionált Parquet formátumban történő tárolását
-és lekérdezését a Neural AI Next rendszer számára. A tárolás dátum és szimbólum alapú
-particionálást használ a gyors lekérdezés érdekében.
-
-A szolgáltatás hardver-gyorsítást detektál és automatikusan kiválasztja a legoptimálisabb
-backend-et (PolarsBackend AVX2 támogatással, vagy PandasBackend kompatibilitási módban).
-
-Szerző: Neural AI Next csapat
-Verzió: 2.0.0
-"""
-
 import asyncio
 import hashlib
 from collections.abc import Sequence
@@ -71,8 +58,8 @@ class StorageConfig(TypedDict, total=False):
 
 
 # Modul szintű változók a teszteléshez (lazy import támogatáshoz)
-pl = None
-pd = None
+pl: Any = None
+pd: Any = None
 
 
 class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
@@ -425,6 +412,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         )
 
     def _concat_dataframes(self, dfs: list[Any]) -> Any:
+        """DataFrame-ek összefűzése a backend típusának megfelelően."""
         """DataFrame-ek összefűzése a backend típusának megfelelően.
 
         Args:
