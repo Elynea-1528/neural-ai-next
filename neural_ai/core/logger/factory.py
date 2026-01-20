@@ -225,8 +225,8 @@ class LoggerFactory(LoggerFactoryInterface):
                 if file_config.get("rotating", False):
                     from logging.handlers import RotatingFileHandler
 
-                    max_bytes = cast(int, file_config.get("max_bytes", 10485760))
-                    backup_count = cast(int, file_config.get("backup_count", 5))
+                    max_bytes = file_config.get("max_bytes", 10485760)
+                    backup_count = file_config.get("backup_count", 5)
                     file_handler: logging.Handler = RotatingFileHandler(
                         filename, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8"
                     )

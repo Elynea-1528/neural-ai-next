@@ -32,6 +32,7 @@ class DefaultLogger(LoggerInterface):
         name: str,
         config: "ConfigManagerInterface | None" = None,
         event_bus: "EventBusInterface | None" = None,
+        level: int = logging.INFO,
         **kwargs: Any,
     ) -> None:
         """Logger inicializálása.
@@ -65,6 +66,7 @@ class DefaultLogger(LoggerInterface):
         # DI: függőségek tárolása
         self._config = config
         self._event_bus = event_bus
+        self._level = level
 
         # DI Container kompatibilitás: _initialized flag beállítása
         self._initialized = True
@@ -139,28 +141,26 @@ class DefaultLogger(LoggerInterface):
     def set_level(self, level: int) -> None:
         """Logger log szintjének beállítása.
 
-        Structlog esetében ez a központi konfiguráción keresztül történik.
-        Ez a metódus csak kompatibilitás céljából van jelen.
+        Beállítja a logger szintjét a példány szintjén.
 
         Args:
-            level: Az új log szint (nem használt structlog esetében).
+            level: Az új log szint.
 
         Példa:
-            >>> logger.set_level(logging.DEBUG)  # Nem csinál semmit
+            >>> logger.set_level(logging.DEBUG)
         """
-        # Structlog esetében a szint a központi konfigurációban van beállítva
-        pass
+        self._level = level
 
     def get_level(self) -> int:
         """Aktuális log szint lekérése.
 
-        Structlog esetében mindig INFO szintet ad vissza kompatibilitás céljából.
+        Visszaadja a konstruktorban beállított log szintet.
 
         Returns:
-            int: INFO szint (logging.INFO = 20).
+            int: A beállított log szint.
 
         Példa:
             >>> level = logger.get_level()
             >>> print(f"Aktuális log szint: {level}")
         """
-        return logging.INFO
+        return self._level
