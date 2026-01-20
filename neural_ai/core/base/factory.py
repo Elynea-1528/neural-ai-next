@@ -254,7 +254,6 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-        from neural_ai.data.storage.implementations.file_storage import FileStorage
         from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         container = DIContainer()
@@ -272,17 +271,17 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             if log_path:
                 log_config["log_file"] = str(log_path)
             if config:
-                logger_section = config.get_section("logger")
-                if logger_section:
-                    log_config.update(logger_section)
+                logger_config = cast(LoggerConfig, config.get("logger") or {})
+                if logger_config:
+                    log_config.update(logger_config)
 
             logger = LoggerFactory.get_logger(__name__, config=log_config)
             container.register_instance(LoggerInterface, logger)
 
         # 3. Storage komponens létrehozása a konfiggal és loggerrel
         storage: StorageInterface | None = None
-        if storage_path and logger:
-            storage = FileStorage(logger=logger, base_path=storage_path)
+        if storage_path and logger and config:
+            storage = CoreComponentFactory.create_storage(str(storage_path), logger, config)
             container.register_instance(StorageInterface, storage)
 
         # 4. Komponensek összekötése
@@ -339,9 +338,9 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         try:
             config = ConfigManagerFactory.get_manager(DEFAULT_CONFIG_FILE)
             if config:
-                logger_section = config.get_section("logger")
-                if logger_section:
-                    log_config = logger_section
+                logger_config = cast(LoggerConfig, config.get("logger") or {})
+                if logger_config:
+                    log_config = dict(logger_config)
         except (FileNotFoundError, ConfigLoadError):
             # Ha a config.yml fájl nem létezik, alapértelmezett konfigurációt használunk
             config = None
@@ -351,7 +350,10 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             }
 
         logger = LoggerFactory.get_logger(__name__, config=log_config)
-        storage = FileStorage(logger=logger)
+        if config:
+            storage = CoreComponentFactory.create_storage(None, logger, config)
+        else:
+            storage = FileStorage(logger=logger)
 
         # Create a temporary container to validate dependencies
         container = DIContainer()
@@ -419,13 +421,14 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
     @staticmethod
     def create_storage(
-        base_directory: str, config: dict[str, Any] | None = None
+        base_directory: str | None, logger: "LoggerInterface", config_manager: "ConfigManagerInterface"
     ) -> "StorageInterface":
         """Létrehoz egy storage példányt.
 
         Args:
             base_directory: A tároló alapkönyvtára
-            config: Konfigurációs dictionary
+            logger: Logger interfész példány
+            config_manager: Config manager interfész példány
 
         Returns:
             StorageInterface: A létrehozott storage példány
@@ -434,19 +437,19 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             ConfigurationError: Ha a konfiguráció érvénytelen
             DependencyError: Ha szükséges függőségek hiányoznak
         """
-        config = config or {}
-        config["base_directory"] = base_directory
+        config: dict[str, Any] = {}
+        if base_directory:
+            config["base_directory"] = base_directory
+        storage_config = cast(StorageConfig, config_manager.get("storage") or {})
+        config.update(storage_config)
 
         # Validate dependencies
         CoreComponentFactory._validate_dependencies("storage", config)
 
         # Create storage instance
-        from neural_ai.core.config.factory import ConfigManagerFactory
         from neural_ai.core.events.factory import EventBusFactory
         from neural_ai.data.storage.implementations.file_storage import FileStorage
 
-        logger = LoggerFactory.get_logger(__name__)
-        config_manager = ConfigManagerFactory.get_manager(DEFAULT_CONFIG_FILE)  # fallback
         event_bus = EventBusFactory.get_event_bus(logger=logger)
         return FileStorage(
             logger=logger, config=config_manager, event_bus=event_bus, base_path=base_directory
