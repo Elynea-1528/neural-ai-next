@@ -29,7 +29,7 @@ _TRACE_LOGGER = None
 def _ensure_trace_logger():
     global _TRACE_LOGGER
     if _TRACE_LOGGER is None:
-        _TRACE_LOGGER = _get_trace_logger()
+        _TRACE_LOGGER = _get_trace_logger()  # type: ignore[reportConstantRedefinition]
     return _TRACE_LOGGER
 
 

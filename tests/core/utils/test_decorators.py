@@ -35,7 +35,7 @@ class TestTraceDecorator:
         call_kwargs = mock_logger.debug.call_args[1]
         assert "call_id" in call_kwargs
         assert call_kwargs["function"] == "add"
-        assert call_kwargs["args"] == ["5", "3"]
+        assert call_kwargs["call_args"] == ["5", "3"]
         assert "duration_ms" in call_kwargs
         assert isinstance(call_kwargs["duration_ms"], (int, float))
 
@@ -56,7 +56,7 @@ class TestTraceDecorator:
 
         call_kwargs = mock_logger.debug.call_args[1]
         assert call_kwargs["function"] == "multiply"
-        assert call_kwargs["kwargs"] == {"factor": "2"}
+        assert call_kwargs["call_kwargs"] == {"factor": "2"}
 
     @patch('neural_ai.core.utils.decorators._TRACE_LOGGER')
     def test_trace_with_unsafe_args(self, mock_logger: MagicMock) -> None:
@@ -72,7 +72,7 @@ class TestTraceDecorator:
         # Assert
         assert result == "processed"
         call_kwargs = mock_logger.debug.call_args[1]
-        assert call_kwargs["args"] == ["UNSAFE_ARG"]
+        assert call_kwargs["call_args"] == ["UNSAFE_ARG"]
 
     @patch('neural_ai.core.utils.decorators._TRACE_LOGGER')
     def test_trace_function_name_preserved(self, mock_logger: MagicMock) -> None:
@@ -171,7 +171,7 @@ class TestTraceDecorator:
         # Assert
         assert result == "ok"
         call_kwargs = mock_logger.debug.call_args[1]
-        assert call_kwargs["args"] == ["test", "UNSAFE_ARG", "42"]
+        assert call_kwargs["call_args"] == ["test", "UNSAFE_ARG", "42"]
 
     @patch('neural_ai.core.utils.decorators._TRACE_LOGGER')
     def test_trace_no_args_function(self, mock_logger: MagicMock) -> None:
@@ -187,8 +187,8 @@ class TestTraceDecorator:
         # Assert
         assert result == "no args"
         call_kwargs = mock_logger.debug.call_args[1]
-        assert call_kwargs["args"] == []
-        assert call_kwargs["kwargs"] == {}
+        assert call_kwargs["call_args"] == []
+        assert call_kwargs["call_kwargs"] == {}
 
     @patch('neural_ai.core.utils.decorators._TRACE_LOGGER')
     def test_trace_with_safe_types(self, mock_logger: MagicMock) -> None:
@@ -203,7 +203,7 @@ class TestTraceDecorator:
 
         # Assert
         call_kwargs = mock_logger.debug.call_args[1]
-        assert call_kwargs["args"] == ["text", "42", "3.14", "True"]
+        assert call_kwargs["call_args"] == ["text", "42", "3.14", "True"]
 
 
 class TestTraceDecoratorIntegration:
