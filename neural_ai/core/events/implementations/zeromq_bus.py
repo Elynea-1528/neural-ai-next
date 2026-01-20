@@ -183,7 +183,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
             try:
                 # Az asyncio socket send_multipart metódusa awaitable
-                await self._publisher.send_multipart([topic, message])
+                await self._publisher.send_multipart([topic, message])  # type: ignore[reportUnknownMemberType]
             except Exception as e:
                 self._logger.error(  # type: ignore[reportPrivateUsage]
                     "Hiba az esemény közzétételekor",
