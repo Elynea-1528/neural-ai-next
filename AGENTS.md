@@ -7,6 +7,14 @@ This file provides guidance to agents when working with code in this repository.
 - **Stack**: Python 3.12, Polars, PyTorch 2.5.1, Lightning 2.5.5, VectorBT Pro, FastParquet
 - **Architektúra**: Domain-Driven (DDD), Eseményvezérelt (ZeroMQ), Adatbázis-Első
 
+## Build/Lint/Test Parancsok (Abszolút Útvonalak KÖTELEZŐ!)
+- **Lint**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check .`
+- **Format**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff format .`
+- **Type Check**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/mypy .`
+- **Test (Single)**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/path/to/test_file.py::TestClass::test_method -v`
+- **Test (All)**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -v`
+- **Coverage**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest --cov=neural_ai --cov-report=html`
+
 ## Kritikus Projekt Szabályok (Nem Nyilvánvaló)
 - **🇭🇺 NYELV**: Minden kommunikáció (chat, commit, docstring, gondolkodás) MAGYARUL kötelező.
 - **🏗️ ARCHITEKTÚRA**: Rétegek csak LEFELÉ hívhatnak: Presentation → Domain → Persistence → Input → Infrastructure (Core).

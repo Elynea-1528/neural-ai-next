@@ -96,6 +96,7 @@ def setup_models():
             except Exception as e:
                 print(f"❌ HIBA {model}: {e}")
 
+server_code = """
 # --- SZERVER (PROXY JAVÍTVA) ---
 @app.cls(
     image=image,

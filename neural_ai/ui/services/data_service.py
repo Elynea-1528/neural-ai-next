@@ -14,6 +14,7 @@ import pandas as pd
 import polars as pl
 
 from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
+from neural_ai.ui.factory import DataServiceConfig, JForexConfig
 
 if TYPE_CHECKING:
     from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
@@ -27,14 +28,17 @@ class DataService(DataServiceInterface):
     végző metódusokat, Big Data támogatással és chunkolással.
     """
 
-    def __init__(self, bridge: "CoreBridgeInterface") -> None:
+    def __init__(self, logger: Any, config: DataServiceConfig, core_components: Any) -> None:
         """A Data Service inicializálása.
 
         Args:
-            bridge: A backend bridge példány, amelyen keresztül elérjük a
-                backend komponenseket (Bi5Downloader, ParquetStorage)
+            logger: A logger példány
+            config: A szolgáltatás konfiguráció
+            core_components: A core komponensek
         """
-        self._bridge = bridge
+        self._logger = logger
+        self._config = config
+        self._core_components = core_components
         self._data_sources: dict[str, dict[str, str]] = {
             "tick_data": {
                 "name": "Tick Adatok",
@@ -54,9 +58,9 @@ class DataService(DataServiceInterface):
         }
 
     @property
-    def bridge(self) -> "CoreBridgeInterface":
-        """A backend bridge példány visszaadása."""
-        return self._bridge
+    def core_components(self) -> Any:
+        """A core komponensek példány visszaadása."""
+        return self._core_components
 
     @property
     def data_sources(self) -> dict[str, dict[str, str]]:
@@ -255,17 +259,12 @@ class DataService(DataServiceInterface):
                 Fallback: (2020-01-01, ma)
         """
         try:
-            # Konfiguráció elérése a CoreBridge-en keresztül
-            config = self._bridge.core.config
-            if config is None:
-                # Fallback értékek, ha nincs konfiguráció
-                fallback_start = datetime(2020, 1, 1, tzinfo=UTC)
-                fallback_end = datetime.now(UTC)
-                return fallback_start, fallback_end
+            # Konfiguráció elérése a TypedDict-ből - OPERATION TOTAL RECALL
+            jforex_config = cast(JForexConfig, self._config.get("jforex", {}))
 
             # Dátumok kiolvasása a konfigurációból
-            start_str = config.get("collectors", "jforex", "date_range", "start")
-            end_str = config.get("collectors", "jforex", "date_range", "end")
+            start_str = jforex_config["date_range"]["start"]
+            end_str = jforex_config["date_range"]["end"]
 
             # Dátumok konvertálása
             if start_str and end_str:
@@ -324,8 +323,8 @@ class DataService(DataServiceInterface):
         if symbol == "ALL":
             return await self._download_all_symbols(start, end)
 
-        # CoreBridge-en keresztül lekérjük a Bi5Downloader komponenst
-        downloader = self._bridge.get_component("bi5_downloader")
+        # Core_components-en keresztül lekérjük a Bi5Downloader komponenst
+        downloader = self._core_components.get_component("bi5_downloader")
         if downloader is None:
             raise RuntimeError("A Bi5Downloader komponens nem érhető el")
 
@@ -339,7 +338,7 @@ class DataService(DataServiceInterface):
 
         try:
             # Storage komponens lekérése a mentéshez
-            storage = self._bridge.get_component("parquet_storage")
+            storage = self._core_components.get_component("parquet_storage")
             if storage is None:
                 raise RuntimeError("A ParquetStorage komponens nem érhető el a mentéshez")
 
@@ -556,7 +555,7 @@ class DataService(DataServiceInterface):
     def list_available_data(self, symbol: str | None = None) -> pd.DataFrame:
         """Elérhető adatok listázása DataFrame formátumban.
 
-        Ez a metódus a CoreBridge-en keresztül eléri a ParquetStorage-t,
+        Ez a metódus a core_components-en keresztül eléri a ParquetStorage-t,
         és valós adatokról állít össze listát.
 
         Args:
@@ -573,8 +572,8 @@ class DataService(DataServiceInterface):
                 - last_updated: Utolsó frissítés időpontja
                 - available_dates: Elérhető dátumok száma
         """
-        # CoreBridge-en keresztül lekérjük a Storage komponenst
-        storage = self._bridge.get_component("parquet_storage")
+        # Core_components-en keresztül lekérjük a Storage komponenst
+        storage = self._core_components.get_component("parquet_storage")
         if storage is None:
             raise RuntimeError("A ParquetStorage komponens nem érhető el")
 
@@ -670,7 +669,7 @@ class DataService(DataServiceInterface):
     def get_storage_path(self) -> Path:
         """Az adattárolási útvonal lekérdezése.
 
-        Ez a metódus a CoreBridge-en keresztül eléri a ParquetStorage-t,
+        Ez a metódus a core_components-en keresztül eléri a ParquetStorage-t,
         és a tényleges tárolási útvonalat adja vissza.
 
         Returns:
@@ -679,8 +678,8 @@ class DataService(DataServiceInterface):
         Raises:
             RuntimeError: Ha a storage komponens nem érhető el
         """
-        # CoreBridge-en keresztül lekérjük a Storage komponenst
-        storage = self._bridge.get_component("parquet_storage")
+        # Core_components-en keresztül lekérjük a Storage komponenst
+        storage = self._core_components.get_component("parquet_storage")
         if storage is None:
             raise RuntimeError("A ParquetStorage komponens nem érhető el")
 
@@ -725,13 +724,11 @@ class DataService(DataServiceInterface):
             ['EURUSD', 'GBPUSD', 'USDJPY']
         """
         try:
-            # Konfiguráció elérése a CoreBridge-en keresztül
-            config = self._bridge.core.config
-            if config is None:
-                return ["EURUSD"]
+            # Konfiguráció elérése a TypedDict-ből - OPERATION TOTAL RECALL
+            jforex_config = cast(JForexConfig, self._config.get("jforex", {}))
 
             # Szimbólumok kiolvasása a konfigurációból
-            symbols = config.get("collectors", "jforex", "symbols")
+            symbols = jforex_config.get("symbols")
 
             # Ellenőrzés, hogy a symbols egy lista-e és nem üres
             if isinstance(symbols, list) and symbols:

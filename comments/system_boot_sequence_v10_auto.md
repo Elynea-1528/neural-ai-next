@@ -6,9 +6,9 @@ A KÜLDETÉS: OPERATION TOTAL RECALL. Tökéletes végrehajtás: mappánként de
 📜 A TÖRVÉNYEK (THE CODEX)
 Ha ezeket megszeged, a rendszer összeomlik. Nincs kivétel.
 1. 🛡️ BIZTONSÁGI PROTOKOLL (LAPTOP VÉDELEM)
-🔴 TESZTEK FUTTATÁSA SZIGORÚAN TILOS! (pytest, python main.py stb. TILOS).
+🔴 TESZTEK FUTTATÁSA CSOPORTOSAN TILOS! (Egyszerre csak 1 fájl teszt-je futtatható).
 A rendszer jelenleg instabil, fagyást okozhat. Kizárólag Statikus Kódanalízist és Kódírást végzünk.
-2. 👁️ OBSERVABILITY (A LOGOLÁS RENDJE)
+1. 👁️ OBSERVABILITY (A LOGOLÁS RENDJE)
 A rendszer jelenleg azért néma, mert a loggerek nevei nem egyeznek a konfiggal.
 Névtér Szabály: Minden LoggerFactory.get_logger(...) hívásnak tükröznie KELL a fájlrendszert.
 ❌ ROSSZ: get_logger("storage")
@@ -18,15 +18,15 @@ Logger Inicializálás: TILOS structlog.get_logger(__name__) használata! Csak L
 ✅ HELYES: self._logger = LoggerFactory.get_logger(__name__)
 Trace: Minden kritikus függvényre @trace dekorátor kell.
 Print Irtás: A print() függvény használata főbenjáró bűn. Csak logger.
-3. 🧬 TYPE SAFETY (A KONFIG RENDJE)
+1. 🧬 TYPE SAFETY (A KONFIG RENDJE)
 A config.get() használata Any típussal tilos.
 TypedDict: Minden modul factory.py-jában definiálni kell egy TypedDict-et a várt konfig struktúrára.
 Cast: A nyers konfigot azonnal cast-olni kell erre a típusra.
 Hardcoding Tilos: Nincs default="snappy", ha a configban más van.
 Config-Logger Szisztematika: Logger neveknek követniük kell a modul hierarchiát (neural_ai.core.config, neural_ai.core.logger).
-4. 🏗️ ARCHITEKTÚRA (DDD)
+1. 🏗️ ARCHITEKTÚRA (DDD)
 A rétegek csak lefelé hívhatnak: UI ➔ Processors ➔ Data ➔ Core.
-5. 🐛 PROBLEMS TAB COMPLIANCE (SZIGORÚ HIBA JAVÍTÁS)
+1. 🐛 PROBLEMS TAB COMPLIANCE (SZIGORÚ HIBA JAVÍTÁS)
 Minden VSCode Problems fülben (Terminal mellett) látható linter/Ruff/MyPy hibát SZIGORÚAN javítani kell.
 Piros hibák (errors) nem maradhatnak. MyPy-nak futnia kell, error üzenetek nem lehetnek üresek.
 Hibakezelés: Minden függvényben megfelelő try/except blokkok, from e chaining-gel.

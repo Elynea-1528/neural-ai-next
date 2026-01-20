@@ -7,5 +7,5 @@
   - `@trace` dekorátor KÖTELEZŐ minden kritikus függvényre.
 - **🧬 TÍPUSBIZTONSÁG**: `Any` TILOS. Configokhoz `TypedDict` definiálása és `cast()` KÖTELEZŐ a factory-ban.
 - **🏗️ MODUL SZERKEZET & DI**: Konstruktor injektálás kötelező. Modul szerkezet: `interfaces/`, `implementations/`, `exceptions/`, `factory.py`, `__init__.py`. Abszolút importok kényszerítése.
-- **📦 ADATKEZELÉS**: Polars (`pl.DataFrame`) kötelező a processzorokban. Pandas csak a UI-ban. **Polarsnál `for row in df` hurok TILOS.**
+- **📦 ADATKEZELÉS**: Polars (`pl.DataFrame`) kötelező a processzorokban. Pandas csak a UI-ban. **Polarsnál `for row in df` hurok TILOS.** Használj `pl.Expr`-t vektorizált műveletekhez.
 - **⚠️ QA**: Minden piros hiba (Ruff/MyPy) SZIGORÚAN javítandó commit előtt.

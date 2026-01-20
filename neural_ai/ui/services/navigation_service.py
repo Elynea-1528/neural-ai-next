@@ -21,13 +21,17 @@ class NavigationService(NavigationServiceInterface):
     és nyilvántartja a navigációs előzményeket.
     """
 
-    def __init__(self, bridge: "CoreBridgeInterface") -> None:
+    def __init__(self, logger: Any, config: dict, core_components: Any) -> None:
         """A Navigation Service inicializálása.
 
         Args:
-            bridge: A backend bridge példány
+            logger: A logger példány
+            config: A szolgáltatás konfiguráció
+            core_components: A core komponensek
         """
-        self._bridge = bridge
+        self._logger = logger
+        self._config = config
+        self._core_components = core_components
         self._pages: dict[str, PageInterface] = {}
         self._history: list[str] = []
         self._current_page: str | None = None

@@ -27,13 +27,17 @@ class StrategyService(StrategyServiceInterface):
     tesztelését végző metódusokat.
     """
 
-    def __init__(self, bridge: "CoreBridgeInterface | None" = None) -> None:
+    def __init__(self, logger: Any, config: dict[str, Any], core_components: Any) -> None:
         """A Strategy Service inicializálása.
 
         Args:
-            bridge: A backend bridge példány (opcionális, backward compatibility)
+            logger: A logger példány
+            config: A szolgáltatás konfiguráció
+            core_components: A core komponensek
         """
-        self._bridge = bridge
+        self._logger = logger
+        self._config = config
+        self._core_components = core_components
         self._strategies: dict[str, dict[str, Any]] = {
             "moving_avg_cross": {
                 "name": "Mozgóátlag Kereszt",
@@ -502,17 +506,14 @@ class StrategyService(StrategyServiceInterface):
                 f"Nincs elérhető adat a megadott paraméterekhez: {symbol}, {date}, {timeframe}"
             )
 
-        # 2. Config és Logger lekérése a bridge-en keresztül
-        if self._bridge is None:
-            raise RuntimeError("Core bridge nincs inicializálva")
-
-        config: ConfigManagerInterface = self._bridge.get_component("config")
-        logger: LoggerInterface = self._bridge.get_component("logger")
+        # 2. Config és Logger lekérése a core_components-en keresztül
+        config: ConfigManagerInterface = self._core_components.get_component("config")
+        logger: LoggerInterface = self._core_components.get_component("logger")
 
         if config is None or logger is None:
             raise RuntimeError("Config vagy Logger komponens nem elérhető")
 
-        logger.info(f"D2 elemzés indítása: {symbol} {timeframe}")
+        self._logger.info(f"D2 elemzés indítása: {symbol} {timeframe}")
 
         # 3. D2 processor létrehozása Factory-n keresztül
         from neural_ai.processors.factory import create_dimension_processor

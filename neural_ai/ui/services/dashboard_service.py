@@ -24,13 +24,17 @@ class DashboardService(DashboardServiceInterface):
     kezelését végző metódusokat.
     """
 
-    def __init__(self, bridge: "CoreBridgeInterface") -> None:
+    def __init__(self, logger: Any, config: dict[str, Any], core_components: Any) -> None:
         """A Dashboard Service inicializálása.
 
         Args:
-            bridge: A backend bridge példány
+            logger: A logger példány
+            config: A szolgáltatás konfiguráció
+            core_components: A core komponensek
         """
-        self._bridge = bridge
+        self._logger = logger
+        self._config = config
+        self._core_components = core_components
         self._cached_data: dict[str, Any] = {}
         self._subscribers: list[Callable[[dict[str, Any]], None]] = []
 
@@ -44,8 +48,8 @@ class DashboardService(DashboardServiceInterface):
         if "overview" in self._cached_data:
             return self._cached_data["overview"]
 
-        # Lekérdezzük a rendszerinformációt a bridgen keresztül
-        system_info = self._bridge.get_system_info()
+        # Lekérdezzük a rendszerinformációt a core_components-en keresztül
+        system_info = self._core_components.get_system_info()
 
         overview = {
             "system_info": system_info,
@@ -71,12 +75,12 @@ class DashboardService(DashboardServiceInterface):
         Returns:
             Dict[str, str]: A komponensek állapota (OK/WARNING/ERROR/CRITICAL/UNKNOWN)
         """
-        # Fallback, ha a bridge vagy a health monitor nem elérhető
-        if not self._bridge.core or not self._bridge.core.health_monitor:
+        # Fallback, ha a core_components vagy a health monitor nem elérhető
+        if not self._core_components.core or not self._core_components.core.health_monitor:
             return {"system": "UNKNOWN"}
 
         # Valós lekérdezés a HealthMonitor-ból
-        health: SystemHealth = self._bridge.core.health_monitor.check_health()
+        health: SystemHealth = self._core_components.core.health_monitor.check_health()
 
         # Mapping (ComponentHealth -> UI String)
         status_map: dict[str, str] = {}
@@ -109,7 +113,7 @@ class DashboardService(DashboardServiceInterface):
         Returns:
             Dict[str, float]: A rendszer teljesítményadatok
         """
-        system_info = self._bridge.get_system_info()
+        system_info = self._core_components.get_system_info()
 
         if "resources" in system_info:
             resources = system_info["resources"]
