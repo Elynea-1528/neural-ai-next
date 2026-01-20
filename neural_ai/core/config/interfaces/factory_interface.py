@@ -67,7 +67,7 @@ class ConfigManagerFactoryInterface(ABC):
     @classmethod
     @abstractmethod
     def create_manager(
-        cls, manager_type: str, *args: object, **kwargs: object
+        cls, manager_type: str, *args: object, **kwargs: dict[str, object]
     ) -> "ConfigManagerInterface":
         """Konfiguráció kezelő létrehozása típus alapján.
 

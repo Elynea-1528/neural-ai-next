@@ -16,7 +16,6 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 from neural_ai.core.config.interfaces.factory_interface import (
     ConfigManagerFactoryInterface,
 )
-from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.logger.interfaces import LoggerInterface
 from neural_ai.core.utils.decorators import trace
 
@@ -55,6 +54,8 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         betöltésre, amikor valóban szükség van rájuk.
         """
         if cls._logger is None:
+            import importlib
+            LoggerFactory = importlib.import_module("neural_ai.core.logger.factory").LoggerFactory
             cls._logger = LoggerFactory.get_logger(__name__)
             cls._logger.info("ConfigManagerFactory inicializálva", component="ConfigManagerFactory")
 
@@ -128,7 +129,10 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
     @classmethod
     @trace
     def get_manager(
-        cls, filename: str | Path, manager_type: str | None = None
+        cls,
+        filename: str | Path,
+        manager_type: str | None = None,
+        logger: "LoggerInterface | None" = None,
     ) -> ConfigManagerInterface:
         """Megfelelő szinkron konfiguráció kezelő létrehozása.
 
@@ -138,6 +142,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         Args:
             filename: Konfigurációs fájl teljes neve (elérési úttal együtt)
             manager_type: Opcionális kezelő típus azonosító
+            logger: Logger interfész a naplózásra (opcionális)
 
         Returns:
             ConfigManagerInterface: A létrehozott konfiguráció kezelő példány
@@ -154,18 +159,18 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
             ext = f".{manager_type}" if not manager_type.startswith(".") else manager_type
             if ext in cls._manager_types:
                 manager_class = cls._manager_types[ext]
-                return manager_class(filename=filename_str)
+                return manager_class(filename=filename_str, logger=logger)
             raise ConfigLoadError(f"Ismeretlen konfig kezelő típus: {manager_type}")
 
         # Fájl kiterjesztés alapján
         ext = Path(filename_str).suffix.lower()
         if ext in cls._manager_types:
             manager_class = cls._manager_types[ext]
-            return manager_class(filename=filename_str)
+            return manager_class(filename=filename_str, logger=logger)
 
         # Alapértelmezett: YAML
         if not ext:
-            return cls._manager_types[".yaml"](filename=filename_str)
+            return cls._manager_types[".yaml"](filename=filename_str, logger=logger)
 
         raise ConfigLoadError(
             f"Nem található konfig kezelő a következő kiterjesztéshez: {ext}. "
@@ -215,7 +220,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
     @classmethod
     @trace
     def create_manager(
-        cls, manager_type: str, *args: Any, **kwargs: dict[str, Any]
+        cls, manager_type: str, *args: object, **kwargs: dict[str, object]
     ) -> ConfigManagerInterface:
         """Szinkron konfiguráció kezelő létrehozása típus alapján.
 

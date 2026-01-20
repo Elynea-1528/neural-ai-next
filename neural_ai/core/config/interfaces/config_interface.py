@@ -11,11 +11,12 @@ class ConfigManagerInterface(ABC):
     """
 
     @abstractmethod
-    def __init__(self, filename: str | None = None) -> None:
+    def __init__(self, filename: str | None = None, **kwargs: object) -> None:
         """Inicializálja a konfigurációkezelőt.
 
         Args:
             filename: Konfigurációs fájl útvonala (opcionális)
+            **kwargs: További opcionális paraméterek a konkrét implementációknak
         """
 
     @abstractmethod
