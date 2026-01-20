@@ -57,7 +57,9 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
             import importlib
             LoggerFactory = importlib.import_module("neural_ai.core.logger.factory").LoggerFactory
             cls._logger = LoggerFactory.get_logger(__name__)
-            cls._logger.info("ConfigManagerFactory inicializálva", component="ConfigManagerFactory")
+            if cls._logger is not None:
+                cls._logger.info("ConfigManagerFactory inicializálva",
+                               component="ConfigManagerFactory")
 
         if not cls._manager_types:
             # YAML konfiguráció kezelő lazy betöltése
@@ -101,6 +103,12 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         if not extension:
             raise ValueError("Az extension nem lehet üres")
 
+        if not isinstance(manager_class, type):  # type: ignore
+            raise TypeError("A manager_class-nak egy osztálynak kell lennie")
+
+        if not issubclass(manager_class, ConfigManagerInterface):  # type: ignore
+            raise TypeError("A manager_class-nak implementálnia kell a ConfigManagerInterface-t")
+
         if not extension.startswith("."):
             extension = f".{extension}"
 
@@ -123,6 +131,13 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         """
         if not manager_type:
             raise ValueError("A manager_type nem lehet üres")
+
+        if not isinstance(manager_class, type):  # type: ignore
+            raise TypeError("A manager_class-nak egy osztálynak kell lennie")
+
+        if not issubclass(manager_class, AsyncConfigManagerInterface):  # type: ignore
+            raise TypeError("A manager_class-nak implementálnia kell az "
+                           "AsyncConfigManagerInterface-t")
 
         cls._async_manager_types[manager_type] = manager_class
 
@@ -246,7 +261,9 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
 
         if manager_type in cls._manager_types:
             manager_class = cls._manager_types[manager_type]
-            return manager_class(*args, **kwargs)
+            # Típusbiztonság: cast-oljuk az argumentumokat
+            from typing import cast
+            return manager_class(*cast(tuple[str, ...], args), **cast(dict[str, Any], kwargs))
 
         raise ConfigLoadError(f"Ismeretlen konfig kezelő típus: {manager_type}")
 
