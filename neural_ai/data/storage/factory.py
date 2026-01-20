@@ -6,7 +6,7 @@ de további tárolási típusok is regisztrálhatók dinamikusan.
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict, cast
 
 from neural_ai.core.config.factory import ConfigManagerFactory
 from neural_ai.core.events.factory import EventBusFactory
@@ -20,9 +20,18 @@ from neural_ai.data.storage.interfaces.factory_interface import StorageFactoryIn
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+
+
+class StorageConfig(TypedDict, total=False):
+    """Tárolási konfiguráció minden szükséges mezővel."""
+
+    base_path: str | Path
+    compression: str
+    engine: str
 
 
 class StorageFactory(StorageFactoryInterface):
@@ -102,34 +111,6 @@ class StorageFactory(StorageFactoryInterface):
             >>> storage = StorageFactory.get_storage(logger_instance, "file", base_path="data",
             ...                                       create_if_missing=True)
         """
-        # Config validáció TypedDict-tel - későbbi használatra
-        # raw_config = config.get("storage") if config else {}
-        # storage_conf = cast(StorageConfig, raw_config if isinstance(raw_config, dict) else {})
-        """Tárolási példány létrehozása a megadott típus alapján.
-
-        Args:
-            logger: A naplózásért felelős interfész.
-            config: A konfigurációért felelős interfész.
-            event_bus: Az eseménybusz interfész.
-            storage_type: A kért tárolási típus azonosítója (alapértelmezett: "file").
-            base_path: Alap könyvtár útvonal a fájl alapú tároláshoz.
-            hardware: A hardverképességek detektálásáért felelős interfész (opcionális).
-            **kwargs: További paraméterek a tárolási osztály konstruktorának.
-
-        Returns:
-            StorageInterface: Az inicializált tárolási példány.
-
-        Raises:
-            StorageError: Ha nem található a kért tárolási típus vagy a
-                példányosítása sikertelen.
-
-        Example:
-            >>> storage = StorageFactory.get_storage(logger_instance, "file", base_path="data")
-            >>> storage.save_object({"key": "value"}, "config.json")
-            >>> # Egyéni paraméterekkel
-            >>> storage = StorageFactory.get_storage(logger_instance, "file", base_path="data",
-            ...                                       create_if_missing=True)
-        """
         if storage_type not in cls._storage_types:
             raise StorageError(
                 f"Ismeretlen storage típus: {storage_type}. "
@@ -155,6 +136,11 @@ class StorageFactory(StorageFactoryInterface):
         if config is None:
             config = ConfigManagerFactory.get_manager("config.yml")
         kwargs["config"] = config
+
+        # Config validáció TypedDict-tel - OPERATION TOTAL RECALL
+        raw_config = config.get("storage")
+        storage_conf = cast(StorageConfig, raw_config if isinstance(raw_config, dict) else {})
+        logger.debug("Storage config cast completed", storage_config=storage_conf)
 
         # EventBus hozzáadása a kwargs-hoz
         if event_bus is None:
