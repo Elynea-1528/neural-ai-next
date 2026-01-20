@@ -16,7 +16,7 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 from neural_ai.core.config.interfaces.factory_interface import (
     ConfigManagerFactoryInterface,
 )
-from neural_ai.core.logger.implementations.default_logger import DefaultLogger
+from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.logger.interfaces import LoggerInterface
 from neural_ai.core.utils.decorators import trace
 
@@ -47,6 +47,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
     _logger: "LoggerInterface | None" = None
 
     @classmethod
+    @trace
     def _lazy_load_implementations(cls) -> None:
         """Lazy betölti a konkrét implementációkat a körkörös importok elkerülésére.
 
@@ -54,7 +55,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         betöltésre, amikor valóban szükség van rájuk.
         """
         if cls._logger is None:
-            cls._logger = DefaultLogger("neural_ai.core.config.factory")
+            cls._logger = LoggerFactory.get_logger(__name__)
             cls._logger.info("ConfigManagerFactory inicializálva", component="ConfigManagerFactory")
 
         if not cls._manager_types:
@@ -178,7 +179,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         manager_type: str,
         session: "AsyncSession",
         logger: "LoggerInterface | None" = None,
-        **kwargs: Any,
+        **kwargs: dict[str, Any],
     ) -> AsyncConfigManagerInterface:
         """Aszinkron konfiguráció kezelő létrehozása.
 
@@ -213,7 +214,9 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
 
     @classmethod
     @trace
-    def create_manager(cls, manager_type: str, *args: Any, **kwargs: Any) -> ConfigManagerInterface:
+    def create_manager(
+        cls, manager_type: str, *args: Any, **kwargs: dict[str, Any]
+    ) -> ConfigManagerInterface:
         """Szinkron konfiguráció kezelő létrehozása típus alapján.
 
         A metódus explicit típusmegadással hozza létre a konfiguráció kezelőt,
