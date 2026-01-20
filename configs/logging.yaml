@@ -2,13 +2,13 @@
 # Ez a config a LoggerFactory.configure() metódus számára készült
 
 # Alapértelmezett log szint
-default_level: "INFO"
+default_level: "DEBUG"
 
 # Handler konfigurációk
 handlers:
   console:
     enabled: true
-    level: "INFO"  # Console-ra INFO szint felettiek mennek (színesen)
+    level: "DEBUG"  # Console-ra DEBUG szint felettiek mennek (színesen)
     colored: true     # Színes kimenet console-ra
 
   file:
@@ -33,7 +33,7 @@ handlers:
 loggers:
   # --- FŐ ALKALMAZÁS LOGGER ---
   neural_ai:
-    level: "INFO"
+    level: "DEBUG"
     propagate: false
 
   # --- SPECIFIKUS MODULOK FELÜLBÍRÁLÁSA ---
@@ -41,15 +41,15 @@ loggers:
   neural_ai.core.logger:
     level: "WARNING"  # Megakadályozza a rekurzív logolást
   neural_ai.core.config:
-    level: "INFO"
+    level: "DEBUG"
   neural_ai.core.events:
-    level: "INFO"
+    level: "DEBUG"
   neural_ai.core.db:
-    level: "INFO"
+    level: "DEBUG"
   neural_ai.core.system:
     level: "WARNING"
   neural_ai.core.utils:
-    level: "INFO"
+    level: "DEBUG"
 
   # DATA LAYER
   neural_ai.data.storage:
@@ -69,11 +69,11 @@ loggers:
 
   # PRESENTATION LAYER
   neural_ai.ui:
-    level: "INFO"
+    level: "DEBUG"
   neural_ai.ui.components:
     level: "WARNING"
   neural_ai.ui.pages:
-    level: "INFO"
+    level: "DEBUG"
 
   # INPUT LAYER
   neural_ai.collectors:
