@@ -8,17 +8,15 @@ This file provides guidance to agents when working with code in this repository.
 - **Architektúra**: Domain-Driven (DDD), Eseményvezérelt (ZeroMQ), Adatbázis-Első
 
 ## Kritikus Projekt Szabályok (Nem Nyilvánvaló)
-- **Magyar Nyelv**: Minden kommunikáció (chat, commit, docstring, gondolkodás) MAGYARUL kötelező.
-- **Abszolút Útvonalak**: Parancsokhoz KÖTELEZŐ az abszolút útvonal:
-  - Python: `/home/elynea/miniconda3/envs/neural-ai-next/bin/python`
-  - Ruff: `/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff`
-  - Pytest: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest`
-- **🛡️ BIZTONSÁGI PROTOKOLL**: **TESZTEK FUTTATÁSA TILOS!** (pytest, python main.py). Csak Statikus Kódanalízis és Kódírás.
+- **🇭🇺 NYELV**: Minden kommunikáció (chat, commit, docstring, gondolkodás) MAGYARUL kötelező.
+- **🏗️ ARCHITEKTÚRA**: Rétegek csak LEFELÉ hívhatnak: Presentation → Domain → Persistence → Input → Infrastructure (Core).
+- **🛡️ BIZTONSÁGI PROTOKOLL**: **TESZTEK FUTTATÁSA TILOS!** (pytest, python main.py). Kizárólag Statikus Kódanalízis és Kódírás.
+- **📦 ADATKEZELÉS**: Csak particionált Parquet. `.bi5` bináris dekódolás JForexhez (CSV/JSON TILOS). Polars First Policy a processzorokban.
+- **📝 DASHBOARD**: `docs/development/TASK_TREE.md` az SSOT. Fájl szintű követés (Stmt/Brch Coverage) kötelező.
+- **⚠️ HIBAKEZELÉS**: Minden piros hiba (Ruff/MyPy) SZIGORÚAN javítandó commit előtt. `from e` láncolás kötelező.
 - **👁️ OBSERVABILITY**: 
   - Csak `LoggerFactory.get_logger(__name__)` engedélyezett. `structlog` direkt hívás és `print()` TILOS.
   - `@trace` dekorátor KÖTELEZŐ minden kritikus függvényre.
 - **🧬 TÍPUSBIZTONSÁG**: `config.get()` eredményét KÖTELEZŐ `TypedDict`-re castolni a Factory-ban. `Any` TILOS.
-- **🏗️ MODUL SZERKEZET**: `interfaces/`, `implementations/`, `exceptions/`, `factory.py`, `__init__.py`.
-- **📦 ADAT**: Csak particionált Parquet. `.bi5` bináris dekódolás JForexhez (CSV TILOS).
-- **📝 DASHBOARD**: `docs/development/TASK_TREE.md` az SSOT. Fájl szintű követés kötelező.
-- **⚠️ PROBLEMS TAB**: Minden piros hiba (Ruff/MyPy) SZIGORÚAN javítandó commit előtt.
+- **DI & MODUL SZERKEZET**: Konstruktor injektálás kötelező. Modul felépítés: `interfaces/`, `implementations/`, `exceptions/`, `factory.py` (TypedDict Config!), `__init__.py`.
+- **🛠️ PARANCS ÚTVONALAK**: KÖTELEZŐ az abszolút útvonalak használata parancsfuttatáshoz (Python, Ruff, Pytest).
