@@ -5,7 +5,7 @@ amely definiálja a kötelező interfészt minden tárolási implementációhoz.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 
 from neural_ai.core.logger.interfaces import LoggerInterface
 
@@ -170,8 +170,14 @@ class StorageBackend(ABC):
         try:
             if data is None:
                 return False
-            # Ellenőrizzük, hogy van-e hossza
-            if len(data) < 0:
+
+            # Típus guard: ellenőrizzük, hogy van-e __len__ metódus
+            if not hasattr(data, '__len__'):
+                return False
+
+            # Ellenőrizzük, hogy van-e hossza (csak pozitív lehet)
+            data_len = len(data)
+            if data_len < 0:
                 return False
 
             # Próbáljuk meg lekérni az oszlopokat (attribútum vagy metódus)
@@ -184,10 +190,21 @@ class StorageBackend(ABC):
             # Típus ellenőrzés és hossz lekérdezése
             if columns is None:
                 return False
+
+            # Ha columns list vagy tuple, akkor ellenőrizzük a hosszát
             if isinstance(columns, (list, tuple)):
-                return len(columns) > 0 and len(data) > 0
-            # Ha nem list/tuple, próbáljuk meg lekérni a hosszát
-            return len(columns) > 0 and len(data) > 0
+                # Biztonságos cast, mert isinstance ellenőrizte
+                columns_list = cast(list[str], columns)
+                return len(columns_list) > 0 and data_len > 0
+
+            # Ha columns más típusú (pl. polars Series), próbáljuk meg a hosszát
+            if hasattr(columns, '__len__'):
+                # Cast to Sized object for len() call
+                columns_sized = cast(Any, columns)
+                return len(columns_sized) > 0 and data_len > 0
+
+            return False
+
         except Exception:
             return False
 

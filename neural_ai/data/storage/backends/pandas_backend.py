@@ -8,7 +8,7 @@ A modul lazy importot használ a pandas és fastparquet csomagok számára.
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from neural_ai.data.storage.backends.base import StorageBackend
 
@@ -34,11 +34,11 @@ class PandasDataFrame:
     def _import_pandas(self) -> tuple[Any, Any]:
         """Lazy import a pandas és fastparquet csomagok számára."""
         if self._pandas is None:
-            import fastparquet
+            import fastparquet as fp  # type: ignore
             import pandas as pd
 
             self._pandas = pd
-            self._fastparquet = fastparquet
+            self._fastparquet = fp
         return self._pandas, self._fastparquet
 
     @property
@@ -91,7 +91,9 @@ class PandasBackend(StorageBackend):
     def _ensure_initialized(self) -> None:
         """Biztosítja, hogy a pandas csomag betöltődött."""
         if not self._initialized:
-            self._pandas_wrapper._import_pandas()
+            # Use public property to trigger initialization
+            _ = self._pandas_wrapper.pd
+            _ = self._pandas_wrapper.fp
             self._initialized = True
 
     @property
@@ -214,7 +216,8 @@ class PandasBackend(StorageBackend):
             else:
                 # Egyszeri betöltés FastParquet használatával
                 parquet_file = self._pandas_wrapper.fp.ParquetFile(path)
-                return parquet_file.to_pandas(columns=columns, filters=filters)
+                df = parquet_file.to_pandas(columns=columns, filters=filters)
+                return cast("pd.DataFrame", df)
 
         except FileNotFoundError:
             raise
@@ -244,7 +247,7 @@ class PandasBackend(StorageBackend):
         # FastParquet segítségével chunkolás
         parquet_file = self._pandas_wrapper.fp.ParquetFile(path)
 
-        chunks = []
+        chunks: list[Any] = []
         for chunk in parquet_file.iter_row_groups():
             # A chunk már egy DataFrame, nem kell to_pandas hívni
             df_chunk = chunk
@@ -256,9 +259,9 @@ class PandasBackend(StorageBackend):
 
         # Összefűzés
         if chunks:
-            return self._pandas_wrapper.pd.concat(chunks, ignore_index=True)
+            return cast("pd.DataFrame", self._pandas_wrapper.pd.concat(chunks, ignore_index=True))
         else:
-            return self._pandas_wrapper.pd.DataFrame()
+            return cast("pd.DataFrame", self._pandas_wrapper.pd.DataFrame())
 
     def append(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
         """DataFrame adatok hozzáfűzése egy meglévő Parquet fájlhoz.

@@ -8,7 +8,7 @@ A modul lazy importot használ a polars és pyarrow csomagok számára.
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from neural_ai.data.storage.backends.base import StorageBackend
 
@@ -17,9 +17,9 @@ if __name__ == "__main__":
 
 # Modul szintű változók a lazy import támogatásához
 # Ezeket a tesztelés során lehet mock-olni
-polars = None
-pyarrow = None
-pq = None
+polars: Any = None
+pyarrow: Any = None
+pq: Any = None
 
 
 class PolarsDataFrame:
@@ -29,21 +29,21 @@ class PolarsDataFrame:
     amikor az osztályt valóban használják.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Inicializálja a PolarsDataFrame wrapper-t."""
-        self._polars = None
-        self._pyarrow = None
+        self._polars: Any = None
+        self._pyarrow: Any = None
 
-    def _import_polars(self):
+    def _import_polars(self) -> tuple[Any, Any, Any]:
         """Lazy import a polars és pyarrow csomagok számára."""
         if self._polars is None:
             import polars as pl
-            import pyarrow as pa
-            import pyarrow.parquet as pq
+            import pyarrow as pa  # type: ignore
+            import pyarrow.parquet as pq  # type: ignore
 
             self._polars = pl
             self._pyarrow = pa
-            self._parquet = pq
+            self._parquet: Any = pq
 
             # Frissítsük a modul szintű változókat is a teszteléshez
             import neural_ai.data.storage.backends.polars_backend as pb_module
@@ -54,17 +54,17 @@ class PolarsDataFrame:
         return self._polars, self._pyarrow, self._parquet
 
     @property
-    def pl(self):
+    def pl(self) -> Any:
         """Polars modul lekérdezése."""
         return self._import_polars()[0]
 
     @property
-    def pa(self):
+    def pa(self) -> Any:
         """PyArrow modul lekérdezése."""
         return self._import_polars()[1]
 
     @property
-    def pq(self):
+    def pq(self) -> Any:
         """PyArrow Parquet modul lekérdezése."""
         return self._import_polars()[2]
 
@@ -95,10 +95,13 @@ class PolarsBackend(StorageBackend):
         self._polars_wrapper = PolarsDataFrame()
         self._initialized = False
 
-    def _ensure_initialized(self):
+    def _ensure_initialized(self) -> None:
         """Biztosítja, hogy a polars csomag betöltődött."""
         if not self._initialized:
-            self._polars_wrapper._import_polars()
+            # Use public property to trigger initialization
+            _ = self._polars_wrapper.pl
+            _ = self._polars_wrapper.pa
+            _ = self._polars_wrapper.pq
             self._initialized = True
 
     @property
@@ -198,9 +201,9 @@ class PolarsBackend(StorageBackend):
                 raise FileNotFoundError(f"A forrásfájl nem található: {path}")
 
             # Konfigurációs paraméterek
-            columns = kwargs.get("columns", None)
-            filters = kwargs.get("filters", None)
-            chunk_size = kwargs.get("chunk_size", None)
+            columns = cast(list[str] | None, kwargs.get("columns", None))
+            filters = cast(list[tuple[Any, ...]] | None, kwargs.get("filters", None))
+            chunk_size = cast(int | None, kwargs.get("chunk_size", None))
 
             # Chunkolás vagy egyszeri betöltés
             if chunk_size:
@@ -221,7 +224,11 @@ class PolarsBackend(StorageBackend):
             raise RuntimeError(f"Az olvasási művelet sikertelen: {str(e)}") from e
 
     def _read_chunked(
-        self, path: str, chunk_size: int, columns: list | None, filters: list | None
+        self,
+        path: str,
+        chunk_size: int,
+        columns: list[str] | None,
+        filters: list[tuple[Any, ...]] | None
     ) -> Any:
         """Chunkoltan olvassa a Parquet fájlt.
 
@@ -239,7 +246,7 @@ class PolarsBackend(StorageBackend):
         # PyArrow segítségével chunkolás
         parquet_file = self._polars_wrapper.pq.ParquetFile(path)
 
-        chunks = []
+        chunks: list[Any] = []
         for batch in parquet_file.iter_batches(
             batch_size=chunk_size, columns=columns, filters=filters
         ):
@@ -320,14 +327,14 @@ class PolarsBackend(StorageBackend):
             new_cols = None
 
             if hasattr(existing, "columns") and callable(existing.columns):
-                existing_cols = set(existing.columns())
+                existing_cols = set(cast(list[str], existing.columns()))
             elif hasattr(existing, "columns"):
-                existing_cols = set(existing.columns)
+                existing_cols = set(cast(list[str], existing.columns))
 
             if hasattr(new, "columns") and callable(new.columns):
-                new_cols = set(new.columns())
+                new_cols = set(cast(list[str], new.columns()))
             elif hasattr(new, "columns"):
-                new_cols = set(new.columns)
+                new_cols = set(cast(list[str], new.columns))
 
             # Ha valamelyik oszlophalmaz None, akkor nem kompatibilis
             if existing_cols is None or new_cols is None:
