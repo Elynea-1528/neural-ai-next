@@ -69,7 +69,12 @@ class CoreBridge(metaclass=SingletonMeta):
         try:
             from neural_ai.ui.services.strategy_service import StrategyService
 
-            self._strategy_service = StrategyService(self)
+            # StrategyService helyes inicializálása: logger, config, core_components
+            self._strategy_service = StrategyService(
+                logger=self._core.logger,
+                config={},  # Üres config dict
+                core_components=self
+            )
 
             if self._core.logger:
                 self._core.logger.debug("Strategy Service inicializálva")
