@@ -177,12 +177,12 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
 
         # Figyelmeztető komponens
         warning_check: MagicMock = MagicMock()
-        warning_check.check.return_value = ComponentHealth(
+        warning_check.check = AsyncMock(return_value=ComponentHealth(
             name="warning_component",
             status=ComponentStatus.WARNING,
             message="High CPU usage",
             timestamp=datetime.now(),
-        )
+        ))
         self.monitor.register_component("warning_component", warning_check)
 
         health = await self.monitor.check_health()
@@ -251,8 +251,10 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
 
         monitor.register_component("test_component")
 
-        # Ellenőrizzük, hogy a logger info metódusa meghívásra került-e
-        mock_logger.info.assert_called_once()
+        # Bootstrap komponens ("logger") és a teszt komponens ("test_component") regisztrációja
+        self.assertEqual(mock_logger.info.call_count, 2)
+        mock_logger.info.assert_any_call("'logger' komponens regisztrálva")
+        mock_logger.info.assert_any_call("'test_component' komponens regisztrálva")
 
     def test_unregister_component_with_logger(self) -> None:
         """Teszteli a komponens eltávolítását naplózóval."""
@@ -262,8 +264,11 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
         monitor.register_component("test_component")
         monitor.unregister_component("test_component")
 
-        # Ellenőrizzük, hogy a logger info metódusa meghívásra került-e
-        self.assertEqual(mock_logger.info.call_count, 2)
+        # Bootstrap "logger" komponens regisztráció + register + unregister
+        self.assertEqual(mock_logger.info.call_count, 3)
+        mock_logger.info.assert_any_call("'logger' komponens regisztrálva")
+        mock_logger.info.assert_any_call("'test_component' komponens regisztrálva")
+        mock_logger.info.assert_any_call("'test_component' komponens eltávolítva")
 
     def test_register_duplicate_component(self) -> None:
         """Teszteli a duplikált komponens regisztrációját."""
@@ -273,10 +278,12 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
         monitor.register_component("test_component")
         monitor.register_component("test_component")  # Duplikált regisztráció
 
-        # Ellenőrizzük, hogy a második regisztráció felülírja az elsőt
+        # Bootstrap "logger" komponens + "test_component" duplikáció
         components = monitor.get_registered_components()
-        self.assertEqual(len(components), 1)
-        # A warning hívás ellenőrzése
+        self.assertEqual(len(components), 2)
+        self.assertIn("logger", components)
+        self.assertIn("test_component", components)
+        # A warning hívás ellenőrzése (csak a duplikáció miatt)
         mock_logger.warning.assert_called_once()
 
     async def test_check_health_with_exception_in_component_check(self) -> None:
@@ -296,12 +303,12 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
     async def test_check_health_with_unknown_status_components(self) -> None:
         """Teszteli a check_health-t UNKNOWN státuszú komponensekkel."""
         mock_check: MagicMock = MagicMock()
-        mock_check.check.return_value = ComponentHealth(
+        mock_check.check = AsyncMock(return_value=ComponentHealth(
             name="unknown_component",
             status=ComponentStatus.UNKNOWN,
             message="Ismeretlen állapot",
             timestamp=datetime.now(),
-        )
+        ))
 
         self.monitor.register_component("unknown_component", mock_check)
         health = await self.monitor.check_health()

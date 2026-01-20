@@ -19,7 +19,11 @@ from neural_ai.core.system.interfaces.health_interface import (
 )
 
 if TYPE_CHECKING:
+    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 class HealthMonitor(HealthMonitorInterface):
