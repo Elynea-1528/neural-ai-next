@@ -189,7 +189,7 @@ class LoggerFactory(LoggerFactoryInterface):
 
         # Handlerek beállítása
         handlers = typed_config.get("handlers", {})
-        trace_handler = None
+        trace_handler: logging.Handler | None = None
 
         # Console handler structlog-gal
         console_config = handlers.get("console", {})
@@ -225,9 +225,9 @@ class LoggerFactory(LoggerFactoryInterface):
                 if file_config.get("rotating", False):
                     from logging.handlers import RotatingFileHandler
 
-                    max_bytes = file_config.get("max_bytes", 10485760)
-                    backup_count = file_config.get("backup_count", 5)
-                    file_handler = RotatingFileHandler(
+                    max_bytes = cast(int, file_config.get("max_bytes", 10485760))
+                    backup_count = cast(int, file_config.get("backup_count", 5))
+                    file_handler: logging.Handler = RotatingFileHandler(
                         filename, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8"
                     )
                 else:
@@ -266,16 +266,18 @@ class LoggerFactory(LoggerFactoryInterface):
             trace_file_path.parent.mkdir(parents=True, exist_ok=True)
 
             # RotatingFileHandler példányosítása
-            if "RotatingFileHandler" in handler_class_path:
+            if "RotatingFileHandler" in str(handler_class_path):
                 from logging.handlers import RotatingFileHandler
 
-                maxBytes = trace_file_config.get("maxBytes", 10485760)
-                backupCount = trace_file_config.get("backupCount", 5)
+                maxBytes = cast(int, trace_file_config.get("maxBytes", 10485760))
+                backupCount = cast(int, trace_file_config.get("backupCount", 5))
+                encoding_str = cast(str, encoding)
                 trace_handler = RotatingFileHandler(
-                    filename, maxBytes=maxBytes, backupCount=backupCount, encoding=encoding
+                    filename, maxBytes=maxBytes, backupCount=backupCount, encoding=encoding_str
                 )
             else:
-                trace_handler = logging.FileHandler(filename, encoding=encoding)
+                encoding_str = cast(str, encoding)
+                trace_handler = logging.FileHandler(filename, encoding=encoding_str)
 
             trace_handler.setLevel(level)
 
@@ -309,7 +311,7 @@ class LoggerFactory(LoggerFactoryInterface):
                 logger_instance.setLevel(getattr(logging, logger_settings["level"]))
             if "propagate" in logger_settings:
                 logger_instance.propagate = logger_settings["propagate"]
-            if "handlers" in logger_settings and logger_name == "neural_ai.trace" and trace_handler:
+            if logger_name == "neural_ai.trace" and trace_handler:
                 logger_instance.addHandler(trace_handler)
 
     @classmethod
