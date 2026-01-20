@@ -2,7 +2,7 @@
 # Ez a config a LoggerFactory.configure() metódus számára készült
 
 # Alapértelmezett log szint
-default_level: "DEBUG"
+default_level: "INFO"
 
 # Handler konfigurációk
 handlers:
@@ -71,7 +71,7 @@ loggers:
   neural_ai.ui:
     level: "DEBUG"
   neural_ai.ui.components:
-    level: "WARNING"
+    level: "DEBUG"
   neural_ai.ui.pages:
     level: "DEBUG"
 

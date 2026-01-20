@@ -12,6 +12,7 @@ függőségi injektálását, elkerülve a körkörös függőségeket.
 
 from typing import TYPE_CHECKING, TypedDict, cast
 
+from neural_ai.core.config.interfaces.types import IngestionConfig
 from neural_ai.core.utils.decorators import trace
 
 
@@ -37,19 +38,29 @@ class LiveConfig(TypedDict, total=False):
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.config.interfaces.config_interface import (
-        ConfigManagerInterface,  # noqa: F401
+        ConfigManagerInterface,  # noqa: F401  # type: ignore
     )
-    from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager  # noqa: F401
-    from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface  # noqa: F401
-    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface  # noqa: F401
+    from neural_ai.core.db.implementations.sqlalchemy_session import (
+        DatabaseManager,  # noqa: F401  # type: ignore
+    )
+    from neural_ai.core.events.interfaces.event_bus_interface import (
+        EventBusInterface,  # noqa: F401  # type: ignore
+    )
+    from neural_ai.core.logger.interfaces.logger_interface import (
+        LoggerInterface,  # noqa: F401  # type: ignore
+    )
     from neural_ai.core.system.interfaces.health_interface import (
-        HealthMonitorInterface,  # noqa: F401
+        HealthMonitorInterface,  # noqa: F401  # type: ignore
     )
-    from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface  # noqa: F401
+    from neural_ai.core.utils.interfaces.hardware_interface import (
+        HardwareInterface,  # noqa: F401  # type: ignore
+    )
     from neural_ai.data.ingestion.market_data_persister import (
-        MarketDataPersister,  # noqa: F401
+        MarketDataPersister,  # noqa: F401  # type: ignore
     )
-    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface  # noqa: F401
+    from neural_ai.data.storage.interfaces.storage_interface import (
+        StorageInterface,  # noqa: F401  # type: ignore
+    )
 
 
 @trace
@@ -64,7 +75,7 @@ def get_version() -> str:
         from importlib import metadata
 
         return metadata.version("neural-ai-next")
-    except metadata.PackageNotFoundError:
+    except Exception:  # PackageNotFoundError vagy ImportError
         return "unknown"
 
 
@@ -145,7 +156,7 @@ def bootstrap_core(
     container.register_instance(ConfigManagerInterface, config)
 
     # 2. Logger inicializálása a konfiggal
-    logging_config = cast(LoggingConfig, config.get_section("logging") or {})
+    logging_config = config.get_section("logging") or {}
     LoggerFactory.configure(logging_config)
     # Alap logger példány létrehozása
     logger = LoggerFactory.get_logger(__name__, logger_type="default")
@@ -223,8 +234,12 @@ def bootstrap_core(
 
     # 8. MarketDataPersister inicializálása
     logger.info("⏳ 9. MarketDataPersister indítása...")
+    ingestion_config = cast(IngestionConfig, config.get_section("ingestion") or {})
     market_data_persister = MarketDataPersister(
-        config=config, event_bus=event_bus, storage=storage, logger=logger
+        event_bus=event_bus,
+        storage=storage,
+        logger=logger,
+        config=ingestion_config,
     )
     container.register_instance(MarketDataPersister, market_data_persister)
     logger.debug("-> MarketDataPersister regisztrálva")
