@@ -1,0 +1,10 @@
+project: my-awesome-kernel
+kernel_slug: elynea1528/my-awesome-kernel
+code_file: ai_server/colab_2.ipynb
+accelerator: gpu
+internet: true
+privacy: private
+datasets: []
+competitions: []
+outputs:
+  download_to: .kaggle-outputs/
