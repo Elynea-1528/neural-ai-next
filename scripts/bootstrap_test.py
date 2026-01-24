@@ -52,6 +52,7 @@ def main() -> None:
     except Exception as e:
         print(f"❌ Hiba a bootstrap során: {e}")
         import traceback
+
         traceback.print_exc()
         exit(1)
 

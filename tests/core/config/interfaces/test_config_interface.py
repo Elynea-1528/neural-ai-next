@@ -208,8 +208,10 @@ class TestConfigManagerInterface:
         # Az ABC osztályok nem engedik létrehozni a példányt, ha nem implementálják
         # az összes absztrakt metódust
         with pytest.raises(TypeError):
+
             class _IncompleteConfigManager(ConfigManagerInterface):  # type: ignore
                 pass
+
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError
             _IncompleteConfigManager()
 
@@ -242,7 +244,7 @@ class TestConfigManagerInterface:
 
     def test_interface_method_order(self) -> None:
         """Teszteli, hogy az interfész metódusai logikus sorrendben vannak."""
-        method_names = [name for name in dir(ConfigManagerInterface) if not name.startswith('_')]
+        method_names = [name for name in dir(ConfigManagerInterface) if not name.startswith("_")]
         expected_order = [
             "get",
             "get_section",

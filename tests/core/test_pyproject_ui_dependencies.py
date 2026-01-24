@@ -132,4 +132,5 @@ def test_pyproject_toml_is_valid() -> None:
 if __name__ == "__main__":
     # Standalone futtatáshoz
     import pytest
+
     pytest.main([__file__, "-v"])

@@ -40,8 +40,7 @@ class TestDatabaseURL:
         """Teszteli az adatbázis URL lekérdezést env fallbackkel."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         mock_config.get.side_effect = lambda *args: (
-            None if args == ("database", "connection")
-            else "sqlite+aiosqlite:///fallback.db"
+            None if args == ("database", "connection") else "sqlite+aiosqlite:///fallback.db"
         )
 
         url = get_database_url(mock_config)
@@ -51,7 +50,7 @@ class TestDatabaseURL:
     def test_get_database_url_without_config(self) -> None:
         """Teszteli az adatbázis URL lekérdezést konfig nélkül (line 47)."""
         with patch(
-            'neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory'
+            "neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory"
         ) as mock_factory:
             mock_config = MagicMock(spec=ConfigManagerInterface)
             mock_config.get.return_value = "sqlite+aiosqlite:///test.db"
@@ -92,7 +91,7 @@ class TestCreateEngine:
         """Teszteli az engine létrehozást PostgreSQL URL-lel (line 88)."""
         # Mock-oljuk az asyncpg-t, hogy ne kelljen telepíteni
         with patch(
-            'neural_ai.core.db.implementations.sqlalchemy_session.create_async_engine'
+            "neural_ai.core.db.implementations.sqlalchemy_session.create_async_engine"
         ) as mock_create:
             mock_engine = MagicMock()
             mock_create.return_value = mock_engine
@@ -103,21 +102,18 @@ class TestCreateEngine:
             mock_create.assert_called_once()
             # Ellenőrizzük, hogy a pool_size és max_overflow paraméterek át lettek-e adva
             call_kwargs = mock_create.call_args[1]
-            assert call_kwargs['pool_size'] == 20
-            assert call_kwargs['max_overflow'] == 0
+            assert call_kwargs["pool_size"] == 20
+            assert call_kwargs["max_overflow"] == 0
 
 
 class TestGetEngine:
     """Globális engine lekérdezés tesztjei."""
 
-    @patch('neural_ai.core.db.implementations.sqlalchemy_session.get_database_url')
-    @patch('neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory')
-    @patch('neural_ai.core.db.implementations.sqlalchemy_session.create_engine')
+    @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_database_url")
+    @patch("neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory")
+    @patch("neural_ai.core.db.implementations.sqlalchemy_session.create_engine")
     def test_get_engine_creates_on_first_call(
-        self,
-        mock_create: MagicMock,
-        mock_config_factory: MagicMock,
-        mock_get_url: MagicMock
+        self, mock_create: MagicMock, mock_config_factory: MagicMock, mock_get_url: MagicMock
     ) -> None:
         """Teszteli, hogy az engine létrejön az első hívásnál."""
         mock_engine = MagicMock()
@@ -140,7 +136,7 @@ class TestGetEngine:
 class TestGetAsyncSessionMaker:
     """Session maker lekérdezés tesztjei."""
 
-    @patch('neural_ai.core.db.implementations.sqlalchemy_session.get_engine')
+    @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_engine")
     def test_get_async_session_maker_creates_once(self, mock_get_engine: MagicMock) -> None:
         """Teszteli, hogy a session maker csak egyszer jön létre."""
         mock_engine = MagicMock()
@@ -287,10 +283,7 @@ class TestDatabaseManager:
         result = await manager.get_active_configs()
 
         # Ellenőrizzük az eredményt
-        assert result == {
-            "test_key1": "test_value1",
-            "test_key2": {"nested": "value"}
-        }
+        assert result == {"test_key1": "test_value1", "test_key2": {"nested": "value"}}
         mock_session.execute.assert_called_once()
 
     @pytest.mark.asyncio
@@ -339,7 +332,7 @@ class TestContextManagers:
         mock_session_maker.return_value.__aexit__ = AsyncMock(return_value=None)
 
         with patch(
-            'neural_ai.core.db.implementations.sqlalchemy_session.get_async_session_maker'
+            "neural_ai.core.db.implementations.sqlalchemy_session.get_async_session_maker"
         ) as mock_get_maker:
             mock_get_maker.return_value = mock_session_maker
 
@@ -366,7 +359,7 @@ class TestDatabaseInitialization:
         # Mock-oljuk a get_engine-t, hogy ne kelljen config fájl
         mock_logger = MagicMock()
         with patch(
-            'neural_ai.core.db.implementations.sqlalchemy_session.get_engine'
+            "neural_ai.core.db.implementations.sqlalchemy_session.get_engine"
         ) as mock_get_engine:
             mock_engine = MagicMock()
             mock_get_engine.return_value = mock_engine
@@ -383,19 +376,18 @@ class TestDatabaseInitialization:
         mock_engine = MagicMock()
         mock_engine.dispose = AsyncMock()
 
-        with patch(
-            'neural_ai.core.db.implementations.sqlalchemy_session._engine',
-            mock_engine
-        ), patch(
-            'neural_ai.core.db.implementations.sqlalchemy_session._async_session_maker',
-            None
+        with (
+            patch("neural_ai.core.db.implementations.sqlalchemy_session._engine", mock_engine),
+            patch(
+                "neural_ai.core.db.implementations.sqlalchemy_session._async_session_maker", None
+            ),
         ):
-
             await close_db(mock_logger)
 
             mock_engine.dispose.assert_called_once()
             # Ellenőrizzük, hogy a globális változók None-ra lettek-e állítva
             from neural_ai.core.db.implementations import sqlalchemy_session
+
             assert sqlalchemy_session._engine is None
             assert sqlalchemy_session._async_session_maker is None
 

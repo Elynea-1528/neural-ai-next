@@ -421,7 +421,9 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
     @staticmethod
     def create_storage(
-        base_directory: str | None, logger: "LoggerInterface", config_manager: "ConfigManagerInterface"
+        base_directory: str | None,
+        logger: "LoggerInterface",
+        config_manager: "ConfigManagerInterface",
     ) -> "StorageInterface":
         """Létrehoz egy storage példányt.
 

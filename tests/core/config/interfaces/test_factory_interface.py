@@ -120,9 +120,9 @@ class TestConfigManagerFactoryInterface:
     def test_interface_methods_are_classmethods(self) -> None:
         """Teszteli, hogy az interfész metódusai classmethod-ok."""
         # Az interfész metódusai @classmethod dekorátorral vannak ellátva
-        register_method = ConfigManagerFactoryInterface.__dict__['register_manager']
-        get_manager_method = ConfigManagerFactoryInterface.__dict__['get_manager']
-        create_manager_method = ConfigManagerFactoryInterface.__dict__['create_manager']
+        register_method = ConfigManagerFactoryInterface.__dict__["register_manager"]
+        get_manager_method = ConfigManagerFactoryInterface.__dict__["get_manager"]
+        create_manager_method = ConfigManagerFactoryInterface.__dict__["create_manager"]
 
         assert isinstance(register_method, classmethod)
         assert isinstance(get_manager_method, classmethod)
@@ -204,9 +204,7 @@ class TestConfigManagerFactoryInterface:
     def test_create_manager_with_kwargs(self) -> None:
         """Teszteli a create_manager metódust csak kulcsszavas argumentumokkal."""
         DummyConfigFactory.register_manager("dummy", DummyConfigManager)
-        manager = DummyConfigFactory.create_manager(
-            "dummy", filename="test.yaml"
-        )
+        manager = DummyConfigFactory.create_manager("dummy", filename="test.yaml")
         assert isinstance(manager, DummyConfigManager)
         assert manager._filename == "test.yaml"
 
@@ -220,8 +218,10 @@ class TestConfigManagerFactoryInterface:
         # Az ABC osztályok nem engedik létrehozni a példányt, ha nem implementálják
         # az összes absztrakt metódust
         with pytest.raises(TypeError):
+
             class _IncompleteConfigFactory(ConfigManagerFactoryInterface):  # type: ignore
                 pass
+
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError
             _IncompleteConfigFactory()
 
@@ -241,7 +241,7 @@ class TestConfigManagerFactoryInterface:
     def test_interface_method_order(self) -> None:
         """Teszteli, hogy az interfész metódusai logikus sorrendben vannak."""
         method_names = [
-            name for name in dir(ConfigManagerFactoryInterface) if not name.startswith('_')
+            name for name in dir(ConfigManagerFactoryInterface) if not name.startswith("_")
         ]
         expected_order = [
             "register_manager",
@@ -296,4 +296,3 @@ class TestConfigManagerFactoryInterface:
         assert isinstance(manager1, DummyConfigManager)
         assert isinstance(manager2, DummyConfigManager)
         assert isinstance(manager3, DummyConfigManager)
-

@@ -41,7 +41,7 @@ class LiveOpsServiceInterface(Protocol):
         volume: float,
         price: float | None = None,
         stop_loss: float | None = None,
-        take_profit: float | None = None
+        take_profit: float | None = None,
     ) -> str:
         """Új rendelés leadása.
 
@@ -63,7 +63,7 @@ class LiveOpsServiceInterface(Protocol):
         order_id: str,
         price: float | None = None,
         stop_loss: float | None = None,
-        take_profit: float | None = None
+        take_profit: float | None = None,
     ) -> bool:
         """Meglévő rendelés módosítása.
 
@@ -111,11 +111,7 @@ class LiveOpsServiceInterface(Protocol):
         """
         ...
 
-    def subscribe_to_market_updates(
-        self,
-        symbol: str,
-        callback: Any
-    ) -> None:
+    def subscribe_to_market_updates(self, symbol: str, callback: Any) -> None:
         """Feliratkozás piaci frissítésekre.
 
         Args:

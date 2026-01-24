@@ -1,4 +1,5 @@
 """Colored logger implementáció tesztei."""
+
 import logging
 
 import pytest
@@ -24,6 +25,7 @@ class TestColoredLogger:
         """Debug üzenet logolásának tesztelése."""
         import io
         import sys
+
         buffer = io.StringIO()
         monkeypatch.setattr(sys, "stdout", buffer)
         logger = ColoredLogger("test_debug_log", level=logging.DEBUG, stream=buffer)
@@ -35,6 +37,7 @@ class TestColoredLogger:
         """Info üzenet logolásának tesztelése."""
         import io
         import sys
+
         buffer = io.StringIO()
         monkeypatch.setattr(sys, "stdout", buffer)
         logger = ColoredLogger("test_info_log", stream=buffer)
@@ -46,6 +49,7 @@ class TestColoredLogger:
         """Warning üzenet logolásának tesztelése."""
         import io
         import sys
+
         buffer = io.StringIO()
         monkeypatch.setattr(sys, "stdout", buffer)
         logger = ColoredLogger("test_warning_log", stream=buffer)
@@ -57,6 +61,7 @@ class TestColoredLogger:
         """Error üzenet logolásának tesztelése."""
         import io
         import sys
+
         buffer = io.StringIO()
         monkeypatch.setattr(sys, "stdout", buffer)
         logger = ColoredLogger("test_error_log", stream=buffer)
@@ -68,6 +73,7 @@ class TestColoredLogger:
         """Critical üzenet logolásának tesztelése."""
         import io
         import sys
+
         buffer = io.StringIO()
         monkeypatch.setattr(sys, "stdout", buffer)
         logger = ColoredLogger("test_critical_log", stream=buffer)
@@ -100,7 +106,7 @@ class TestColoredLogger:
 
     def test_existing_handlers_removed(self) -> None:
         """Teszteli, hogy a meglévő handlerek eltávolításra kerülnek.
-        
+
         Ez a teszt lefedi a 54-55. sorokat, ahol a meglévő handlerek
         eltávolítása történik, hogy ne legyenek duplikált üzenetek.
         """
@@ -110,6 +116,7 @@ class TestColoredLogger:
 
         # Adjunk hozzá egy handler-t
         import io
+
         buffer = io.StringIO()
         handler = logging.StreamHandler(buffer)
         temp_logger.addHandler(handler)

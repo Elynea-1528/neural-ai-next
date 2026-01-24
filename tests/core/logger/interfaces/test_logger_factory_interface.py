@@ -1,4 +1,5 @@
 """Logger factory interfész tesztek."""
+
 import pytest
 
 from neural_ai.core.logger.interfaces.factory_interface import LoggerFactoryInterface
@@ -26,7 +27,7 @@ class TestLoggerFactoryInterface:
 
     def test_register_logger_raises_not_implemented(self) -> None:
         """register_logger metódus NotImplementedError-t dob.
-        
+
         Ez a teszt lefedi a 35. sort.
         """
         with pytest.raises(NotImplementedError):
@@ -34,7 +35,7 @@ class TestLoggerFactoryInterface:
 
     def test_get_logger_raises_not_implemented(self) -> None:
         """get_logger metódus NotImplementedError-t dob.
-        
+
         Ez a teszt lefedi a 54. sort.
         """
         with pytest.raises(NotImplementedError):
@@ -42,7 +43,7 @@ class TestLoggerFactoryInterface:
 
     def test_configure_raises_not_implemented(self) -> None:
         """configure metódus NotImplementedError-t dob.
-        
+
         Ez a teszt lefedi a 67. sort.
         """
         with pytest.raises(NotImplementedError):

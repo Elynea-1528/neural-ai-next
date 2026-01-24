@@ -84,6 +84,7 @@ def migrate_tick_structure(logger: Any) -> None:
                 logger.info(f"Áthelyezve: {item} -> {target_year_dir}")
                 # Path objektumok használata
                 import shutil
+
                 shutil.move(str(item), str(target_year_dir))
             except OSError as e:
                 logger.error(f"Hiba az áthelyezéskor {item} -> {target_year_dir}: {e}")
@@ -100,7 +101,9 @@ def migrate_tick_structure(logger: Any) -> None:
     if symbols_processed == 0:
         logger.warning("Nem található szimbólum mappa a tick könyvtárban")
 
-    logger.info(f"Migráció befejezve. Feldolgozott szimbólumok: {symbols_processed}, Migrált: {symbols_migrated}")
+    logger.info(
+        f"Migráció befejezve. Feldolgozott szimbólumok: {symbols_processed}, Migrált: {symbols_migrated}"
+    )
 
 
 def main() -> int:
@@ -127,6 +130,7 @@ def main() -> int:
     except Exception as e:
         print(f"Váratlan hiba: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

@@ -67,7 +67,7 @@ class TestComponentHealth:
             name="test_component",
             status=ComponentStatus.HEALTHY,
             message="Minden OK",
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         assert health.name == "test_component"
@@ -85,7 +85,7 @@ class TestComponentHealth:
             status=ComponentStatus.HEALTHY,
             message="Minden OK",
             timestamp=timestamp,
-            metrics=metrics
+            metrics=metrics,
         )
 
         assert health.metrics == metrics
@@ -99,7 +99,7 @@ class TestComponentHealth:
             name="test_component",
             status=ComponentStatus.HEALTHY,
             message="Minden OK",
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         # A dataclass alapértelmezett nem változtatható (frozen=False)
@@ -116,10 +116,7 @@ class TestSystemHealth:
         timestamp = datetime.now()
         components = [
             ComponentHealth(
-                name="comp1",
-                status=ComponentStatus.HEALTHY,
-                message="OK",
-                timestamp=timestamp
+                name="comp1", status=ComponentStatus.HEALTHY, message="OK", timestamp=timestamp
             )
         ]
 
@@ -127,7 +124,7 @@ class TestSystemHealth:
             overall_status=HealthStatus.OK,
             message="Rendszer OK",
             timestamp=timestamp,
-            components=components
+            components=components,
         )
 
         assert health.overall_status == HealthStatus.OK
@@ -140,18 +137,14 @@ class TestSystemHealth:
         """Teszteli a létrehozást opcionális metrikákkal."""
         timestamp = datetime.now()
         components = []
-        system_metrics = {
-            "cpu_usage": 45.2,
-            "memory_usage": 67.8,
-            "disk_usage": 23.4
-        }
+        system_metrics = {"cpu_usage": 45.2, "memory_usage": 67.8, "disk_usage": 23.4}
 
         health = SystemHealth(
             overall_status=HealthStatus.OK,
             message="Rendszer OK",
             timestamp=timestamp,
             components=components,
-            system_metrics=system_metrics
+            system_metrics=system_metrics,
         )
 
         assert health.system_metrics == system_metrics
@@ -164,7 +157,7 @@ class TestSystemHealth:
             overall_status=HealthStatus.UNKNOWN,
             message="Nincsenek komponensek",
             timestamp=timestamp,
-            components=[]
+            components=[],
         )
 
         assert len(health.components) == 0
@@ -196,7 +189,7 @@ class TestHealthMonitorInterface:
                     overall_status=HealthStatus.OK,
                     message="Test",
                     timestamp=datetime.now(),
-                    components=[]
+                    components=[],
                 )
 
             def check_component(self, component_name: str):
@@ -204,7 +197,7 @@ class TestHealthMonitorInterface:
                     name=component_name,
                     status=ComponentStatus.HEALTHY,
                     message="OK",
-                    timestamp=datetime.now()
+                    timestamp=datetime.now(),
                 )
 
             def get_registered_components(self):
@@ -218,11 +211,11 @@ class TestHealthMonitorInterface:
 
         monitor = TestMonitor()
         assert isinstance(monitor, HealthMonitorInterface)
-        assert hasattr(monitor, 'check_health')
-        assert hasattr(monitor, 'check_component')
-        assert hasattr(monitor, 'get_registered_components')
-        assert hasattr(monitor, 'register_component')
-        assert hasattr(monitor, 'unregister_component')
+        assert hasattr(monitor, "check_health")
+        assert hasattr(monitor, "check_component")
+        assert hasattr(monitor, "get_registered_components")
+        assert hasattr(monitor, "register_component")
+        assert hasattr(monitor, "unregister_component")
 
         # Hívjuk meg a metódusokat a coverage növeléséhez
         health = monitor.check_health()
@@ -264,7 +257,7 @@ class TestHealthCheckInterface:
                     name="test",
                     status=ComponentStatus.HEALTHY,
                     message="OK",
-                    timestamp=datetime.now()
+                    timestamp=datetime.now(),
                 )
 
             def get_name(self):
@@ -272,8 +265,8 @@ class TestHealthCheckInterface:
 
         check = TestCheck()
         assert isinstance(check, HealthCheckInterface)
-        assert hasattr(check, 'check')
-        assert hasattr(check, 'get_name')
+        assert hasattr(check, "check")
+        assert hasattr(check, "get_name")
 
 
 class TestIntegration:
@@ -287,7 +280,7 @@ class TestIntegration:
             name="database",
             status=ComponentStatus.HEALTHY,
             message="Adatbázis OK",
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         component2 = ComponentHealth(
@@ -295,14 +288,14 @@ class TestIntegration:
             status=ComponentStatus.WARNING,
             message="Lassú válaszidő",
             timestamp=timestamp,
-            metrics={"response_time_ms": 500.0}
+            metrics={"response_time_ms": 500.0},
         )
 
         system_health = SystemHealth(
             overall_status=HealthStatus.DEGRADED,
             message="Rendszer figyelmeztetéssel",
             timestamp=timestamp,
-            components=[component1, component2]
+            components=[component1, component2],
         )
 
         assert len(system_health.components) == 2
@@ -340,7 +333,7 @@ class TestTypeSafety:
             status=ComponentStatus.HEALTHY,
             message="OK",
             timestamp=datetime.now(),
-            metrics={"test": 1.0}
+            metrics={"test": 1.0},
         )
 
         assert isinstance(health.name, str)
@@ -356,7 +349,7 @@ class TestTypeSafety:
             message="OK",
             timestamp=datetime.now(),
             components=[],
-            system_metrics={"cpu": 50.0}
+            system_metrics={"cpu": 50.0},
         )
 
         assert isinstance(health.overall_status, HealthStatus)

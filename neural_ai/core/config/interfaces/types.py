@@ -9,6 +9,7 @@ from typing import Literal, TypedDict
 
 class PathsConfig(TypedDict, total=False):
     """Rendszer útvonalak konfigurációja."""
+
     data: str
     logs: str
     models: str
@@ -17,6 +18,7 @@ class PathsConfig(TypedDict, total=False):
 
 class SystemConfig(TypedDict, total=False):
     """Rendszer szintű konfiguráció."""
+
     app_name: str
     version: str
     environment: Literal["development", "staging", "production"]
@@ -30,6 +32,7 @@ class StoragePartitioningConfig(TypedDict, total=False):
 
 class StorageConfig(TypedDict, total=False):
     """Adattárolási konfiguráció."""
+
     type: Literal["parquet", "csv", "json"]
     base_path: str
     compression: str
@@ -39,12 +42,14 @@ class StorageConfig(TypedDict, total=False):
 
 class TimeframeConfig(TypedDict, total=False):
     """Időkeret specifikus konfiguráció."""
+
     z_score_window: int
     swing_window: int
 
 
 class ProcessorConfig(TypedDict, total=False):
     """Egyedi processzor konfiguráció."""
+
     required_timeframes: list[str]
     z_score_window: int
     use_mid_price: bool
@@ -64,11 +69,13 @@ class ProcessorConfig(TypedDict, total=False):
 
 class ProcessorsConfig(TypedDict, total=False):
     """Processzorok konfigurációja."""
+
     processors: dict[str, ProcessorConfig]
 
 
 class HandlerConfig(TypedDict, total=False):
     """Log handler konfiguráció."""
+
     enabled: bool
     level: str
     colored: bool
@@ -81,12 +88,14 @@ class HandlerConfig(TypedDict, total=False):
 
 class LoggerConfig(TypedDict, total=False):
     """Egyedi logger konfiguráció."""
+
     level: str
     propagate: bool
 
 
 class LoggingConfig(TypedDict, total=False):
     """Naplózási konfiguráció."""
+
     default_level: str
     handlers: dict[str, HandlerConfig]
     loggers: dict[str, LoggerConfig]
@@ -94,17 +103,20 @@ class LoggingConfig(TypedDict, total=False):
 
 class DatabaseConnectionConfig(TypedDict, total=False):
     """Adatbázis kapcsolat konfiguráció."""
+
     url: str
 
 
 class DatabasePoolConfig(TypedDict, total=False):
     """Adatbázis pool konfiguráció."""
+
     size: int
     recycle: int
 
 
 class DatabaseConfig(TypedDict, total=False):
     """Adatbázis konfiguráció."""
+
     type: Literal["sqlite", "postgresql", "mysql"]
     connection: DatabaseConnectionConfig
     pool: DatabasePoolConfig
@@ -112,6 +124,7 @@ class DatabaseConfig(TypedDict, total=False):
 
 class EventsConnectionConfig(TypedDict, total=False):
     """Esemény kapcsolat konfiguráció."""
+
     protocol: str
     host: str
     pub_port: int
@@ -121,6 +134,7 @@ class EventsConnectionConfig(TypedDict, total=False):
 
 class EventsConfig(TypedDict, total=False):
     """Esemény rendszer konfiguráció."""
+
     type: Literal["zeromq", "redis", "rabbitmq"]
     connection: EventsConnectionConfig
     socket_timeout: int
@@ -128,6 +142,7 @@ class EventsConfig(TypedDict, total=False):
 
 class CollectorDownloadConfig(TypedDict, total=False):
     """Gyűjtő letöltési konfiguráció."""
+
     timeout: int
     max_retries: int
     retry_delay: int
@@ -136,18 +151,21 @@ class CollectorDownloadConfig(TypedDict, total=False):
 
 class CollectorLoggingConfig(TypedDict, total=False):
     """Gyűjtő naplózási konfiguráció."""
+
     level: str
     format: str
 
 
 class CollectorRateLimitingConfig(TypedDict, total=False):
     """Gyűjtő rate limiting konfiguráció."""
+
     max_concurrent: int
     request_delay: float
 
 
 class CollectorCircuitBreakerConfig(TypedDict, total=False):
     """Gyűjtő circuit breaker konfiguráció."""
+
     failure_threshold: int
     recovery_timeout: int
     expected_exceptions: list[str]
@@ -155,12 +173,14 @@ class CollectorCircuitBreakerConfig(TypedDict, total=False):
 
 class CollectorDateRangeConfig(TypedDict, total=False):
     """Gyűjtő dátumtartomány konfiguráció."""
+
     start: str
     end: str
 
 
 class JForexConfig(TypedDict, total=False):
     """JForex gyűjtő konfiguráció."""
+
     enabled: bool
     base_url: str
     download: CollectorDownloadConfig
@@ -173,6 +193,7 @@ class JForexConfig(TypedDict, total=False):
 
 class JForexLiveConfig(TypedDict, total=False):
     """JForex live feed konfiguráció."""
+
     enabled: bool
     host: str
     tick_port: int
@@ -181,18 +202,21 @@ class JForexLiveConfig(TypedDict, total=False):
 
 class CollectorsConfig(TypedDict, total=False):
     """Gyűjtők konfigurációja."""
+
     jforex: JForexConfig
     jforex_live: JForexLiveConfig
 
 
 class IngestionConfig(TypedDict, total=False):
     """Adatbevitel konfiguráció."""
+
     buffer_size_limit: int
     flush_interval_minutes: int
 
 
 class ConfigSchema(TypedDict, total=False):
     """Általános konfigurációs séma típus."""
+
     system: SystemConfig
     storage: StorageConfig
     processors: ProcessorsConfig

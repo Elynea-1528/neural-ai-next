@@ -21,19 +21,16 @@ print("🔧 Szerver kód FRISSÍTÉSE (Robust Proxy + Logging)...")
 
 # --- ÚJ, JAVÍTOTT SZERVER KÓD ---
 
-import os
-import subprocess
 import time
+
 import modal
-from fastapi import FastAPI, Request
-from fastapi.responses import StreamingResponse
-import httpx
+from fastapi import FastAPI
 
 # --- MODELLEK ---
 MODELS = [
     "mychen76/qwen3_cline_roocode:32b",
     "mychen76/qwen3_cline_roocode:14b",
-    "mychen76/qwen2.5_cline_roocode:32b"
+    "mychen76/qwen2.5_cline_roocode:32b",
 ]
 
 APP_NAME = "roo-code-final-server"
@@ -42,7 +39,7 @@ VOLUME_NAME = "ollama-models"
 # Image: zstd + curl + Ollama
 image = (
     modal.Image.debian_slim()
-    .apt_install("curl", "zstd")  
+    .apt_install("curl", "zstd")
     .run_commands("curl -fsSL https://ollama.com/install.sh | sh")
     .pip_install("httpx", "fastapi", "uvicorn")
 )
@@ -51,30 +48,31 @@ app = modal.App(APP_NAME)
 vol = modal.Volume.from_name(VOLUME_NAME, create_if_missing=True)
 web_app = FastAPI()
 
+
 # --- SEGÉDFÜGGVÉNYEK ---
 def wait_for_ollama():
     for _ in range(60):
         try:
-            subprocess.check_call(["ollama", "list"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.check_call(
+                ["ollama", "list"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
             return True
         except:
             time.sleep(1)
     return False
 
+
 # --- TELEPÍTŐ ---
-@app.function(
-    image=image,
-    volumes={"/root/.ollama": vol},
-    gpu="L4",
-    timeout=7200
-)
+@app.function(image=image, volumes={"/root/.ollama": vol}, gpu="L4", timeout=7200)
 def setup_models():
     print("⏳ Ollama indítása...")
     subprocess.Popen(["ollama", "serve"])
-    
+
     for _ in range(30):
         try:
-            subprocess.check_call(["curl", "-s", "http://127.0.0.1:11434"], stdout=subprocess.DEVNULL)
+            subprocess.check_call(
+                ["curl", "-s", "http://127.0.0.1:11434"], stdout=subprocess.DEVNULL
+            )
             break
         except:
             time.sleep(1)
@@ -96,6 +94,7 @@ def setup_models():
             except Exception as e:
                 print(f"❌ HIBA {model}: {e}")
 
+
 server_code = """
 # --- SZERVER (PROXY JAVÍTVA) ---
 @app.cls(
@@ -114,10 +113,10 @@ class OllamaServer:
         os.environ["OLLAMA_NUM_CTX"] = "131072"
         os.environ["OLLAMA_HOST"] = "127.0.0.1:11434"
         os.environ["OLLAMA_ORIGINS"] = "*"
-        
+
         print("🚀 Ollama indítása...")
         subprocess.Popen(["ollama", "serve"])
-        
+
         # Ping check
         for _ in range(30):
             try:
@@ -144,17 +143,17 @@ async def chat_endpoint(request: Request):
                 async with client.stream("POST", "http://127.0.0.1:11434/v1/chat/completions", json=body) as response:
                     # Fejlécek és státusz logolása debug célból
                     print(f"DEBUG: Ollama válasz status: {response.status_code}")
-                    
+
                     async for chunk in response.aiter_bytes():
                         # Itt küldjük vissza a chunkokat
                         yield chunk
             except Exception as e:
                 print(f"❌ PROXY HIBA: {str(e)}")
                 yield f'{{"error": "{str(e)}"}}'.encode()
-    
+
     # Kényszerített headers a stabilitásért
     return StreamingResponse(
-        proxy_stream(), 
+        proxy_stream(),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

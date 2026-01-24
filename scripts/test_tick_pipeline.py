@@ -91,8 +91,7 @@ def _generate_test_tick_data() -> pl.DataFrame:
     """Mock tick adatok generálása teszteléshez."""
     # 100 tick adat generálása
     timestamps = [
-        datetime(2023, 1, 1, 10, 0, 0, tzinfo=UTC) + timedelta(seconds=i)
-        for i in range(100)
+        datetime(2023, 1, 1, 10, 0, 0, tzinfo=UTC) + timedelta(seconds=i) for i in range(100)
     ]
     bids = [1.0520 + 0.0001 * (i % 10) for i in range(100)]
     asks = [bid + 0.0002 for bid in bids]

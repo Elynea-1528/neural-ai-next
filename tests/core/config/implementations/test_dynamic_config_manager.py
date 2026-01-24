@@ -84,9 +84,7 @@ class TestDynamicConfigManagerGet:
             await config_manager.get("key1", "key2")
 
     @pytest.mark.asyncio
-    async def test_get_from_cache(
-        self, config_manager: DynamicConfigManager
-    ) -> None:
+    async def test_get_from_cache(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Érték lekérése a cache-ből."""
         config_manager._cache["test_key"] = "cached_value"
         result = await config_manager.get("test_key", default="default_value")
@@ -277,9 +275,7 @@ class TestDynamicConfigManagerValidate:
     """DynamicConfigManager validate metódusának tesztjei."""
 
     @pytest.mark.asyncio
-    async def test_validate_success(
-        self, config_manager: DynamicConfigManager
-    ) -> None:
+    async def test_validate_success(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Sikeres validáció."""
         config_manager._cache = {
             "key1": "value1",
@@ -315,9 +311,7 @@ class TestDynamicConfigManagerValidate:
         assert errors["missing_key"] == "Kötelező mező hiányzik"
 
     @pytest.mark.asyncio
-    async def test_validate_invalid_type(
-        self, config_manager: DynamicConfigManager
-    ) -> None:
+    async def test_validate_invalid_type(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Validáció hiba, ha az érték típusa nem megfelelő."""
         config_manager._cache = {"key1": "value1"}
         schema = {"key1": int}
@@ -332,10 +326,9 @@ class TestDynamicConfigManagerValidate:
 class TestDynamicConfigManagerListeners:
     """Listener metódusok tesztjei."""
 
-    def test_add_listener_success(
-        self, config_manager: DynamicConfigManager
-    ) -> None:
+    def test_add_listener_success(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Listener hozzáadása."""
+
         async def dummy_listener(key: str, value: Any) -> None:
             pass
 
@@ -344,10 +337,9 @@ class TestDynamicConfigManagerListeners:
         assert len(config_manager._listeners) == 1
         assert config_manager._listeners[0] == dummy_listener
 
-    def test_remove_listener_success(
-        self, config_manager: DynamicConfigManager
-    ) -> None:
+    def test_remove_listener_success(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Listener eltávolítása."""
+
         async def dummy_listener(key: str, value: Any) -> None:
             pass
 
@@ -360,6 +352,7 @@ class TestDynamicConfigManagerListeners:
         self, config_manager: DynamicConfigManager
     ) -> None:
         """Teszt: Nem létező listener eltávolítása nem okoz hibát."""
+
         async def dummy_listener(key: str, value: Any) -> None:
             pass
 
@@ -371,9 +364,7 @@ class TestDynamicConfigManagerHotReload:
     """Hot reload metódusok tesztjei."""
 
     @pytest.mark.asyncio
-    async def test_start_hot_reload_success(
-        self, config_manager: DynamicConfigManager
-    ) -> None:
+    async def test_start_hot_reload_success(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Hot reload indítása."""
         await config_manager.start_hot_reload(interval=1.0)
 
@@ -396,9 +387,7 @@ class TestDynamicConfigManagerHotReload:
         await config_manager.stop_hot_reload()
 
     @pytest.mark.asyncio
-    async def test_stop_hot_reload_success(
-        self, config_manager: DynamicConfigManager
-    ) -> None:
+    async def test_stop_hot_reload_success(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Hot reload leállítása."""
         await config_manager.start_hot_reload(interval=1.0)
         await config_manager.stop_hot_reload()
@@ -612,6 +601,7 @@ class TestDynamicConfigManagerDetermineValueType:
 
     def test_determine_value_type_unknown_defaults_to_str(self) -> None:
         """Teszt: Ismeretlen típus esetén str visszaadása."""
+
         # Példa ismeretlen típusra
         class CustomType:
             pass
@@ -623,9 +613,7 @@ class TestDynamicConfigManagerNotifyListeners:
     """_notify_listeners metódus tesztjei."""
 
     @pytest.mark.asyncio
-    async def test_notify_listeners_success(
-        self, config_manager: DynamicConfigManager
-    ) -> None:
+    async def test_notify_listeners_success(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Listener-ek értesítése."""
         listener_called = False
         listener_key = None
@@ -718,6 +706,7 @@ class TestDynamicConfigManagerCheckForUpdates:
 
         # Listener hozzáadása a változás észleléséhez
         listener_called = False
+
         async def test_listener(key: str, value: Any) -> None:
             nonlocal listener_called
             listener_called = True

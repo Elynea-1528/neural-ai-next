@@ -75,12 +75,12 @@ def wait_for_ollama():
 def setup_environment():
     print("🧹 Tisztítás...")
     subprocess.run("pkill ollama", shell=True)
-    
+
     print("⏳ Ollama indítása karbantartáshoz...")
     subprocess.Popen(["ollama", "serve"])
     if not wait_for_ollama():
         raise Exception("Ollama nem indult el.")
-    
+
     print(f"🔍 Modell ellenőrzése: {{MODEL_NAME}}")
     try:
         # Listázzuk a modelleket
@@ -115,16 +115,16 @@ class OllamaServer:
         # 1. Context: 128k (Hatalmas fájlokhoz)
         # 2. Flash Attention: Bekapcsolva (Sebesség)
         # 3. KV Cache: q4_0 (Memória optimalizáció, hogy ne fagyjon le)
-        
+
         os.environ["OLLAMA_NUM_CTX"] = "131072"
         os.environ["OLLAMA_KV_CACHE_TYPE"] = "q4_0"
         os.environ["OLLAMA_FLASH_ATTENTION"] = "1"
         os.environ["OLLAMA_HOST"] = "127.0.0.1:11434"
         os.environ["OLLAMA_ORIGINS"] = "*"
-        
+
         print(f"🚀 Szerver indítása (Modell: {{MODEL_NAME}})...")
         subprocess.Popen(["ollama", "serve"])
-        
+
         if wait_for_ollama():
             print("✅ Szerver ONLINE és fogadja a kéréseket.")
         else:
@@ -137,10 +137,10 @@ class OllamaServer:
 @web_app.post("/v1/chat/completions")
 async def chat_endpoint(request: Request):
     body = await request.json()
-    
+
     # Kényszerítjük a modellt, hogy biztosan a jót használja
     body["model"] = MODEL_NAME
-    
+
     # Logolás a Modal Dashboardra (Debug)
     print(f"📩 Kérés érkezett. Tool use check...")
 
@@ -153,9 +153,9 @@ async def chat_endpoint(request: Request):
             except Exception as e:
                 print(f"❌ Proxy Hiba: {{e}}")
                 yield f'{{"error": "{{str(e)}}"}}'.encode()
-    
+
     return StreamingResponse(
-        proxy_stream(), 
+        proxy_stream(),
         media_type="text/event-stream",
         # Fontos header-ek, hogy a Roo Code ne szakadjon meg
         headers={{"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}}

@@ -87,7 +87,7 @@ def run_gradle_build(bridge_path: Path) -> bool:
             ["gradle", "build"],
             capture_output=True,
             text=True,
-            timeout=300  # 5 perc timeout
+            timeout=300,  # 5 perc timeout
         )
 
         # Visszatérés az eredeti mappába
@@ -129,8 +129,14 @@ def deploy_files(bridge_path: Path, jforex_path: Path) -> bool:
     try:
         # 1. Java stratégia fájl másolása
         java_source = (
-            bridge_path / "src" / "main" / "java" / "com" / "neuralai" /
-            "bridge" / "NeuralBridgeStrategy.java"
+            bridge_path
+            / "src"
+            / "main"
+            / "java"
+            / "com"
+            / "neuralai"
+            / "bridge"
+            / "NeuralBridgeStrategy.java"
         )
         if not java_source.exists():
             print(f"❌ Java forrásfájl nem található: {java_source}")
@@ -178,9 +184,9 @@ def print_summary(jforex_path: Path):
     Args:
         jforex_path: A JForex Strategies mappa útvonala
     """
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🎉 JFOREX BRIDGE TELEPÍTÉS SIKERES!")
-    print("="*60)
+    print("=" * 60)
     print(f"\n📁 Telepítési mappa: {jforex_path}")
     print("\n📋 Telepített fájlok:")
     print(f"   ✓ {jforex_path / 'NeuralBridgeStrategy.java'}")
@@ -197,14 +203,14 @@ def print_summary(jforex_path: Path):
     print("   3. Importálja a NeuralBridgeStrategy.java fájlt")
     print("   4. Futtassa a stratégia egy demo számlán")
     print("\n⚠️  FIGYELEM: A stratégia csak demo módban futtatható!")
-    print("="*60 + "\n")
+    print("=" * 60 + "\n")
 
 
 def main():
     """Fő végrehajtási függvény."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🧠 NEURAL AI - JFOREX BRIDGE AUTO-DEPLOY")
-    print("="*60)
+    print("=" * 60)
 
     try:
         # 1. JForex mappa keresése
@@ -244,6 +250,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Váratlan hiba: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

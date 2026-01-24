@@ -1,4 +1,5 @@
 """Default logger implementáció tesztei."""
+
 import logging
 
 import pytest

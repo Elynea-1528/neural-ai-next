@@ -13,12 +13,11 @@ from typing import TYPE_CHECKING, Any, cast
 import pandas as pd
 import polars as pl
 
-from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
 from neural_ai.ui.factory import DataServiceConfig, JForexConfig
+from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
 
 if TYPE_CHECKING:
     from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
-    from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 
 
 class DataService(DataServiceInterface):

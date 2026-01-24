@@ -115,9 +115,9 @@ flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
     def test_interface_implementation(self) -> None:
         """Teszteli, hogy az osztály megfelelően implementálja-e az interfészt."""
         hardware_info = HardwareInfo()
-        assert hasattr(hardware_info, 'has_avx2')
-        assert hasattr(hardware_info, 'get_cpu_features')
-        assert hasattr(hardware_info, 'supports_simd')
+        assert hasattr(hardware_info, "has_avx2")
+        assert hasattr(hardware_info, "get_cpu_features")
+        assert hasattr(hardware_info, "supports_simd")
         assert callable(hardware_info.has_avx2)
         assert callable(hardware_info.get_cpu_features)
         assert callable(hardware_info.supports_simd)

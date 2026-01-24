@@ -15,11 +15,25 @@ from neural_ai.ui.interfaces.live_ops_service_interface import LiveOpsServiceInt
 from neural_ai.ui.interfaces.navigation_service_interface import NavigationServiceInterface
 from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
+
 # TypedDict definíciók config kezeléshez - OPERATION TOTAL RECALL
-DateRange = TypedDict("DateRange", {"start": str, "end": str})
-JForexConfig = TypedDict("JForexConfig", {"symbols": list[str], "date_range": DateRange})
-DataServiceConfig = TypedDict("DataServiceConfig", {"jforex": JForexConfig})
-UIFactoryConfig = TypedDict("UIFactoryConfig", {"data_service": DataServiceConfig})
+class DateRange(TypedDict):
+    start: str
+    end: str
+
+
+class JForexConfig(TypedDict):
+    symbols: list[str]
+    date_range: DateRange
+
+
+class DataServiceConfig(TypedDict):
+    jforex: JForexConfig
+
+
+class UIFactoryConfig(TypedDict):
+    data_service: DataServiceConfig
+
 
 if TYPE_CHECKING:
     pass
@@ -41,7 +55,13 @@ class UIServiceFactory(metaclass=SingletonMeta):
         self._services: dict[str, Any] = {}
         self._initialized: bool = False
 
-    def initialize(self, bridge: "CoreBridgeInterface", config: UIFactoryConfig, logger: Any, core_components: Any) -> None:
+    def initialize(
+        self,
+        bridge: "CoreBridgeInterface",
+        config: UIFactoryConfig,
+        logger: Any,
+        core_components: Any,
+    ) -> None:
         """A factory inicializálása a függőségekkel.
 
         Args:
@@ -56,7 +76,9 @@ class UIServiceFactory(metaclass=SingletonMeta):
         self._core_components = core_components
         self._initialized = True
 
-    def get_navigation_service(self, config: UIFactoryConfig, logger: Any, core_components: Any) -> NavigationServiceInterface:
+    def get_navigation_service(
+        self, config: UIFactoryConfig, logger: Any, core_components: Any
+    ) -> NavigationServiceInterface:
         """Navigation Service példány lekérdezése.
 
         Args:
@@ -80,7 +102,9 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         return self._services["navigation"]
 
-    def get_dashboard_service(self, config: UIFactoryConfig, logger: Any, core_components: Any) -> DashboardServiceInterface:
+    def get_dashboard_service(
+        self, config: UIFactoryConfig, logger: Any, core_components: Any
+    ) -> DashboardServiceInterface:
         """Dashboard Service példány lekérdezése.
 
         Args:
@@ -104,7 +128,9 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         return self._services["dashboard"]
 
-    def get_data_service(self, config: UIFactoryConfig, logger: Any, core_components: Any) -> DataServiceInterface:
+    def get_data_service(
+        self, config: UIFactoryConfig, logger: Any, core_components: Any
+    ) -> DataServiceInterface:
         """Data Service példány lekérdezése.
 
         Args:
@@ -128,7 +154,9 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         return self._services["data"]
 
-    def get_ai_service(self, config: UIFactoryConfig, logger: Any, core_components: Any) -> AIServiceInterface:
+    def get_ai_service(
+        self, config: UIFactoryConfig, logger: Any, core_components: Any
+    ) -> AIServiceInterface:
         """AI Service példány lekérdezése.
 
         Args:
@@ -152,7 +180,9 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         return self._services["ai"]
 
-    def get_strategy_service(self, config: UIFactoryConfig, logger: Any, core_components: Any) -> StrategyServiceInterface:
+    def get_strategy_service(
+        self, config: UIFactoryConfig, logger: Any, core_components: Any
+    ) -> StrategyServiceInterface:
         """Strategy Service példány lekérdezése.
 
         Args:
@@ -176,7 +206,9 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         return self._services["strategy"]
 
-    def get_live_ops_service(self, config: UIFactoryConfig, logger: Any, core_components: Any) -> LiveOpsServiceInterface:
+    def get_live_ops_service(
+        self, config: UIFactoryConfig, logger: Any, core_components: Any
+    ) -> LiveOpsServiceInterface:
         """Live Ops Service példány lekérdezése.
 
         Args:
@@ -200,7 +232,9 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         return self._services["live_ops"]
 
-    def get_all_services(self, config: UIFactoryConfig, logger: Any, core_components: Any) -> dict[str, Any]:
+    def get_all_services(
+        self, config: UIFactoryConfig, logger: Any, core_components: Any
+    ) -> dict[str, Any]:
         """Az összes szolgáltatás lekérdezése.
 
         Args:

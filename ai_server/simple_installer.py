@@ -57,7 +57,7 @@ MODELS = {TARGET_MODELS}
 
 image = (
     modal.Image.debian_slim()
-    .apt_install("curl", "zstd")  
+    .apt_install("curl", "zstd")
     # JAVÍTVA: A pontos install.sh URL-t használjuk
     .run_commands("curl -fsSL https://ollama.com/install.sh | sh")
     .pip_install("httpx", "fastapi", "uvicorn")
@@ -103,7 +103,7 @@ def download_models():
             print(f"⬇️ {{model}} letöltése folyamatban...")
             subprocess.run(["ollama", "pull", model], check=True)
             print(f"✅ {{model}} sikeresen letöltve.")
-    
+
     vol.commit()
 
 # --- SZERVER ---
@@ -120,7 +120,7 @@ class OllamaServer:
         # KRITIKUS: A környezeti változókat a 'serve' ELŐTT kell beállítani
         os.environ["OLLAMA_HOST"] = "127.0.0.1:11434"
         os.environ["OLLAMA_ORIGINS"] = "*"
-        
+
         print("🚀 Ollama indítása KV Cache Q4 módban...")
         subprocess.Popen(["ollama", "serve"])
         wait_ollama()
@@ -134,7 +134,7 @@ class OllamaServer:
             import json
             url = f"http://127.0.0.1:11434/{{path}}"
             body = await request.body()
-            
+
             # Cél: A "format: json" kérés eltávolítása, hogy a modell sima szöveget adjon vissza.
             modified_body = body
             try:
@@ -152,8 +152,8 @@ class OllamaServer:
             async def stream_response():
                 async with httpx.AsyncClient(timeout=None) as client:
                     async with client.stream(
-                        request.method, 
-                        url, 
+                        request.method,
+                        url,
                         content=modified_body,
                         headers=headers,
                         params=dict(request.query_params)
@@ -162,7 +162,7 @@ class OllamaServer:
                             yield chunk
 
             return StreamingResponse(stream_response(), media_type="application/x-ndjson")
-        
+
         return web_app
 """
 

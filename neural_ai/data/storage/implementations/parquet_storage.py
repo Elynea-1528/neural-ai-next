@@ -58,8 +58,8 @@ class StorageConfig(TypedDict, total=False):
 
 
 # Modul szintű változók a teszteléshez (lazy import támogatáshoz)
-pl: Any = None
-pd: Any = None
+pl: Any = None  # type: ignore[no-redef]
+pd: Any = None  # type: ignore[no-redef]
 
 
 class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
@@ -852,10 +852,10 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
         # Fájlok felsorolása
         for parquet_file in base_path.rglob("*.parquet"):
-            stats["total_files"] += 1
-            stats["total_size_gb"] += parquet_file.stat().st_size
+            stats["total_files"] += 1  # type: ignore[operator]
+            stats["total_size_gb"] += parquet_file.stat().st_size  # type: ignore[operator]
 
-        stats["total_size_gb"] = stats["total_size_gb"] / (1024**3)
+        stats["total_size_gb"] = stats["total_size_gb"] / (1024**3)  # type: ignore[operator]
 
         # Szimbólumonkénti statisztikák
         for symbol_dir in base_path.iterdir():
@@ -868,7 +868,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                     symbol_stats["size_gb"] += parquet_file.stat().st_size
 
                 symbol_stats["size_gb"] = symbol_stats["size_gb"] / (1024**3)
-                stats["symbols"][symbol_name] = symbol_stats
+                stats["symbols"][symbol_name] = symbol_stats  # type: ignore[index]
 
         return stats
 

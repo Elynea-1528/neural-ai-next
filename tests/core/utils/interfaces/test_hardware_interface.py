@@ -25,9 +25,7 @@ class TestHardwareInterface:
         ]
 
         for method_name in required_methods:
-            assert hasattr(HardwareInterface, method_name), (
-                f"Hiányzó metódus: {method_name}"
-            )
+            assert hasattr(HardwareInterface, method_name), f"Hiányzó metódus: {method_name}"
             method = getattr(HardwareInterface, method_name)
             assert callable(method)
 

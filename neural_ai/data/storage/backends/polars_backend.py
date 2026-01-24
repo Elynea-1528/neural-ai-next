@@ -228,7 +228,7 @@ class PolarsBackend(StorageBackend):
         path: str,
         chunk_size: int,
         columns: list[str] | None,
-        filters: list[tuple[Any, ...]] | None
+        filters: list[tuple[Any, ...]] | None,
     ) -> Any:
         """Chunkoltan olvassa a Parquet fájlt.
 

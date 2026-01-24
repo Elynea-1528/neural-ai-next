@@ -88,9 +88,9 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         self._subscribers: dict[str, list[EventCallback]] = {}
         self._running = False
         if logger is not None:
-            self._logger = logger  # type: ignore[reportPrivateUsage]
+            self._logger = logger
         else:
-            self._logger = LoggerFactory.get_logger(self.__class__.__name__)  # type: ignore[reportPrivateUsage]
+            self._logger = LoggerFactory.get_logger(self.__class__.__name__)
 
     @trace
     async def start(self) -> None:
@@ -98,7 +98,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if self._running:
             return
 
-        self._logger.info("EventBus indítása...")  # type: ignore[reportPrivateUsage]
+        self._logger.info("EventBus indítása...")
 
         # Publisher socket létrehozása
         self._publisher = self._context.socket(self._zmq.PUB)
@@ -116,15 +116,15 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
         try:
             self._publisher.bind(pub_url)
-            self._logger.info("Publisher bind-olva", pub_url=pub_url)  # type: ignore[reportPrivateUsage]
+            self._logger.info("Publisher bind-olva", pub_url=pub_url)
 
             # Kis várakozás, hogy a bind teljesüljön
             await asyncio.sleep(0.1)
 
             self._running = True
-            self._logger.info("EventBus elindítva")  # type: ignore[reportPrivateUsage]
+            self._logger.info("EventBus elindítva")
         except Exception as e:
-            self._logger.error("Nem sikerült elindítani az EventBus-t", error=str(e), exc_info=True)  # type: ignore[reportPrivateUsage]
+            self._logger.error("Nem sikerült elindítani az EventBus-t", error=str(e), exc_info=True)
             # Zárjuk be a socketet, ha a bind sikertelen volt
             self._publisher.close()
             self._publisher = None
@@ -136,7 +136,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if not self._running:
             return
 
-        self._logger.info("EventBus leállítása...")  # type: ignore[reportPrivateUsage]
+        self._logger.info("EventBus leállítása...")
         self._running = False
 
         if self._publisher:
@@ -146,7 +146,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if self._own_context and self._context:
             self._context.term()
 
-        self._logger.info("EventBus leállítva")  # type: ignore[reportPrivateUsage]
+        self._logger.info("EventBus leállítva")
 
     @trace
     async def publish(self, event_type: str, event: "BaseModel | list[BaseModel]") -> None:
@@ -183,9 +183,9 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
             try:
                 # Az asyncio socket send_multipart metódusa awaitable
-                await self._publisher.send_multipart([topic, message])  # type: ignore[reportUnknownMemberType]
+                await self._publisher.send_multipart([topic, message])
             except Exception as e:
-                self._logger.error(  # type: ignore[reportPrivateUsage]
+                self._logger.error(
                     "Hiba az esemény közzétételekor",
                     error=str(e),
                     event_type=event_type,
@@ -194,7 +194,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                 # A hiba el van kapva és logolva, de nem dobjuk tovább,
                 # hogy a rendszer stabil maradjon
 
-        self._logger.debug("Esemény közzétéve", event_type=event_type, count=len(events_to_publish))  # type: ignore[reportPrivateUsage]
+        self._logger.debug("Esemény közzétéve", event_type=event_type, count=len(events_to_publish))
 
     @trace
     def subscribe(self, event_type: str, callback: EventCallback) -> None:
@@ -211,7 +211,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             self._subscribers[event_type] = []
 
         self._subscribers[event_type].append(callback)
-        self._logger.info("Feliratkozás létrehozva", event_type=event_type)  # type: ignore[reportPrivateUsage]
+        self._logger.info("Feliratkozás létrehozva", event_type=event_type)
 
     @trace
     def unsubscribe(self, event_type: str, callback: EventCallback) -> None:
@@ -224,7 +224,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         if event_type in self._subscribers:
             if callback in self._subscribers[event_type]:
                 self._subscribers[event_type].remove(callback)
-                self._logger.info("Leiratkozás", event_type=event_type)  # type: ignore[reportPrivateUsage]
+                self._logger.info("Leiratkozás", event_type=event_type)
 
     async def _dispatch_event(self, event_type: str, event_data: dict[str, Any]) -> None:
         """Esemény továbbítása a feliratkozóknak.
@@ -247,11 +247,11 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                 try:
                     await callback(event)
                 except Exception as e:
-                    self._logger.error(  # type: ignore[reportPrivateUsage]
+                    self._logger.error(
                         "Hiba a callback végrehajtásakor", error=str(e), exc_info=True
                     )
         except Exception as e:
-            self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)  # type: ignore[reportPrivateUsage]
+            self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)
 
     def _deserialize_event(
         self, event_type: str, event_data: dict[str, Any]
@@ -292,10 +292,10 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
             elif event_type == "position":
                 return PositionEvent(**event_data)
             else:
-                self._logger.warning("Ismeretlen eseménytípus", event_type=event_type)  # type: ignore[reportPrivateUsage]
+                self._logger.warning("Ismeretlen eseménytípus", event_type=event_type)
                 return None
         except Exception as e:
-            self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)  # type: ignore[reportPrivateUsage]
+            self._logger.error("Hiba az esemény deserializálásakor", error=str(e), exc_info=True)
             return None
 
     @trace
@@ -324,7 +324,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         # Feliratkozás az összes témakörre
         subscriber.setsockopt(self._zmq.SUBSCRIBE, b"")
 
-        self._logger.info("Subscriber csatlakozva", sub_url=sub_url)  # type: ignore[reportPrivateUsage]
+        self._logger.info("Subscriber csatlakozva", sub_url=sub_url)
 
         try:
             while self._running:
@@ -349,11 +349,11 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                     # Időtúllépés, ellenőrizzük a futási állapotot
                     continue
                 except Exception as e:
-                    self._logger.error("Hiba az esemény fogadásakor", error=str(e), exc_info=True)  # type: ignore[reportPrivateUsage]
+                    self._logger.error("Hiba az esemény fogadásakor", error=str(e), exc_info=True)
 
         finally:
             subscriber.close()
-            self._logger.info("Subscriber lezárva")  # type: ignore[reportPrivateUsage]
+            self._logger.info("Subscriber lezárva")
 
     async def __aenter__(self) -> "EventBus":
         """Aszinkron context manager.

@@ -172,7 +172,9 @@ class TestProcessorsConfig:
         assert strength_window == 100
         assert isinstance(strength_window, int)
 
-    def test_d02_timeframe_configs_structure(self, config_manager: "ConfigManagerInterface") -> None:
+    def test_d02_timeframe_configs_structure(
+        self, config_manager: "ConfigManagerInterface"
+    ) -> None:
         """Teszteli a d02 timeframe_configs struktúrát."""
         timeframe_configs = config_manager.get("processors", "d02", "timeframe_configs")
         assert timeframe_configs is not None

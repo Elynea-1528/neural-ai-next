@@ -45,9 +45,8 @@ class DefaultLogger(LoggerInterface):
             name: A logger egyedi neve. Ez a név jelenik meg a log üzenetekben.
             config: Opcionális konfigurációs interfész.
             event_bus: Opcionális esemény busz interfész.
+            level: A logger alapértelmezett szintje (pl. logging.DEBUG, logging.INFO).
             **kwargs: Opcionális kulcsszó argumentumok:
-                - level (int): Log szint (pl. logging.DEBUG, logging.INFO).
-                  Alapértelmezett: logging.INFO.
                 - format (str): Log formátum string. Alapértelmezett:
                   "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
                 - stream: Kimeneti stream. Alapértelmezett: sys.stderr.

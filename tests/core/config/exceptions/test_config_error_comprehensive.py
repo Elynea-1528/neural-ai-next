@@ -4,7 +4,6 @@ Ez a modul tartalmazza a ConfigError és leszármazott osztályok
 részletes tesztelését, beleértve az attribútumok ellenőrzését.
 """
 
-
 from neural_ai.core.config.exceptions.config_error import (
     ConfigError,
     ConfigKeyError,
@@ -38,9 +37,7 @@ class TestConfigLoadError:
         """Teszteli a ConfigLoadError létrehozását."""
         original_error = FileNotFoundError("Fájl nem található")
         error = ConfigLoadError(
-            "Betöltési hiba",
-            file_path="/path/to/config.yaml",
-            original_error=original_error
+            "Betöltési hiba", file_path="/path/to/config.yaml", original_error=original_error
         )
         assert str(error) == "Betöltési hiba"
         assert error.file_path == "/path/to/config.yaml"
@@ -63,9 +60,7 @@ class TestConfigSaveError:
         """Teszteli a ConfigSaveError létrehozását."""
         original_error = PermissionError("Hozzáférés megtagadva")
         error = ConfigSaveError(
-            "Mentési hiba",
-            file_path="/path/to/output.yaml",
-            original_error=original_error
+            "Mentési hiba", file_path="/path/to/output.yaml", original_error=original_error
         )
         assert str(error) == "Mentési hiba"
         assert error.file_path == "/path/to/output.yaml"
@@ -87,9 +82,7 @@ class TestConfigValidationError:
     def test_validation_error_creation(self) -> None:
         """Teszteli a ConfigValidationError létrehozását."""
         error = ConfigValidationError(
-            "Érvénytelen érték",
-            field_path="database.host",
-            invalid_value=None
+            "Érvénytelen érték", field_path="database.host", invalid_value=None
         )
         assert str(error) == "Érvénytelen érték"
         assert error.field_path == "database.host"
@@ -111,10 +104,7 @@ class TestConfigTypeError:
     def test_type_error_creation(self) -> None:
         """Teszteli a ConfigTypeError létrehozását."""
         error = ConfigTypeError(
-            "Típus hiba",
-            field_path="server.port",
-            expected_type="int",
-            actual_type="str"
+            "Típus hiba", field_path="server.port", expected_type="int", actual_type="str"
         )
         assert str(error) == "Típus hiba"
         assert error.field_path == "server.port"
@@ -140,7 +130,7 @@ class TestConfigKeyError:
         error = ConfigKeyError(
             "Kulcs nem található",
             key_path="database.password",
-            available_keys=["host", "port", "username"]
+            available_keys=["host", "port", "username"],
         )
         assert str(error) == "Kulcs nem található"
         assert error.key_path == "database.password"

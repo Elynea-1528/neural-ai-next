@@ -15,17 +15,18 @@ class TestLoggerInterfacesInit:
 
     def test_version_fallback_on_package_not_found(self) -> None:
         """Teszteli a fallback verziót, ha a csomag nem található."""
-        with patch('importlib.metadata.version') as mock_version:
+        with patch("importlib.metadata.version") as mock_version:
             # A mock dobjon PackageNotFoundError-t
             from importlib.metadata import PackageNotFoundError
+
             mock_version.side_effect = PackageNotFoundError("Package not found")
 
             # Újra kell importálni a modult a mockolt környezetben
             import sys
 
             # Távolítsuk el a modult a cache-ből, ha létezik
-            if 'neural_ai.core.logger.interfaces' in sys.modules:
-                del sys.modules['neural_ai.core.logger.interfaces']
+            if "neural_ai.core.logger.interfaces" in sys.modules:
+                del sys.modules["neural_ai.core.logger.interfaces"]
 
             # Importáljuk újra a modult a mockkal
             from neural_ai.core.logger.interfaces import __version__ as fallback_version

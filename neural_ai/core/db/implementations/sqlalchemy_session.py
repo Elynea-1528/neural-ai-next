@@ -34,6 +34,7 @@ class DatabaseConfig(TypedDict):
 
     url: str
 
+
 if TYPE_CHECKING:
     pass
 
@@ -233,7 +234,7 @@ async def init_db(logger: "LoggerInterface") -> None:
 
     logger.info(
         "Adatbázis inicializálva és táblák létrehozva",
-        extra={"module": "sqlalchemy_session", "function": "init_db"}
+        extra={"module": "sqlalchemy_session", "function": "init_db"},
     )
 
 
@@ -254,7 +255,7 @@ async def close_db(logger: "LoggerInterface") -> None:
 
     logger.info(
         "Adatbázis kapcsolat lezárva",
-        extra={"module": "sqlalchemy_session", "function": "close_db"}
+        extra={"module": "sqlalchemy_session", "function": "close_db"},
     )
 
 
@@ -309,7 +310,7 @@ class DatabaseManager(metaclass=SingletonMeta):
         if self.logger:
             self.logger.info(
                 "DatabaseManager inicializálva",
-                extra={"module": "DatabaseManager", "function": "initialize"}
+                extra={"module": "DatabaseManager", "function": "initialize"},
             )
 
     @asynccontextmanager
@@ -355,8 +356,7 @@ class DatabaseManager(metaclass=SingletonMeta):
 
         if self._session_maker is None:
             raise RuntimeError(
-                "Adatbázis kezelő nincs inicializálva. "
-                "Hívd meg először az initialize() metódust."
+                "Adatbázis kezelő nincs inicializálva. Hívd meg először az initialize() metódust."
             )
 
         async with self._session_maker() as session:
@@ -378,6 +378,5 @@ class DatabaseManager(metaclass=SingletonMeta):
 
         if self.logger:
             self.logger.info(
-                "DatabaseManager lezárva",
-                extra={"module": "DatabaseManager", "function": "close"}
+                "DatabaseManager lezárva", extra={"module": "DatabaseManager", "function": "close"}
             )

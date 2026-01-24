@@ -30,6 +30,7 @@ class EventBusConfig:
         sub_port: Subscriber port (alapértelmezett: 5556)
         use_inproc: Használjon inproc transportot teszteléshez (alapértelmezett: False)
     """
+
     zmq_context: Any = None
     pub_port: int = 5555
     sub_port: int = 5556

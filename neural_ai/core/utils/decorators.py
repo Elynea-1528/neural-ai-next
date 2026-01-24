@@ -17,7 +17,7 @@ R = TypeVar("R")
 
 
 # Logger inicializálása - késleltetett import elkerülése érdekében
-def _get_trace_logger():
+def _get_trace_logger() -> Any:
     from neural_ai.core.logger.factory import LoggerFactory
 
     return LoggerFactory.get_logger("neural_ai.trace")
@@ -26,10 +26,10 @@ def _get_trace_logger():
 _TRACE_LOGGER = None
 
 
-def _ensure_trace_logger():
+def _ensure_trace_logger() -> Any:
     global _TRACE_LOGGER
     if _TRACE_LOGGER is None:
-        _TRACE_LOGGER = _get_trace_logger()  # type: ignore[reportConstantRedefinition]
+        _TRACE_LOGGER = _get_trace_logger()
     return _TRACE_LOGGER
 
 

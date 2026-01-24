@@ -1,4 +1,5 @@
 """EventBus kivételek tesztek."""
+
 from neural_ai.core.base.exceptions import NeuralAIException
 from neural_ai.core.events.exceptions.event_error import (
     EventBusError,

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 from neural_ai.ui.interfaces.live_ops_service_interface import LiveOpsServiceInterface
 
 if TYPE_CHECKING:
-    from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
+    pass
 
 
 class LiveOpsService(LiveOpsServiceInterface):
@@ -44,16 +44,18 @@ class LiveOpsService(LiveOpsServiceInterface):
         positions = []
         for position_id, position in self._positions.items():
             if position["status"] == "active":
-                positions.append({
-                    "id": position_id,
-                    "symbol": position["symbol"],
-                    "type": position["type"],
-                    "volume": position["volume"],
-                    "entry_price": position["entry_price"],
-                    "current_price": position.get("current_price", position["entry_price"]),
-                    "profit": position.get("profit", 0.0),
-                    "status": position["status"]
-                })
+                positions.append(
+                    {
+                        "id": position_id,
+                        "symbol": position["symbol"],
+                        "type": position["type"],
+                        "volume": position["volume"],
+                        "entry_price": position["entry_price"],
+                        "current_price": position.get("current_price", position["entry_price"]),
+                        "profit": position.get("profit", 0.0),
+                        "status": position["status"],
+                    }
+                )
         return positions
 
     def get_account_status(self) -> dict[str, Any]:
@@ -71,7 +73,7 @@ class LiveOpsService(LiveOpsServiceInterface):
             "margin_level": 4100.0,
             "used_margin": 2500.0,
             "leverage": 100,
-            "currency": "USD"
+            "currency": "USD",
         }
 
         return account_status
@@ -83,7 +85,7 @@ class LiveOpsService(LiveOpsServiceInterface):
         volume: float,
         price: float | None = None,
         stop_loss: float | None = None,
-        take_profit: float | None = None
+        take_profit: float | None = None,
     ) -> str:
         """Új rendelés leadása.
 
@@ -109,7 +111,7 @@ class LiveOpsService(LiveOpsServiceInterface):
             "stop_loss": stop_loss,
             "take_profit": take_profit,
             "status": "pending",
-            "placed_at": "2026-01-04T19:26:00Z"
+            "placed_at": "2026-01-04T19:26:00Z",
         }
 
         print(f"Rendelés leadva: {order_id}")
@@ -120,7 +122,7 @@ class LiveOpsService(LiveOpsServiceInterface):
         order_id: str,
         price: float | None = None,
         stop_loss: float | None = None,
-        take_profit: float | None = None
+        take_profit: float | None = None,
     ) -> bool:
         """Meglévő rendelés módosítása.
 
@@ -206,15 +208,13 @@ class LiveOpsService(LiveOpsServiceInterface):
             "high": 1.0865,
             "low": 1.0840,
             "volume": 1234567,
-            "timestamp": "2026-01-04T19:26:00Z"
+            "timestamp": "2026-01-04T19:26:00Z",
         }
 
         return market_data
 
     def subscribe_to_market_updates(
-        self,
-        symbol: str,
-        callback: Callable[[dict[str, Any]], None]
+        self, symbol: str, callback: Callable[[dict[str, Any]], None]
     ) -> None:
         """Feliratkozás piaci frissítésekre.
 
@@ -245,7 +245,7 @@ class LiveOpsService(LiveOpsServiceInterface):
             "max_drawdown": -1200.0,
             "average_win": 92.39,
             "average_loss": -55.17,
-            "profit_factor": 2.66
+            "profit_factor": 2.66,
         }
 
         return performance

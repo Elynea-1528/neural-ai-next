@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 from neural_ai.ui.interfaces.ai_service_interface import AIServiceInterface
 
 if TYPE_CHECKING:
-    from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
+    pass
 
 
 class AIService(AIServiceInterface):
@@ -35,20 +35,20 @@ class AIService(AIServiceInterface):
                 "name": "Hierarchikus Modell v1",
                 "description": "D1-D15 processzorokat tartalmazó hierarchikus modell",
                 "type": "hierarchical",
-                "status": "available"
+                "status": "available",
             },
             "lstm_predictor": {
                 "name": "LSTM Predictor",
                 "description": "LSTM alapú árelőrejelző modell",
                 "type": "lstm",
-                "status": "available"
+                "status": "available",
             },
             "transformer_model": {
                 "name": "Transformer Modell",
                 "description": "Transformer architektúrájú modell",
                 "type": "transformer",
-                "status": "training"
-            }
+                "status": "training",
+            },
         }
         self._loaded_models: dict[str, Any] = {}
         self._training_jobs: dict[str, dict[str, Any]] = {}
@@ -61,20 +61,18 @@ class AIService(AIServiceInterface):
         """
         models = []
         for model_id, info in self._models.items():
-            models.append({
-                "id": model_id,
-                "name": info["name"],
-                "description": info["description"],
-                "type": info["type"],
-                "status": info["status"]
-            })
+            models.append(
+                {
+                    "id": model_id,
+                    "name": info["name"],
+                    "description": info["description"],
+                    "type": info["type"],
+                    "status": info["status"],
+                }
+            )
         return models
 
-    def load_model(
-        self,
-        model_id: str,
-        config: dict[str, Any] | None = None
-    ) -> bool:
+    def load_model(self, model_id: str, config: dict[str, Any] | None = None) -> bool:
         """AI modell betöltése.
 
         Args:
@@ -95,17 +93,13 @@ class AIService(AIServiceInterface):
         self._loaded_models[model_id] = {
             "model_id": model_id,
             "config": config or {},
-            "loaded_at": "2026-01-04T19:20:00Z"
+            "loaded_at": "2026-01-04T19:20:00Z",
         }
 
         print(f"Modell betöltve: {model_id}")
         return True
 
-    def run_inference(
-        self,
-        model_id: str,
-        input_data: dict[str, Any]
-    ) -> dict[str, Any]:
+    def run_inference(self, model_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
         """Inferencia futtatása a modellen.
 
         Args:
@@ -125,7 +119,7 @@ class AIService(AIServiceInterface):
             "prediction": 1.0855,  # Mock előrejelzés
             "confidence": 0.87,
             "timestamp": "2026-01-04T19:22:00Z",
-            "input_data": input_data
+            "input_data": input_data,
         }
 
         return result
@@ -151,14 +145,14 @@ class AIService(AIServiceInterface):
             "status": info["status"],
             "parameters": 15000000,  # Mock adat
             "accuracy": 0.92,  # Mock adat
-            "last_trained": "2026-01-03T10:00:00Z"
+            "last_trained": "2026-01-03T10:00:00Z",
         }
 
     def train_model(
         self,
         model_id: str,
         training_data: list[dict[str, Any]],
-        config: dict[str, Any] | None = None
+        config: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Modell betanítása.
 
@@ -181,14 +175,14 @@ class AIService(AIServiceInterface):
             "status": "running",
             "started_at": "2026-01-04T19:22:00Z",
             "config": config or {},
-            "data_size": len(training_data)
+            "data_size": len(training_data),
         }
 
         result = {
             "training_id": training_id,
             "model_id": model_id,
             "status": "started",
-            "message": "Tanítás elindítva"
+            "message": "Tanítás elindítva",
         }
 
         return result
@@ -216,7 +210,7 @@ class AIService(AIServiceInterface):
             "epoch": 15,  # Mock epoch
             "loss": 0.0234,  # Mock loss
             "started_at": job["started_at"],
-            "estimated_completion": "2026-01-04T20:00:00Z"
+            "estimated_completion": "2026-01-04T20:00:00Z",
         }
 
         return status

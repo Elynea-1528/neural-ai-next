@@ -22,6 +22,7 @@ class HardwareFactory:
             HardwareInfo: A hardverinformációkat tartalmazó osztály példánya.
         """
         from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
+
         return HardwareInfo()
 
     @staticmethod
@@ -32,4 +33,5 @@ class HardwareFactory:
             HardwareInterface: A hardverinterfészt implementáló osztály példánya.
         """
         from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
+
         return HardwareInfo()

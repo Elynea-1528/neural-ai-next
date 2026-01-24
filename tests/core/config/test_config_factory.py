@@ -294,6 +294,7 @@ class TestConfigManagerFactory:
         """Teszteli, hogy a register_manager normalizálja a kiterjesztést (88. sor)."""
         # Given
         from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager
+
         extension_without_dot = "normalize"
 
         # When
@@ -308,6 +309,7 @@ class TestConfigManagerFactory:
         """Teszteli, hogy a register_manager ellenőrzi az üres kiterjesztést (88. sor)."""
         # Given
         from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager
+
         empty_extension = ""
 
         # When / Then
@@ -325,9 +327,11 @@ class TestConfigManagerFactory:
 
     def test_register_manager_should_validate_interface_implementation(self) -> None:
         """Teszteli, hogy a register_manager ellenőrzi az interfész implementációt (97. sor)."""
+
         # Given
         class NotAConfigManager:
             """Olyan osztály, ami nem implementálja a ConfigManagerInterface-t."""
+
             pass
 
         # When / Then
@@ -340,6 +344,7 @@ class TestConfigManagerFactory:
         from neural_ai.core.config.implementations.dynamic_config_manager import (
             DynamicConfigManager,
         )
+
         empty_type = ""
 
         # When / Then
@@ -373,9 +378,11 @@ class TestConfigManagerFactory:
 
     def test_register_async_manager_should_validate_async_interface_implementation(self) -> None:
         """Teszteli, hogy a register_async_manager ellenőrzi az interfész implementációt (125. sor)."""
+
         # Given
         class NotAnAsyncConfigManager:
             """Olyan osztály, ami nem implementálja az AsyncConfigManagerInterface-t."""
+
             pass
 
         # When / Then

@@ -55,7 +55,7 @@ class TestBi5Downloader:
             LZMA compressed .bi5 data
         """
         data = b""
-        for delta, ask_price, bid_price in zip(timestamps_delta, ask, bid):
+        for delta, ask_price, bid_price in zip(timestamps_delta, ask, bid, strict=False):
             data += struct.pack(">III", delta, ask_price, bid_price)
 
         return lzma.compress(data)
@@ -82,7 +82,7 @@ class TestBi5Downloader:
         """
         data = b""
         for delta, ask_price, bid_price, ask_volume, bid_volume in zip(
-            timestamps_delta, ask, bid, ask_vol, bid_vol
+            timestamps_delta, ask, bid, ask_vol, bid_vol, strict=False
         ):
             data += struct.pack(">IIIff", delta, ask_price, bid_price, ask_volume, bid_volume)
 
@@ -422,7 +422,9 @@ class TestBi5Downloader:
 
     def test_validate_bi5_data_20_byte_format(self, downloader):
         """Test validation of valid 20-byte format data."""
-        bi5_data = self.create_bi5_data_20_byte([0, 1000], [112345, 112346], [112340, 112341], [1.5, 2.0], [1.2, 1.8])
+        bi5_data = self.create_bi5_data_20_byte(
+            [0, 1000], [112345, 112346], [112340, 112341], [1.5, 2.0], [1.2, 1.8]
+        )
 
         assert downloader.validate_bi5_data(bi5_data) is True
 

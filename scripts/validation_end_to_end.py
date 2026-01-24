@@ -196,9 +196,7 @@ async def validate_d2_swing_engine() -> bool:
         d2_processor = create_dimension_processor(2, config, logger)
 
         # Adatok lekérése (1h timeframe a support/resistance számításhoz)
-        df = await strategy_service.get_candles(
-            symbol="EURUSD", date="2024-03-20", timeframe="1h"
-        )
+        df = await strategy_service.get_candles(symbol="EURUSD", date="2024-03-20", timeframe="1h")
 
         if df is None or df.is_empty():
             print("❌ Nincs elérhető adat a D2 validációhoz")

@@ -14,7 +14,7 @@ from neural_ai.core.system.interfaces.health_interface import (
 from neural_ai.ui.interfaces.dashboard_service_interface import DashboardServiceInterface
 
 if TYPE_CHECKING:
-    from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
+    pass
 
 
 class DashboardService(DashboardServiceInterface):

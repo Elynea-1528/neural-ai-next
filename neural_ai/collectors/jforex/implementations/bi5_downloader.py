@@ -411,8 +411,7 @@ class Bi5Downloader(IJForexDownloader):
 
                 if file_size > 0:
                     self._logger.info(
-                        "data_already_exists",
-                        message=f"Data already exists at {storage_path}, skipping download",
+                        f"Data already exists at {storage_path}, skipping download",
                         path=storage_path,
                         size=file_size,
                     )
@@ -420,10 +419,7 @@ class Bi5Downloader(IJForexDownloader):
 
             except Exception as e:
                 self._logger.warning(
-                    "metadata_check_failed",
-                    message=(
-                        f"Failed to check metadata for {storage_path}, proceeding with download"
-                    ),
+                    f"Failed to check metadata for {storage_path}, proceeding with download",
                     error=str(e),
                 )
 
@@ -531,8 +527,9 @@ class Bi5Downloader(IJForexDownloader):
                     continue  # Try next format
 
             if valid_format is None:
-                self._logger.warning("bi5_no_valid_format_found",
-                                    decompressed_size=len(decompressed))
+                self._logger.warning(
+                    "bi5_no_valid_format_found", decompressed_size=len(decompressed)
+                )
                 return False
 
             record_size, unpack_format, num_records = valid_format

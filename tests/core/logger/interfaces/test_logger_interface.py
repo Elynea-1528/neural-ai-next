@@ -1,4 +1,5 @@
 """Logger interfész tesztek."""
+
 from collections.abc import Mapping
 from typing import Any, AnyStr
 
@@ -38,7 +39,9 @@ class TestLoggerInterface:
         class MockLogger(LoggerInterface):
             """Mock logger implementáció a teszteléshez."""
 
-            def __init__(self, name: str, config: Any | None = None, **kwargs: Mapping[str, AnyStr]) -> None:
+            def __init__(
+                self, name: str, config: Any | None = None, **kwargs: Mapping[str, AnyStr]
+            ) -> None:
                 super().__init__(name, config, **kwargs)
                 self.name = name
                 self.config = config

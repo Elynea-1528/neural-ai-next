@@ -589,7 +589,7 @@ class TestStrategyService:
         # Mock get_candles hogy None-t adjon vissza
         with patch.object(
             strategy_service, "get_candles", new_callable=AsyncMock, return_value=None
-        ) as mock_get_candles:
+        ):
             with pytest.raises(ValueError, match="Nincs elérhető adat"):
                 await strategy_service.analyze_market_structure(
                     symbol="EURUSD",

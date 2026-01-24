@@ -64,9 +64,7 @@ class TestSystemComponentFactory(unittest.TestCase):
 
     def test_create_health_check_default(self) -> None:
         """Alapértelmezett HealthCheck létrehozásának tesztelése."""
-        check = SystemComponentFactory.create_health_check(
-            component_name="test_component"
-        )
+        check = SystemComponentFactory.create_health_check(component_name="test_component")
 
         self.assertIsInstance(check, HealthCheckInterface)
         self.assertEqual(check.get_name(), "test_component")

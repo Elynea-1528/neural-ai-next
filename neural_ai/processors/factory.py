@@ -44,6 +44,7 @@ class TimeAlignmentConfig(TypedDict):
 
     pass
 
+
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
@@ -66,7 +67,7 @@ def create_time_alignment_service(
     Returns:
         ITimeAlignmentService: Az időszinkronizációs szolgáltatás példánya
     """
-    time_alignment_config = cast(TimeAlignmentConfig, config.get("time_alignment") or {})
+    cast(TimeAlignmentConfig, config.get("time_alignment") or {})
     module = importlib.import_module("neural_ai.processors.implementations.time_alignment_service")
     cls = module.TimeAlignmentService
     return cls(logger)
@@ -91,7 +92,7 @@ def create_dimension_processor(
     if dimension_id not in DIMENSIONS_CONFIG:
         raise ValueError(f"Ismeretlen dimenzió ID: {dimension_id}")
 
-    processor_config = cast(ProcessorConfig, config.get("processors") or {})
+    cast(ProcessorConfig, config.get("processors") or {})
 
     name = DIMENSIONS_CONFIG[dimension_id]
     module_name = f"neural_ai.processors.dimensions.d{dimension_id:02d}_{name}.factory"

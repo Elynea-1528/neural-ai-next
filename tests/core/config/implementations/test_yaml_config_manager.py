@@ -23,12 +23,7 @@ class TestValidationContext:
         errors: dict[str, str] = {}
         schema: dict[str, Any] = {"type": "str"}
 
-        ctx = ValidationContext(
-            path="test.path",
-            errors=errors,
-            value="test_value",
-            schema=schema
-        )
+        ctx = ValidationContext(path="test.path", errors=errors, value="test_value", schema=schema)
 
         assert ctx.path == "test.path"
         assert ctx.errors is errors
@@ -40,12 +35,7 @@ class TestValidationContext:
         errors: dict[str, str] = {}
         schema: dict[str, Any] = {"type": "str", "optional": True}
 
-        ctx = ValidationContext(
-            path="test.path",
-            errors=errors,
-            value=None,
-            schema=schema
-        )
+        ctx = ValidationContext(path="test.path", errors=errors, value=None, schema=schema)
 
         assert ctx.path == "test.path"
         assert ctx.value is None
@@ -64,14 +54,8 @@ class TestYAMLConfigManager:
     def sample_config(self) -> dict[str, Any]:
         """Minta konfiguráció."""
         return {
-            "database": {
-                "host": "localhost",
-                "port": 5432,
-                "debug": True
-            },
-            "logging": {
-                "level": "INFO"
-            }
+            "database": {"host": "localhost", "port": 5432, "debug": True},
+            "logging": {"level": "INFO"},
         }
 
     @pytest.fixture
@@ -243,10 +227,7 @@ class TestYAMLConfigManager:
     def test_load_with_schema_version(self, temp_dir: Path) -> None:
         """Teszteli a konfiguráció betöltését séma verzióval."""
         config_path = temp_dir / "with_version.yaml"
-        config_data = {
-            "_schema_version": "1.0",
-            "key": "value"
-        }
+        config_data = {"_schema_version": "1.0", "key": "value"}
         with open(config_path, "w", encoding="utf-8") as f:
             yaml.dump(config_data, f)
 
@@ -266,10 +247,7 @@ class TestYAMLConfigManager:
         schema = {
             "database": {
                 "type": "dict",
-                "schema": {
-                    "host": {"type": "str"},
-                    "port": {"type": "int"}
-                }
+                "schema": {"host": {"type": "str"}, "port": {"type": "int"}},
             }
         }
 
@@ -282,9 +260,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("port", value="not_a_number")
 
-        schema = {
-            "port": {"type": "int"}
-        }
+        schema = {"port": {"type": "int"}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
@@ -295,9 +271,7 @@ class TestYAMLConfigManager:
         """Teszteli a konfiguráció validálását hiányzó kötelező mezővel."""
         manager = YAMLConfigManager()
 
-        schema = {
-            "required_field": {"type": "str"}
-        }
+        schema = {"required_field": {"type": "str"}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
@@ -308,9 +282,7 @@ class TestYAMLConfigManager:
         """Teszteli a konfiguráció validálását opcionális mezővel."""
         manager = YAMLConfigManager()
 
-        schema = {
-            "optional_field": {"type": "str", "optional": True}
-        }
+        schema = {"optional_field": {"type": "str", "optional": True}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is True
@@ -321,9 +293,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("level", value="INFO")
 
-        schema = {
-            "level": {"type": "str", "choices": ["DEBUG", "INFO", "WARNING"]}
-        }
+        schema = {"level": {"type": "str", "choices": ["DEBUG", "INFO", "WARNING"]}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is True
@@ -334,9 +304,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("level", value="INVALID")
 
-        schema = {
-            "level": {"type": "str", "choices": ["DEBUG", "INFO", "WARNING"]}
-        }
+        schema = {"level": {"type": "str", "choices": ["DEBUG", "INFO", "WARNING"]}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
@@ -348,9 +316,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("port", value=8080)
 
-        schema = {
-            "port": {"type": "int", "min": 1, "max": 65535}
-        }
+        schema = {"port": {"type": "int", "min": 1, "max": 65535}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is True
@@ -361,9 +327,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("port", value=0)
 
-        schema = {
-            "port": {"type": "int", "min": 1, "max": 65535}
-        }
+        schema = {"port": {"type": "int", "min": 1, "max": 65535}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
@@ -375,9 +339,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("port", value=70000)
 
-        schema = {
-            "port": {"type": "int", "min": 1, "max": 65535}
-        }
+        schema = {"port": {"type": "int", "min": 1, "max": 65535}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
@@ -393,10 +355,7 @@ class TestYAMLConfigManager:
         schema = {
             "database": {
                 "type": "dict",
-                "schema": {
-                    "host": {"type": "str"},
-                    "port": {"type": "int"}
-                }
+                "schema": {"host": {"type": "str"}, "port": {"type": "int"}},
             }
         }
 
@@ -413,10 +372,7 @@ class TestYAMLConfigManager:
         schema = {
             "database": {
                 "type": "dict",
-                "schema": {
-                    "host": {"type": "str"},
-                    "port": {"type": "int"}
-                }
+                "schema": {"host": {"type": "str"}, "port": {"type": "int"}},
             }
         }
 
@@ -474,14 +430,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("key", value="not_a_dict")
 
-        schema = {
-            "key": {
-                "type": "dict",
-                "schema": {
-                    "nested": {"type": "str"}
-                }
-            }
-        }
+        schema = {"key": {"type": "dict", "schema": {"nested": {"type": "str"}}}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
@@ -493,9 +442,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("key", value="value")
 
-        schema = {
-            "key": {"type": "unsupported_type"}
-        }
+        schema = {"key": {"type": "unsupported_type"}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
@@ -563,7 +510,7 @@ class TestYAMLConfigManager:
         config_path = temp_dir / "incompatible_version.yaml"
         config_data = {
             "_schema_version": "2.0",  # Eltérő verzió
-            "key": "value"
+            "key": "value",
         }
         with open(config_path, "w", encoding="utf-8") as f:
             yaml.dump(config_data, f)
@@ -582,14 +529,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("nested", value={"key": "value"})
 
-        schema = {
-            "nested": {
-                "type": "dict",
-                "schema": {
-                    "key": {"type": "str"}
-                }
-            }
-        }
+        schema = {"nested": {"type": "dict", "schema": {"key": {"type": "str"}}}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is True
@@ -600,9 +540,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         # Ne állítsunk be értéket, hogy None legyen
 
-        schema = {
-            "optional_field": {"type": "str", "optional": True}
-        }
+        schema = {"optional_field": {"type": "str", "optional": True}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is True
@@ -619,12 +557,9 @@ class TestYAMLConfigManager:
                 "schema": {
                     "settings": {
                         "type": "dict",
-                        "schema": {
-                            "host": {"type": "str"},
-                            "port": {"type": "int"}
-                        }
+                        "schema": {"host": {"type": "str"}, "port": {"type": "int"}},
                     }
-                }
+                },
             }
         }
 
@@ -659,11 +594,7 @@ class TestYAMLConfigManager:
         configs_dir.mkdir()
 
         # system.yaml létrehozása
-        system_config = {
-            "app_name": "TestApp",
-            "debug": True,
-            "version": "1.0"
-        }
+        system_config = {"app_name": "TestApp", "debug": True, "version": "1.0"}
         with open(configs_dir / "system.yaml", "w", encoding="utf-8") as f:
             yaml.dump(system_config, f)
 
@@ -709,14 +640,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         # Ne állítsunk be értéket, hogy a konfiguráció üres legyen
 
-        schema = {
-            "missing": {
-                "type": "dict",
-                "schema": {
-                    "nested": {"type": "str"}
-                }
-            }
-        }
+        schema = {"missing": {"type": "dict", "schema": {"nested": {"type": "str"}}}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
@@ -779,10 +703,7 @@ class TestYAMLConfigManager:
             yaml.dump(other_config, f)
 
         # system.yaml létrehozása, ami megpróbálná felülírni az app_name-t
-        system_config = {
-            "app_name": "SystemApp",
-            "debug": True
-        }
+        system_config = {"app_name": "SystemApp", "debug": True}
         with open(configs_dir / "system.yaml", "w", encoding="utf-8") as f:
             yaml.dump(system_config, f)
 
@@ -818,7 +739,9 @@ class TestYAMLConfigManager:
 
         # Most próbáljunk beágyazott kulcsot beállítani
         # Ez hibát kell, hogy dobjon, mert a 'key' nem dictionary
-        with pytest.raises(ValueError, match="Nem lehet beágyazott kulcsot beállítani nem dictionary értékben"):
+        with pytest.raises(
+            ValueError, match="Nem lehet beágyazott kulcsot beállítani nem dictionary értékben"
+        ):
             manager.set("key", "nested", value="value")
 
     def test_validate_dict_with_non_dict_value_error_path(self) -> None:
@@ -826,12 +749,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("key", value="not_a_dict")
 
-        schema = {
-            "key": {
-                "type": "dict",
-                "schema": {"nested": {"type": "str"}}
-            }
-        }
+        schema = {"key": {"type": "dict", "schema": {"nested": {"type": "str"}}}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
@@ -845,14 +763,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("nested", value="not_a_dict")
 
-        schema = {
-            "nested": {
-                "type": "dict",
-                "schema": {
-                    "inner": {"type": "str"}
-                }
-            }
-        }
+        schema = {"nested": {"type": "dict", "schema": {"inner": {"type": "str"}}}}
 
         is_valid, errors = manager.validate(schema)
         assert is_valid is False
@@ -890,7 +801,7 @@ class TestYAMLConfigManager:
             path="key",
             errors={},
             value="not_a_dict",
-            schema={"schema": {"nested": {"type": "str"}}}
+            schema={"schema": {"nested": {"type": "str"}}},
         )
 
         manager._validate_dict(ctx)
@@ -910,7 +821,7 @@ class TestYAMLConfigManager:
             path="nested",
             errors={},
             value="not_a_dict",
-            schema={"type": "dict", "schema": {"inner": {"type": "str"}}}
+            schema={"type": "dict", "schema": {"inner": {"type": "str"}}},
         )
 
         manager._validate_nested(ctx)

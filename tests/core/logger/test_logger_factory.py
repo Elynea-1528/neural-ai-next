@@ -1,4 +1,5 @@
 """Logger factory tesztek."""
+
 import logging
 from pathlib import Path
 
@@ -203,9 +204,7 @@ class TestLoggerFactory:
             "handlers": {
                 "console": {"enabled": True, "level": "DEBUG"},
             },
-            "loggers": {
-                "test_logger": {"level": "INFO", "propagate": False}
-            },
+            "loggers": {"test_logger": {"level": "INFO", "propagate": False}},
         }
         LoggerFactory.configure(config)
 

@@ -63,12 +63,14 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
     async def test_register_component_with_custom_check(self) -> None:
         """Teszteli a komponens regisztrációt egyedi ellenőrzéssel."""
         mock_check: MagicMock = MagicMock()
-        mock_check.check = AsyncMock(return_value=ComponentHealth(
-            name="test_component",
-            status=ComponentStatus.HEALTHY,
-            message="Test message",
-            timestamp=datetime.now(),
-        ))
+        mock_check.check = AsyncMock(
+            return_value=ComponentHealth(
+                name="test_component",
+                status=ComponentStatus.HEALTHY,
+                message="Test message",
+                timestamp=datetime.now(),
+            )
+        )
 
         self.monitor.register_component("test_component", mock_check)
         health = await self.monitor.check_component("test_component")
@@ -134,19 +136,19 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
 
         self.assertEqual(health.overall_status, HealthStatus.OK)
         self.assertEqual(len(health.components), 2)
-        self.assertTrue(
-            all(c.status == ComponentStatus.HEALTHY for c in health.components)
-        )
+        self.assertTrue(all(c.status == ComponentStatus.HEALTHY for c in health.components))
 
     async def test_check_health_with_warning_component(self) -> None:
         """Teszteli a rendszer egészségügyi állapotát figyelmeztető komponenssel."""
         mock_check: MagicMock = MagicMock()
-        mock_check.check = AsyncMock(return_value=ComponentHealth(
-            name="warning_component",
-            status=ComponentStatus.WARNING,
-            message="High memory usage",
-            timestamp=datetime.now(),
-        ))
+        mock_check.check = AsyncMock(
+            return_value=ComponentHealth(
+                name="warning_component",
+                status=ComponentStatus.WARNING,
+                message="High memory usage",
+                timestamp=datetime.now(),
+            )
+        )
 
         self.monitor.register_component("warning_component", mock_check)
         health = await self.monitor.check_health()
@@ -157,12 +159,14 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
     async def test_check_health_with_critical_component(self) -> None:
         """Teszteli a rendszer egészségügyi állapotát kritikus komponenssel."""
         mock_check: MagicMock = MagicMock()
-        mock_check.check = AsyncMock(return_value=ComponentHealth(
-            name="critical_component",
-            status=ComponentStatus.CRITICAL,
-            message="Database connection failed",
-            timestamp=datetime.now(),
-        ))
+        mock_check.check = AsyncMock(
+            return_value=ComponentHealth(
+                name="critical_component",
+                status=ComponentStatus.CRITICAL,
+                message="Database connection failed",
+                timestamp=datetime.now(),
+            )
+        )
 
         self.monitor.register_component("critical_component", mock_check)
         health = await self.monitor.check_health()
@@ -177,12 +181,14 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
 
         # Figyelmeztető komponens
         warning_check: MagicMock = MagicMock()
-        warning_check.check = AsyncMock(return_value=ComponentHealth(
-            name="warning_component",
-            status=ComponentStatus.WARNING,
-            message="High CPU usage",
-            timestamp=datetime.now(),
-        ))
+        warning_check.check = AsyncMock(
+            return_value=ComponentHealth(
+                name="warning_component",
+                status=ComponentStatus.WARNING,
+                message="High CPU usage",
+                timestamp=datetime.now(),
+            )
+        )
         self.monitor.register_component("warning_component", warning_check)
 
         health = await self.monitor.check_health()
@@ -204,12 +210,8 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
         """Teszteli a rendszer metrikák gyűjtését sikeres esetben."""
         # Mock adatok beállítása
         mock_cpu.return_value = 45.5
-        mock_memory.return_value = MagicMock(
-            percent=65.3, used=8 * 1024**3, total=16 * 1024**3
-        )
-        mock_disk.return_value = MagicMock(
-            used=100 * 1024**3, total=500 * 1024**3
-        )
+        mock_memory.return_value = MagicMock(percent=65.3, used=8 * 1024**3, total=16 * 1024**3)
+        mock_disk.return_value = MagicMock(used=100 * 1024**3, total=500 * 1024**3)
         mock_net_io.return_value = MagicMock(bytes_sent=1024**2, bytes_recv=2 * 1024**2)
 
         health = await self.monitor.check_health()
@@ -303,12 +305,14 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
     async def test_check_health_with_unknown_status_components(self) -> None:
         """Teszteli a check_health-t UNKNOWN státuszú komponensekkel."""
         mock_check: MagicMock = MagicMock()
-        mock_check.check = AsyncMock(return_value=ComponentHealth(
-            name="unknown_component",
-            status=ComponentStatus.UNKNOWN,
-            message="Ismeretlen állapot",
-            timestamp=datetime.now(),
-        ))
+        mock_check.check = AsyncMock(
+            return_value=ComponentHealth(
+                name="unknown_component",
+                status=ComponentStatus.UNKNOWN,
+                message="Ismeretlen állapot",
+                timestamp=datetime.now(),
+            )
+        )
 
         self.monitor.register_component("unknown_component", mock_check)
         health = await self.monitor.check_health()
@@ -324,8 +328,7 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
                     percent=65.3, used=8 * 1024**3, total=16 * 1024**3
                 )
                 with patch(
-                    "psutil.disk_usage",
-                    side_effect=PermissionError("Hozzáférés megtagadva")
+                    "psutil.disk_usage", side_effect=PermissionError("Hozzáférés megtagadva")
                 ):
                     with patch("psutil.net_io_counters") as mock_net:
                         mock_net.return_value = MagicMock(
@@ -349,9 +352,7 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
                     percent=65.3, used=8 * 1024**3, total=16 * 1024**3
                 )
                 with patch("psutil.disk_usage") as mock_disk:
-                    mock_disk.return_value = MagicMock(
-                        used=100 * 1024**3, total=500 * 1024**3
-                    )
+                    mock_disk.return_value = MagicMock(used=100 * 1024**3, total=500 * 1024**3)
                     with patch("psutil.net_io_counters", side_effect=OSError("Hálózat hiba")):
                         health = await self.monitor.check_health()
                         metrics = health.system_metrics
@@ -405,7 +406,7 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
         A kivételnek a check_health for ciklusában kell keletkeznie.
         """
         # Mockoljuk a check_component metódust, hogy kivételt dobjon
-        with patch.object(self.monitor, 'check_component') as mock_check_component:
+        with patch.object(self.monitor, "check_component") as mock_check_component:
             mock_check_component.side_effect = RuntimeError("For loop exception")
 
             # Regisztrálunk egy komponenst
@@ -424,7 +425,6 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
             self.assertEqual(error_component.status, ComponentStatus.CRITICAL)
             self.assertIn("Hiba", error_component.message)
             self.assertIn("For loop exception", error_component.message)
-
 
     if __name__ == "__main__":
         unittest.main()

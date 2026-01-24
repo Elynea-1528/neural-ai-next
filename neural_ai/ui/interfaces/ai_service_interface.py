@@ -38,11 +38,7 @@ class AIServiceInterface(Protocol):
         """
         ...
 
-    def run_inference(
-        self,
-        model_id: str,
-        input_data: dict[str, Any]
-    ) -> dict[str, Any]:
+    def run_inference(self, model_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
         """Inferencia futtatása a modellen.
 
         Args:
@@ -69,7 +65,7 @@ class AIServiceInterface(Protocol):
         self,
         model_id: str,
         training_data: list[dict[str, Any]],
-        config: dict[str, Any] | None = None
+        config: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Modell betanítása.
 

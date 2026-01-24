@@ -73,7 +73,7 @@ class CoreBridge(metaclass=SingletonMeta):
             self._strategy_service = StrategyService(
                 logger=self._core.logger,
                 config={},  # Üres config dict
-                core_components=self
+                core_components=self,
             )
 
             if self._core.logger:

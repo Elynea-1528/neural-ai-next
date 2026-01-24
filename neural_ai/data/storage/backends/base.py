@@ -172,7 +172,7 @@ class StorageBackend(ABC):
                 return False
 
             # Típus guard: ellenőrizzük, hogy van-e __len__ metódus
-            if not hasattr(data, '__len__'):
+            if not hasattr(data, "__len__"):
                 return False
 
             # Ellenőrizzük, hogy van-e hossza (csak pozitív lehet)
@@ -182,9 +182,9 @@ class StorageBackend(ABC):
 
             # Próbáljuk meg lekérni az oszlopokat (attribútum vagy metódus)
             columns = None
-            if hasattr(data, 'columns') and callable(data.columns):
+            if hasattr(data, "columns") and callable(data.columns):
                 columns = data.columns()
-            elif hasattr(data, 'columns'):
+            elif hasattr(data, "columns"):
                 columns = data.columns
 
             # Típus ellenőrzés és hossz lekérdezése
@@ -198,7 +198,7 @@ class StorageBackend(ABC):
                 return len(columns_list) > 0 and data_len > 0
 
             # Ha columns más típusú (pl. polars Series), próbáljuk meg a hosszát
-            if hasattr(columns, '__len__'):
+            if hasattr(columns, "__len__"):
                 # Cast to Sized object for len() call
                 columns_sized = cast(Any, columns)
                 return len(columns_sized) > 0 and data_len > 0

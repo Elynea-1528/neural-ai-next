@@ -1,4 +1,5 @@
 """Storage __init__.py tesztek."""
+
 from importlib import metadata
 from unittest.mock import patch
 

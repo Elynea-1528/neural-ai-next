@@ -267,7 +267,10 @@ class StrategyLabPage(PageInterface):
             # Logolás strukturált módon
             logger = self._bridge.get_component("logger")
             if logger:
-                logger.error("Backtest eredmény renderelés hiba", extra={"error": str(e), "page": "StrategyLab"})
+                logger.error(
+                    "Backtest eredmény renderelés hiba",
+                    extra={"error": str(e), "page": "StrategyLab"},
+                )
 
     def _prepare_data_for_view(self, df: "pl.DataFrame", price_type: str) -> "pl.DataFrame":
         """Adatok előkészítése megjelenítéshez - oszlopok átnevezése price_type alapján.
@@ -394,10 +397,16 @@ class StrategyLabPage(PageInterface):
                     d2_pd = st.session_state.d2_analysis.to_pandas()
                     # Biztosítsd, hogy a dátum oszlop neve egyezzen
                     # Merge left join-nal (hogy a chart adatok megmaradjanak)
-                    swing_cols = ['timestamp', 'swing_high_body', 'swing_low_body',
-                                  'swing_high_wick', 'swing_low_wick']
-                    df_plot = pd.merge(df_plot, d2_pd[swing_cols],
-                                       left_on='date', right_on='timestamp', how='left')
+                    swing_cols = [
+                        "timestamp",
+                        "swing_high_body",
+                        "swing_low_body",
+                        "swing_high_wick",
+                        "swing_low_wick",
+                    ]
+                    df_plot = pd.merge(
+                        df_plot, d2_pd[swing_cols], left_on="date", right_on="timestamp", how="left"
+                    )
 
                 # Body swings kirajzolása egyszerű szűréssel
                 if st.session_state.show_body_swings:
@@ -480,7 +489,9 @@ class StrategyLabPage(PageInterface):
             # Nearest resistance és support szintek megjelenítése horizontális vonalaként
             if "nearest_resistance" in df_plot.columns and "resistance_strength" in df_plot.columns:
                 # Unique resistance szintek gyűjtése strength-szel
-                resistance_levels = df_plot.dropna(subset=["nearest_resistance", "resistance_strength"])
+                resistance_levels = df_plot.dropna(
+                    subset=["nearest_resistance", "resistance_strength"]
+                )
                 if not resistance_levels.empty:
                     unique_resistances = (
                         resistance_levels.groupby("nearest_resistance")["resistance_strength"]
@@ -555,7 +566,9 @@ class StrategyLabPage(PageInterface):
             # Logolás strukturált módon
             logger = self._bridge.get_component("logger")
             if logger:
-                logger.error("Chart renderelés hiba", extra={"error": str(e), "page": "StrategyLab"})
+                logger.error(
+                    "Chart renderelés hiba", extra={"error": str(e), "page": "StrategyLab"}
+                )
 
     def _render_data_table(self) -> None:
         """Az első 10 sor megjelenítése táblázatban Spread és Z-Score oszlopokkal."""
@@ -614,7 +627,9 @@ class StrategyLabPage(PageInterface):
             # Logolás strukturált módon
             logger = self._bridge.get_component("logger")
             if logger:
-                logger.error("Data table renderelés hiba", extra={"error": str(e), "page": "StrategyLab"})
+                logger.error(
+                    "Data table renderelés hiba", extra={"error": str(e), "page": "StrategyLab"}
+                )
 
     def _get_symbols(self) -> list[str]:
         """Szimbólumok lekérése a konfigurációból.
@@ -676,6 +691,7 @@ class StrategyLabPage(PageInterface):
                         st.error(f"Kritikus hiba a D2 elemzés során: {str(e)}")
                         with st.expander("⚠️ D2 Elemzés Hiba Részletek", expanded=False):
                             import traceback
+
                             st.code(traceback.format_exc())
                         st.session_state.d2_analysis = None
 

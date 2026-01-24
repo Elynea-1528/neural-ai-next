@@ -190,12 +190,17 @@ class TestCoreComponentFactory:
         self, mock_get_logger: MagicMock, mock_get_manager: MagicMock
     ) -> None:
         """Teszteli a minimális komponensek létrehozását config fájllal."""
+        mock_config = MagicMock()
+        mock_config.get.return_value = {"storage": {"base_directory": "/tmp"}}
+        mock_get_manager.return_value = mock_config
+
         with patch("pathlib.Path.exists", return_value=True):
             components = CoreComponentFactory.create_minimal()
 
             assert components is not None
             assert components.has_logger()
             assert components.has_storage()
+            assert components.has_config()
 
     @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
     def test_create_minimal_without_config_file(self, mock_get_logger: MagicMock) -> None:
@@ -214,7 +219,9 @@ class TestCoreComponentFactory:
     ) -> None:
         """Teszteli a minimális komponensek létrehozását config fájllal, de logger section nélkül."""
         mock_config = MagicMock()
-        mock_config.get_section.return_value = None  # No logger section
+        mock_config.get.return_value = {
+            "storage": {"base_directory": "/tmp"}
+        }  # Provide storage config
         mock_get_manager.return_value = mock_config
 
         with patch("pathlib.Path.exists", return_value=True):
@@ -269,7 +276,9 @@ class TestCoreComponentFactory:
     @patch("neural_ai.core.events.factory.EventBusFactory.get_event_bus")
     @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
     @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
-    def test_create_storage(self, mock_get_manager: MagicMock, mock_get_logger: MagicMock, mock_get_event_bus: MagicMock) -> None:
+    def test_create_storage(
+        self, mock_get_manager: MagicMock, mock_get_logger: MagicMock, mock_get_event_bus: MagicMock
+    ) -> None:
         """Teszteli a storage létrehozását."""
         mock_config = MagicMock()
         mock_logger = MagicMock()
@@ -280,7 +289,7 @@ class TestCoreComponentFactory:
         mock_get_event_bus.return_value = mock_event_bus
 
         with tempfile.TemporaryDirectory() as temp_dir:
-            storage = CoreComponentFactory.create_storage(temp_dir, {"key": "value"})
+            storage = CoreComponentFactory.create_storage(temp_dir, mock_logger, mock_config)
 
             assert storage is not None
             assert hasattr(storage, "save_dataframe")
@@ -290,8 +299,13 @@ class TestCoreComponentFactory:
 
     def test_create_storage_invalid_path(self) -> None:
         """Teszteli a storage létrehozását érvénytelen elérési úttal."""
+        from unittest.mock import MagicMock
+
+        mock_logger = MagicMock()
+        mock_config = MagicMock()
+
         with pytest.raises(ConfigurationError, match="Storage base_directory not configured"):
-            CoreComponentFactory.create_storage("", {})
+            CoreComponentFactory.create_storage("", mock_logger, mock_config)
 
     def test_lazy_property_decorator_exists(self) -> None:
         """Teszteli, hogy a lazy property dekorátorok léteznek."""

@@ -1,6 +1,5 @@
 """ResamplerService kivételek."""
 
-
 from neural_ai.core.base.exceptions.base_error import NeuralAIException
 
 
@@ -8,10 +7,7 @@ class ResamplerError(NeuralAIException):
     """Alapértelmezett hiba a ResamplerService-hez."""
 
     def __init__(
-        self,
-        message: str,
-        details: str | None = None,
-        original_error: Exception | None = None
+        self, message: str, details: str | None = None, original_error: Exception | None = None
     ):
         """ResamplerError inicializálása.
 
@@ -29,13 +25,7 @@ class ResamplerError(NeuralAIException):
 class DataLoadError(ResamplerError):
     """Hiba adatok betöltése során."""
 
-    def __init__(
-        self,
-        symbol: str,
-        start: str,
-        end: str,
-        original_error: Exception | None = None
-    ):
+    def __init__(self, symbol: str, start: str, end: str, original_error: Exception | None = None):
         """DataLoadError inicializálása.
 
         Args:
@@ -46,22 +36,13 @@ class DataLoadError(ResamplerError):
         """
         message = f"Adatok betöltése sikertelen a(z) {symbol} szimbólumhoz"
         details = f"Időintervallum: {start} - {end}"
-        super().__init__(
-            message=message,
-            details=details,
-            original_error=original_error
-        )
+        super().__init__(message=message, details=details, original_error=original_error)
 
 
 class ResamplingError(ResamplerError):
     """Hiba az adatok átalakítása (resampling) során."""
 
-    def __init__(
-        self,
-        symbol: str,
-        timeframe: str,
-        original_error: Exception | None = None
-    ):
+    def __init__(self, symbol: str, timeframe: str, original_error: Exception | None = None):
         """ResamplingError inicializálása.
 
         Args:
@@ -71,11 +52,7 @@ class ResamplingError(ResamplerError):
         """
         message = f"Az adatok átalakítása sikertelen a(z) {symbol} szimbólumhoz"
         details = f"Időkeret: {timeframe}"
-        super().__init__(
-            message=message,
-            details=details,
-            original_error=original_error
-        )
+        super().__init__(message=message, details=details, original_error=original_error)
 
 
 class InvalidTimeframeError(ResamplerError):
@@ -89,7 +66,6 @@ class InvalidTimeframeError(ResamplerError):
         """
         message = f"Érvénytelen időkeret: {timeframe}"
         details = (
-            "Az időkeretnek a Pandas offset formátumban kell lennie "
-            "(pl. '1m', '5m', '1h', '1D')"
+            "Az időkeretnek a Pandas offset formátumban kell lennie (pl. '1m', '5m', '1h', '1D')"
         )
         super().__init__(message=message, details=details)

@@ -78,9 +78,7 @@ class TestParquetStorageService:
     @pytest.mark.asyncio
     async def test_initialization_without_hardware_and_logger(self, temp_dir):
         """Teszteli az inicializációt factory-k használatával."""
-        with patch(
-            "neural_ai.core.utils.factory.HardwareFactory"
-        ) as mock_factory:
+        with patch("neural_ai.core.utils.factory.HardwareFactory") as mock_factory:
             mock_factory.get_hardware_interface.return_value = MagicMock()
             mock_factory.get_hardware_interface.return_value.has_avx2.return_value = False
 
@@ -231,8 +229,10 @@ class TestParquetStorageService:
         storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
         storage_service._filter_by_timestamp = MagicMock(return_value=mock_df)
 
-        with patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl, \
-             patch("neural_ai.data.storage.implementations.parquet_storage.pd") as mock_pd:
+        with (
+            patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl,
+            patch("neural_ai.data.storage.implementations.parquet_storage.pd") as mock_pd,
+        ):
             mock_pl.DataFrame.return_value = mock_df
             mock_pd.DataFrame.return_value = mock_df
             mock_pl.concat.return_value = mock_df
@@ -294,9 +294,11 @@ class TestParquetStorageService:
         storage_service._deduplicate_data = MagicMock(return_value=mock_df)
         storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
 
-        with patch.object(storage_service, "engine", "polars"), \
-             patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl, \
-             patch("neural_ai.data.storage.implementations.parquet_storage.pd") as mock_pd:
+        with (
+            patch.object(storage_service, "engine", "polars"),
+            patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl,
+            patch("neural_ai.data.storage.implementations.parquet_storage.pd") as mock_pd,
+        ):
             mock_pl.DataFrame.return_value = mock_df
             mock_pd.DataFrame.return_value = mock_df
             mock_pl.concat.return_value = mock_df
@@ -329,9 +331,11 @@ class TestParquetStorageService:
         storage_service._deduplicate_data = MagicMock(return_value=mock_df)
         storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
 
-        with patch.object(storage_service, "engine", "pandas"), \
-             patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl, \
-             patch("neural_ai.data.storage.implementations.parquet_storage.pd") as mock_pd:
+        with (
+            patch.object(storage_service, "engine", "pandas"),
+            patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl,
+            patch("neural_ai.data.storage.implementations.parquet_storage.pd") as mock_pd,
+        ):
             mock_pl.DataFrame.return_value = mock_df
             mock_pd.DataFrame.return_value = mock_df
             mock_pl.concat.return_value = mock_df
@@ -432,7 +436,7 @@ class TestParquetStorageService:
 
     def test_deduplicate_data_polars(self, storage_service):
         """Teszteli a deduplikációt Polars esetén."""
-        with patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl:
+        with patch("neural_ai.data.storage.implementations.parquet_storage.pl"):
             mock_df = MagicMock()
             mock_df.columns = ["timestamp", "bid", "ask"]
             mock_df.select.return_value.unique.return_value = mock_df
@@ -458,7 +462,7 @@ class TestParquetStorageService:
 
     def test_sort_by_timestamp_polars(self, storage_service):
         """Teszteli a rendezést timestamp szerint Polars esetén."""
-        with patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl:
+        with patch("neural_ai.data.storage.implementations.parquet_storage.pl"):
             mock_df = MagicMock()
             mock_sorted = MagicMock()
             mock_df.sort.return_value = mock_sorted
@@ -471,7 +475,7 @@ class TestParquetStorageService:
 
     def test_sort_by_timestamp_pandas(self, storage_service):
         """Teszteli a rendezést timestamp szerint Pandas esetén."""
-        with patch("neural_ai.data.storage.implementations.parquet_storage.pd") as mock_pd:
+        with patch("neural_ai.data.storage.implementations.parquet_storage.pd"):
             mock_df = MagicMock()
             mock_sorted = MagicMock()
             mock_df.sort_values.return_value.reset_index.return_value = mock_sorted

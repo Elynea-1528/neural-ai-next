@@ -1,4 +1,5 @@
 """Dinamikus konfiguráció kezelő átfogó tesztek a hiányzó sorok lefedésére."""
+
 import asyncio
 import datetime
 from contextlib import suppress
@@ -87,7 +88,7 @@ class TestDynamicConfigManagerComprehensive:
         manager = DynamicConfigManager(session=mock_session, logger=mock_logger)
 
         # Mockoljuk a _check_for_updates-t, hogy dobjon egy kivételt
-        with patch.object(manager, '_check_for_updates', side_effect=Exception("Hiba")):
+        with patch.object(manager, "_check_for_updates", side_effect=Exception("Hiba")):
             await manager.start_hot_reload(interval=0.1)
 
             # Várunk egy kicsit, hogy a task futni kezdjen
@@ -113,7 +114,7 @@ class TestDynamicConfigManagerComprehensive:
             await asyncio.sleep(20)  # Nem fog leállni 10 másodpercen belül
 
         # Mockoljuk az asyncio.wait_for-t, hogy timeout-ot okozzon
-        with patch('asyncio.wait_for', side_effect=asyncio.TimeoutError):
+        with patch("asyncio.wait_for", side_effect=asyncio.TimeoutError):
             # Beállítjuk a taskot
             manager._hot_reload_task = asyncio.create_task(slow_task())
             manager._stop_hot_reload.set()  # Beállítjuk, hogy a stop event is aktív legyen

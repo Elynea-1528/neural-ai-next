@@ -73,8 +73,8 @@ class MarketDataPersister:
             "MarketDataPersister inicializálva",
             extra={
                 "buffer_size_limit": self.buffer_size_limit,
-                "flush_interval_minutes": self.flush_interval_minutes
-            }
+                "flush_interval_minutes": self.flush_interval_minutes,
+            },
         )
 
     async def start(self) -> None:
@@ -131,18 +131,12 @@ class MarketDataPersister:
 
         # Maradék buffer kiürítése (FONTOS: védett try-except blokk!)
         buffer_before = {k: len(v) for k, v in self.buffer.items() if v}
-        self.logger.info(
-            "Maradék buffer kiürítése",
-            extra={"buffer_before": buffer_before}
-        )
+        self.logger.info("Maradék buffer kiürítése", extra={"buffer_before": buffer_before})
 
         try:
             await self._flush_all_buffers()
         except Exception as e:
-            self.logger.error(
-                "Hiba a buffer kiürítésekor",
-                extra={"error": str(e)}
-            )
+            self.logger.error("Hiba a buffer kiürítésekor", extra={"error": str(e)})
             # Fontos: még hiba esetén is folytatjuk, hogy a többi leállítási lépés lefusson
 
         # Ellenőrizzük, hogy tényleg kiürült-e a buffer
@@ -155,16 +149,13 @@ class MarketDataPersister:
                 extra={
                     "total_remaining": total_remaining,
                     "before": sum(buffer_before.values()),
-                    "after": total_remaining
-                }
+                    "after": total_remaining,
+                },
             )
         else:
             self.logger.info(
                 "Buffer sikeresen kiürítve",
-                extra={
-                    "before": sum(buffer_before.values()),
-                    "after": 0
-                }
+                extra={"before": sum(buffer_before.values()), "after": 0},
             )
 
         self.logger.info("MarketDataPersister leállítva")
@@ -175,10 +166,7 @@ class MarketDataPersister:
         Args:
             event: Egy MarketDataEvent VAGY MarketDataEvent-ek listája.
         """
-        self.logger.info(
-            "on_market_data called",
-            extra={"event_type": str(type(event))}
-        )
+        self.logger.info("on_market_data called", extra={"event_type": str(type(event))})
         new_events: list[MarketDataEvent] = []
 
         # 1. ESET: Lista (Batch) érkezett
@@ -193,10 +181,7 @@ class MarketDataPersister:
             new_events = [event]  # event is MarketDataEvent
 
         else:
-            self.logger.warning(
-                "unknown_event_format",
-                extra={"event_type": str(type(event))}
-            )
+            self.logger.warning("unknown_event_format", extra={"event_type": str(type(event))})
             return
 
         if not new_events:
@@ -215,13 +200,13 @@ class MarketDataPersister:
         # Logolás (de csak okosan, nem dumpoljuk a teljes listát!)
         self.logger.debug(
             "market_data_received",
-            extra={"count": len(new_events), "total_buffered": total_buffered}
+            extra={"count": len(new_events), "total_buffered": total_buffered},
         )
 
         if total_buffered >= self.buffer_size_limit:
             self.logger.info(
                 "Buffer méretkorlát elérve, kiürítés indítása",
-                extra={"total_buffered": total_buffered}
+                extra={"total_buffered": total_buffered},
             )
             await self._flush_all_buffers()
 
@@ -244,17 +229,14 @@ class MarketDataPersister:
                         "Új óra kezdődött, buffer kiürítése",
                         extra={
                             "old_hour": self.current_hour.isoformat(),
-                            "new_hour": current_hour.isoformat()
-                        }
+                            "new_hour": current_hour.isoformat(),
+                        },
                     )
                     await self._flush_all_buffers()
                     self.current_hour = current_hour
 
             except Exception as e:
-                self.logger.error(
-                    "Hiba a periodikus flush során",
-                    extra={"error": str(e)}
-                )
+                self.logger.error("Hiba a periodikus flush során", extra={"error": str(e)})
 
     async def _flush_all_buffers(self) -> None:
         """Kiüríti az összes buffert és elmenti a tárolóba.
@@ -262,17 +244,11 @@ class MarketDataPersister:
         Szimbólumonként csoportosítva konvertálja DataFrame-é és menti.
         """
         buffer_keys = list(self.buffer.keys())
-        self.logger.info(
-            "_flush_all_buffers called",
-            extra={"buffer_keys": buffer_keys}
-        )
+        self.logger.info("_flush_all_buffers called", extra={"buffer_keys": buffer_keys})
 
         # Részletes buffer állapot logolása
         buffer_stats = {symbol: len(events) for symbol, events in self.buffer.items() if events}
-        self.logger.info(
-            "Buffer statisztika",
-            extra={"buffer_stats": buffer_stats}
-        )
+        self.logger.info("Buffer statisztika", extra={"buffer_stats": buffer_stats})
 
         if not any(self.buffer.values()):
             # Nincs mit kiüríteni
@@ -286,27 +262,24 @@ class MarketDataPersister:
                     event_count = len(events)
                     self.logger.info(
                         "Buffer kiürítése szimbólumhoz",
-                        extra={"symbol": symbol, "event_count": event_count}
+                        extra={"symbol": symbol, "event_count": event_count},
                     )
                     await self._flush_symbol_buffer(symbol, events)
                     total_saved += event_count
                     self.logger.info(
                         "Szimbólum buffer kiürítve",
-                        extra={"symbol": symbol, "events_saved": event_count}
+                        extra={"symbol": symbol, "events_saved": event_count},
                     )
                 except Exception as e:
                     self.logger.error(
                         "Hiba a buffer kiürítésekor szimbólumhoz",
-                        extra={"symbol": symbol, "error": str(e)}
+                        extra={"symbol": symbol, "error": str(e)},
                     )
 
         # Buffer ürítése
         self.buffer.clear()
 
-        self.logger.info(
-            "Összes buffer kiürítve",
-            extra={"total_saved": total_saved}
-        )
+        self.logger.info("Összes buffer kiürítve", extra={"total_saved": total_saved})
 
     async def _flush_symbol_buffer(self, symbol: str, events: list[MarketDataEvent]) -> None:
         """Kiüríti egy adott szimbólum bufferét.
@@ -355,7 +328,7 @@ class MarketDataPersister:
                 row_count = len(df)
                 self.logger.info(
                     "Tárolás ParquetStorageService-be",
-                    extra={"symbol": symbol, "date": date.isoformat(), "row_count": row_count}
+                    extra={"symbol": symbol, "date": date.isoformat(), "row_count": row_count},
                 )
                 await self.storage.store_tick_data(symbol, df, date)
             else:
@@ -363,7 +336,7 @@ class MarketDataPersister:
                 row_count = len(df)
                 self.logger.info(
                     "Tárolás save_dataframe-mal",
-                    extra={"symbol": symbol, "date": date.isoformat(), "row_count": row_count}
+                    extra={"symbol": symbol, "date": date.isoformat(), "row_count": row_count},
                 )
                 path = f"/data/tick/{symbol}/{date.strftime('%Y/%m/%d')}/data.parquet"
                 kwargs: dict[str, Any] = {"symbol": symbol, "date": date}
@@ -371,11 +344,7 @@ class MarketDataPersister:
 
             self.logger.info(
                 "Tick adatok elmentve",
-                extra={
-                    "symbol": symbol,
-                    "date": date.strftime('%Y-%m-%d'),
-                    "rows": len(events)
-                }
+                extra={"symbol": symbol, "date": date.strftime("%Y-%m-%d"), "rows": len(events)},
             )
 
         except Exception as e:
@@ -385,10 +354,10 @@ class MarketDataPersister:
                 "Hiba az adatok mentésekor",
                 extra={
                     "symbol": symbol,
-                    "date": date.strftime('%Y-%m-%d'),
+                    "date": date.strftime("%Y-%m-%d"),
                     "error": str(e),
-                    "traceback": traceback.format_exc()
-                }
+                    "traceback": traceback.format_exc(),
+                },
             )
             raise
 
@@ -410,7 +379,7 @@ class MarketDataPersister:
                 try:
                     import polars as pl
 
-                    data: dict[str, list[Any]] = {
+                    polars_data: dict[str, list[Any]] = {
                         "timestamp": [e.timestamp for e in events],
                         "bid": [e.bid for e in events],
                         "ask": [e.ask for e in events],
@@ -418,7 +387,7 @@ class MarketDataPersister:
                         "source": [e.source for e in events],
                     }
 
-                    df = pl.DataFrame(data)
+                    df = pl.DataFrame(polars_data)
                     df = df.sort("timestamp")
 
                     return df
@@ -432,7 +401,7 @@ class MarketDataPersister:
                 try:
                     import pandas as pd
 
-                    data: dict[str, list[Any]] = {
+                    pandas_data: dict[str, list[Any]] = {
                         "timestamp": [e.timestamp for e in events],
                         "bid": [e.bid for e in events],
                         "ask": [e.ask for e in events],
@@ -440,7 +409,7 @@ class MarketDataPersister:
                         "source": [e.source for e in events],
                     }
 
-                    df = pd.DataFrame(data)
+                    df = pd.DataFrame(pandas_data)
                     df = df.sort_values("timestamp").reset_index(drop=True)
 
                     return df
@@ -455,7 +424,7 @@ class MarketDataPersister:
             try:
                 import pandas as pd
 
-                data: dict[str, list[Any]] = {
+                default_pandas_data: dict[str, list[Any]] = {
                     "timestamp": [e.timestamp for e in events],
                     "bid": [e.bid for e in events],
                     "ask": [e.ask for e in events],
@@ -463,7 +432,7 @@ class MarketDataPersister:
                     "source": [e.source for e in events],
                 }
 
-                df = pd.DataFrame(data)
+                df = pd.DataFrame(default_pandas_data)
                 df = df.sort_values("timestamp").reset_index(drop=True)
 
                 return df
@@ -473,7 +442,7 @@ class MarketDataPersister:
                 try:
                     import polars as pl
 
-                    data: dict[str, list[Any]] = {
+                    fallback_polars_data: dict[str, list[Any]] = {
                         "timestamp": [e.timestamp for e in events],
                         "bid": [e.bid for e in events],
                         "ask": [e.ask for e in events],
@@ -481,7 +450,7 @@ class MarketDataPersister:
                         "source": [e.source for e in events],
                     }
 
-                    df = pl.DataFrame(data)
+                    df = pl.DataFrame(fallback_polars_data)
                     df = df.sort("timestamp")
 
                     return df

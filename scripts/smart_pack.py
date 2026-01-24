@@ -221,7 +221,7 @@ def pack_project(mode: str = "full") -> None:
             all_files.extend(dir_path.rglob("*"))
 
     # Egyedi lista, rendezve
-    unique_files = sorted(list(set(all_files)))
+    unique_files = sorted(set(all_files))
     count = 0
 
     try:

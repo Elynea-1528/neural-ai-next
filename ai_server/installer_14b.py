@@ -49,7 +49,7 @@ MODEL_NAME = "{SELECTED_MODEL}"
 # Image: zstd + curl + Ollama
 image = (
     modal.Image.debian_slim()
-    .apt_install("curl", "zstd")  
+    .apt_install("curl", "zstd")
     .run_commands("curl -fsSL https://ollama.com/install.sh | sh")
     .pip_install("httpx", "fastapi", "uvicorn")
 )
@@ -68,7 +68,7 @@ web_app = FastAPI()
 def setup_model():
     print("⏳ Ollama indítása...")
     subprocess.Popen(["ollama", "serve"])
-    
+
     # Várakozás
     for _ in range(30):
         try:
@@ -107,16 +107,16 @@ class OllamaServer:
         # ⚠️ 14B MODELL OPTIMALIZÁCIÓ
         # Mivel a 14B kicsi (9GB), az L4-en (24GB) BŐVEN elfér a 128k Context!
         # Nem kell lebutítani 32k-ra.
-        
+
         os.environ["OLLAMA_NUM_CTX"] = "131072"  # 128k Context
         os.environ["OLLAMA_KV_CACHE_TYPE"] = "q4_0" # Memória spórolás a biztonság kedvéért
         os.environ["OLLAMA_FLASH_ATTENTION"] = "1"
         os.environ["OLLAMA_HOST"] = "127.0.0.1:11434"
         os.environ["OLLAMA_ORIGINS"] = "*"
-        
+
         print(f"🚀 Ollama indítása (Modell: {{MODEL_NAME}}, Context: 128k)...")
         subprocess.Popen(["ollama", "serve"])
-        
+
         for _ in range(30):
             try:
                 subprocess.check_call(["curl", "-s", "http://127.0.0.1:11434"], stdout=subprocess.DEVNULL)
@@ -132,7 +132,7 @@ class OllamaServer:
 @web_app.post("/v1/chat/completions")
 async def chat_endpoint(request: Request):
     body = await request.json()
-    
+
     # Kényszerítjük a modellt, ha a Roo Code mást küldene
     body["model"] = MODEL_NAME
     print(f"📩 KÉRÉS ÉRKEZETT (Modell kényszerítve: {{MODEL_NAME}})")
@@ -145,9 +145,9 @@ async def chat_endpoint(request: Request):
                         yield chunk
             except Exception as e:
                 yield f'{{"error": "{{str(e)}}"}}'.encode()
-    
+
     return StreamingResponse(
-        proxy_stream(), 
+        proxy_stream(),
         media_type="text/event-stream",
         headers={{"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}}
     )

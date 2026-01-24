@@ -22,9 +22,9 @@ class TestHardwareFactory:
 
         # Assert
         assert hardware_info is not None
-        assert hasattr(hardware_info, 'has_avx2')
-        assert hasattr(hardware_info, 'get_cpu_features')
-        assert hasattr(hardware_info, 'supports_simd')
+        assert hasattr(hardware_info, "has_avx2")
+        assert hasattr(hardware_info, "get_cpu_features")
+        assert hasattr(hardware_info, "supports_simd")
         assert callable(hardware_info.has_avx2)
         assert callable(hardware_info.get_cpu_features)
         assert callable(hardware_info.supports_simd)
@@ -47,9 +47,9 @@ class TestHardwareFactory:
         # Assert
         assert hardware_interface is not None
         assert isinstance(hardware_interface, HardwareInterface)
-        assert hasattr(hardware_interface, 'has_avx2')
-        assert hasattr(hardware_interface, 'get_cpu_features')
-        assert hasattr(hardware_interface, 'supports_simd')
+        assert hasattr(hardware_interface, "has_avx2")
+        assert hasattr(hardware_interface, "get_cpu_features")
+        assert hasattr(hardware_interface, "supports_simd")
 
     def test_get_hardware_interface_returns_new_instance(self) -> None:
         """Teszteli, hogy a get_hardware_interface mindig új példányt ad-e vissza."""
@@ -79,7 +79,7 @@ class TestHardwareFactory:
         # Assert
         assert isinstance(hardware_info, HardwareInterface)
 
-    @patch('neural_ai.core.utils.implementations.hardware_info.HardwareInfo')
+    @patch("neural_ai.core.utils.implementations.hardware_info.HardwareInfo")
     def test_get_hardware_info_imports_correctly(self, mock_hardware_info: MagicMock) -> None:
         """Teszteli, hogy a get_hardware_info helyesen importálja-e a HardwareInfo osztályt."""
         # Arrange
@@ -93,7 +93,7 @@ class TestHardwareFactory:
         mock_hardware_info.assert_called_once()
         assert result == mock_instance
 
-    @patch('neural_ai.core.utils.implementations.hardware_info.HardwareInfo')
+    @patch("neural_ai.core.utils.implementations.hardware_info.HardwareInfo")
     def test_get_hardware_interface_imports_correctly(self, mock_hardware_info: MagicMock) -> None:
         """Teszteli, hogy a get_hardware_interface helyesen importálja-e a HardwareInfo osztályt."""
         # Arrange
@@ -110,19 +110,20 @@ class TestHardwareFactory:
     def test_factory_methods_are_static(self) -> None:
         """Teszteli, hogy a factory metódusok statikusak-e."""
         # Assert
-        assert hasattr(HardwareFactory, 'get_hardware_info')
-        assert hasattr(HardwareFactory, 'get_hardware_interface')
+        assert hasattr(HardwareFactory, "get_hardware_info")
+        assert hasattr(HardwareFactory, "get_hardware_interface")
 
         # Ellenőrizzük, hogy a metódusok valóban statikusak
         import inspect
+
         _ = HardwareFactory.get_hardware_info
         _ = HardwareFactory.get_hardware_interface
 
         assert isinstance(
-            inspect.getattr_static(HardwareFactory, 'get_hardware_info'), staticmethod
+            inspect.getattr_static(HardwareFactory, "get_hardware_info"), staticmethod
         )
         assert isinstance(
-            inspect.getattr_static(HardwareFactory, 'get_hardware_interface'), staticmethod
+            inspect.getattr_static(HardwareFactory, "get_hardware_interface"), staticmethod
         )
 
 

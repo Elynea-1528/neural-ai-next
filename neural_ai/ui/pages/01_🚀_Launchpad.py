@@ -12,7 +12,7 @@ from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
 
 if TYPE_CHECKING:
-    pass
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class LaunchpadPage(PageInterface):

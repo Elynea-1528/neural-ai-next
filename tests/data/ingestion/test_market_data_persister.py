@@ -65,8 +65,6 @@ class TestMarketDataPersisterInit:
         assert persister.buffer_size_limit == 5_000
 
 
-
-
 class TestMarketDataPersisterStartStop:
     """Tesztek a MarketDataPersister indításához és leállításához."""
 
@@ -97,7 +95,10 @@ class TestMarketDataPersisterStartStop:
         mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
         )
         persister.running = True
 
@@ -114,7 +115,10 @@ class TestMarketDataPersisterStartStop:
         mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
         )
         persister.running = True
 
@@ -143,7 +147,10 @@ class TestMarketDataPersisterStartStop:
         mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
         )
         persister.running = False
 
@@ -163,7 +170,10 @@ class TestMarketDataPersisterOnMarketData:
         mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config={"buffer_size_limit": 5, "flush_interval_minutes": 60}
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config={"buffer_size_limit": 5, "flush_interval_minutes": 60},
         )
         persister.running = True
 
@@ -188,7 +198,12 @@ class TestMarketDataPersisterOnMarketData:
         mock_storage = MagicMock()
         mock_logger = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
+        )
         persister.running = True
 
         events = [
@@ -215,7 +230,10 @@ class TestMarketDataPersisterOnMarketData:
         mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
         )
         persister.running = True
 
@@ -230,7 +248,10 @@ class TestMarketDataPersisterOnMarketData:
         mock_storage = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, logger=MagicMock(), config={"buffer_size_limit": 3, "flush_interval_minutes": 60}
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=MagicMock(),
+            config={"buffer_size_limit": 3, "flush_interval_minutes": 60},
         )
         persister.running = True
 
@@ -266,7 +287,12 @@ class TestMarketDataPersisterPeriodicFlush:
         mock_storage = MagicMock()
         mock_logger = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
+        )
         persister.running = True
 
         # Állítsunk be egy múltbéli órát
@@ -299,7 +325,10 @@ class TestMarketDataPersisterPeriodicFlush:
         mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
         )
         persister.running = True
 
@@ -329,7 +358,12 @@ class TestMarketDataPersisterFlush:
         mock_event_bus = MagicMock()
         mock_storage = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage, logger=MagicMock(), config=default_config)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=MagicMock(),
+            config=default_config,
+        )
         persister.running = True
 
         # Adjunk hozzá eventeket a bufferhez
@@ -359,7 +393,10 @@ class TestMarketDataPersisterFlush:
         mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
         )
 
         await persister._flush_all_buffers()

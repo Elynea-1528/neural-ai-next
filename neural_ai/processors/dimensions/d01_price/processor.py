@@ -57,17 +57,32 @@ class D01PriceProcessor(BaseDimensionProcessor):
         # Market Hours szűrés és logolás
         market_hours_config = self.dim_config.get("market_hours", {})
         if market_hours_config.get("enabled", False):
-            enabled_weekdays = market_hours_config.get("weekdays", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+            enabled_weekdays = market_hours_config.get(
+                "weekdays", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+            )
             hours_range = market_hours_config.get("hours", ["00:00", "23:59"])
-            timezone = market_hours_config.get("timezone", "UTC")
+            market_hours_config.get("timezone", "UTC")
 
             # Számoljuk a market hours-on kívüli sorokat
             total_rows = len(df)
             if total_rows > 0:
                 # Polars expr a market hours ellenőrzéshez
-                weekday_expr = pl.col("timestamp").dt.weekday().replace_strict(
-                    {1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday", 7: "Sunday"}
-                ).is_in(enabled_weekdays)
+                weekday_expr = (
+                    pl.col("timestamp")
+                    .dt.weekday()
+                    .replace_strict(
+                        {
+                            1: "Monday",
+                            2: "Tuesday",
+                            3: "Wednesday",
+                            4: "Thursday",
+                            5: "Friday",
+                            6: "Saturday",
+                            7: "Sunday",
+                        }
+                    )
+                    .is_in(enabled_weekdays)
+                )
 
                 # Óra és perc ellenőrzés
                 start_hour, start_min = map(int, hours_range[0].split(":"))
@@ -76,18 +91,24 @@ class D01PriceProcessor(BaseDimensionProcessor):
                 end_time_minutes = end_hour * 60 + end_min
 
                 time_minutes = pl.col("timestamp").dt.hour() * 60 + pl.col("timestamp").dt.minute()
-                time_in_range = (time_minutes >= start_time_minutes) & (time_minutes <= end_time_minutes)
+                time_in_range = (time_minutes >= start_time_minutes) & (
+                    time_minutes <= end_time_minutes
+                )
 
                 market_hours_mask = weekday_expr & time_in_range
-                outside_market_hours_count = df.select((~market_hours_mask).sum().alias("outside")).select("outside").item()
+                outside_market_hours_count = (
+                    df.select((~market_hours_mask).sum().alias("outside")).select("outside").item()
+                )
 
-                if outside_market_hours_count > 0 and market_hours_config.get("log_filtering", False):
+                if outside_market_hours_count > 0 and market_hours_config.get(
+                    "log_filtering", False
+                ):
                     self.logger.info(
                         "Market hours szűrés eredménye",
                         total_rows=total_rows,
                         outside_market_hours=outside_market_hours_count,
                         timeframe=timeframe,
-                        symbol="N/A"  # TODO: symbol hozzáadása ha elérhető
+                        symbol="N/A",  # TODO: symbol hozzáadása ha elérhető
                     )
 
         self.logger.debug(
@@ -155,9 +176,14 @@ class D01PriceProcessor(BaseDimensionProcessor):
             ask_low.alias("ask_low"),
             ask_close.alias("ask_close"),
             # Mid adatok
-            "mid_open", "mid_high", "mid_low", "mid_close",
+            "mid_open",
+            "mid_high",
+            "mid_low",
+            "mid_close",
             # Metadata
-            "tick_volume", "spread", "real_volume",
+            "tick_volume",
+            "spread",
+            "real_volume",
             # Számított értékek
             log_return.alias("log_return"),
             rolling_z_score.alias("rolling_z_score"),

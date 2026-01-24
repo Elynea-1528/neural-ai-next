@@ -118,6 +118,7 @@ class TestEventBusInterface:
 
     def test_config_property_is_abstract(self) -> None:
         """Teszteli, hogy a config property absztrakt."""
+
         # A konkrét osztálynak implementálnia kell
         class IncompleteBus(EventBusInterface):
             pass
@@ -127,6 +128,7 @@ class TestEventBusInterface:
 
     def test_start_is_abstract(self) -> None:
         """Teszteli, hogy a start metódus absztrakt."""
+
         # A konkrét osztálynak implementálnia kell
         class IncompleteBus(EventBusInterface):
             @property
@@ -138,6 +140,7 @@ class TestEventBusInterface:
 
     def test_stop_is_abstract(self) -> None:
         """Teszteli, hogy a stop metódus absztrakt."""
+
         # A konkrét osztálynak implementálnia kell
         class IncompleteBus(EventBusInterface):
             @property
@@ -152,6 +155,7 @@ class TestEventBusInterface:
 
     def test_publish_is_abstract(self) -> None:
         """Teszteli, hogy a publish metódus absztrakt."""
+
         # A konkrét osztálynak implementálnia kell
         class IncompleteBus(EventBusInterface):
             @property
@@ -169,6 +173,7 @@ class TestEventBusInterface:
 
     def test_subscribe_is_abstract(self) -> None:
         """Teszteli, hogy a subscribe metódus absztrakt."""
+
         # A konkrét osztálynak implementálnia kell
         class IncompleteBus(EventBusInterface):
             @property
@@ -189,6 +194,7 @@ class TestEventBusInterface:
 
     def test_unsubscribe_is_abstract(self) -> None:
         """Teszteli, hogy az unsubscribe metódus absztrakt."""
+
         # A konkrét osztálynak implementálnia kell
         class IncompleteBus(EventBusInterface):
             @property
@@ -212,6 +218,7 @@ class TestEventBusInterface:
 
     def test_run_forever_is_abstract(self) -> None:
         """Teszteli, hogy a run_forever metódus absztrakt."""
+
         # A konkrét osztálynak implementálnia kell
         class IncompleteBus(EventBusInterface):
             @property

@@ -239,19 +239,24 @@ class TestJForexLiveFeed:
         self, mock_logger: MagicMock, mock_event_bus: AsyncMock, mock_config_empty: MagicMock
     ) -> JForexLiveFeed:
         """JForexLiveFeed példány létrehozása üres configgal."""
-        return JForexLiveFeed(logger=mock_logger, event_bus=mock_event_bus, config=mock_config_empty)
+        return JForexLiveFeed(
+            logger=mock_logger, event_bus=mock_event_bus, config=mock_config_empty
+        )
 
     def test_init_with_empty_config_logs_warning(
         self, live_feed_empty_config: JForexLiveFeed, mock_logger: MagicMock
     ) -> None:
         """Teszteli, hogy üres config esetén warning log jelenik meg."""
         # Az inicializálás során warningnak kell lennie
-        mock_logger.warning.assert_called_once_with("jforex_live_config_missing - Using defaults (5555)")
+        mock_logger.warning.assert_called_once_with(
+            "jforex_live_config_missing - Using defaults (5555)"
+        )
 
     @pytest.fixture
     def mock_config_with_data(self) -> MagicMock:
         """Mock config létrehozása config adatokkal."""
         config = MagicMock()
+
         def mock_get(section, key=None, **kwargs):
             if section == "collectors" and key == "jforex_live":
                 return {
@@ -260,6 +265,7 @@ class TestJForexLiveFeed:
                     "command_port": 5556,
                 }
             return None
+
         config.get.side_effect = mock_get
         return config
 
@@ -268,7 +274,9 @@ class TestJForexLiveFeed:
         self, mock_logger: MagicMock, mock_event_bus: AsyncMock, mock_config_with_data: MagicMock
     ) -> JForexLiveFeed:
         """JForexLiveFeed példány létrehozása config adatokkal."""
-        return JForexLiveFeed(logger=mock_logger, event_bus=mock_event_bus, config=mock_config_with_data)
+        return JForexLiveFeed(
+            logger=mock_logger, event_bus=mock_event_bus, config=mock_config_with_data
+        )
 
     def test_init_with_config_logs_debug(
         self, live_feed_with_config: JForexLiveFeed, mock_logger: MagicMock

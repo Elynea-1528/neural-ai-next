@@ -59,10 +59,13 @@ except metadata.PackageNotFoundError:
 
 __version__: Final[str] = _version
 
+
 # Sémaváltozat késleltetett betöltéssel (körkörös import elkerülése érdekében)
 def _get_schema_version() -> str:
     from neural_ai.core.logger.factory import LoggerFactory
+
     return LoggerFactory.get_schema_version()
+
 
 __schema_version__: Final[str] = _get_schema_version()
 

@@ -1,4 +1,5 @@
 """Rotating file logger implementáció tesztei."""
+
 import logging
 import tempfile
 from pathlib import Path
@@ -26,7 +27,7 @@ class TestRotatingFileLogger:
 
     def test_init_with_empty_file_raises_error(self) -> None:
         """Logger inicializálás üres fájlnévvel hibát dob.
-        
+
         Ez a teszt lefedi a 60. sort, ahol a ValueError-t dobjuk.
         """
         with pytest.raises(ValueError, match="A 'log_file' paraméter kötelező"):
@@ -63,7 +64,7 @@ class TestRotatingFileLogger:
 
     def test_debug_logging_without_kwargs(self) -> None:
         """Debug üzenet logolásának tesztelése kwargs nélkül.
-        
+
         Ez a teszt lefedi a 106. sort.
         """
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -88,7 +89,7 @@ class TestRotatingFileLogger:
 
     def test_info_logging_without_kwargs(self) -> None:
         """Info üzenet logolásának tesztelése kwargs nélkül.
-        
+
         Ez a teszt lefedi a 118. sort.
         """
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -111,7 +112,7 @@ class TestRotatingFileLogger:
 
     def test_warning_logging_without_kwargs(self) -> None:
         """Warning üzenet logolásának tesztelése kwargs nélkül.
-        
+
         Ez a teszt lefedi a 130. sort.
         """
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -134,7 +135,7 @@ class TestRotatingFileLogger:
 
     def test_error_logging_without_kwargs(self) -> None:
         """Error üzenet logolásának tesztelése kwargs nélkül.
-        
+
         Ez a teszt lefedi a 142. sort.
         """
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -157,7 +158,7 @@ class TestRotatingFileLogger:
 
     def test_critical_logging_without_kwargs(self) -> None:
         """Critical üzenet logolásának tesztelése kwargs nélkül.
-        
+
         Ez a teszt lefedi a 154. sort.
         """
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -196,7 +197,7 @@ class TestRotatingFileLogger:
 
     def test_time_based_rotation(self) -> None:
         """Időalapú rotáció tesztelése.
-        
+
         Ez a teszt lefedi a 75. sort, ahol a TimedRotatingFileHandler-t hozzuk létre.
         """
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -205,7 +206,7 @@ class TestRotatingFileLogger:
                 "test_time_rotation",
                 log_file=str(log_file),
                 rotation_type="time",
-                when="H"  # Óránkénti rotáció
+                when="H",  # Óránkénti rotáció
             )
             assert isinstance(logger.logger, logging.Logger)
             assert len(logger.logger.handlers) == 1
@@ -225,7 +226,7 @@ class TestRotatingFileLogger:
 
     def test_existing_handlers_removed(self) -> None:
         """Teszteli, hogy a meglévő handlerek eltávolításra kerülnek.
-        
+
         Ez a teszt lefedi a 56. sort, ahol a meglévő handlerek
         eltávolítása történik.
         """
@@ -235,6 +236,7 @@ class TestRotatingFileLogger:
 
         # Adjunk hozzá egy handler-t
         import io
+
         buffer = io.StringIO()
         handler = logging.StreamHandler(buffer)
         temp_logger.addHandler(handler)
@@ -254,17 +256,16 @@ class TestRotatingFileLogger:
 
             # Ellenőrizzük, hogy az új handler RotatingFileHandler vagy TimedRotatingFileHandler
             handler_type = type(rotating_logger.logger.handlers[0]).__name__
-            assert "RotatingFileHandler" in handler_type or "TimedRotatingFileHandler" in handler_type
+            assert (
+                "RotatingFileHandler" in handler_type or "TimedRotatingFileHandler" in handler_type
+            )
 
     def test_di_dependencies_none(self) -> None:
         """DI függőségek None értékkel történő elfogadásának tesztelése."""
         with tempfile.TemporaryDirectory() as tmpdir:
             log_file = Path(tmpdir) / "test_di.log"
             logger = RotatingFileLogger(
-                "test_di_none",
-                log_file=str(log_file),
-                config=None,
-                event_bus=None
+                "test_di_none", log_file=str(log_file), config=None, event_bus=None
             )
             # Ellenőrizzük, hogy a logger létrejön None értékekkel
             assert logger is not None

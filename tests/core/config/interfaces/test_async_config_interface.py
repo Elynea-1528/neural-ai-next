@@ -218,6 +218,7 @@ class TestAsyncConfigManagerInterface:
 
     def test_config_listener_type_alias(self) -> None:
         """Teszteli a ConfigListener típusalias definícióját."""
+
         # A ConfigListener egy Callable, ami egy string és egy tetszőleges értéket vár
         # és egy Awaitable[None]-t ad vissza
         async def sample_listener(key: str, value: Any) -> None:
@@ -306,8 +307,10 @@ class TestAsyncConfigManagerInterface:
         # Az ABC osztályok nem engedik létrehozni a példányt, ha nem implementálják
         # az összes absztrakt metódust
         with pytest.raises(TypeError):
+
             class _IncompleteAsyncConfigManager(AsyncConfigManagerInterface):  # type: ignore
                 pass
+
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError
             _IncompleteAsyncConfigManager()
 
@@ -339,7 +342,7 @@ class TestAsyncConfigManagerInterface:
     def test_interface_method_order(self) -> None:
         """Teszteli, hogy az interfész metódusai logikus sorrendben vannak."""
         method_names = [
-            name for name in dir(AsyncConfigManagerInterface) if not name.startswith('_')
+            name for name in dir(AsyncConfigManagerInterface) if not name.startswith("_")
         ]
         expected_order = [
             "get",

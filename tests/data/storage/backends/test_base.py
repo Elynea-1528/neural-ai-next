@@ -15,8 +15,8 @@ class TestDataFrameProtocol:
 
     def test_protocol_has_required_members(self) -> None:
         """Teszteli, hogy a protokoll rendelkezik a szükséges tagokkal."""
-        assert hasattr(DataFrameProtocol, 'columns')
-        assert hasattr(DataFrameProtocol, '__len__')
+        assert hasattr(DataFrameProtocol, "columns")
+        assert hasattr(DataFrameProtocol, "__len__")
 
 
 class TestStorageBackend:
@@ -47,12 +47,12 @@ class TestStorageBackend:
 
             def get_info(self, path):
                 return {
-                    'size': 1000,
-                    'rows': 100,
-                    'columns': ['col1', 'col2'],
-                    'format': 'parquet',
-                    'created': '2023-01-01',
-                    'modified': '2023-01-02'
+                    "size": 1000,
+                    "rows": 100,
+                    "columns": ["col1", "col2"],
+                    "format": "parquet",
+                    "created": "2023-01-01",
+                    "modified": "2023-01-02",
                 }
 
         backend = MockBackend("test_backend", ["parquet", "csv"])
@@ -101,13 +101,13 @@ class TestStorageBackend:
         # Teszt: Érvényes adat - oszlopok mint attribútum
         mock_valid_attr = Mock()
         mock_valid_attr.__len__ = Mock(return_value=10)
-        mock_valid_attr.columns = ['col1', 'col2']
+        mock_valid_attr.columns = ["col1", "col2"]
         assert backend.validate_data(mock_valid_attr)
 
         # Teszt: Érvényes adat - oszlopok mint metódus
         mock_valid_method = Mock()
         mock_valid_method.__len__ = Mock(return_value=10)
-        mock_valid_method.columns = Mock(return_value=['col1', 'col2'])
+        mock_valid_method.columns = Mock(return_value=["col1", "col2"])
         assert backend.validate_data(mock_valid_method)
 
         # Teszt: Üres oszloplista
@@ -250,13 +250,13 @@ class TestStorageBackend:
         # Teszt: 0 hosszúságú adat (nem negatív, de üres)
         mock_zero_length = Mock()
         mock_zero_length.__len__ = Mock(return_value=0)
-        mock_zero_length.columns = ['col1']
+        mock_zero_length.columns = ["col1"]
         assert not backend.validate_data(mock_zero_length)
 
         # Teszt: Oszlopok, de 0 hossz
         mock_columns_no_data = Mock()
         mock_columns_no_data.__len__ = Mock(return_value=0)
-        mock_columns_no_data.columns = ['col1', 'col2']
+        mock_columns_no_data.columns = ["col1", "col2"]
         assert not backend.validate_data(mock_columns_no_data)
 
         # Teszt: Nincs oszlop, de van hossz
@@ -268,12 +268,12 @@ class TestStorageBackend:
         # Teszt: Oszlop mint tuple
         mock_tuple_columns = Mock()
         mock_tuple_columns.__len__ = Mock(return_value=10)
-        mock_tuple_columns.columns = ('col1', 'col2')
+        mock_tuple_columns.columns = ("col1", "col2")
         assert backend.validate_data(mock_tuple_columns)
 
         # Teszt: Oszlopok, de nincs __len__ metódusa
         mock_columns_no_len = Mock()
-        mock_columns_no_len.columns = ['col1', 'col2']
+        mock_columns_no_len.columns = ["col1", "col2"]
         # Mivel a Mock-nak alapból van __len__ metódusa, explicit beállítjuk
         mock_columns_no_len.__len__ = Mock(return_value=10)
         assert backend.validate_data(mock_columns_no_len)

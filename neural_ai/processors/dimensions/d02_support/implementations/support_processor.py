@@ -1,6 +1,6 @@
 """D02SupportProcessor - Support/Resistance szintek processzora."""
 
-from typing import TYPE_CHECKING, cast, TypedDict, Optional, List
+from typing import TYPE_CHECKING, TypedDict, cast
 
 import polars as pl
 
@@ -13,22 +13,24 @@ if TYPE_CHECKING:
 
 class MarketHoursConfig(TypedDict):
     """Market hours konfigurációs TypedDict."""
+
     enabled: bool
-    weekdays: List[str]
-    hours: List[str]
+    weekdays: list[str]
+    hours: list[str]
     timezone: str
     log_filtering: bool
 
 
 class D02SupportConfig(TypedDict):
     """D02 Support Processor konfigurációs TypedDict."""
-    swing_window: Optional[int]
-    min_candles: Optional[int]
-    level_merge: Optional[float]
-    strength_window: Optional[int]
-    min_touches: Optional[int]
-    volume_confirmation: Optional[bool]
-    market_hours: Optional[MarketHoursConfig]
+
+    swing_window: int | None
+    min_candles: int | None
+    level_merge: float | None
+    strength_window: int | None
+    min_touches: int | None
+    volume_confirmation: bool | None
+    market_hours: MarketHoursConfig | None
 
 
 class D02SupportProcessor(BaseDimensionProcessor):
@@ -87,10 +89,12 @@ class D02SupportProcessor(BaseDimensionProcessor):
             .otherwise(None)
         )
 
-        return df.with_columns([
-            swing_high_body.alias("swing_high_body"),
-            swing_low_body.alias("swing_low_body"),
-        ])
+        return df.with_columns(
+            [
+                swing_high_body.alias("swing_high_body"),
+                swing_low_body.alias("swing_low_body"),
+            ]
+        )
 
     def _find_swing_points_high_low(self, df: pl.DataFrame) -> pl.DataFrame:
         """Swing pontok keresése high/low értékeken.
@@ -113,9 +117,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
         swing_high_wick = (
             pl.when(
                 pl.col("mid_high")
-                == pl.col("mid_high").rolling_max(
-                    window_size=min_candles, center=True
-                )
+                == pl.col("mid_high").rolling_max(window_size=min_candles, center=True)
             )
             .then(pl.col("mid_high"))
             .otherwise(None)
@@ -124,18 +126,18 @@ class D02SupportProcessor(BaseDimensionProcessor):
         swing_low_wick = (
             pl.when(
                 pl.col("mid_low")
-                == pl.col("mid_low").rolling_min(
-                    window_size=min_candles, center=True
-                )
+                == pl.col("mid_low").rolling_min(window_size=min_candles, center=True)
             )
             .then(pl.col("mid_low"))
             .otherwise(None)
         )
 
-        return df.with_columns([
-            swing_high_wick.alias("swing_high_wick"),
-            swing_low_wick.alias("swing_low_wick"),
-        ])
+        return df.with_columns(
+            [
+                swing_high_wick.alias("swing_high_wick"),
+                swing_low_wick.alias("swing_low_wick"),
+            ]
+        )
 
     def _merge_levels(self, df: pl.DataFrame) -> pl.DataFrame:
         """Iteratív klaszterezés a swing szintek összevonására.
@@ -173,7 +175,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
             weights = [r["weight"] for r in rows]
             types = [r["type"] for r in rows]
 
-            min_dist = float('inf')
+            min_dist = float("inf")
             min_i, min_j = -1, -1
 
             # Keresd meg a legkisebb távolságú azonos típusú párt
@@ -254,8 +256,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
         return updated_levels
 
     def _categorize_zones(
-        self,
-        levels: list[dict[str, str | float | int]]
+        self, levels: list[dict[str, str | float | int]]
     ) -> dict[str, dict[str, list[dict[str, str | float | int]]]]:
         """Szintek kategorizálása strength és touches alapján.
 
@@ -281,7 +282,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
 
         result: dict[str, dict[str, list[dict[str, str | float | int]]]] = {
             "support": {"strong": [], "moderate": [], "weak": []},
-            "resistance": {"strong": [], "moderate": [], "weak": []}
+            "resistance": {"strong": [], "moderate": [], "weak": []},
         }
 
         for level in levels:
@@ -324,11 +325,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
             return pl.lit(1.0)
 
         threshold = pl.col("real_volume").rolling_mean(window_size=20) * 1.5
-        return (
-            pl.when(swing_mask & (pl.col("real_volume") > threshold))
-            .then(1.2)
-            .otherwise(1.0)
-        )
+        return pl.when(swing_mask & (pl.col("real_volume") > threshold)).then(1.2).otherwise(1.0)
 
     def process(self, df: pl.DataFrame, timeframe: str = "H1") -> pl.DataFrame:
         """Support/Resistance szintek számítása swing pontok alapján.
@@ -349,17 +346,32 @@ class D02SupportProcessor(BaseDimensionProcessor):
         # Market Hours szűrés és logolás
         market_hours_config = self.dim_config.get("market_hours", {})
         if market_hours_config.get("enabled", False):
-            enabled_weekdays = market_hours_config.get("weekdays", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+            enabled_weekdays = market_hours_config.get(
+                "weekdays", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+            )
             hours_range = market_hours_config.get("hours", ["00:00", "23:59"])
-            timezone = market_hours_config.get("timezone", "UTC")
+            market_hours_config.get("timezone", "UTC")
 
             # Számoljuk a market hours-on kívüli sorokat
             total_rows = len(df)
             if total_rows > 0:
                 # Polars expr a market hours ellenőrzéshez
-                weekday_expr = pl.col("timestamp").dt.weekday().replace_strict(
-                    {1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday", 7: "Sunday"}
-                ).is_in(enabled_weekdays)
+                weekday_expr = (
+                    pl.col("timestamp")
+                    .dt.weekday()
+                    .replace_strict(
+                        {
+                            1: "Monday",
+                            2: "Tuesday",
+                            3: "Wednesday",
+                            4: "Thursday",
+                            5: "Friday",
+                            6: "Saturday",
+                            7: "Sunday",
+                        }
+                    )
+                    .is_in(enabled_weekdays)
+                )
 
                 # Óra és perc ellenőrzés
                 start_hour, start_min = map(int, hours_range[0].split(":"))
@@ -368,18 +380,24 @@ class D02SupportProcessor(BaseDimensionProcessor):
                 end_time_minutes = end_hour * 60 + end_min
 
                 time_minutes = pl.col("timestamp").dt.hour() * 60 + pl.col("timestamp").dt.minute()
-                time_in_range = (time_minutes >= start_time_minutes) & (time_minutes <= end_time_minutes)
+                time_in_range = (time_minutes >= start_time_minutes) & (
+                    time_minutes <= end_time_minutes
+                )
 
                 market_hours_mask = weekday_expr & time_in_range
-                outside_market_hours_count = df.select((~market_hours_mask).sum().alias("outside")).select("outside").item()
+                outside_market_hours_count = (
+                    df.select((~market_hours_mask).sum().alias("outside")).select("outside").item()
+                )
 
-                if outside_market_hours_count > 0 and market_hours_config.get("log_filtering", False):
+                if outside_market_hours_count > 0 and market_hours_config.get(
+                    "log_filtering", False
+                ):
                     self.logger.info(
                         "Market hours szűrés eredménye",
                         total_rows=total_rows,
                         outside_market_hours=outside_market_hours_count,
                         timeframe=timeframe,
-                        symbol="N/A"  # TODO: symbol hozzáadása ha elérhető
+                        symbol="N/A",  # TODO: symbol hozzáadása ha elérhető
                     )
 
         self.logger.debug(f"D2 processzor futtatása: timeframe={timeframe}")
@@ -396,40 +414,34 @@ class D02SupportProcessor(BaseDimensionProcessor):
         high_wick_mask = pl.col("swing_high_wick").is_not_null()
         low_wick_mask = pl.col("swing_low_wick").is_not_null()
 
-        df = df.with_columns([
-            self._confirm_with_volume(df, high_body_mask).alias("vf_high_body"),
-            self._confirm_with_volume(df, low_body_mask).alias("vf_low_body"),
-            self._confirm_with_volume(df, high_wick_mask).alias("vf_high_wick"),
-            self._confirm_with_volume(df, low_wick_mask).alias("vf_low_wick"),
-        ])
+        df = df.with_columns(
+            [
+                self._confirm_with_volume(df, high_body_mask).alias("vf_high_body"),
+                self._confirm_with_volume(df, low_body_mask).alias("vf_low_body"),
+                self._confirm_with_volume(df, high_wick_mask).alias("vf_high_wick"),
+                self._confirm_with_volume(df, low_wick_mask).alias("vf_low_wick"),
+            ]
+        )
 
         # Swing pontok gyűjtése DataFrame-ként
         swing_data = []
         for row in df.iter_rows(named=True):
             if row.get("swing_high_body") is not None:
-                swing_data.append({
-                    "price": row["swing_high_body"],
-                    "weight": row["vf_high_body"],
-                    "type": "high"
-                })
+                swing_data.append(
+                    {"price": row["swing_high_body"], "weight": row["vf_high_body"], "type": "high"}
+                )
             if row.get("swing_low_body") is not None:
-                swing_data.append({
-                    "price": row["swing_low_body"],
-                    "weight": row["vf_low_body"],
-                    "type": "low"
-                })
+                swing_data.append(
+                    {"price": row["swing_low_body"], "weight": row["vf_low_body"], "type": "low"}
+                )
             if row.get("swing_high_wick") is not None:
-                swing_data.append({
-                    "price": row["swing_high_wick"],
-                    "weight": row["vf_high_wick"],
-                    "type": "high"
-                })
+                swing_data.append(
+                    {"price": row["swing_high_wick"], "weight": row["vf_high_wick"], "type": "high"}
+                )
             if row.get("swing_low_wick") is not None:
-                swing_data.append({
-                    "price": row["swing_low_wick"],
-                    "weight": row["vf_low_wick"],
-                    "type": "low"
-                })
+                swing_data.append(
+                    {"price": row["swing_low_wick"], "weight": row["vf_low_wick"], "type": "low"}
+                )
 
         swings_df = pl.DataFrame(swing_data)
 
@@ -440,12 +452,14 @@ class D02SupportProcessor(BaseDimensionProcessor):
         merged_levels = []
         for row in merged_df.to_dicts():
             level_type = "resistance" if row["type"] == "high" else "support"
-            merged_levels.append({
-                "price": row["price"],
-                "touches": 1,
-                "type": level_type,
-                "volume_factor": row["weight"]
-            })
+            merged_levels.append(
+                {
+                    "price": row["price"],
+                    "touches": 1,
+                    "type": level_type,
+                    "volume_factor": row["weight"],
+                }
+            )
 
         # Szintek erősségének számítása
         merged_levels = self._calculate_level_strength(merged_levels)
@@ -474,25 +488,35 @@ class D02SupportProcessor(BaseDimensionProcessor):
             return nearest_price, resistance_dict[nearest_price]
 
         # Oszlopok hozzáadása
-        nearest_support_expr = pl.col("mid_close").map_elements(
-            lambda c: find_nearest_support(c)[0], return_dtype=pl.Float64
-        ).alias("nearest_support")
-        support_strength_expr = pl.col("mid_close").map_elements(
-            lambda c: find_nearest_support(c)[1], return_dtype=pl.Float64
-        ).alias("support_strength")
-        nearest_resistance_expr = pl.col("mid_close").map_elements(
-            lambda c: find_nearest_resistance(c)[0], return_dtype=pl.Float64
-        ).alias("nearest_resistance")
-        resistance_strength_expr = pl.col("mid_close").map_elements(
-            lambda c: find_nearest_resistance(c)[1], return_dtype=pl.Float64
-        ).alias("resistance_strength")
+        nearest_support_expr = (
+            pl.col("mid_close")
+            .map_elements(lambda c: find_nearest_support(c)[0], return_dtype=pl.Float64)
+            .alias("nearest_support")
+        )
+        support_strength_expr = (
+            pl.col("mid_close")
+            .map_elements(lambda c: find_nearest_support(c)[1], return_dtype=pl.Float64)
+            .alias("support_strength")
+        )
+        nearest_resistance_expr = (
+            pl.col("mid_close")
+            .map_elements(lambda c: find_nearest_resistance(c)[0], return_dtype=pl.Float64)
+            .alias("nearest_resistance")
+        )
+        resistance_strength_expr = (
+            pl.col("mid_close")
+            .map_elements(lambda c: find_nearest_resistance(c)[1], return_dtype=pl.Float64)
+            .alias("resistance_strength")
+        )
 
-        df = df.with_columns([
-            nearest_support_expr,
-            support_strength_expr,
-            nearest_resistance_expr,
-            resistance_strength_expr,
-        ])
+        df = df.with_columns(
+            [
+                nearest_support_expr,
+                support_strength_expr,
+                nearest_resistance_expr,
+                resistance_strength_expr,
+            ]
+        )
 
         # Ideiglenes oszlopok eltávolítása
         return df.drop(["vf_high_body", "vf_low_body", "vf_high_wick", "vf_low_wick"])

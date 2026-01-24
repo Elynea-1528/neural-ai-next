@@ -11,7 +11,7 @@ from neural_ai.ui.interfaces.navigation_service_interface import NavigationServi
 from neural_ai.ui.interfaces.page_interface import PageInterface
 
 if TYPE_CHECKING:
-    from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
+    pass
 
 
 class NavigationService(NavigationServiceInterface):
@@ -37,11 +37,7 @@ class NavigationService(NavigationServiceInterface):
         self._current_page: str | None = None
         self._subscribers: list[Callable[[str, dict[str, Any]], None]] = []
 
-    def navigate_to(
-        self,
-        page_name: str,
-        params: dict[str, Any] | None = None
-    ) -> None:
+    def navigate_to(self, page_name: str, params: dict[str, Any] | None = None) -> None:
         """Navigálás egy adott oldalra.
 
         Args:
@@ -102,11 +98,7 @@ class NavigationService(NavigationServiceInterface):
         """
         return self._history.copy()
 
-    def register_page(
-        self,
-        page_name: str,
-        page: PageInterface
-    ) -> None:
+    def register_page(self, page_name: str, page: PageInterface) -> None:
         """Oldal regisztrálása a navigációs rendszerben.
 
         Args:
@@ -120,10 +112,7 @@ class NavigationService(NavigationServiceInterface):
             self._current_page = page_name
             self._history.append(page_name)
 
-    def subscribe(
-        self,
-        callback: Callable[[str, dict[str, Any]], None]
-    ) -> None:
+    def subscribe(self, callback: Callable[[str, dict[str, Any]], None]) -> None:
         """Feliratkozás navigációs eseményekre.
 
         Args:
@@ -131,11 +120,7 @@ class NavigationService(NavigationServiceInterface):
         """
         self._subscribers.append(callback)
 
-    def _notify_subscribers(
-        self,
-        page_name: str,
-        params: dict[str, Any]
-    ) -> None:
+    def _notify_subscribers(self, page_name: str, params: dict[str, Any]) -> None:
         """Értesítés küldése a feliratkozóknak.
 
         Args:

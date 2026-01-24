@@ -138,7 +138,7 @@ class TestLoggerInitExports:
                 export = getattr(module, export_name)
                 assert export is not None
 
-    @patch('importlib.metadata.version')
+    @patch("importlib.metadata.version")
     def test_version_fallback_on_package_not_found(self, mock_version) -> None:
         """Teszteli a fallback mechanizmust, ha a csomag nincs telepítve."""
         from importlib.metadata import PackageNotFoundError
@@ -147,11 +147,11 @@ class TestLoggerInitExports:
 
         import sys
 
-        original = sys.modules.get('neural_ai.core.logger')
+        original = sys.modules.get("neural_ai.core.logger")
 
         try:
-            if 'neural_ai.core.logger' in sys.modules:
-                del sys.modules['neural_ai.core.logger']
+            if "neural_ai.core.logger" in sys.modules:
+                del sys.modules["neural_ai.core.logger"]
 
             import neural_ai.core.logger as reloaded_logger
 
@@ -160,4 +160,4 @@ class TestLoggerInitExports:
 
         finally:
             if original is not None:
-                sys.modules['neural_ai.core.logger'] = original
+                sys.modules["neural_ai.core.logger"] = original

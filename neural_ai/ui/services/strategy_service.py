@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from neural_ai.processors.resampler_service.interfaces.resampler_interface import (
         ResamplerInterface,
     )
-    from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 
 
 class StrategyService(StrategyServiceInterface):
