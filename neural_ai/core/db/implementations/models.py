@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Index, String, Text
 from sqlalchemy.dialects.sqlite import JSON
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 
 from .model_base import Base
 
@@ -96,7 +96,14 @@ class LogEntry(Base):
         extra_data: További egyéni adatok (JSON formátumban).
     """
 
-    __tablename__ = "log_entries"
+    @declared_attr.directive
+    def __tablename__(cls) -> str:  # type: ignore[override]  # pylint: disable=no-self-argument
+        """LogEntries tábla neve.
+
+        Returns:
+            A tábla neve string formátumban.
+        """
+        return "log_entries"
 
     level: Mapped[str] = mapped_column(
         String(20),
