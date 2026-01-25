@@ -11,3 +11,19 @@ Model ID: deepseek-coder-v2:16b
 Provider: Groq
 API Key: [A_GROQ_KULCSOD]
 Model ID: llama-3.3-70b-versatile
+
+következőt állítanám be. mi a váleményed leader developer(trae+én) én beszélnék trae-val, majd ő elemzne fájlokat, írna egy promptot roo code architecktnek aki végrehajtaná architeck orchestrator code/debug. majd visszamásolnám a kiértékelést trae-nak, aki átnézné a fájlokat(teljes project, majd megmondaná jól csinálta e ró vagy sem. 
+
+felállás:
+trae: Gemini 2.5pro vagy GPT 4.1
+roo:
+-architect: 
+-orchestrator:
+-code: 
+debug:
+
+modal-on gondoltam a beállításra: modell: Qwen/Qwen2.5-Coder-32B-Instruct-AWQ
+
+van még lehetőségem: groq cloud: llama 3.3 70b versalite
+
+kérdés melyik modell melyiknek? mi legyen code mód alá?

@@ -25,7 +25,7 @@ Ezeket keresd a csatolt fájlban (`docs/` alatt):
 4.  `docs/architecture/hierarchical_system/overview.md` -> **A LOGIKA.** (Triple Barrier Method, Hierarchia).
 5.  `docs/development/architecture_standards.md` -> **A TÖRVÉNY.** (Mappaszerkezet, Névadási konvenciók).
 6.  `comments/custom_instructions.md` -> **A SZABÁLYOK.** (Közös irányelvek, követelmények).
-7.  `comments/system_boot_sequence_v10_auto.md` -> **A BOOT SZÉTÉSŐ.** (Rendszer indítási sorrendje).
+
 ---
 
 ## 🚦 RENDSZER STÁTUSZ JELENTÉS (SITREP)
@@ -43,24 +43,25 @@ A rendszer egy intézményi szintű HFT kereskedési rendszer. Két üzemmódja 
 *   **Pipeline:** EventBus (ZMQ) -> MarketDataPersister (Buffer) -> Storage.
 
 ### 3. PROCESSING (Feature Engine) - 🚧 AKTÍV ZÓNA
-Itt tartunk most.
+
 *   **Resampler:** ✅ KÉSZ. Gyárt `Mid OHLC`, `Bid OHLC`, `Spread`, `Real Volume` adatokat.
 *   **D1 (Price):** ✅ KÉSZ. Configból olvassa az ablakméretet. Számol `Log Return`-t, `Z-Score`-t.
-*   **D2 (Support/Resistance):** ⚠️ **HIBÁS / ELAKADT.**
-    *   **Probléma:** A konfigurációs fájl (`configs/processors.yaml`) szerkezete hibás ("Double Nesting": `processors: processors:`), ezért a D2 nem kap paramétereket.
-    *   **Hiány:** A kódból hiányzik a `_merge_levels` (klaszterezés) logika, amit az SSOT előír.
 
 ---
 
 ## ⚡ A TE FELADATOD (NEXT STEPS)
 
-A következő lépéseket kell megtervezned és kiadnod parancsként a Roo Code-nak:
-
-1.  **Hiba JAVÍTÁS:** a problems fül összes hibájának megszüntetése., projeck működésre bírása, ui hibák megszüntetése. a problems füllel kezdünk. 
-
-
 **VÁLASZOD FORMÁTUMA:**
-*   Először **ELEMEZD** a csatolt fájlt és a dokumentációt.
+*   Először **ELEMEZD** a a teljes projecktet, a csatolt fájlt és a dokumentációt.
+*   Másodszor jelenleg szerintem(lead developer user) a 
+*   - core 
+*   - collectors 
+*   - data 
+*    komponensek elemzésével kezdjük.
+*    majd:
+*    - ui
+*    - processors
+*    Több task tree fájl is van a projecktben. Azokat is nézd át, bár a fájlok állapota fogja megmondani mi mérvadó bennük és mi nem. Szigorúan a végleges elemzési állapotot kell létrehozni egy master task tree fájlban. amit utána becsatolnánk az ssot-be. persze átlátható legyen, feleljen meg a valóságnak. (doksik, tesztek stmt/branch fájlkódok, hibák.)
 *   Utána írj egy **ARCHITECT COMMAND** blokkot (Markdownban), amit én bemásolhatok a Roo Code-nak.
 
 **Indítsd az elemzést!**
