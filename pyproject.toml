@@ -54,6 +54,9 @@ dependencies = [
     # Multipart form data
     "python-multipart>=0.0.6",
     
+    # Data processing
+    "polars>=0.20.0",
+    
     # Utilities
     "packaging>=23.1",
     "tenacity>=8.2.0",          # JForex Collector retry mechanizmushoz
