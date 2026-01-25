@@ -50,9 +50,9 @@ A rendszer egy intézményi szintű HFT kereskedési rendszer. Két üzemmódja 
 ---
 
 ## ⚡ A TE FELADATOD (NEXT STEPS)
-
+minden cash fájl tölésssse tiszta lappal kezdjük az elemzést mypy ruff pycash, tesz cashek meg ami még eszedbe jut.
 **VÁLASZOD FORMÁTUMA:**
-*   Először **ELEMEZD** a a teljes projecktet, a csatolt fájlt és a dokumentációt.
+*   Először **ELEMEZD** a a teljes projecktet, a csatolt fájlt és a dokumentációt. nem baj ha sokáig tart, légy nagyon alapos és körültekintő! a tesztekre kitérve. valamelyik kódja jó, valamelyik nem fedi le a valóságot, nemtudom mire lehetne adni. szerintem a forrásfájlok kódjára. 
 *   Másodszor jelenleg szerintem(lead developer user) a 
 *   - core 
 *   - collectors 
@@ -61,7 +61,7 @@ A rendszer egy intézményi szintű HFT kereskedési rendszer. Két üzemmódja 
 *    majd:
 *    - ui
 *    - processors
-*    Több task tree fájl is van a projecktben. Azokat is nézd át, bár a fájlok állapota fogja megmondani mi mérvadó bennük és mi nem. Szigorúan a végleges elemzési állapotot kell létrehozni egy master task tree fájlban. amit utána becsatolnánk az ssot-be. persze átlátható legyen, feleljen meg a valóságnak. (doksik, tesztek stmt/branch fájlkódok, hibák.)
-*   Utána írj egy **ARCHITECT COMMAND** blokkot (Markdownban), amit én bemásolhatok a Roo Code-nak.
+*     Szigorúan a végleges elemzési állapotot kell létrehozni egy master task tree fájlban. amit utána becsatolnánk az ssot-be. persze átlátható legyen, feleljen meg a valóságnak. (doksik, tesztek stmt/branch fájlkódok, hibák.)
+*   
 
 **Indítsd az elemzést!**
