@@ -24,7 +24,7 @@ Ezeket keresd a csatolt fájlban (`docs/` alatt):
 3.  `docs/models/hierarchical/structure.md` -> **A CÉL.** (AI modell bemeneti igényei: Mid Price, Tick Data).
 4.  `docs/architecture/hierarchical_system/overview.md` -> **A LOGIKA.** (Triple Barrier Method, Hierarchia).
 5.  `docs/development/architecture_standards.md` -> **A TÖRVÉNY.** (Mappaszerkezet, Névadási konvenciók).
-6.  `comments/custom_instructions.md` -> **A SZABÁLYOK.** (Közös irányelvek, követelmények).
+6.  `docs/development/custom_instructions.md` -> **A SZABÁLYOK.** (Közös irányelvek, követelmények).
 
 ---
 
@@ -64,4 +64,4 @@ minden cash fájl tölésssse tiszta lappal kezdjük az elemzést mypy ruff pyca
 *     Szigorúan a végleges elemzési állapotot kell létrehozni egy master task tree fájlban. amit utána becsatolnánk az ssot-be. persze átlátható legyen, feleljen meg a valóságnak. (doksik, tesztek stmt/branch fájlkódok, hibák.)
 *   
 
-**Indítsd az elemzést!**
+**Indítsd az elemzést!** kezd a cash-ek törlésével,ssot beolvasásával, fájlok beolvasásával és master task tree létrehozásával(komponen fájlszinten.)
