@@ -299,7 +299,7 @@ class FileStorage(StorageInterface):
             # Backend-en keresztül töltjük be
             result = self.backend.read(str(full_path), **kwargs)
             self.logger.info(f"DataFrame sikeresen betöltve: {full_path}")
-            return cast(pd.DataFrame, result)
+            return cast("pd.DataFrame", result)
         except Exception as e:
             self.logger.error(f"Hiba a DataFrame betöltése során: {full_path}")
             raise StorageIOError(f"Hiba a DataFrame betöltése során: {str(e)}") from e
