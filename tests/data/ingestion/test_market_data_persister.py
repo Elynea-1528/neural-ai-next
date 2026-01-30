@@ -408,8 +408,11 @@ class TestMarketDataPersisterFlush:
         """Teszteli egy szimbólum bufferének sikeres kiürítését."""
         mock_event_bus = MagicMock()
         mock_storage = MagicMock()
+        mock_logger = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+        )
 
         events = [
             MarketDataEvent(
@@ -434,8 +437,11 @@ class TestMarketDataPersisterFlush:
         """Teszteli az üres szimbólum buffer kiürítését."""
         mock_event_bus = MagicMock()
         mock_storage = MagicMock()
+        mock_logger = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+        )
 
         await persister._flush_symbol_buffer("EURUSD", [])
 
@@ -449,7 +455,7 @@ class TestMarketDataPersisterFlush:
         mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger
+            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
         )
         persister.running = True
 
@@ -551,8 +557,11 @@ class TestMarketDataPersisterSave:
         """Teszteli az üres event lista mentését."""
         mock_event_bus = MagicMock()
         mock_storage = MagicMock()
+        mock_logger = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+        )
 
         date = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -600,8 +609,11 @@ class TestMarketDataPersisterConvertToDataFrame:
         """Teszteli az eventek DataFrame-é konvertálását pandas használatával."""
         mock_event_bus = MagicMock()
         mock_storage = MagicMock()
+        mock_logger = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+        )
 
         events = [
             MarketDataEvent(
@@ -631,8 +643,11 @@ class TestMarketDataPersisterConvertToDataFrame:
         """Teszteli az eventek DataFrame-é konvertálását polars használatával."""
         mock_event_bus = MagicMock()
         mock_storage = MagicMock()
+        mock_logger = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+        )
 
         events = [
             MarketDataEvent(
@@ -655,8 +670,11 @@ class TestMarketDataPersisterConvertToDataFrame:
         """Teszteli a kivételt, ha egyik library sincs telepítve."""
         mock_event_bus = MagicMock()
         mock_storage = MagicMock()
+        mock_logger = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=default_config
+        )
 
         events = [
             MarketDataEvent(
@@ -684,9 +702,13 @@ class TestMarketDataPersisterIntegration:
         mock_event_bus = MagicMock()
         mock_event_bus.run_forever = AsyncMock()
         mock_storage = AsyncMock()
+        mock_logger = MagicMock()
 
         persister = MarketDataPersister(
-            event_bus=mock_event_bus, storage=mock_storage, buffer_size_limit=2
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config={"buffer_size_limit": 2, "flush_interval_minutes": 60},
         )
 
         # Indítás
