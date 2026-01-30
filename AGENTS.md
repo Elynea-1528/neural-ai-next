@@ -1,30 +1,45 @@
 # AGENTS.md
 
-This file provides guidance to agents when working with code in this repository.
+Ez a fájl útmutatást nyújt az AI agenteknek a repository kódjával való munkavégzéshez.
 
-## Projekt Áttekintés
-- **Adatok**: 25 évnyi TICK ADAT (nem OHLCV!)
-- **Stack**: Python 3.12, Polars, PyTorch 2.5.1, Lightning 2.5.5, VectorBT Pro, FastParquet
-- **Architektúra**: Domain-Driven (DDD), Eseményvezérelt (ZeroMQ), Adatbázis-Első
+## Build/Test/Lint Parancsok
 
-## Build/Lint/Test Parancsok (Abszolút Útvonalak KÖTELEZŐ!)
-- **Lint**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check .`
-- **Format**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff format .`
-- **Type Check**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/mypy .`
-- **Test (Single)**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/path/to/test_file.py::TestClass::test_method -v`
-- **Test (All)**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -v`
-- **Coverage**: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest --cov=neural_ai --cov-report=html`
+```bash
+# Tesztek futtatása abszolút útvonallal (conda activate nem működik nem-interaktív shell-ben)
+/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest
 
-## Kritikus Projekt Szabályok (Nem Nyilvánvaló)
-- **🇭🇺 NYELV**: Minden kommunikáció (chat, commit, docstring, gondolkodás) MAGYARUL kötelező.
-- **🏗️ ARCHITEKTÚRA**: Rétegek csak LEFELÉ hívhatnak: Presentation → Domain → Persistence → Input → Infrastructure (Core).
-- **🛡️ BIZTONSÁGI PROTOKOLL**: **TESZTEK FUTTATÁSA TILOS!** (pytest, python main.py). Kizárólag Statikus Kódanalízis és Kódírás.
-- **📦 ADATKEZELÉS**: Csak particionált Parquet. `.bi5` bináris dekódolás JForexhez (CSV/JSON TILOS). Polars First Policy a processzorokban.
-- **📝 DASHBOARD**: `docs/development/TASK_TREE.md` az SSOT. Fájl szintű követés (Stmt/Brch Coverage) kötelező.
-- **⚠️ HIBAKEZELÉS**: Minden piros hiba (Ruff/MyPy) SZIGORÚAN javítandó commit előtt. `from e` láncolás kötelező.
-- **👁️ OBSERVABILITY**: 
-  - Csak `LoggerFactory.get_logger(__name__)` engedélyezett. `structlog` direkt hívás és `print()` TILOS.
-  - `@trace` dekorátor KÖTELEZŐ minden kritikus függvényre.
-- **🧬 TÍPUSBIZTONSÁG**: `config.get()` eredményét KÖTELEZŐ `TypedDict`-re castolni a Factory-ban. `Any` TILOS.
-- **DI & MODUL SZERKEZET**: Konstruktor injektálás kötelező. Modul felépítés: `interfaces/`, `implementations/`, `exceptions/`, `factory.py` (TypedDict Config!), `__init__.py`.
-- **🛠️ PARANCS ÚTVONALAK**: KÖTELEZŐ az abszolút útvonalak használata parancsfuttatáshoz (Python, Ruff, Pytest).
+# Egyetlen teszt fájl futtatása
+/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/path/to/test_file.py -v
+
+# Linter futtatása
+/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check .
+
+# Alkalmazás módok futtatása
+python main.py live                    # Élő kereskedési mód
+python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20
+python main.py dashboard               # Streamlit UI
+```
+
+## Kritikus Nem-Nyilvánvaló Szabályok
+
+**TypedDict KÖTELEZŐ a Config-oknál:** Minden `config.get()` `Any`-t ad vissza - Factory metódusokban KÖTELEZŐ TypedDict-re castolni `cast()` használatával. Példa: `neural_ai/core/base/factory.py:220-235`.
+
+**TILOS direkt import az implementations/-ból:** Factory-ban lazy load, máshol csak Interface import. Konkrét osztályok (`ConcreteClass`) TILOS a modulon kívül.
+
+**Körkörös importok:** Használd az `if TYPE_CHECKING:` blokkot + string típus hinteket (pl. `storage: "StorageInterface"`).
+
+**Strukturált logolás KÖTELEZŐ:** `logger.info("msg", extra={"key": val})` - string összefűzés (f-stringek log üzenetekben) TILOS.
+
+**Polars First:** Használj `pl.DataFrame`-et adatfeldolgozáshoz. Pandas csak UI rétegben (`neural_ai/ui/`). Sor iteráció (`for row in df`) TILOS.
+
+**JForex TILOS CSV:** Csak `.bi5` (LZMA) bináris formátum engedélyezett. Lásd: `neural_ai/collectors/jforex/`.
+
+**Storage TILOS CSV/JSON:** Csak particionált Parquet (`fastparquet`). Helye: `neural_ai/data/storage/`.
+
+**Magyar docstringek:** MINDEN docstring, komment, commit KÖTELEZŐEN magyar (Google Style). Kód kulcsszavak angolul.
+
+**Mirror dokumentáció:** Minden kódfájl `neural_ai/X/Y.py` igényel `docs/components/X/Y.md` fájlt (auto-generált: `python scripts/generate_docs.py`).
+
+**Atomic commitok KÖTELEZŐ:** Minden fájlmódosítás azonnali `git commit`-ot igényel. Nincs commit = BUKOTT feladat.
+
+**Bootstrap sorrend fontos:** `HardwareInfo` → `ConfigManager` → `Logger` → `EventBus` → `Storage` → `Database` → `SystemMonitor`. Lásd: `neural_ai/core/base/factory.py:120-147`.
