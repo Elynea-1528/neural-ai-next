@@ -39,9 +39,14 @@ class TestFileStorage:
         shutil.rmtree(tmpdir)
 
     @pytest.fixture
-    def storage(self, temp_dir: Path) -> FileStorage:
-        """FileStorage példány létrehozása."""
-        return FileStorage(base_path=str(temp_dir))
+    def mock_logger(self) -> MagicMock:
+        """Mock logger fixture."""
+        return MagicMock()
+
+    @pytest.fixture
+    def storage(self, temp_dir: Path, mock_logger: MagicMock) -> FileStorage:
+        """FileStorage példány létrehozása logger-rel."""
+        return FileStorage(logger=mock_logger, base_path=str(temp_dir))
 
     @pytest.fixture
     def sample_dataframe(self) -> pd.DataFrame:
@@ -55,14 +60,14 @@ class TestFileStorage:
         """Minta Python objektum létrehozása."""
         return {"key": "value", "number": 42, "nested": {"inner": "data"}}
 
-    def test_init_default_path(self) -> None:
+    def test_init_default_path(self, mock_logger: MagicMock) -> None:
         """Teszteli az alapértelmezett útvonal beállítását."""
-        storage = FileStorage()
+        storage = FileStorage(logger=mock_logger)
         assert storage._base_path == Path.cwd()
 
-    def test_init_custom_path(self, temp_dir: Path) -> None:
+    def test_init_custom_path(self, temp_dir: Path, mock_logger: MagicMock) -> None:
         """Teszteli az egyéni útvonal beállítását."""
-        storage = FileStorage(base_path=str(temp_dir))
+        storage = FileStorage(logger=mock_logger, base_path=str(temp_dir))
         assert storage._base_path == temp_dir
 
     def test_init_with_logger(self, temp_dir: Path) -> None:
