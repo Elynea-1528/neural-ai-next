@@ -134,7 +134,7 @@ class StorageFactory(StorageFactoryInterface):
 
         # Config hozzáadása a kwargs-hoz
         if config is None:
-            config = ConfigManagerFactory.get_manager("config.yml")
+            config = ConfigManagerFactory.get_manager("configs/storage.yaml")
         kwargs["config"] = config
 
         # Config validáció TypedDict-tel - OPERATION TOTAL RECALL

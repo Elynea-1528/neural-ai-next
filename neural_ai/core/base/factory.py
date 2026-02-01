@@ -19,7 +19,7 @@ from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.logger.factory import LoggerFactory  # Added for DI compliance
 from neural_ai.core.utils.decorators import trace
 
-DEFAULT_CONFIG_FILE = "config.yml"
+DEFAULT_CONFIG_FILE = "configs/system.yaml"
 
 
 class BaseConfig(TypedDict, total=False):
