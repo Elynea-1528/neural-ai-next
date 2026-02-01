@@ -77,14 +77,17 @@ class UIServiceFactory(metaclass=SingletonMeta):
         self._initialized = True
 
     def get_navigation_service(
-        self, config: UIFactoryConfig, logger: Any, core_components: Any
+        self,
+        config: UIFactoryConfig | None = None,
+        logger: Any | None = None,
+        core_components: Any | None = None,
     ) -> NavigationServiceInterface:
         """Navigation Service példány lekérdezése.
 
         Args:
-            config: A UI factory konfiguráció
-            logger: A logger példány
-            core_components: A core komponensek
+            config: A UI factory konfiguráció (opcionális, fallback: self._config)
+            logger: A logger példány (opcionális, fallback: self._logger)
+            core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
             NavigationServiceInterface: A Navigation Service példány
@@ -92,25 +95,38 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
+        # Használjuk a tárolt értékeket ha nem adtak paramétert
+        final_config = config if config is not None else self._config
+        final_logger = logger if logger is not None else self._logger
+        final_components = core_components if core_components is not None else self._core_components
+
+        if final_config is None or final_logger is None or final_components is None:
+            raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
+
         # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        nav_config = cast(dict[str, Any], config.get("navigation", {}))
+        nav_config = cast(dict[str, Any], final_config.get("navigation", {}))
 
         if "navigation" not in self._services:
             from neural_ai.ui.services.navigation_service import NavigationService
 
-            self._services["navigation"] = NavigationService(logger, nav_config, core_components)
+            self._services["navigation"] = NavigationService(
+                final_logger, nav_config, final_components
+            )
 
         return self._services["navigation"]
 
     def get_dashboard_service(
-        self, config: UIFactoryConfig, logger: Any, core_components: Any
+        self,
+        config: UIFactoryConfig | None = None,
+        logger: Any | None = None,
+        core_components: Any | None = None,
     ) -> DashboardServiceInterface:
         """Dashboard Service példány lekérdezése.
 
         Args:
-            config: A UI factory konfiguráció
-            logger: A logger példány
-            core_components: A core komponensek
+            config: A UI factory konfiguráció (opcionális, fallback: self._config)
+            logger: A logger példány (opcionális, fallback: self._logger)
+            core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
             DashboardServiceInterface: A Dashboard Service példány
@@ -118,25 +134,38 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
+        # Használjuk a tárolt értékeket ha nem adtak paramétert
+        final_config = config if config is not None else self._config
+        final_logger = logger if logger is not None else self._logger
+        final_components = core_components if core_components is not None else self._core_components
+
+        if final_config is None or final_logger is None or final_components is None:
+            raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
+
         # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        dash_config = cast(dict[str, Any], config.get("dashboard", {}))
+        dash_config = cast(dict[str, Any], final_config.get("dashboard", {}))
 
         if "dashboard" not in self._services:
             from neural_ai.ui.services.dashboard_service import DashboardService
 
-            self._services["dashboard"] = DashboardService(logger, dash_config, core_components)
+            self._services["dashboard"] = DashboardService(
+                final_logger, dash_config, final_components
+            )
 
         return self._services["dashboard"]
 
     def get_data_service(
-        self, config: UIFactoryConfig, logger: Any, core_components: Any
+        self,
+        config: UIFactoryConfig | None = None,
+        logger: Any | None = None,
+        core_components: Any | None = None,
     ) -> DataServiceInterface:
         """Data Service példány lekérdezése.
 
         Args:
-            config: A UI factory konfiguráció
-            logger: A logger példány
-            core_components: A core komponensek
+            config: A UI factory konfiguráció (opcionális, fallback: self._config)
+            logger: A logger példány (opcionális, fallback: self._logger)
+            core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
             DataServiceInterface: A Data Service példány
@@ -144,25 +173,36 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
+        # Használjuk a tárolt értékeket ha nem adtak paramétert
+        final_config = config if config is not None else self._config
+        final_logger = logger if logger is not None else self._logger
+        final_components = core_components if core_components is not None else self._core_components
+
+        if final_config is None or final_logger is None or final_components is None:
+            raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
+
         # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        data_config = cast(DataServiceConfig, config.get("data_service", {}))
+        data_config = cast(DataServiceConfig, final_config.get("data_service", {}))
 
         if "data" not in self._services:
             from neural_ai.ui.services.data_service import DataService
 
-            self._services["data"] = DataService(logger, data_config, core_components)
+            self._services["data"] = DataService(final_logger, data_config, final_components)
 
         return self._services["data"]
 
     def get_ai_service(
-        self, config: UIFactoryConfig, logger: Any, core_components: Any
+        self,
+        config: UIFactoryConfig | None = None,
+        logger: Any | None = None,
+        core_components: Any | None = None,
     ) -> AIServiceInterface:
         """AI Service példány lekérdezése.
 
         Args:
-            config: A UI factory konfiguráció
-            logger: A logger példány
-            core_components: A core komponensek
+            config: A UI factory konfiguráció (opcionális, fallback: self._config)
+            logger: A logger példány (opcionális, fallback: self._logger)
+            core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
             AIServiceInterface: Az AI Service példány
@@ -170,25 +210,36 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
+        # Használjuk a tárolt értékeket ha nem adtak paramétert
+        final_config = config if config is not None else self._config
+        final_logger = logger if logger is not None else self._logger
+        final_components = core_components if core_components is not None else self._core_components
+
+        if final_config is None or final_logger is None or final_components is None:
+            raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
+
         # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        ai_config = cast(dict[str, Any], config.get("ai_service", {}))
+        ai_config = cast(dict[str, Any], final_config.get("ai_service", {}))
 
         if "ai" not in self._services:
             from neural_ai.ui.services.ai_service import AIService
 
-            self._services["ai"] = AIService(logger, ai_config, core_components)
+            self._services["ai"] = AIService(final_logger, ai_config, final_components)
 
         return self._services["ai"]
 
     def get_strategy_service(
-        self, config: UIFactoryConfig, logger: Any, core_components: Any
+        self,
+        config: UIFactoryConfig | None = None,
+        logger: Any | None = None,
+        core_components: Any | None = None,
     ) -> StrategyServiceInterface:
         """Strategy Service példány lekérdezése.
 
         Args:
-            config: A UI factory konfiguráció
-            logger: A logger példány
-            core_components: A core komponensek
+            config: A UI factory konfiguráció (opcionális, fallback: self._config)
+            logger: A logger példány (opcionális, fallback: self._logger)
+            core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
             StrategyServiceInterface: A Strategy Service példány
@@ -196,25 +247,38 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
+        # Használjuk a tárolt értékeket ha nem adtak paramétert
+        final_config = config if config is not None else self._config
+        final_logger = logger if logger is not None else self._logger
+        final_components = core_components if core_components is not None else self._core_components
+
+        if final_config is None or final_logger is None or final_components is None:
+            raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
+
         # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        strategy_config = cast(dict[str, Any], config.get("strategy", {}))
+        strategy_config = cast(dict[str, Any], final_config.get("strategy", {}))
 
         if "strategy" not in self._services:
             from neural_ai.ui.services.strategy_service import StrategyService
 
-            self._services["strategy"] = StrategyService(logger, strategy_config, core_components)
+            self._services["strategy"] = StrategyService(
+                final_logger, strategy_config, final_components
+            )
 
         return self._services["strategy"]
 
     def get_live_ops_service(
-        self, config: UIFactoryConfig, logger: Any, core_components: Any
+        self,
+        config: UIFactoryConfig | None = None,
+        logger: Any | None = None,
+        core_components: Any | None = None,
     ) -> LiveOpsServiceInterface:
         """Live Ops Service példány lekérdezése.
 
         Args:
-            config: A UI factory konfiguráció
-            logger: A logger példány
-            core_components: A core komponensek
+            config: A UI factory konfiguráció (opcionális, fallback: self._config)
+            logger: A logger példány (opcionális, fallback: self._logger)
+            core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
             LiveOpsServiceInterface: A Live Ops Service példány
@@ -222,25 +286,38 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if not self._initialized or self._bridge is None:
             raise RuntimeError("Factory nincs inicializálva")
 
+        # Használjuk a tárolt értékeket ha nem adtak paramétert
+        final_config = config if config is not None else self._config
+        final_logger = logger if logger is not None else self._logger
+        final_components = core_components if core_components is not None else self._core_components
+
+        if final_config is None or final_logger is None or final_components is None:
+            raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
+
         # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        live_ops_config = cast(dict[str, Any], config.get("live_ops", {}))
+        live_ops_config = cast(dict[str, Any], final_config.get("live_ops", {}))
 
         if "live_ops" not in self._services:
             from neural_ai.ui.services.live_ops_service import LiveOpsService
 
-            self._services["live_ops"] = LiveOpsService(logger, live_ops_config, core_components)
+            self._services["live_ops"] = LiveOpsService(
+                final_logger, live_ops_config, final_components
+            )
 
         return self._services["live_ops"]
 
     def get_all_services(
-        self, config: UIFactoryConfig, logger: Any, core_components: Any
+        self,
+        config: UIFactoryConfig | None = None,
+        logger: Any | None = None,
+        core_components: Any | None = None,
     ) -> dict[str, Any]:
         """Az összes szolgáltatás lekérdezése.
 
         Args:
-            config: A UI factory konfiguráció
-            logger: A logger példány
-            core_components: A core komponensek
+            config: A UI factory konfiguráció (opcionális, fallback: self._config)
+            logger: A logger példány (opcionális, fallback: self._logger)
+            core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
             Dict[str, Any]: Az összes szolgáltatás példány
@@ -249,12 +326,13 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva")
 
         # Biztosítjuk, hogy minden szolgáltatás létrejöjjön
-        _ = self.get_navigation_service(config, logger, core_components)
-        _ = self.get_dashboard_service(config, logger, core_components)
-        _ = self.get_data_service(config, logger, core_components)
-        _ = self.get_ai_service(config, logger, core_components)
-        _ = self.get_strategy_service(config, logger, core_components)
-        _ = self.get_live_ops_service(config, logger, core_components)
+        # (Paraméterek nélkül hívjuk, mert a metódusok használják a tárolt értékeket)
+        _ = self.get_navigation_service()
+        _ = self.get_dashboard_service()
+        _ = self.get_data_service()
+        _ = self.get_ai_service()
+        _ = self.get_strategy_service()
+        _ = self.get_live_ops_service()
 
         return self._services.copy()
 
