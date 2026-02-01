@@ -4,6 +4,7 @@ Ez a modul implementálja a dashboard szolgáltatást, amely
 a fő irányítópult adatait és állapotát kezeli.
 """
 
+import asyncio
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
@@ -79,8 +80,10 @@ class DashboardService(DashboardServiceInterface):
         if not self._core_components.core or not self._core_components.core.health_monitor:
             return {"system": "UNKNOWN"}
 
-        # Valós lekérdezés a HealthMonitor-ból
-        health: SystemHealth = self._core_components.core.health_monitor.check_health()
+        # Valós lekérdezés a HealthMonitor-ból (async metódus, szinkron futtatás)
+        health: SystemHealth = asyncio.run(
+            self._core_components.core.health_monitor.check_health()
+        )
 
         # Mapping (ComponentHealth -> UI String)
         status_map: dict[str, str] = {}
