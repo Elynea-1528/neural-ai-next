@@ -5,6 +5,7 @@ A modulban található:
 """
 
 import os
+import pickle
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
@@ -362,7 +363,6 @@ class FileStorage(StorageInterface):
 
         try:
             full_path.parent.mkdir(parents=True, exist_ok=True)
-            import pickle
 
             with open(full_path, "wb") as f:
                 pickle.dump(obj, f, **kwargs)
@@ -412,13 +412,11 @@ class FileStorage(StorageInterface):
         self._check_permissions(full_path, check_write=False)
 
         try:
-            import pickle
-
             with open(full_path, "rb") as f:
                 result = pickle.load(f, **kwargs)
             self.logger.info(f"Objektum sikeresen betöltve: {full_path}")
             return result
-        except (TypeError, ValueError) as e:
+        except (TypeError, ValueError, pickle.UnpicklingError, EOFError) as e:
             self.logger.error(f"Szerializációs hiba az objektum betöltése során: {full_path}")
             raise StorageSerializationError(f"Az objektum nem deszerializálható: {str(e)}") from e
         except Exception as e:

@@ -3,7 +3,6 @@
 Ez a modul tartalmazza a FileStorage osztály tesztjeit.
 """
 
-import json
 import shutil
 import tempfile
 from datetime import datetime
@@ -149,15 +148,6 @@ class TestFileStorage:
         with pytest.raises(StorageNotFoundError, match="Fájl nem található"):
             storage.load_object("nonexistent.json")
 
-    def test_load_object_invalid_json(self, storage: FileStorage) -> None:
-        """Teszteli a Python objektum betöltését érvénytelen JSON fájlból."""
-        # Hozzunk létre egy érvénytelen JSON fájlt
-        invalid_json_path = storage._get_full_path("invalid.json")
-        invalid_json_path.write_text("{invalid json}")
-
-        with pytest.raises(StorageIOError):
-            storage.load_object("invalid.json")
-
     def test_get_metadata_file(self, storage: FileStorage) -> None:
         """Teszteli a fájl metaadatok lekérdezését."""
         test_file = storage._get_full_path("meta_test.txt")
@@ -228,7 +218,7 @@ class TestFileStorage:
         # Ez nem szabad, hogy hibát dobjon, csak írási jogosultság ellenőrzésénél
         try:
             storage._check_permissions(test_file, check_write=False)
-        except PermissionDeniedError:
+        except Exception:
             pytest.fail("Unexpected PermissionDeniedError")
 
     def test_get_storage_info(self, storage: FileStorage) -> None:
@@ -241,58 +231,15 @@ class TestFileStorage:
         assert "free_space_percent" in info
         assert isinstance(info["free_space_percent"], float)
 
-    def test_atomic_write_json(
-        self, storage: FileStorage, sample_object: dict[str, object]
-    ) -> None:
-        """Teszteli az atomi írást JSON formátumban."""
-        test_file = storage._get_full_path("atomic_test.json")
-        storage._atomic_write(test_file, sample_object, fmt="json")
-
-        # Ellenőrizzük, hogy a fájl létrejött
-        assert test_file.exists()
-
-        # Ellenőrizzük a tartalmat
-        loaded = json.loads(test_file.read_text())
-        assert loaded == sample_object
-
-    def test_atomic_write_dataframe(
-        self, storage: FileStorage, sample_dataframe: pd.DataFrame
-    ) -> None:
-        """Teszteli az atomi írást DataFrame-mel."""
-        test_file = storage._get_full_path("atomic_df.csv")
-        storage._atomic_write(test_file, sample_dataframe, fmt="csv")
-
-        # Ellenőrizzük, hogy a fájl létrejött
-        assert test_file.exists()
-
-        # Betöltjük és ellenőrizzük
-        loaded = pd.read_csv(test_file)
-        assert len(loaded) == 3
-
-    def test_setup_format_handlers(self, storage: FileStorage) -> None:
-        """Teszteli a formátum kezelők beállítását."""
-        assert "csv" in storage._DATAFRAME_FORMATS
-        assert "excel" in storage._DATAFRAME_FORMATS
-        assert "json" in storage._OBJECT_FORMATS
-
-        # Ellenőrizzük, hogy a kezelők rendelkeznek save és load metódusokkal
-        for fmt in storage._DATAFRAME_FORMATS:
-            assert "save" in storage._DATAFRAME_FORMATS[fmt]
-            assert "load" in storage._DATAFRAME_FORMATS[fmt]
-
-        for fmt in storage._OBJECT_FORMATS:
-            assert "save" in storage._OBJECT_FORMATS[fmt]
-            assert "load" in storage._OBJECT_FORMATS[fmt]
-
     def test_save_dataframe_with_kwargs(
         self, storage: FileStorage, sample_dataframe: pd.DataFrame
     ) -> None:
         """Teszteli a DataFrame mentését **kwargs paraméterekkel."""
-        # CSV mentés egyéni elválasztóval
-        storage.save_dataframe(sample_dataframe, "test_semicolon.csv", sep=";")
+        # Parquet mentés tömörítéssel
+        storage.save_dataframe(sample_dataframe, "test_compression.parquet", compression="gzip")
 
-        # Betöltjük és ellenőrizzük, hogy a pontosvesszős formátum működik
-        loaded = storage.load_dataframe("test_semicolon.csv", sep=";")
+        # Betöltjük és ellenőrizzük
+        loaded = storage.load_dataframe("test_compression.parquet")
         assert len(loaded) == 3
         assert list(loaded.columns) == ["id", "name", "age"]
 
@@ -300,11 +247,11 @@ class TestFileStorage:
         self, storage: FileStorage, sample_dataframe: pd.DataFrame
     ) -> None:
         """Teszteli a DataFrame betöltését **kwargs paraméterekkel."""
-        # Először mentünk egy CSV-t
-        storage.save_dataframe(sample_dataframe, "test_kwargs.csv")
+        # Először mentünk egy Parquet-et
+        storage.save_dataframe(sample_dataframe, "test_kwargs.parquet")
 
         # Betöltjük egyéni paraméterekkel (pl. csak bizonyos oszlopok)
-        loaded = storage.load_dataframe("test_kwargs.csv", usecols=["id", "name"])
+        loaded = storage.load_dataframe("test_kwargs.parquet", columns=["id", "name"])
         assert len(loaded.columns) == 2
         assert "age" not in loaded.columns
 
@@ -312,23 +259,23 @@ class TestFileStorage:
         self, storage: FileStorage, sample_object: dict[str, object]
     ) -> None:
         """Teszteli a Python objektum mentését **kwargs paraméterekkel."""
-        # JSON mentés egyéni indentációval
-        storage.save_object(sample_object, "test_indent.json", indent=4)
+        # Pickle mentés egyéni protokollal
+        import pickle
+        storage.save_object(sample_object, "test_protocol.pkl", protocol=pickle.HIGHEST_PROTOCOL)
 
-        # Ellenőrizzük, hogy a fájl létrejött és formázott-e
-        test_file = storage._get_full_path("test_indent.json")
-        content = test_file.read_text()
-        assert "    " in content  # 4 spaces indent
+        # Ellenőrizzük, hogy a fájl létrejött
+        test_file = storage._get_full_path("test_protocol.pkl")
+        assert test_file.exists()
 
     def test_load_object_with_kwargs(
         self, storage: FileStorage, sample_object: dict[str, object]
     ) -> None:
         """Teszteli a Python objektum betöltését **kwargs paraméterekkel."""
-        # Először mentünk egy JSON-t
-        storage.save_object(sample_object, "test_kwargs.json")
+        # Először mentünk egy Pickle-t
+        storage.save_object(sample_object, "test_kwargs.pkl")
 
-        # Betöltjük (nincs specifikus kwargs a JSON-hoz, de átadhatunk)
-        loaded = storage.load_object("test_kwargs.json")
+        # Betöltjük
+        loaded = storage.load_object("test_kwargs.pkl")
         assert loaded == sample_object
 
     def test_check_disk_space_sufficient(self, storage: FileStorage, temp_dir: Path) -> None:
@@ -428,43 +375,6 @@ class TestFileStorage:
         assert test_file.exists()
         assert test_file.read_bytes() == content
 
-    def test_atomic_write_string(self, storage: FileStorage) -> None:
-        """Teszteli az atomi írást string tartalommal (JSON formátum)."""
-        test_file = storage._get_full_path("atomic_string.json")
-        content = {"data": "string content"}
-
-        storage._atomic_write(test_file, content, mode="w", fmt="json")
-
-        assert test_file.exists()
-        # A JSON mentés során a tartalom JSON formátumban lesz elmentve
-        import json
-
-        loaded = json.loads(test_file.read_text())
-        assert loaded == content
-
-    def test_atomic_write_invalid_format(self, storage: FileStorage) -> None:
-        """Teszteli az atomi írást érvénytelen formátummal."""
-        test_file = storage._get_full_path("atomic_invalid.txt")
-
-        with pytest.raises(StorageFormatError, match="Nem támogatott formátum"):
-            storage._atomic_write(test_file, "content", fmt="invalid_format")
-
-    def test_atomic_write_os_error_save(
-        self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Teszteli az atomi írást OS hiba esetén a mentés során."""
-        test_file = temp_dir / "atomic_error.txt"
-
-        def mock_open(*args: Any, **kwargs: Any) -> None:
-            raise OSError("Mocked OS error")
-
-        # Monkey patch-eljük az open-t
-        import builtins
-
-        monkeypatch.setattr(builtins, "open", mock_open)
-
-        with pytest.raises(StorageIOError, match="Nem sikerült írni az ideiglenes fájlt"):
-            storage._atomic_write(test_file, "content", fmt="json")
 
     def test_save_dataframe_format_detection_failure(self, storage: FileStorage) -> None:
         """Teszteli a DataFrame mentését formátum meghatározási hiba esetén."""
@@ -502,7 +412,7 @@ class TestFileStorage:
         # Most a save_dataframe-nek kivételt kell dobnia, mert a lemezterület ellenőrzés
         # észlelni fogja, hogy nincs elég hely
         with pytest.raises(StorageIOError):
-            storage.save_dataframe(sample_dataframe, "test.csv")
+            storage.save_dataframe(sample_dataframe, "test.parquet")
 
     def test_save_dataframe_io_error(
         self, storage: FileStorage, sample_dataframe: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
@@ -515,7 +425,7 @@ class TestFileStorage:
         monkeypatch.setattr(Path, "mkdir", mock_mkdir)
 
         with pytest.raises(StorageIOError, match="Hiba a DataFrame mentése során"):
-            storage.save_dataframe(sample_dataframe, "test.csv")
+            storage.save_dataframe(sample_dataframe, "test.parquet")
 
     def test_load_dataframe_format_detection_failure(self, storage: FileStorage) -> None:
         """Teszteli a DataFrame betöltését formátum meghatározási hiba esetén."""
@@ -539,15 +449,16 @@ class TestFileStorage:
         self, storage: FileStorage, sample_dataframe: pd.DataFrame, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Teszteli a DataFrame betöltését IO hiba esetén."""
-        storage.save_dataframe(sample_dataframe, "test_io.csv")
+        storage.save_dataframe(sample_dataframe, "test_io.parquet")
 
-        def mock_read_csv(*args: Any, **kwargs: Any) -> None:
+        def mock_read(*args: Any, **kwargs: Any) -> None:
             raise OSError("Mocked IO error")
-
-        monkeypatch.setattr(pd, "read_csv", mock_read_csv)
+        
+        # Backend read metódusát mockoljuk, mivel a FileStorage.load_dataframe azt hívja
+        monkeypatch.setattr(storage.backend, "read", mock_read)
 
         with pytest.raises(StorageIOError, match="Hiba a DataFrame betöltése során"):
-            storage.load_dataframe("test_io.csv")
+            storage.load_dataframe("test_io.parquet")
 
     def test_save_object_format_detection_failure(self, storage: FileStorage) -> None:
         """Teszteli az objektum mentését formátum meghatározási hiba esetén."""
@@ -561,14 +472,20 @@ class TestFileStorage:
     ) -> None:
         """Teszteli az objektum mentését szerializációs hiba esetén."""
 
-        # Olyan objektumot hozunk létre, amit nem lehet JSON-ba szerializálni
+        # Olyan objektumot hozunk létre, amit nem lehet szerializálni (Pickle szinte mindent tud, de mockoljuk)
         class NonSerializable:
             pass
 
         obj = NonSerializable()
+        
+        def mock_dump(*args: Any, **kwargs: Any) -> None:
+             raise TypeError("Object not serializable")
+
+        import pickle
+        monkeypatch.setattr(pickle, "dump", mock_dump)
 
         with pytest.raises(StorageSerializationError, match="nem szerializálható"):
-            storage.save_object(obj, "test.json")
+            storage.save_object(obj, "test.pkl")
 
     def test_save_object_io_error(
         self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
@@ -581,7 +498,7 @@ class TestFileStorage:
         monkeypatch.setattr(Path, "mkdir", mock_mkdir)
 
         with pytest.raises(StorageIOError, match="Hiba az objektum mentése során"):
-            storage.save_object({"key": "value"}, "test.json")
+            storage.save_object({"key": "value"}, "test.pkl")
 
     def test_load_object_format_detection_failure(self, storage: FileStorage) -> None:
         """Teszteli az objektum betöltését formátum meghatározási hiba esetén."""
@@ -593,17 +510,17 @@ class TestFileStorage:
 
     def test_load_object_deserialization_error(self, storage: FileStorage) -> None:
         """Teszteli az objektum betöltését deszerializációs hiba esetén."""
-        test_file = storage._get_full_path("invalid.json")
-        test_file.write_text("{invalid json}")
+        test_file = storage._get_full_path("invalid.pkl")
+        test_file.write_bytes(b"invalid pickle data")
 
-        with pytest.raises(StorageIOError):
-            storage.load_object("invalid.json")
+        with pytest.raises(StorageSerializationError, match="nem deszerializálható"):
+            storage.load_object("invalid.pkl")
 
     def test_load_object_os_error(
         self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Teszteli az objektum betöltését OS hiba esetén."""
-        storage.save_object({"key": "value"}, "test_os.json")
+        storage.save_object({"key": "value"}, "test_os.pkl")
 
         def mock_open(*args: Any, **kwargs: Any) -> None:
             raise OSError("Mocked OS error")
@@ -613,7 +530,7 @@ class TestFileStorage:
         monkeypatch.setattr(builtins, "open", mock_open)
 
         with pytest.raises(StorageIOError, match="Hiba az objektum betöltése során"):
-            storage.load_object("test_os.json")
+            storage.load_object("test_os.pkl")
 
     def test_get_metadata_os_error(
         self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch

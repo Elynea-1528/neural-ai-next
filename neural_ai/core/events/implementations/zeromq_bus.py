@@ -322,7 +322,12 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         subscriber.connect(sub_url)
 
         # Feliratkozás az összes témakörre
-        subscriber.setsockopt(self._zmq.SUBSCRIBE, b"")
+        try:
+            subscriber.setsockopt(self._zmq.SUBSCRIBE, b"")
+        except Exception as e:
+             self._logger.error("Hiba a feliratkozáskor", error=str(e), exc_info=True)
+             subscriber.close()
+             raise
 
         self._logger.info("Subscriber csatlakozva", sub_url=sub_url)
 
