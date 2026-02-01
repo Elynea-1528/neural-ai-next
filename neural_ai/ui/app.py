@@ -46,8 +46,12 @@ class UIApplication:
             bool: True, ha sikeres az inicializálás
         """
         try:
-            if self._logger:
-                self._logger.info("UI alkalmazás inicializálása...")
+            # Logger létrehozása ha nincs
+            if self._logger is None:
+                from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
+                self._logger = LoggerFactory.get_logger(__name__)
+
+            self._logger.info("UI alkalmazás inicializálása...")
 
             # Core Bridge létrehozása és inicializálása
             self._bridge = CoreBridge()
