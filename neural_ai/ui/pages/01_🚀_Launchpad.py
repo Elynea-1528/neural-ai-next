@@ -162,7 +162,7 @@ class LaunchpadPage(PageInterface):
 
 # Indító blokk az oldal aktiválásához
 if __name__ == "__main__":
-    from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
+    from neural_ai.core.logger.factory import LoggerFactory
     from neural_ai.ui.core_bridge import CoreBridge
 
     # Logger létrehozása

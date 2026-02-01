@@ -48,7 +48,7 @@ class UIApplication:
         try:
             # Logger létrehozása ha nincs
             if self._logger is None:
-                from neural_ai.core.logger.implementations.logger_factory import LoggerFactory
+                from neural_ai.core.logger.factory import LoggerFactory
                 self._logger = LoggerFactory.get_logger(__name__)
 
             self._logger.info("UI alkalmazás inicializálása...")
