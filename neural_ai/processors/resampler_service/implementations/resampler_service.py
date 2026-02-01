@@ -8,7 +8,6 @@ import polars as pl
 if TYPE_CHECKING:
     import pandas as pd
 
-from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.processors.resampler_service.exceptions.resampler_error import (
     DataLoadError,
     InvalidTimeframeError,
@@ -30,14 +29,19 @@ class ResamplerService(ResamplerInterface):
     gyertyákká a megadott időkeretben. A hatékonyság érdekében Polars-t használ.
     """
 
-    def __init__(self, storage: "StorageInterface") -> None:
+    def __init__(
+        self,
+        storage: "StorageInterface",
+        logger: "LoggerInterface",
+    ) -> None:
         """ResamplerService inicializálása.
 
         Args:
             storage: A tárolási interfész példány (Dependency Injection)
+            logger: A naplózási interfész (Dependency Injection)
         """
         self._storage = storage
-        self._logger: LoggerInterface = LoggerFactory.get_logger(__name__)
+        self._logger = logger
 
     async def resample(
         self,
