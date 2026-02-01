@@ -57,9 +57,6 @@ class JForexFactory:
         Returns:
             JForex letöltő példány, ami megvalósítja az IJForexDownloader-t
         """
-        from neural_ai.core.logger.factory import LoggerFactory
-
-        logger = LoggerFactory.get_logger(__name__)
         # Import here to avoid circular dependencies
         import aiohttp
 
@@ -124,9 +121,6 @@ class JForexFactory:
         Returns:
             JForex live feed példány, ami megvalósítja az ILiveFeed-et
         """
-        from neural_ai.core.logger.factory import LoggerFactory
-
-        logger = LoggerFactory.get_logger(__name__)
         # Import here to avoid circular dependencies
         from neural_ai.collectors.jforex.implementations.live_feed import JForexLiveFeed
 
