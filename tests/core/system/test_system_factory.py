@@ -4,6 +4,7 @@ Ez a modul a SystemComponentFactory osztályt teszteli, amely felelős
 a rendszer komponensek (pl. HealthMonitor) létrehozásáért és kezeléséért.
 """
 
+import asyncio
 import unittest
 from unittest.mock import MagicMock
 
@@ -70,7 +71,7 @@ class TestSystemComponentFactory(unittest.TestCase):
         self.assertEqual(check.get_name(), "test_component")
 
         # Teszteljük az ellenőrzés végrehajtását
-        health = check.check()
+        health = asyncio.run(check.check())
         self.assertIsInstance(health, ComponentHealth)
         self.assertEqual(health.status, ComponentStatus.HEALTHY)
 
@@ -223,12 +224,12 @@ class TestSystemComponentFactory(unittest.TestCase):
         self.assertIn("storage", components)
 
         # Ellenőrizzük az egészségügyi állapotot
-        health = monitor.check_health()
+        health = asyncio.run(monitor.check_health())
         self.assertIsInstance(health.overall_status, HealthStatus)
         self.assertEqual(len(health.components), 2)
 
         # Ellenőrizzük az egyes komponenseket
-        db_health = monitor.check_component("database")
+        db_health = asyncio.run(monitor.check_component("database"))
         self.assertIsInstance(db_health, ComponentHealth)
         self.assertEqual(db_health.status, ComponentStatus.HEALTHY)
 
@@ -239,7 +240,7 @@ class TestSystemComponentFactory(unittest.TestCase):
             monitor_name="metrics_test", component_name="test_component"
         )
 
-        health = monitor.check_health()
+        health = asyncio.run(monitor.check_health())
 
         # Ellenőrizzük, hogy vannak-e rendszer metrikák
         self.assertIsNotNone(health.system_metrics)
