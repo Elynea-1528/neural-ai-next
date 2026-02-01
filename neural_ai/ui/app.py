@@ -4,10 +4,10 @@ Ez a modul implementálja a UI alkalmazás fő belépési pontját,
 amely összekapcsolja az összes UI komponenst.
 """
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from neural_ai.ui.core_bridge import CoreBridge
-from neural_ai.ui.factory import UIServiceFactory
+from neural_ai.ui.factory import UIFactoryConfig, UIServiceFactory
 
 if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
@@ -35,6 +35,7 @@ class UIApplication:
         self._bridge: CoreBridge | None = None
         self._factory: UIServiceFactory | None = None
         self._navigation: NavigationServiceInterface | None = None
+        self._core_components: Any = None
         self._running: bool = False
         self._init_error: Exception | None = None
 
@@ -52,11 +53,22 @@ class UIApplication:
             self._bridge = CoreBridge()
             self._bridge.initialize()
 
+            # Core components wrapper (a bridge tartalmazza a core komponenseket)
+            self._core_components = self._bridge
+
+            # UI config létrehozása TypedDict szerint
+            ui_config = cast(UIFactoryConfig, self._config.get("ui", {}))
+
             # UI Service Factory létrehozása és inicializálása
             self._factory = UIServiceFactory()
-            self._factory.initialize(self._bridge)
+            self._factory.initialize(
+                bridge=self._bridge,
+                config=ui_config,
+                logger=self._logger,
+                core_components=self._core_components,
+            )
 
-            # Navigation Service lekérése
+            # Navigation Service lekérése (paraméterek nélkül - factory használja a tárolt értékeket)
             self._navigation = self._factory.get_navigation_service()
 
             if self._logger:
