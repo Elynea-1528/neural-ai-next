@@ -677,8 +677,16 @@ class StrategyLabPage(PageInterface):
                         # Config állapot megjelenítése debug célból
                         config = self._bridge.get_component("config")
                         if config is not None:
-                            d2_config = config.get("processors", {}).get("d02", {})
-                            st.info(f"✓ D2 Config betöltve: {list(d2_config.keys())}")
+                            # ConfigManager.get() *keys: str paramétereket vár, nem dict objektumot
+                            d2_config = config.get("processors", "d02")
+                            if d2_config is None:
+                                d2_config = {}
+                                st.warning("⚠️ D2 Config nem található, üres config használata")
+                            elif isinstance(d2_config, dict):
+                                st.info(f"✓ D2 Config betöltve: {list(d2_config.keys())}")
+                            else:
+                                st.error(f"❌ D2 Config helytelen típus: {type(d2_config).__name__}")
+                                d2_config = {}
                         
                         # DataFrame ellenőrzés
                         st.info(f"📊 Candles DataFrame: {result.height} sor, {result.width} oszlop")
@@ -693,6 +701,14 @@ class StrategyLabPage(PageInterface):
                         st.success(f"✓ D2 elemzés kész: {d2_result.height} sor")
                     except Exception as e:
                         st.error(f"❌ Kritikus hiba a D2 elemzés során: {str(e)}")
+                        # Logolás a háttérrendszerbe is
+                        logger = self._bridge.get_component("logger")
+                        if logger:
+                            logger.error(
+                                "D2 elemzés kritikus hiba",
+                                extra={"error": str(e), "page": "StrategyLab", "symbol": symbol},
+                            )
+                        
                         with st.expander("⚠️ D2 Elemzés Hiba Részletek", expanded=True):
                             import traceback
 
@@ -700,8 +716,12 @@ class StrategyLabPage(PageInterface):
                         st.session_state.d2_analysis = None
 
                     st.success(f"Sikeres betöltés: {symbol} - {date_str}")
-                    # Oldal újrarajzolása a friss adatokkal
-                    st.rerun()
+                    
+                    # Local változó frissítése, hogy ne kelljen rerun
+                    self._candles = result
+                    
+                    # Rerun eltávolítva, hogy a hibaüzenetek láthatók maradjanak
+                    # st.rerun()
                 else:
                     st.error("Strategy Service nem elérhető.")
             except Exception as e:
