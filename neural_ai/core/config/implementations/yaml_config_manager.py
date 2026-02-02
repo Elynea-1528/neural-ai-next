@@ -125,7 +125,23 @@ class YAMLConfigManager(ConfigManagerInterface):
 
         Returns:
             A konfigurációs érték vagy az alapértelmezett érték
+            
+        Raises:
+            TypeError: Ha bármelyik kulcs nem string típusú
         """
+        # Típus validálás - védelem a helytelen használat ellen
+        for i, key in enumerate(keys):
+            if not isinstance(key, str):
+                error_msg = (
+                    f"ConfigManager.get() csak string kulcsokat fogad el. "
+                    f"Hibás kulcs index {i}: {type(key).__name__} = {key!r}\n"
+                    f"Helyes használat: config.get('processors', 'd02')\n"
+                    f"Helytelen: config.get('processors', {{}}).get('d02', {{}})"
+                )
+                if self._logger:
+                    self._logger.error(error_msg)
+                raise TypeError(error_msg)
+        
         current: dict[str, Any] | Any = self._config
         for key in keys:
             if not isinstance(current, dict):
