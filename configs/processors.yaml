@@ -27,6 +27,7 @@ processors:
   # D2 - Support/Resistance
   d02:
     swing_window: 5
+    min_candles: 5  # HOZZÁADVA: kötelező paraméter a swing detection-höz
     min_distance: 10
     use_close_open: true
     use_high_low: true

@@ -678,7 +678,11 @@ class StrategyLabPage(PageInterface):
                         config = self._bridge.get_component("config")
                         if config is not None:
                             d2_config = config.get("processors", {}).get("d02", {})
-                            st.info(f"Config loaded for D2: {list(d2_config.keys())}")
+                            st.info(f"✓ D2 Config betöltve: {list(d2_config.keys())}")
+                        
+                        # DataFrame ellenőrzés
+                        st.info(f"📊 Candles DataFrame: {result.height} sor, {result.width} oszlop")
+                        st.info(f"📋 Oszlopok: {result.columns}")
 
                         d2_result = asyncio.run(
                             strategy_service.analyze_market_structure(
@@ -686,10 +690,10 @@ class StrategyLabPage(PageInterface):
                             )
                         )
                         st.session_state.d2_analysis = d2_result
-                        print(f"DEBUG: D2 elemzés kész, sorok: {d2_result.height}")
+                        st.success(f"✓ D2 elemzés kész: {d2_result.height} sor")
                     except Exception as e:
-                        st.error(f"Kritikus hiba a D2 elemzés során: {str(e)}")
-                        with st.expander("⚠️ D2 Elemzés Hiba Részletek", expanded=False):
+                        st.error(f"❌ Kritikus hiba a D2 elemzés során: {str(e)}")
+                        with st.expander("⚠️ D2 Elemzés Hiba Részletek", expanded=True):
                             import traceback
 
                             st.code(traceback.format_exc())
