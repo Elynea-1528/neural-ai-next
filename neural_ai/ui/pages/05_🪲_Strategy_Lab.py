@@ -558,7 +558,7 @@ class StrategyLabPage(PageInterface):
                         ["swing_high_body", "swing_low_body", "swing_high_wick", "swing_low_wick"]
                     ].dropna(thresh=1)
                     st.write(f"Talált Swing Pontok száma: {len(debug_df)}")
-                    st.dataframe(debug_df.head(20), use_container_width=True)
+                    st.dataframe(debug_df.head(20), width="stretch")
                 else:
                     st.warning("Nincs D2 elemzési adat.")
         except Exception as e:
