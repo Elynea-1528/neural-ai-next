@@ -1,52 +1,51 @@
 # Processors Configuration
 # Configuration for dimension processors (D1-D15)
 
-processors:
-  # D1 - Alap adatok
-  d01:
-    required_timeframes: ["tick", "1m", "5m", "15m", "1h", "4h", "1d"]
-    z_score_window: 60
-    use_mid_price: true
-    calc_shadows: true
-    market_hours:
-      enabled: true
-      log_filtering: true
-      timezone: "UTC"
-      weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-      hours: ["00:00", "23:59"]
-    timeframe_configs:
-      tick:
-        z_score_window: 2000
-      1m:
-        z_score_window: 60
-      H1:
-        z_score_window: 24
-      D1:
-        z_score_window: 20
+# D1 - Alap adatok
+d01:
+  required_timeframes: ["tick", "1m", "5m", "15m", "1h", "4h", "1d"]
+  z_score_window: 60
+  use_mid_price: true
+  calc_shadows: true
+  market_hours:
+    enabled: true
+    log_filtering: true
+    timezone: "UTC"
+    weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    hours: ["00:00", "23:59"]
+  timeframe_configs:
+    tick:
+      z_score_window: 2000
+    1m:
+      z_score_window: 60
+    H1:
+      z_score_window: 24
+    D1:
+      z_score_window: 20
 
-  # D2 - Support/Resistance
-  d02:
-    swing_window: 5
-    min_candles: 5  # HOZZÁADVA: kötelező paraméter a swing detection-höz
-    min_distance: 10
-    use_close_open: true
-    use_high_low: true
-    primary_weight: 0.7
-    secondary_weight: 0.3
-    level_merge: 0.0005
-    min_touches: 2
-    volume_confirmation: true
-    strength_window: 100
-    market_hours:
-      enabled: true
-      log_filtering: true
-      timezone: "UTC"
-      weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-      hours: ["00:00", "23:59"]
-    timeframe_configs:
-      M1:
-        swing_window: 5
-      H1:
-        swing_window: 5
-      D1:
-        swing_window: 3
+# D2 - Support/Resistance
+d02:
+  swing_window: 5
+  min_candles: 5  # HOZZÁADVA: kötelező paraméter a swing detection-höz
+  min_distance: 10
+  use_close_open: true
+  use_high_low: true
+  primary_weight: 0.7
+  secondary_weight: 0.3
+  level_merge: 0.0005
+  min_touches: 2
+  volume_confirmation: true
+  strength_window: 100
+  market_hours:
+    enabled: true
+    log_filtering: true
+    timezone: "UTC"
+    weekdays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    hours: ["00:00", "23:59"]
+  timeframe_configs:
+    M1:
+      swing_window: 5
+    H1:
+      swing_window: 5
+    D1:
+      swing_window: 3
