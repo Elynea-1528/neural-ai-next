@@ -343,6 +343,36 @@ class D02SupportProcessor(BaseDimensionProcessor):
             swing_high_wick, swing_low_wick, nearest_resistance, nearest_support,
             resistance_strength, support_strength.
         """
+        # Oszlopnevek normalizálása: biztosítjuk, hogy legyen mid_open, mid_high, mid_low, mid_close
+        cols = df.columns
+        if "mid_close" not in cols:
+            if "bid_close" in cols:
+                self.logger.info("Mid oszlopok hiányoznak, Bid oszlopok másolása mid_ prefixszel")
+                df = df.with_columns(
+                    [
+                        pl.col("bid_open").alias("mid_open"),
+                        pl.col("bid_high").alias("mid_high"),
+                        pl.col("bid_low").alias("mid_low"),
+                        pl.col("bid_close").alias("mid_close"),
+                    ]
+                )
+            elif "close" in cols:
+                self.logger.info(
+                    "Mid oszlopok hiányoznak, sima OHLC oszlopok másolása mid_ prefixszel"
+                )
+                df = df.with_columns(
+                    [
+                        pl.col("open").alias("mid_open"),
+                        pl.col("high").alias("mid_high"),
+                        pl.col("low").alias("mid_low"),
+                        pl.col("close").alias("mid_close"),
+                    ]
+                )
+            else:
+                self.logger.error(f"Hiányzó OHLC oszlopok. Elérhető oszlopok: {cols}")
+                # Nem dobunk hibát azonnal, hagyjuk, hogy a Polars dobjon specifikusabb hibát később,
+                # vagy megpróbáljuk a meglévő oszlopokkal.
+
         # Market Hours szűrés és logolás
         market_hours_config = self.dim_config.get("market_hours", {})
         if market_hours_config.get("enabled", False):
