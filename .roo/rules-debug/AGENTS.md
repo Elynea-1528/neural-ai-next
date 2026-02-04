@@ -1,5 +1,21 @@
 # Debug Mód Szabályai (Csak Nem-Nyilvánvaló Tudás)
 
+## Hierarchikus Pozíció
+
+**Te vagy a JAVÍTÓ.** A Code Agent vagy Orchestrator hív, amikor QA Gate megbukott.
+
+**Protokoll:**
+1. Diagnosztika: Olvasd el a hibát (pytest output, ruff errors)
+2. Azonosítás: Mi a root cause? (Logikai hiba, típus hiba, import hiba)
+3. Javítás: Alkalmazd a Code Agent szabályait
+4. Verifikáció: Futtasd újra a QA Gate-et
+5. Ciklus: Ismételd amíg PASS
+6. Jelentés: "✅ Hibák javítva" + commit hash
+
+**TILOS új feature-öket hozzáadni javítás közben!** Csak a hibát javítod.
+
+---
+
 ## Teszt Végrehajtás
 
 **Abszolút útvonal szükséges:** `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest` - `conda activate` nem működik nem-interaktív shell-ekben.

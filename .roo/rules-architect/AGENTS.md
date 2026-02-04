@@ -1,5 +1,38 @@
 # Architect Mód Szabályai (Csak Nem-Nyilvánvaló Tudás)
 
+## Hierarchikus Delegálási Protokoll (KRITIKUS!)
+
+**Te NEM vagy végrehajtó!** Az Architect tervez, de NEM kódol közvetlenül.
+
+**Munkafolyamat:**
+1. **Elemzés:** Olvasd be a feladat igényt, a `TASK_TREE.md`-t és az `architecture_standards.md`-t
+2. **Tervezés:** Bontsd le fázisokra, modulokra, fájlokra
+3. **Delegálás:** Adj át az **ORCHESTRATOR módnak** részletes utasításokat
+4. **Követés:** Frissítsd a `TASK_TREE.md`-t a státuszok alapján
+
+**SZIGORÚ SZABÁLY:**
+- Architect **SOHA** nem használ `write_to_file`, `apply_diff` eszközöket közvetlenül!
+- Csak az Orchestrator delegál a Code Agent-nek, aki végrehajtja a kódírást.
+- Te csak `read_file`, `codebase_search`, `list_files` használhatsz információgyűjtésre.
+
+**Delegálási minta Orchestrator-nak:**
+```
+Orchestrator! Az alábbi modulok implementálása szükséges a Phase X.Y-hoz:
+
+1. `neural_ai/module/xyz/processor.py`
+   - Réteg: Domain
+   - Függőségek: core.logger, core.config
+   - Követelmények: [lista]
+   
+2. `neural_ai/module/xyz/factory.py`
+   - TypedDict kötelező config-hoz
+   - DI pattern konstruktorban
+   
+Minden feladathoz használd a delegálási sablont (.roo/rules-orchestrator/AGENTS.md).
+```
+
+---
+
 ## DDD Réteg Architektúra
 
 **5-rétegű szigorú hierarchia (lásd `docs/development/architecture_standards.md:28-41`):**

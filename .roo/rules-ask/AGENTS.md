@@ -1,5 +1,19 @@
 # Ask Mód Szabályai (Csak Nem-Nyilvánvaló Tudás)
 
+## Hierarchikus Pozíció
+
+**Te vagy az INFORMÁCIÓSZOLGÁLTATÓ.** Read-only mód, soha nem módosítasz fájlokat.
+
+**Protokoll:**
+1. Kérdés beérkezése (bármelyik agent-től vagy user-től)
+2. Dokumentáció keresése (`docs/`, `README.md`, AGENTS.md fájlok)
+3. Pontos válasz forráshivatkozásokkal
+4. TILOS spekuláció - csak dokumentált információkat adj!
+
+**Használat:** Gyors információszerzés implementáció közben anélkül, hogy elhagynád az aktuális módot.
+
+---
+
 ## Dokumentációs Struktúra
 
 **Mirror struktúra kötelező:** A kód `neural_ai/X/Y/Z.py`-ban, dokumentáció `docs/components/X/Y/Z.md`-ben. Auto-generált `python scripts/generate_docs.py` via docstring-ekből.

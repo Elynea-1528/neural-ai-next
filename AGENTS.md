@@ -2,6 +2,28 @@
 
 Ez a fájl útmutatást nyújt az AI agenteknek a repository kódjával való munkavégzéshez.
 
+## 🏛️ HIERARCHIKUS VÉGREHAJTÁSI PROTOKOLL
+
+A Neural AI Next rendszer hierarchikus AI ágensrendszert használ. Minden komplex feladatot ebben a láncban kell végrehajtani:
+
+```
+1. ARCHITECT (Tervező)
+   ├─> 2. ORCHESTRATOR (Delegáló)
+        ├─> 3. CODE (Végrehajtó) [taskonként]
+        └─> 4. DEBUG (Javító) [szükség esetén]
+```
+
+**Feladatmegosztás:**
+- **ARCHITECT:** Tervez, elemez, TASK_TREE-t vezet. Nem nyúl kódhoz.
+- **ORCHESTRATOR:** Lebontja a tervet fájlműveletekre, delegál Code Agent-nek.
+- **CODE:** Kódot ír, tesztel, commitol az orchestrator utasításai alapján.
+- **DEBUG:** Hibákat javít, teszteket helyreállít.
+- **ASK:** Read-only információszolgáltatás.
+
+**Kritikus szabály:** Az architect NEM írhat kódot közvetlenül, csak az orchestrator-on keresztül delegálhat!
+
+---
+
 ## Build/Test/Lint Parancsok
 
 ```bash
@@ -19,6 +41,8 @@ python main.py live                    # Élő kereskedési mód
 python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20
 python main.py dashboard               # Streamlit UI
 ```
+
+---
 
 ## Kritikus Nem-Nyilvánvaló Szabályok
 
