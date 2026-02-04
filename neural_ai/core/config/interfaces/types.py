@@ -1,227 +1,487 @@
-"""Konfigurációs típusdefiníciók TypedDict használatával.
+"""Konfigurációs típusdefiníciók Pydantic BaseModel használatával.
 
-Ez a modul definiálja a különböző konfigurációs szekciókhoz tartozó TypedDict osztályokat,
-amelyek biztosítják a típusbiztonságot és dokumentációt a konfigurációs adatok kezelésére.
+Ez a modul definiálja a különböző konfigurációs szekciókhoz tartozó Pydantic
+modelleket, amelyek biztosítják a típusbiztonságot, validációt és dokumentációt
+a konfigurációs adatok kezelésére.
 """
 
-from typing import Literal, TypedDict
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class PathsConfig(TypedDict, total=False):
+class PathsConfig(BaseModel):
     """Rendszer útvonalak konfigurációja."""
 
-    data: str
-    logs: str
-    models: str
-    cache: str
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    data: str | None = Field(None, min_length=1, description="Adat könyvtár útvonala")
+    logs: str | None = Field(None, min_length=1, description="Log könyvtár útvonala")
+    models: str | None = Field(None, min_length=1, description="Model könyvtár útvonala")
+    cache: str | None = Field(None, min_length=1, description="Cache könyvtár útvonala")
 
 
-class SystemConfig(TypedDict, total=False):
-    """Rendszer szintű konfiguráció."""
-
-    app_name: str
-    version: str
-    environment: Literal["development", "staging", "production"]
-    debug: bool
-    paths: PathsConfig
-
-
-class StoragePartitioningConfig(TypedDict, total=False):
+class StoragePartitioningConfig(BaseModel):
     """Tárolási particionálási konfiguráció."""
 
-
-class StorageConfig(TypedDict, total=False):
-    """Adattárolási konfiguráció."""
-
-    type: Literal["parquet", "csv", "json"]
-    base_path: str
-    compression: str
-    engine: str
-    partitioning: list[str]
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
 
 
-class TimeframeConfig(TypedDict, total=False):
+class TimeframeConfig(BaseModel):
     """Időkeret specifikus konfiguráció."""
 
-    z_score_window: int
-    swing_window: int
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    z_score_window: int | None = Field(None, ge=1, description="Z-score ablak méret")
+    swing_window: int | None = Field(None, ge=1, description="Swing ablak méret")
 
 
-class ProcessorConfig(TypedDict, total=False):
-    """Egyedi processzor konfiguráció."""
-
-    required_timeframes: list[str]
-    z_score_window: int
-    use_mid_price: bool
-    calc_shadows: bool
-    swing_window: int
-    min_distance: int
-    use_close_open: bool
-    use_high_low: bool
-    primary_weight: float
-    secondary_weight: float
-    level_merge: float
-    min_touches: int
-    volume_confirmation: bool
-    strength_window: int
-    timeframe_configs: dict[str, TimeframeConfig]
-
-
-class ProcessorsConfig(TypedDict, total=False):
-    """Processzorok konfigurációja."""
-
-    processors: dict[str, ProcessorConfig]
-
-
-class HandlerConfig(TypedDict, total=False):
+class HandlerConfig(BaseModel):
     """Log handler konfiguráció."""
 
-    enabled: bool
-    level: str
-    colored: bool
-    filename: str
-    json_format: bool
-    rotating: bool
-    max_bytes: int
-    backup_count: int
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    enabled: bool | None = Field(None, description="Handler engedélyezve")
+    level: str | None = Field(
+        None,
+        pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
+        description="Log szint"
+    )
+    colored: bool | None = Field(None, description="Színezett kimenet")
+    filename: str | None = Field(None, min_length=1, description="Log fájl neve")
+    json_format: bool | None = Field(None, description="JSON formátum használata")
+    rotating: bool | None = Field(None, description="Rotáló fájl használata")
+    max_bytes: int | None = Field(None, ge=1, description="Maximális fájlméret bájtban")
+    backup_count: int | None = Field(None, ge=0, description="Mentési példányok száma")
 
 
-class LoggerConfig(TypedDict, total=False):
+class LoggerConfig(BaseModel):
     """Egyedi logger konfiguráció."""
 
-    level: str
-    propagate: bool
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    level: str | None = Field(
+        None,
+        pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
+        description="Logger szintje"
+    )
+    propagate: bool | None = Field(None, description="Propagálás engedélyezése")
 
 
-class LoggingConfig(TypedDict, total=False):
-    """Naplózási konfiguráció."""
-
-    default_level: str
-    handlers: dict[str, HandlerConfig]
-    loggers: dict[str, LoggerConfig]
-
-
-class DatabaseConnectionConfig(TypedDict, total=False):
+class DatabaseConnectionConfig(BaseModel):
     """Adatbázis kapcsolat konfiguráció."""
 
-    url: str
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    url: str | None = Field(None, min_length=1, description="Adatbázis kapcsolati URL")
 
 
-class DatabasePoolConfig(TypedDict, total=False):
+class DatabasePoolConfig(BaseModel):
     """Adatbázis pool konfiguráció."""
 
-    size: int
-    recycle: int
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    size: int | None = Field(None, ge=1, description="Pool méret")
+    recycle: int | None = Field(None, ge=1, description="Újrahasznosítási idő másodpercben")
 
 
-class DatabaseConfig(TypedDict, total=False):
-    """Adatbázis konfiguráció."""
-
-    type: Literal["sqlite", "postgresql", "mysql"]
-    connection: DatabaseConnectionConfig
-    pool: DatabasePoolConfig
-
-
-class EventsConnectionConfig(TypedDict, total=False):
+class EventsConnectionConfig(BaseModel):
     """Esemény kapcsolat konfiguráció."""
 
-    protocol: str
-    host: str
-    pub_port: int
-    sub_port: int
-    use_inproc: bool
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    protocol: str | None = Field(None, min_length=1, description="Protokoll típusa")
+    host: str | None = Field(None, min_length=1, description="Host név vagy IP")
+    pub_port: int | None = Field(None, ge=1, le=65535, description="Publisher port")
+    sub_port: int | None = Field(None, ge=1, le=65535, description="Subscriber port")
+    use_inproc: bool | None = Field(None, description="In-process kommunikáció használata")
 
 
-class EventsConfig(TypedDict, total=False):
-    """Esemény rendszer konfiguráció."""
-
-    type: Literal["zeromq", "redis", "rabbitmq"]
-    connection: EventsConnectionConfig
-    socket_timeout: int
-
-
-class CollectorDownloadConfig(TypedDict, total=False):
+class CollectorDownloadConfig(BaseModel):
     """Gyűjtő letöltési konfiguráció."""
 
-    timeout: int
-    max_retries: int
-    retry_delay: int
-    chunk_size: int
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    timeout: int | None = Field(None, ge=1, description="Timeout másodpercben")
+    max_retries: int | None = Field(
+        None, ge=0, description="Maximális újrapróbálkozások száma"
+    )
+    retry_delay: int | None = Field(
+        None, ge=0, description="Újrapróbálkozási késleltetés másodpercben"
+    )
+    chunk_size: int | None = Field(None, ge=1, description="Chunk méret bájtban")
 
 
-class CollectorLoggingConfig(TypedDict, total=False):
+class CollectorLoggingConfig(BaseModel):
     """Gyűjtő naplózási konfiguráció."""
 
-    level: str
-    format: str
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    level: str | None = Field(
+        None,
+        pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
+        description="Log szint"
+    )
+    format: str | None = Field(None, min_length=1, description="Log formátum string")
 
 
-class CollectorRateLimitingConfig(TypedDict, total=False):
+class CollectorRateLimitingConfig(BaseModel):
     """Gyűjtő rate limiting konfiguráció."""
 
-    max_concurrent: int
-    request_delay: float
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    max_concurrent: int | None = Field(
+        None, ge=1, description="Maximális párhuzamos kérések"
+    )
+    request_delay: float | None = Field(
+        None, ge=0.0, description="Kérések közötti késleltetés másodpercben"
+    )
 
 
-class CollectorCircuitBreakerConfig(TypedDict, total=False):
+class CollectorCircuitBreakerConfig(BaseModel):
     """Gyűjtő circuit breaker konfiguráció."""
 
-    failure_threshold: int
-    recovery_timeout: int
-    expected_exceptions: list[str]
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    failure_threshold: int | None = Field(None, ge=1, description="Hiba küszöb")
+    recovery_timeout: int | None = Field(
+        None, ge=1, description="Helyreállítási timeout másodpercben"
+    )
+    expected_exceptions: list[str] | None = Field(
+        None, description="Várt kivételek listája"
+    )
 
 
-class CollectorDateRangeConfig(TypedDict, total=False):
+class CollectorDateRangeConfig(BaseModel):
     """Gyűjtő dátumtartomány konfiguráció."""
 
-    start: str
-    end: str
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    start: str | None = Field(None, min_length=1, description="Kezdő dátum (ISO formátum)")
+    end: str | None = Field(None, min_length=1, description="Befejező dátum (ISO formátum)")
 
 
-class JForexConfig(TypedDict, total=False):
+class SystemConfig(BaseModel):
+    """Rendszer szintű konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    app_name: str | None = Field(None, min_length=1, description="Alkalmazás neve")
+    version: str | None = Field(None, min_length=1, description="Verzió szám")
+    environment: Literal["development", "staging", "production"] | None = Field(
+        None,
+        description="Környezet típusa"
+    )
+    debug: bool | None = Field(None, description="Debug mód")
+    paths: PathsConfig | None = Field(None, description="Útvonal konfigurációk")
+
+
+class StorageConfig(BaseModel):
+    """Adattárolási konfiguráció.
+
+    ARCHITEKTÚRA SZABÁLY: Csak Parquet storage engedélyezett!
+    CSV/JSON használata tiltott a storage rétegben.
+    Lásd: docs/development/architecture_standards.md - Storage szabályok
+    """
+
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    type: Literal["parquet", "csv", "json"] | None = Field(
+        "parquet",
+        description="Storage backend típusa"
+    )
+    base_path: str | None = Field(None, min_length=1, description="Tárolási könyvtár")
+    compression: str | None = Field(
+        "snappy",
+        pattern="^(snappy|gzip|lz4|zstd)$",
+        description="Kompressziós algoritmus"
+    )
+    engine: str | None = Field(
+        "fastparquet",
+        pattern="^(fastparquet|pyarrow)$",
+        description="Parquet engine"
+    )
+    partitioning: list[str] | None = Field(
+        None,
+        description="Particionálási oszlopok"
+    )
+
+    @field_validator("type")
+    @classmethod
+    def validate_no_csv_json(cls, v: str | None) -> str | None:
+        """CSV/JSON storage tiltott architektúra szabályok szerint."""
+        if v in ("csv", "json"):
+            raise ValueError(
+                f"'{v}' storage TILOS! Csak Parquet engedélyezett. "
+                "Lásd: docs/development/architecture_standards.md - Storage szabályok"
+            )
+        return v
+
+
+class ProcessorConfig(BaseModel):
+    """Egyedi processzor konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    required_timeframes: list[str] | None = Field(None, description="Szükséges timeframe-ek")
+    z_score_window: int | None = Field(None, ge=1, description="Z-score ablak méret")
+    use_mid_price: bool | None = Field(None, description="Mid price használata")
+    calc_shadows: bool | None = Field(None, description="Árnyékok kalkulációja")
+    swing_window: int | None = Field(None, ge=1, description="Swing ablak méret")
+    min_distance: int | None = Field(None, ge=1, description="Minimális távolság")
+    use_close_open: bool | None = Field(None, description="Close/Open használata")
+    use_high_low: bool | None = Field(None, description="High/Low használata")
+    primary_weight: float | None = Field(None, ge=0.0, le=1.0, description="Elsődleges súly")
+    secondary_weight: float | None = Field(None, ge=0.0, le=1.0, description="Másodlagos súly")
+    level_merge: float | None = Field(None, ge=0.0, description="Szint egyesítési távolság")
+    min_touches: int | None = Field(None, ge=1, description="Minimális érintések száma")
+    volume_confirmation: bool | None = Field(None, description="Volumen megerősítés")
+    strength_window: int | None = Field(None, ge=1, description="Erősség ablak méret")
+    timeframe_configs: dict[str, TimeframeConfig] | None = Field(
+        None,
+        description="Timeframe specifikus konfigurációk"
+    )
+
+    @field_validator("required_timeframes")
+    @classmethod
+    def validate_timeframes(cls, v: list[str] | None) -> list[str] | None:
+        """Csak standard Forex timeframe-ek engedélyezettek."""
+        if v is None:
+            return v
+
+        valid_tf = {"M1", "M5", "M15", "M30", "H1", "H4", "D1", "W1", "MN1"}
+        for tf in v:
+            if tf not in valid_tf:
+                raise ValueError(
+                    f"Érvénytelen timeframe: {tf}. "
+                    f"Érvényes timeframe-ek: {valid_tf}"
+                )
+        return v
+
+
+class LoggingConfig(BaseModel):
+    """Naplózási konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    default_level: str | None = Field(
+        "INFO",
+        pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
+        description="Alapértelmezett log szint"
+    )
+    handlers: dict[str, HandlerConfig] | None = Field(None, description="Handler konfigurációk")
+    loggers: dict[str, LoggerConfig] | None = Field(None, description="Logger konfigurációk")
+
+
+class DatabaseConfig(BaseModel):
+    """Adatbázis konfiguráció.
+
+    Ez a modell definiálja az adatbázis kapcsolati paramétereket és
+    connection pool beállításokat.
+    """
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    type: Literal["sqlite", "postgresql", "mysql"] | None = Field(
+        None,
+        description="Adatbázis típusa"
+    )
+    connection: DatabaseConnectionConfig | None = Field(None, description="Kapcsolat konfiguráció")
+    pool: DatabasePoolConfig | None = Field(None, description="Pool konfiguráció")
+
+
+class EventsConfig(BaseModel):
+    """Esemény rendszer konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    type: Literal["zeromq", "redis", "rabbitmq"] | None = Field(
+        None,
+        description="Esemény rendszer típusa"
+    )
+    connection: EventsConnectionConfig | None = Field(None, description="Kapcsolat konfiguráció")
+    socket_timeout: int | None = Field(None, ge=1, description="Socket timeout milliszekundumban")
+
+
+class JForexConfig(BaseModel):
     """JForex gyűjtő konfiguráció."""
 
-    enabled: bool
-    base_url: str
-    download: CollectorDownloadConfig
-    logging: CollectorLoggingConfig
-    symbols: list[str]
-    date_range: CollectorDateRangeConfig
-    rate_limiting: CollectorRateLimitingConfig
-    circuit_breaker: CollectorCircuitBreakerConfig
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    enabled: bool | None = Field(None, description="Gyűjtő engedélyezve")
+    base_url: str | None = Field(
+        "https://datafeed.dukascopy.com",
+        pattern=r"^https?://",
+        description="JForex API alap URL"
+    )
+    download: CollectorDownloadConfig | None = Field(None, description="Letöltési konfiguráció")
+    logging: CollectorLoggingConfig | None = Field(
+        None, description="Naplózási konfiguráció"
+    )
+    symbols: list[str] | None = Field(None, description="Szimbólumok listája")
+    date_range: CollectorDateRangeConfig | None = Field(
+        None, description="Dátumtartomány konfiguráció"
+    )
+    rate_limiting: CollectorRateLimitingConfig | None = Field(
+        None, description="Rate limiting konfiguráció"
+    )
+    circuit_breaker: CollectorCircuitBreakerConfig | None = Field(
+        None, description="Circuit breaker konfiguráció"
+    )
+
+    @field_validator("symbols")
+    @classmethod
+    def validate_symbols_not_empty(cls, v: list[str] | None) -> list[str] | None:
+        """Symbols lista nem lehet üres."""
+        if v is not None and len(v) == 0:
+            raise ValueError("Symbols lista nem lehet üres!")
+        return v
 
 
-class JForexLiveConfig(TypedDict, total=False):
+class JForexLiveConfig(BaseModel):
     """JForex live feed konfiguráció."""
 
-    enabled: bool
-    host: str
-    tick_port: int
-    command_port: int
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    enabled: bool | None = Field(None, description="Live feed engedélyezve")
+    host: str | None = Field(None, min_length=1, description="Host név vagy IP")
+    tick_port: int | None = Field(None, ge=1, le=65535, description="Tick adatok portja")
+    command_port: int | None = Field(None, ge=1, le=65535, description="Parancsok portja")
 
 
-class CollectorsConfig(TypedDict, total=False):
+class ProcessorsConfig(BaseModel):
+    """Processzorok konfigurációja."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    processors: dict[str, ProcessorConfig] | None = Field(
+        None, description="Processzor konfigurációk"
+    )
+
+
+class CollectorsConfig(BaseModel):
     """Gyűjtők konfigurációja."""
 
-    jforex: JForexConfig
-    jforex_live: JForexLiveConfig
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    jforex: JForexConfig | None = Field(None, description="JForex gyűjtő konfiguráció")
+    jforex_live: JForexLiveConfig | None = Field(None, description="JForex live feed konfiguráció")
 
 
-class IngestionConfig(TypedDict, total=False):
+class IngestionConfig(BaseModel):
     """Adatbevitel konfiguráció."""
 
-    buffer_size_limit: int
-    flush_interval_minutes: int
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    buffer_size_limit: int | None = Field(
+        None, ge=1, description="Buffer méret limit"
+    )
+    flush_interval_minutes: int | None = Field(
+        None, ge=1, description="Flush intervallum percekben"
+    )
 
 
-class ConfigSchema(TypedDict, total=False):
-    """Általános konfigurációs séma típus."""
+class ConfigSchema(BaseModel):
+    """Általános konfigurációs séma típus.
 
-    system: SystemConfig
-    storage: StorageConfig
-    processors: ProcessorsConfig
-    logging: LoggingConfig
-    database: DatabaseConfig
-    events: EventsConfig
-    collectors: CollectorsConfig
-    ingestion: IngestionConfig
+    Ez a root konfiguráció modell, amely összeköti az összes alrendszer konfigurációját.
+    """
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    system: SystemConfig | None = Field(None, description="Rendszer konfiguráció")
+    storage: StorageConfig | None = Field(None, description="Tárolási konfiguráció")
+    processors: ProcessorsConfig | None = Field(None, description="Processzorok konfigurációja")
+    logging: LoggingConfig | None = Field(None, description="Naplózási konfiguráció")
+    database: DatabaseConfig | None = Field(None, description="Adatbázis konfiguráció")
+    events: EventsConfig | None = Field(None, description="Esemény rendszer konfiguráció")
+    collectors: CollectorsConfig | None = Field(None, description="Gyűjtők konfigurációja")
+    ingestion: IngestionConfig | None = Field(None, description="Adatbevitel konfiguráció")
