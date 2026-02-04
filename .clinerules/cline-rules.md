@@ -676,24 +676,46 @@ Hash: abc123def456
 
 ---
 
-## 📚 14. TASK_TREE KEZELÉS
+## 🌳 14. TASK_TREE KEZELÉS (v3.0 - DEEP AUDIT)
 
-### 14.1 Frissítési Kötelezettség
+A `TASK_TREE.md` a projekt Minőségbiztosítási Dashboardja. Nem kézzel szerkesztjük, hanem a `scripts/generate_task_tree.py` generálja.
 
-**MINDEN sikeres commit után** frissítened kell a `docs/development/TASK_TREE.md`-t:
+### 14.1 Részletes Modul Mátrix Sablon
 
-```markdown
-| Fájl | Létezik | Teszt Van | Coverage | Megjegyzés |
-|------|---------|-----------|----------|-----------|
-| `neural_ai/xyz/feature.py` | ✅ | ✅ | 100% | Commit: abc123 |
+| Modul / Fájl | Státusz | Teszt Pár | Tesztek Száma | Config (Pydantic) | Logger (DI) | Coverage | Teendők / Megjegyzés |
+|--------------|---------|-----------|---------------|-------------------|-------------|----------|----------------------|
+| `d01/proc.py`| 🔴 VULN | ❌ MISSING| 0             | ⚪ N/A            | ✅ OK       | N/A      | **KRITIKUS: Teszt írás!** |
+| `core/conf.py`| ✅ SECURE| ✅ FOUND  | 15            | ✅ OK             | ✅ OK       | 100%     | - |
+
+### 14.2 Oszlopok Definíciója
+
+1. **Státusz**:
+   - ✅ **SECURE**: Implementáció + Teszt (min. 1) + Config (Pydantic/None) + Logger OK
+   - 🟡 **WARNING**: Kisebb hiba (pl. Logger nincs injektálva, de nem is használt)
+   - 🔴 **VULNERABLE**: Nincs tesztfájl VAGY Config=TypedDict VAGY Logger hiányzik
+2. **Teszt Pár**: Mirror Rule (`neural_ai/x.py` ↔ `tests/x/test_x.py`)
+3. **Tesztek Száma**: `def test_` prefixű függvények száma (AST alapú)
+4. **Config**:
+   - ✅ OK: Pydantic `BaseModel` használat
+   - 🔴 TYPED_DICT: Tiltott `TypedDict` config célra
+   - ⚪ N/A: Nem használ configot
+5. **Logger**:
+   - ✅ OK: `logger` injektálva `__init__`-ben ÉS használva (`self.logger.x`)
+   - ⚠️ UNUSED: Injektálva, de nem használt
+   - 🔴 MISSING: Használja, de nincs injektálva (Global logger?)
+   - ⚪ N/A: Nem logol
+
+### 14.3 Generálás
+
+```bash
+python scripts/generate_task_tree.py
 ```
 
-### 14.2 Státusz Jelölések
+**KÖTELEZŐ** minden új modul implementálás után futtatni, majd commitolni a változásokat.
 
-- 🔴 **CRITICAL/PENDING**: 0-49% Coverage, törött, nincs teszt
-- 🟡 **WIP**: 50-79% Coverage, vázlat
-- 🟢 **STABLE**: 80-99% Coverage, működik
-- ✅ **PERFECT**: 100% Stmt + 100% Brch + Type Checked
+### 14.4 Frissítési Kötelezettség
+
+**TILOS** kézzel szerkeszteni a `TASK_TREE.md`-t! Csak a script generálhat tartalmat. Ha hibát találsz, javítsd a scriptet vagy a forrás kódot.
 
 ---
 
