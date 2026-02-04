@@ -8,7 +8,12 @@ kezeléséért. A factory támogatja a szinkron és aszinkron konfiguráció kez
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from neural_ai.core.config.exceptions import ConfigLoadError
+from pydantic import ValidationError
+
+from neural_ai.core.config.exceptions.config_error import (
+    ConfigLoadError,
+    ConfigValidationError,
+)
 from neural_ai.core.config.interfaces.async_config_interface import (
     AsyncConfigManagerInterface,
 )
@@ -167,33 +172,43 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
 
         Raises:
             ConfigLoadError: Ha nem található megfelelő kezelő
+            ConfigValidationError: Ha a konfiguráció validációja sikertelen
             ValueError: Ha a fájlnév kiterjesztése nem regisztrált
         """
-        cls._lazy_load_implementations()
-        filename_str = str(filename)
+        try:
+            cls._lazy_load_implementations()
+            filename_str = str(filename)
 
-        # Ha explicit módon meg van adva a típus
-        if manager_type:
-            ext = f".{manager_type}" if not manager_type.startswith(".") else manager_type
+            # Ha explicit módon meg van adva a típus
+            if manager_type:
+                ext = f".{manager_type}" if not manager_type.startswith(".") else manager_type
+                if ext in cls._manager_types:
+                    manager_class = cls._manager_types[ext]
+                    return manager_class(filename=filename_str, logger=logger)
+                raise ConfigLoadError(f"Ismeretlen konfig kezelő típus: {manager_type}")
+
+            # Fájl kiterjesztés alapján
+            ext = Path(filename_str).suffix.lower()
             if ext in cls._manager_types:
                 manager_class = cls._manager_types[ext]
                 return manager_class(filename=filename_str, logger=logger)
-            raise ConfigLoadError(f"Ismeretlen konfig kezelő típus: {manager_type}")
 
-        # Fájl kiterjesztés alapján
-        ext = Path(filename_str).suffix.lower()
-        if ext in cls._manager_types:
-            manager_class = cls._manager_types[ext]
-            return manager_class(filename=filename_str, logger=logger)
+            # Alapértelmezett: YAML
+            if not ext:
+                return cls._manager_types[".yaml"](filename=filename_str, logger=logger)
 
-        # Alapértelmezett: YAML
-        if not ext:
-            return cls._manager_types[".yaml"](filename=filename_str, logger=logger)
+            raise ConfigLoadError(
+                f"Nem található konfig kezelő a következő kiterjesztéshez: {ext}. "
+                f"Támogatott kiterjesztések: {list(cls._manager_types.keys())}"
+            )
 
-        raise ConfigLoadError(
-            f"Nem található konfig kezelő a következő kiterjesztéshez: {ext}. "
-            f"Támogatott kiterjesztések: {list(cls._manager_types.keys())}"
-        )
+        except ValidationError as e:
+            # Pydantic ValidationError → ConfigValidationError konverzió
+            raise ConfigValidationError(
+                f"Konfiguráció validációs hiba: {e}",
+                field_path=str(filename),
+                invalid_value=None,
+            ) from e
 
     @classmethod
     @trace
@@ -220,20 +235,30 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
 
         Raises:
             ConfigLoadError: Ha a megadott manager_type nem létezik
+            ConfigValidationError: Ha a konfiguráció validációja sikertelen
             ValueError: Ha a session nincs megadva, ahol az szükséges
         """
-        cls._lazy_load_implementations()
+        try:
+            cls._lazy_load_implementations()
 
-        if manager_type not in cls._async_manager_types:
-            raise ConfigLoadError(
-                f"Ismeretlen aszinkron konfig kezelő típus: {manager_type}. "
-                f"Támogatott típusok: {list(cls._async_manager_types.keys())}"
-            )
+            if manager_type not in cls._async_manager_types:
+                raise ConfigLoadError(
+                    f"Ismeretlen aszinkron konfig kezelő típus: {manager_type}. "
+                    f"Támogatott típusok: {list(cls._async_manager_types.keys())}"
+                )
 
-        manager_class = cls._async_manager_types[manager_type]
+            manager_class = cls._async_manager_types[manager_type]
 
-        # Dependency Injection: session és logger átadása
-        return manager_class(filename=None, session=session, logger=logger, **kwargs)
+            # Dependency Injection: session és logger átadása
+            return manager_class(filename=None, session=session, logger=logger, **kwargs)
+
+        except ValidationError as e:
+            # Pydantic ValidationError → ConfigValidationError konverzió
+            raise ConfigValidationError(
+                f"Aszinkron konfiguráció validációs hiba: {e}",
+                field_path=manager_type,
+                invalid_value=None,
+            ) from e
 
     @classmethod
     @trace
@@ -255,21 +280,31 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
 
         Raises:
             ConfigLoadError: Ha a megadott manager_type nem létezik
+            ConfigValidationError: Ha a konfiguráció validációja sikertelen
         """
-        cls._lazy_load_implementations()
+        try:
+            cls._lazy_load_implementations()
 
-        # Normalize the manager type
-        if not manager_type.startswith("."):
-            manager_type = f".{manager_type}"
+            # Normalize the manager type
+            if not manager_type.startswith("."):
+                manager_type = f".{manager_type}"
 
-        if manager_type in cls._manager_types:
-            manager_class = cls._manager_types[manager_type]
-            # Típusbiztonság: cast-oljuk az argumentumokat
-            from typing import cast
+            if manager_type in cls._manager_types:
+                manager_class = cls._manager_types[manager_type]
+                # Típusbiztonság: cast-oljuk az argumentumokat
+                from typing import cast
 
-            return manager_class(*cast(tuple[str, ...], args), **cast(dict[str, Any], kwargs))
+                return manager_class(*cast(tuple[str, ...], args), **cast(dict[str, Any], kwargs))
 
-        raise ConfigLoadError(f"Ismeretlen konfig kezelő típus: {manager_type}")
+            raise ConfigLoadError(f"Ismeretlen konfig kezelő típus: {manager_type}")
+
+        except ValidationError as e:
+            # Pydantic ValidationError → ConfigValidationError konverzió
+            raise ConfigValidationError(
+                f"Konfiguráció létrehozási validációs hiba: {e}",
+                field_path=manager_type,
+                invalid_value=None,
+            ) from e
 
     @classmethod
     @trace
