@@ -214,8 +214,9 @@ class MarkdownGenerator:
 
         for analysis in self.analyses:
             parts = Path(analysis.relative_path).parts
-            if len(parts) > 0 and parts[0] in self.LAYER_MAPPING:
-                grouped[parts[0]].append(analysis)
+            # parts[0] = "neural_ai", parts[1] = "core/collectors/data/processors/ui"
+            if len(parts) > 1 and parts[1] in self.LAYER_MAPPING:
+                grouped[parts[1]].append(analysis)
 
         return grouped
 
