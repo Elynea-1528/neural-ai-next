@@ -209,32 +209,17 @@ A `factory.py` az **egyetlen** hely, ahol:
 
 ---
 
-## 6. TÍPUSBIZTONSÁG ÉS KONFIGURÁCIÓ (STRICT MODE)
+## 6. TÍPUSBIZTONSÁG ÉS KONFIGURÁCIÓ (PYDANTIC STRICT MODE)
 
-A rendszer `python.analysis.typeCheckingMode: "strict"` alatt fut. Ez nem javaslat, ez követelmény.
+A rendszer `python.analysis.typeCheckingMode: "strict"` alatt fut.
 
-### 6.1 Config TypedDict (KÖTELEZŐ!)
-A `config.get()` metódus alapból `Any` típust ad vissza, ami strict módban hiba. Minden konfigurációs objektumhoz definiálni kell egy `TypedDict`-et a Factory-ban.
+### 6.1 Pydantic Konfiguráció (KÖTELEZŐ!)
+A korábbi `TypedDict` alapú megközelítés ELAVULT. Minden konfigurációs egységhez Pydantic `BaseModel` (vagy `RootModel`) osztályokat kell használni.
+- **Helye:** `neural_ai/core/config/interfaces/types.py`
+- **Validáció:** A `YAMLConfigManager`-nek Pydantic modelleken keresztül KELL validálnia az adatokat betöltéskor.
+- **Használat:** A Factory-kban TILOS a `cast(dict, ...)` hívás. A betöltött Pydantic modellt kell használni.
 
-```python
-from typing import TypedDict, cast, NotRequired
-
-# 1. Struktúra definíció
-class JForexConfig(TypedDict, total=False):
-    base_url: str
-    timeout: int
-    enabled: bool
-
-# 2. Biztonságos kinyerés a Factory-ban
-raw_config = config.get("jforex")
-# Castoljuk a nyers dict-et a definiált típusra
-typed_cfg = cast(JForexConfig, raw_config if isinstance(raw_config, dict) else {})
-
-# 3. Típusos használat
-timeout = typed_cfg.get("timeout", 30)  # Pylance tudja: ez int!
-```
-
-### 6.2 Zéró `Any` Tolerancia
+### 6.2 Zéró Any Tolerancia
 Az `Any` használata **TILOS** a saját kódban, kivéve a legszükségesebb boundary layer (pl. JSON parsing) eseteket, de ott is azonnal `cast`-olni kell. Minden függvény paraméterének és visszatérési értékének típusosnak kell lennie.
 
 ---

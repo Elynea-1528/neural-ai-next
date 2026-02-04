@@ -149,5 +149,7 @@
                 "isAsync": true
             }
         ]
-    }
+    },
+    "trae.tab.enableRename": false,
+    "trae.tab.enableAutoImport": false
 }
