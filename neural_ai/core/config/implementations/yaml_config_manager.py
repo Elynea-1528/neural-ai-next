@@ -5,8 +5,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 
 import yaml
+from pydantic import ValidationError
 
-from neural_ai.core.config.exceptions import ConfigLoadError
+from neural_ai.core.config.exceptions import ConfigLoadError, ConfigValidationError
 from neural_ai.core.config.interfaces import ConfigManagerInterface
 from neural_ai.core.config.interfaces.types import (
     CollectorsConfig,
@@ -125,7 +126,7 @@ class YAMLConfigManager(ConfigManagerInterface):
 
         Returns:
             A konfigurációs érték vagy az alapértelmezett érték
-            
+
         Raises:
             TypeError: Ha bármelyik kulcs nem string típusú
         """
@@ -141,7 +142,7 @@ class YAMLConfigManager(ConfigManagerInterface):
                 if self._logger:
                     self._logger.error(error_msg)
                 raise TypeError(error_msg)
-        
+
         current: dict[str, Any] | Any = self._config
         for key in keys:
             if not isinstance(current, dict):
@@ -157,60 +158,174 @@ class YAMLConfigManager(ConfigManagerInterface):
         return current
 
     def get_system_config(self) -> SystemConfig:
-        """Rendszer konfiguráció lekérése.
+        """Rendszer konfiguráció lekérése validálással.
 
         Returns:
-            SystemConfig: A rendszer konfigurációs adatai TypedDict formátumban.
+            SystemConfig: A rendszer konfigurációs adatai Pydantic modell formátumban.
+
+        Raises:
+            ConfigValidationError: Ha a konfiguráció érvénytelen
+            KeyError: Ha a 'system' szekció nem található
         """
-        return cast(SystemConfig, self.get_section("system"))
+        raw_data: dict[str, Any] = {}
+        try:
+            raw_data = self.get_section("system")
+            return SystemConfig(**raw_data)  # Pydantic auto-validáció
+        except ValidationError as e:
+            raise ConfigValidationError(
+                f"System konfiguráció érvénytelen: {e}",
+                field_path="system",
+                invalid_value=raw_data
+            ) from e
+        except KeyError:
+            # Ha nincs system szekció, üres dict-tel hívjuk (Pydantic optional mezők)
+            return SystemConfig(**{})
 
     def get_storage_config(self) -> StorageConfig:
-        """Tárolási konfiguráció lekérése.
+        """Tárolási konfiguráció lekérése validálással.
 
         Returns:
-            StorageConfig: A tárolási konfigurációs adatai TypedDict formátumban.
+            StorageConfig: A tárolási konfigurációs adatai Pydantic modell formátumban.
+
+        Raises:
+            ConfigValidationError: Ha a konfiguráció érvénytelen (pl. CSV storage)
+            KeyError: Ha a 'storage' szekció nem található
         """
-        return cast(StorageConfig, self.get_section("storage"))
+        raw_data: dict[str, Any] = {}
+        try:
+            raw_data = self.get_section("storage")
+            return StorageConfig(**raw_data)  # Pydantic auto-validáció + CSV tiltás ellenőrzés
+        except ValidationError as e:
+            raise ConfigValidationError(
+                f"Storage konfiguráció érvénytelen: {e}",
+                field_path="storage",
+                invalid_value=raw_data
+            ) from e
+        except KeyError:
+            # Ha nincs storage szekció, üres dict-tel hívjuk
+            # (Pydantic defaults: type="parquet", compression="snappy")
+            return StorageConfig(**{})
 
     def get_processors_config(self) -> ProcessorsConfig:
-        """Processzorok konfiguráció lekérése.
+        """Processzorok konfiguráció lekérése validálással.
 
         Returns:
-            ProcessorsConfig: A processzorok konfigurációs adatai TypedDict formátumban.
+            ProcessorsConfig: A processzorok konfigurációs adatai Pydantic modell formátumban.
+
+        Raises:
+            ConfigValidationError: Ha a konfiguráció érvénytelen (pl. hibás timeframe)
+            KeyError: Ha a 'processors' szekció nem található
         """
-        return cast(ProcessorsConfig, self.get_section("processors"))
+        raw_data: dict[str, Any] = {}
+        try:
+            raw_data = self.get_section("processors")
+            return ProcessorsConfig(**raw_data)  # Pydantic auto-validáció
+        except ValidationError as e:
+            raise ConfigValidationError(
+                f"Processors konfiguráció érvénytelen: {e}",
+                field_path="processors",
+                invalid_value=raw_data
+            ) from e
+        except KeyError:
+            # Ha nincs processors szekció, üres dict-tel hívjuk (Pydantic optional mezők)
+            return ProcessorsConfig(**{})
 
     def get_logging_config(self) -> LoggingConfig:
-        """Naplózási konfiguráció lekérése.
+        """Naplózási konfiguráció lekérése validálással.
 
         Returns:
-            LoggingConfig: A naplózási konfigurációs adatai TypedDict formátumban.
+            LoggingConfig: A naplózási konfigurációs adatai Pydantic modell formátumban.
+
+        Raises:
+            ConfigValidationError: Ha a konfiguráció érvénytelen (pl. hibás log level)
+            KeyError: Ha a 'logging' szekció nem található
         """
-        return cast(LoggingConfig, self.get_section("logging"))
+        raw_data: dict[str, Any] = {}
+        try:
+            raw_data = self.get_section("logging")
+            return LoggingConfig(**raw_data)  # Pydantic auto-validáció
+        except ValidationError as e:
+            raise ConfigValidationError(
+                f"Logging konfiguráció érvénytelen: {e}",
+                field_path="logging",
+                invalid_value=raw_data
+            ) from e
+        except KeyError:
+            # Ha nincs logging szekció, üres dict-tel hívjuk
+            # (Pydantic default: default_level="INFO")
+            return LoggingConfig(**{})
 
     def get_database_config(self) -> DatabaseConfig:
-        """Adatbázis konfiguráció lekérése.
+        """Adatbázis konfiguráció lekérése validálással.
 
         Returns:
-            DatabaseConfig: Az adatbázis konfigurációs adatai TypedDict formátumban.
+            DatabaseConfig: Az adatbázis konfigurációs adatai Pydantic modell formátumban.
+
+        Raises:
+            ConfigValidationError: Ha a konfiguráció érvénytelen (pl. érvénytelen DB típus)
+            KeyError: Ha a 'database' szekció nem található
         """
-        return cast(DatabaseConfig, self.get_section("database"))
+        raw_data: dict[str, Any] = {}
+        try:
+            raw_data = self.get_section("database")
+            return DatabaseConfig(**raw_data)  # Pydantic auto-validáció
+        except ValidationError as e:
+            raise ConfigValidationError(
+                f"Database konfiguráció érvénytelen: {e}",
+                field_path="database",
+                invalid_value=raw_data
+            ) from e
+        except KeyError:
+            # Ha nincs database szekció, üres dict-tel hívjuk (Pydantic optional mezők)
+            return DatabaseConfig(**{})
 
     def get_events_config(self) -> EventsConfig:
-        """Esemény rendszer konfiguráció lekérése.
+        """Esemény rendszer konfiguráció lekérése validálással.
 
         Returns:
-            EventsConfig: Az esemény rendszer konfigurációs adatai TypedDict formátumban.
+            EventsConfig: Az esemény rendszer konfigurációs adatai Pydantic modell formátumban.
+
+        Raises:
+            ConfigValidationError: Ha a konfiguráció érvénytelen (pl. hibás port szám)
+            KeyError: Ha az 'events' szekció nem található
         """
-        return cast(EventsConfig, self.get_section("events"))
+        raw_data: dict[str, Any] = {}
+        try:
+            raw_data = self.get_section("events")
+            return EventsConfig(**raw_data)  # Pydantic auto-validáció
+        except ValidationError as e:
+            raise ConfigValidationError(
+                f"Events konfiguráció érvénytelen: {e}",
+                field_path="events",
+                invalid_value=raw_data
+            ) from e
+        except KeyError:
+            # Ha nincs events szekció, üres dict-tel hívjuk (Pydantic optional mezők)
+            return EventsConfig(**{})
 
     def get_collectors_config(self) -> CollectorsConfig:
-        """Gyűjtők konfiguráció lekérése.
+        """Gyűjtők konfiguráció lekérése validálással.
 
         Returns:
-            CollectorsConfig: A gyűjtők konfigurációs adatai TypedDict formátumban.
+            CollectorsConfig: A gyűjtők konfigurációs adatai Pydantic modell formátumban.
+
+        Raises:
+            ConfigValidationError: Ha a konfiguráció érvénytelen (pl. üres symbols lista)
+            KeyError: Ha a 'collectors' szekció nem található
         """
-        return cast(CollectorsConfig, self.get_section("collectors"))
+        raw_data: dict[str, Any] = {}
+        try:
+            raw_data = self.get_section("collectors")
+            return CollectorsConfig(**raw_data)  # Pydantic auto-validáció
+        except ValidationError as e:
+            raise ConfigValidationError(
+                f"Collectors konfiguráció érvénytelen: {e}",
+                field_path="collectors",
+                invalid_value=raw_data
+            ) from e
+        except KeyError:
+            # Ha nincs collectors szekció, üres dict-tel hívjuk (Pydantic optional mezők)
+            return CollectorsConfig(**{})
 
     def get_section(self, section: str) -> dict[str, Any]:
         """Teljes konfigurációs szekció lekérése.
