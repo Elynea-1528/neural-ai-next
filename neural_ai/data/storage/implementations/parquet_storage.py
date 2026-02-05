@@ -16,9 +16,12 @@ import hashlib
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypedDict, cast
+from typing import TYPE_CHECKING, Any, cast
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from neural_ai.core.base.implementations.singleton import SingletonMeta
+from neural_ai.core.config.interfaces.types import StorageConfig
 from neural_ai.core.utils.decorators import trace
 from neural_ai.data.storage.exceptions import StorageIOError, StorageNotFoundError
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
@@ -34,27 +37,26 @@ if TYPE_CHECKING:
     from neural_ai.data.storage.backends.base import StorageBackend
 
 
-# TypedDict definiálása read/write opciókhoz
-class ParquetWriteOptions(TypedDict, total=False):
+class ParquetWriteConfig(BaseModel):
     """Parquet írás opciók konfigurációja."""
 
-    compression: str
-    unique_id: str | None
+    model_config = ConfigDict(extra="ignore", validate_assignment=True)
+
+    compression: str = Field(
+        "snappy",
+        pattern="^(snappy|gzip|brotli|zstd|lz4|none)$",
+        description="Tömörítési algoritmus"
+    )
+    unique_id: str | None = Field(None, description="Egyedi azonosító a fájlnévhez")
 
 
-class ParquetReadOptions(TypedDict, total=False):
+class ParquetReadConfig(BaseModel):
     """Parquet olvasás opciók konfigurációja."""
 
-    start_date: datetime
-    end_date: datetime
+    model_config = ConfigDict(extra="ignore", validate_assignment=True)
 
-
-class StorageConfig(TypedDict, total=False):
-    """Tárolási konfiguráció."""
-
-    compression: str
-    base_path: str | Path
-    engine: str
+    start_date: datetime = Field(..., description="Kezdő dátum")
+    end_date: datetime = Field(..., description="Záró dátum")
 
 
 # Modul szintű változók a teszteléshez (lazy import támogatáshoz)
@@ -109,14 +111,21 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         self.logger = logger
         self.config = config
         self.event_bus = event_bus
-        self.storage_config = cast(StorageConfig, config.get_section("storage") if config else {})
-        self.BASE_PATH = (
-            Path(base_path)
-            if base_path
-            else Path(self.storage_config.get("base_path", "data/tick"))
-        )
-        self.engine = self.storage_config.get("engine", "fastparquet")
-        self.compression = compression or self.storage_config.get("compression", "snappy")
+        
+        # Pydantic validáció a configra
+        raw_config = config.get_section("storage") if config else {}
+        self.storage_config = StorageConfig(**(raw_config or {}))
+        
+        # Base path inicializáció
+        if base_path:
+            self.BASE_PATH = Path(base_path)
+        elif self.storage_config.base_path:
+            self.BASE_PATH = Path(self.storage_config.base_path)
+        else:
+            self.BASE_PATH = Path("data/tick")
+
+        self.engine = self.storage_config.engine or "fastparquet"
+        self.compression = compression or self.storage_config.compression or "snappy"
         self.backend: StorageBackend
 
         # Dependency Injection a HardwareInterface-hez

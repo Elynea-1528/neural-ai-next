@@ -6,9 +6,10 @@ de további tárolási típusok is regisztrálhatók dinamikusan.
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, cast
 
 from neural_ai.core.config.factory import ConfigManagerFactory
+from neural_ai.core.config.interfaces.types import StorageConfig
 from neural_ai.core.events.factory import EventBusFactory
 from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.data.storage.exceptions import StorageError
@@ -24,14 +25,6 @@ if TYPE_CHECKING:
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
-
-
-class StorageConfig(TypedDict, total=False):
-    """Tárolási konfiguráció minden szükséges mezővel."""
-
-    base_path: str | Path
-    compression: str
-    engine: str
 
 
 class StorageFactory(StorageFactoryInterface):
@@ -137,10 +130,14 @@ class StorageFactory(StorageFactoryInterface):
             config = ConfigManagerFactory.get_manager("configs/storage.yaml")
         kwargs["config"] = config
 
-        # Config validáció TypedDict-tel - OPERATION TOTAL RECALL
+        # Config validáció Pydantic-kal
         raw_config = config.get("storage")
-        storage_conf = cast(StorageConfig, raw_config if isinstance(raw_config, dict) else {})
-        logger.debug("Storage config cast completed", storage_config=storage_conf)
+        try:
+            storage_conf = StorageConfig(**(raw_config if isinstance(raw_config, dict) else {}))
+            logger.debug("Storage config validation completed", storage_config=storage_conf.model_dump())
+        except Exception as e:
+            logger.error("Storage config validation failed", error=str(e))
+            raise StorageError(f"Érvénytelen storage konfiguráció: {e}") from e
 
         # EventBus hozzáadása a kwargs-hoz
         if event_bus is None:

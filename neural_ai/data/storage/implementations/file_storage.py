@@ -9,8 +9,9 @@ import pickle
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypedDict, cast
+from typing import TYPE_CHECKING, Any, cast
 
+from neural_ai.core.config.interfaces.types import StorageConfig
 from neural_ai.data.storage.exceptions import (
     StorageFormatError,
     StorageIOError,
@@ -27,14 +28,6 @@ if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
     from neural_ai.data.storage.backends.base import StorageBackend
-
-
-class StorageConfig(TypedDict, total=False):
-    """Tárolási konfiguráció."""
-
-    base_path: str | Path
-    compression: str
-    engine: str
 
 
 class FileStorage(StorageInterface):
@@ -65,14 +58,16 @@ class FileStorage(StorageInterface):
         self.logger = logger
         self.config = config
         self.event_bus = event_bus
-        self.storage_config = cast(StorageConfig, config.get("storage") or {} if config else {})
-        
+
+        # Pydantic validáció
+        raw_config = config.get("storage") if config else {}
+        self.storage_config = StorageConfig(**(raw_config or {}))
+
         # Base path inicializáció (abszolút útvonallal)
-        default_path = self.storage_config.get("base_path")
         if base_path:
             self._base_path = Path(base_path)
-        elif default_path:
-            self._base_path = Path(default_path)
+        elif self.storage_config.base_path:
+            self._base_path = Path(self.storage_config.base_path)
         else:
             self._base_path = Path.cwd()
 
@@ -243,9 +238,13 @@ class FileStorage(StorageInterface):
 
         # Ellenőrizzük a kiterjesztést
         if not full_path.suffix:
-            raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát (nincs kiterjesztés)")
+            raise StorageFormatError(
+                "Nem sikerült meghatározni a fájl formátumát (nincs kiterjesztés)"
+            )
         if not full_path.suffix.lower() == ".parquet":
-            raise StorageFormatError("A fájlnak .parquet kiterjesztéssel kell rendelkeznie")
+            raise StorageFormatError(
+                "A fájlnak .parquet kiterjesztéssel kell rendelkeznie"
+            )
 
         # Ellenőrizzük a jogosultságokat
         self._check_permissions(full_path, check_write=True)
@@ -299,9 +298,13 @@ class FileStorage(StorageInterface):
 
         # Ellenőrizzük a kiterjesztést
         if not full_path.suffix:
-            raise StorageFormatError("Nem sikerült meghatározni a fájl formátumát (nincs kiterjesztés)")
+            raise StorageFormatError(
+                "Nem sikerült meghatározni a fájl formátumát (nincs kiterjesztés)"
+            )
         if not full_path.suffix.lower() == ".parquet":
-            raise StorageFormatError("A fájlnak .parquet kiterjesztéssel kell rendelkeznie")
+            raise StorageFormatError(
+                "A fájlnak .parquet kiterjesztéssel kell rendelkeznie"
+            )
 
         # Ellenőrizzük az olvasási jogosultságot
         self._check_permissions(full_path, check_write=False)
@@ -343,9 +346,13 @@ class FileStorage(StorageInterface):
 
         # Ellenőrizzük a kiterjesztést
         if not full_path.suffix:
-            raise StorageFormatError("Nem sikerült meghatározni az objektum formátumát (nincs kiterjesztés)")
+            raise StorageFormatError(
+                "Nem sikerült meghatározni az objektum formátumát (nincs kiterjesztés)"
+            )
         if not full_path.suffix.lower() == ".pkl":
-            raise StorageFormatError("Nem támogatott objektum formátum (csak .pkl támogatott)")
+            raise StorageFormatError(
+                "Nem támogatott objektum formátum (csak .pkl támogatott)"
+            )
 
         # Ellenőrizzük a jogosultságokat
         self._check_permissions(full_path, check_write=True)
@@ -404,9 +411,13 @@ class FileStorage(StorageInterface):
 
         # Ellenőrizzük a kiterjesztést
         if not full_path.suffix:
-            raise StorageFormatError("Nem sikerült meghatározni az objektum formátumát (nincs kiterjesztés)")
+            raise StorageFormatError(
+                "Nem sikerült meghatározni az objektum formátumát (nincs kiterjesztés)"
+            )
         if not full_path.suffix.lower() == ".pkl":
-            raise StorageFormatError("Nem támogatott objektum formátum (csak .pkl támogatott)")
+            raise StorageFormatError(
+                "Nem támogatott objektum formátum (csak .pkl támogatott)"
+            )
 
         # Ellenőrizzük az olvasási jogosultságot
         self._check_permissions(full_path, check_write=False)

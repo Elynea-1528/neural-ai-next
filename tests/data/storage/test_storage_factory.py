@@ -77,6 +77,7 @@ class TestStorageFactory:
     def test_get_storage_file_type(self, tmp_path: Path) -> None:
         """Teszteli a file storage létrehozását."""
         mock_config = MagicMock()
+        mock_config.get.return_value = {"base_path": str(tmp_path)}
         storage = StorageFactory.get_storage(
             storage_type="file", base_path=str(tmp_path), config=mock_config
         )
@@ -87,6 +88,7 @@ class TestStorageFactory:
     def test_get_storage_parquet_type(self, tmp_path: Path) -> None:
         """Teszteli a parquet storage létrehozását."""
         mock_config = MagicMock()
+        mock_config.get_section.return_value = {"base_path": str(tmp_path)}
         mock_hardware: MagicMock = MagicMock()
         mock_hardware.has_avx2.return_value = True
 
@@ -104,11 +106,23 @@ class TestStorageFactory:
     def test_get_storage_with_kwargs(self, tmp_path: Path) -> None:
         """Teszteli a storage létrehozást további paraméterekkel."""
         mock_config = MagicMock()
+        mock_config.get.return_value = {"base_path": str(tmp_path)}
         storage = StorageFactory.get_storage(
             storage_type="file", base_path=str(tmp_path), create_if_missing=True, config=mock_config
         )
 
         assert isinstance(storage, FileStorage)
+
+    def test_get_storage_invalid_config(self, tmp_path: Path) -> None:
+        """Teszteli az érvénytelen konfigurációt (pl. tiltott storage típus)."""
+        mock_config = MagicMock()
+        # JSON storage használata tiltott a központi konfigurációban
+        mock_config.get.return_value = {"type": "json", "base_path": str(tmp_path)}
+        
+        with pytest.raises(StorageError, match="Érvénytelen storage konfiguráció"):
+            StorageFactory.get_storage(
+                storage_type="file", base_path=str(tmp_path), config=mock_config
+            )
 
     def test_get_storage_invalid_type(self) -> None:
         """Teszteli a nem létező storage típus lekérését."""
@@ -198,6 +212,7 @@ class TestStorageFactory:
     def test_get_storage_default_base_path(self) -> None:
         """Teszteli a storage létrehozást alapértelmezett útvonallal."""
         mock_config = MagicMock()
+        mock_config.get.return_value = {}
         storage = StorageFactory.get_storage(storage_type="file", config=mock_config)
 
         assert isinstance(storage, FileStorage)
@@ -206,6 +221,7 @@ class TestStorageFactory:
     def test_get_storage_with_hardware_none(self, tmp_path: Path) -> None:
         """Teszteli a storage létrehozást hardware=None paraméterrel."""
         mock_config = MagicMock()
+        mock_config.get.return_value = {"base_path": str(tmp_path)}
         storage = StorageFactory.get_storage(
             storage_type="file", base_path=str(tmp_path), hardware=None, config=mock_config
         )
