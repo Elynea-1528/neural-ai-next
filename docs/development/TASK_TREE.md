@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT - TASK TREE v3.0 (DEEP AUDIT)
 
-**Generálva:** 2026-02-05 08:47:11 UTC
+**Generálva:** 2026-02-05 10:36:01 UTC
 **Módszer:** AST Statikus Analízis
 **Fájlok száma:** 99 elemezve
 
@@ -8,10 +8,10 @@
 
 ## 📊 ÖSSZESÍTŐ STATISZTIKA
 
-- **✅ SECURE**: 31 fájl (31.3%)
+- **✅ SECURE**: 32 fájl (32.3%)
 - **🟡 WARNING**: 12 fájl (12.1%)
-- **🔴 VULNERABLE**: 56 fájl (56.6%)
-- **Teszt lefedettség**: 46/99 fájl (46.5%)
+- **🔴 VULNERABLE**: 55 fájl (55.6%)
+- **Teszt lefedettség**: 47/99 fájl (47.5%)
 
 ---
 
@@ -106,8 +106,8 @@
 | `processors/dimensions/d01_price/processor.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ✅ OK | N/A | **KRITIKUS: Teszt írás!** |
 | `processors/dimensions/d02_support/exceptions/support_error.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `processors/dimensions/d02_support/factory.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
-| `processors/dimensions/d02_support/implementations/support_processor.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | 🔴 TYPED_DICT | ✅ OK | N/A | **KRITIKUS: Teszt írás!** | **Migráld Pydantic-ra!** |
-| `processors/factory.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | 🔴 TYPED_DICT | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** | **Migráld Pydantic-ra!** |
+| `processors/dimensions/d02_support/implementations/support_processor.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ✅ OK | N/A | **KRITIKUS: Teszt írás!** |
+| `processors/factory.py` | ✅ SECURE | ✅ FOUND | 3 | ⚪ N/A | ⚪ N/A | N/A | - |
 | `processors/implementations/time_alignment_service.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚠️ UNUSED | N/A | **KRITIKUS: Teszt írás!** |
 | `processors/interfaces/dimension_processor_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `processors/interfaces/tensor_converter_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |

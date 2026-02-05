@@ -1,36 +1,15 @@
 """D02SupportProcessor - Support/Resistance szintek processzora."""
 
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import polars as pl
 
+from neural_ai.core.config.interfaces.types import ProcessorConfig
 from neural_ai.processors.dimensions.base import BaseDimensionProcessor
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-
-
-class MarketHoursConfig(TypedDict):
-    """Market hours konfigurációs TypedDict."""
-
-    enabled: bool
-    weekdays: list[str]
-    hours: list[str]
-    timezone: str
-    log_filtering: bool
-
-
-class D02SupportConfig(TypedDict):
-    """D02 Support Processor konfigurációs TypedDict."""
-
-    swing_window: int | None
-    min_candles: int | None
-    level_merge: float | None
-    strength_window: int | None
-    min_touches: int | None
-    volume_confirmation: bool | None
-    market_hours: MarketHoursConfig | None
 
 
 class D02SupportProcessor(BaseDimensionProcessor):
@@ -48,12 +27,8 @@ class D02SupportProcessor(BaseDimensionProcessor):
             logger: Logger interfész
         """
         super().__init__(config, logger)
-        self.dim_config: D02SupportConfig = cast(D02SupportConfig, self.dim_config)
-
-        # Config validáció
-        if "swing_window" not in self.dim_config:
-            self.logger.error("swing_window paraméter hiányzik a configból, default 5 használata")
-            self.dim_config["swing_window"] = 5
+        # Config validáció és konverzió Pydantic modellé
+        self.dim_config = ProcessorConfig(**cast(dict[str, Any], self.dim_config))
 
     def _find_swing_points_close_open(self, df: pl.DataFrame) -> pl.DataFrame:
         """Swing pontok keresése záró/nyitó árak alapján.
@@ -67,7 +42,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
         Returns:
             pl.DataFrame: swing_high_body és swing_low_body oszlopokkal kiegészített DataFrame
         """
-        min_candles = self.dim_config.get("min_candles")
+        min_candles = self.dim_config.min_candles
         if min_candles is None:
             self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
             min_candles = 5
@@ -107,11 +82,10 @@ class D02SupportProcessor(BaseDimensionProcessor):
         Returns:
             pl.DataFrame: swing_high_wick és swing_low_wick oszlopokkal kiegészített DataFrame
         """
-        min_candles = self.dim_config.get("min_candles")
+        min_candles = self.dim_config.min_candles
         if min_candles is None:
             self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
             min_candles = 5
-        min_candles = cast(int, min_candles)
 
         # Wick swing pontok számítása
         swing_high_wick = (
@@ -161,13 +135,13 @@ class D02SupportProcessor(BaseDimensionProcessor):
             )
             return df
 
-        level_merge = self.dim_config.get("level_merge")
+        level_merge = self.dim_config.level_merge
         if level_merge is None:
             self.logger.warning(
                 "level_merge paraméter hiányzik a configból, default 0.0005 használata"
             )
             level_merge = 0.0005
-        threshold = cast(float, level_merge)
+        threshold = level_merge
 
         while True:
             rows = df.to_dicts()
@@ -199,7 +173,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
             new_type = types[min_i]
 
             # Új lista létrehozása
-            new_rows = []
+            new_rows: list[dict[str, Any]] = []
             for idx, row in enumerate(rows):
                 if idx not in (min_i, min_j):
                     new_rows.append(row)
@@ -226,13 +200,12 @@ class D02SupportProcessor(BaseDimensionProcessor):
                 'strength' kulccsal.
         """
         base_weight = 0.1
-        strength_window = self.dim_config.get("strength_window")
+        strength_window = self.dim_config.strength_window
         if strength_window is None:
             self.logger.warning(
                 "strength_window paraméter hiányzik a configból, default 10 használata"
             )
             strength_window = 10
-        strength_window = cast(int, strength_window)
         # Használjuk a strength_window-t base_weight módosítására
         base_weight /= strength_window
 
@@ -274,11 +247,10 @@ class D02SupportProcessor(BaseDimensionProcessor):
                     "resistance": {"strong": [...], "moderate": [...], "weak": [...]}
                 }
         """
-        min_touches = self.dim_config.get("min_touches")
+        min_touches = self.dim_config.min_touches
         if min_touches is None:
             self.logger.warning("min_touches paraméter hiányzik a configból, default 1 használata")
             min_touches = 1
-        min_touches = cast(int, min_touches)
 
         result: dict[str, dict[str, list[dict[str, str | float | int]]]] = {
             "support": {"strong": [], "moderate": [], "weak": []},
@@ -314,13 +286,12 @@ class D02SupportProcessor(BaseDimensionProcessor):
         Returns:
             pl.Expr: Szorzó kifejezés (1.2 ha megerősített, 1.0 ha nem)
         """
-        volume_confirmation = self.dim_config.get("volume_confirmation")
+        volume_confirmation = self.dim_config.volume_confirmation
         if volume_confirmation is None:
             self.logger.warning(
                 "volume_confirmation paraméter hiányzik a configból, default False használata"
             )
             volume_confirmation = False
-        volume_confirmation = cast(bool, volume_confirmation)
         if not volume_confirmation:
             return pl.lit(1.0)
 
@@ -370,17 +341,21 @@ class D02SupportProcessor(BaseDimensionProcessor):
                 )
             else:
                 self.logger.error(f"Hiányzó OHLC oszlopok. Elérhető oszlopok: {cols}")
-                # Nem dobunk hibát azonnal, hagyjuk, hogy a Polars dobjon specifikusabb hibát később,
-                # vagy megpróbáljuk a meglévő oszlopokkal.
+                # Nem dobunk hibát azonnal, hagyjuk, hogy a Polars dobjon specifikusabb hibát
+                # később, vagy megpróbáljuk a meglévő oszlopokkal.
 
         # Market Hours szűrés és logolás
-        market_hours_config = self.dim_config.get("market_hours", {})
-        if market_hours_config.get("enabled", False):
-            enabled_weekdays = market_hours_config.get(
-                "weekdays", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-            )
-            hours_range = market_hours_config.get("hours", ["00:00", "23:59"])
-            market_hours_config.get("timezone", "UTC")
+        market_hours = self.dim_config.market_hours
+        if market_hours and market_hours.enabled:
+            enabled_weekdays = market_hours.weekdays or [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+            ]
+            hours_range = market_hours.hours or ["00:00", "23:59"]
+            # market_hours.timezone
 
             # Számoljuk a market hours-on kívüli sorokat
             total_rows = len(df)
@@ -419,9 +394,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
                     df.select((~market_hours_mask).sum().alias("outside")).select("outside").item()
                 )
 
-                if outside_market_hours_count > 0 and market_hours_config.get(
-                    "log_filtering", False
-                ):
+                if outside_market_hours_count > 0 and market_hours.log_filtering:
                     self.logger.info(
                         "Market hours szűrés eredménye",
                         total_rows=total_rows,
@@ -454,7 +427,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
         )
 
         # Swing pontok gyűjtése DataFrame-ként
-        swing_data = []
+        swing_data: list[dict[str, Any]] = []
         for row in df.iter_rows(named=True):
             if row.get("swing_high_body") is not None:
                 swing_data.append(
@@ -479,7 +452,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
         merged_df = self._merge_levels(swings_df)
 
         # Visszaalakítás list[dict]-ra a további feldolgozáshoz
-        merged_levels = []
+        merged_levels: list[dict[str, Any]] = []
         for row in merged_df.to_dicts():
             level_type = "resistance" if row["type"] == "high" else "support"
             merged_levels.append(
@@ -492,15 +465,26 @@ class D02SupportProcessor(BaseDimensionProcessor):
             )
 
         # Szintek erősségének számítása
-        merged_levels = self._calculate_level_strength(merged_levels)
+        # Cast to match the signature of _calculate_level_strength which expects specific dict type
+        # Ideally we would update the signature but for now we cast to Any
+        # to satisfy the list passing
+        merged_levels_typed = cast(list[dict[str, float | int | str]], merged_levels)
+        merged_levels_calculated = self._calculate_level_strength(merged_levels_typed)
 
         # Support és resistance szintek kinyerése
-        support_levels = [level for level in merged_levels if level["type"] == "support"]
-        resistance_levels = [level for level in merged_levels if level["type"] == "resistance"]
+        support_levels = [level for level in merged_levels_calculated if level["type"] == "support"]
+        resistance_levels = [
+            level for level in merged_levels_calculated if level["type"] == "resistance"
+        ]
 
         # Mapping price -> strength
-        support_dict = {level["price"]: level["strength"] for level in support_levels}
-        resistance_dict = {level["price"]: level["strength"] for level in resistance_levels}
+        support_dict = {
+            cast(float, level["price"]): cast(float, level["strength"]) for level in support_levels
+        }
+        resistance_dict = {
+            cast(float, level["price"]): cast(float, level["strength"])
+            for level in resistance_levels
+        }
 
         # Függvények nearest számításhoz
         def find_nearest_support(mid_close: float) -> tuple[float | None, float | None]:

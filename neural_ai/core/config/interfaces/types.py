@@ -47,6 +47,21 @@ class TimeframeConfig(BaseModel):
     swing_window: int | None = Field(None, ge=1, description="Swing ablak méret")
 
 
+class MarketHoursConfig(BaseModel):
+    """Piaci órák konfigurációja."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    enabled: bool | None = Field(None, description="Piaci órák szűrése engedélyezve")
+    weekdays: list[str] | None = Field(None, description="Engedélyezett napok")
+    hours: list[str] | None = Field(None, description="Engedélyezett órák")
+    timezone: str | None = Field(None, description="Időzóna")
+    log_filtering: bool | None = Field(None, description="Szűrés naplózása")
+
+
 class HandlerConfig(BaseModel):
     """Log handler konfiguráció."""
 
@@ -295,6 +310,10 @@ class ProcessorConfig(BaseModel):
     min_touches: int | None = Field(None, ge=1, description="Minimális érintések száma")
     volume_confirmation: bool | None = Field(None, description="Volumen megerősítés")
     strength_window: int | None = Field(None, ge=1, description="Erősség ablak méret")
+    market_hours: MarketHoursConfig | None = Field(
+        None, description="Piaci órák konfigurációja"
+    )
+    min_candles: int | None = Field(None, ge=1, description="Minimális gyertyák száma")
     timeframe_configs: dict[str, TimeframeConfig] | None = Field(
         None,
         description="Timeframe specifikus konfigurációk"
@@ -336,23 +355,112 @@ class LoggingConfig(BaseModel):
 
 
 class DatabaseConfig(BaseModel):
-    """Adatbázis konfiguráció.
+    """Teljes adatbázis konfiguráció Pydantic validációval.
 
-    Ez a modell definiálja az adatbázis kapcsolati paramétereket és
-    connection pool beállításokat.
+    Ez a modell reprezentálja a teljes adatbázis konfigurációt, beleértve
+    a kapcsolati beállításokat és az opcionális connection pool paramétereket.
+    Szigorú validációt biztosít a connection URL formátumára és a pool méretére.
+
+    ARCHITEKTÚRA SZABÁLY: Csak async database driver-ek engedélyezettek!
+    Támogatott formátumok:
+        - sqlite+aiosqlite:///path/to/db.db
+        - postgresql+asyncpg://user:pass@host:port/dbname
+        - mysql+aiomysql://user:pass@host:port/dbname
+
+    Lásd: docs/development/architecture_standards.md - Típusbiztonság
+
+    Attributes:
+        connection: Adatbázis kapcsolat konfigurációja (kötelező)
+        pool: Connection pool konfiguráció (opcionális)
+
+    Raises:
+        ValueError: Ha a connection URL formátuma érvénytelen
+        ValueError: Ha a pool size < 1
+
+    Example:
+        >>> config = DatabaseConfig(
+        ...     connection=DatabaseConnectionConfig(
+        ...         url="sqlite+aiosqlite:///neural_ai.db"
+        ...     ),
+        ...     pool=DatabasePoolConfig(size=5, recycle=3600)
+        ... )
     """
 
     model_config = ConfigDict(
         extra="forbid",
+        str_strip_whitespace=True,
         validate_assignment=True,
     )
 
-    type: Literal["sqlite", "postgresql", "mysql"] | None = Field(
-        None,
-        description="Adatbázis típusa"
+    connection: DatabaseConnectionConfig = Field(
+        ...,
+        description="Adatbázis kapcsolat konfiguráció (kötelező)"
     )
-    connection: DatabaseConnectionConfig | None = Field(None, description="Kapcsolat konfiguráció")
-    pool: DatabasePoolConfig | None = Field(None, description="Pool konfiguráció")
+    pool: DatabasePoolConfig | None = Field(
+        None,
+        description="Connection pool konfiguráció (opcionális, csak nem-SQLite DB-khez)"
+    )
+
+    @field_validator('connection')
+    @classmethod
+    def validate_connection_url(
+        cls, v: DatabaseConnectionConfig
+    ) -> DatabaseConnectionConfig:
+        """Ellenőrzi a connection URL formátumát.
+
+        Támogatott async driver formátumok:
+        - sqlite+aiosqlite:// (SQLite async)
+        - postgresql+asyncpg:// (PostgreSQL async)
+        - mysql+aiomysql:// (MySQL async)
+
+        Args:
+            v: A DatabaseConnectionConfig objektum
+
+        Returns:
+            DatabaseConnectionConfig: A validált konfiguráció
+
+        Raises:
+            ValueError: Ha az URL formátuma nem támogatott
+        """
+        if not v.url:
+            raise ValueError("Adatbázis URL megadása kötelező!")
+
+        url_lower = v.url.lower()
+        valid_prefixes = [
+            "sqlite+aiosqlite://",
+            "postgresql+asyncpg://",
+            "mysql+aiomysql://"
+        ]
+
+        if not any(url_lower.startswith(prefix) for prefix in valid_prefixes):
+            raise ValueError(
+                f"Érvénytelen adatbázis URL formátum: {v.url}. "
+                f"Támogatott async driver-ek: {', '.join(valid_prefixes)}"
+            )
+
+        return v
+
+    @field_validator('pool')
+    @classmethod
+    def validate_pool_config(
+        cls, v: DatabasePoolConfig | None
+    ) -> DatabasePoolConfig | None:
+        """Validálja a pool konfigurációt.
+
+        Ellenőrzi, hogy a pool size legalább 1, ha meg van adva.
+
+        Args:
+            v: A DatabasePoolConfig objektum vagy None
+
+        Returns:
+            DatabasePoolConfig | None: A validált pool konfiguráció
+
+        Raises:
+            ValueError: Ha a pool size < 1
+        """
+        if v and v.size is not None and v.size < 1:
+            raise ValueError("Pool size nem lehet kisebb mint 1!")
+        return v
 
 
 class EventsConfig(BaseModel):

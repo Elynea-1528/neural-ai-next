@@ -1,49 +1,13 @@
 """Processing Factory - Feldolgozási komponensek factory függvényei."""
 
 import importlib
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING
 
+from pydantic import ValidationError
+
+from neural_ai.core.config.interfaces.types import ProcessorsConfig
 from neural_ai.processors.interfaces.dimension_processor_interface import IDimensionProcessor
 from neural_ai.processors.interfaces.time_alignment_interface import ITimeAlignmentService
-
-
-class TimeframeConfig(TypedDict):
-    """Időkeret specifikus konfiguráció."""
-
-    z_score_window: int
-
-
-class MarketHoursConfig(TypedDict):
-    """Piaci órák szűrő konfiguráció."""
-
-    enabled: bool
-    weekdays: list[str]
-    hours: list[str]
-    timezone: str
-    log_filtering: bool
-
-
-class DimensionConfig(TypedDict):
-    """Dimenzió processzor konfiguráció."""
-
-    z_score_window: int
-    timeframe_configs: dict[str, TimeframeConfig]
-    calc_shadows: bool
-    market_hours: MarketHoursConfig
-
-
-class ProcessorConfig(TypedDict):
-    """Processor konfigurációk gyűjteménye."""
-
-    d01: DimensionConfig
-    d02: DimensionConfig
-
-
-class TimeAlignmentConfig(TypedDict):
-    """Időszinkronizációs szolgáltatás konfiguráció."""
-
-    pass
-
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -67,7 +31,6 @@ def create_time_alignment_service(
     Returns:
         ITimeAlignmentService: Az időszinkronizációs szolgáltatás példánya
     """
-    cast(TimeAlignmentConfig, config.get("time_alignment") or {})
     module = importlib.import_module("neural_ai.processors.implementations.time_alignment_service")
     cls = module.TimeAlignmentService
     return cls(logger)
@@ -92,7 +55,12 @@ def create_dimension_processor(
     if dimension_id not in DIMENSIONS_CONFIG:
         raise ValueError(f"Ismeretlen dimenzió ID: {dimension_id}")
 
-    cast(ProcessorConfig, config.get("processors") or {})
+    try:
+        # Pydantic validáció - "Fail Fast"
+        ProcessorsConfig(processors=config.get("processors") or {})
+    except ValidationError as e:
+        logger.error("Érvénytelen processzor konfiguráció", extra={"error": str(e)})
+        raise
 
     name = DIMENSIONS_CONFIG[dimension_id]
     module_name = f"neural_ai.processors.dimensions.d{dimension_id:02d}_{name}.factory"
