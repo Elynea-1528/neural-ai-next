@@ -83,6 +83,19 @@ class HandlerConfig(BaseModel):
     rotating: bool | None = Field(None, description="Rotáló fájl használata")
     max_bytes: int | None = Field(None, ge=1, description="Maximális fájlméret bájtban")
     backup_count: int | None = Field(None, ge=0, description="Mentési példányok száma")
+    class_name: str | None = Field(
+        None,
+        alias="class",
+        min_length=1,
+        description="Handler osztály (pl. logging.handlers.RotatingFileHandler)"
+    )
+    maxBytes: int | None = Field(
+        None, ge=1, description="Maximális fájlméret bájtban (RotatingFileHandler)"
+    )
+    backupCount: int | None = Field(
+        None, ge=0, description="Backup fájlok száma (RotatingFileHandler)"
+    )
+    encoding: str | None = Field(None, min_length=1, description="Fájl kódolás (pl. utf-8)")
 
 
 class LoggerConfig(BaseModel):
@@ -343,6 +356,7 @@ class LoggingConfig(BaseModel):
         extra="forbid",
         str_strip_whitespace=True,
         validate_assignment=True,
+        populate_by_name=True,
     )
 
     default_level: str | None = Field(
