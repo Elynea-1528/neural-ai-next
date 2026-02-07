@@ -574,6 +574,119 @@ class IngestionConfig(BaseModel):
     )
 
 
+class UIDateRangeConfig(BaseModel):
+    """UI Dátumtartomány konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+        validate_assignment=True,
+    )
+
+    start: str | None = Field(None, min_length=1, description="Kezdő dátum (ISO formátum)")
+    end: str | None = Field(None, min_length=1, description="Befejező dátum (ISO formátum)")
+
+
+class UIJForexConfig(BaseModel):
+    """UI JForex konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    symbols: list[str] | None = Field(None, description="Szimbólumok listája")
+    date_range: UIDateRangeConfig | None = Field(None, description="Dátumtartomány")
+
+
+class DataServiceConfig(BaseModel):
+    """UI Adatszolgáltatás konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    jforex: UIJForexConfig | None = Field(None, description="JForex konfiguráció")
+
+
+class NavigationConfig(BaseModel):
+    """Navigáció konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    default_page: str | None = Field(None, description="Alapértelmezett oldal")
+
+
+class DashboardConfig(BaseModel):
+    """Dashboard konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    refresh_rate: int | None = Field(None, ge=1, description="Frissítési ráta másodpercben")
+
+
+class AIServiceConfig(BaseModel):
+    """AI szolgáltatás konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    model_path: str | None = Field(None, description="Modell útvonala")
+
+
+class StrategyConfig(BaseModel):
+    """Stratégia konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    backtest_enabled: bool | None = Field(None, description="Backtest engedélyezve")
+
+
+class LiveOpsConfig(BaseModel):
+    """Live Ops konfiguráció."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    auto_reconnect: bool | None = Field(None, description="Automatikus újracsatlakozás")
+
+
+class UIConfig(BaseModel):
+    """UI Factory konfiguráció Pydantic validációval."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        validate_assignment=True,
+    )
+
+    theme: Literal["light", "dark"] | None = Field("light", description="UI téma")
+    refresh_rate: int | None = Field(
+        None, ge=1, description="Globális frissítési ráta másodpercben"
+    )
+    navigation: NavigationConfig | None = Field(None, description="Navigáció konfiguráció")
+    dashboard: DashboardConfig | None = Field(None, description="Dashboard konfiguráció")
+    data_service: DataServiceConfig | None = Field(
+        None, description="Adatszolgáltatás konfiguráció"
+    )
+    ai_service: AIServiceConfig | None = Field(None, description="AI szolgáltatás konfiguráció")
+    strategy: StrategyConfig | None = Field(None, description="Stratégia konfiguráció")
+    live_ops: LiveOpsConfig | None = Field(None, description="Live Ops konfiguráció")
+
+
 class ConfigSchema(BaseModel):
     """Általános konfigurációs séma típus.
 
@@ -593,3 +706,4 @@ class ConfigSchema(BaseModel):
     events: EventsConfig | None = Field(None, description="Esemény rendszer konfiguráció")
     collectors: CollectorsConfig | None = Field(None, description="Gyűjtők konfigurációja")
     ingestion: IngestionConfig | None = Field(None, description="Adatbevitel konfiguráció")
+    ui: UIConfig | None = Field(None, description="UI konfiguráció")

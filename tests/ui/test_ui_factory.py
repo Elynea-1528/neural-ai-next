@@ -3,7 +3,9 @@
 from unittest.mock import Mock
 
 import pytest
+from pydantic import ValidationError
 
+from neural_ai.core.config.interfaces.types import UIConfig
 from neural_ai.ui.factory import UIServiceFactory
 from neural_ai.ui.interfaces.ai_service_interface import AIServiceInterface
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
@@ -41,7 +43,7 @@ class TestUIServiceFactory:
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
 
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         assert factory.is_initialized is True
 
@@ -56,7 +58,7 @@ class TestUIServiceFactory:
         """Navigation service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_navigation_service()
 
@@ -73,7 +75,7 @@ class TestUIServiceFactory:
         """Dashboard service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_dashboard_service()
 
@@ -90,7 +92,7 @@ class TestUIServiceFactory:
         """Data service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_data_service()
 
@@ -107,7 +109,7 @@ class TestUIServiceFactory:
         """AI service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_ai_service()
 
@@ -124,7 +126,7 @@ class TestUIServiceFactory:
         """Strategy service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_strategy_service()
 
@@ -141,7 +143,7 @@ class TestUIServiceFactory:
         """Live Ops service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_live_ops_service()
 
@@ -151,7 +153,7 @@ class TestUIServiceFactory:
         """Az összes szolgáltatás lekérdezésének tesztelése."""
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         services = factory.get_all_services()
 
@@ -178,7 +180,7 @@ class TestUIServiceFactory:
         assert factory.is_initialized is False
 
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         assert factory.is_initialized is True
 
@@ -186,7 +188,7 @@ class TestUIServiceFactory:
         """A reset metódus tesztelése."""
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         # Létrehozunk néhány szolgáltatást
         factory.get_navigation_service()
@@ -206,7 +208,7 @@ class TestUIServiceFactory:
         assert factory1 is factory2
 
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory1.initialize(mock_bridge)
+        factory1.initialize(mock_bridge, {}, Mock(), Mock())
 
         assert factory2.is_initialized is True
 
@@ -214,7 +216,7 @@ class TestUIServiceFactory:
         """DataService kompatibilitás ellenőrzése a factory-val."""
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         # Lekérjük a DataService-t
         data_service = factory.get_data_service()
@@ -226,7 +228,7 @@ class TestUIServiceFactory:
         """Szolgáltatások gyorsítótárazásának tesztelése."""
         factory = UIServiceFactory()
         mock_bridge = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge)
+        factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         # Lekérjük a szolgáltatást kétszer
         service1 = factory.get_data_service()
@@ -234,3 +236,74 @@ class TestUIServiceFactory:
 
         # Ellenőrizzük, hogy ugyanaz a példány lett-e visszaadva
         assert service1 is service2
+
+
+class TestUIConfigValidation:
+    """UIConfig Pydantic validáció tesztek."""
+
+    def test_valid_ui_config(self) -> None:
+        """Érvényes UI konfiguráció tesztelése."""
+        config = UIConfig(
+            theme="dark",
+            refresh_rate=5,
+        )
+        assert config.theme == "dark"
+        assert config.refresh_rate == 5
+
+    def test_invalid_theme_raises_error(self) -> None:
+        """Érvénytelen téma ValidationError-t dob."""
+        with pytest.raises(ValidationError):
+            UIConfig(theme="invalid_theme")
+
+    def test_negative_refresh_rate_raises_error(self) -> None:
+        """Negatív refresh_rate ValidationError-t dob."""
+        with pytest.raises(ValidationError):
+            UIConfig(refresh_rate=-1)
+
+    def test_zero_refresh_rate_raises_error(self) -> None:
+        """Nulla refresh_rate ValidationError-t dob."""
+        with pytest.raises(ValidationError):
+            UIConfig(refresh_rate=0)
+
+    def test_factory_validates_config(self) -> None:
+        """Factory Pydantic validációt végez."""
+        from unittest.mock import Mock
+
+        from neural_ai.ui.factory import UIServiceFactory
+
+        factory = UIServiceFactory()
+        mock_bridge = Mock()
+
+        # Érvénytelen config
+        with pytest.raises(ValidationError):
+            factory.initialize(
+                bridge=mock_bridge,
+                config={"theme": "invalid"},
+                logger=Mock(),
+                core_components=Mock(),
+            )
+
+    def test_default_values(self) -> None:
+        """Alapértelmezett értékek tesztelése."""
+        config = UIConfig()
+        assert config.theme == "light"
+        assert config.refresh_rate is None
+
+    def test_nested_config_validation(self) -> None:
+        """Beágyazott konfiguráció validálása."""
+        config = UIConfig(
+            data_service={
+                "jforex": {
+                    "symbols": ["EURUSD", "GBPUSD"],
+                    "date_range": {
+                        "start": "2024-01-01",
+                        "end": "2024-12-31"
+                    }
+                }
+            }
+        )
+        assert config.data_service is not None
+        assert config.data_service.jforex is not None
+        assert config.data_service.jforex.symbols == ["EURUSD", "GBPUSD"]
+        assert config.data_service.jforex.date_range is not None
+        assert config.data_service.jforex.date_range.start == "2024-01-01"

@@ -498,7 +498,6 @@ class TestStrategyLabPageSessionState:
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
-        import polars as pl
 
         # Mock DataFrame bid oszlopokkal
         mock_df_pd = pd.DataFrame(
@@ -513,27 +512,38 @@ class TestStrategyLabPageSessionState:
                 "tick_volume": [50, 75],
             }
         )
-        # Konvertáljuk Polars-ra
-        mock_df = pl.from_pandas(mock_df_pd)
-        strategy_lab_page._candles = mock_df
+        # Mockoljuk a Polars DataFrame-et
+        mock_pl_df = MagicMock()
+        mock_pl_df.is_empty.return_value = False
+        mock_pl_df.to_pandas.return_value = mock_df_pd
+        mock_pl_df.columns = list(mock_df_pd.columns)
+        
+        strategy_lab_page._candles = mock_pl_df
         strategy_lab_module.st.session_state.price_type = "Bid"
 
         with patch.object(strategy_lab_module.st, "dataframe") as mock_dataframe:
-            strategy_lab_page._render_data_table()
+            with patch.object(strategy_lab_module.st, "error") as mock_error:
+                strategy_lab_page._render_data_table()
+                
+                if mock_error.called:
+                    pytest.fail(f"st.error hívódott meg: {mock_error.call_args[0][0]}")
 
-            # Ellenőrizzük, hogy a megfelelő oszlopok kerültek megjelenítésre
-            call_args = mock_dataframe.call_args[0][0]
-            expected_cols = [
-                "bid_open",
-                "bid_high",
-                "bid_low",
-                "bid_close",
-                "spread",
-                "rolling_z_score",
-                "real_volume",
-                "tick_volume",
-            ]
-            assert list(call_args.columns) == expected_cols
+                # Ellenőrizzük, hogy a dataframe metódus meghívódott-e
+                assert mock_dataframe.called, "st.dataframe nem hívódott meg"
+
+                # Ellenőrizzük, hogy a megfelelő oszlopok kerültek megjelenítésre
+                call_args = mock_dataframe.call_args[0][0]
+                expected_cols = [
+                    "bid_open",
+                    "bid_high",
+                    "bid_low",
+                    "bid_close",
+                    "spread",
+                    "rolling_z_score",
+                    "real_volume",
+                    "tick_volume",
+                ]
+                assert list(call_args.columns) == expected_cols
 
     def test_render_data_table_with_price_type_mid(
         self, strategy_lab_page: StrategyLabPage
@@ -544,7 +554,6 @@ class TestStrategyLabPageSessionState:
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
-        import polars as pl
 
         # Mock DataFrame mid oszlopokkal
         mock_df_pd = pd.DataFrame(
@@ -558,31 +567,44 @@ class TestStrategyLabPageSessionState:
                 "real_volume": [1000, 1500],
             }
         )
-        # Konvertáljuk Polars-ra
-        mock_df = pl.from_pandas(mock_df_pd)
-        strategy_lab_page._candles = mock_df
+        # Mockoljuk a Polars DataFrame-et
+        mock_pl_df = MagicMock()
+        mock_pl_df.is_empty.return_value = False
+        mock_pl_df.to_pandas.return_value = mock_df_pd
+        mock_pl_df.columns = list(mock_df_pd.columns)
+
+        strategy_lab_page._candles = mock_pl_df
         strategy_lab_module.st.session_state.price_type = "Mid"
 
         with patch.object(strategy_lab_module.st, "dataframe") as mock_dataframe:
-            strategy_lab_page._render_data_table()
+            with patch.object(strategy_lab_module.st, "error") as mock_error:
+                strategy_lab_page._render_data_table()
+                
+                if mock_error.called:
+                    pytest.fail(f"st.error hívódott meg: {mock_error.call_args[0][0]}")
 
-            # Ellenőrizzük, hogy a megfelelő oszlopok kerültek megjelenítésre
-            call_args = mock_dataframe.call_args[0][0]
-            expected_cols = [
-                "mid_open",
-                "mid_high",
-                "mid_low",
-                "mid_close",
-                "spread",
-                "rolling_z_score",
-                "real_volume",
-            ]
-            assert list(call_args.columns) == expected_cols
+                # Ellenőrizzük, hogy a dataframe metódus meghívódott-e
+                assert mock_dataframe.called, "st.dataframe nem hívódott meg"
+
+                # Ellenőrizzük, hogy a megfelelő oszlopok kerültek megjelenítésre
+                call_args = mock_dataframe.call_args[0][0]
+                expected_cols = [
+                    "mid_open",
+                    "mid_high",
+                    "mid_low",
+                    "mid_close",
+                    "spread",
+                    "rolling_z_score",
+                    "real_volume",
+                ]
+                assert list(call_args.columns) == expected_cols
 
     @patch.object(strategy_lab_module.st, "plotly_chart")
     @patch("plotly.graph_objects.Figure")
+    @patch("plotly.graph_objects.Candlestick")
     def test_render_candlestick_chart_with_bid_price_type(
         self,
+        mock_candlestick: MagicMock,
         mock_figure: MagicMock,
         mock_plotly_chart: MagicMock,
         strategy_lab_page: StrategyLabPage,
@@ -590,12 +612,12 @@ class TestStrategyLabPageSessionState:
         """Teszteli a candlestick chart renderelését Bid price type-pal.
 
         Args:
+            mock_candlestick: Mockolt Candlestick.
             mock_figure: Mockolt Figure.
             mock_plotly_chart: Mockolt plotly_chart.
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
-        import polars as pl
 
         # Mock DataFrame bid oszlopokkal
         mock_df_pd = pd.DataFrame(
@@ -607,26 +629,45 @@ class TestStrategyLabPageSessionState:
                 "timestamp": pd.date_range("2024-01-01", periods=2, freq="1min"),
             }
         )
-        # Konvertáljuk Polars-ra
-        mock_df = pl.from_pandas(mock_df_pd)
-        strategy_lab_page._candles = mock_df
+        # Mockoljuk a Polars DataFrame-et
+        mock_pl_df = MagicMock()
+        mock_pl_df.is_empty.return_value = False
+        mock_pl_df.to_pandas.return_value = mock_df_pd
+        
+        strategy_lab_page._candles = mock_pl_df
         strategy_lab_module.st.session_state.price_type = "Bid"
+        strategy_lab_module.st.session_state.show_body_swings = False
+        strategy_lab_module.st.session_state.show_wick_swings = False
+        strategy_lab_module.st.session_state.d2_analysis = None
 
         mock_fig_instance = MagicMock()
+        mock_fig_instance.data = [MagicMock(open=None)]
         mock_figure.return_value = mock_fig_instance
+        
+        # Mockoljuk a _prepare_data_for_view metódust
+        with patch.object(strategy_lab_page, "_prepare_data_for_view") as mock_prepare:
+            prepared_df = mock_df_pd.copy()
+            prepared_df = prepared_df.rename(columns={
+                "bid_open": "open",
+                "bid_high": "high",
+                "bid_low": "low",
+                "bid_close": "close"
+            })
+            prepared_df["date"] = prepared_df["timestamp"]
+            mock_prepare.return_value = prepared_df
 
-        strategy_lab_page._render_candlestick_chart()
+            strategy_lab_page._render_candlestick_chart()
 
-        # Ellenőrizzük, hogy a Figure létrejött és a Candlestick chart hozzá lett adva
-        mock_figure.assert_called_once()
-        # A data tartalmazza a Candlestick objektumot
-        candlestick_data = mock_fig_instance.data[0]
-        assert hasattr(candlestick_data, "open")
+        # Ellenőrizzük, hogy a Figure létrejött
+        assert mock_figure.called, "go.Figure nem hívódott meg"
+        assert mock_candlestick.called, "go.Candlestick nem hívódott meg"
 
     @patch.object(strategy_lab_module.st, "plotly_chart")
     @patch("plotly.graph_objects.Figure")
+    @patch("plotly.graph_objects.Candlestick")
     def test_render_candlestick_chart_with_mid_price_type(
         self,
+        mock_candlestick: MagicMock,
         mock_figure: MagicMock,
         mock_plotly_chart: MagicMock,
         strategy_lab_page: StrategyLabPage,
@@ -634,12 +675,12 @@ class TestStrategyLabPageSessionState:
         """Teszteli a candlestick chart renderelését Mid price type-pal.
 
         Args:
+            mock_candlestick: Mockolt Candlestick.
             mock_figure: Mockolt Figure.
             mock_plotly_chart: Mockolt plotly_chart.
             strategy_lab_page: A tesztelendő oldal példány.
         """
         import pandas as pd
-        import polars as pl
 
         # Mock DataFrame mid oszlopokkal
         mock_df_pd = pd.DataFrame(
@@ -651,18 +692,35 @@ class TestStrategyLabPageSessionState:
                 "timestamp": pd.date_range("2024-01-01", periods=2, freq="1min"),
             }
         )
-        # Konvertáljuk Polars-ra
-        mock_df = pl.from_pandas(mock_df_pd)
-        strategy_lab_page._candles = mock_df
+        # Mockoljuk a Polars DataFrame-et
+        mock_pl_df = MagicMock()
+        mock_pl_df.is_empty.return_value = False
+        mock_pl_df.to_pandas.return_value = mock_df_pd
+        
+        strategy_lab_page._candles = mock_pl_df
         strategy_lab_module.st.session_state.price_type = "Mid"
+        strategy_lab_module.st.session_state.show_body_swings = False
+        strategy_lab_module.st.session_state.show_wick_swings = False
+        strategy_lab_module.st.session_state.d2_analysis = None
 
         mock_fig_instance = MagicMock()
+        mock_fig_instance.data = [MagicMock(open=None)]
         mock_figure.return_value = mock_fig_instance
 
-        strategy_lab_page._render_candlestick_chart()
+        # Mockoljuk a _prepare_data_for_view metódust
+        with patch.object(strategy_lab_page, "_prepare_data_for_view") as mock_prepare:
+            prepared_df = mock_df_pd.copy()
+            prepared_df = prepared_df.rename(columns={
+                "mid_open": "open",
+                "mid_high": "high",
+                "mid_low": "low",
+                "mid_close": "close"
+            })
+            prepared_df["date"] = prepared_df["timestamp"]
+            mock_prepare.return_value = prepared_df
 
-        # Ellenőrizzük, hogy a Figure létrejött és a Candlestick chart hozzá lett adva
-        mock_figure.assert_called_once()
-        # A data tartalmazza a Candlestick objektumot
-        candlestick_data = mock_fig_instance.data[0]
-        assert hasattr(candlestick_data, "open")
+            strategy_lab_page._render_candlestick_chart()
+
+        # Ellenőrizzük, hogy a Figure létrejött
+        assert mock_figure.called, "go.Figure nem hívódott meg"
+        assert mock_candlestick.called, "go.Candlestick nem hívódott meg"

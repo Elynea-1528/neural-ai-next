@@ -74,7 +74,11 @@ class TestCoreBridge:
 
             bridge.initialize()
 
-            mock_strategy_service.assert_called_once_with(bridge)
+            mock_strategy_service.assert_called_once_with(
+                logger=mock_core.logger,
+                config={},
+                core_components=bridge,
+            )
             assert bridge.strategy_service is mock_strategy
             mock_core.logger.debug.assert_called_once_with("Strategy Service inicializálva")
 

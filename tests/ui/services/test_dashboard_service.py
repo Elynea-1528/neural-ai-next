@@ -18,12 +18,21 @@ class TestDashboardService:
     """Dashboard Service tesztek osztálya."""
 
     @pytest.fixture
-    def mock_bridge(self) -> MagicMock:
-        """Mock CoreBridge létrehozása."""
-        bridge = MagicMock()
-        bridge.core = MagicMock()
-        bridge.core.health_monitor = MagicMock()
-        return bridge
+    def mock_components(self) -> MagicMock:
+        """Mock CoreComponents létrehozása."""
+        components = MagicMock()
+        components.health_monitor = MagicMock()
+        return components
+
+    @pytest.fixture
+    def mock_logger(self) -> MagicMock:
+        """Mock Logger létrehozása."""
+        return MagicMock()
+
+    @pytest.fixture
+    def mock_config(self) -> dict:
+        """Mock Config létrehozása."""
+        return {}
 
     @pytest.fixture
     def mock_system_health(self) -> SystemHealth:
@@ -56,26 +65,38 @@ class TestDashboardService:
             system_metrics={"cpu_percent": 45.2},
         )
 
-    def test_init(self, mock_bridge: MagicMock) -> None:
+    def test_init(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli a Dashboard Service inicializálását."""
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
 
-        assert service._bridge == mock_bridge
+        assert service._core_components == mock_components
         assert service._cached_data == {}
         assert service._subscribers == []
 
     def test_get_health_status_with_available_monitor(
-        self, mock_bridge: MagicMock, mock_system_health: SystemHealth
+        self,
+        mock_logger: MagicMock,
+        mock_config: dict,
+        mock_components: MagicMock,
+        mock_system_health: SystemHealth,
     ) -> None:
         """Teszteli az egészségügyi állapot lekérdezését, ha a monitor elérhető."""
         # Mock a health monitor check_health metódusát
-        mock_bridge.core.health_monitor.check_health.return_value = mock_system_health
+        from unittest.mock import AsyncMock
 
-        service = DashboardService(mock_bridge)
+        # A service a self._core_components.core.health_monitor.check_health() hívást használja
+        # Ezért a mock_components.core.health_monitor.check_health-et kell mockolni
+        mock_components.core.health_monitor.check_health = AsyncMock(
+            return_value=mock_system_health
+        )
+
+        service = DashboardService(mock_logger, mock_config, mock_components)
         result = service.get_health_status()
 
         # Ellenőrizzük, hogy a metódus meghívódott
-        mock_bridge.core.health_monitor.check_health.assert_called_once()
+        mock_components.core.health_monitor.check_health.assert_called_once()
 
         # Ellenőrizzük az eredményt
         expected = {
@@ -89,27 +110,22 @@ class TestDashboardService:
         # Ellenőrizzük, hogy a gyorsítótárba mentés megtörtént
         assert service._cached_data["health"] == expected
 
-    def test_get_health_status_without_core(self, mock_bridge: MagicMock) -> None:
-        """Teszteli az egészségügyi állapot lekérdezését, ha a core nem elérhető."""
-        mock_bridge.core = None
-
-        service = DashboardService(mock_bridge)
-        result = service.get_health_status()
-
-        expected = {"system": "UNKNOWN"}
-        assert result == expected
-
-    def test_get_health_status_without_health_monitor(self, mock_bridge: MagicMock) -> None:
+    def test_get_health_status_without_health_monitor(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli az egészségügyi állapot lekérdezését, ha a health monitor nem elérhető."""
-        mock_bridge.core.health_monitor = None
+        # A service a self._core_components.core.health_monitor-t ellenőrzi
+        mock_components.core.health_monitor = None
 
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
         result = service.get_health_status()
 
         expected = {"system": "UNKNOWN"}
         assert result == expected
 
-    def test_get_health_status_all_status_types(self, mock_bridge: MagicMock) -> None:
+    def test_get_health_status_all_status_types(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli az összes állapot típus leképezését."""
         components = [
             ComponentHealth(
@@ -151,9 +167,14 @@ class TestDashboardService:
             components=components,
         )
 
-        mock_bridge.core.health_monitor.check_health.return_value = system_health
+        from unittest.mock import AsyncMock
 
-        service = DashboardService(mock_bridge)
+        # A service a self._core_components.core.health_monitor.check_health() hívást használja
+        mock_components.core.health_monitor.check_health = AsyncMock(
+            return_value=system_health
+        )
+
+        service = DashboardService(mock_logger, mock_config, mock_components)
         result = service.get_health_status()
 
         expected = {
@@ -166,16 +187,18 @@ class TestDashboardService:
         }
         assert result == expected
 
-    def test_get_system_overview(self, mock_bridge: MagicMock) -> None:
+    def test_get_system_overview(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli a rendszer áttekintő adatok lekérdezését."""
         mock_system_info = {
             "version": "6.0.0",
             "status": "running",
             "components": {"core": "OK", "database": "OK"},
         }
-        mock_bridge.get_system_info.return_value = mock_system_info
+        mock_components.get_system_info.return_value = mock_system_info
 
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
         result = service.get_system_overview()
 
         assert "system_info" in result
@@ -186,7 +209,9 @@ class TestDashboardService:
         # Ellenőrizzük, hogy a gyorsítótárba mentés megtörtént
         assert service._cached_data["overview"] == result
 
-    def test_get_performance_metrics_with_resources(self, mock_bridge: MagicMock) -> None:
+    def test_get_performance_metrics_with_resources(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli a teljesítmény metrikák lekérdezését resources adatokkal."""
         mock_system_info = {
             "resources": {
@@ -195,9 +220,9 @@ class TestDashboardService:
                 "disk_usage": 23.4,
             }
         }
-        mock_bridge.get_system_info.return_value = mock_system_info
+        mock_components.get_system_info.return_value = mock_system_info
 
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
         result = service.get_performance_metrics()
 
         assert result["cpu_usage"] == 45.2
@@ -210,11 +235,13 @@ class TestDashboardService:
         # Ellenőrizzük, hogy a gyorsítótárba mentés megtörtént
         assert service._cached_data["metrics"] == result
 
-    def test_get_performance_metrics_without_resources(self, mock_bridge: MagicMock) -> None:
+    def test_get_performance_metrics_without_resources(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli a teljesítmény metrikák lekérdezését resources adatok nélkül."""
-        mock_bridge.get_system_info.return_value = {}
+        mock_components.get_system_info.return_value = {}
 
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
         result = service.get_performance_metrics()
 
         # Ellenőrizzük, hogy a fallback értékeket használja
@@ -222,9 +249,11 @@ class TestDashboardService:
         assert result["memory_usage"] == 67.8
         assert result["disk_usage"] == 23.4
 
-    def test_get_recent_activities(self, mock_bridge: MagicMock) -> None:
+    def test_get_recent_activities(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli a legutóbbi tevékenységek lekérdezését."""
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
         result = service.get_recent_activities()
 
         assert isinstance(result, list)
@@ -239,9 +268,11 @@ class TestDashboardService:
         # Ellenőrizzük, hogy a gyorsítótárba mentés megtörtént
         assert service._cached_data["activities"] == result
 
-    def test_refresh_data(self, mock_bridge: MagicMock) -> None:
+    def test_refresh_data(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli a dashboard adatok frissítését."""
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
 
         # Töltsük fel a gyorsítótárat
         service._cached_data = {
@@ -266,9 +297,11 @@ class TestDashboardService:
         assert call_args["type"] == "refresh"
         assert "timestamp" in call_args
 
-    def test_subscribe_to_updates(self, mock_bridge: MagicMock) -> None:
+    def test_subscribe_to_updates(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli a feliratkozást dashboard frissítésekre."""
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
 
         # Mock callback függvény
         mock_callback = MagicMock()
@@ -279,9 +312,11 @@ class TestDashboardService:
         assert len(service._subscribers) == 1
         assert service._subscribers[0] == mock_callback
 
-    def test_notify_subscribers(self, mock_bridge: MagicMock) -> None:
+    def test_notify_subscribers(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli a feliratkozók értesítését."""
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
 
         # Mock callback függvények
         mock_callback1 = MagicMock()
@@ -295,9 +330,11 @@ class TestDashboardService:
         mock_callback1.assert_called_once_with(test_data)
         mock_callback2.assert_called_once_with(test_data)
 
-    def test_notify_subscribers_with_exception(self, mock_bridge: MagicMock) -> None:
+    def test_notify_subscribers_with_exception(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli a feliratkozók értesítését, ha egy callback hibát dob."""
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
 
         # Mock callback, ami hibát dob
         def failing_callback(data: dict[str, Any]) -> None:
@@ -313,17 +350,19 @@ class TestDashboardService:
         # Ellenőrizzük, hogy a második callback még mindig meghívódott
         mock_callback.assert_called_once_with(test_data)
 
-    def test_cached_data_persistence(self, mock_bridge: MagicMock) -> None:
+    def test_cached_data_persistence(
+        self, mock_logger: MagicMock, mock_config: dict, mock_components: MagicMock
+    ) -> None:
         """Teszteli, hogy az adatok tényleg gyorsítótárazásra kerülnek."""
-        mock_bridge.get_system_info.return_value = {"test": "data"}
+        mock_components.get_system_info.return_value = {"test": "data"}
 
-        service = DashboardService(mock_bridge)
+        service = DashboardService(mock_logger, mock_config, mock_components)
 
         # Első hívás
         result1 = service.get_system_overview()
 
         # Módosítjuk a mock-ot, hogy lássuk, a második hívás nem használja
-        mock_bridge.get_system_info.return_value = {"different": "data"}
+        mock_components.get_system_info.return_value = {"different": "data"}
 
         # Második hívás - a gyorsítótárazott adatot kell visszaadnia
         result2 = service.get_system_overview()

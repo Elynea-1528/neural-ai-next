@@ -21,18 +21,34 @@ class TestStrategyService:
     """Strategy Service tesztek."""
 
     @pytest.fixture
-    def mock_bridge(self) -> Mock:
-        """Mock CoreBridgeInterface."""
+    def mock_components(self) -> Mock:
+        """Mock CoreComponents."""
         return Mock()
 
     @pytest.fixture
-    def strategy_service(self, mock_bridge: Mock) -> StrategyService:
-        """StrategyService példány létrehozása mock bridge-szel."""
-        return StrategyService(bridge=mock_bridge)
+    def mock_logger(self) -> Mock:
+        """Mock Logger."""
+        return Mock()
 
-    def test_init(self, strategy_service: StrategyService, mock_bridge: Mock) -> None:
+    @pytest.fixture
+    def mock_config(self) -> dict:
+        """Mock Config."""
+        return {}
+
+    @pytest.fixture
+    def strategy_service(
+        self, mock_logger: Mock, mock_config: dict, mock_components: Mock
+    ) -> StrategyService:
+        """StrategyService példány létrehozása mock komponensekkel."""
+        return StrategyService(
+            logger=mock_logger, config=mock_config, core_components=mock_components
+        )
+
+    def test_init(
+        self, strategy_service: StrategyService, mock_components: Mock
+    ) -> None:
         """StrategyService inicializáció tesztelése."""
-        assert strategy_service._bridge == mock_bridge
+        assert strategy_service._core_components == mock_components
         assert "moving_avg_cross" in strategy_service._strategies
         assert "rsi_strategy" in strategy_service._strategies
 
@@ -492,8 +508,8 @@ class TestStrategyService:
         mock_config = MagicMock()
         mock_logger = MagicMock()
 
-        # Setup mock bridge
-        strategy_service._bridge.get_component.side_effect = lambda comp: {
+        # Setup mock components
+        strategy_service._core_components.get_component.side_effect = lambda comp: {
             "config": mock_config,
             "logger": mock_logger,
         }.get(comp)
@@ -543,8 +559,8 @@ class TestStrategyService:
         mock_config = MagicMock()
         mock_logger = MagicMock()
 
-        # Setup mock bridge
-        strategy_service._bridge.get_component.side_effect = lambda comp: {
+        # Setup mock components
+        strategy_service._core_components.get_component.side_effect = lambda comp: {
             "config": mock_config,
             "logger": mock_logger,
         }.get(comp)
@@ -615,31 +631,12 @@ class TestStrategyService:
             )
 
     @pytest.mark.asyncio
-    async def test_analyze_market_structure_no_bridge(
-        self, strategy_service: StrategyService
-    ) -> None:
-        """Piaci struktúra elemzés tesztelése bridge hiányában."""
-        # Set bridge to None
-        strategy_service._bridge = None
-
-        mock_df = MagicMock()
-        mock_df.__len__ = Mock(return_value=1)
-
-        with pytest.raises(RuntimeError, match="Core bridge nincs inicializálva"):
-            await strategy_service.analyze_market_structure(
-                symbol="EURUSD",
-                date="2024-03-20",
-                timeframe="1h",
-                df=mock_df,
-            )
-
-    @pytest.mark.asyncio
     async def test_analyze_market_structure_missing_components(
         self, strategy_service: StrategyService
     ) -> None:
         """Piaci struktúra elemzés tesztelése hiányzó komponensekkel."""
-        # Setup mock bridge hogy None-t adjon vissza
-        strategy_service._bridge.get_component.return_value = None
+        # Setup mock components hogy None-t adjon vissza
+        strategy_service._core_components.get_component.return_value = None
 
         mock_df = MagicMock()
         mock_df.__len__ = Mock(return_value=1)

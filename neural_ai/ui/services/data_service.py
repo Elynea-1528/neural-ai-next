@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, cast
 import pandas as pd
 import polars as pl
 
-from neural_ai.ui.factory import DataServiceConfig, JForexConfig
+from neural_ai.core.config.interfaces.types import DataServiceConfig
 from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
 
 if TYPE_CHECKING:
@@ -27,16 +27,18 @@ class DataService(DataServiceInterface):
     végző metódusokat, Big Data támogatással és chunkolással.
     """
 
-    def __init__(self, logger: Any, config: DataServiceConfig, core_components: Any) -> None:
+    def __init__(
+        self, logger: Any, config: DataServiceConfig | None, core_components: Any
+    ) -> None:
         """A Data Service inicializálása.
 
         Args:
             logger: A logger példány
-            config: A szolgáltatás konfiguráció
+            config: A szolgáltatás konfiguráció (Pydantic modell)
             core_components: A core komponensek
         """
         self._logger = logger
-        self._config = config
+        self._config = config or DataServiceConfig()
         self._core_components = core_components
         self._data_sources: dict[str, dict[str, str]] = {
             "tick_data": {
@@ -249,7 +251,7 @@ class DataService(DataServiceInterface):
     def get_default_date_range(self) -> tuple[datetime, datetime]:
         """Alapértelmezett dátumtartomány lekérdezése a konfigurációból.
 
-        A metódus kiolvassa a configból a `collectors.jforex.date_range.start` és
+        A metódus kiolvassa a configból a `jforex.date_range.start` és
         `end` értékeit, és datetime objektumokká konvertálja őket. Ha a konfiguráció
         üres vagy hiba történik, akkor fallback értékeket használ.
 
@@ -258,29 +260,21 @@ class DataService(DataServiceInterface):
                 Fallback: (2020-01-01, ma)
         """
         try:
-            # Konfiguráció elérése a TypedDict-ből - OPERATION TOTAL RECALL
-            jforex_config = cast(JForexConfig, self._config.get("jforex", {}))
+            # Pydantic modell property elérés
+            if self._config and self._config.jforex and self._config.jforex.date_range:
+                start_str = self._config.jforex.date_range.start
+                end_str = self._config.jforex.date_range.end
 
-            # Dátumok kiolvasása a konfigurációból
-            start_str = jforex_config["date_range"]["start"]
-            end_str = jforex_config["date_range"]["end"]
+                if start_str and end_str:
+                    start_date = datetime.fromisoformat(start_str).replace(tzinfo=UTC)
+                    end_date = datetime.fromisoformat(end_str).replace(tzinfo=UTC)
+                    return start_date, end_date
 
-            # Dátumok konvertálása
-            if start_str and end_str:
-                start_date = datetime.fromisoformat(start_str).replace(tzinfo=UTC)
-                end_date = datetime.fromisoformat(end_str).replace(tzinfo=UTC)
-                return start_date, end_date
-            else:
-                # Fallback, ha üres a konfiguráció
-                fallback_start = datetime(2020, 1, 1, tzinfo=UTC)
-                fallback_end = datetime.now(UTC)
-                return fallback_start, fallback_end
+            return datetime(2020, 1, 1, tzinfo=UTC), datetime.now(UTC)
 
         except Exception:
             # Fallback, ha bármilyen hiba történik
-            fallback_start = datetime(2020, 1, 1, tzinfo=UTC)
-            fallback_end = datetime.now(UTC)
-            return fallback_start, fallback_end
+            return datetime(2020, 1, 1, tzinfo=UTC), datetime.now(UTC)
 
     async def download_history(self, symbol: str, start: datetime, end: datetime) -> dict[str, Any]:
         """Történelmi adatok letöltése aszinkron módon.
@@ -723,19 +717,10 @@ class DataService(DataServiceInterface):
             ['EURUSD', 'GBPUSD', 'USDJPY']
         """
         try:
-            # Konfiguráció elérése a TypedDict-ből - OPERATION TOTAL RECALL
-            jforex_config = cast(JForexConfig, self._config.get("jforex", {}))
-
-            # Szimbólumok kiolvasása a konfigurációból
-            symbols = jforex_config.get("symbols")
-
-            # Ellenőrzés, hogy a symbols egy lista-e és nem üres
-            if isinstance(symbols, list) and symbols:
-                return symbols
-            else:
-                # Fallback, ha üres vagy nem lista
-                return ["EURUSD"]
-
+            # Pydantic modell property elérés
+            if self._config and self._config.jforex and self._config.jforex.symbols:
+                return self._config.jforex.symbols
+            return ["EURUSD"]
         except Exception:
             # Fallback, ha bármilyen hiba történik
             return ["EURUSD"]

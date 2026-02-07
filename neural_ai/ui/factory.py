@@ -4,9 +4,18 @@ Ez a modul implementálja a UI szolgáltatások létrehozását és kezelését
 Dependency Injection minta szerint.
 """
 
-from typing import TYPE_CHECKING, Any, TypedDict, cast
+from typing import TYPE_CHECKING, Any
 
 from neural_ai.core.base.implementations.singleton import SingletonMeta
+from neural_ai.core.config.interfaces.types import (
+    AIServiceConfig,
+    DashboardConfig,
+    DataServiceConfig,
+    LiveOpsConfig,
+    NavigationConfig,
+    StrategyConfig,
+    UIConfig,
+)
 from neural_ai.ui.interfaces.ai_service_interface import AIServiceInterface
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 from neural_ai.ui.interfaces.dashboard_service_interface import DashboardServiceInterface
@@ -14,26 +23,6 @@ from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
 from neural_ai.ui.interfaces.live_ops_service_interface import LiveOpsServiceInterface
 from neural_ai.ui.interfaces.navigation_service_interface import NavigationServiceInterface
 from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
-
-
-# TypedDict definíciók config kezeléshez - OPERATION TOTAL RECALL
-class DateRange(TypedDict):
-    start: str
-    end: str
-
-
-class JForexConfig(TypedDict):
-    symbols: list[str]
-    date_range: DateRange
-
-
-class DataServiceConfig(TypedDict):
-    jforex: JForexConfig
-
-
-class UIFactoryConfig(TypedDict):
-    data_service: DataServiceConfig
-
 
 if TYPE_CHECKING:
     pass
@@ -49,7 +38,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
     def __init__(self) -> None:
         """A UI Service Factory inicializálása."""
         self._bridge: CoreBridgeInterface | None = None
-        self._config: UIFactoryConfig | None = None
+        self._config: UIConfig | None = None
         self._logger: Any = None
         self._core_components: Any = None
         self._services: dict[str, Any] = {}
@@ -58,7 +47,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
     def initialize(
         self,
         bridge: "CoreBridgeInterface",
-        config: UIFactoryConfig,
+        config: dict[str, Any] | UIConfig,
         logger: Any,
         core_components: Any,
     ) -> None:
@@ -66,19 +55,24 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         Args:
             bridge: A backend bridge példány
-            config: A UI factory konfiguráció
+            config: A UI factory konfiguráció (dict vagy UIConfig)
             logger: A logger példány
             core_components: A core komponensek
         """
+        if isinstance(config, dict):
+            validated_config = UIConfig(**config)
+        else:
+            validated_config = config
+
         self._bridge = bridge
-        self._config = config
+        self._config = validated_config
         self._logger = logger
         self._core_components = core_components
         self._initialized = True
 
     def get_navigation_service(
         self,
-        config: UIFactoryConfig | None = None,
+        config: UIConfig | None = None,
         logger: Any | None = None,
         core_components: Any | None = None,
     ) -> NavigationServiceInterface:
@@ -103,8 +97,8 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if final_config is None or final_logger is None or final_components is None:
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
-        # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        nav_config = cast(dict[str, Any], final_config.get("navigation", {}))
+        # Pydantic property elérés - cast() helyett
+        nav_config = final_config.navigation if final_config else NavigationConfig()
 
         if "navigation" not in self._services:
             from neural_ai.ui.services.navigation_service import NavigationService
@@ -117,7 +111,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
     def get_dashboard_service(
         self,
-        config: UIFactoryConfig | None = None,
+        config: UIConfig | None = None,
         logger: Any | None = None,
         core_components: Any | None = None,
     ) -> DashboardServiceInterface:
@@ -142,8 +136,8 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if final_config is None or final_logger is None or final_components is None:
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
-        # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        dash_config = cast(dict[str, Any], final_config.get("dashboard", {}))
+        # Pydantic property elérés - cast() helyett
+        dash_config = final_config.dashboard if final_config else DashboardConfig()
 
         if "dashboard" not in self._services:
             from neural_ai.ui.services.dashboard_service import DashboardService
@@ -156,7 +150,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
     def get_data_service(
         self,
-        config: UIFactoryConfig | None = None,
+        config: UIConfig | None = None,
         logger: Any | None = None,
         core_components: Any | None = None,
     ) -> DataServiceInterface:
@@ -181,8 +175,8 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if final_config is None or final_logger is None or final_components is None:
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
-        # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        data_config = cast(DataServiceConfig, final_config.get("data_service", {}))
+        # Pydantic property elérés - cast() helyett
+        data_config = final_config.data_service if final_config else DataServiceConfig()
 
         if "data" not in self._services:
             from neural_ai.ui.services.data_service import DataService
@@ -193,7 +187,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
     def get_ai_service(
         self,
-        config: UIFactoryConfig | None = None,
+        config: UIConfig | None = None,
         logger: Any | None = None,
         core_components: Any | None = None,
     ) -> AIServiceInterface:
@@ -218,8 +212,8 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if final_config is None or final_logger is None or final_components is None:
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
-        # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        ai_config = cast(dict[str, Any], final_config.get("ai_service", {}))
+        # Pydantic property elérés - cast() helyett
+        ai_config = final_config.ai_service if final_config else AIServiceConfig()
 
         if "ai" not in self._services:
             from neural_ai.ui.services.ai_service import AIService
@@ -230,7 +224,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
     def get_strategy_service(
         self,
-        config: UIFactoryConfig | None = None,
+        config: UIConfig | None = None,
         logger: Any | None = None,
         core_components: Any | None = None,
     ) -> StrategyServiceInterface:
@@ -255,8 +249,8 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if final_config is None or final_logger is None or final_components is None:
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
-        # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        strategy_config = cast(dict[str, Any], final_config.get("strategy", {}))
+        # Pydantic property elérés - cast() helyett
+        strategy_config = final_config.strategy if final_config else StrategyConfig()
 
         if "strategy" not in self._services:
             from neural_ai.ui.services.strategy_service import StrategyService
@@ -269,7 +263,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
     def get_live_ops_service(
         self,
-        config: UIFactoryConfig | None = None,
+        config: UIConfig | None = None,
         logger: Any | None = None,
         core_components: Any | None = None,
     ) -> LiveOpsServiceInterface:
@@ -294,8 +288,8 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if final_config is None or final_logger is None or final_components is None:
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
-        # Cast config TypedDict-re - OPERATION TOTAL RECALL
-        live_ops_config = cast(dict[str, Any], final_config.get("live_ops", {}))
+        # Pydantic property elérés - cast() helyett
+        live_ops_config = final_config.live_ops if final_config else LiveOpsConfig()
 
         if "live_ops" not in self._services:
             from neural_ai.ui.services.live_ops_service import LiveOpsService
@@ -308,7 +302,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
     def get_all_services(
         self,
-        config: UIFactoryConfig | None = None,
+        config: UIConfig | None = None,
         logger: Any | None = None,
         core_components: Any | None = None,
     ) -> dict[str, Any]:

@@ -65,7 +65,11 @@ class TestUIApplication:
             assert app.factory == mock_factory
             assert app.navigation == mock_navigation
             mock_bridge.initialize.assert_called_once()
-            mock_factory.initialize.assert_called_once_with(mock_bridge)
+            mock_factory.initialize.assert_called_once()
+            _, kwargs = mock_factory.initialize.call_args
+            assert kwargs["bridge"] == mock_bridge
+            assert kwargs["logger"] == logger
+            assert kwargs["core_components"] == mock_bridge
             logger.info.assert_called()
 
     def test_initialize_without_logger(self) -> None:
