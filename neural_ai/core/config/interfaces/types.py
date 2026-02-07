@@ -281,7 +281,7 @@ class StorageConfig(BaseModel):
     )
     engine: str | None = Field(
         "fastparquet",
-        pattern="^(fastparquet|pyarrow)$",
+        pattern="^(fastparquet|pyarrow|auto)$",
         description="Parquet engine"
     )
     partitioning: list[str] | None = Field(
