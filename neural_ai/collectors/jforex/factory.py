@@ -47,13 +47,11 @@ class JForexFactory:
         # Get JForex configuration
         jforex_config_raw = config.get("jforex")
         raw_data: dict[str, Any] = (
-            cast(dict[str, Any], jforex_config_raw)
-            if isinstance(jforex_config_raw, dict)
-            else {}
+            cast(dict[str, Any], jforex_config_raw) if isinstance(jforex_config_raw, dict) else {}
         )
 
         try:
-            jforex_config = JForexConfig(**raw_data)
+            jforex_config = JForexConfig.model_validate(raw_data)
         except ValidationError as e:
             logger.error("jforex_config_validation_error", error=str(e))
             jforex_config = JForexConfig()
@@ -118,13 +116,11 @@ class JForexFactory:
         # Get JForex live configuration
         live_config_raw = config.get("jforex_live")
         raw_data: dict[str, Any] = (
-            cast(dict[str, Any], live_config_raw)
-            if isinstance(live_config_raw, dict)
-            else {}
+            cast(dict[str, Any], live_config_raw) if isinstance(live_config_raw, dict) else {}
         )
 
         try:
-            live_config = JForexLiveConfig(**raw_data)
+            live_config = JForexLiveConfig.model_validate(raw_data)
         except ValidationError as e:
             logger.error("jforex_live_config_validation_error", error=str(e))
             live_config = JForexLiveConfig()
