@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT - TASK TREE v3.0 (DEEP AUDIT)
 
-**Generálva:** 2026-02-07 19:44:00 UTC (Phase 4 Pydantic migráció)
+**Generálva:** 2026-02-10 21:47:35 UTC
 **Módszer:** AST Statikus Analízis
 **Fájlok száma:** 99 elemezve
 
@@ -9,9 +9,9 @@
 ## 📊 ÖSSZESÍTŐ STATISZTIKA
 
 - **✅ SECURE**: 34 fájl (34.3%)
-- **🟡 WARNING**: 12 fájl (12.1%)
-- **🔴 VULNERABLE**: 53 fájl (53.5%)
-- **Teszt lefedettség**: 47/99 fájl (47.5%)
+- **🟡 WARNING**: 14 fájl (14.1%)
+- **🔴 VULNERABLE**: 51 fájl (51.5%)
+- **Teszt lefedettség**: 51/99 fájl (51.5%)
 
 ---
 
@@ -36,7 +36,7 @@
 | `core/config/interfaces/async_config_interface.py` | 🟡 WARNING | ✅ FOUND | 11 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
 | `core/config/interfaces/config_interface.py` | ✅ SECURE | ✅ FOUND | 17 | ⚪ N/A | ⚪ N/A | N/A | - |
 | `core/config/interfaces/factory_interface.py` | ✅ SECURE | ✅ FOUND | 23 | ⚪ N/A | ⚪ N/A | N/A | - |
-| `core/config/interfaces/types.py` | ✅ SECURE | ✅ FOUND | 7 | ✅ OK | ⚪ N/A | N/A | UIConfig Pydantic tesztek (Phase 4) |
+| `core/config/interfaces/types.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ✅ OK | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `core/db/exceptions/db_error.py` | ✅ SECURE | ✅ FOUND | 9 | ⚪ N/A | ⚪ N/A | N/A | - |
 | `core/db/factory.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚠️ UNUSED | N/A | **KRITIKUS: Teszt írás!** |
 | `core/db/implementations/model_base.py` | ✅ SECURE | ✅ FOUND | 12 | ⚪ N/A | ⚪ N/A | N/A | - |
@@ -62,7 +62,7 @@
 | `core/utils/decorators.py` | ✅ SECURE | ✅ FOUND | 13 | ⚪ N/A | ⚪ N/A | N/A | - |
 | `core/utils/exceptions/util_error.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `core/utils/factory.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
-| `core/utils/implementations/hardware_info.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
+| `core/utils/implementations/hardware_info.py` | ✅ SECURE | ✅ FOUND | 15 | ⚪ N/A | ⚪ N/A | N/A | - |
 | `core/utils/interfaces/hardware_interface.py` | ✅ SECURE | ✅ FOUND | 3 | ⚪ N/A | ⚪ N/A | N/A | - |
 
 ---
@@ -72,9 +72,9 @@
 | Modul / Fájl | Státusz | Teszt Pár | Tesztek Száma | Config (Pydantic) | Logger (DI) | Coverage | Teendők / Megjegyzés |
 |--------------|---------|-----------|---------------|-------------------|-------------|----------|----------------------|
 | `collectors/jforex/exceptions/jforex_error.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
-| `collectors/jforex/factory.py` | ✅ SECURE | ✅ FOUND | 4 | ⚪ N/A | ⚪ N/A | N/A | - |
-| `collectors/jforex/implementations/bi5_downloader.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚠️ UNUSED | N/A | **KRITIKUS: Teszt írás!** |
-| `collectors/jforex/implementations/live_feed.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ✅ OK | N/A | **KRITIKUS: Teszt írás!** |
+| `collectors/jforex/factory.py` | ✅ SECURE | ✅ FOUND | 10 | ⚪ N/A | ⚪ N/A | N/A | - |
+| `collectors/jforex/implementations/bi5_downloader.py` | 🟡 WARNING | ✅ FOUND | 26 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
+| `collectors/jforex/implementations/live_feed.py` | ✅ SECURE | ✅ FOUND | 3 | ⚪ N/A | ✅ OK | N/A | - |
 | `collectors/jforex/interfaces/downloader_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `collectors/jforex/interfaces/live_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `collectors/jforex/interfaces/tick_data.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
@@ -108,7 +108,7 @@
 | `processors/dimensions/d02_support/factory.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `processors/dimensions/d02_support/implementations/support_processor.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ✅ OK | N/A | **KRITIKUS: Teszt írás!** |
 | `processors/factory.py` | ✅ SECURE | ✅ FOUND | 3 | ⚪ N/A | ⚪ N/A | N/A | - |
-| `processors/implementations/time_alignment_service.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚠️ UNUSED | N/A | **KRITIKUS: Teszt írás!** |
+| `processors/implementations/time_alignment_service.py` | 🟡 WARNING | ✅ FOUND | 8 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
 | `processors/interfaces/dimension_processor_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `processors/interfaces/tensor_converter_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `processors/interfaces/time_alignment_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
@@ -126,7 +126,7 @@
 | `ui/app.py` | 🟡 WARNING | ✅ FOUND | 15 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
 | `ui/components/base_widget.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `ui/core_bridge.py` | ✅ SECURE | ✅ FOUND | 21 | ⚪ N/A | ⚪ N/A | N/A | - |
-| `ui/factory.py` | ✅ SECURE | ✅ FOUND | 28 | ✅ OK | ⚪ N/A | N/A | Pydantic migráció kész (Phase 4) |
+| `ui/factory.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `ui/interfaces/ai_service_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `ui/interfaces/core_bridge_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `ui/interfaces/dashboard_service_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
@@ -142,7 +142,7 @@
 | `ui/pages/05_🪲_Strategy_Lab.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `ui/pages/06_⚡_Live_Ops.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `ui/services/ai_service.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚠️ UNUSED | N/A | **KRITIKUS: Teszt írás!** |
-| `ui/services/dashboard_service.py` | 🟡 WARNING | ✅ FOUND | 14 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
+| `ui/services/dashboard_service.py` | 🟡 WARNING | ✅ FOUND | 13 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
 | `ui/services/data_service.py` | 🟡 WARNING | ✅ FOUND | 24 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
 | `ui/services/live_ops_service.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚠️ UNUSED | N/A | **KRITIKUS: Teszt írás!** |
 | `ui/services/navigation_service.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚠️ UNUSED | N/A | **KRITIKUS: Teszt írás!** |

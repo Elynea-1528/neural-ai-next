@@ -16,6 +16,7 @@ from typing import Literal
 @dataclass
 class FileAnalysis:
     """Egyetlen fájl analízis eredménye."""
+
     path: Path
     relative_path: str
     test_file_exists: bool
@@ -88,9 +89,11 @@ class ASTAnalyzer:
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Attribute):
                 if isinstance(node.value, ast.Attribute):
-                    if (isinstance(node.value.value, ast.Name) and
-                        node.value.value.id == "self" and
-                        node.value.attr == "logger"):
+                    if (
+                        isinstance(node.value.value, ast.Name)
+                        and node.value.value.id == "self"
+                        and node.value.attr == "logger"
+                    ):
                         logger_used = True
                         break
 
@@ -120,7 +123,11 @@ class MirrorChecker:
 
     @staticmethod
     def get_test_path(source_path: Path) -> Path:
-        """Kiszámítja a mirror test fájl útvonalát."""
+        """Kiszámítja a mirror test fájl útvonalát.
+
+        Ha a test_X.py nem létezik, megpróbálja a test_X_integration.py-t is.
+        Ha implementations/interfaces/exceptions mappában van, a szülő mappában is keres.
+        """
         # neural_ai/processors/dimensions/d01_price/processor.py
         # → tests/processors/dimensions/d01_price/test_processor.py
 
@@ -133,13 +140,40 @@ class MirrorChecker:
 
         # Szétválasztjuk könyvtár és fájl
         dir_parts = relative_parts[:-1]  # processors/dimensions/d01_price
-        file_name = relative_parts[-1]   # processor.py
+        file_name = relative_parts[-1]  # processor.py
 
         # test_ prefix hozzáadása
         test_file_name = f"test_{file_name}"
+        base_name = file_name.replace('.py', '')
+        integration_file_name = f"test_{base_name}_integration.py"
 
-        # Összerakjuk
+        # 1. Elsődleges hely (Mirror Rule szerint)
         test_path = Path("tests") / Path(*dir_parts) / test_file_name
+        if test_path.exists():
+            return test_path
+
+        # 2. Integration verzió (Mirror Rule szerint)
+        integration_path = Path("tests") / Path(*dir_parts) / integration_file_name
+        if integration_path.exists():
+            return integration_path
+
+        # 3. Ha implementations/interfaces/exceptions mappában van, szülő mappában is keres
+        if dir_parts and dir_parts[-1] in ["implementations", "interfaces", "exceptions"]:
+            parent_dir_parts = dir_parts[:-1]
+
+            # 3a. Szülő mappában test_X.py
+            parent_test_path = Path("tests") / Path(*parent_dir_parts) / test_file_name
+            if parent_test_path.exists():
+                return parent_test_path
+
+            # 3b. Szülő mappában test_X_integration.py
+            parent_integration_path = (
+                Path("tests") / Path(*parent_dir_parts) / integration_file_name
+            )
+            if parent_integration_path.exists():
+                return parent_integration_path
+
+        # Ha sehol nem találtuk, visszaadjuk az eredeti Mirror Rule szerinti helyet
         return test_path
 
     @staticmethod
@@ -157,17 +191,21 @@ class StatusCalculator:
     def calculate(analysis: FileAnalysis) -> Literal["✅ SECURE", "🟡 WARNING", "🔴 VULNERABLE"]:
         """Kiszámítja az overall státuszt."""
         # 🔴 VULNERABLE feltételek
-        if (not analysis.test_file_exists or
-            analysis.test_count == 0 or
-            analysis.config_status == "🔴 TYPED_DICT" or
-            analysis.logger_status == "🔴 MISSING"):
+        if (
+            not analysis.test_file_exists
+            or analysis.test_count == 0
+            or analysis.config_status == "🔴 TYPED_DICT"
+            or analysis.logger_status == "🔴 MISSING"
+        ):
             return "🔴 VULNERABLE"
 
         # ✅ SECURE feltételek
-        if (analysis.test_file_exists and
-            analysis.test_count > 0 and
-            analysis.config_status in ["✅ OK", "⚪ N/A"] and
-            analysis.logger_status in ["✅ OK", "⚪ N/A"]):
+        if (
+            analysis.test_file_exists
+            and analysis.test_count > 0
+            and analysis.config_status in ["✅ OK", "⚪ N/A"]
+            and analysis.logger_status in ["✅ OK", "⚪ N/A"]
+        ):
             return "✅ SECURE"
 
         # 🟡 WARNING: minden más
@@ -208,9 +246,7 @@ class MarkdownGenerator:
 
     def _group_by_layer(self) -> dict[str, list[FileAnalysis]]:
         """Csoportosítja a fájlokat réteg szerint."""
-        grouped: dict[str, list[FileAnalysis]] = {
-            layer: [] for layer in self.LAYER_MAPPING.keys()
-        }
+        grouped: dict[str, list[FileAnalysis]] = {layer: [] for layer in self.LAYER_MAPPING.keys()}
 
         for analysis in self.analyses:
             parts = Path(analysis.relative_path).parts
@@ -301,19 +337,19 @@ class MarkdownGenerator:
             "",
             (
                 f"- **✅ SECURE**: {stats['secure']} fájl "
-                f"({stats['secure']/stats['total']*100:.1f}%)"
+                f"({stats['secure'] / stats['total'] * 100:.1f}%)"
             ),
             (
                 f"- **🟡 WARNING**: {stats['warning']} fájl "
-                f"({stats['warning']/stats['total']*100:.1f}%)"
+                f"({stats['warning'] / stats['total'] * 100:.1f}%)"
             ),
             (
                 f"- **🔴 VULNERABLE**: {stats['vulnerable']} fájl "
-                f"({stats['vulnerable']/stats['total']*100:.1f}%)"
+                f"({stats['vulnerable'] / stats['total'] * 100:.1f}%)"
             ),
             (
                 f"- **Teszt lefedettség**: {stats['tested']}/{stats['total']} fájl "
-                f"({stats['tested']/stats['total']*100:.1f}%)"
+                f"({stats['tested'] / stats['total'] * 100:.1f}%)"
             ),
             "",
             "---",
@@ -442,9 +478,9 @@ class TaskTreeGenerator:
         # Statisztika
         stats = generator.calculate_statistics()
         print("\n📈 Statisztika:")
-        secure_pct = stats['secure']/stats['total']*100
-        warning_pct = stats['warning']/stats['total']*100
-        vuln_pct = stats['vulnerable']/stats['total']*100
+        secure_pct = stats["secure"] / stats["total"] * 100
+        warning_pct = stats["warning"] / stats["total"] * 100
+        vuln_pct = stats["vulnerable"] / stats["total"] * 100
         print(f"  ✅ SECURE: {stats['secure']} ({secure_pct:.1f}%)")
         print(f"  🟡 WARNING: {stats['warning']} ({warning_pct:.1f}%)")
         print(f"  🔴 VULNERABLE: {stats['vulnerable']} ({vuln_pct:.1f}%)")

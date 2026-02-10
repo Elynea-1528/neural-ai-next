@@ -196,7 +196,9 @@ async def validate_d2_swing_engine() -> bool:
         d2_processor = create_dimension_processor(2, config, logger)
 
         # Adatok lekérése (1h timeframe a support/resistance számításhoz)
-        df = await strategy_service.get_candles(symbol="EURUSD", date="2024-03-20", timeframe="1h")
+        df: pl.DataFrame | None = await strategy_service.get_candles(
+            symbol="EURUSD", date="2024-03-20", timeframe="1h"
+        )
 
         if df is None or df.is_empty():
             print("❌ Nincs elérhető adat a D2 validációhoz")
@@ -217,7 +219,7 @@ async def validate_d2_swing_engine() -> bool:
             return False
 
         # D2 processzor futtatása (1h timeframe)
-        processed_df = d2_processor.process(df, timeframe="1h")
+        processed_df: pl.DataFrame = d2_processor.process(df, timeframe="1h")
 
         # Új oszlopok ellenőrzése
         expected_columns = ["swing_high", "swing_low", "resistance", "support"]
@@ -265,6 +267,8 @@ async def validate_data() -> bool:
     print("🔍 Adatok validálása Strategy Service-en keresztül")
 
     try:
+        import polars as pl
+
         # Core Bridge inicializálása és Strategy Service lekérése
         bridge = CoreBridge()
         bridge.initialize()
@@ -275,7 +279,7 @@ async def validate_data() -> bool:
             return False
 
         # Adatok lekérése
-        candles = await strategy_service.get_candles(
+        candles: pl.DataFrame | None = await strategy_service.get_candles(
             symbol="EURUSD", date="2024-03-20", timeframe="1m"
         )
 
@@ -286,7 +290,7 @@ async def validate_data() -> bool:
         print(f"✅ {len(candles)} gyertya adat betöltve")
 
         # Oszlopnevek normalizálása
-        df = candles.clone()
+        df: pl.DataFrame = candles.clone()
         df = df.rename({col: col.lower() for col in df.columns})
 
         # Kötelező oszlopok ellenőrzése
