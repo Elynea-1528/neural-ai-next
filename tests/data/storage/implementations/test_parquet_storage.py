@@ -43,13 +43,14 @@ def mock_logger():
 def clear_singletons():
     """Singleton példányok törlése minden teszt előtt."""
     from neural_ai.core.base.implementations.singleton import SingletonMeta
-    SingletonMeta._instances.clear()
+
+    SingletonMeta._instances.clear()  # type: ignore[reportPrivateUsage]
     yield
-    SingletonMeta._instances.clear()
+    SingletonMeta._instances.clear()  # type: ignore[reportPrivateUsage]
 
 
 @pytest.fixture
-async def storage_service(temp_dir, mock_hardware, mock_logger):
+async def storage_service(temp_dir: Path, mock_hardware: MagicMock, mock_logger: MagicMock):
     """ParquetStorageService fixture teljes mock konfigurációval."""
     service = ParquetStorageService(
         logger=mock_logger,
@@ -67,12 +68,12 @@ class TestParquetStorageService:
 
     @pytest.mark.asyncio
     async def test_initialization_with_hardware_and_logger(
-        self, temp_dir, mock_hardware, mock_logger
+        self, temp_dir: Path, mock_hardware: MagicMock, mock_logger: MagicMock
     ):
         """Teszteli az inicializációt hardware és logger interfészekkel."""
-        mock_config = MagicMock()
+        mock_config: MagicMock = MagicMock()
         mock_config.get_section.return_value = {}
-        
+
         service = ParquetStorageService(
             logger=mock_logger,
             config=mock_config,
@@ -88,25 +89,25 @@ class TestParquetStorageService:
         assert service.logger == mock_logger
 
     @pytest.mark.asyncio
-    async def test_initialization_without_hardware_and_logger(self, temp_dir):
+    async def test_initialization_without_hardware_and_logger(self, temp_dir: Path):
         """Teszteli az inicializációt factory-k használatával."""
         with patch("neural_ai.core.utils.factory.HardwareFactory") as mock_factory:
             mock_factory.get_hardware_interface.return_value = MagicMock()
             mock_factory.get_hardware_interface.return_value.has_avx2.return_value = False
-            
-            mock_logger = MagicMock()
+
+            mock_logger: MagicMock = MagicMock()
 
             # Mock config to avoid Pydantic validation error if it tries to access it
             service = ParquetStorageService(
-                base_path=str(temp_dir),
-                config=None,
-                logger=mock_logger
+                base_path=str(temp_dir), config=None, logger=mock_logger
             )
 
             assert service.BASE_PATH == temp_dir
             mock_factory.get_hardware_interface.assert_called_once()
 
-    def test_backend_selection_avx2(self, temp_dir, mock_hardware, mock_logger):
+    def test_backend_selection_avx2(
+        self, temp_dir: Path, mock_hardware: MagicMock, mock_logger: MagicMock
+    ):
         """Teszteli a PolarsBackend kiválasztását AVX2 támogatással."""
         mock_hardware.has_avx2.return_value = True
 
@@ -121,7 +122,9 @@ class TestParquetStorageService:
             assert service.engine == "polars"
             mock_logger.info.assert_called()
 
-    def test_backend_selection_no_avx2(self, temp_dir, mock_hardware, mock_logger):
+    def test_backend_selection_no_avx2(
+        self, temp_dir: Path, mock_hardware: MagicMock, mock_logger: MagicMock
+    ):
         """Teszteli a PandasBackend kiválasztását AVX2 nélkül."""
         mock_hardware.has_avx2.return_value = False
 
@@ -136,7 +139,7 @@ class TestParquetStorageService:
             assert service.engine == "fastparquet"
             mock_logger.warning.assert_called()
 
-    def test_get_path_with_unique_id(self, storage_service):
+    def test_get_path_with_unique_id(self, storage_service: ParquetStorageService):
         """Teszteli az elérési út generálást egyedi azonosítóval."""
         date = datetime(2023, 12, 23)
         path = storage_service._get_path("EURUSD", date, unique_id="abc123")
@@ -151,7 +154,7 @@ class TestParquetStorageService:
         )
         assert path == expected
 
-    def test_get_path_without_unique_id(self, storage_service):
+    def test_get_path_without_unique_id(self, storage_service: ParquetStorageService):
         """Teszteli az elérési út generálást időbélyeggel."""
         date = datetime(2023, 12, 23)
 
@@ -168,7 +171,9 @@ class TestParquetStorageService:
             assert "tick_20231223_123045_123456.parquet" in str(path)
 
     @pytest.mark.asyncio
-    async def test_store_tick_data_success(self, storage_service, mock_logger):
+    async def test_store_tick_data_success(
+        self, storage_service: ParquetStorageService, mock_logger: MagicMock
+    ):
         """Teszteli a tick adatok sikeres tárolását."""
         date = datetime(2023, 12, 23)
 
@@ -193,17 +198,17 @@ class TestParquetStorageService:
             mock_logger.info.assert_called()
 
     @pytest.mark.asyncio
-    async def test_store_tick_data_empty_dataframe(self, storage_service):
+    async def test_store_tick_data_empty_dataframe(self, storage_service: ParquetStorageService):
         """Teszteli az üres DataFrame visszautasítását."""
         date = datetime(2023, 12, 23)
-        mock_df = MagicMock()
+        mock_df: MagicMock = MagicMock()
         mock_df.__len__ = MagicMock(return_value=0)
 
         with pytest.raises(ValueError, match="Cannot store empty DataFrame"):
             await storage_service.store_tick_data("EURUSD", mock_df, date)
 
     @pytest.mark.asyncio
-    async def test_store_tick_data_missing_columns(self, storage_service):
+    async def test_store_tick_data_missing_columns(self, storage_service: ParquetStorageService):
         """Teszteli a hiányzó oszlopok visszautasítását."""
         date = datetime(2023, 12, 23)
         mock_df = MagicMock()
@@ -214,7 +219,7 @@ class TestParquetStorageService:
             await storage_service.store_tick_data("EURUSD", mock_df, date)
 
     @pytest.mark.asyncio
-    async def test_read_tick_data_no_files(self, storage_service):
+    async def test_read_tick_data_no_files(self, storage_service: ParquetStorageService):
         """Teszteli az olvasást amikor nincsenek fájlok."""
         start_date = datetime(2023, 12, 1)
         end_date = datetime(2023, 12, 31)
@@ -225,7 +230,9 @@ class TestParquetStorageService:
         assert len(result) == 0
 
     @pytest.mark.asyncio
-    async def test_read_tick_data_with_files(self, storage_service, temp_dir):
+    async def test_read_tick_data_with_files(
+        self, storage_service: ParquetStorageService, temp_dir: Path
+    ):
         """Teszteli az olvasást létező fájlokkal."""
         start_date = datetime(2023, 12, 23)
         end_date = datetime(2023, 12, 23)
@@ -262,7 +269,9 @@ class TestParquetStorageService:
             assert result == mock_df
 
     @pytest.mark.asyncio
-    async def test_get_available_dates(self, storage_service, temp_dir):
+    async def test_get_available_dates(
+        self, storage_service: ParquetStorageService, temp_dir: Path
+    ):
         """Teszteli az elérhető dátumok lekérdezést."""
         # Hozz létre teszt könyvtár struktúrát
         (temp_dir / "EURUSD" / "year=2023" / "month=12" / "day=23").mkdir(parents=True)
@@ -277,14 +286,14 @@ class TestParquetStorageService:
         assert sorted(dates) == sorted(expected_dates)
 
     @pytest.mark.asyncio
-    async def test_get_available_dates_no_symbol(self, storage_service):
+    async def test_get_available_dates_no_symbol(self, storage_service: ParquetStorageService):
         """Teszteli az elérhető dátumokat nem létező szimbólum esetén."""
         dates = await storage_service.get_available_dates("NONEXISTENT")
 
         assert dates == []
 
     @pytest.mark.asyncio
-    async def test_calculate_checksum_no_files(self, storage_service):
+    async def test_calculate_checksum_no_files(self, storage_service: ParquetStorageService):
         """Teszteli a checksum számítást amikor nincsenek fájlok."""
         date = datetime(2023, 12, 23)
 
@@ -293,7 +302,9 @@ class TestParquetStorageService:
         assert checksum == ""
 
     @pytest.mark.asyncio
-    async def test_calculate_checksum_with_files(self, storage_service, temp_dir):
+    async def test_calculate_checksum_with_files(
+        self, storage_service: ParquetStorageService, temp_dir: Path
+    ):
         """Teszteli a checksum számítást létező fájlokkal."""
         date = datetime(2023, 12, 23)
 
@@ -329,7 +340,9 @@ class TestParquetStorageService:
             assert len(checksum) == 64  # SHA256 hex length
 
     @pytest.mark.asyncio
-    async def test_verify_data_integrity_valid(self, storage_service, temp_dir, mock_logger):
+    async def test_verify_data_integrity_valid(
+        self, storage_service: ParquetStorageService, temp_dir: Path, mock_logger: MagicMock
+    ):
         """Teszteli az adat integritás ellenőrzést érvényes adatokkal."""
         date = datetime(2023, 12, 23)
 
@@ -367,7 +380,7 @@ class TestParquetStorageService:
             mock_logger.info.assert_called()
 
     @pytest.mark.asyncio
-    async def test_verify_data_integrity_no_files(self, storage_service):
+    async def test_verify_data_integrity_no_files(self, storage_service: ParquetStorageService):
         """Teszteli az adat integritás ellenőrzést hiányzó fájlok esetén."""
         date = datetime(2023, 12, 23)
 
@@ -376,7 +389,9 @@ class TestParquetStorageService:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_verify_data_integrity_missing_columns(self, storage_service, temp_dir):
+    async def test_verify_data_integrity_missing_columns(
+        self, storage_service: ParquetStorageService, temp_dir: Path
+    ):
         """Teszteli az adat integritás ellenőrzést hiányzó oszlopokkal."""
         date = datetime(2023, 12, 23)
 
@@ -399,7 +414,7 @@ class TestParquetStorageService:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_get_storage_stats(self, storage_service, temp_dir):
+    async def test_get_storage_stats(self, storage_service: ParquetStorageService, temp_dir: Path):
         """Teszteli a tárolási statisztikák lekérdezést."""
         # Hozz létre teszt fájlokat
         test_file1 = (
@@ -423,7 +438,7 @@ class TestParquetStorageService:
         assert "EURUSD" in stats["symbols"]
         assert "USDJPY" in stats["symbols"]
 
-    def test_concat_dataframes_polars(self, storage_service):
+    def test_concat_dataframes_polars(self, storage_service: ParquetStorageService):
         """Teszteli a DataFrame összefűzést Polars esetén."""
         mock_df1 = MagicMock()
         mock_df2 = MagicMock()
@@ -437,7 +452,7 @@ class TestParquetStorageService:
                 assert result == mock_concat_result
                 mock_concat.assert_called_once_with([mock_df1, mock_df2])
 
-    def test_concat_dataframes_pandas(self, storage_service):
+    def test_concat_dataframes_pandas(self, storage_service: ParquetStorageService):
         """Teszteli a DataFrame összefűzést Pandas esetén."""
         mock_df1 = MagicMock()
         mock_df2 = MagicMock()
@@ -451,7 +466,7 @@ class TestParquetStorageService:
                 assert result == mock_concat_result
                 mock_concat.assert_called_once_with([mock_df1, mock_df2], ignore_index=True)
 
-    def test_deduplicate_data_polars(self, storage_service):
+    def test_deduplicate_data_polars(self, storage_service: ParquetStorageService):
         """Teszteli a deduplikációt Polars esetén."""
         with patch("neural_ai.data.storage.implementations.parquet_storage.pl"):
             mock_df = MagicMock()
@@ -463,14 +478,14 @@ class TestParquetStorageService:
 
                 assert result == mock_df
 
-    def test_deduplicate_data_pandas(self, storage_service):
+    def test_deduplicate_data_pandas(self, storage_service: ParquetStorageService):
         """Teszteli a deduplikációt Pandas esetén."""
         mock_df = MagicMock()
         mock_df.columns = ["timestamp", "bid", "ask"]
         # Mocking subset selection result
         mock_subset = MagicMock()
         mock_df.__getitem__.return_value = mock_subset
-        
+
         mock_dedup_result = MagicMock()
         mock_subset.drop_duplicates.return_value = mock_dedup_result
 
@@ -482,11 +497,11 @@ class TestParquetStorageService:
             # Mocking pandas module import inside the method is hard, but we don't need to
             # if we trigger to_pandas path.
             # However, we still need pandas to be importable.
-            
+
             result = storage_service._deduplicate_data(mock_data)
             assert result == mock_dedup_result
 
-    def test_sort_by_timestamp_polars(self, storage_service):
+    def test_sort_by_timestamp_polars(self, storage_service: ParquetStorageService):
         """Teszteli a rendezést timestamp szerint Polars esetén."""
         with patch("neural_ai.data.storage.implementations.parquet_storage.pl"):
             mock_df = MagicMock()
@@ -499,7 +514,7 @@ class TestParquetStorageService:
                 assert result == mock_sorted
                 mock_df.sort.assert_called_once_with("timestamp")
 
-    def test_sort_by_timestamp_pandas(self, storage_service):
+    def test_sort_by_timestamp_pandas(self, storage_service: ParquetStorageService):
         """Teszteli a rendezést timestamp szerint Pandas esetén."""
         with patch("neural_ai.data.storage.implementations.parquet_storage.pd"):
             mock_df = MagicMock()
@@ -511,35 +526,35 @@ class TestParquetStorageService:
 
                 assert result == mock_sorted
 
-    def test_filter_by_timestamp(self, storage_service):
+    def test_filter_by_timestamp(self, storage_service: ParquetStorageService):
         """Teszteli az időbélyeg szerinti szűrést."""
-        mock_df = MagicMock()
+        mock_df: MagicMock = MagicMock()
         start_date = datetime(2023, 12, 1)
         end_date = datetime(2023, 12, 31)
 
-        result = storage_service._filter_by_timestamp(mock_df, start_date, end_date)
+        result = storage_service._filter_by_timestamp(mock_df, start_date, end_date)  # type: ignore[reportPrivateUsage]
 
         # A jelenlegi implementáció változatlanul visszaadja a DataFrame-et
         assert result == mock_df
 
-    def test_read_parquet_async(self, storage_service):
+    def test_read_parquet_async(self, storage_service: ParquetStorageService):
         """Teszteli az aszinkron Parquet olvasást."""
-        mock_path = MagicMock()
-        mock_result = MagicMock()
+        mock_path: MagicMock = MagicMock()
+        mock_result: MagicMock = MagicMock()
 
         storage_service.backend.read = MagicMock(return_value=mock_result)
 
         async def run_test():
-            result = await storage_service._read_parquet_async(mock_path)
+            result = await storage_service._read_parquet_async(mock_path)  # type: ignore[reportPrivateUsage]
             assert result == mock_result
 
         asyncio.run(run_test())
 
     # StorageInterface tesztek
 
-    def test_save_dataframe(self, storage_service):
+    def test_save_dataframe(self, storage_service: ParquetStorageService):
         """Teszteli a DataFrame mentését StorageInterface-en keresztül."""
-        mock_df = MagicMock()
+        mock_df: MagicMock = MagicMock()
 
         # The current implementation raises NotImplementedError
         with pytest.raises(NotImplementedError):
@@ -547,7 +562,7 @@ class TestParquetStorageService:
                 mock_df, "test_path", date=datetime(2023, 12, 23), symbol="EURUSD"
             )
 
-    def test_load_dataframe(self, storage_service):
+    def test_load_dataframe(self, storage_service: ParquetStorageService):
         """Teszteli a DataFrame betöltését StorageInterface-en keresztül."""
         # The current implementation raises NotImplementedError
         with pytest.raises(NotImplementedError):
@@ -558,7 +573,7 @@ class TestParquetStorageService:
                 symbol="EURUSD",
             )
 
-    def test_exists(self, storage_service, temp_dir):
+    def test_exists(self, storage_service: ParquetStorageService, temp_dir: Path):
         """Teszteli az útvonal létezésének ellenőrzését."""
         test_file = temp_dir / "test_file.txt"
         test_file.write_text("content")
@@ -566,7 +581,7 @@ class TestParquetStorageService:
         assert storage_service.exists("test_file.txt")
         assert not storage_service.exists("nonexistent.txt")
 
-    def test_get_metadata(self, storage_service, temp_dir):
+    def test_get_metadata(self, storage_service: ParquetStorageService, temp_dir: Path):
         """Teszteli a fájl metaadatainak lekérdezését."""
         test_file = temp_dir / "test_file.txt"
         test_file.write_text("content")
@@ -580,7 +595,7 @@ class TestParquetStorageService:
         assert metadata["is_file"] is True
         assert metadata["is_dir"] is False
 
-    def test_delete_file(self, storage_service, temp_dir):
+    def test_delete_file(self, storage_service: ParquetStorageService, temp_dir: Path):
         """Teszteli a fájl törlését."""
         test_file = temp_dir / "test_file.txt"
         test_file.write_text("content")
@@ -589,7 +604,7 @@ class TestParquetStorageService:
 
         assert not test_file.exists()
 
-    def test_delete_directory(self, storage_service, temp_dir):
+    def test_delete_directory(self, storage_service: ParquetStorageService, temp_dir: Path):
         """Teszteli a könyvtár törlését."""
         test_dir = temp_dir / "test_dir"
         test_dir.mkdir()
@@ -599,7 +614,7 @@ class TestParquetStorageService:
 
         assert not test_dir.exists()
 
-    def test_list_dir(self, storage_service, temp_dir):
+    def test_list_dir(self, storage_service: ParquetStorageService, temp_dir: Path):
         """Teszteli a könyvtár tartalmának listázását."""
         test_dir = temp_dir / "test_dir"
         test_dir.mkdir()
