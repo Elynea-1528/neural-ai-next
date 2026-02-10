@@ -1,30 +1,12 @@
 """JForex Collector Factory."""
 
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, Any, cast
+
+from pydantic import ValidationError
 
 from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
 from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
-
-
-class JForexConfig(TypedDict, total=False):
-    """JForex konfiguráció séma."""
-
-    base_url: str
-    timeout: int
-    retry_attempts: int
-    storage_base_path: str
-    validation_enabled: bool
-    max_download_size_mb: int
-
-
-class JForexLiveConfig(TypedDict, total=False):
-    """JForex live feed konfiguráció séma."""
-
-    host: str
-    tick_port: int
-    command_port: int
-    enabled: bool
-
+from neural_ai.core.config.interfaces.types import JForexConfig, JForexLiveConfig
 
 if TYPE_CHECKING:
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -64,27 +46,36 @@ class JForexFactory:
 
         # Get JForex configuration
         jforex_config_raw = config.get("jforex")
-        if jforex_config_raw is None:
-            jforex_config = cast(JForexConfig, {})
-        else:
-            jforex_config = cast(JForexConfig, jforex_config_raw)
+        raw_data: dict[str, Any] = (
+            cast(dict[str, Any], jforex_config_raw)
+            if isinstance(jforex_config_raw, dict)
+            else {}
+        )
+
+        try:
+            jforex_config = JForexConfig(**raw_data)
+        except ValidationError as e:
+            logger.error("jforex_config_validation_error", error=str(e))
+            jforex_config = JForexConfig()
 
         # Create HTTP client with timeout
-        timeout_value = jforex_config.get("timeout", 30) if jforex_config else 30
+        timeout_value = 30
+        if jforex_config.download and jforex_config.download.timeout:
+            timeout_value = jforex_config.download.timeout
+
         timeout = aiohttp.ClientTimeout(total=timeout_value)
         http_client = aiohttp.ClientSession(timeout=timeout)
 
         # Get additional configuration options
-        retry_attempts = jforex_config.get("retry_attempts", 3) if jforex_config else 3
-        storage_base_path = (
-            jforex_config.get("storage_base_path", "data/tick") if jforex_config else "data/tick"
-        )
-        validation_enabled = (
-            jforex_config.get("validation_enabled", True) if jforex_config else True
-        )
-        max_download_size_mb = (
-            jforex_config.get("max_download_size_mb", 50) if jforex_config else 50
-        )
+        retry_attempts = 3
+        if jforex_config.download and jforex_config.download.max_retries:
+            retry_attempts = jforex_config.download.max_retries
+
+        # Storage path is handled by storage subsystem, used here for logging
+        storage_base_path = "data/tick"
+        # Validation and max download size are legacy/internal defaults
+        validation_enabled = True
+        max_download_size_mb = 50
 
         # Create downloader instance
         downloader = Bi5Downloader(
@@ -97,7 +88,7 @@ class JForexFactory:
 
         logger.info(
             "jforex_downloader_created",
-            base_url=jforex_config.get("base_url", "default"),
+            base_url=jforex_config.base_url or "default",
             timeout=timeout_value,
             retry_attempts=retry_attempts,
             storage_base_path=storage_base_path,
@@ -125,17 +116,21 @@ class JForexFactory:
         from neural_ai.collectors.jforex.implementations.live_feed import JForexLiveFeed
 
         # Get JForex live configuration
+        live_config_raw = config.get("jforex_live")
+        raw_data: dict[str, Any] = (
+            cast(dict[str, Any], live_config_raw)
+            if isinstance(live_config_raw, dict)
+            else {}
+        )
+
         try:
-            live_config_raw = config.get("jforex_live")
-            if live_config_raw is None:
-                live_config = cast(JForexLiveConfig, {})
-            else:
-                live_config = cast(JForexLiveConfig, live_config_raw)
-        except KeyError:
-            live_config = cast(JForexLiveConfig, {})
+            live_config = JForexLiveConfig(**raw_data)
+        except ValidationError as e:
+            logger.error("jforex_live_config_validation_error", error=str(e))
+            live_config = JForexLiveConfig()
 
         # Check if live feed is enabled
-        enabled = live_config.get("enabled", False) if live_config else False
+        enabled = live_config.enabled or False
 
         if not enabled:
             logger.warning(
@@ -148,8 +143,8 @@ class JForexFactory:
 
         logger.info(
             "jforex_live_feed_created",
-            host=live_config.get("host", "127.0.0.1"),
-            tick_port=live_config.get("tick_port", 5555),
+            host=live_config.host or "127.0.0.1",
+            tick_port=live_config.tick_port or 5555,
             enabled=enabled,
         )
 

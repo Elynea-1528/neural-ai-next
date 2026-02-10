@@ -17,15 +17,6 @@ from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexD
 from neural_ai.collectors.jforex.interfaces.tick_data import TickData
 
 if TYPE_CHECKING:
-    import aiohttp
-
-    from neural_ai.collectors.jforex.exceptions.jforex_error import (
-        DataNotAvailableError,
-        DecodeError,
-        DownloadError,
-    )
-    from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
-    from neural_ai.collectors.jforex.interfaces.tick_data import TickData
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
@@ -60,10 +51,8 @@ class Bi5Downloader(IJForexDownloader):
         self._config = config
         self._http_client = http_client
         self._storage = storage
-        self._base_url = config.get("jforex", "base_url") or "https://www.dukascopy.com/datafeed"
-        if not self._base_url:
-            self._base_url = "https://www.dukascopy.com/datafeed"
-            self._logger.warning("jforex_base_url_not_set: Using default Dukascopy URL")
+        base_url_raw: str | None = config.get("jforex", "base_url")
+        self._base_url: str = base_url_raw if isinstance(base_url_raw, str) else "https://www.dukascopy.com/datafeed"
 
     def _build_url(self, symbol: str, date: datetime) -> str:
         """Build Dukascopy .bi5 download URL.
@@ -468,7 +457,7 @@ class Bi5Downloader(IJForexDownloader):
                 return False
 
             # Determine possible record formats (12-byte or 20-byte)
-            possible_formats = []
+            possible_formats: list[tuple[int, str]] = []
             if len(decompressed) % 12 == 0:
                 possible_formats.append((12, ">III"))
             if len(decompressed) % 20 == 0:
@@ -483,7 +472,7 @@ class Bi5Downloader(IJForexDownloader):
                 return False
 
             # Try to validate with any possible format
-            valid_format = None
+            valid_format: tuple[int, str, int] | None = None
             for record_size, unpack_format in possible_formats:
                 num_records = len(decompressed) // record_size
 
