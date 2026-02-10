@@ -21,7 +21,7 @@ def parse_bi5_file(file_path: Path) -> list[datetime]:
     12 bájt (timestamp_delta: 4 bájt, ask: 4 bájt, bid: 4 bájt) vagy 20 bájt lehet.
     A timestamp_delta az óra elejétől mért ezredmásodpercben.
     """
-    timestamps = []
+    timestamps: list[datetime] = []
 
     try:
         with lzma.open(file_path, "rb") as f:
@@ -225,7 +225,7 @@ def compare_data(raw_counts: dict[str, int], sys_counts: dict[str, int]) -> None
         print("\n  ✅ Nincs eltérés! Az adatok teljesek.")
 
 
-def main():
+def main() -> None:
     """Fő végrehajtási függvény."""
     print("\n" + "=" * 70)
     print("🛠️  ADATINTEGRITÁSI AUDIT (RAW vs PARQUET)")

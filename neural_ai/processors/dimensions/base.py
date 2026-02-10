@@ -1,7 +1,7 @@
 """BaseDimensionProcessor - Absztrakt alap osztály minden dimenzió processzor számára."""
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from neural_ai.processors.interfaces.dimension_processor_interface import (
     IDimensionProcessor,
@@ -31,7 +31,9 @@ class BaseDimensionProcessor(IDimensionProcessor, ABC):
 
         # Konfiguráció betöltése dimenzió alapján (pl. "processors.d01")
         section = f"processors.d{self.dimension_id:02d}"
-        self.dim_config = config.get("processors", f"d{self.dimension_id:02d}") or {}
+        self.dim_config: dict[str, Any] = (
+            config.get("processors", f"d{self.dimension_id:02d}") or {}
+        )
 
         if not self.dim_config:
             self.logger.warning(

@@ -23,14 +23,14 @@ def _get_trace_logger() -> Any:
     return LoggerFactory.get_logger("neural_ai.trace")
 
 
-_TRACE_LOGGER = None
+_trace_logger = None
 
 
 def _ensure_trace_logger() -> Any:
-    global _TRACE_LOGGER
-    if _TRACE_LOGGER is None:
-        _TRACE_LOGGER = _get_trace_logger()
-    return _TRACE_LOGGER
+    global _trace_logger
+    if _trace_logger is None:
+        _trace_logger = _get_trace_logger()
+    return _trace_logger
 
 
 # Biztonságos típusok halmaza

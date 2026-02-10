@@ -21,7 +21,7 @@ class NavigationService(NavigationServiceInterface):
     és nyilvántartja a navigációs előzményeket.
     """
 
-    def __init__(self, logger: Any, config: dict, core_components: Any) -> None:
+    def __init__(self, logger: Any, config: dict[str, Any], core_components: Any) -> None:
         """A Navigation Service inicializálása.
 
         Args:
