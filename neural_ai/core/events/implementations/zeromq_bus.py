@@ -183,7 +183,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
             try:
                 # Az asyncio socket send_multipart metódusa awaitable
-                await self._publisher.send_multipart([topic, message])
+                await self._publisher.send_multipart([topic, message])  # type: ignore[no-untyped-call]
             except Exception as e:
                 self._logger.error(
                     "Hiba az esemény közzétételekor",
@@ -280,17 +280,17 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
         try:
             if event_type == "market_data":
-                return MarketDataEvent(**event_data)
+                return MarketDataEvent.model_validate(event_data)
             elif event_type == "trade":
-                return TradeEvent(**event_data)
+                return TradeEvent.model_validate(event_data)
             elif event_type == "signal":
-                return SignalEvent(**event_data)
+                return SignalEvent.model_validate(event_data)
             elif event_type == "system_log":
-                return SystemLogEvent(**event_data)
+                return SystemLogEvent.model_validate(event_data)
             elif event_type == "order":
-                return OrderEvent(**event_data)
+                return OrderEvent.model_validate(event_data)
             elif event_type == "position":
-                return PositionEvent(**event_data)
+                return PositionEvent.model_validate(event_data)
             else:
                 self._logger.warning("Ismeretlen eseménytípus", event_type=event_type)
                 return None
@@ -325,9 +325,9 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         try:
             subscriber.setsockopt(self._zmq.SUBSCRIBE, b"")
         except Exception as e:
-             self._logger.error("Hiba a feliratkozáskor", error=str(e), exc_info=True)
-             subscriber.close()
-             raise
+            self._logger.error("Hiba a feliratkozáskor", error=str(e), exc_info=True)
+            subscriber.close()
+            raise
 
         self._logger.info("Subscriber csatlakozva", sub_url=sub_url)
 

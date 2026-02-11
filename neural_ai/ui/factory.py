@@ -4,6 +4,8 @@ Ez a modul implementálja a UI szolgáltatások létrehozását és kezelését
 Dependency Injection minta szerint.
 """
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any
 
 from neural_ai.core.base.implementations.singleton import SingletonMeta
@@ -25,7 +27,7 @@ from neural_ai.ui.interfaces.navigation_service_interface import NavigationServi
 from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
 if TYPE_CHECKING:
-    pass
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class UIServiceFactory(metaclass=SingletonMeta):
@@ -39,14 +41,14 @@ class UIServiceFactory(metaclass=SingletonMeta):
         """A UI Service Factory inicializálása."""
         self._bridge: CoreBridgeInterface | None = None
         self._config: UIConfig | None = None
-        self._logger: Any = None
+        self._logger: LoggerInterface | None = None
         self._core_components: Any = None
         self._services: dict[str, Any] = {}
         self._initialized: bool = False
 
     def initialize(
         self,
-        bridge: "CoreBridgeInterface",
+        bridge: CoreBridgeInterface,
         config: dict[str, Any] | UIConfig,
         logger: Any,
         core_components: Any,
@@ -60,7 +62,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
             core_components: A core komponensek
         """
         if isinstance(config, dict):
-            validated_config = UIConfig(**config)
+            validated_config = UIConfig.model_validate(config)
         else:
             validated_config = config
 

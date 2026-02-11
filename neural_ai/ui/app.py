@@ -50,6 +50,7 @@ class UIApplication:
             # Logger létrehozása ha nincs
             if self._logger is None:
                 from neural_ai.core.logger.factory import LoggerFactory
+
                 self._logger = LoggerFactory.get_logger(__name__)
 
             self._logger.info("UI alkalmazás inicializálása...")
@@ -64,7 +65,8 @@ class UIApplication:
             # UI config létrehozása Pydantic modellel
             ui_config_dict = self._config.get("ui", {})
             ui_config = (
-                UIConfig(**ui_config_dict) if isinstance(ui_config_dict, dict)
+                UIConfig.model_validate(ui_config_dict)
+                if isinstance(ui_config_dict, dict)
                 else ui_config_dict
             )
 
