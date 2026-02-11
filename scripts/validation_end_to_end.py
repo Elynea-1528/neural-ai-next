@@ -19,12 +19,13 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 try:
+    import polars as pl
     import requests
-except ImportError:
-    print("❌ requests modul nincs telepítve. Telepítés: pip install requests")
+except ImportError as e:
+    print(f"❌ Hiányzó modul: {e}. Telepítés: pip install requests polars")
     sys.exit(1)
 
 # Hozzáadjuk a projekt gyökerét a Python path-hoz
@@ -169,10 +170,6 @@ async def validate_d2_swing_engine() -> bool:
     print("🪝 D2 Swing Engine validálása")
 
     try:
-        from typing import cast
-
-        import polars as pl
-
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
         from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
@@ -182,6 +179,8 @@ async def validate_d2_swing_engine() -> bool:
         bridge.initialize()
 
         # Komponensek lekérése és cast
+        # A get_component visszatérési értéke Any, ezért castoljuk
+        # A cast importálva van a modul elején
         config = cast(ConfigManagerInterface, bridge.get_component("config"))
         logger = cast(LoggerInterface, bridge.get_component("logger"))
         strategy_service = cast(StrategyServiceInterface, bridge.get_component("strategy_service"))
@@ -219,7 +218,8 @@ async def validate_d2_swing_engine() -> bool:
             return False
 
         # D2 processzor futtatása (1h timeframe)
-        processed_df: pl.DataFrame = d2_processor.process(df, timeframe="1h")
+        # A process metódus visszatérési értéke DataFrame
+        processed_df: pl.DataFrame = d2_processor.process(df, timeframe="1h")  # type: ignore
 
         # Új oszlopok ellenőrzése
         expected_columns = ["swing_high", "swing_low", "resistance", "support"]
@@ -267,12 +267,12 @@ async def validate_data() -> bool:
     print("🔍 Adatok validálása Strategy Service-en keresztül")
 
     try:
-        import polars as pl
+        from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
         # Core Bridge inicializálása és Strategy Service lekérése
         bridge = CoreBridge()
         bridge.initialize()
-        strategy_service = bridge.get_component("strategy_service")
+        strategy_service = cast(StrategyServiceInterface, bridge.get_component("strategy_service"))
 
         if not strategy_service:
             print("❌ Strategy Service nem elérhető")

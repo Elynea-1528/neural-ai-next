@@ -132,7 +132,7 @@ def analyze_system_data(tick_dir: Path) -> dict[str, int]:
 
     for parquet_file in parquet_files:
         try:
-            df = pl.read_parquet(parquet_file)
+            df: pl.DataFrame = pl.read_parquet(parquet_file)
 
             # Ellenőrizzük, hogy van-e timestamp oszlop
             if "timestamp" not in df.columns:
@@ -140,7 +140,9 @@ def analyze_system_data(tick_dir: Path) -> dict[str, int]:
                 continue
 
             # Csoportosítás óránként
-            hourly_counts = df.group_by(pl.col("timestamp").dt.hour().alias("hour")).len()
+            hourly_counts: pl.DataFrame = df.group_by(
+                pl.col("timestamp").dt.hour().alias("hour")
+            ).len()
 
             for row in hourly_counts.iter_rows():
                 hour = str(row[0]).zfill(2)
@@ -171,8 +173,8 @@ def compare_data(raw_counts: dict[str, int], sys_counts: dict[str, int]) -> None
     all_hours = sorted(set(list(raw_counts.keys()) + list(sys_counts.keys())))
     total_raw = 0
     total_sys = 0
-    missing_hours = []
-    partial_missing = []
+    missing_hours: list[str] = []
+    partial_missing: list[tuple[str, int]] = []
 
     for hour in all_hours:
         raw_count = raw_counts.get(hour, 0)

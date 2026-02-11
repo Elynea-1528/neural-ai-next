@@ -30,22 +30,22 @@ def force_kill_processes() -> None:
     killed_processes: list[str] = []
 
     # Projekt portjai
-    project_ports = [8501, 5555, 5556, 5557, 5558]
+    project_ports: list[int] = [8501, 5555, 5556, 5557, 5558]
 
     # Név kulcsszavak
-    name_keywords = ["streamlit", "neural_ai"]
+    name_keywords: list[str] = ["streamlit", "neural_ai"]
 
     for proc in psutil.process_iter(attrs=["pid", "name", "cmdline"]):
         try:
             pid = proc.info["pid"]
             name = proc.info["name"] or ""
-            cmdline = proc.info["cmdline"] or []
+            cmdline: list[str] = proc.info["cmdline"] or []
 
             # Skip saját folyamat
             if pid == psutil.Process().pid:
                 continue
 
-            kill_reason = None
+            kill_reason: str | None = None
 
             # Ellenőrizzük a portokat
             try:

@@ -17,7 +17,7 @@ import asyncio
 import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import polars as pl
 
@@ -31,11 +31,11 @@ from neural_ai.collectors.jforex.exceptions.jforex_error import (
 )
 from neural_ai.collectors.jforex.factory import JForexFactory
 from neural_ai.core import bootstrap_core
+from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
 
 if TYPE_CHECKING:
     from neural_ai.collectors.jforex.interfaces.tick_data import TickData
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
 
 async def download_historical_data(symbol: str, start_date: datetime, end_date: datetime) -> None:
@@ -57,7 +57,8 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
         # Bootstrap a core komponensekkel
         core = bootstrap_core()
         logger = core.logger
-        storage = core.storage
+        # Castoljuk a storage-t ParquetStorageService-ra, mert tudjuk, hogy az
+        storage = cast(ParquetStorageService, core.storage)
 
         # Debug: Ellenőrizzük, hogy a storage létezik-e
         print(f"   ✅ Storage: {storage is not None} (type: {type(storage)})")
@@ -220,7 +221,7 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
 
 
 async def _save_ticks_direct(
-    storage: "StorageInterface",
+    storage: "ParquetStorageService",
     symbol: str,
     ticks: list["TickData"],
     date: datetime,
@@ -229,7 +230,7 @@ async def _save_ticks_direct(
     """Tick adatok közvetlen mentése a storage-ba (Direct Storage Mode).
 
     Args:
-        storage: A storage interfész
+        storage: A storage interfész (ParquetStorageService)
         symbol: A pénzpár szimbóluma
         ticks: A tick adatok listája
         date: A dátum

@@ -15,7 +15,7 @@ import asyncio
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import polars as pl
 
@@ -23,6 +23,7 @@ import polars as pl
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from neural_ai.core import bootstrap_core
+from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
 from neural_ai.processors.dimensions.d02_support.factory import D02SupportFactory
 from neural_ai.processors.resampler_service.factory import ResamplerServiceFactory
 
@@ -59,7 +60,9 @@ async def run_d2_test() -> None:
     end_date = datetime(2023, 1, 2, tzinfo=UTC)
 
     try:
-        df = await core.storage.read_tick_data(symbol, start_date, end_date)
+        # Castoljuk a storage-t ParquetStorageService-ra
+        storage = cast(ParquetStorageService, core.storage)
+        df = await storage.read_tick_data(symbol, start_date, end_date)
         if df.is_empty():
             print("   ❌ Nincs elérhető tick adat a megadott időtartományban")
             return
@@ -71,9 +74,14 @@ async def run_d2_test() -> None:
     # 3. Adatok átalakítása H1 OHLCV gyertyákká
     print("⏳ 3. Adatok resample-olása H1 timeframe-re...")
     try:
-        resampler = ResamplerServiceFactory.create(core.storage)
+        if not core.storage:
+            raise RuntimeError("Storage nincs inicializálva")
+        if not core.logger:
+            raise RuntimeError("Logger nincs inicializálva")
+
+        resampler = ResamplerServiceFactory.create(core.storage, core.logger)
         # Privát metódus használata - csak teszt célból
-        ohlcv = resampler._convert_to_ohlcv(df, "1h")
+        ohlcv = resampler._convert_to_ohlcv(df, "1h")  # type: ignore
 
         # OHLCV adatok transzformálása a processor számára
         # A processor "high" és "low" oszlopokat vár a wick swingekhez
@@ -92,6 +100,11 @@ async def run_d2_test() -> None:
     # 4. D2 Support Processor futtatása és új függvények ellenőrzése
     print("⏳ 4. D2 Support Processor futtatása...")
     try:
+        if not core.config:
+            raise RuntimeError("Config nincs inicializálva")
+        if not core.logger:
+            raise RuntimeError("Logger nincs inicializálva")
+
         processor = D02SupportFactory.create(core.config, core.logger)
 
         # Ellenőrizzük, hogy az új függvények léteznek
