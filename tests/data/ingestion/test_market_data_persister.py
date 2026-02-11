@@ -7,6 +7,7 @@ amelyek ellenőrzik a market data eventek bufferezését és mentését.
 import asyncio
 from contextlib import suppress
 from datetime import UTC, datetime, timedelta
+from typing import cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -16,7 +17,9 @@ from neural_ai.core.config.interfaces.types import IngestionConfig
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
 
-default_config: IngestionConfig = {"buffer_size_limit": 10_000, "flush_interval_minutes": 60}
+default_config: IngestionConfig = cast(
+    IngestionConfig, {"buffer_size_limit": 10_000, "flush_interval_minutes": 60}
+)
 
 
 class MockMarketDataEvent(BaseModel):
@@ -35,10 +38,12 @@ class TestMarketDataPersisterInit:
 
     def test_init_with_default_values(self) -> None:
         """Teszteli az alapértelmezett értékekkel történő inicializálást."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
-        mock_config: IngestionConfig = {"buffer_size_limit": 10_000, "flush_interval_minutes": 60}
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
+        mock_config: IngestionConfig = cast(
+            IngestionConfig, {"buffer_size_limit": 10_000, "flush_interval_minutes": 60}
+        )
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=mock_config
@@ -47,22 +52,24 @@ class TestMarketDataPersisterInit:
         assert persister.event_bus == mock_event_bus
         assert persister.storage == mock_storage
         assert persister.logger == mock_logger
-        assert persister.buffer_size_limit == 10_000
+        assert persister.buffer_size_limit == 10_000  # type: ignore
         assert persister.running is False
         assert len(persister.buffer) == 0
 
     def test_init_with_custom_buffer_size(self) -> None:
         """Teszteli az egyéni buffer mérettel történő inicializálást."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
-        mock_config: IngestionConfig = {"buffer_size_limit": 5_000, "flush_interval_minutes": 60}
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
+        mock_config: IngestionConfig = cast(
+            IngestionConfig, {"buffer_size_limit": 5_000, "flush_interval_minutes": 60}
+        )
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=mock_config
         )
 
-        assert persister.buffer_size_limit == 5_000
+        assert persister.buffer_size_limit == 5_000  # type: ignore
 
 
 class TestMarketDataPersisterStartStop:
@@ -71,11 +78,13 @@ class TestMarketDataPersisterStartStop:
     @pytest.mark.asyncio
     async def test_start_success(self) -> None:
         """Teszteli a sikeres indítást."""
-        mock_event_bus = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
         mock_event_bus.run_forever = AsyncMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
-        mock_config: IngestionConfig = {"buffer_size_limit": 10_000, "flush_interval_minutes": 60}
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
+        mock_config: IngestionConfig = cast(
+            IngestionConfig, {"buffer_size_limit": 10_000, "flush_interval_minutes": 60}
+        )
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=mock_config
@@ -90,9 +99,9 @@ class TestMarketDataPersisterStartStop:
     @pytest.mark.asyncio
     async def test_start_when_already_running(self) -> None:
         """Teszteli az indítást, ha már fut a szolgáltatás."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -110,9 +119,9 @@ class TestMarketDataPersisterStartStop:
     @pytest.mark.asyncio
     async def test_stop_success(self) -> None:
         """Teszteli a sikeres leállítást."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -129,6 +138,8 @@ class TestMarketDataPersisterStartStop:
             bid=1.1000,
             ask=1.1002,
             volume=1000,
+            bid_volume=1000,
+            ask_volume=1000,
             source="jforex",
         )
         persister.buffer["EURUSD"].append(event)
@@ -142,9 +153,9 @@ class TestMarketDataPersisterStartStop:
     @pytest.mark.asyncio
     async def test_stop_when_not_running(self) -> None:
         """Teszteli a leállítást, ha nem fut a szolgáltatás."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -165,15 +176,15 @@ class TestMarketDataPersisterOnMarketData:
     @pytest.mark.asyncio
     async def test_on_market_data_single_event(self) -> None:
         """Teszteli egyetlen event fogadását."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
             storage=mock_storage,
             logger=mock_logger,
-            config={"buffer_size_limit": 5, "flush_interval_minutes": 60},
+            config=cast(IngestionConfig, {"buffer_size_limit": 5, "flush_interval_minutes": 60}),
         )
         persister.running = True
 
@@ -183,6 +194,8 @@ class TestMarketDataPersisterOnMarketData:
             bid=1.1000,
             ask=1.1002,
             volume=1000,
+            bid_volume=1000,
+            ask_volume=1000,
             source="jforex",
         )
 
@@ -194,9 +207,9 @@ class TestMarketDataPersisterOnMarketData:
     @pytest.mark.asyncio
     async def test_on_market_data_batch_events(self) -> None:
         """Teszteli batch eventek fogadását."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -213,6 +226,8 @@ class TestMarketDataPersisterOnMarketData:
                 bid=1.1000 + i * 0.0001,
                 ask=1.1002 + i * 0.0001,
                 volume=1000,
+                bid_volume=1000,
+                ask_volume=1000,
                 source="jforex",
             )
             for i in range(3)
@@ -225,9 +240,9 @@ class TestMarketDataPersisterOnMarketData:
     @pytest.mark.asyncio
     async def test_on_market_data_unknown_format(self) -> None:
         """Teszteli ismeretlen formátumú event kezelését."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -237,21 +252,21 @@ class TestMarketDataPersisterOnMarketData:
         )
         persister.running = True
 
-        await persister.on_market_data("invalid_event")
+        await persister.on_market_data("invalid_event")  # type: ignore[arg-type]
 
         mock_logger.warning.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_on_market_data_triggers_flush_at_limit(self) -> None:
         """Teszteli, hogy a buffer kiürül, ha eléri a méretkorlátot."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
             storage=mock_storage,
             logger=MagicMock(),
-            config={"buffer_size_limit": 3, "flush_interval_minutes": 60},
+            config=cast(IngestionConfig, {"buffer_size_limit": 3, "flush_interval_minutes": 60}),
         )
         persister.running = True
 
@@ -265,6 +280,8 @@ class TestMarketDataPersisterOnMarketData:
                 bid=1.1000 + i * 0.0001,
                 ask=1.1002 + i * 0.0001,
                 volume=1000,
+                bid_volume=1000,
+                ask_volume=1000,
                 source="jforex",
             )
             for i in range(5)
@@ -283,9 +300,9 @@ class TestMarketDataPersisterPeriodicFlush:
     @pytest.mark.asyncio
     async def test_periodic_flush_triggers_on_new_hour(self) -> None:
         """Teszteli, hogy az új óra kezdetekor lefut-e a flush."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -320,9 +337,9 @@ class TestMarketDataPersisterPeriodicFlush:
     @pytest.mark.asyncio
     async def test_periodic_flush_handles_exception(self) -> None:
         """Teszteli a kivétel kezelését a periodikus flush során."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -355,8 +372,8 @@ class TestMarketDataPersisterFlush:
     @pytest.mark.asyncio
     async def test_flush_all_buffers_with_data(self) -> None:
         """Teszteli az összes buffer kiürítését adatokkal."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -373,6 +390,8 @@ class TestMarketDataPersisterFlush:
             bid=1.1000,
             ask=1.1002,
             volume=1000,
+            bid_volume=1000,
+            ask_volume=1000,
             source="jforex",
         )
         persister.buffer["EURUSD"].append(event)
@@ -388,9 +407,9 @@ class TestMarketDataPersisterFlush:
     @pytest.mark.asyncio
     async def test_flush_all_buffers_empty(self) -> None:
         """Teszteli az üres buffer kiürítését."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -406,9 +425,9 @@ class TestMarketDataPersisterFlush:
     @pytest.mark.asyncio
     async def test_flush_symbol_buffer_success(self) -> None:
         """Teszteli egy szimbólum bufferének sikeres kiürítését."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -424,6 +443,8 @@ class TestMarketDataPersisterFlush:
                 bid=1.1000,
                 ask=1.1002,
                 volume=1000,
+                bid_volume=1000,
+                ask_volume=1000,
                 source="jforex",
             )
         ]
@@ -438,9 +459,9 @@ class TestMarketDataPersisterFlush:
     @pytest.mark.asyncio
     async def test_flush_symbol_buffer_empty(self) -> None:
         """Teszteli az üres szimbólum buffer kiürítését."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -456,9 +477,9 @@ class TestMarketDataPersisterFlush:
     @pytest.mark.asyncio
     async def test_flush_symbol_buffer_handles_exception(self) -> None:
         """Teszteli a kivétel kezelését a szimbólum buffer kiürítésekor."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -475,6 +496,8 @@ class TestMarketDataPersisterFlush:
             bid=1.1000,
             ask=1.1002,
             volume=1000,
+            bid_volume=1000,
+            ask_volume=1000,
             source="jforex",
         )
         persister.buffer["EURUSD"].append(event)
@@ -499,10 +522,16 @@ class TestMarketDataPersisterSave:
     @pytest.mark.asyncio
     async def test_save_events_to_storage_with_parquet_service(self) -> None:
         """Teszteli az eventek mentését ParquetStorageService használatával."""
-        mock_event_bus = MagicMock()
-        mock_storage = AsyncMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: AsyncMock = AsyncMock()
+        mock_logger: MagicMock = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
+        )
 
         events = [
             MarketDataEvent(
@@ -511,6 +540,8 @@ class TestMarketDataPersisterSave:
                 bid=1.1000,
                 ask=1.1002,
                 volume=1000,
+                bid_volume=1000,
+                ask_volume=1000,
                 source="jforex",
             )
         ]
@@ -533,10 +564,16 @@ class TestMarketDataPersisterSave:
     @pytest.mark.asyncio
     async def test_save_events_to_storage_fallback(self) -> None:
         """Teszteli az eventek mentését fallback metódussal."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
+        )
 
         events = [
             MarketDataEvent(
@@ -545,6 +582,8 @@ class TestMarketDataPersisterSave:
                 bid=1.1000,
                 ask=1.1002,
                 volume=1000,
+                bid_volume=1000,
+                ask_volume=1000,
                 source="jforex",
             )
         ]
@@ -564,9 +603,9 @@ class TestMarketDataPersisterSave:
     @pytest.mark.asyncio
     async def test_save_events_to_storage_empty(self) -> None:
         """Teszteli az üres event lista mentését."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -587,12 +626,18 @@ class TestMarketDataPersisterSave:
     @pytest.mark.asyncio
     async def test_save_events_to_storage_handles_exception(self) -> None:
         """Teszteli a kivétel kezelését az eventek mentésekor."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
         # A save_dataframe metódust mockoljuk, hogy dobjon kivételt
         mock_storage.save_dataframe = MagicMock(side_effect=Exception("Test error"))
+        mock_logger: MagicMock = MagicMock()
 
-        persister = MarketDataPersister(event_bus=mock_event_bus, storage=mock_storage)
+        persister = MarketDataPersister(
+            event_bus=mock_event_bus,
+            storage=mock_storage,
+            logger=mock_logger,
+            config=default_config,
+        )
 
         events = [
             MarketDataEvent(
@@ -601,6 +646,8 @@ class TestMarketDataPersisterSave:
                 bid=1.1000,
                 ask=1.1002,
                 volume=1000,
+                bid_volume=1000,
+                ask_volume=1000,
                 source="jforex",
             )
         ]
@@ -619,9 +666,9 @@ class TestMarketDataPersisterConvertToDataFrame:
 
     def test_convert_events_to_dataframe_with_pandas(self) -> None:
         """Teszteli az eventek DataFrame-é konvertálását pandas használatával."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -637,6 +684,8 @@ class TestMarketDataPersisterConvertToDataFrame:
                 bid=1.1000,
                 ask=1.1002,
                 volume=1000,
+                bid_volume=1000,
+                ask_volume=1000,
                 source="jforex",
             ),
             MarketDataEvent(
@@ -645,6 +694,8 @@ class TestMarketDataPersisterConvertToDataFrame:
                 bid=1.1001,
                 ask=1.1003,
                 volume=1500,
+                bid_volume=1500,
+                ask_volume=1500,
                 source="jforex",
             ),
         ]
@@ -656,9 +707,9 @@ class TestMarketDataPersisterConvertToDataFrame:
 
     def test_convert_events_to_dataframe_with_polars(self) -> None:
         """Teszteli az eventek DataFrame-é konvertálását polars használatával."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -674,6 +725,8 @@ class TestMarketDataPersisterConvertToDataFrame:
                 bid=1.1000,
                 ask=1.1002,
                 volume=1000,
+                bid_volume=1000,
+                ask_volume=1000,
                 source="jforex",
             )
         ]
@@ -686,9 +739,9 @@ class TestMarketDataPersisterConvertToDataFrame:
 
     def test_convert_events_to_dataframe_no_library(self) -> None:
         """Teszteli a kivételt, ha egyik library sincs telepítve."""
-        mock_event_bus = MagicMock()
-        mock_storage = MagicMock()
-        mock_logger = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
+        mock_storage: MagicMock = MagicMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
@@ -704,6 +757,8 @@ class TestMarketDataPersisterConvertToDataFrame:
                 bid=1.1000,
                 ask=1.1002,
                 volume=1000,
+                bid_volume=1000,
+                ask_volume=1000,
                 source="jforex",
             )
         ]
@@ -720,16 +775,16 @@ class TestMarketDataPersisterIntegration:
     @pytest.mark.asyncio
     async def test_full_workflow(self) -> None:
         """Teszteli a teljes munkafolyamatot."""
-        mock_event_bus = MagicMock()
+        mock_event_bus: MagicMock = MagicMock()
         mock_event_bus.run_forever = AsyncMock()
-        mock_storage = AsyncMock()
-        mock_logger = MagicMock()
+        mock_storage: AsyncMock = AsyncMock()
+        mock_logger: MagicMock = MagicMock()
 
         persister = MarketDataPersister(
             event_bus=mock_event_bus,
             storage=mock_storage,
             logger=mock_logger,
-            config={"buffer_size_limit": 2, "flush_interval_minutes": 60},
+            config=cast(IngestionConfig, {"buffer_size_limit": 2, "flush_interval_minutes": 60}),
         )
 
         # Indítás
@@ -744,6 +799,8 @@ class TestMarketDataPersisterIntegration:
                 bid=1.1000 + i * 0.0001,
                 ask=1.1002 + i * 0.0001,
                 volume=1000,
+                bid_volume=1000,
+                ask_volume=1000,
                 source="jforex",
             )
             for i in range(3)

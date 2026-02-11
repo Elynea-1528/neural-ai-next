@@ -1,7 +1,7 @@
 """Dashboard Service tesztek."""
 
 from typing import Any
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -84,8 +84,6 @@ class TestDashboardService:
     ) -> None:
         """Teszteli az egészségügyi állapot lekérdezését, ha a monitor elérhető."""
         # Mock a health monitor check_health metódusát
-        from unittest.mock import AsyncMock
-
         # A service a self._core_components.core.health_monitor.check_health() hívást használja
         # Ezért a mock_components.core.health_monitor.check_health-et kell mockolni
         mock_components.core.health_monitor.check_health = AsyncMock(
@@ -167,8 +165,6 @@ class TestDashboardService:
             components=components,
         )
 
-        from unittest.mock import AsyncMock
-
         # A service a self._core_components.core.health_monitor.check_health() hívást használja
         mock_components.core.health_monitor.check_health = AsyncMock(return_value=system_health)
 
@@ -189,7 +185,7 @@ class TestDashboardService:
         self, mock_logger: MagicMock, mock_config: dict[str, Any], mock_components: MagicMock
     ) -> None:
         """Teszteli a rendszer áttekintő adatok lekérdezését."""
-        mock_system_info = {
+        mock_system_info: dict[str, Any] = {
             "version": "6.0.0",
             "status": "running",
             "components": {"core": "OK", "database": "OK"},

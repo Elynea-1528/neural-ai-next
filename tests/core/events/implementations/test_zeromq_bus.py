@@ -325,48 +325,48 @@ class TestEventBusSubscribeUnsubscribe:
     @patch("zmq.asyncio.Context")
     def test_subscribe_new_event_type(self, mock_context_class: MagicMock) -> None:
         """Teszteli az új eseménytípusra való feliratkozást."""
-        mock_context = MagicMock()
+        mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
         bus = EventBus()
-        callback = MagicMock()
+        callback: MagicMock = MagicMock()
 
         bus.subscribe("market_data", callback)
 
-        assert "market_data" in bus._subscribers
-        assert callback in bus._subscribers["market_data"]
+        assert "market_data" in bus._subscribers  # type: ignore[reportPrivateUsage]
+        assert callback in bus._subscribers["market_data"]  # type: ignore[reportPrivateUsage]
 
     @patch("zmq.asyncio.Context")
     def test_subscribe_multiple_callbacks(self, mock_context_class: MagicMock) -> None:
         """Teszteli több callback feliratkozását ugyanarra az eseménytípusra."""
-        mock_context = MagicMock()
+        mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
         bus = EventBus()
-        callback1 = MagicMock()
-        callback2 = MagicMock()
+        callback1: MagicMock = MagicMock()
+        callback2: MagicMock = MagicMock()
 
         bus.subscribe("market_data", callback1)
         bus.subscribe("market_data", callback2)
 
-        assert len(bus._subscribers["market_data"]) == 2
-        assert callback1 in bus._subscribers["market_data"]
-        assert callback2 in bus._subscribers["market_data"]
+        assert len(bus._subscribers["market_data"]) == 2  # type: ignore[reportPrivateUsage]
+        assert callback1 in bus._subscribers["market_data"]  # type: ignore[reportPrivateUsage]
+        assert callback2 in bus._subscribers["market_data"]  # type: ignore[reportPrivateUsage]
 
     @patch("zmq.asyncio.Context")
     def test_unsubscribe_existing(self, mock_context_class: MagicMock) -> None:
         """Teszteli a létező feliratkozás lemondását."""
-        mock_context = MagicMock()
+        mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
         bus = EventBus()
-        callback = MagicMock()
+        callback: MagicMock = MagicMock()
 
         bus.subscribe("market_data", callback)
         bus.unsubscribe("market_data", callback)
 
-        assert "market_data" in bus._subscribers
-        assert callback not in bus._subscribers["market_data"]
+        assert "market_data" in bus._subscribers  # type: ignore[reportPrivateUsage]
+        assert callback not in bus._subscribers["market_data"]  # type: ignore[reportPrivateUsage]
 
     @patch("zmq.asyncio.Context")
     def test_unsubscribe_non_existing(self, mock_context_class: MagicMock) -> None:
@@ -432,7 +432,7 @@ class TestEventBusDeserialization:
             "volume": 100000,
         }
 
-        result = bus._deserialize_event("market_data", event_data)
+        result = bus._deserialize_event("market_data", event_data)  # type: ignore[reportPrivateUsage]
 
         assert result is not None
         assert isinstance(result, MarketDataEvent)
@@ -448,7 +448,7 @@ class TestEventBusDeserialization:
         bus = EventBus()
         event_data = {"key": "value"}
 
-        result = bus._deserialize_event("unknown_type", event_data)
+        result = bus._deserialize_event("unknown_type", event_data)  # type: ignore[reportPrivateUsage]
 
         assert result is None
 
@@ -461,7 +461,7 @@ class TestEventBusDeserialization:
         bus = EventBus()
         event_data = {"invalid": "data"}
 
-        result = bus._deserialize_event("market_data", event_data)
+        result = bus._deserialize_event("market_data", event_data)  # type: ignore[reportPrivateUsage]
 
         assert result is None
 
@@ -473,14 +473,14 @@ class TestEventBusDispatch:
     @patch("zmq.asyncio.Context")
     async def test_dispatch_event_success(self, mock_context_class: MagicMock) -> None:
         """Teszteli a sikeres esemény továbbítást."""
-        mock_context = MagicMock()
+        mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
         bus = EventBus()
-        callback = AsyncMock()
+        callback: AsyncMock = AsyncMock()
         bus.subscribe("market_data", callback)
 
-        event_data = {
+        event_data: dict[str, Any] = {
             "symbol": "EURUSD",
             "timestamp": datetime.now(UTC).isoformat(),
             "bid": 1.0850,
@@ -489,7 +489,7 @@ class TestEventBusDispatch:
             "volume": 100000,
         }
 
-        await bus._dispatch_event("market_data", event_data)
+        await bus._dispatch_event("market_data", event_data)  # type: ignore[reportPrivateUsage]
 
         callback.assert_awaited_once()
         assert callback.await_args is not None
@@ -516,7 +516,7 @@ class TestEventBusDispatch:
         }
 
         # Nem dob hibát
-        await bus._dispatch_event("market_data", event_data)
+        await bus._dispatch_event("market_data", event_data)  # type: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
@@ -529,7 +529,7 @@ class TestEventBusDispatch:
         callback = AsyncMock(side_effect=Exception("Callback hiba"))
         bus.subscribe("market_data", callback)
 
-        event_data = {
+        event_data: dict[str, Any] = {
             "symbol": "EURUSD",
             "timestamp": datetime.now(UTC).isoformat(),
             "bid": 1.0850,
@@ -539,7 +539,7 @@ class TestEventBusDispatch:
         }
 
         # Nem dob hibát, csak logol
-        await bus._dispatch_event("market_data", event_data)
+        await bus._dispatch_event("market_data", event_data)  # type: ignore[reportPrivateUsage]
 
         callback.assert_awaited_once()
 
@@ -563,7 +563,7 @@ class TestEventBusDeserializationAdditional:
             "order_id": "ord_12345",
         }
 
-        result = bus._deserialize_event("trade", event_data)
+        result = bus._deserialize_event("trade", event_data)  # type: ignore[reportPrivateUsage]
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import TradeEvent
@@ -586,7 +586,7 @@ class TestEventBusDeserializationAdditional:
             "strategy_id": "strat_001",
         }
 
-        result = bus._deserialize_event("signal", event_data)
+        result = bus._deserialize_event("signal", event_data)  # type: ignore[reportPrivateUsage]
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import SignalEvent
@@ -608,7 +608,7 @@ class TestEventBusDeserializationAdditional:
             "message": "System started",
         }
 
-        result = bus._deserialize_event("system_log", event_data)
+        result = bus._deserialize_event("system_log", event_data)  # type: ignore[reportPrivateUsage]
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import SystemLogEvent
@@ -634,7 +634,7 @@ class TestEventBusDeserializationAdditional:
             "status": "PENDING",
         }
 
-        result = bus._deserialize_event("order", event_data)
+        result = bus._deserialize_event("order", event_data)  # type: ignore[reportPrivateUsage]
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import OrderEvent
@@ -660,7 +660,7 @@ class TestEventBusDeserializationAdditional:
             "status": "OPEN",
         }
 
-        result = bus._deserialize_event("position", event_data)
+        result = bus._deserialize_event("position", event_data)  # type: ignore[reportPrivateUsage]
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import PositionEvent
@@ -686,10 +686,10 @@ class TestEventBusDispatchExceptionHandling:
         bus.subscribe("market_data", callback)
 
         # Érvénytelen esemény adatok, amelyek deserializálási hibát okoznak
-        event_data = {"invalid": "data", "missing_required": True}
+        event_data: dict[str, Any] = {"invalid": "data", "missing_required": True}
 
         # Nem dob hibát, csak logol
-        await bus._dispatch_event("market_data", event_data)
+        await bus._dispatch_event("market_data", event_data)  # type: ignore[reportPrivateUsage]
 
         # A callback nem hívódik meg, mert a deserializálás sikertelen
         callback.assert_not_awaited()
@@ -710,7 +710,7 @@ class TestEventBusDispatchExceptionHandling:
         event_data = {"key": "value"}
 
         # Nem dob hibát, a deserializálás None-t ad vissza
-        await bus._dispatch_event("unknown_type", event_data)
+        await bus._dispatch_event("unknown_type", event_data)  # type: ignore[reportPrivateUsage]
 
         # A callback nem hívódik meg
         callback.assert_not_awaited()
@@ -738,7 +738,7 @@ class TestEventBusDispatchExceptionHandling:
             bus, "_deserialize_event", side_effect=Exception("Deszerializálási hiba")
         ):
             # Nem dob hibát, csak logol (219-220. sorok)
-            await bus._dispatch_event("market_data", event_data)
+            await bus._dispatch_event("market_data", event_data)  # type: ignore[reportPrivateUsage]
 
         # A callback nem hívódik meg, mert a deszerializálás hibát dobott
         callback.assert_not_awaited()
