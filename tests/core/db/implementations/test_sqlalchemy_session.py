@@ -93,7 +93,7 @@ class TestCreateEngine:
         with patch(
             "neural_ai.core.db.implementations.sqlalchemy_session.create_async_engine"
         ) as mock_create:
-            mock_engine = MagicMock()
+            mock_engine: MagicMock = MagicMock()
             mock_create.return_value = mock_engine
 
             engine = create_engine("postgresql+asyncpg://user:pass@localhost/db")
@@ -116,10 +116,10 @@ class TestGetEngine:
         self, mock_create: MagicMock, mock_config_factory: MagicMock, mock_get_url: MagicMock
     ) -> None:
         """Teszteli, hogy az engine létrejön az első hívásnál."""
-        mock_engine = MagicMock()
+        mock_engine: MagicMock = MagicMock()
         mock_create.return_value = mock_engine
         mock_get_url.return_value = "sqlite+aiosqlite:///:memory:"
-        mock_config = MagicMock()
+        mock_config: MagicMock = MagicMock()
         mock_config.get.return_value = "INFO"
         mock_config_factory.get_manager.return_value = mock_config
 
@@ -139,7 +139,7 @@ class TestGetAsyncSessionMaker:
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_engine")
     def test_get_async_session_maker_creates_once(self, mock_get_engine: MagicMock) -> None:
         """Teszteli, hogy a session maker csak egyszer jön létre."""
-        mock_engine = MagicMock()
+        mock_engine: MagicMock = MagicMock()
         mock_get_engine.return_value = mock_engine
 
         session_maker1 = get_async_session_maker()
@@ -357,11 +357,11 @@ class TestDatabaseInitialization:
         """Teszteli az init_db függvényt."""
         # Ez a teszt csak ellenőrzi, hogy a függvény lefut-e hiba nélkül
         # Mock-oljuk a get_engine-t, hogy ne kelljen config fájl
-        mock_logger = MagicMock()
+        mock_logger: MagicMock = MagicMock()
         with patch(
             "neural_ai.core.db.implementations.sqlalchemy_session.get_engine"
         ) as mock_get_engine:
-            mock_engine = MagicMock()
+            mock_engine: MagicMock = MagicMock()
             mock_get_engine.return_value = mock_engine
             mock_engine.begin.return_value.__aenter__ = AsyncMock()
             mock_engine.begin.return_value.__aexit__ = AsyncMock()
@@ -371,9 +371,9 @@ class TestDatabaseInitialization:
     @pytest.mark.asyncio
     async def test_close_db(self) -> None:
         """Teszteli a close_db függvényt."""
-        mock_logger = MagicMock()
+        mock_logger: MagicMock = MagicMock()
         # Mock-oljuk a globális változókat
-        mock_engine = MagicMock()
+        mock_engine: MagicMock = MagicMock()
         mock_engine.dispose = AsyncMock()
 
         with (

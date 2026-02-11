@@ -41,7 +41,7 @@ class TestUIServiceFactory:
     def test_initialize_with_bridge(self) -> None:
         """A factory inicializálásának tesztelése bridge-el."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
 
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
@@ -57,7 +57,7 @@ class TestUIServiceFactory:
     def test_get_navigation_service_after_initialization(self) -> None:
         """Navigation service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_navigation_service()
@@ -74,7 +74,7 @@ class TestUIServiceFactory:
     def test_get_dashboard_service_after_initialization(self) -> None:
         """Dashboard service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_dashboard_service()
@@ -91,7 +91,7 @@ class TestUIServiceFactory:
     def test_get_data_service_after_initialization(self) -> None:
         """Data service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_data_service()
@@ -108,7 +108,7 @@ class TestUIServiceFactory:
     def test_get_ai_service_after_initialization(self) -> None:
         """AI service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_ai_service()
@@ -125,7 +125,7 @@ class TestUIServiceFactory:
     def test_get_strategy_service_after_initialization(self) -> None:
         """Strategy service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_strategy_service()
@@ -142,7 +142,7 @@ class TestUIServiceFactory:
     def test_get_live_ops_service_after_initialization(self) -> None:
         """Live Ops service lekérdezése inicializálás után."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         service = factory.get_live_ops_service()
@@ -152,7 +152,7 @@ class TestUIServiceFactory:
     def test_get_all_services(self) -> None:
         """Az összes szolgáltatás lekérdezésének tesztelése."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         services = factory.get_all_services()
@@ -179,7 +179,7 @@ class TestUIServiceFactory:
 
         assert factory.is_initialized is False
 
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         assert factory.is_initialized is True
@@ -187,7 +187,7 @@ class TestUIServiceFactory:
     def test_reset_method(self) -> None:
         """A reset metódus tesztelése."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         # Létrehozunk néhány szolgáltatást
@@ -207,7 +207,7 @@ class TestUIServiceFactory:
 
         assert factory1 is factory2
 
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory1.initialize(mock_bridge, {}, Mock(), Mock())
 
         assert factory2.is_initialized is True
@@ -215,7 +215,7 @@ class TestUIServiceFactory:
     def test_data_service_compatibility(self) -> None:
         """DataService kompatibilitás ellenőrzése a factory-val."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         # Lekérjük a DataService-t
@@ -227,7 +227,7 @@ class TestUIServiceFactory:
     def test_service_caching(self) -> None:
         """Szolgáltatások gyorsítótárazásának tesztelése."""
         factory = UIServiceFactory()
-        mock_bridge = Mock(spec=CoreBridgeInterface)
+        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
         factory.initialize(mock_bridge, {}, Mock(), Mock())
 
         # Lekérjük a szolgáltatást kétszer
@@ -274,7 +274,7 @@ class TestUIConfigValidation:
         from neural_ai.ui.factory import UIServiceFactory
 
         factory = UIServiceFactory()
-        mock_bridge = Mock()
+        mock_bridge: Mock = Mock()
 
         # Érvénytelen config
         with pytest.raises(ValidationError):
