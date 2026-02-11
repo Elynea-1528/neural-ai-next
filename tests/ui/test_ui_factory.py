@@ -243,9 +243,11 @@ class TestUIConfigValidation:
 
     def test_valid_ui_config(self) -> None:
         """Érvényes UI konfiguráció tesztelése."""
-        config = UIConfig(
-            theme="dark",
-            refresh_rate=5,
+        config = UIConfig.model_validate(
+            {
+                "theme": "dark",
+                "refresh_rate": 5,
+            }
         )
         assert config.theme == "dark"
         assert config.refresh_rate == 5
@@ -253,17 +255,17 @@ class TestUIConfigValidation:
     def test_invalid_theme_raises_error(self) -> None:
         """Érvénytelen téma ValidationError-t dob."""
         with pytest.raises(ValidationError):
-            UIConfig(theme="invalid_theme")
+            UIConfig.model_validate({"theme": "invalid_theme"})
 
     def test_negative_refresh_rate_raises_error(self) -> None:
         """Negatív refresh_rate ValidationError-t dob."""
         with pytest.raises(ValidationError):
-            UIConfig(refresh_rate=-1)
+            UIConfig.model_validate({"refresh_rate": -1})
 
     def test_zero_refresh_rate_raises_error(self) -> None:
         """Nulla refresh_rate ValidationError-t dob."""
         with pytest.raises(ValidationError):
-            UIConfig(refresh_rate=0)
+            UIConfig.model_validate({"refresh_rate": 0})
 
     def test_factory_validates_config(self) -> None:
         """Factory Pydantic validációt végez."""
@@ -285,19 +287,18 @@ class TestUIConfigValidation:
 
     def test_default_values(self) -> None:
         """Alapértelmezett értékek tesztelése."""
-        config = UIConfig()
+        config = UIConfig.model_validate({})
         assert config.theme == "light"
         assert config.refresh_rate is None
 
     def test_nested_config_validation(self) -> None:
         """Beágyazott konfiguráció validálása."""
-        config = UIConfig(
-            data_service={
-                "jforex": {
-                    "symbols": ["EURUSD", "GBPUSD"],
-                    "date_range": {
-                        "start": "2024-01-01",
-                        "end": "2024-12-31"
+        config = UIConfig.model_validate(
+            {
+                "data_service": {
+                    "jforex": {
+                        "symbols": ["EURUSD", "GBPUSD"],
+                        "date_range": {"start": "2024-01-01", "end": "2024-12-31"},
                     }
                 }
             }

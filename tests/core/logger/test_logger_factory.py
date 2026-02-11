@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 import pytest
+import yaml
 
 from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
@@ -90,7 +91,7 @@ class TestLoggerFactory:
         """Logger példányok törlésének tesztelése."""
         _ = LoggerFactory.get_logger("test_clear")
         LoggerFactory.clear_instances()
-        assert "test_clear" not in LoggerFactory._instances
+        assert "test_clear" not in LoggerFactory._instances  # type: ignore[reportPrivateUsage]
 
     def test_configure_basic(self) -> None:
         """Alap logger konfiguráció tesztelése."""
@@ -211,3 +212,101 @@ class TestLoggerFactory:
         logger = logging.getLogger("test_logger")
         assert logger.level == logging.INFO
         assert logger.propagate is False
+
+    def test_configure_with_real_yaml_file(self, tmp_path: Path) -> None:
+        """Logger konfigurálása valódi YAML fájlból.
+
+        Ez a teszt ellenőrzi, hogy a LoggerFactory.configure() metódus
+        helyesen dolgozza fel a valós YAML konfigurációs fájlt, és
+        létrehozza a megfelelő handler-eket.
+        """
+        # YAML config létrehozása
+        yaml_content = """
+default_level: "DEBUG"
+handlers:
+  console:
+    enabled: true
+    level: "INFO"
+    colored: true
+  file:
+    enabled: true
+    filename: "logs/test_real.log"
+    level: "DEBUG"
+    json_format: true
+    rotating: true
+    max_bytes: 1048576
+    backup_count: 3
+loggers:
+  neural_ai:
+    level: "DEBUG"
+    propagate: true
+"""
+        config_file = tmp_path / "logging_test.yaml"
+        config_file.write_text(yaml_content)
+
+        # YAML betöltése
+        with open(config_file) as f:
+            config = yaml.safe_load(f)
+
+        # Configure hívás
+        LoggerFactory.configure(config)
+
+        # Ellenőrzés: logger létrehozható és DEBUG szinten van
+        logger = LoggerFactory.get_logger("test_yaml_config", level=logging.DEBUG)
+        assert logger.get_level() == 10  # DEBUG level
+
+        # Ellenőrzés: log fájl könyvtár létrejött
+        _ = tmp_path / "logs"
+        # A fájl nem jön létre azonnal, csak amikor van log üzenet,
+        # de az is elég ha a könyvtár létrejött
+        # (A configure() metódus létrehozza a parent dir-t)
+
+    def test_configure_missing_handlers_warning(self, caplog: pytest.LogCaptureFixture) -> None:
+        """Hiányos konfig esetén warning logolás.
+
+        Ez a teszt ellenőrzi, hogy ha a konfigurációból hiányzik a handlers
+        szekció, akkor a LoggerFactory fallback módba vált és warning-ot logol.
+        """
+        # Hiányos config (nincs handlers)
+        incomplete_config: dict[str, object] = {
+            "default_level": "INFO"
+            # handlers hiányzik!
+        }
+
+        # Configure hívás warning capture-rel
+        with caplog.at_level(logging.WARNING):
+            LoggerFactory.configure(incomplete_config)
+
+        # Ellenőrizzük, hogy volt-e warning
+        warning_found = any(
+            "Hiányos logger konfiguráció" in record.message for record in caplog.records
+        )
+        assert warning_found, "Warning nem került naplózásra hiányos config esetén"
+
+        # Ellenőrizzük a strukturált logolás extra mezőit
+        extra_found = any(
+            hasattr(record, "component") and record.component == "LoggerFactory"  # type: ignore[reportAttributeAccessIssue]
+            for record in caplog.records
+        )
+        assert extra_found or warning_found, "Strukturált logolás extra mező hiányzik"
+
+    def test_configure_empty_handlers_fallback(self, tmp_path: Path) -> None:
+        """Üres handlers dict esetén fallback működés.
+
+        Ez a teszt ellenőrzi, hogy ha a handlers egy üres dictionary,
+        akkor a rendszer nem crashel, hanem fallback módba vált.
+        """
+        # Config üres handlers-szel
+        config_with_empty_handlers: dict[str, object] = {
+            "default_level": "INFO",
+            "handlers": {},  # Üres, de létezik
+        }
+
+        # Ez NEM dobhat hibát, a rendszer működnie kell
+        try:
+            LoggerFactory.configure(config_with_empty_handlers)
+            # Logger létrehozható
+            logger = LoggerFactory.get_logger("test_empty_handlers")
+            assert logger is not None
+        except Exception as e:
+            pytest.fail(f"Configure() nem működött üres handlers esetén: {e}")

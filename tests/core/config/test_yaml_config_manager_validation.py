@@ -41,7 +41,7 @@ class TestConfigManagerTypeValidation:
         config._config = {"processors": {"d02": {"swing_window": 5}}}  # type: ignore[reportPrivateUsage]
 
         with pytest.raises(TypeError) as exc_info:
-            config.get("processors", {})
+            config.get("processors", {})  # type: ignore[reportArgumentType]
 
         assert "csak string kulcsokat fogad el" in str(exc_info.value)
         assert "Helytelen:" in str(exc_info.value)
@@ -53,7 +53,7 @@ class TestConfigManagerTypeValidation:
         config._config = {"processors": {"d02": {"swing_window": 5}}}  # type: ignore[reportPrivateUsage]
 
         with pytest.raises(TypeError) as exc_info:
-            config.get("processors", 123)
+            config.get("processors", 123)  # type: ignore[reportArgumentType]
 
         assert "csak string kulcsokat fogad el" in str(exc_info.value)
         assert "int" in str(exc_info.value)
@@ -64,7 +64,7 @@ class TestConfigManagerTypeValidation:
         config._config = {"processors": {"d02": {"swing_window": 5}}}  # type: ignore[reportPrivateUsage]
 
         with pytest.raises(TypeError) as exc_info:
-            config.get("processors", None)
+            config.get("processors", None)  # type: ignore[reportArgumentType]
 
         assert "csak string kulcsokat fogad el" in str(exc_info.value)
         assert "NoneType" in str(exc_info.value)
@@ -75,7 +75,7 @@ class TestConfigManagerTypeValidation:
         config._config = {"processors": {"d02": {"swing_window": 5}}}  # type: ignore[reportPrivateUsage]
 
         with pytest.raises(TypeError) as exc_info:
-            config.get("processors", ["d02"])
+            config.get("processors", ["d02"])  # type: ignore[reportArgumentType]
 
         assert "csak string kulcsokat fogad el" in str(exc_info.value)
         assert "list" in str(exc_info.value)
@@ -102,7 +102,7 @@ class TestConfigManagerTypeValidation:
         config._config = {"processors": {"d02": {}}}  # type: ignore[reportPrivateUsage]
 
         with pytest.raises(TypeError) as exc_info:
-            config.get("processors", {}, "test")
+            config.get("processors", {}, "test")  # type: ignore[reportArgumentType]
 
         error_message = str(exc_info.value)
         assert "index 1" in error_message  # A második kulcs hibás (0-indexelés)
