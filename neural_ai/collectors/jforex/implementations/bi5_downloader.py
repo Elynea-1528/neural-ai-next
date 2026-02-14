@@ -478,10 +478,6 @@ class Bi5Downloader(IJForexDownloader):
             for record_size, unpack_format in possible_formats:
                 num_records = len(decompressed) // record_size
 
-                # Validate minimum records
-                if num_records < 1:
-                    continue
-
                 # Try to unpack the first record
                 try:
                     offset = 0

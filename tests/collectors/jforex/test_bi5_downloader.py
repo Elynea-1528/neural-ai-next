@@ -3,12 +3,15 @@
 import lzma
 import struct
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from aiohttp import ClientError
 
 from neural_ai.collectors.jforex.exceptions.jforex_error import (
     DataNotAvailableError,
+    DecodeError,
+    DownloadError,
 )
 from neural_ai.collectors.jforex.implementations.bi5_downloader import Bi5Downloader
 
@@ -556,3 +559,169 @@ class TestBi5Downloader:
 
         assert record_size == 12
         assert unpack_format == ">III"
+
+    @pytest.mark.asyncio
+    async def test_download_binary_http_error(self, mock_dependencies):
+        """Test handling of HTTP client errors."""
+        mock_dependencies["http_client"].get.side_effect = ClientError("Network error")
+        downloader = Bi5Downloader(**mock_dependencies)
+
+        with pytest.raises(DownloadError, match="Failed to download"):
+            await downloader._download_binary("http://test.url")
+
+    @pytest.mark.asyncio
+    async def test_download_binary_status_error(self, mock_dependencies):
+        """Test handling of non-404 HTTP errors."""
+        mock_response = MagicMock()
+        mock_response.status = 500
+        mock_response.raise_for_status.side_effect = ClientError("500 Internal Server Error")
+        mock_dependencies["http_client"].get.return_value.__aenter__.return_value = mock_response
+
+        downloader = Bi5Downloader(**mock_dependencies)
+
+        with pytest.raises(DownloadError, match="Failed to download"):
+            await downloader._download_binary("http://test.url")
+
+    def test_detect_format_exception(self, downloader):
+        """Test exception handling in format detection."""
+        # Create data that is divisible by 20 but invalid for unpacking as 20-byte
+        # This is tricky to force struct.unpack to fail if size is correct,
+        # but we can try to make it fail the validation logic or just ensure coverage
+        # of the try-except block.
+        # We can mock struct.unpack to raise an exception
+        with patch("struct.unpack", side_effect=Exception("Test error")):
+            # Create dummy data divisible by 20
+            data = b"\x00" * 20
+            record_size, unpack_format = downloader._detect_format(data)
+            # Should fall back to default 12-byte
+            assert record_size == 12
+
+    def test_process_bi5_data_decode_error(self, downloader):
+        """Test handling of decode errors."""
+        # Invalid LZMA data
+        with pytest.raises(DecodeError, match="Failed to decode"):
+            downloader._process_bi5_data(b"invalid_lzma", "EURUSD", datetime.now(UTC))
+
+    @pytest.mark.asyncio
+    async def test_publish_ticks_batching(self, mock_dependencies):
+        """Test that ticks are published in batches."""
+        downloader = Bi5Downloader(**mock_dependencies)
+
+        # Create 1500 dummy ticks with valid data for Pydantic
+        ticks = []
+        for _ in range(1500):
+            tick = MagicMock()
+            tick.symbol = "EURUSD"
+            tick.timestamp = datetime.now(UTC)
+            tick.bid = 1.1
+            tick.ask = 1.2
+            tick.ask_volume = 1000.0
+            tick.bid_volume = 1000.0
+            tick.source = "jforex"
+            ticks.append(tick)
+
+        await downloader._publish_ticks(ticks)
+
+        # Should be called 1500 times (once per tick)
+        assert mock_dependencies["event_bus"].publish.call_count == 1500
+
+        # Verify the log call for batching
+        mock_dependencies["logger"].debug.assert_called_with(
+            "ticks_published",
+            total_ticks=1500,
+            num_batches=2
+        )
+
+    @pytest.mark.asyncio
+    async def test_publish_ticks_no_event_bus(self, mock_dependencies):
+        """Test publishing when event_bus is None."""
+        mock_dependencies["event_bus"] = None
+        downloader = Bi5Downloader(**mock_dependencies)
+
+        await downloader._publish_ticks([MagicMock()])
+        # Should just return without error
+
+    @pytest.mark.asyncio
+    async def test_download_tick_data_metadata_error(self, mock_dependencies):
+        """Test download proceeds if metadata check fails."""
+        mock_dependencies["storage"].exists.return_value = True
+        mock_dependencies["storage"].get_metadata.side_effect = Exception("Metadata error")
+
+        # Setup successful download
+        mock_response = MagicMock()
+        mock_response.status = 200
+        mock_response.read = AsyncMock(return_value=b"") # Empty to avoid processing
+        mock_dependencies["http_client"].get.return_value.__aenter__.return_value = mock_response
+
+        downloader = Bi5Downloader(**mock_dependencies)
+
+        # Should proceed to download (and return empty list because data is empty)
+        # We just want to ensure it doesn't crash on metadata error
+        test_date = datetime.now(UTC)
+        await downloader.download_tick_data("EURUSD", test_date)
+
+        # Verify warning was logged (using any_call because other warnings might follow)
+        expected_path = downloader._build_storage_path('EURUSD', test_date)
+        mock_dependencies["logger"].warning.assert_any_call(
+            f"Failed to check metadata for {expected_path}, proceeding with download",
+            error="Metadata error"
+        )
+
+    def test_validate_bi5_data_first_record_failure(self, downloader):
+        """Test validation failure on first record checks."""
+        # Case 1: Negative timestamp delta
+        # We need to mock struct.unpack to return negative delta
+        with patch("struct.unpack", return_value=(-1, 100, 100)):
+             # 12 bytes of dummy data
+             data = lzma.compress(b"\x00" * 12)
+             assert downloader.validate_bi5_data(data) is False
+
+    def test_process_bi5_data_negative_delta(self, downloader):
+        """Test processing of data with negative timestamp delta."""
+        test_date = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
+
+        # Create data but we need to mock unpack to return negative delta
+        # because we can't pack negative unsigned int
+        bi5_data = lzma.compress(b"\x00" * 12)
+
+        with patch("struct.unpack", return_value=(-1, 100, 100)):
+            ticks = downloader._process_bi5_data(bi5_data, "EURUSD", test_date)
+
+        # Should skip the invalid record
+        assert len(ticks) == 0
+        downloader._logger.warning.assert_called_with(
+            "bi5_invalid_timestamp_delta", record_index=0, delta=-1
+        )
+
+    def test_validate_bi5_data_struct_error(self, downloader):
+        """Test validation when struct.unpack raises error."""
+        bi5_data = lzma.compress(b"\x00" * 12)
+
+        with patch("struct.unpack", side_effect=struct.error("Unpack failed")):
+            assert downloader.validate_bi5_data(bi5_data) is False
+
+    def test_validate_bi5_data_large_price(self, downloader):
+        """Test validation with unrealistically large prices."""
+        # Mock unpack to return large price
+        # 1000000 * 100000 = 100000000000
+        with patch("struct.unpack", return_value=(100, 200000000000, 100)):
+            bi5_data = lzma.compress(b"\x00" * 12)
+            assert downloader.validate_bi5_data(bi5_data) is False
+
+    @pytest.mark.asyncio
+    async def test_get_available_dates(self, downloader):
+        """Test get_available_dates returns correct range."""
+        start = datetime(2024, 1, 1, tzinfo=UTC)
+        end = datetime(2024, 1, 3, tzinfo=UTC)
+
+        dates = await downloader.get_available_dates("EURUSD", start, end)
+
+        assert len(dates) == 3
+        assert dates[0] == start
+        assert dates[-1] == end
+
+    def test_init_default_url(self, mock_dependencies):
+        """Test default URL fallback."""
+        mock_dependencies["config"].get.return_value = None
+        downloader = Bi5Downloader(**mock_dependencies)
+        assert downloader._base_url == "https://www.dukascopy.com/datafeed"
