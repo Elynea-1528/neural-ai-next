@@ -242,9 +242,7 @@ class FileStorage(StorageInterface):
                 "Nem sikerült meghatározni a fájl formátumát (nincs kiterjesztés)"
             )
         if not full_path.suffix.lower() == ".parquet":
-            raise StorageFormatError(
-                "A fájlnak .parquet kiterjesztéssel kell rendelkeznie"
-            )
+            raise StorageFormatError("A fájlnak .parquet kiterjesztéssel kell rendelkeznie")
 
         # Ellenőrizzük a jogosultságokat
         self._check_permissions(full_path, check_write=True)
@@ -302,9 +300,7 @@ class FileStorage(StorageInterface):
                 "Nem sikerült meghatározni a fájl formátumát (nincs kiterjesztés)"
             )
         if not full_path.suffix.lower() == ".parquet":
-            raise StorageFormatError(
-                "A fájlnak .parquet kiterjesztéssel kell rendelkeznie"
-            )
+            raise StorageFormatError("A fájlnak .parquet kiterjesztéssel kell rendelkeznie")
 
         # Ellenőrizzük az olvasási jogosultságot
         self._check_permissions(full_path, check_write=False)
@@ -350,9 +346,7 @@ class FileStorage(StorageInterface):
                 "Nem sikerült meghatározni az objektum formátumát (nincs kiterjesztés)"
             )
         if not full_path.suffix.lower() == ".pkl":
-            raise StorageFormatError(
-                "Nem támogatott objektum formátum (csak .pkl támogatott)"
-            )
+            raise StorageFormatError("Nem támogatott objektum formátum (csak .pkl támogatott)")
 
         # Ellenőrizzük a jogosultságokat
         self._check_permissions(full_path, check_write=True)
@@ -415,9 +409,7 @@ class FileStorage(StorageInterface):
                 "Nem sikerült meghatározni az objektum formátumát (nincs kiterjesztés)"
             )
         if not full_path.suffix.lower() == ".pkl":
-            raise StorageFormatError(
-                "Nem támogatott objektum formátum (csak .pkl támogatott)"
-            )
+            raise StorageFormatError("Nem támogatott objektum formátum (csak .pkl támogatott)")
 
         # Ellenőrizzük az olvasási jogosultságot
         self._check_permissions(full_path, check_write=False)

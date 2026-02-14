@@ -45,7 +45,7 @@ class ParquetWriteConfig(BaseModel):
     compression: str = Field(
         "snappy",
         pattern="^(snappy|gzip|brotli|zstd|lz4|none)$",
-        description="Tömörítési algoritmus"
+        description="Tömörítési algoritmus",
     )
     unique_id: str | None = Field(None, description="Egyedi azonosító a fájlnévhez")
 
@@ -111,11 +111,11 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         self.logger = logger
         self.config = config
         self.event_bus = event_bus
-        
+
         # Pydantic validáció a configra
         raw_config = config.get_section("storage") if config else {}
         self.storage_config = StorageConfig(**(raw_config or {}))
-        
+
         # Base path inicializáció
         if base_path:
             self.BASE_PATH = Path(base_path)

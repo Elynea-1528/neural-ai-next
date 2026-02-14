@@ -6,7 +6,7 @@ de további tárolási típusok is regisztrálhatók dinamikusan.
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from neural_ai.core.config.factory import ConfigManagerFactory
 from neural_ai.core.config.interfaces.types import StorageConfig
@@ -134,7 +134,9 @@ class StorageFactory(StorageFactoryInterface):
         raw_config = config.get("storage")
         try:
             storage_conf = StorageConfig(**(raw_config if isinstance(raw_config, dict) else {}))
-            logger.debug("Storage config validation completed", storage_config=storage_conf.model_dump())
+            logger.debug(
+                "Storage config validation completed", storage_config=storage_conf.model_dump()
+            )
         except Exception as e:
             logger.error("Storage config validation failed", error=str(e))
             raise StorageError(f"Érvénytelen storage konfiguráció: {e}") from e
