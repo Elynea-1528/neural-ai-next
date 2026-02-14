@@ -376,8 +376,10 @@ class TestConfigManagerFactory:
         assert isinstance(result, ConfigManagerInterface)
         assert result.get("test_key") == "test_value"
 
-    def test_register_async_manager_should_validate_async_interface_implementation(self) -> None:
-        """Teszteli, hogy a register_async_manager ellenőrzi az interfész implementációt (125. sor)."""
+    def test_register_async_manager_should_validate_async_interface_implementation(
+        self,
+    ) -> None:
+        """Teszteli, hogy a register_async_manager ellenőrzi az implementációt."""
 
         # Given
         class NotAnAsyncConfigManager:

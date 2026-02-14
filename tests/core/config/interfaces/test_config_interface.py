@@ -91,7 +91,7 @@ class TestConfigManagerInterface:
 
         # get_section
         get_section_method = ConfigManagerInterface.get_section
-        assert get_section_method.__annotations__["section"] == str
+        assert get_section_method.__annotations__["section"] is str
         assert get_section_method.__annotations__["return"] == dict[str, Any]
 
         # set
@@ -106,12 +106,12 @@ class TestConfigManagerInterface:
 
         # load
         load_method = ConfigManagerInterface.load
-        assert load_method.__annotations__["filename"] == str
+        assert load_method.__annotations__["filename"] is str
         assert load_method.__annotations__["return"] is None
 
         # load_directory
         load_directory_method = ConfigManagerInterface.load_directory
-        assert load_directory_method.__annotations__["path"] == str
+        assert load_directory_method.__annotations__["path"] is str
         assert load_directory_method.__annotations__["return"] is None
 
         # validate

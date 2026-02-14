@@ -18,7 +18,14 @@ processor   : 0
 vendor_id   : GenuineIntel
 cpu family  : 6
 model       : 158
-flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx rdseed adx smap clflushopt intel_pt xsaveopt xsavec xgetbv1 xsaves dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp
+flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 \
+clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc \
+art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq \
+dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic \
+movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault \
+epb invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase \
+tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx rdseed adx smap clflushopt intel_pt \
+xsaveopt xsavec xgetbv1 xsaves dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp
 """
         with patch("builtins.open", mock_open(read_data=mock_cpuinfo)):
             with patch("platform.system", return_value="Linux"):
@@ -30,7 +37,8 @@ flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
         mock_cpuinfo = """
 processor   : 0
 vendor_id   : GenuineIntel
-flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx lm constant_tsc
+flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 \
+clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx lm constant_tsc
 """
         with patch("builtins.open", mock_open(read_data=mock_cpuinfo)):
             with patch("platform.system", return_value="Linux"):
@@ -54,7 +62,8 @@ flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
         """Teszteli a CPU feature-ök lekérdezését Linux rendszeren."""
         mock_cpuinfo = """
 processor   : 0
-flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx lm constant_tsc avx2
+flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 \
+clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx lm constant_tsc avx2
 """
         with patch("builtins.open", mock_open(read_data=mock_cpuinfo)):
             with patch("platform.system", return_value="Linux"):
@@ -82,7 +91,8 @@ flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
         """Teszteli a SIMD támogatás detektálását SIMD-s CPU-n."""
         mock_cpuinfo = """
 processor   : 0
-flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx lm constant_tsc avx
+flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 \
+clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx lm constant_tsc avx
 """
         with patch("builtins.open", mock_open(read_data=mock_cpuinfo)):
             with patch("platform.system", return_value="Linux"):
@@ -104,7 +114,8 @@ flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat
         """Teszteli a SIMD támogatás detektálását részleges SIMD támogatással."""
         mock_cpuinfo = """
 processor   : 0
-flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse
+flags       : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 \
+clflush dts acpi mmx fxsr sse
 """
         with patch("builtins.open", mock_open(read_data=mock_cpuinfo)):
             with patch("platform.system", return_value="Linux"):

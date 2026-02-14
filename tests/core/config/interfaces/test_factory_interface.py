@@ -132,19 +132,19 @@ class TestConfigManagerFactoryInterface:
         """Teszteli a metódusok aláírásainak helyességét."""
         # register_manager
         register_method = ConfigManagerFactoryInterface.register_manager
-        assert register_method.__annotations__["extension"] == str
+        assert register_method.__annotations__["extension"] is str
         assert register_method.__annotations__["manager_class"] == type["ConfigManagerInterface"]
         assert register_method.__annotations__["return"] is None
 
         # get_manager
         get_manager_method = ConfigManagerFactoryInterface.get_manager
-        assert get_manager_method.__annotations__["filename"] == str
+        assert get_manager_method.__annotations__["filename"] is str
         assert get_manager_method.__annotations__["manager_type"] == str | None
         assert get_manager_method.__annotations__["return"] == "ConfigManagerInterface"
 
         # create_manager
         create_manager_method = ConfigManagerFactoryInterface.create_manager
-        assert create_manager_method.__annotations__["manager_type"] == str
+        assert create_manager_method.__annotations__["manager_type"] is str
         assert create_manager_method.__annotations__["return"] == "ConfigManagerInterface"
 
     def test_implementation_can_be_instantiated(self) -> None:

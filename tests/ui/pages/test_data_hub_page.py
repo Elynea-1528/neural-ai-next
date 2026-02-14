@@ -187,7 +187,8 @@ class TestDataHubPage:
 
         page = DataHubPage(mock_bridge)
 
-        # A render metódus try-except blokkal van védve, ezért nem szabad a kivételnek továbbterjednie
+        # A render metódus try-except blokkal van védve,
+        # ezért nem szabad a kivételnek továbbterjednie
         try:
             page.render()
             assert True  # A kivételt a render metódus kezelnie kell

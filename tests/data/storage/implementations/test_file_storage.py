@@ -261,6 +261,7 @@ class TestFileStorage:
         """Teszteli a Python objektum mentését **kwargs paraméterekkel."""
         # Pickle mentés egyéni protokollal
         import pickle
+
         storage.save_object(sample_object, "test_protocol.pkl", protocol=pickle.HIGHEST_PROTOCOL)
 
         # Ellenőrizzük, hogy a fájl létrejött
@@ -375,7 +376,6 @@ class TestFileStorage:
         assert test_file.exists()
         assert test_file.read_bytes() == content
 
-
     def test_save_dataframe_format_detection_failure(self, storage: FileStorage) -> None:
         """Teszteli a DataFrame mentését formátum meghatározási hiba esetén."""
         df = pd.DataFrame({"a": [1, 2, 3]})
@@ -453,7 +453,7 @@ class TestFileStorage:
 
         def mock_read(*args: Any, **kwargs: Any) -> None:
             raise OSError("Mocked IO error")
-        
+
         # Backend read metódusát mockoljuk, mivel a FileStorage.load_dataframe azt hívja
         monkeypatch.setattr(storage.backend, "read", mock_read)
 
@@ -472,16 +472,18 @@ class TestFileStorage:
     ) -> None:
         """Teszteli az objektum mentését szerializációs hiba esetén."""
 
-        # Olyan objektumot hozunk létre, amit nem lehet szerializálni (Pickle szinte mindent tud, de mockoljuk)
+        # Olyan objektumot hozunk létre, amit nem lehet szerializálni
+        # (Pickle szinte mindent tud, de mockoljuk)
         class NonSerializable:
             pass
 
         obj = NonSerializable()
-        
+
         def mock_dump(*args: Any, **kwargs: Any) -> None:
-             raise TypeError("Object not serializable")
+            raise TypeError("Object not serializable")
 
         import pickle
+
         monkeypatch.setattr(pickle, "dump", mock_dump)
 
         with pytest.raises(StorageSerializationError, match="nem szerializálható"):

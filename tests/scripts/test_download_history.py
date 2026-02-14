@@ -102,7 +102,7 @@ class TestSaveTicksDirect:
 
     @pytest.mark.asyncio
     async def test_save_ticks_direct_creates_correct_dataframe_columns(self) -> None:
-        """Teszteli, hogy a _save_ticks_direct függvény helyesen hozza létre a DataFrame-et a forrásoszlopokkal."""
+        """Teszteli, hogy a _save_ticks_direct függvény helyesen hozza létre a DataFrame-et."""
         from scripts.download_history import _save_ticks_direct
 
         # Mock storage

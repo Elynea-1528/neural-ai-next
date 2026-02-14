@@ -44,9 +44,7 @@ class TestStrategyService:
             logger=mock_logger, config=mock_config, core_components=mock_components
         )
 
-    def test_init(
-        self, strategy_service: StrategyService, mock_components: Mock
-    ) -> None:
+    def test_init(self, strategy_service: StrategyService, mock_components: Mock) -> None:
         """StrategyService inicializáció tesztelése."""
         assert strategy_service._core_components == mock_components
         assert "moving_avg_cross" in strategy_service._strategies

@@ -263,7 +263,7 @@ class TestDynamicConfigManagerComprehensive:
 
     @pytest.mark.asyncio
     async def test_add_and_remove_listener_logging(self) -> None:
-        """Teszteli a debug logolást az add_listener és remove_listener metódusokban (296, 308. sorok)."""
+        """Teszteli a debug logolást az add_listener és remove_listener metódusokban."""
         mock_session = MagicMock(spec=AsyncSession)
         mock_logger = MagicMock()
 

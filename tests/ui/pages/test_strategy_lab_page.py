@@ -517,14 +517,14 @@ class TestStrategyLabPageSessionState:
         mock_pl_df.is_empty.return_value = False
         mock_pl_df.to_pandas.return_value = mock_df_pd
         mock_pl_df.columns = list(mock_df_pd.columns)
-        
+
         strategy_lab_page._candles = mock_pl_df
         strategy_lab_module.st.session_state.price_type = "Bid"
 
         with patch.object(strategy_lab_module.st, "dataframe") as mock_dataframe:
             with patch.object(strategy_lab_module.st, "error") as mock_error:
                 strategy_lab_page._render_data_table()
-                
+
                 if mock_error.called:
                     pytest.fail(f"st.error hívódott meg: {mock_error.call_args[0][0]}")
 
@@ -579,7 +579,7 @@ class TestStrategyLabPageSessionState:
         with patch.object(strategy_lab_module.st, "dataframe") as mock_dataframe:
             with patch.object(strategy_lab_module.st, "error") as mock_error:
                 strategy_lab_page._render_data_table()
-                
+
                 if mock_error.called:
                     pytest.fail(f"st.error hívódott meg: {mock_error.call_args[0][0]}")
 
@@ -633,7 +633,7 @@ class TestStrategyLabPageSessionState:
         mock_pl_df = MagicMock()
         mock_pl_df.is_empty.return_value = False
         mock_pl_df.to_pandas.return_value = mock_df_pd
-        
+
         strategy_lab_page._candles = mock_pl_df
         strategy_lab_module.st.session_state.price_type = "Bid"
         strategy_lab_module.st.session_state.show_body_swings = False
@@ -643,16 +643,18 @@ class TestStrategyLabPageSessionState:
         mock_fig_instance = MagicMock()
         mock_fig_instance.data = [MagicMock(open=None)]
         mock_figure.return_value = mock_fig_instance
-        
+
         # Mockoljuk a _prepare_data_for_view metódust
         with patch.object(strategy_lab_page, "_prepare_data_for_view") as mock_prepare:
             prepared_df = mock_df_pd.copy()
-            prepared_df = prepared_df.rename(columns={
-                "bid_open": "open",
-                "bid_high": "high",
-                "bid_low": "low",
-                "bid_close": "close"
-            })
+            prepared_df = prepared_df.rename(
+                columns={
+                    "bid_open": "open",
+                    "bid_high": "high",
+                    "bid_low": "low",
+                    "bid_close": "close",
+                }
+            )
             prepared_df["date"] = prepared_df["timestamp"]
             mock_prepare.return_value = prepared_df
 
@@ -696,7 +698,7 @@ class TestStrategyLabPageSessionState:
         mock_pl_df = MagicMock()
         mock_pl_df.is_empty.return_value = False
         mock_pl_df.to_pandas.return_value = mock_df_pd
-        
+
         strategy_lab_page._candles = mock_pl_df
         strategy_lab_module.st.session_state.price_type = "Mid"
         strategy_lab_module.st.session_state.show_body_swings = False
@@ -710,12 +712,14 @@ class TestStrategyLabPageSessionState:
         # Mockoljuk a _prepare_data_for_view metódust
         with patch.object(strategy_lab_page, "_prepare_data_for_view") as mock_prepare:
             prepared_df = mock_df_pd.copy()
-            prepared_df = prepared_df.rename(columns={
-                "mid_open": "open",
-                "mid_high": "high",
-                "mid_low": "low",
-                "mid_close": "close"
-            })
+            prepared_df = prepared_df.rename(
+                columns={
+                    "mid_open": "open",
+                    "mid_high": "high",
+                    "mid_low": "low",
+                    "mid_close": "close",
+                }
+            )
             prepared_df["date"] = prepared_df["timestamp"]
             mock_prepare.return_value = prepared_df
 

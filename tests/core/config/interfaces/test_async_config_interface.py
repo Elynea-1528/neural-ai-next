@@ -150,7 +150,7 @@ class TestAsyncConfigManagerInterface:
 
         # get_section
         get_section_method = AsyncConfigManagerInterface.get_section
-        assert get_section_method.__annotations__["section"] == str
+        assert get_section_method.__annotations__["section"] is str
         assert get_section_method.__annotations__["return"] == dict[str, Any]
 
         # set
@@ -165,12 +165,12 @@ class TestAsyncConfigManagerInterface:
 
         # load
         load_method = AsyncConfigManagerInterface.load
-        assert load_method.__annotations__["filename"] == str
+        assert load_method.__annotations__["filename"] is str
         assert load_method.__annotations__["return"] is None
 
         # load_directory
         load_directory_method = AsyncConfigManagerInterface.load_directory
-        assert load_directory_method.__annotations__["path"] == str
+        assert load_directory_method.__annotations__["path"] is str
         assert load_directory_method.__annotations__["return"] is None
 
         # validate
@@ -190,7 +190,7 @@ class TestAsyncConfigManagerInterface:
 
         # start_hot_reload
         start_hot_reload_method = AsyncConfigManagerInterface.start_hot_reload
-        assert start_hot_reload_method.__annotations__["interval"] == float
+        assert start_hot_reload_method.__annotations__["interval"] is float
         assert start_hot_reload_method.__annotations__["return"] is None
 
         # stop_hot_reload
@@ -204,17 +204,17 @@ class TestAsyncConfigManagerInterface:
 
         # set_with_metadata
         set_with_metadata_method = AsyncConfigManagerInterface.set_with_metadata
-        assert set_with_metadata_method.__annotations__["key"] == str
+        assert set_with_metadata_method.__annotations__["key"] is str
         assert set_with_metadata_method.__annotations__["value"] == Any
-        assert set_with_metadata_method.__annotations__["category"] == str
+        assert set_with_metadata_method.__annotations__["category"] is str
         assert set_with_metadata_method.__annotations__["description"] == str | None
-        assert set_with_metadata_method.__annotations__["is_active"] == bool
+        assert set_with_metadata_method.__annotations__["is_active"] is bool
         assert set_with_metadata_method.__annotations__["return"] is None
 
         # delete
         delete_method = AsyncConfigManagerInterface.delete
-        assert delete_method.__annotations__["key"] == str
-        assert delete_method.__annotations__["return"] == bool
+        assert delete_method.__annotations__["key"] is str
+        assert delete_method.__annotations__["return"] is bool
 
     def test_config_listener_type_alias(self) -> None:
         """Teszteli a ConfigListener típusalias definícióját."""

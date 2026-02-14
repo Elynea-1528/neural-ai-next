@@ -17,6 +17,7 @@ class MockLogger(LoggerInterface):
     def __init__(
         self, name: str, config: Any | None = None, **kwargs: Mapping[str, AnyStr]
     ) -> None:
+        """Inicializálás."""
         super().__init__(name, config, **kwargs)
         self.name = name
         self.config = config
@@ -25,30 +26,37 @@ class MockLogger(LoggerInterface):
         self.messages: list[dict[str, Any]] = []
 
     def debug(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+        """Debug üzenet logolása."""
         super().debug(message, **kwargs)
         self.messages.append({"level": "debug", "message": message, **kwargs})
 
     def info(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+        """Info üzenet logolása."""
         super().info(message, **kwargs)
         self.messages.append({"level": "info", "message": message, **kwargs})
 
     def warning(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+        """Warning üzenet logolása."""
         super().warning(message, **kwargs)
         self.messages.append({"level": "warning", "message": message, **kwargs})
 
     def error(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+        """Error üzenet logolása."""
         super().error(message, **kwargs)
         self.messages.append({"level": "error", "message": message, **kwargs})
 
     def critical(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+        """Critical üzenet logolása."""
         super().critical(message, **kwargs)
         self.messages.append({"level": "critical", "message": message, **kwargs})
 
     def set_level(self, level: int) -> None:
+        """Log szint beállítása."""
         super().set_level(level)
         self.level = level
 
     def get_level(self) -> int:
+        """Log szint lekérdezése."""
         super().get_level()
         return self.level
 

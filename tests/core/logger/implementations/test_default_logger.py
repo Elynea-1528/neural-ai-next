@@ -1,7 +1,7 @@
 """Default logger implementáció tesztei."""
 
 import logging
-import structlog
+
 import pytest
 
 from neural_ai.core.logger.implementations.default_logger import DefaultLogger

@@ -118,7 +118,7 @@ class TestStorageFactory:
         mock_config = MagicMock()
         # JSON storage használata tiltott a központi konfigurációban
         mock_config.get.return_value = {"type": "json", "base_path": str(tmp_path)}
-        
+
         with pytest.raises(StorageError, match="Érvénytelen storage konfiguráció"):
             StorageFactory.get_storage(
                 storage_type="file", base_path=str(tmp_path), config=mock_config

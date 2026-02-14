@@ -21,12 +21,11 @@ def test_create_dimension_processor_happy_path():
 
     # Valid config setup for ProcessorsConfig
     # The factory calls ProcessorsConfig(processors=config.get("processors") or {})
-    mock_config.get.side_effect = lambda section, key=None: {
-        "d02": {
-            "min_candles": 5,
-            "level_merge": 0.0005
-        }
-    } if section == "processors" else {}
+    mock_config.get.side_effect = (
+        lambda section, key=None: {"d02": {"min_candles": 5, "level_merge": 0.0005}}
+        if section == "processors"
+        else {}
+    )
 
     # We need to ensure that when the factory imports the module dynamically, it works.
     # Since we are in the same environment, it should find the real class.
@@ -48,6 +47,7 @@ def test_create_dimension_processor_happy_path():
     assert isinstance(processor, D02SupportProcessor)
     assert processor.dimension_id == 2
 
+
 def test_create_dimension_processor_validation_error():
     """Test create_dimension_processor with invalid config."""
     mock_config = MagicMock(spec=ConfigManagerInterface)
@@ -63,6 +63,7 @@ def test_create_dimension_processor_validation_error():
 
     with pytest.raises(ValidationError):
         create_dimension_processor(2, mock_config, mock_logger)
+
 
 def test_create_dimension_processor_invalid_id():
     """Test create_dimension_processor with unknown dimension ID."""

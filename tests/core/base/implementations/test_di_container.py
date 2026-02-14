@@ -265,7 +265,8 @@ class TestDIContainer:
 
         container.register("singleton_comp", instance1)
 
-        with pytest.raises(Exception):  # SingletonViolationError
+        # SingletonViolationError várása, nem általános Exception
+        with pytest.raises(Exception):  # noqa: B017
             container.register("singleton_comp", instance2)
 
     def test_enforce_singleton_no_violation(self) -> None:

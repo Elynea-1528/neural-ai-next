@@ -3,9 +3,11 @@
 Ez a modul tartalmazza a DatabaseFactory osztály és annak metódusainak tesztjeit.
 """
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -200,3 +202,139 @@ class TestDatabaseFactory:
 
         # A manager Singleton, ezért ugyanazt a példányt kell visszaadnia
         assert manager1 is manager2
+
+
+class TestDatabaseConfigPydanticValidation:
+    """Pydantic DatabaseConfig validációs tesztek.
+
+    Ezek a tesztek ellenőrzik a DatabaseConfig Pydantic model működését,
+    beleértve a URL formátum validációt és a pool size ellenőrzést.
+    """
+
+    def test_database_config_valid_sqlite_url(self) -> None:
+        """Érvényes SQLite URL validálása."""
+        from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
+
+        config = DatabaseConfig(
+            connection=DatabaseConnectionConfig(url="sqlite+aiosqlite:///test.db")
+        )
+        assert config.connection.url == "sqlite+aiosqlite:///test.db"
+        assert config.connection.url.startswith("sqlite+aiosqlite://")
+
+    def test_database_config_valid_postgresql_url(self) -> None:
+        """Érvényes PostgreSQL URL validálása."""
+        from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
+
+        config = DatabaseConfig(
+            connection=DatabaseConnectionConfig(
+                url="postgresql+asyncpg://user:pass@localhost:5432/testdb"
+            )
+        )
+        assert config.connection.url.startswith("postgresql+asyncpg://")
+
+    def test_database_config_valid_mysql_url(self) -> None:
+        """Érvényes MySQL URL validálása."""
+        from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
+
+        config = DatabaseConfig(
+            connection=DatabaseConnectionConfig(
+                url="mysql+aiomysql://user:pass@localhost:3306/testdb"
+            )
+        )
+        assert config.connection.url.startswith("mysql+aiomysql://")
+
+    def test_database_config_invalid_url_raises_error(self) -> None:
+        """Érvénytelen URL formátum hibát dob."""
+        from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
+
+        with pytest.raises(ValidationError, match="Érvénytelen adatbázis URL"):
+            DatabaseConfig(
+                connection=DatabaseConnectionConfig(
+                    url="mysql://invalid"  # Nem async driver!
+                )
+            )
+
+    def test_database_config_missing_url_raises_error(self) -> None:
+        """Hiányzó URL esetén hibát dob."""
+        from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
+
+        with pytest.raises(ValidationError):
+            DatabaseConfig(
+                connection=DatabaseConnectionConfig(
+                    url=None  # type: ignore
+                )
+            )
+
+    def test_database_config_pool_size_validation_valid(self) -> None:
+        """Pool size >= 1 esetén sikeres validáció."""
+        from neural_ai.core.config.interfaces.types import (
+            DatabaseConfig,
+            DatabaseConnectionConfig,
+            DatabasePoolConfig,
+        )
+
+        config = DatabaseConfig(
+            connection=DatabaseConnectionConfig(url="postgresql+asyncpg://localhost/test"),
+            pool=DatabasePoolConfig(size=5, recycle=3600),
+        )
+        assert config.pool is not None
+        assert config.pool.size == 5
+
+    def test_database_config_pool_size_validation_invalid(self) -> None:
+        """Pool size < 1 esetén hibát dob."""
+        from neural_ai.core.config.interfaces.types import (
+            DatabaseConfig,
+            DatabaseConnectionConfig,
+            DatabasePoolConfig,
+        )
+
+        # Pydantic v2 standard hibaüzenet
+        with pytest.raises(ValidationError, match="Input should be greater than or equal to 1"):
+            DatabaseConfig(
+                connection=DatabaseConnectionConfig(url="postgresql+asyncpg://localhost/test"),
+                pool=DatabasePoolConfig(size=0, recycle=3600),  # INVALID!
+            )
+
+    def test_database_config_pool_optional(self) -> None:
+        """Pool konfig opcionális - None is érvényes."""
+        from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
+
+        config = DatabaseConfig(
+            connection=DatabaseConnectionConfig(url="sqlite+aiosqlite:///test.db")
+            # pool nincs megadva
+        )
+        assert config.pool is None
+
+    def test_factory_with_real_yaml_config(self, tmp_path: Path) -> None:
+        """Factory valós YAML konfigurációval."""
+        from neural_ai.core.config.factory import ConfigManagerFactory
+
+        # Temporary YAML fájl létrehozása
+        # Fontos: a fájlnév 'database.yaml' legyen, mert a get_database_config()
+        # a 'database' szekciót keresi, amit a load_directory() a fájlnévből képez.
+        # type: "sqlite" mezőt kivettük, mert a Pydantic modellben nincs benne és forbid extra
+        yaml_content = """connection:
+  url: "sqlite+aiosqlite:///test_real.db"
+pool:
+  size: 10
+  recycle: 1800
+"""
+        config_dir = tmp_path / "configs"
+        config_dir.mkdir()
+        config_file = config_dir / "database.yaml"
+        config_file.write_text(yaml_content)
+
+        # Config betöltése load_directory-val
+        config_manager = ConfigManagerFactory.create_manager("yaml")
+        config_manager.load_directory(str(config_dir))
+
+        # Factory tesztelése
+        mock_logger = MagicMock()
+        factory = DatabaseFactory(logger=mock_logger, config_manager=config_manager)
+
+        # Engine lekérdezés
+        engine = factory.get_engine()
+        assert engine is not None
+
+        # Ellenőrzés: az engine létrejött
+        assert isinstance(engine, AsyncEngine)
