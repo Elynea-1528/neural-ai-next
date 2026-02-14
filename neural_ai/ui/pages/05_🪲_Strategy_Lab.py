@@ -685,9 +685,11 @@ class StrategyLabPage(PageInterface):
                             elif isinstance(d2_config, dict):
                                 st.info(f"✓ D2 Config betöltve: {list(d2_config.keys())}")
                             else:
-                                st.error(f"❌ D2 Config helytelen típus: {type(d2_config).__name__}")
+                                st.error(
+                                    f"❌ D2 Config helytelen típus: {type(d2_config).__name__}"
+                                )
                                 d2_config = {}
-                        
+
                         # DataFrame ellenőrzés
                         st.info(f"📊 Candles DataFrame: {result.height} sor, {result.width} oszlop")
                         st.info(f"📋 Oszlopok: {result.columns}")
@@ -708,7 +710,7 @@ class StrategyLabPage(PageInterface):
                                 "D2 elemzés kritikus hiba",
                                 extra={"error": str(e), "page": "StrategyLab", "symbol": symbol},
                             )
-                        
+
                         with st.expander("⚠️ D2 Elemzés Hiba Részletek", expanded=True):
                             import traceback
 
@@ -716,10 +718,10 @@ class StrategyLabPage(PageInterface):
                         st.session_state.d2_analysis = None
 
                     st.success(f"Sikeres betöltés: {symbol} - {date_str}")
-                    
+
                     # Local változó frissítése, hogy ne kelljen rerun
                     self._candles = result
-                    
+
                     # Rerun eltávolítva, hogy a hibaüzenetek láthatók maradjanak
                     # st.rerun()
                 else:

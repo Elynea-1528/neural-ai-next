@@ -81,9 +81,7 @@ class DashboardService(DashboardServiceInterface):
             return {"system": "UNKNOWN"}
 
         # Valós lekérdezés a HealthMonitor-ból (async metódus, szinkron futtatás)
-        health: SystemHealth = asyncio.run(
-            self._core_components.core.health_monitor.check_health()
-        )
+        health: SystemHealth = asyncio.run(self._core_components.core.health_monitor.check_health())
 
         # Mapping (ComponentHealth -> UI String)
         status_map: dict[str, str] = {}

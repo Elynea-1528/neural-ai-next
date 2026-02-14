@@ -27,9 +27,7 @@ class DataService(DataServiceInterface):
     végző metódusokat, Big Data támogatással és chunkolással.
     """
 
-    def __init__(
-        self, logger: Any, config: DataServiceConfig | None, core_components: Any
-    ) -> None:
+    def __init__(self, logger: Any, config: DataServiceConfig | None, core_components: Any) -> None:
         """A Data Service inicializálása.
 
         Args:
