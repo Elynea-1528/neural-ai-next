@@ -20,14 +20,7 @@ if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces import LoggerInterface
 
 
-# TypedDict a database konfigurációhoz
-from typing import TypedDict
-
-
-class DatabaseConfig(TypedDict):
-    """Adatbázis konfigurációs struktúra."""
-
-    url: str
+# Pydantic DatabaseConfig import a types.py-ból
 
 
 class DatabaseFactory:

@@ -18,7 +18,6 @@ from structlog.processors import JSONRenderer
 from structlog.stdlib import ProcessorFormatter
 from structlog.types import Processor
 
-from neural_ai.core.config.interfaces.types import LoggingConfig
 from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
 from neural_ai.core.logger.implementations.default_logger import DefaultLogger
 from neural_ai.core.logger.implementations.rotating_file_logger import (
@@ -127,6 +126,9 @@ class LoggerFactory(LoggerFactoryInterface):
         - Console: structlog.dev.ConsoleRenderer(colors=True)
         - File: structlog.processors.JSONRenderer()
 
+        Ha a konfiguráció hiányos (nincs handlers szekció), automatikusan
+        fallback módba vált alapértelmezett console handler-rel, és warning-ot logol.
+
         Args:
             config: Konfigurációs dict a következő struktúrával:
                 {
@@ -156,8 +158,27 @@ class LoggerFactory(LoggerFactoryInterface):
         """
         from pathlib import Path
 
-        # TypedDict használata config casting-gal
-        typed_config = cast(LoggingConfig, config)
+        # Hiányos config ellenőrzése - FALLBACK mechanizmus
+        if not config.get("handlers"):
+            # Fallback logger létrehozása warning-hoz
+            fallback_logger = logging.getLogger(__name__)
+            fallback_handler = logging.StreamHandler(sys.stdout)
+            fallback_handler.setLevel(logging.WARNING)
+            fallback_logger.addHandler(fallback_handler)
+            fallback_logger.setLevel(logging.WARNING)
+
+            # Strukturált warning logolás
+            fallback_logger.warning(
+                "Hiányos logger konfiguráció! Alapértelmezett konzol handler lesz használva.",
+                extra={
+                    "component": "LoggerFactory",
+                    "issue": "missing_handlers_section",
+                    "fallback": "console_handler_default",
+                },
+            )
+
+            # Fallback config injektálása
+            config["handlers"] = {"console": {"enabled": True, "level": "INFO", "colored": True}}
 
         # Alap structlog konfiguráció
         structlog.configure(
@@ -178,7 +199,8 @@ class LoggerFactory(LoggerFactoryInterface):
         )
 
         # Alap beállítások
-        default_level = getattr(logging, typed_config.get("default_level", "DEBUG"))
+        # type: ignore - logging constant is int, config is dict[str, Any]
+        default_level = getattr(logging, config.get("default_level", "DEBUG"))
 
         # Root logger konfigurálása
         root_logger = logging.getLogger()
@@ -188,7 +210,7 @@ class LoggerFactory(LoggerFactoryInterface):
         root_logger.handlers.clear()
 
         # Handlerek beállítása
-        handlers = typed_config.get("handlers", {})
+        handlers = config.get("handlers", {})
         trace_handler: logging.Handler | None = None
 
         # Console handler structlog-gal
@@ -304,10 +326,11 @@ class LoggerFactory(LoggerFactoryInterface):
             # A trace_handler-t később hozzáadjuk a megfelelő loggerhez
 
         # Egyedi logger konfigurációk beállítása
-        loggers_config = typed_config.get("loggers", {})
+        loggers_config = config.get("loggers", {})
         for logger_name, logger_settings in loggers_config.items():
             logger_instance = logging.getLogger(logger_name)
             if "level" in logger_settings:
+                # type: ignore - logging constant is int
                 logger_instance.setLevel(getattr(logging, logger_settings["level"]))
             if "propagate" in logger_settings:
                 logger_instance.propagate = logger_settings["propagate"]

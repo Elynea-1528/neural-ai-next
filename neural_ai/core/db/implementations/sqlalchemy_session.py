@@ -25,15 +25,8 @@ from neural_ai.core.db.exceptions import DBConnectionError
 if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces import LoggerInterface
 
-# TypedDict a database konfigurációhoz
-from typing import TypedDict
-
-
-class DatabaseConfig(TypedDict):
-    """Adatbázis konfigurációs struktúra."""
-
-    url: str
-
+# Pydantic DatabaseConfig és DatabasePoolConfig import
+from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabasePoolConfig
 
 if TYPE_CHECKING:
     pass
@@ -60,10 +53,11 @@ def get_database_url(config_manager: ConfigManagerInterface | None = None) -> st
         config_manager = ConfigManagerFactory.get_manager("config.yaml")
 
     # Elsődlegesen a namespaced konfigban keressük
-    db_config_raw = config_manager.get("database", "connection")
+    db_config_raw = config_manager.get("database")
     if db_config_raw and isinstance(db_config_raw, dict):
-        db_config = cast(DatabaseConfig, db_config_raw)
-        db_url = db_config["url"]
+        # Pydantic DatabaseConfig létrehozása
+        db_config = DatabaseConfig(**db_config_raw)
+        db_url = db_config.connection.url
     else:
         db_url = None
 
@@ -83,15 +77,30 @@ def get_database_url(config_manager: ConfigManagerInterface | None = None) -> st
     return db_url
 
 
-def create_engine(db_url: str, echo: bool = False) -> AsyncEngine:
+def create_engine(
+    db_url: str, echo: bool = False, pool_config: DatabasePoolConfig | None = None
+) -> AsyncEngine:
     """Aszinkron adatbázis engine létrehozása.
+
+    Dinamikus pool konfigurációval rendelkezik - a pool paraméterek
+    a config fájlból vagy a pool_config paraméterből jönnek.
 
     Args:
         db_url: Az adatbázis URL (pl. sqlite+aiosqlite:///neural_ai.db).
         echo: SQL lekérdezések naplózásának engedélyezése.
+        pool_config: Opcionális DatabasePoolConfig objektum a connection pool beállításokhoz.
+            Ha nincs megadva, alapértelmezett értékeket használ (size=20, recycle=3600).
 
     Returns:
         Az létrehozott SQLAlchemy async engine.
+
+    Example:
+        >>> # Alapértelmezett pool
+        >>> engine = create_engine("postgresql+asyncpg://localhost/db")
+        >>>
+        >>> # Custom pool konfig
+        >>> pool_cfg = DatabasePoolConfig(size=10, recycle=1800)
+        >>> engine = create_engine("postgresql+asyncpg://localhost/db", pool_config=pool_cfg)
     """
     # SQLite esetén pool tiltása a jobb aszinkron működés érdekében
     if "sqlite" in db_url:
@@ -102,11 +111,15 @@ def create_engine(db_url: str, echo: bool = False) -> AsyncEngine:
             connect_args={"check_same_thread": False},
         )
     else:
-        # PostgreSQL és más adatbázisok esetén connection pool használata
+        # PostgreSQL és más adatbázisok - dinamikus pool konfiguráció
+        pool_size = pool_config.size if pool_config and pool_config.size else 20
+        pool_recycle = pool_config.recycle if pool_config and pool_config.recycle else 3600
+
         engine = create_async_engine(
             db_url,
             echo=echo,
-            pool_size=20,
+            pool_size=pool_size,
+            pool_recycle=pool_recycle,
             max_overflow=0,
         )
 
@@ -117,6 +130,7 @@ def get_engine(config_manager: ConfigManagerInterface | None = None) -> AsyncEng
     """Globális adatbázis engine lekérdezése.
 
     Ha az engine még nincs létrehozva, létrehozza azt a konfiguráció alapján.
+    A pool konfigurációt a configs/database.yaml fájlból olvassa be.
 
     Args:
         config_manager: Opcionális konfiguráció kezelő.
@@ -128,8 +142,31 @@ def get_engine(config_manager: ConfigManagerInterface | None = None) -> AsyncEng
 
     if _engine is None:
         db_url = get_database_url(config_manager)
-        echo = ConfigManagerFactory.get_manager("config.yaml").get("log_level", "INFO") == "DEBUG"
-        _engine = create_engine(db_url, echo=echo)
+
+        # Echo beállítás: config_manager-ből vagy alapértelmezetten False
+        echo = False
+        if config_manager:
+            echo = config_manager.get("log_level", "INFO") == "DEBUG"
+        else:
+            try:
+                # Fallback: megpróbáljuk betölteni a config.yaml-t
+                fallback_config = ConfigManagerFactory.get_manager("config.yaml")
+                echo = fallback_config.get("log_level", "INFO") == "DEBUG"
+            except Exception:
+                # Ha nem sikerül betölteni, marad False
+                pass
+
+        # Pool config olvasás a database.yaml-ból
+        pool_config = None
+        if config_manager:
+            db_config_raw = config_manager.get("database")
+            if db_config_raw and isinstance(db_config_raw, dict):
+                pool_raw = db_config_raw.get("pool")
+                if pool_raw and isinstance(pool_raw, dict):
+                    # Pydantic DatabasePoolConfig létrehozása
+                    pool_config = DatabasePoolConfig(**pool_raw)
+
+        _engine = create_engine(db_url, echo=echo, pool_config=pool_config)
 
     return _engine
 
@@ -290,11 +327,21 @@ class DatabaseManager(metaclass=SingletonMeta):
         """Adatbázis inicializálása a kezelővel.
 
         Létrehozza az engine-t és a session maker-t, majd létrehozza a táblákat.
+        A pool konfigurációt a configs/database.yaml fájlból olvassa be.
         """
         db_url = get_database_url(self.config_manager)
         echo = self.config_manager.get("log_level", "INFO") == "DEBUG"
 
-        self._engine = create_engine(db_url, echo=echo)
+        # Pool config olvasás a database.yaml-ból
+        pool_config = None
+        db_config_raw = self.config_manager.get("database")
+        if db_config_raw and isinstance(db_config_raw, dict):
+            pool_raw = db_config_raw.get("pool")
+            if pool_raw and isinstance(pool_raw, dict):
+                # Pydantic DatabasePoolConfig létrehozása
+                pool_config = DatabasePoolConfig(**pool_raw)
+
+        self._engine = create_engine(db_url, echo=echo, pool_config=pool_config)
         self._session_maker = async_sessionmaker(
             self._engine,
             class_=AsyncSession,

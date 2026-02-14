@@ -10,30 +10,15 @@ A modul biztosítja a core komponensek megfelelő inicializálását és
 függőségi injektálását, elkerülve a körkörös függőségeket.
 """
 
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, Any, cast
 
-from neural_ai.core.config.interfaces.types import IngestionConfig
+from neural_ai.core.config.interfaces.types import (
+    IngestionConfig,
+    JForexLiveConfig,
+    LoggingConfig,
+    StorageConfig,
+)
 from neural_ai.core.utils.decorators import trace
-
-
-class LoggingConfig(TypedDict, total=False):
-    """Logging konfiguráció típusa."""
-
-    level: str
-
-
-class StorageConfig(TypedDict, total=False):
-    """Storage konfiguráció típusa."""
-
-    type: str
-    base_path: str
-
-
-class LiveConfig(TypedDict, total=False):
-    """Live feed konfiguráció típusa."""
-
-    enabled: bool
-
 
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
@@ -151,13 +136,15 @@ def bootstrap_core(
 
     # 1. Konfiguráció létrehozása (először, hogy legyen konfig a loggernek)
     config = ConfigManagerFactory.create_manager("yaml")
-    # Betöltjük a configs/ mappát
-    config.load_directory("configs")
+    # Betöltjük a configs/ mappát vagy a megadott útvonalat
+    path_to_load = config_path if config_path else "configs"
+    config.load_directory(path_to_load)
     container.register_instance(ConfigManagerInterface, config)
 
     # 2. Logger inicializálása a konfiggal
-    logging_config = config.get_section("logging") or {}
-    LoggerFactory.configure(logging_config)
+    logging_config_dict = config.get_section("logging") or {}
+    logging_config = LoggingConfig(**logging_config_dict)
+    LoggerFactory.configure(logging_config.model_dump(exclude_none=True))
     # Alap logger példány létrehozása
     logger = LoggerFactory.get_logger(__name__, logger_type="default")
     container.register_instance(LoggerInterface, logger)
@@ -191,13 +178,14 @@ def bootstrap_core(
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
     logger.info("⏳ 7. Storage indítása...")
-    storage_conf = cast(StorageConfig, config.get("storage") or {})  # Szekció lekérése
-    storage_type = storage_conf.get("type", "file")  # Típus (file/parquet)
+    storage_conf_dict = cast(dict[str, Any], config.get("storage") or {})
+    storage_conf = StorageConfig(**storage_conf_dict)  # Validáció Pydantic modellel
+    storage_type = storage_conf.type or "parquet"  # Default a modellben
 
     try:
         storage = StorageFactory.get_storage(
             storage_type=storage_type,
-            base_path=storage_conf.get("base_path"),
+            base_path=storage_conf.base_path,
             logger=logger,
             config=config,
             hardware=hardware,
@@ -247,8 +235,10 @@ def bootstrap_core(
     # 9. JForex Live Feed inicializálása (ha engedélyezve van)
     logger.info("⏳ 10. JForex Live Feed ellenőrzése...")
     # Figyelem: A collectors.yaml tartalma a 'collectors' kulcs alatt van!
-    live_conf = cast(LiveConfig, config.get("collectors", "jforex_live") or {})
-    if live_conf.get("enabled", False):
+    live_conf_dict = cast(dict[str, Any], config.get("collectors", "jforex_live") or {})
+    live_conf = JForexLiveConfig(**live_conf_dict)
+
+    if live_conf.enabled:
         from neural_ai.collectors.jforex.factory import JForexFactory
         from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
 

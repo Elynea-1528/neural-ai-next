@@ -97,7 +97,7 @@ class LogEntry(Base):
     """
 
     @declared_attr.directive
-    def __tablename__(cls) -> str:  # type: ignore[override]  # pylint: disable=no-self-argument
+    def __tablename__(cls) -> str:  # pylint: disable=no-self-argument
         """LogEntries tábla neve.
 
         Returns:

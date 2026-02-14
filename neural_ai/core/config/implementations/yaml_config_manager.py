@@ -173,9 +173,7 @@ class YAMLConfigManager(ConfigManagerInterface):
             return SystemConfig(**raw_data)  # Pydantic auto-validáció
         except ValidationError as e:
             raise ConfigValidationError(
-                f"System konfiguráció érvénytelen: {e}",
-                field_path="system",
-                invalid_value=raw_data
+                f"System konfiguráció érvénytelen: {e}", field_path="system", invalid_value=raw_data
             ) from e
         except KeyError:
             # Ha nincs system szekció, üres dict-tel hívjuk (Pydantic optional mezők)
@@ -199,7 +197,7 @@ class YAMLConfigManager(ConfigManagerInterface):
             raise ConfigValidationError(
                 f"Storage konfiguráció érvénytelen: {e}",
                 field_path="storage",
-                invalid_value=raw_data
+                invalid_value=raw_data,
             ) from e
         except KeyError:
             # Ha nincs storage szekció, üres dict-tel hívjuk
@@ -224,7 +222,7 @@ class YAMLConfigManager(ConfigManagerInterface):
             raise ConfigValidationError(
                 f"Processors konfiguráció érvénytelen: {e}",
                 field_path="processors",
-                invalid_value=raw_data
+                invalid_value=raw_data,
             ) from e
         except KeyError:
             # Ha nincs processors szekció, üres dict-tel hívjuk (Pydantic optional mezők)
@@ -248,7 +246,7 @@ class YAMLConfigManager(ConfigManagerInterface):
             raise ConfigValidationError(
                 f"Logging konfiguráció érvénytelen: {e}",
                 field_path="logging",
-                invalid_value=raw_data
+                invalid_value=raw_data,
             ) from e
         except KeyError:
             # Ha nincs logging szekció, üres dict-tel hívjuk
@@ -273,7 +271,7 @@ class YAMLConfigManager(ConfigManagerInterface):
             raise ConfigValidationError(
                 f"Database konfiguráció érvénytelen: {e}",
                 field_path="database",
-                invalid_value=raw_data
+                invalid_value=raw_data,
             ) from e
         except KeyError:
             # Ha nincs database szekció, üres dict-tel hívjuk (Pydantic optional mezők)
@@ -295,9 +293,7 @@ class YAMLConfigManager(ConfigManagerInterface):
             return EventsConfig(**raw_data)  # Pydantic auto-validáció
         except ValidationError as e:
             raise ConfigValidationError(
-                f"Events konfiguráció érvénytelen: {e}",
-                field_path="events",
-                invalid_value=raw_data
+                f"Events konfiguráció érvénytelen: {e}", field_path="events", invalid_value=raw_data
             ) from e
         except KeyError:
             # Ha nincs events szekció, üres dict-tel hívjuk (Pydantic optional mezők)
@@ -321,7 +317,7 @@ class YAMLConfigManager(ConfigManagerInterface):
             raise ConfigValidationError(
                 f"Collectors konfiguráció érvénytelen: {e}",
                 field_path="collectors",
-                invalid_value=raw_data
+                invalid_value=raw_data,
             ) from e
         except KeyError:
             # Ha nincs collectors szekció, üres dict-tel hívjuk (Pydantic optional mezők)
@@ -615,6 +611,10 @@ class YAMLConfigManager(ConfigManagerInterface):
                     if data:
                         # Tartalom elhelyezése a kulcs alatt
                         self._config[key] = data
+                        if self._logger:
+                            self._logger.debug(f"Config loaded into key: {key}")
+                        else:
+                            print(f"DEBUG: Config loaded into key: {key}")
 
                         # system.yaml speciális kezelése: gyökérbe is betöltjük
                         if key == "system":

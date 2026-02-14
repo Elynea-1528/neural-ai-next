@@ -73,9 +73,7 @@ class HandlerConfig(BaseModel):
 
     enabled: bool | None = Field(None, description="Handler engedélyezve")
     level: str | None = Field(
-        None,
-        pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
-        description="Log szint"
+        None, pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$", description="Log szint"
     )
     colored: bool | None = Field(None, description="Színezett kimenet")
     filename: str | None = Field(None, min_length=1, description="Log fájl neve")
@@ -87,7 +85,7 @@ class HandlerConfig(BaseModel):
         None,
         alias="class",
         min_length=1,
-        description="Handler osztály (pl. logging.handlers.RotatingFileHandler)"
+        description="Handler osztály (pl. logging.handlers.RotatingFileHandler)",
     )
     maxBytes: int | None = Field(
         None, ge=1, description="Maximális fájlméret bájtban (RotatingFileHandler)"
@@ -108,9 +106,7 @@ class LoggerConfig(BaseModel):
     )
 
     level: str | None = Field(
-        None,
-        pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
-        description="Logger szintje"
+        None, pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$", description="Logger szintje"
     )
     propagate: bool | None = Field(None, description="Propagálás engedélyezése")
 
@@ -164,9 +160,7 @@ class CollectorDownloadConfig(BaseModel):
     )
 
     timeout: int | None = Field(None, ge=1, description="Timeout másodpercben")
-    max_retries: int | None = Field(
-        None, ge=0, description="Maximális újrapróbálkozások száma"
-    )
+    max_retries: int | None = Field(None, ge=0, description="Maximális újrapróbálkozások száma")
     retry_delay: int | None = Field(
         None, ge=0, description="Újrapróbálkozási késleltetés másodpercben"
     )
@@ -183,9 +177,7 @@ class CollectorLoggingConfig(BaseModel):
     )
 
     level: str | None = Field(
-        None,
-        pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
-        description="Log szint"
+        None, pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$", description="Log szint"
     )
     format: str | None = Field(None, min_length=1, description="Log formátum string")
 
@@ -198,9 +190,7 @@ class CollectorRateLimitingConfig(BaseModel):
         validate_assignment=True,
     )
 
-    max_concurrent: int | None = Field(
-        None, ge=1, description="Maximális párhuzamos kérések"
-    )
+    max_concurrent: int | None = Field(None, ge=1, description="Maximális párhuzamos kérések")
     request_delay: float | None = Field(
         None, ge=0.0, description="Kérések közötti késleltetés másodpercben"
     )
@@ -218,9 +208,7 @@ class CollectorCircuitBreakerConfig(BaseModel):
     recovery_timeout: int | None = Field(
         None, ge=1, description="Helyreállítási timeout másodpercben"
     )
-    expected_exceptions: list[str] | None = Field(
-        None, description="Várt kivételek listája"
-    )
+    expected_exceptions: list[str] | None = Field(None, description="Várt kivételek listája")
 
 
 class CollectorDateRangeConfig(BaseModel):
@@ -248,8 +236,7 @@ class SystemConfig(BaseModel):
     app_name: str | None = Field(None, min_length=1, description="Alkalmazás neve")
     version: str | None = Field(None, min_length=1, description="Verzió szám")
     environment: Literal["development", "staging", "production"] | None = Field(
-        None,
-        description="Környezet típusa"
+        None, description="Környezet típusa"
     )
     debug: bool | None = Field(None, description="Debug mód")
     paths: PathsConfig | None = Field(None, description="Útvonal konfigurációk")
@@ -270,24 +257,16 @@ class StorageConfig(BaseModel):
     )
 
     type: Literal["parquet", "csv", "json"] | None = Field(
-        "parquet",
-        description="Storage backend típusa"
+        "parquet", description="Storage backend típusa"
     )
     base_path: str | None = Field(None, min_length=1, description="Tárolási könyvtár")
     compression: str | None = Field(
-        "snappy",
-        pattern="^(snappy|gzip|lz4|zstd)$",
-        description="Kompressziós algoritmus"
+        "snappy", pattern="^(snappy|gzip|lz4|zstd)$", description="Kompressziós algoritmus"
     )
     engine: str | None = Field(
-        "fastparquet",
-        pattern="^(fastparquet|pyarrow|auto)$",
-        description="Parquet engine"
+        "fastparquet", pattern="^(fastparquet|pyarrow|auto)$", description="Parquet engine"
     )
-    partitioning: list[str] | None = Field(
-        None,
-        description="Particionálási oszlopok"
-    )
+    partitioning: list[str] | None = Field(None, description="Particionálási oszlopok")
 
     @field_validator("type")
     @classmethod
@@ -323,13 +302,10 @@ class ProcessorConfig(BaseModel):
     min_touches: int | None = Field(None, ge=1, description="Minimális érintések száma")
     volume_confirmation: bool | None = Field(None, description="Volumen megerősítés")
     strength_window: int | None = Field(None, ge=1, description="Erősség ablak méret")
-    market_hours: MarketHoursConfig | None = Field(
-        None, description="Piaci órák konfigurációja"
-    )
+    market_hours: MarketHoursConfig | None = Field(None, description="Piaci órák konfigurációja")
     min_candles: int | None = Field(None, ge=1, description="Minimális gyertyák száma")
     timeframe_configs: dict[str, TimeframeConfig] | None = Field(
-        None,
-        description="Timeframe specifikus konfigurációk"
+        None, description="Timeframe specifikus konfigurációk"
     )
 
     @field_validator("required_timeframes")
@@ -342,10 +318,7 @@ class ProcessorConfig(BaseModel):
         valid_tf = {"M1", "M5", "M15", "M30", "H1", "H4", "D1", "W1", "MN1"}
         for tf in v:
             if tf not in valid_tf:
-                raise ValueError(
-                    f"Érvénytelen timeframe: {tf}. "
-                    f"Érvényes timeframe-ek: {valid_tf}"
-                )
+                raise ValueError(f"Érvénytelen timeframe: {tf}. Érvényes timeframe-ek: {valid_tf}")
         return v
 
 
@@ -362,7 +335,7 @@ class LoggingConfig(BaseModel):
     default_level: str | None = Field(
         "INFO",
         pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
-        description="Alapértelmezett log szint"
+        description="Alapértelmezett log szint",
     )
     handlers: dict[str, HandlerConfig] | None = Field(None, description="Handler konfigurációk")
     loggers: dict[str, LoggerConfig] | None = Field(None, description="Logger konfigurációk")
@@ -407,19 +380,15 @@ class DatabaseConfig(BaseModel):
     )
 
     connection: DatabaseConnectionConfig = Field(
-        ...,
-        description="Adatbázis kapcsolat konfiguráció (kötelező)"
+        ..., description="Adatbázis kapcsolat konfiguráció (kötelező)"
     )
     pool: DatabasePoolConfig | None = Field(
-        None,
-        description="Connection pool konfiguráció (opcionális, csak nem-SQLite DB-khez)"
+        None, description="Connection pool konfiguráció (opcionális, csak nem-SQLite DB-khez)"
     )
 
-    @field_validator('connection')
+    @field_validator("connection")
     @classmethod
-    def validate_connection_url(
-        cls, v: DatabaseConnectionConfig
-    ) -> DatabaseConnectionConfig:
+    def validate_connection_url(cls, v: DatabaseConnectionConfig) -> DatabaseConnectionConfig:
         """Ellenőrzi a connection URL formátumát.
 
         Támogatott async driver formátumok:
@@ -440,11 +409,7 @@ class DatabaseConfig(BaseModel):
             raise ValueError("Adatbázis URL megadása kötelező!")
 
         url_lower = v.url.lower()
-        valid_prefixes = [
-            "sqlite+aiosqlite://",
-            "postgresql+asyncpg://",
-            "mysql+aiomysql://"
-        ]
+        valid_prefixes = ["sqlite+aiosqlite://", "postgresql+asyncpg://", "mysql+aiomysql://"]
 
         if not any(url_lower.startswith(prefix) for prefix in valid_prefixes):
             raise ValueError(
@@ -454,11 +419,9 @@ class DatabaseConfig(BaseModel):
 
         return v
 
-    @field_validator('pool')
+    @field_validator("pool")
     @classmethod
-    def validate_pool_config(
-        cls, v: DatabasePoolConfig | None
-    ) -> DatabasePoolConfig | None:
+    def validate_pool_config(cls, v: DatabasePoolConfig | None) -> DatabasePoolConfig | None:
         """Validálja a pool konfigurációt.
 
         Ellenőrzi, hogy a pool size legalább 1, ha meg van adva.
@@ -486,8 +449,7 @@ class EventsConfig(BaseModel):
     )
 
     type: Literal["zeromq", "redis", "rabbitmq"] | None = Field(
-        None,
-        description="Esemény rendszer típusa"
+        None, description="Esemény rendszer típusa"
     )
     connection: EventsConnectionConfig | None = Field(None, description="Kapcsolat konfiguráció")
     socket_timeout: int | None = Field(None, ge=1, description="Socket timeout milliszekundumban")
@@ -504,14 +466,10 @@ class JForexConfig(BaseModel):
 
     enabled: bool | None = Field(None, description="Gyűjtő engedélyezve")
     base_url: str | None = Field(
-        "https://datafeed.dukascopy.com",
-        pattern=r"^https?://",
-        description="JForex API alap URL"
+        "https://datafeed.dukascopy.com", pattern=r"^https?://", description="JForex API alap URL"
     )
     download: CollectorDownloadConfig | None = Field(None, description="Letöltési konfiguráció")
-    logging: CollectorLoggingConfig | None = Field(
-        None, description="Naplózási konfiguráció"
-    )
+    logging: CollectorLoggingConfig | None = Field(None, description="Naplózási konfiguráció")
     symbols: list[str] | None = Field(None, description="Szimbólumok listája")
     date_range: CollectorDateRangeConfig | None = Field(
         None, description="Dátumtartomány konfiguráció"
@@ -580,9 +538,7 @@ class IngestionConfig(BaseModel):
         validate_assignment=True,
     )
 
-    buffer_size_limit: int | None = Field(
-        None, ge=1, description="Buffer méret limit"
-    )
+    buffer_size_limit: int | None = Field(None, ge=1, description="Buffer méret limit")
     flush_interval_minutes: int | None = Field(
         None, ge=1, description="Flush intervallum percekben"
     )

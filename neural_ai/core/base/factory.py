@@ -7,7 +7,9 @@ a lazy loadinget, bootstrap inicializálást és NullObject pattern-t fallback-k
 
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypedDict, cast
+from typing import TYPE_CHECKING, Any, cast
+
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from neural_ai.core.base.exceptions import (
     ConfigurationError,
@@ -22,29 +24,31 @@ from neural_ai.core.utils.decorators import trace
 DEFAULT_CONFIG_FILE = "configs/system.yaml"
 
 
-class BaseConfig(TypedDict, total=False):
+class BaseConfig(BaseModel):
     """Alap konfigurációs schema."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
 
 class LoggerConfig(BaseConfig):
     """Logger komponens konfigurációja."""
 
-    name: str
-    level: str
-    format: str
-    log_file: str
+    name: str = Field(min_length=1)
+    level: str | None = None
+    format: str | None = None
+    log_file: str | None = None
 
 
 class ConfigManagerConfig(BaseConfig):
     """Config manager komponens konfigurációja."""
 
-    config_file_path: str
+    config_file_path: str = Field(min_length=1)
 
 
 class StorageConfig(BaseConfig):
     """Storage komponens konfigurációja."""
 
-    base_directory: str
+    base_path: str = Field(min_length=1)
 
 
 if TYPE_CHECKING:
@@ -184,47 +188,34 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         """
         config = config or {}
 
-        # Megjegyzés: A függőség ellenőrzés mostantól csak a konfigurációs
-        # paramétereket ellenőrzi, nem a DI konténert.
-        # A DI konténer ellenőrzése a create_components metódusokra vonatkozik.
+        try:
+            # Type-specific validations
+            if component_type == "storage":
+                # Validate config using Pydantic model
+                storage_config = StorageConfig(**config)
 
-        # Type-specific validations
-        if component_type == "storage":
-            # Check if storage directory is configured
-            storage_config = cast(StorageConfig, config)
-            if not storage_config.get("base_directory"):
-                raise ConfigurationError(
-                    "Storage base_directory not configured. "
-                    "Provide 'base_directory' in config dictionary."
-                )
+                # Check if base_path is a valid path
+                base_dir = Path(storage_config.base_path)
+                if not base_dir.parent.exists():
+                    raise ConfigurationError(
+                        f"Storage base_path parent does not exist: {base_dir.parent}"
+                    )
 
-            # Check if base_directory is a valid path
-            base_dir = Path(storage_config["base_directory"])
-            if not base_dir.parent.exists():
-                raise ConfigurationError(
-                    f"Storage base_directory parent does not exist: {base_dir.parent}"
-                )
+            elif component_type == "logger":
+                # Validate config using Pydantic model
+                LoggerConfig(**config)
 
-        elif component_type == "logger":
-            # Check if logger name is provided
-            logger_config = cast(LoggerConfig, config)
-            if not logger_config.get("name"):
-                raise ConfigurationError(
-                    "Logger name not configured. Provide 'name' in config dictionary."
-                )
+            elif component_type == "config_manager":
+                # Validate config using Pydantic model
+                config_manager_config = ConfigManagerConfig(**config)
 
-        elif component_type == "config_manager":
-            # Check if config file path is provided
-            config_manager_config = cast(ConfigManagerConfig, config)
-            if not config_manager_config.get("config_file_path"):
-                raise ConfigurationError(
-                    "Config file path not configured. Provide 'config_file_path' in config dict."
-                )
+                # Check if config file exists
+                config_path = Path(config_manager_config.config_file_path)
+                if not config_path.exists():
+                    raise ConfigurationError(f"Config file does not exist: {config_path}")
 
-            # Check if config file exists
-            config_path = Path(config_manager_config["config_file_path"])
-            if not config_path.exists():
-                raise ConfigurationError(f"Config file does not exist: {config_path}")
+        except ValidationError as e:
+            raise ConfigurationError(f"Configuration error for {component_type}: {e}") from e
 
     @staticmethod
     @trace
@@ -271,7 +262,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             if log_path:
                 log_config["log_file"] = str(log_path)
             if config:
-                logger_config = cast(LoggerConfig, config.get("logger") or {})
+                logger_config = cast(dict[str, Any], config.get("logger") or {})
                 if logger_config:
                     log_config.update(logger_config)
 
@@ -338,7 +329,7 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         try:
             config = ConfigManagerFactory.get_manager(DEFAULT_CONFIG_FILE)
             if config:
-                logger_config = cast(LoggerConfig, config.get("logger") or {})
+                logger_config = cast(dict[str, Any], config.get("logger") or {})
                 if logger_config:
                     log_config = dict(logger_config)
         except (FileNotFoundError, ConfigLoadError):
@@ -421,14 +412,14 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
     @staticmethod
     def create_storage(
-        base_directory: str | None,
+        base_path: str | None,
         logger: "LoggerInterface",
         config_manager: "ConfigManagerInterface",
     ) -> "StorageInterface":
         """Létrehoz egy storage példányt.
 
         Args:
-            base_directory: A tároló alapkönyvtára
+            base_path: A tároló alapkönyvtára
             logger: Logger interfész példány
             config_manager: Config manager interfész példány
 
@@ -440,9 +431,14 @@ class CoreComponentFactory(metaclass=SingletonMeta):
             DependencyError: Ha szükséges függőségek hiányoznak
         """
         config: dict[str, Any] = {}
-        if base_directory:
-            config["base_directory"] = base_directory
-        storage_config = cast(StorageConfig, config_manager.get("storage") or {})
+        if base_path:
+            config["base_path"] = base_path
+
+        storage_config: dict[str, Any] = dict(config_manager.get("storage") or {})
+        # Backward compatibility for 'base_directory'
+        if "base_directory" in storage_config and "base_path" not in storage_config:
+            storage_config["base_path"] = storage_config.pop("base_directory")
+
         config.update(storage_config)
 
         # Validate dependencies
@@ -454,5 +450,5 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         event_bus = EventBusFactory.get_event_bus(logger=logger)
         return FileStorage(
-            logger=logger, config=config_manager, event_bus=event_bus, base_path=base_directory
+            logger=logger, config=config_manager, event_bus=event_bus, base_path=base_path
         )
