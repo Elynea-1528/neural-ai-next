@@ -1,369 +1,298 @@
 # 🏛️ Hierarchikus Agent Rendszer - Neural AI Next
 
-**Verzió:** 1.0 | **Státusz:** ✅ AKTÍV | **Dátum:** 2026-02-04
+**Verzió:** 3.0 (25 Mód) | **Státusz:** ✅ AKTÍV | **Dátum:** 2026-02-05
 
 ---
 
 ## 📋 Áttekintés
 
-A Neural AI Next projekt hierarchikus AI ágensrendszert használ a komplex fejlesztési feladatok kezelésére. Ez a rendszer biztosítja, hogy:
-- Az architektúra konzisztens maradjon
-- A kód minőség garantált legyen
-- A felelősségi körök egyértelműek legyenek
-- A feladatok nyomon követhetők legyenek
+A Neural AI Next projekt 25 specializált AI ágensrendszert használ. A rendszer célja a felelősségi körök szigorú szétválasztása (Separation of Concerns) és a token költség optimalizálás.
+
+**Roo Code = Végrehajtó Csapat:** A Roo Code agensek a **Lead Developer (Cline)** parancsait hajtják végre. Cline elemzi a feladatot, kiad egy parancsot, a Roo Code agent végrehajtja, majd az eredményt visszaküldi Cline-nak ellenőrzésre.
 
 ---
 
-## 🎯 Hierarchikus Struktúra
+## 🎯 25 Mód Hierarchikus Struktúra
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   1. ARCHITECT                          │
-│              (Stratégia & Tervezés)                     │
-│  • Elemzi a feladatot                                   │
-│  • Tervez (fázisok, modulok, fájlok)                    │
-│  • TASK_TREE.md vezetése                                │
-│  • NEM ír kódot!                                        │
-└────────────────────┬────────────────────────────────────┘
-                     │
-                     │ Delegálja a tervet
-                     ▼
-┌─────────────────────────────────────────────────────────┐
-│                  2. ORCHESTRATOR                        │
-│            (Feladat Lebontás & Delegálás)               │
-│  • Lebontja a tervet fájlműveletekre                    │
-│  • Szigorú specifikáció készítése                       │
-│  • Delegál a Code Agent-nek                             │
-│  • QA Gate követelések meghatározása                    │
-│  • NEM ír kódot!                                        │
-└────────────────────┬────────────────────────────────────┘
-                     │
-                     │ Task-onként delegál
-                     ▼
-┌─────────────────────────────────────────────────────────┐
-│                    3. CODE AGENT                        │
-│                  (Implementáció)                        │
-│  • Kód írása az Orchestrator utasításai alapján         │
-│  • Tesztek írása (Mirror struktúra)                     │
-│  • Mirror dokumentáció létrehozása                      │
-│  • QA Gate futtatása (ruff + pytest)                   │
-│  • Atomic commit                                        │
-└────────────────────┬────────────────────────────────────┘
-                     │
-                     │ HA QA Gate FAIL
-                     ▼
-┌─────────────────────────────────────────────────────────┐
-│                   4. DEBUG AGENT                        │
-│                 (Hibajavítás)                           │
-│  • Diagnosztika (hiba elemzése)                         │
-│  • Root cause azonosítása                               │
-│  • Javítás (Code Agent szabályai szerint)               │
-│  • QA Gate újrafuttatása                                │
-│  • Ciklus amíg PASS                                     │
-└─────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────┐
-│                    5. ASK AGENT                         │
-│            (Információszolgáltatás)                     │
-│  • Read-only dokumentáció keresés                       │
-│  • Gyors információszerzés                              │
-│  • Forráshivatkozások                                   │
-│  • Bármelyik agent használhatja párhuzamosan            │
-└─────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🔄 Munkafolyamat Diagram
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Architect
-    participant Orchestrator
-    participant Code
-    participant Debug
-    participant QA as QA Gate
-
-    User->>Architect: Feladat meghatározása
-    Architect->>Architect: TASK_TREE.md elemzése
-    Architect->>Architect: Architektúra tervezése
-    Architect->>Orchestrator: Fázis delegálása
-    
-    Orchestrator->>Orchestrator: Lebontás fájlműveletekre
-    Orchestrator->>Code: Task #1 specifikációval
-    
-    Code->>Code: Implementáció
-    Code->>Code: Teszt írása
-    Code->>Code: Dokumentáció
-    Code->>QA: ruff check
-    Code->>QA: pytest
-    
-    alt QA PASS
-        Code->>Code: git commit
-        Code->>Orchestrator: ✅ Task #1 kész
-    else QA FAIL
-        Code->>Debug: ⚠️ Hibajelentés
-        Debug->>Debug: Diagnosztika
-        Debug->>Debug: Javítás
-        Debug->>QA: Újratesztelés
-        Debug->>Orchestrator: ✅ Javítva
-    end
-    
-    Orchestrator->>Code: Task #2 specifikációval
-    Note over Orchestrator,Code: Ismétlés minden task-ra
-    
-    Orchestrator->>Architect: ✅ Fázis kész
-    Architect->>Architect: TASK_TREE.md frissítése
-    Architect->>User: Fázis státusz jelentés
+┌─────────────────────────────────────────────────────────────────┐
+│                    🏗️ TERVEZÉSI RÉTEG (2)                        │
+├─────────────────────────────────────────────────────────────────┤
+│  1. ARCHITECT    → Rendszertervezés, DDD, TASK_TREE vezetés     │
+│  2. PLANNER      → Stratégiai tervezés, roadmap, milestone      │
+└────────────────────────┬────────────────────────────────────────┘
+                         │ Delegál
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    🎼 KOORDINÁCIÓ (1)                            │
+├─────────────────────────────────────────────────────────────────┤
+│  3. ORCHESTRATOR → Feladat koordináció, delegálás               │
+└────────────────────────┬────────────────────────────────────────┘
+                         │ Utasít
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                 💻 IMPLEMENTÁCIÓS RÉTEG (6)                      │
+├─────────────────────────────────────────────────────────────────┤
+│  4. CODE-NEW       → Új modul létrehozás (0→1)                  │
+│  5. CODE-REFACTOR  → Komplex refaktorálás, architektúra változás│
+│  6. CODE-FEATURE   → Új funkció hozzáadás meglévő modulhoz      │
+│  7. CODE-FIX       → Egyszerű bugfix, typo, import hiba         │
+│  8. CODE-OPTIMIZE  → Performance optimalizálás                  │
+│  9. CODE-STYLE     → Formatting, import rendezés, style guide   │
+└────────────────────────┬────────────────────────────────────────┘
+                         │ Dokumentál
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  📝 DOKUMENTÁCIÓS RÉTEG (4)                      │
+├─────────────────────────────────────────────────────────────────┤
+│ 10. DOCS-API       → Docstring, API referencia                  │
+│ 11. DOCS-GUIDE     → README, tutorial, getting started          │
+│ 12. DOCS-ARCH      → Architektúra dokumentáció, design decisions│
+│ 13. DOCS-COMMENT   → Inline kommentek, TODO/FIXME/NOTE          │
+└────────────────────────┬────────────────────────────────────────┘
+                         │ Tesztel
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   🧪 TESZTELÉSI RÉTEG (4)                        │
+├─────────────────────────────────────────────────────────────────┤
+│ 14. TEST-UNIT        → Unit tesztek, egyszerű funkciók          │
+│ 15. TEST-INTEGRATION → Integration tesztek, modulok interakció  │
+│ 16. TEST-PROPERTY    → Property-based testing, invariant        │
+│ 17. TEST-E2E         → End-to-end tesztek, teljes rendszer flow │
+└────────────────────────┬────────────────────────────────────────┘
+                         │ Ellenőriz
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  🔧 KARBANTARTÁSI RÉTEG (3)                      │
+├─────────────────────────────────────────────────────────────────┤
+│ 18. DEBUG-SIMPLE     → Linter hibák, import problémák           │
+│ 19. DEBUG-COMPLEX    → Logic hibák, race condition, memory leak │
+│ 20. DEBUG-PERFORMANCE→ Performance bottleneck, profiling        │
+└────────────────────────┬────────────────────────────────────────┘
+                         │ QA Gate
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   📖 TÁMOGATÓ RÉTEG (5)                          │
+├─────────────────────────────────────────────────────────────────┤
+│ 21. QA             → Linter futtatás, type check, egyszerű hibák│
+│ 22. REVIEW         → Kód review, best practices, javaslatok     │
+│ 23. SEARCH         → Codebase keresés, pattern matching         │
+│ 24. COMMIT         → Git commit, atomic commit, conventional    │
+│ 25. READER         → Fájl olvasás, szűrés, context hygiene      │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📜 Felelősségi Mátrix
+## 🔄 Munkafolyamat Példák
 
-| Agent | Tervezés | Kód Írás | Tesztelés | Dokumentálás | Commit | Delegálás |
-|:------|:--------:|:--------:|:---------:|:------------:|:------:|:---------:|
-| **Architect** | ✅ | ❌ | ❌ | TASK_TREE | ❌ | ✅→Orchestrator |
-| **Orchestrator** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅→Code/Debug |
-| **Code** | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Debug** | ❌ | Javítás | ✅ | Frissítés | ✅ | ❌ |
-| **Ask** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+### 1. Új Modul Létrehozás:
+```
+ARCHITECT → ORCHESTRATOR → CODE-NEW → DOCS-API → TEST-UNIT → QA → COMMIT
+```
+
+### 2. Komplex Refaktorálás:
+```
+ARCHITECT → ORCHESTRATOR → CODE-REFACTOR → DOCS-ARCH → TEST-INTEGRATION → DEBUG-COMPLEX → QA → COMMIT
+```
+
+### 3. Egyszerű Bugfix:
+```
+ORCHESTRATOR → CODE-FIX → TEST-UNIT → QA → COMMIT
+```
+
+### 4. Performance Optimalizálás:
+```
+ORCHESTRATOR → CODE-OPTIMIZE → TEST-E2E → DEBUG-PERFORMANCE → QA → COMMIT
+```
+
+---
+
+## 📜 Felelősségi Mátrix (25 Mód)
+
+| Mód | Modell | Thinking | Felelősség | Reader Használat |
+|:----|:-------|:---------|:-----------|:-----------------|
+| **architect** | Opus 4.5 | extrahigh | Rendszertervezés, DDD, TASK_TREE | KÖTELEZŐ |
+| **planner** | Opus 4.5 | extrahigh | Stratégiai tervezés, roadmap | KÖTELEZŐ |
+| **orchestrator** | Sonnet 4.5 | high | Feladat koordináció, delegálás | KÖTELEZŐ |
+| **code-new** | Sonnet 4.5 | high | Új modul létrehozás (0→1) | KÖTELEZŐ |
+| **code-refactor** | Opus 4.5 | extrahigh | Komplex refaktorálás | KÖTELEZŐ |
+| **code-feature** | Sonnet 4.5 | high | Új funkció hozzáadás | KÖTELEZŐ |
+| **code-fix** | Gemini Pro | high | Egyszerű bugfix | KÖTELEZŐ |
+| **code-optimize** | Opus 4.5 | extrahigh | Performance optimalizálás | KÖTELEZŐ |
+| **code-style** | Gemini Flash | high | Formatting, style guide | Ritkán |
+| **docs-api** | Gemini Pro | high | Docstring, API referencia | KÖTELEZŐ |
+| **docs-guide** | Sonnet 4.5 | high | Tutorial, getting started | KÖTELEZŐ |
+| **docs-arch** | Opus 4.5 | extrahigh | Architektúra dokumentáció | KÖTELEZŐ |
+| **docs-comment** | Gemini Flash | high | Inline kommentek | Ritkán |
+| **test-unit** | Gemini Pro | high | Unit tesztek | KÖTELEZŐ |
+| **test-integration** | Sonnet 4.5 | high | Integration tesztek | KÖTELEZŐ |
+| **test-property** | Opus 4.5 | extrahigh | Property-based testing | KÖTELEZŐ |
+| **test-e2e** | Sonnet 4.5 | high | End-to-end tesztek | KÖTELEZŐ |
+| **debug-simple** | Gemini Pro | high | Linter hibák | KÖTELEZŐ |
+| **debug-complex** | Opus 4.5 | extrahigh | Logic hibák | KÖTELEZŐ |
+| **debug-performance** | Opus 4.5 | extrahigh | Performance bottleneck | KÖTELEZŐ |
+| **qa** | Gemini Flash | high | Linter, type check, egyszerű hibák | Ritkán |
+| **review** | Sonnet 4.5 | high | Kód review, best practices | KÖTELEZŐ |
+| **search** | Gemini Pro | high | Codebase keresés | NEM (csak search tools) |
+| **commit** | Gemini Flash | high | Git commit | Ritkán |
+| **reader** | Gemini Flash | high | Fájl olvasás, szűrés | N/A (ő maga a Reader) |
 
 ---
 
 ## 🛑 Kritikus Szabályok
 
-### 1. Eszközhasználati Korlátozások
-
-| Agent | `write_to_file` | `apply_diff` | `read_file` | `execute_command` |
-|:------|:---------------:|:------------:|:-----------:|:-----------------:|
-| **Architect** | ❌ | ❌ | ✅ | Csak info (ls, find) |
-| **Orchestrator** | ❌ | ❌ | ✅ | ❌ |
-| **Code** | ✅ | ✅ | ✅ | ✅ (build, test, git) |
-| **Debug** | ✅ | ✅ | ✅ | ✅ (test, ruff, git) |
-| **Ask** | ❌ | ❌ | ✅ | ❌ |
-
-### 2. Delegálási Protokoll
-
-**Architect → Orchestrator:**
-```
-Orchestrator! Implementáld a Phase X.Y-t.
-
-Modulok:
-1. neural_ai/module/xyz/processor.py
-2. neural_ai/module/xyz/factory.py
-3. tests/module/xyz/test_processor.py
-
-Követelmények:
-- Réteg: Domain
-- Függőségek: core.logger, data.storage
-- DI pattern használata
-
-Részletek: lásd TASK_TREE.md:123-145
-```
-
-**Orchestrator → Code:**
-```
-Code Agent! A feladat a neural_ai/module/xyz/processor.py létrehozása.
-
-1. Architektúra:
-   - Réteg: Domain
-   - Importálhat: data, core (NEM ui)
-   - DI: logger, config konstruktorban
-   - TYPE_CHECKING körkörös importokhoz
-
-2. Kódminőség:
-   - Magyar docstringek (Google Style)
-   - TypedDict a config-hoz
-   - Strukturált logolás extra dict-tel
-   - Polars DataFrame (NEM pandas)
-
-3. Tesztelés:
-   - Mirror struktúra: tests/module/xyz/test_processor.py
-   - 100% coverage cél
-   - QA Gate: ruff + pytest
-
-4. Lezárás:
-   - Mirror docs: docs/components/module/xyz/processor.md
-   - Atomic commit: feat(xyz): Magyar üzenet
-```
-
-**Code/Orchestrator → Debug:**
-```
-Debug Agent! A tests/module/xyz/test_processor.py megbukott.
-
-Hiba:
-```
-[pytest output]
-```
-
-QA követelmény: 100% PASS + 0 ruff hiba
-
-Javítsd és commitold.
-```
-
-### 3. Quality Gate Követelmények
-
-**MINDEN commit előtt kötelező:**
-- [ ] `/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check .` → 0 hiba
-- [ ] `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest` → Minden teszt PASS
-- [ ] Mirror dokumentáció létezik (`docs/components/`)
-- [ ] TypedDict használva factory-kban
-- [ ] Strukturált logolás (extra dict)
-- [ ] Magyar docstringek
-- [ ] Réteg függőségek helyesek
-
-**HA BÁRMI FAIL:** Debug Agent hívása, **NEM** a Code Agent javítja!
+1. **Specializáció:** Minden mód CSAK a saját felelősségi körét látja el
+2. **Delegálás:** Drága modellek (Opus, Sonnet) SOHA nem olvasnak fájlokat közvetlenül
+3. **QA Gate:** Soha nincs commit QA és Test futtatása nélkül
+4. **Reader Használat:** KÖTELEZŐ minden fájl olvasáshoz (kivéve mechanikus módok)
+5. **Atomic Commit:** Egy commit = Egy logikai egység
 
 ---
 
-## 📊 TASK_TREE.md Integráció
+## 💰 Token Economy - Reader Delegálási Lánc
 
-Az Architect felelős a `docs/development/TASK_TREE.md` naprakészen tartásáért:
+### Alapelv: Hibrid Reader Stratégia
 
-```markdown
-## 🗂️ PHASE [X.Y]: [MODUL NÉV]
+**Cél:** 90%+ token megtakarítás a drága modellek kontextusában.
 
-### 🏗️ MODULE: [modul/path]
+**Munkafolyamat:**
 
-| File Path | Matrix [S|T|D] | Stmt Cov | Brch Cov | Status |
-|-----------|:--------------:|:---------|:---------|:------:|
-| `processor.py` | [🟢|✅|✅] | 95% | 90% | ✅ DONE |
-| `factory.py` | [🟡|✅|❌] | 80% | 75% | 🟡 WIP |
-| `test_processor.py` | [🔴|❌|❌] | 0% | 0% | 🔴 PENDING |
+```
+Drága Agent (Architect/Code/Debug)
+  │
+  ├─ Fájl olvasás szükséges?
+  │   │
+  │   └─ IGEN → switch_mode → reader
+  │       │
+  │       └─ Reader (Flash modell)
+  │           │
+  │           ├─ Beolvassa az EGÉSZ fájlt (olcsó)
+  │           │
+  │           ├─ Intelligens szűrés:
+  │           │   ├─ Specifikus kérés → Snippet (30-100 sor)
+  │           │   ├─ Általános kérés → Teljes fájl (formázva)
+  │           │   ├─ Hiba kontextus → Snippet (±20 sor)
+  │           │   └─ Dokumentáció → Snippet (szekció)
+  │           │
+  │           └─ Visszaküldi a snippet-et
+  │               │
+  │               └─ switch_mode → [eredeti mód]
+  │                   │
+  │                   └─ Drága Agent: Feldolgozza a snippet-et
+  │                       (Kontextusa tiszta, csak 50 sor)
 ```
 
-**Színkódok:**
-- 🔴 CRITICAL/PENDING: 0-49% Coverage
-- 🟡 WIP: 50-79% Coverage
-- 🟢 STABLE: 80-99% Coverage
-- ✅ PERFECT: 100% Coverage
+### Token Megtakarítás Példa:
+
+**Forgatókönyv:** Code Agent módosít egy 500 soros fájlt
+
+| Módszer | Reader Token | Drága Token | Teljes | Megtakarítás |
+|:---|---:|---:|---:|---:|
+| **Régi (közvetlen)** | 0 | 15,000 | 15,000 | - |
+| **Új (Reader proxy)** | 15,000 (olcsó) | 1,500 | 16,500 | **90%** (drágán) |
+
+**Eredmény:** Ugyanaz a módosítás, de 90% token megtakarítás a drága modell kontextusában! ✅
 
 ---
 
-## 🔍 Példa Munkafolyamat
+## 📊 Modell Allokáció Összesítés
 
-### Feladat: D03 Trend Processor Implementálása
-
-#### 1. Architect (Tervezés)
-```
-[Architect olvassa a TASK_TREE.md-t]
-[Elemzi: Phase 2.3, Module: processors/dimensions/d03_trend]
-
-Tervezés:
-- interfaces/trend_interface.py
-- implementations/trend_processor.py
-- factory.py
-- exceptions/trend_error.py
-- tests/processors/dimensions/d03_trend/test_processor.py
-
-Delegálás Orchestrator-nak →
-```
-
-#### 2. Orchestrator (Delegálás)
-```
-Orchestrator lebontja 5 task-ra:
-
-Task 1: interfaces/trend_interface.py
-Task 2: exceptions/trend_error.py
-Task 3: implementations/trend_processor.py
-Task 4: factory.py
-Task 5: tests/.../test_processor.py
-
-Mindegyikhez szigorú specifikáció →
-```
-
-#### 3. Code Agent (Implementáció)
-```
-Task 1 fogadása:
-- Létrehozza interfaces/trend_interface.py
-- ABC interface, magyar docstring
-- QA Gate: ruff ✅, pytest ✅
-- Commit: feat(d03): trend interface létrehozva
-- Jelentés: ✅ Task 1 kész
-
-[Ismétlés Task 2-5-re]
-```
-
-#### 4. Debug Agent (Javítás - ha szükséges)
-```
-Task 3-nál pytest FAIL:
-- Diagnosztika: import hiba (körkörös)
-- Javítás: TYPE_CHECKING blokk hozzáadása
-- QA Gate: ruff ✅, pytest ✅
-- Commit: fix(d03): körkörös import javítva
-- Jelentés: ✅ Javítva
-```
-
-#### 5. Architect (Követés)
-```
-[TASK_TREE.md frissítése]
-processors/dimensions/d03_trend/
-- interfaces/trend_interface.py → ✅ DONE
-- implementations/trend_processor.py → ✅ DONE
-- factory.py → ✅ DONE
-- tests/.../test_processor.py → ✅ DONE
-
-Phase 2.3: D03 Trend → ✅ COMPLETE
-```
+| Modell | Thinking | Módok (Darab) | Felelősség |
+|:-------|:---------|:--------------|:-----------|
+| **Opus 4.5** | extrahigh | 7 | Kritikus döntések |
+| **Sonnet 4.5** | high | 8 | Implementáció |
+| **Gemini Pro** | high | 5 | Rutin feladatok |
+| **Gemini Flash** | high | 5 | Mechanikus feladatok |
 
 ---
 
-## 🚨 Anti-Patterns (TILOS!)
+## 📚 Dokumentáció Hivatkozások
 
-### ❌ ROSSZ: Architect kódol
-```
-Architect: "Létrehozom a processor.py-t..."
-[write_to_file használata]
-```
-**HIBA:** Az Architect NEM ír kódot! Csak delegál.
-
-### ❌ ROSSZ: Orchestrator implementál
-```
-Orchestrator: "Megírom a factory-t..."
-[write_to_file használata]
-```
-**HIBA:** Az Orchestrator NEM ír kódot! Csak delegál a Code Agent-nek.
-
-### ❌ ROSSZ: Code Agent önállóan dönt
-```
-Code Agent: "Szerintem Pandas-t használok itt..."
-```
-**HIBA:** Az Architect határozta meg (Polars). Code Agent csak követi az utasítást.
-
-### ❌ ROSSZ: Code Agent javítja saját hibáit
-```
-Code Agent: "Pytest bukott, javítom..."
-```
-**HIBA:** Debug Agent-et kell hívni! Code Agent jelentést ad, nem javít.
-
-### ✅ HELYES Munkafolyamat
-```
-Architect → Orchestrator: "Implementáld a Phase 2.3-at"
-Orchestrator → Code: "Hozd létre interfaces/trend_interface.py [részletes spec]"
-Code: [Implementál, QA Gate] → ✅ vagy ⚠️
-Ha ⚠️ → Debug Agent: [Javít, QA Gate] → ✅
-Code → Orchestrator: "✅ Task kész"
-Orchestrator → Architect: "✅ Phase kész"
-Architect: [TASK_TREE.md frissítése]
-```
+- **Fő szabályzat:** `AGENTS.md` (minden agent látja - auto cache)
+- **Mód-specifikus szabályok:** `.roo/rules-*/AGENTS.md` (csak az adott mód látja)
+- **Konfiguráció:** `.roomodes` (25 mód definíciója)
 
 ---
 
-## 📚 Kapcsolódó Dokumentumok
+## 🎯 Következő Lépések
 
-- **Architektúra Szabvány:** `docs/development/architecture_standards.md`
-- **Custom Instructions:** `docs/development/custom-instructions.md`
-- **TASK_TREE:** `docs/development/TASK_TREE.md`
-- **Agent Szabályok:**
-  - `AGENTS.md` (Root - Hierarchia)
-  - `.roo/rules-architect/AGENTS.md`
-  - `.roo/rules-orchestrator/AGENTS.md`
-  - `.roo/rules-code/AGENTS.md`
-  - `.roo/rules-debug/AGENTS.md`
-  - `.roo/rules-ask/AGENTS.md`
+1. **Roo Code Konfiguráció:** Manuálisan beállítani a 25 módot a Roo Code UI-ban
+2. **Tesztelés:** Minden mód kipróbálása egyszerű feladatokkal
+3. **Finomhangolás:** Szükség esetén mód-specifikus AGENTS.md frissítése
+
 
 ---
 
-**Ez a hierarchikus rendszer garantálja a kód minőségét, az architektúra konzisztenciáját és a feladatok követhetőségét.**
+## 🔄 Cline (Lead Developer) → Roo Code (Execution Team) Workflow
+
+### Szerepkörök:
+
+- **Ember (Te):** Projekt tulajdonos, döntéshozó
+- **Cline (Lead Developer):** Elemzi a feladatot, tervez, parancsot generál, ellenőriz
+- **Roo Code (Execution Team):** Végrehajtja a parancsokat, visszajelzést ad
+
+### Munkafolyamat:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  1. EMBER → Cline: "Hozz létre D6 Volatility processzort"  │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  2. Cline (Lead Dev): Elemzi, tervezi, parancsot generál   │
+│     Output: "Architect! Tervezd meg a D6 Volatility..."    │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  3. EMBER: Átmásolja a parancsot Roo Code-ba (Architect)   │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  4. Roo Code (Architect): Végrehajtja, tervet készít       │
+│     Output: [Terv, struktúra, fájlok listája]              │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  5. EMBER: Átmásolja az eredményt Cline-nak                │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  6. Cline: Ellenőrzi, értékeli, következő lépés            │
+│     Output: "Jó terv! Most implementálás..."               │
+│     "Orchestrator! Implementáld az Architect tervét..."     │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+                    [Ismétlés]
+```
+
+### Parancs → Mód Hozzárendelés:
+
+| Cline Parancs Típusa | Roo Code Mód | Példa |
+|:---------------------|:-------------|:------|
+| "Tervezd meg..." | **Architect** | "Architect! Tervezd meg a D6 Volatility processzort" |
+| "Készíts roadmap-et..." | **Planner** | "Planner! Készíts roadmap-et a Q1 fejlesztésekhez" |
+| "Implementáld..." | **Orchestrator** | "Orchestrator! Implementáld az Architect tervét" |
+| "Hozz létre új modult..." | **Code-New** | "Code-New! Hozz létre D6 Volatility modult" |
+| "Refaktoráld..." | **Code-Refactor** | "Code-Refactor! Refaktoráld a pipeline.py-t" |
+| "Javítsd a bugot..." | **Code-Fix** | "Code-Fix! Javítsd az AttributeError-t" |
+| "Optimalizáld..." | **Code-Optimize** | "Code-Optimize! Gyorsítsd a resampler-t" |
+| "Írj unit tesztet..." | **Test-Unit** | "Test-Unit! Írj tesztet a calculate() metódushoz" |
+| "Írj integration tesztet..." | **Test-Integration** | "Test-Integration! Teszteld a pipeline flow-t" |
+| "Ellenőrizd a kódot..." | **QA** | "QA! Futtasd a linter-t és javítsd a hibákat" |
+| "Commitold..." | **Commit** | "Commit! Commitold a D6 Volatility modult" |
+
+### Előnyök:
+
+1. **Cline (Lead Dev)** → Stratégiai döntések, tervezés, ellenőrzés
+2. **Roo Code (Execution)** → Végrehajtás, implementáció, tesztelés
+3. **Ember (Te)** → Döntéshozás, irányítás, jóváhagyás
+
+**Eredmény:** Hatékony, ellenőrzött, minőségi fejlesztés! 🚀
+
