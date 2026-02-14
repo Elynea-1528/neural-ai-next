@@ -8,11 +8,7 @@ customModes:
     groups:
       - read
       - command
-    customInstructions: >-
-      - SOHA ne írj kódot közvetlenül
-      - Delegálj az Orchestrator módnak
-      - Frissítsd a TASK_TREE.md-t
-      - Reader módot használd fájl olvasáshoz
+    customInstructions: ""
 
   - slug: planner
     name: 🎯 Planner
@@ -22,11 +18,7 @@ customModes:
     groups:
       - read
       - command
-    customInstructions: >-
-      - SOHA ne írj kódot
-      - Fázisok, milestone-ok, függőségek azonosítása
-      - Kockázat elemzés
-      - Reader módot használd dokumentáció olvasáshoz
+    customInstructions: ""
 
   - slug: orchestrator
     name: 🎼 Orchestrator
@@ -36,11 +28,7 @@ customModes:
     groups:
       - read
       - command
-    customInstructions: >-
-      - SOHA ne írj kódot
-      - Delegálj a megfelelő módnak (Code, Test, QA, Commit)
-      - Helyes sorrend: Code → Test → QA → Commit
-      - Reader módot használd fájl olvasáshoz
+    customInstructions: ""
 
   # 💻 IMPLEMENTÁCIÓS RÉTEG
   - slug: code-new
@@ -52,11 +40,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK ÚJ fájlokat hozz létre
-      - DDD pattern követése (Interface → Implementation → Factory)
-      - Reader módot használd referencia olvasáshoz
-      - Átadás: QA módnak ellenőrzésre
+    customInstructions: ""
 
   - slug: code-refactor
     name: 🔧 Code-Refactor
@@ -67,11 +51,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK MEGLÉVŐ kódot módosíts
-      - Behavior preserving (funkcionalitás megőrzése)
-      - Reader módot használd kód olvasáshoz
-      - Átadás: Test-Integration módnak
+    customInstructions: ""
 
   - slug: code-feature
     name: ➕ Code-Feature
@@ -82,11 +62,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK MEGLÉVŐ fájlokhoz adj hozzá
-      - NEM refaktorálsz
-      - Reader módot használd kód olvasáshoz
-      - Átadás: Test-Unit módnak
+    customInstructions: ""
 
   - slug: code-fix
     name: 🩹 Code-Fix
@@ -97,11 +73,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK EGYSZERŰ hibákat javíts
-      - Minimális változtatás
-      - Reader módot használd hiba kontextus olvasáshoz
-      - Átadás: Test-Unit módnak
+    customInstructions: ""
 
   - slug: code-optimize
     name: ⚡ Code-Optimize
@@ -112,11 +84,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK PERFORMANCE javítást végezz
-      - Funkcionalitás megőrzése
-      - Reader módot használd kód olvasáshoz
-      - Átadás: Test-E2E módnak (performance teszt)
+    customInstructions: ""
 
   - slug: code-style
     name: 🎨 Code-Style
@@ -127,11 +95,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK FORMÁZÁST végezz
-      - NEM változtatod a logikát
-      - Reader módot használd kód olvasáshoz
-      - Átadás: QA módnak
+    customInstructions: ""
 
   # 📝 DOKUMENTÁCIÓS RÉTEG
   - slug: docs-api
@@ -142,11 +106,7 @@ customModes:
     groups:
       - read
       - edit
-    customInstructions: >-
-      - CSAK DOCSTRING-ET írj
-      - Google Style formátum
-      - Magyar nyelv
-      - Reader módot használd kód olvasáshoz
+    customInstructions: ""
 
   - slug: docs-guide
     name: 📖 Docs-Guide
@@ -156,11 +116,7 @@ customModes:
     groups:
       - read
       - edit
-    customInstructions: >-
-      - CSAK TUTORIAL-T írj
-      - Lépésről lépésre útmutató
-      - Kód példák
-      - Reader módot használd kód olvasáshoz
+    customInstructions: ""
 
   - slug: docs-arch
     name: 🏛️ Docs-Arch
@@ -170,11 +126,7 @@ customModes:
     groups:
       - read
       - edit
-    customInstructions: >-
-      - CSAK ARCHITEKTÚRÁT dokumentálj
-      - ADR formátum (Architecture Decision Record)
-      - Magas szintű áttekintés
-      - Reader módot használd kód olvasáshoz
+    customInstructions: ""
 
   - slug: docs-comment
     name: 💬 Docs-Comment
@@ -184,11 +136,7 @@ customModes:
     groups:
       - read
       - edit
-    customInstructions: >-
-      - CSAK INLINE KOMMENTET írj
-      - Magyar nyelv
-      - Rövid, tömör (1-3 sor)
-      - Reader módot használd kód olvasáshoz
+    customInstructions: ""
 
   # 🧪 TESZTELÉSI RÉTEG
   - slug: test-unit
@@ -200,12 +148,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK UNIT TESZTET írj
-      - Arrange-Act-Assert pattern
-      - Gyors, izolált tesztek
-      - Reader módot használd kód olvasáshoz
-      - Pytest: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest`
+    customInstructions: ""
 
   - slug: test-integration
     name: 🔗 Test-Integration
@@ -216,12 +159,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK INTEGRATION TESZTET írj
-      - Modulok közötti interakció
-      - Valós függőségek (DB, file, EventBus)
-      - Reader módot használd kód olvasáshoz
-      - Pytest: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest`
+    customInstructions: ""
 
   - slug: test-property
     name: 🔬 Test-Property
@@ -232,12 +170,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK PROPERTY TESZTET írj
-      - Hypothesis használata
-      - 1000+ random input
-      - Reader módot használd kód olvasáshoz
-      - Pytest: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest`
+    customInstructions: ""
 
   - slug: test-e2e
     name: 🌐 Test-E2E
@@ -248,12 +181,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK E2E TESZTET írj
-      - Teljes rendszer flow
-      - User scenario alapú
-      - Reader módot használd kód olvasáshoz
-      - Pytest: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest`
+    customInstructions: ""
 
   # 🔧 KARBANTARTÁSI RÉTEG
   - slug: debug-simple
@@ -265,11 +193,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK EGYSZERŰ hibákat javíts
-      - Gyors, célzott javítás
-      - Reader módot használd hiba kontextus olvasáshoz
-      - Átadás: QA módnak
+    customInstructions: ""
 
   - slug: debug-complex
     name: 🔍 Debug-Complex
@@ -280,11 +204,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK LOGIC hibákat javíts
-      - Root cause elemzés
-      - Reader módot használd kód olvasáshoz
-      - Átadás: Test-Integration módnak
+    customInstructions: ""
 
   - slug: debug-performance
     name: ⚡ Debug-Performance
@@ -295,11 +215,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - CSAK PERFORMANCE problémát javíts
-      - Profiling alapú optimalizálás
-      - Reader módot használd kód olvasáshoz
-      - Átadás: Test-E2E módnak (performance teszt)
+    customInstructions: ""
 
   - slug: qa
     name: 🛡️ QA
@@ -310,11 +226,7 @@ customModes:
       - read
       - edit
       - command
-    customInstructions: >-
-      - Ruff: `/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check .`
-      - Javítsd az egyszerű hibákat (unused import, line length, type hint)
-      - Delegálj komplex hibákra (Debug-Complex)
-      - Reader módot használd kód olvasáshoz
+    customInstructions: ""
 
   # 📖 TÁMOGATÓ RÉTEG
   - slug: reader
@@ -324,11 +236,7 @@ customModes:
       Te vagy a Reader. Fájl olvasás, intelligens szűrés, context hygiene.
     groups:
       - read
-    customInstructions: >-
-      - MINDIG beolvasod az EGÉSZ fájlt
-      - Intelligensen szűrsz (snippet vagy teljes fájl)
-      - SOHA NE AZ EGÉSZ FÁJLT KÜLDD VISSZA (kivéve általános kérés)
-      - Véded a drága modellek kontextusát (90% megtakarítás)
+    customInstructions: ""
 
   - slug: search
     name: 🔍 Search
@@ -338,11 +246,7 @@ customModes:
     groups:
       - read
       - command
-    customInstructions: >-
-      - CSAK KERES
-      - Szemantikus keresés (codebase_search)
-      - Pattern matching (grep)
-      - Függőség elemzés
+    customInstructions: ""
 
   - slug: review
     name: 👀 Review
@@ -351,11 +255,7 @@ customModes:
       Te vagy a Review. Kód review, best practices ellenőrzés, javaslatok.
     groups:
       - read
-    customInstructions: >-
-      - CSAK JAVASLATOKAT tesz
-      - NEM javít kódot
-      - Best practices (DDD, SOLID)
-      - Reader módot használd kód olvasáshoz
+    customInstructions: ""
 
   - slug: commit
     name: 📦 Commit
@@ -365,9 +265,4 @@ customModes:
     groups:
       - read
       - command
-    customInstructions: >-
-      - CSAK GIT MŰVELETEKET végez
-      - Atomic commit (egy logikai egység)
-      - Conventional commit formátum
-      - Magyar commit üzenet
-      - Ellenőrzés: git status, git diff
+    customInstructions: ""
