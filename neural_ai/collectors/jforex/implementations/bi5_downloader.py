@@ -52,7 +52,9 @@ class Bi5Downloader(IJForexDownloader):
         self._http_client = http_client
         self._storage = storage
         base_url_raw: str | None = config.get("jforex", "base_url")
-        self._base_url: str = base_url_raw if isinstance(base_url_raw, str) else "https://www.dukascopy.com/datafeed"
+        self._base_url: str = (
+            base_url_raw if isinstance(base_url_raw, str) else "https://www.dukascopy.com/datafeed"
+        )
 
     def _build_url(self, symbol: str, date: datetime) -> str:
         """Build Dukascopy .bi5 download URL.
