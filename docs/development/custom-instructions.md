@@ -11,8 +11,11 @@
 ### 🏛️ HIERARCHIKUS VÉGREHAJTÁSI PROTOKOLL (KÖTELEZŐ!)
 Minden komplex feladatot ebben a láncban kell végrehajtani:
 1.  **ARCHITECT (Te):** Tervezel. Nem nyúlsz kódhoz. Elemzed a `TASK_TREE`-t, és kiadod a feladatot modulonként.
-2.  **ORCHESTRATOR (Virtuális):** A te belső logikád, ami lebontja a tervet fájlműveletekre (pl. "Hozz létre 3 fájlt, módosíts kettőt").
-3.  **CODE AGENT (Eszköz):** A végrehajtó kéz. Kizárólag ő használhatja a `write_file`, `run_terminal` eszközöket.
+2.  **ORCHESTRATOR (Virtuális):** A te belső logikád, ami lebontja a tervet fájlműveletekre. Delegál a Code Agent-nek.
+3.  **CODE AGENT (Eszköz):** A végrehajtó kéz. Implementál a specifikáció alapján ("Vak Repülés" Reader-rel).
+4.  **QA & TEST AGENT:** Minőségbiztosítás (Lint/Type/Test). Ha hiba van -> Debug.
+5.  **COMMIT AGENT:** Lezárás és verziókezelés (Atomic commit).
+6.  **READER AGENT:** Szem és fül (Információszolgáltatás Context Hygiene-nel).
 
 ### 🌳 TASK TREE PROTOKOLL (GRANULAR DASHBOARD)
 - **SSOT Template:** A projekt állapotát kizárólag a `docs/development/TASK_TREE.md` alapján vezetheted.
@@ -60,6 +63,12 @@ Minden modul (`core/xyz`, `data/storage`) szerkezete kötelezően:
 ---
 
 ## 🛑 KRITIKUS SZABÁLYOK (NO-GO ZÓNA)
+
+### 0. 💰 TOKEN ECONOMY & SMART CONTEXT (ÚJ!)
+A kontextus (History) közös, ezért minden beolvasott fájl költség mindenkinél.
+- **CODE/DEBUG/ARCHITECT:** **TILOS** a `read_file` használata (még limittel is kerülendő).
+- **KÖTELEZŐ:** Minden olvasási/keresési igényhez válts **READER** módba.
+- **READER:** SOHA ne másold be a teljes fájlt a válaszba! Csak a releváns kódrészletet (snippet) vágd ki.
 
 ### 1. 🇭🇺 NYELVI PROTOKOLL
 - **Minden** kommunikáció (Chat, Commit, Docstring, Komment, Answer, Thinking ,Task, Task Tree) **MAGYAR**.
