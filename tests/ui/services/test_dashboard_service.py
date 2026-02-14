@@ -37,7 +37,7 @@ class TestDashboardService:
     @pytest.fixture
     def mock_system_health(self) -> SystemHealth:
         """Mock SystemHealth létrehozása."""
-        components = [
+        components: list[ComponentHealth] = [
             ComponentHealth(
                 name="core",
                 status=ComponentStatus.HEALTHY,
@@ -125,7 +125,7 @@ class TestDashboardService:
         self, mock_logger: MagicMock, mock_config: dict[str, Any], mock_components: MagicMock
     ) -> None:
         """Teszteli az összes állapot típus leképezését."""
-        components = [
+        components: list[ComponentHealth] = [
             ComponentHealth(
                 name="healthy",
                 status=ComponentStatus.HEALTHY,
@@ -254,7 +254,7 @@ class TestDashboardService:
         assert len(result) == 4
 
         # Ellenőrizzük az első tevékenységet
-        first_activity = result[0]
+        first_activity: dict[str, Any] = result[0]
         assert first_activity["type"] == "INFO"
         assert first_activity["message"] == "Rendszer indítva"
         assert first_activity["component"] == "core"
