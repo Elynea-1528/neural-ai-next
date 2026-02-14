@@ -183,17 +183,42 @@ def update_settings(settings_path: Path) -> None:
     # API configs frissítése
     api_configs = settings["providerProfiles"]["apiConfigs"]
     
+    # Profil név mapping (mode → profil név)
+    MODE_TO_PROFILE = {
+        "architect": "Architect (Opus 4.6)",
+        "planner": "Planner (Sonnet 4.5)",
+        "orchestrator": "Orchestrator (Sonnet 4.5)",
+        "code-new": "Code-New (Deepseek 3.2)",
+        "code-refactor": "Code-Refactor (Opus 4.6)",
+        "code-feature": "Code-Feature (Deepseek 3.2)",
+        "code-fix": "Code-Fix (Gemini Pro)",
+        "code-optimize": "Code-Optimize (Opus 4.6)",
+        "code-style": "Code-Style (Gemini Flash)",
+        "docs-api": "Docs-API (Gemini Pro)",
+        "docs-guide": "Docs-Guide (Sonnet 4.5)",
+        "docs-arch": "Docs-Arch (Opus 4.6)",
+        "docs-comment": "Docs-Comment (Gemini Flash)",
+        "test-unit": "Test-Unit (Gemini Pro)",
+        "test-integration": "Test-Integration (Sonnet 4.5)",
+        "test-property": "Test-Property (Opus 4.6)",
+        "test-e2e": "Test-E2E (Sonnet 4.5)",
+        "debug-simple": "Debug-Simple (Gemini Pro)",
+        "debug-complex": "Debug-Complex (Opus 4.6)",
+        "debug-performance": "Debug-Performance (Opus 4.6)",
+        "qa": "QA (Gemini Flash)",
+        "review": "Review (Sonnet 4.5)",
+        "search": "Search (Gemini Pro)",
+        "commit": "Commit (Gemini Flash)",
+        "reader": "Reader (Gemini Flash)",
+    }
+    
     updated_count = 0
     for mode, config in MODEL_UPDATES.items():
-        # Profil név keresése (pl. "Architect (Opus 4.5)")
-        profile_name = None
-        for name in api_configs.keys():
-            if mode.replace("-", " ").title() in name or mode.title() in name:
-                profile_name = name
-                break
+        # Profil név keresése
+        profile_name = MODE_TO_PROFILE.get(mode)
         
-        if not profile_name:
-            print(f"⚠️  Profil nem található: {mode}")
+        if not profile_name or profile_name not in api_configs:
+            print(f"⚠️  Profil nem található: {mode} ({profile_name})")
             continue
         
         # Model ID frissítése
