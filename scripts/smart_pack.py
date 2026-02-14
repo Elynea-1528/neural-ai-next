@@ -180,7 +180,8 @@ def is_ignored(path: Path) -> bool:
         rel_path = path.relative_to(PROJECT_ROOT)
 
         # Ellenőrizzük, hogy az útvonal bármely része (mappa) tiltólistás-e
-        # Ez pontosabb, mint a string 'in', mert pl. a "data_loader.py" nem akad fenn a "data" tiltáson
+        # Ez pontosabb, mint a string 'in', mert pl. a "data_loader.py"
+        # nem akad fenn a "data" tiltáson
         for part in rel_path.parts:
             if part in IGNORE_DIRS:
                 return True

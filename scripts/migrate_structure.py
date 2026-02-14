@@ -102,7 +102,7 @@ def migrate_tick_structure(logger: Any) -> None:
         logger.warning("Nem található szimbólum mappa a tick könyvtárban")
 
     logger.info(
-        f"Migráció befejezve. Feldolgozott szimbólumok: {symbols_processed}, Migrált: {symbols_migrated}"
+        f"Migráció befejezve. Feldolgozott: {symbols_processed}, Migrált: {symbols_migrated}"
     )
 
 

@@ -44,6 +44,8 @@ BROKER_URLS = {
 
 # Színek a konzolhoz
 class Colors:
+    """Színek a konzol kimenethez."""
+
     RED = "\033[0;31m"
     GREEN = "\033[0;32m"
     YELLOW = "\033[1;33m"
@@ -588,7 +590,8 @@ def print_completion_message(
     print("Ellenőrzés:")
     if gpu_available:
         print(
-            "  python -c \"import torch; print(f'PyTorch: {torch.__version__}, CUDA: {torch.cuda.get_device_name(0)}')\""
+            "  python -c \"import torch; print(f'PyTorch: {torch.__version__}, "
+            "CUDA: {torch.cuda.get_device_name(0)}')\""
         )
     else:
         print("  python -c \"import torch; print(f'PyTorch: {torch.__version__}')\"")
