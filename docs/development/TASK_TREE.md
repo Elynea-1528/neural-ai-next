@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT - TASK TREE v3.0 (DEEP AUDIT)
 
-**Generálva:** 2026-02-11 15:13:36 UTC
+**Generálva:** 2026-02-15 07:15:25 UTC
 **Módszer:** AST Statikus Analízis
 **Fájlok száma:** 99 elemezve
 
@@ -73,7 +73,7 @@
 |--------------|---------|-----------|---------------|-------------------|-------------|----------|----------------------|
 | `collectors/jforex/exceptions/jforex_error.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `collectors/jforex/factory.py` | ✅ SECURE | ✅ FOUND | 10 | ⚪ N/A | ⚪ N/A | N/A | - |
-| `collectors/jforex/implementations/bi5_downloader.py` | 🟡 WARNING | ✅ FOUND | 26 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
+| `collectors/jforex/implementations/bi5_downloader.py` | 🟡 WARNING | ✅ FOUND | 33 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
 | `collectors/jforex/implementations/live_feed.py` | ✅ SECURE | ✅ FOUND | 3 | ⚪ N/A | ✅ OK | N/A | - |
 | `collectors/jforex/interfaces/downloader_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
 | `collectors/jforex/interfaces/live_interface.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |

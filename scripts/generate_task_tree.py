@@ -149,8 +149,20 @@ class MirrorChecker:
 
         # 1. Elsődleges hely (Mirror Rule szerint)
         test_path = Path("tests") / Path(*dir_parts) / test_file_name
+
+        # DEBUG: Útvonal ellenőrzés (csak UI fájloknál, hogy lássuk a hibát)
+        if "ui" in str(source_path):
+            print(f"DEBUG: Checking {source_path} -> {test_path} (Exists: {test_path.exists()})")
+
         if test_path.exists():
             return test_path
+
+        # UI Services Fallback (ha a standard logika valamiért nem találja)
+        if "ui" in dir_parts and "services" in dir_parts:
+             ui_test_path = Path("tests/ui/services") / test_file_name
+             if ui_test_path.exists():
+                 print(f"DEBUG: FOUND via fallback: {ui_test_path}")
+                 return ui_test_path
 
         # 2. Integration verzió (Mirror Rule szerint)
         integration_path = Path("tests") / Path(*dir_parts) / integration_file_name
