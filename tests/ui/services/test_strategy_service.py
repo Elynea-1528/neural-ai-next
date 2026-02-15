@@ -6,6 +6,7 @@ beleértve az új get_candles metódust.
 
 import sys
 from datetime import datetime
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
@@ -13,38 +14,38 @@ import pytest
 from neural_ai.ui.services.strategy_service import StrategyService
 
 # Mock vectorbt and polars to avoid import issues in tests
-sys.modules["vectorbt"] = Mock()
-sys.modules["polars"] = Mock()
+sys.modules["vectorbt"] = Mock()  # type: ignore[assignment]
+sys.modules["polars"] = Mock()  # type: ignore[assignment]
 
 
 class TestStrategyService:
     """Strategy Service tesztek."""
 
     @pytest.fixture
-    def mock_components(self) -> Mock:
+    def mock_components(self) -> MagicMock:
         """Mock CoreComponents."""
-        return Mock()
+        return MagicMock()
 
     @pytest.fixture
-    def mock_logger(self) -> Mock:
+    def mock_logger(self) -> MagicMock:
         """Mock Logger."""
-        return Mock()
+        return MagicMock()
 
     @pytest.fixture
-    def mock_config(self) -> dict:
+    def mock_config(self) -> dict[str, Any]:
         """Mock Config."""
         return {}
 
     @pytest.fixture
     def strategy_service(
-        self, mock_logger: Mock, mock_config: dict, mock_components: Mock
+        self, mock_logger: MagicMock, mock_config: dict[str, Any], mock_components: MagicMock
     ) -> StrategyService:
         """StrategyService példány létrehozása mock komponensekkel."""
         return StrategyService(
             logger=mock_logger, config=mock_config, core_components=mock_components
         )
 
-    def test_init(self, strategy_service: StrategyService, mock_components: Mock) -> None:
+    def test_init(self, strategy_service: StrategyService, mock_components: MagicMock) -> None:
         """StrategyService inicializáció tesztelése."""
         assert strategy_service._core_components == mock_components
         assert "moving_avg_cross" in strategy_service._strategies
@@ -154,10 +155,10 @@ class TestStrategyService:
     async def test_get_candles(self, strategy_service: StrategyService) -> None:
         """OHLCV gyertyák lekérdezésének tesztelése."""
         # Mock ResamplerService és DataFrame
-        mock_candles = Mock()
+        mock_candles = MagicMock()
         mock_candles.empty = False
 
-        mock_resampler = Mock()
+        mock_resampler = MagicMock()
         mock_resampler.resample = AsyncMock(return_value=mock_candles)
 
         with patch(
@@ -182,10 +183,10 @@ class TestStrategyService:
     @pytest.mark.asyncio
     async def test_get_candles_date_format(self, strategy_service: StrategyService) -> None:
         """Dátum formátum konverzió tesztelése."""
-        mock_candles = Mock()
+        mock_candles = MagicMock()
         mock_candles.empty = False
 
-        mock_resampler = Mock()
+        mock_resampler = MagicMock()
         mock_resampler.resample = AsyncMock(return_value=mock_candles)
 
         with patch(
@@ -204,10 +205,10 @@ class TestStrategyService:
         self, strategy_service: StrategyService
     ) -> None:
         """Különböző időkeretek tesztelése."""
-        mock_candles = Mock()
+        mock_candles = MagicMock()
         mock_candles.empty = False
 
-        mock_resampler = Mock()
+        mock_resampler = MagicMock()
         mock_resampler.resample = AsyncMock(return_value=mock_candles)
 
         timeframes = ["1m", "5m", "15m", "1h", "4h", "1d"]
@@ -227,12 +228,10 @@ class TestStrategyService:
         self, strategy_service: StrategyService
     ) -> None:
         """SMA backtest sikerességének tesztelése trades adatokkal."""
-        from unittest.mock import MagicMock
-
         import pandas as pd
 
         # Mock DataFrame OHLC adatokkal
-        df = pd.DataFrame(
+        df: pd.DataFrame = pd.DataFrame(
             {
                 "open": [1.05, 1.06, 1.07],
                 "high": [1.06, 1.07, 1.08],
@@ -348,12 +347,10 @@ class TestStrategyService:
     @pytest.mark.asyncio
     async def test_run_sma_backtest_no_trades(self, strategy_service: StrategyService) -> None:
         """SMA backtest tesztelése trades nélkül."""
-        from unittest.mock import MagicMock
-
         import pandas as pd
 
         # Mock DataFrame OHLC adatokkal
-        df = pd.DataFrame(
+        df: pd.DataFrame = pd.DataFrame(
             {
                 "open": [1.05, 1.06, 1.07],
                 "high": [1.06, 1.07, 1.08],
@@ -372,7 +369,7 @@ class TestStrategyService:
         mock_pf.value.return_value = [10000, 10000, 10000]
 
         # Üres trades DataFrame
-        mock_trades_df = pd.DataFrame()
+        mock_trades_df: pd.DataFrame = pd.DataFrame()
         mock_pf.trades.records_readable = mock_trades_df
 
         # Mock signals
@@ -415,12 +412,10 @@ class TestStrategyService:
         self, strategy_service: StrategyService
     ) -> None:
         """SMA backtest tesztelése hiányzó PnL oszloppal."""
-        from unittest.mock import MagicMock
-
         import pandas as pd
 
         # Mock DataFrame OHLC adatokkal
-        df = pd.DataFrame(
+        df: pd.DataFrame = pd.DataFrame(
             {
                 "open": [1.05, 1.06, 1.07],
                 "high": [1.06, 1.07, 1.08],
@@ -442,7 +437,7 @@ class TestStrategyService:
         mock_pf.value.return_value = [10000, 10200]
 
         # Trades DataFrame PnL nélkül
-        mock_trades_df = pd.DataFrame(
+        mock_trades_df: pd.DataFrame = pd.DataFrame(
             {
                 "Duration": pd.to_timedelta(["00:05:00"]),
                 "Entry Timestamp": pd.to_datetime(["2024-01-01 10:00:00"]),
@@ -491,11 +486,11 @@ class TestStrategyService:
         self, strategy_service: StrategyService
     ) -> None:
         """Piaci struktúra elemzés tesztelése meglévő DataFrame-mel."""
-        from unittest.mock import MagicMock
-
         # Mock Polars DataFrame
         mock_df = MagicMock()
         mock_df.__len__ = Mock(return_value=1)
+        mock_df.is_empty.return_value = False
+        mock_df.empty = False
         mock_processed_df = MagicMock()
 
         # Mock processor
@@ -542,11 +537,11 @@ class TestStrategyService:
         self, strategy_service: StrategyService
     ) -> None:
         """Piaci struktúra elemzés tesztelése DataFrame betöltéssel."""
-        from unittest.mock import MagicMock
-
         # Mock Polars DataFrame-ok
         mock_candles_df = MagicMock()
         mock_candles_df.__len__ = Mock(return_value=1)
+        mock_candles_df.is_empty.return_value = False
+        mock_candles_df.empty = False
         mock_processed_df = MagicMock()
 
         # Mock processor
@@ -619,6 +614,7 @@ class TestStrategyService:
         # Mock üres DataFrame
         mock_df = MagicMock()
         mock_df.__len__ = Mock(return_value=0)
+        mock_df.is_empty = Mock(return_value=True)
 
         with pytest.raises(ValueError, match="Nincs elérhető adat"):
             await strategy_service.analyze_market_structure(
@@ -638,6 +634,8 @@ class TestStrategyService:
 
         mock_df = MagicMock()
         mock_df.__len__ = Mock(return_value=1)
+        mock_df.is_empty.return_value = False
+        mock_df.empty = False
 
         with pytest.raises(RuntimeError, match="Config vagy Logger komponens nem elérhető"):
             await strategy_service.analyze_market_structure(

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
 if TYPE_CHECKING:
+    import pandas as pd
     import polars as pl
 
     from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -295,7 +296,7 @@ class StrategyService(StrategyServiceInterface):
         fast_period: int,
         slow_period: int,
         initial_capital: float = 10000.0,
-        df=None,
+        df: "pd.DataFrame | None" = None,
     ) -> dict[str, Any]:
         """SMA kereszt stratégia backtesztelése VectorBT-vel.
 
@@ -318,7 +319,11 @@ class StrategyService(StrategyServiceInterface):
         if df is None:
             df = await self.get_candles(symbol, date, timeframe)
 
-        if df is None or len(df) == 0:
+        if (
+            df is None
+            or (hasattr(df, "is_empty") and df.is_empty())
+            or (hasattr(df, "empty") and df.empty)
+        ):
             return {
                 "error": "Nincs elérhető adat a megadott paraméterekhez.",
                 "stats": {},
@@ -332,9 +337,10 @@ class StrategyService(StrategyServiceInterface):
 
         try:
             import pandas as pd
-            import vectorbt as vbt
+            import vectorbt as vbt  # type: ignore
 
             # DataFrame konvertálása Pandas-ra VectorBT-hez (ha szükséges)
+            df_pd: pd.DataFrame
             if hasattr(df, "to_pandas"):
                 df_pd = df.to_pandas()
             else:
@@ -381,15 +387,15 @@ class StrategyService(StrategyServiceInterface):
                     df_pd.index = pd.to_datetime(df_pd.index)
 
             # 2. VBT Logika - SMA indikátorok számolása short_name paraméterekkel
-            fast_ma = vbt.MA.run(df_pd["close"], fast_period, short_name="fast")
-            slow_ma = vbt.MA.run(df_pd["close"], slow_period, short_name="slow")
+            fast_ma = vbt.MA.run(df_pd["close"], fast_period, short_name="fast")  # type: ignore
+            slow_ma = vbt.MA.run(df_pd["close"], slow_period, short_name="slow")  # type: ignore
 
             # 3. Jelek generálása
             entries = fast_ma.ma_crossed_above(slow_ma)
             exits = fast_ma.ma_crossed_below(slow_ma)
 
             # 4. Portfólió futtatása freq paraméterrel az időköz egyértelműségért
-            pf = vbt.Portfolio.from_signals(
+            pf = vbt.Portfolio.from_signals(  # type: ignore
                 df_pd["close"],
                 entries,
                 exits,
@@ -500,7 +506,11 @@ class StrategyService(StrategyServiceInterface):
         if df is None:
             df = await self.get_candles(symbol, date, timeframe)
 
-        if df is None or len(df) == 0:
+        if (
+            df is None
+            or (hasattr(df, "is_empty") and df.is_empty())
+            or (hasattr(df, "empty") and df.empty)
+        ):
             raise ValueError(
                 f"Nincs elérhető adat a megadott paraméterekhez: {symbol}, {date}, {timeframe}"
             )
