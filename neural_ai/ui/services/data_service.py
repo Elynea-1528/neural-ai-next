@@ -377,6 +377,7 @@ class DataService(DataServiceInterface):
                     if expected_path.exists() and expected_path.stat().st_size > 1000:
                         print(f"⏭️ SKIPPING {target_time} - Adat már létezik")
                         day_ticks += 3500
+                        day_successful_hours += 1
                         continue
 
                     try:

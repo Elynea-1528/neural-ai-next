@@ -5,6 +5,7 @@ Ez a modul a DataService osztály tesztjeit tartalmazza.
 
 import unittest
 from datetime import UTC, datetime
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, Mock, PropertyMock, patch
 
 import pandas as pd
@@ -12,7 +13,7 @@ import pandas as pd
 from neural_ai.ui.services.data_service import DataService
 
 
-class TestDataService(unittest.TestCase):
+class TestDataService(unittest.IsolatedAsyncioTestCase):
     """DataService osztály tesztjei."""
 
     def setUp(self) -> None:
@@ -66,7 +67,7 @@ class TestDataService(unittest.TestCase):
 
     def test_apply_filters(self) -> None:
         """Teszteli a szűrők alkalmazását."""
-        data = [
+        data: list[dict[str, Any]] = [
             {"symbol": "EURUSD", "price": 1.08},
             {"symbol": "GBPUSD", "price": 1.28},
             {"symbol": "EURUSD", "price": 1.09},
@@ -78,7 +79,7 @@ class TestDataService(unittest.TestCase):
 
     def test_apply_filters_range(self) -> None:
         """Teszteli a tartomány szűrést."""
-        data = [
+        data: list[dict[str, Any]] = [
             {"price": 1.08},
             {"price": 1.15},
             {"price": 1.20},
@@ -90,13 +91,13 @@ class TestDataService(unittest.TestCase):
 
     def test_export_data(self) -> None:
         """Teszteli az adatok exportálását."""
-        data = [{"symbol": "EURUSD", "price": 1.08}]
+        data: list[dict[str, Any]] = [{"symbol": "EURUSD", "price": 1.08}]
         result = self.data_service.export_data(data, "csv", "/tmp/test.csv")
         self.assertTrue(result)
 
     def test_export_data_invalid_format(self) -> None:
         """Teszteli a hibakezelést érvénytelen formátum esetén."""
-        data = [{"symbol": "EURUSD", "price": 1.08}]
+        data: list[dict[str, Any]] = [{"symbol": "EURUSD", "price": 1.08}]
         with self.assertRaises(ValueError):
             self.data_service.export_data(data, "invalid", "/tmp/test.invalid")
 
@@ -110,7 +111,8 @@ class TestDataService(unittest.TestCase):
         """Teszteli az elérhető adatok listázását (csak tick_data)."""
         from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
-        mock_storage = Mock(spec=StorageInterface)
+        # Olyan mock kell, ami StorageInterface példány is, de van get_storage_stats metódusa
+        mock_storage = MagicMock(spec=StorageInterface)
         mock_storage.get_storage_stats = Mock(
             return_value={
                 "total_files": 10,
@@ -139,7 +141,7 @@ class TestDataService(unittest.TestCase):
         """Teszteli az elérhető adatok listázását egyedi szimbólummal."""
         from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
-        mock_storage = Mock(spec=StorageInterface)
+        mock_storage = MagicMock(spec=StorageInterface)
         mock_storage.get_storage_stats = Mock(
             return_value={
                 "total_files": 5,
@@ -166,7 +168,7 @@ class TestDataService(unittest.TestCase):
         """Teszteli az elérhető adatok listázását, ha nincs fájl."""
         from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
-        mock_storage = Mock(spec=StorageInterface)
+        mock_storage = MagicMock(spec=StorageInterface)
         mock_storage.get_storage_stats = Mock(
             return_value={
                 "total_files": 0,
@@ -250,7 +252,7 @@ class TestDataService(unittest.TestCase):
     def test_get_configured_symbols_with_no_config(self) -> None:
         """Teszteli a konfigurált szimbólumok lekérdezését, ha nincs konfig."""
         # Mock a service-t None konfiggal
-        self.data_service._config = None
+        self.data_service._config = None  # type: ignore[reportPrivateUsage]
 
         symbols = self.data_service.get_configured_symbols()
 
@@ -267,7 +269,7 @@ class TestDataService(unittest.TestCase):
 
     def test_generate_mock_data(self) -> None:
         """Teszteli a mock adatok generálását."""
-        data = self.data_service._generate_mock_data("tick_data")
+        data: list[dict[str, Any]] = self.data_service._generate_mock_data("tick_data")  # type: ignore[reportPrivateUsage]
         self.assertIsInstance(data, list)
         self.assertEqual(len(data), 1000)
         self.assertIn("timestamp", data[0])
@@ -277,7 +279,7 @@ class TestDataService(unittest.TestCase):
     def test_generate_mock_data_with_filters(self) -> None:
         """Teszteli a mock adatok generálását szűrőkkel."""
         filters = {"symbol": "EURUSD"}
-        data = self.data_service._generate_mock_data("tick_data", filters)
+        data: list[dict[str, Any]] = self.data_service._generate_mock_data("tick_data", filters)  # type: ignore[reportPrivateUsage]
         self.assertIsInstance(data, list)
         if data:  # Ha van szűrt adat
             self.assertEqual(data[0]["symbol"], "EURUSD")
@@ -287,47 +289,68 @@ class TestDataService(unittest.TestCase):
     @patch("builtins.print")
     @patch("asyncio.sleep", return_value=None)
     async def test_download_history_with_existing_data_skip(
-        self, mock_print: MagicMock, mock_stat: MagicMock, mock_exists: MagicMock
+        self,
+        mock_sleep: MagicMock,
+        mock_print: MagicMock,
+        mock_stat: MagicMock,
+        mock_exists: MagicMock,
     ) -> None:
         """Teszteli a download_history metódust, amikor az adat már létezik és skip-eli."""
         # Mock stat return value
         mock_stat.return_value.st_size = 2000  # > 1000, tehát skip
 
         # Mock bridge és komponensek
-        mock_downloader = AsyncMock()
-        mock_storage = AsyncMock()
-        self.mock_components.get_component.side_effect = lambda name: {
-            "bi5_downloader": mock_downloader,
-            "parquet_storage": mock_storage,
-        }.get(name)
+        from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
+
+        mock_downloader = MagicMock(spec=IJForexDownloader)
+        mock_downloader.download_tick_data = AsyncMock()
+
+        mock_storage = MagicMock(spec=StorageInterface)
+        mock_storage.store_tick_data = AsyncMock()
+
+        def get_component_side_effect(name: str) -> Any:
+            return {
+                "bi5_downloader": mock_downloader,
+                "parquet_storage": mock_storage,
+            }.get(name)
+
+        self.mock_components.get_component.side_effect = get_component_side_effect
 
         # Mock get_storage_path
-        with patch.object(self.data_service, "get_storage_path", return_value=Mock()):
+        from pathlib import Path
+
+        with patch.object(self.data_service, "get_storage_path", return_value=Path("/tmp")):
             start = datetime(2023, 1, 1, tzinfo=UTC)
             end = datetime(2023, 1, 1, tzinfo=UTC)
 
             result = await self.data_service.download_history("EURUSD", start, end)
 
             # Ellenőrizzük, hogy skip-elt
-            mock_print.assert_called_with("⏭️ SKIPPING 2023-01-01 00:00:00+00:00 - Adat már létezik")
+            mock_print.assert_any_call("⏭️ SKIPPING 2023-01-01 00:00:00+00:00 - Adat már létezik")
             # downloader.download_tick_data nem hívódott meg
             mock_downloader.download_tick_data.assert_not_called()
-            # day_ticks hozzáadva
+            # Ellenőrizzük az eredményt
             self.assertIn("records", result)
-            self.assertIn(
-                "day_ticks", str(result)
-            )  # Bonyolultabb lenne mock-olni, de alapvetően jó
+            self.assertEqual(result["status"], "downloaded")
 
     @patch("pathlib.Path.exists", return_value=False)
     @patch("builtins.print")
     @patch("asyncio.sleep", return_value=None)
     async def test_download_history_with_new_data_download(
-        self, mock_print: MagicMock, mock_exists: MagicMock
+        self, mock_sleep: MagicMock, mock_print: MagicMock, mock_exists: MagicMock
     ) -> None:
         """Teszteli a download_history metódust, amikor új adat letöltésre kerül."""
         # Mock bridge és komponensek
-        mock_downloader = AsyncMock()
-        mock_storage = AsyncMock()
+        from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
+
+        mock_downloader = MagicMock(spec=IJForexDownloader)
+        mock_downloader.download_tick_data = AsyncMock()
+
+        mock_storage = MagicMock(spec=StorageInterface)
+        mock_storage.store_tick_data = AsyncMock()
+
         mock_tick = Mock()
         mock_tick.timestamp = datetime.now(UTC)
         mock_tick.bid = 1.0850
@@ -336,13 +359,18 @@ class TestDataService(unittest.TestCase):
         mock_tick.bid_volume = 50.0
         mock_tick.source = "test"
         mock_downloader.download_tick_data.return_value = [mock_tick]
-        self.mock_components.get_component.side_effect = lambda name: {
-            "bi5_downloader": mock_downloader,
-            "parquet_storage": mock_storage,
-        }.get(name)
+        def get_component_side_effect(name: str) -> Any:
+            return {
+                "bi5_downloader": mock_downloader,
+                "parquet_storage": mock_storage,
+            }.get(name)
+
+        self.mock_components.get_component.side_effect = get_component_side_effect
 
         # Mock get_storage_path
-        with patch.object(self.data_service, "get_storage_path", return_value=Mock()):
+        from pathlib import Path
+
+        with patch.object(self.data_service, "get_storage_path", return_value=Path("/tmp")):
             start = datetime(2023, 1, 1, tzinfo=UTC)
             end = datetime(2023, 1, 1, tzinfo=UTC)
 
@@ -358,22 +386,23 @@ class TestDataService(unittest.TestCase):
             call_args = mock_storage.store_tick_data.call_args
             df = call_args[1]["data"]  # keyword argument 'data'
 
-            # Csak a 5 forrásoszlop legyen jelen: timestamp, bid, ask, ask_volume, bid_volume
-            expected_columns = ["timestamp", "bid", "ask", "ask_volume", "bid_volume"]
+            # Csak a 6 forrásoszlop legyen jelen:
+            # timestamp, bid, ask, ask_volume, bid_volume, source
+            expected_columns = ["timestamp", "bid", "ask", "ask_volume", "bid_volume", "source"]
             self.assertEqual(list(df.columns), expected_columns)
 
             # Ellenőrizzük, hogy a 'volume' oszlop NINCS jelen
             self.assertNotIn("volume", df.columns)
 
-            # Ellenőrizzük, hogy a 'source' oszlop NINCS jelen (csak a tick_dicts-ben használt)
-            self.assertNotIn("source", df.columns)
+            # Ellenőrizzük, hogy a 'source' oszlop jelen van
+            self.assertIn("source", df.columns)
 
-            # Ellenőrizzük az adatokat
+            # Ellenőrizzük az adatokat (Polars DataFrame)
             self.assertEqual(len(df), 1)
-            self.assertEqual(df["bid"].iloc[0], 1.0850)
-            self.assertEqual(df["ask"].iloc[0], 1.0852)
-            self.assertEqual(df["ask_volume"].iloc[0], 100.0)
-            self.assertEqual(df["bid_volume"].iloc[0], 50.0)
+            self.assertEqual(df["bid"][0], 1.0850)
+            self.assertEqual(df["ask"][0], 1.0852)
+            self.assertEqual(df["ask_volume"][0], 100.0)
+            self.assertEqual(df["bid_volume"][0], 50.0)
 
 
 if __name__ == "__main__":
