@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT - TASK TREE v3.0 (DEEP AUDIT)
 
-**Generálva:** 2026-02-15 07:15:25 UTC
+**Generálva:** 2026-02-15 07:27:19 UTC
 **Módszer:** AST Statikus Analízis
 **Fájlok száma:** 99 elemezve
 
@@ -8,10 +8,10 @@
 
 ## 📊 ÖSSZESÍTŐ STATISZTIKA
 
-- **✅ SECURE**: 34 fájl (34.3%)
+- **✅ SECURE**: 36 fájl (36.4%)
 - **🟡 WARNING**: 14 fájl (14.1%)
-- **🔴 VULNERABLE**: 51 fájl (51.5%)
-- **Teszt lefedettség**: 51/99 fájl (51.5%)
+- **🔴 VULNERABLE**: 49 fájl (49.5%)
+- **Teszt lefedettség**: 53/99 fájl (53.5%)
 
 ---
 
@@ -29,8 +29,8 @@
 | `core/base/implementations/singleton.py` | ✅ SECURE | ✅ FOUND | 10 | ⚪ N/A | ⚪ N/A | N/A | - |
 | `core/base/interfaces/component_interface.py` | ✅ SECURE | ✅ FOUND | 13 | ⚪ N/A | ⚪ N/A | N/A | - |
 | `core/base/interfaces/container_interface.py` | ✅ SECURE | ✅ FOUND | 20 | ⚪ N/A | ⚪ N/A | N/A | - |
-| `core/config/exceptions/config_error.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
-| `core/config/factory.py` | 🔴 VULNERABLE | ❌ MISSING | 0 | ⚪ N/A | ⚪ N/A | N/A | **KRITIKUS: Teszt írás!** |
+| `core/config/exceptions/config_error.py` | ✅ SECURE | ✅ FOUND | 15 | ⚪ N/A | ⚪ N/A | N/A | - |
+| `core/config/factory.py` | ✅ SECURE | ✅ FOUND | 25 | ⚪ N/A | ⚪ N/A | N/A | - |
 | `core/config/implementations/dynamic_config_manager.py` | 🟡 WARNING | ✅ FOUND | 13 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
 | `core/config/implementations/yaml_config_manager.py` | 🟡 WARNING | ✅ FOUND | 65 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
 | `core/config/interfaces/async_config_interface.py` | 🟡 WARNING | ✅ FOUND | 11 | ⚪ N/A | ⚠️ UNUSED | N/A | - |
