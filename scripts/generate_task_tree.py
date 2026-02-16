@@ -168,12 +168,20 @@ class MirrorChecker:
         Ha a test_X.py nem létezik, megpróbálja a test_X_integration.py-t is.
         Ha implementations/interfaces/exceptions mappában van, a szülő mappában is keres.
         """
-        # neural_ai/processors/dimensions/d01_price/processor.py
-        # → tests/processors/dimensions/d01_price/test_processor.py
-
         parts = source_path.parts
+        
+        # Ha már tests/ mappában van, nincs mirror test
+        if parts[0] == "tests":
+            return source_path  # Önmaga
+        
+        # Ha scripts/ vagy docs/ mappában van, nincs mirror test
+        if parts[0] in ["scripts", "docs"]:
+            return Path("tests") / source_path  # Nem létező útvonal
+        
+        # neural_ai/ esetén
         if parts[0] != "neural_ai":
-            raise ValueError(f"Nem neural_ai/-ból származó fájl: {source_path}")
+            # Egyéb mappák esetén nincs mirror test
+            return Path("tests") / source_path
 
         # Eltávolítjuk a "neural_ai/" prefix-et
         relative_parts = parts[1:]  # processors/dimensions/d01_price/processor.py
@@ -298,6 +306,9 @@ class MarkdownGenerator:
         "data": ("3", "Persistence", "neural_ai/data/"),
         "processors": ("4", "Domain", "neural_ai/processors/"),
         "ui": ("5", "Presentation", "neural_ai/ui/"),
+        "tests": ("6", "Tests", "tests/"),
+        "scripts": ("7", "Scripts", "scripts/"),
+        "docs": ("8", "Documentation", "docs/"),
     }
 
     def __init__(self, analyses: list[FileAnalysis]) -> None:
@@ -311,9 +322,16 @@ class MarkdownGenerator:
 
         for analysis in self.analyses:
             parts = Path(analysis.relative_path).parts
-            # parts[0] = "neural_ai", parts[1] = "core/collectors/data/processors/ui"
-            if len(parts) > 1 and parts[1] in self.LAYER_MAPPING:
-                grouped[parts[1]].append(analysis)
+            # Első rész alapján csoportosítunk (neural_ai, tests, scripts, docs)
+            if len(parts) > 0:
+                first_part = parts[0]
+                if first_part == "neural_ai" and len(parts) > 1:
+                    # neural_ai esetén a második rész a layer (core, collectors, stb.)
+                    if parts[1] in self.LAYER_MAPPING:
+                        grouped[parts[1]].append(analysis)
+                elif first_part in self.LAYER_MAPPING:
+                    # tests, scripts, docs esetén az első rész a layer
+                    grouped[first_part].append(analysis)
 
         return grouped
 
@@ -324,7 +342,6 @@ class MarkdownGenerator:
             "secure": 0,
             "warning": 0,
             "vulnerable": 0,
-            "tested": 0,
         }
 
         for analysis in self.analyses:
@@ -335,125 +352,70 @@ class MarkdownGenerator:
             elif analysis.overall_status == "🔴 VULNERABLE":
                 stats["vulnerable"] += 1
 
-            if analysis.test_file_exists:
-                stats["tested"] += 1
-
         return stats
 
     def _create_table(self, layer: str, files: list[FileAnalysis]) -> str:
-        """Létrehoz egy táblázatot egy réteghez."""
+        """Létrehoz egy Markdown táblázatot egy réteghez."""
         if not files:
             return ""
 
         num, name, path = self.LAYER_MAPPING[layer]
 
-        lines = [
-            f"### {num}. {name} Layer (`{path}`)",
-            "",
-            (
-                "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | "
-                "Cov (Stmt/Brch) | Lint/Type | Config | Logger | Teendők |"
-            ),
-            (
-                "|--------------|---------|-----------|-------------------|"
-                "-----------------|-----------|--------|--------|---------|"
-            ),
-        ]
+        table = f"\n## {num}. {name} Layer (`{path}`)\n\n"
+        table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Config | Logger | Teendők |\n"
+        table += "|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:-------|:-------|:--------|\n"
 
         for file in sorted(files, key=lambda x: x.relative_path):
-            # Rövidített fájl név
             short_path = file.relative_path.replace("neural_ai/", "")
+
+            # Teszt pár
             test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
-            
-            # Teszt eredmények formázás (Pass/Fail/Err/Warn) - MINDIG 4 részes
+
+            # Teszt eredmények
             if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0):
-                # Pass
-                passed_str = f"**{file.test_passed}**" if file.test_passed > 0 else "0"
-                # Fail
-                failed_str = f"**{file.test_failed}**" if file.test_failed > 0 else "0"
-                # Error
-                error_str = f"**{file.test_errors}**" if file.test_errors > 0 else "0"
-                # Warn
-                warn_str = f"**{file.test_warnings}**" if file.test_warnings > 0 else "0"
-                
-                test_status = f"{passed_str}/{failed_str}/{error_str}/{warn_str}"
+                test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_warnings}"
             else:
-                test_status = "-"
-            
-            # Coverage formázás
-            cov_stmt = f"**{file.coverage_stmt:.0f}%**" if file.coverage_stmt < 80 else f"{file.coverage_stmt:.0f}%"
-            cov_brch = f"{file.coverage_branch:.0f}%"
-            coverage = f"{cov_stmt} / {cov_brch}" if file.coverage_stmt > 0 else "N/A"
-            
-            # Lint/Type formázás
-            lint = f"**{file.lint_errors}**" if file.lint_errors > 0 else "0"
-            type_err = f"**{file.type_errors}**" if file.type_errors > 0 else "0"
-            lint_type = f"{lint} / {type_err}"
+                test_results = "-"
 
-            row = (
-                f"| `{short_path}` "
-                f"| {file.overall_status} "
-                f"| {test_pair} "
-                f"| {test_status} "
-                f"| {coverage} "
-                f"| {lint_type} "
-                f"| {file.config_status} "
-                f"| {file.logger_status} "
-                f"| {file.notes} |"
-            )
-            lines.append(row)
+            # Coverage
+            if file.coverage_stmt > 0:
+                coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
+            else:
+                coverage = "N/A"
 
-        lines.append("")
-        return "\n".join(lines)
+            # Lint/Mypy/Pylance
+            lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
+
+            table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {file.config_status} | {file.logger_status} | {file.notes if file.notes else '-'} |\n"
+
+        return table
 
     def generate(self) -> str:
-        """Generálja a teljes TASK_TREE.md tartalmat."""
+        """Generálja a teljes Markdown tartalmat."""
         stats = self.calculate_statistics()
         now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-        lines = [
-            "# 🌳 NEURAL AI NEXT - TASK TREE v4.0 (ULTIMATE AUDIT)",
-            "",
-            f"**Generálva:** {now}",
-            "**Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy)",
-            f"**Fájlok száma:** {stats['total']} elemezve",
-            "",
-            "---",
-            "",
-            "## 📊 ÖSSZESÍTŐ STATISZTIKA",
-            "",
-            (
-                f"- **✅ SECURE**: {stats['secure']} fájl "
-                f"({stats['secure'] / stats['total'] * 100:.1f}%)"
-            ),
-            (
-                f"- **🟡 WARNING**: {stats['warning']} fájl "
-                f"({stats['warning'] / stats['total'] * 100:.1f}%)"
-            ),
-            (
-                f"- **🔴 VULNERABLE**: {stats['vulnerable']} fájl "
-                f"({stats['vulnerable'] / stats['total'] * 100:.1f}%)"
-            ),
-            (
-                f"- **Teszt lefedettség**: {stats['tested']}/{stats['total']} fájl "
-                f"({stats['tested'] / stats['total'] * 100:.1f}%)"
-            ),
-            "",
-            "---",
-            "",
-            "## 📂 RÉSZLETES AUDIT EREDMÉNYEK (DDD RÉTEGEK)",
-            "",
-        ]
+        content = f"""# 🌳 NEURAL AI NEXT - TASK TREE
 
-        # Rétegek sorrendben
-        for layer in ["core", "collectors", "data", "processors", "ui"]:
+**Generálva:** {now}
+**Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
+**Fájlok száma:** {stats['total']}
+
+## 📊 Statisztika
+
+- ✅ **SECURE:** {stats['secure']} ({stats['secure'] / stats['total'] * 100:.1f}%)
+- 🟡 **WARNING:** {stats['warning']} ({stats['warning'] / stats['total'] * 100:.1f}%)
+- 🔴 **VULNERABLE:** {stats['vulnerable']} ({stats['vulnerable'] / stats['total'] * 100:.1f}%)
+
+---
+"""
+
+        # Rétegek
+        for layer in ["core", "collectors", "data", "processors", "ui", "tests", "scripts", "docs"]:
             if layer in self.grouped and self.grouped[layer]:
-                table = self._create_table(layer, self.grouped[layer])
-                lines.append(table)
-                lines.append("---")
-                lines.append("")
+                content += self._create_table(layer, self.grouped[layer])
 
-        return "\n".join(lines)
+        return content
 
 
 class HTMLGenerator:
@@ -465,6 +427,9 @@ class HTMLGenerator:
         "data": ("3", "Persistence", "neural_ai/data/"),
         "processors": ("4", "Domain", "neural_ai/processors/"),
         "ui": ("5", "Presentation", "neural_ai/ui/"),
+        "tests": ("6", "Tests", "tests/"),
+        "scripts": ("7", "Scripts", "scripts/"),
+        "docs": ("8", "Documentation", "docs/"),
     }
 
     def __init__(self, analyses: list[FileAnalysis]) -> None:
@@ -478,8 +443,16 @@ class HTMLGenerator:
 
         for analysis in self.analyses:
             parts = Path(analysis.relative_path).parts
-            if len(parts) > 1 and parts[1] in self.LAYER_MAPPING:
-                grouped[parts[1]].append(analysis)
+            # Első rész alapján csoportosítunk (neural_ai, tests, scripts, docs)
+            if len(parts) > 0:
+                first_part = parts[0]
+                if first_part == "neural_ai" and len(parts) > 1:
+                    # neural_ai esetén a második rész a layer (core, collectors, stb.)
+                    if parts[1] in self.LAYER_MAPPING:
+                        grouped[parts[1]].append(analysis)
+                elif first_part in self.LAYER_MAPPING:
+                    # tests, scripts, docs esetén az első rész a layer
+                    grouped[first_part].append(analysis)
 
         return grouped
 
@@ -849,7 +822,7 @@ class HTMLGenerator:
 """
 
         # Rétegek
-        for layer in ["core", "collectors", "data", "processors", "ui"]:
+        for layer in ["core", "collectors", "data", "processors", "ui", "tests", "scripts", "docs"]:
             if layer in self.grouped and self.grouped[layer]:
                 html += self._create_html_table(layer, self.grouped[layer])
 
@@ -890,7 +863,10 @@ class HTMLGenerator:
             "collectors": "📡",
             "data": "💾",
             "processors": "🧠",
-            "ui": "🎨"
+            "ui": "🎨",
+            "tests": "🧪",
+            "scripts": "📜",
+            "docs": "📚",
         }
         icon = layer_icons.get(layer, "📦")
 
@@ -992,6 +968,13 @@ class TaskTreeGenerator:
         self.output_file = Path(output_file)
         self.ignored_dirs = {"__pycache__", ".pytest_cache", ".ruff_cache"}
         self.ignored_files = {"__init__.py"}
+        # Szkennelendő mappák
+        self.scan_dirs = [
+            Path("neural_ai"),
+            Path("tests"),
+            Path("scripts"),
+            Path("docs"),
+        ]
         self.coverage_data = {}
         self.ruff_data = []
         self.mypy_data = []
@@ -1220,16 +1203,24 @@ class TaskTreeGenerator:
         return metrics
 
     def scan_codebase(self) -> list[Path]:
-        """Rekurzívan bejárja a neural_ai/ mappát."""
+        """Rekurzívan bejárja a neural_ai/, tests/, scripts/, docs/ mappákat."""
         python_files: list[Path] = []
 
-        for root, dirs, files in os.walk(self.source_dir):
-            # Kihagyott könyvtárak szűrése
-            dirs[:] = [d for d in dirs if d not in self.ignored_dirs]
+        for scan_dir in self.scan_dirs:
+            if not scan_dir.exists():
+                continue
+                
+            for root, dirs, files in os.walk(scan_dir):
+                # Kihagyott könyvtárak szűrése
+                dirs[:] = [d for d in dirs if d not in self.ignored_dirs]
 
-            for file in files:
-                if file.endswith(".py") and file not in self.ignored_files:
-                    python_files.append(Path(root) / file)
+                for file in files:
+                    # Python fájlok és Markdown fájlok (docs mappában)
+                    if file.endswith(".py") and file not in self.ignored_files:
+                        python_files.append(Path(root) / file)
+                    elif file.endswith(".md") and "docs" in str(root):
+                        # Markdown fájlokat is hozzáadjuk a docs mappából
+                        python_files.append(Path(root) / file)
 
         return python_files
 
