@@ -1,16 +1,41 @@
 #!/usr/bin/env python3
-"""TASK_TREE v3.0 Deep Auditor - AST-alapú kódminőség audit.
+"""TASK_TREE v4.0 Ultimate Auditor - Hibrid Kódminőség Ellenőrző.
 
-Ez a script rekurzívan bejárja a neural_ai/ mappát, AST analízissel feltérképezi
-a kódbázist és generálja a docs/development/TASK_TREE.md dashboardot.
+Ez a script statikus (AST) és dinamikus (Pytest, Coverage, Ruff, Mypy)
+elemzéssel térképezi fel a kódbázist, és generálja a docs/development/TASK_TREE.md
+dashboardot.
+
+Funkciók:
+- AST: Config típus, Logger DI, Mirror Test ellenőrzés
+- Pytest: Teszt eredmények (Pass/Fail/Warn)
+- Coverage: Utasítás és elágazás lefedettség
+- Ruff: Linter hibák száma
+- Mypy: Típus hibák száma
 """
 
 import ast
+import json
 import os
+import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
+
+# --- KONSTANSOK ---
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CONDA_ENV_BIN = Path("/home/elynea/miniconda3/envs/neural-ai-next/bin")
+PYTEST_BIN = CONDA_ENV_BIN / "pytest"
+COVERAGE_BIN = CONDA_ENV_BIN / "coverage"
+RUFF_BIN = CONDA_ENV_BIN / "ruff"
+MYPY_BIN = CONDA_ENV_BIN / "mypy"
+
+# Riport fájlok
+REPORT_DIR = PROJECT_ROOT / "reports"
+COVERAGE_FILE = REPORT_DIR / "coverage.json"
+RUFF_FILE = REPORT_DIR / "ruff.json"
+MYPY_FILE = REPORT_DIR / "mypy.json"
 
 
 @dataclass
@@ -26,6 +51,11 @@ class FileAnalysis:
     logger_status: Literal["✅ OK", "⚠️ UNUSED", "🔴 MISSING", "⚪ N/A"]
     overall_status: Literal["✅ SECURE", "🟡 WARNING", "🔴 VULNERABLE"]
     notes: str
+    # Dinamikus metrikák
+    coverage_stmt: float = 0.0
+    coverage_branch: float = 0.0
+    lint_errors: int = 0
+    type_errors: int = 0
 
 
 class ASTAnalyzer:
@@ -302,12 +332,12 @@ class MarkdownGenerator:
             f"### {num}. {name} Layer (`{path}`)",
             "",
             (
-                "| Modul / Fájl | Státusz | Teszt Pár | Tesztek Száma | "
-                "Config (Pydantic) | Logger (DI) | Coverage | Teendők / Megjegyzés |"
+                "| Modul / Fájl | Státusz | Teszt Pár | Tesztek | "
+                "Cov (Stmt/Brch) | Lint/Type | Config | Logger | Teendők |"
             ),
             (
-                "|--------------|---------|-----------|---------------|"
-                "-------------------|-------------|----------|----------------------|"
+                "|--------------|---------|-----------|---------|"
+                "-----------------|-----------|--------|--------|---------|"
             ),
         ]
 
@@ -315,15 +345,26 @@ class MarkdownGenerator:
             # Rövidített fájl név
             short_path = file.relative_path.replace("neural_ai/", "")
             test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
+            
+            # Coverage formázás
+            cov_stmt = f"**{file.coverage_stmt:.0f}%**" if file.coverage_stmt < 80 else f"{file.coverage_stmt:.0f}%"
+            cov_brch = f"{file.coverage_branch:.0f}%"
+            coverage = f"{cov_stmt} / {cov_brch}" if file.coverage_stmt > 0 else "N/A"
+            
+            # Lint/Type formázás
+            lint = f"**{file.lint_errors}**" if file.lint_errors > 0 else "0"
+            type_err = f"**{file.type_errors}**" if file.type_errors > 0 else "0"
+            lint_type = f"{lint} / {type_err}"
 
             row = (
                 f"| `{short_path}` "
                 f"| {file.overall_status} "
                 f"| {test_pair} "
                 f"| {file.test_count} "
+                f"| {coverage} "
+                f"| {lint_type} "
                 f"| {file.config_status} "
                 f"| {file.logger_status} "
-                f"| N/A "
                 f"| {file.notes} |"
             )
             lines.append(row)
@@ -337,10 +378,10 @@ class MarkdownGenerator:
         now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
 
         lines = [
-            "# 🌳 NEURAL AI NEXT - TASK TREE v3.0 (DEEP AUDIT)",
+            "# 🌳 NEURAL AI NEXT - TASK TREE v4.0 (ULTIMATE AUDIT)",
             "",
             f"**Generálva:** {now}",
-            "**Módszer:** AST Statikus Analízis",
+            "**Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy)",
             f"**Fájlok száma:** {stats['total']} elemezve",
             "",
             "---",
@@ -394,6 +435,112 @@ class TaskTreeGenerator:
         self.output_file = Path(output_file)
         self.ignored_dirs = {"__pycache__", ".pytest_cache", ".ruff_cache"}
         self.ignored_files = {"__init__.py"}
+        self.coverage_data = {}
+        self.ruff_data = []
+        self.mypy_data = []
+
+    def run_dynamic_tools(self) -> None:
+        """Futtatja a dinamikus ellenőrző eszközöket."""
+        REPORT_DIR.mkdir(parents=True, exist_ok=True)
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(PROJECT_ROOT)
+
+        print("\n🚀 Dinamikus eszközök futtatása...")
+
+        # 1. Coverage + Pytest
+        print("  📊 Coverage + Pytest...")
+        try:
+            cmd = [
+                str(COVERAGE_BIN), "run", "--branch", "--source=neural_ai",
+                "-m", "pytest", "-q", "--tb=no", "tests/"
+            ]
+            subprocess.run(cmd, check=False, env=env, capture_output=True)
+            
+            cmd_json = [str(COVERAGE_BIN), "json", "-o", str(COVERAGE_FILE)]
+            subprocess.run(cmd_json, check=False, env=env)
+            
+            if COVERAGE_FILE.exists():
+                with open(COVERAGE_FILE) as f:
+                    cov_json = json.load(f)
+                    self.coverage_data = cov_json.get("files", {})
+        except Exception as e:
+            print(f"    ⚠️ Hiba: {e}")
+
+        # 2. Ruff
+        print("  🔍 Ruff linter...")
+        try:
+            with open(RUFF_FILE, "w") as f:
+                cmd = [str(RUFF_BIN), "check", "neural_ai", "--output-format=json"]
+                subprocess.run(cmd, stdout=f, check=False, env=env)
+            
+            if RUFF_FILE.exists():
+                with open(RUFF_FILE) as f:
+                    self.ruff_data = json.load(f)
+        except Exception as e:
+            print(f"    ⚠️ Hiba: {e}")
+
+        # 3. Mypy
+        print("  🔬 Mypy type checker...")
+        try:
+            cmd = [str(MYPY_BIN), "neural_ai", "--no-error-summary"]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env)
+            
+            mypy_errors = []
+            for line in result.stdout.strip().split("\n"):
+                if line.strip() and ": error:" in line:
+                    parts = line.split(":", 3)
+                    if len(parts) >= 4:
+                        mypy_errors.append({
+                            "file": parts[0].strip(),
+                            "line": parts[1].strip(),
+                            "severity": "error",
+                            "message": parts[3].strip()
+                        })
+            
+            with open(MYPY_FILE, "w") as f:
+                json.dump(mypy_errors, f, indent=2)
+            
+            self.mypy_data = mypy_errors
+        except Exception as e:
+            print(f"    ⚠️ Hiba: {e}")
+
+    def get_dynamic_metrics(self, file_path: Path) -> dict:
+        """Visszaadja a dinamikus metrikákat egy fájlhoz."""
+        rel_path = str(file_path)
+        metrics = {
+            "coverage_stmt": 0.0,
+            "coverage_branch": 0.0,
+            "lint_errors": 0,
+            "type_errors": 0,
+        }
+
+        # Coverage
+        if rel_path in self.coverage_data:
+            file_cov = self.coverage_data[rel_path]
+            summary = file_cov.get("summary", {})
+            metrics["coverage_stmt"] = summary.get("percent_covered", 0.0)
+            
+            covered_branches = summary.get("covered_branches", 0)
+            num_branches = summary.get("num_branches", 0)
+            if num_branches > 0:
+                metrics["coverage_branch"] = covered_branches / num_branches * 100
+            else:
+                metrics["coverage_branch"] = 100.0 if metrics["coverage_stmt"] > 0 else 0.0
+
+        # Ruff
+        if isinstance(self.ruff_data, list):
+            metrics["lint_errors"] = sum(
+                1 for err in self.ruff_data if err.get("filename") == rel_path
+            )
+
+        # Mypy
+        if isinstance(self.mypy_data, list):
+            metrics["type_errors"] = sum(
+                1 for err in self.mypy_data 
+                if err.get("file") == rel_path and err.get("severity") == "error"
+            )
+
+        return metrics
 
     def scan_codebase(self) -> list[Path]:
         """Rekurzívan bejárja a neural_ai/ mappát."""
@@ -451,6 +598,8 @@ class TaskTreeGenerator:
         notes = StatusCalculator.generate_notes(temp_analysis)
 
         # Végleges FileAnalysis
+        dyn_metrics = self.get_dynamic_metrics(file_path)
+        
         return FileAnalysis(
             path=file_path,
             relative_path=relative_path,
@@ -461,11 +610,18 @@ class TaskTreeGenerator:
             logger_status=logger_status,
             overall_status=overall_status,
             notes=notes,
+            coverage_stmt=dyn_metrics["coverage_stmt"],
+            coverage_branch=dyn_metrics["coverage_branch"],
+            lint_errors=dyn_metrics["lint_errors"],
+            type_errors=dyn_metrics["type_errors"],
         )
 
     def generate(self) -> None:
         """Generálja a TASK_TREE.md fájlt."""
-        print("🔍 Kódbázis szkennelése...")
+        # 1. Dinamikus eszközök futtatása
+        self.run_dynamic_tools()
+        
+        print("\n🔍 Kódbázis szkennelése...")
         files = self.scan_codebase()
         print(f"✅ {len(files)} Python fájl találva")
 
