@@ -381,40 +381,64 @@ class MarkdownGenerator:
         return stats
 
     def _create_table(self, layer: str, files: list[FileAnalysis]) -> str:
-        """Létrehoz egy Markdown táblázatot egy réteghez."""
-        if not files:
-            return ""
+            """Létrehoz egy Markdown táblázatot egy réteghez."""
+            if not files:
+                return ""
 
-        num, name, path = self.LAYER_MAPPING[layer]
+            num, name, path = self.LAYER_MAPPING[layer]
 
-        table = f"\n## {num}. {name} Layer (`{path}`)\n\n"
-        table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Config | Logger | Teendők |\n"
-        table += "|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:-------|:-------|:--------|\n"
+            table = f"\n## {num}. {name} Layer (`{path}`)\n\n"
 
-        for file in sorted(files, key=lambda x: x.relative_path):
-            short_path = file.relative_path.replace("neural_ai/", "")
+            # Tests és Scripts layerekhez egyszerűsített táblázat
+            if layer in ["tests", "scripts"]:
+                table += "| Fájl | Státusz | Pass/Fail/Err/Warn | Lint/Mypy/Pylance |\n"
+                table += "|:-----|:--------|:-------------------|:------------------|\n"
 
-            # Teszt pár
-            test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
+                for file in sorted(files, key=lambda x: x.relative_path):
+                    short_path = file.relative_path
 
-            # Teszt eredmények
-            if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0):
-                test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_warnings}"
+                    # Teszt eredmények
+                    if file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0:
+                        test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_warnings}"
+                    else:
+                        test_results = "-"
+
+                    # Lint/Mypy/Pylance
+                    lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
+
+                    table += f"| `{short_path}` | {file.overall_status} | {test_results} | {lint_mypy_pylance} |\n"
             else:
-                test_results = "-"
+                # Neural_ai layerekhez teljes táblázat + Dokumentálva oszlop
+                table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Config | Logger | Dokumentálva | Teendők |\n"
+                table += "|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:-------|:-------|:-------------|:--------|\n"
 
-            # Coverage
-            if file.coverage_stmt > 0:
-                coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
-            else:
-                coverage = "N/A"
+                for file in sorted(files, key=lambda x: x.relative_path):
+                    short_path = file.relative_path.replace("neural_ai/", "")
 
-            # Lint/Mypy/Pylance
-            lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
+                    # Teszt pár
+                    test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
 
-            table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {file.config_status} | {file.logger_status} | {file.notes if file.notes else '-'} |\n"
+                    # Teszt eredmények
+                    if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0):
+                        test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_warnings}"
+                    else:
+                        test_results = "-"
 
-        return table
+                    # Coverage
+                    if file.coverage_stmt > 0:
+                        coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
+                    else:
+                        coverage = "N/A"
+
+                    # Lint/Mypy/Pylance
+                    lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
+
+                    # Dokumentálva
+                    doc_status = "✅" if file.has_documentation else "❌"
+
+                    table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {file.config_status} | {file.logger_status} | {doc_status} | {file.notes if file.notes else '-'} |\n"
+
+            return table
 
     def generate(self) -> str:
         """Generálja a teljes Markdown tartalmat."""
