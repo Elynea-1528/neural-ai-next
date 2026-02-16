@@ -1077,8 +1077,8 @@ class TaskTreeGenerator:
         print("  🔎 Pylance/Pyright type checker...")
         pylance_file = REPORT_DIR / "pylance.json"
         try:
-            # Pyright futtatása JSON outputtal
-            cmd = ["pyright", "neural_ai", "--outputjson"]
+            # Pyright futtatása JSON outputtal (teljes workspace: neural_ai + tests)
+            cmd = ["pyright", ".", "--outputjson"]
             result = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env)
             
             if result.stdout.strip():
@@ -1109,7 +1109,7 @@ class TaskTreeGenerator:
                     json.dump(pylance_errors, f, indent=2)
                 
                 self.pylance_data = pylance_errors
-                print(f"    ✅ {len(pylance_errors)} Pylance hiba/figyelmeztetés találva")
+                print(f"    ✅ {len(pylance_errors)} Pylance hiba/figyelmeztetés találva (strict mode)")
             else:
                 self.pylance_data = []
         except FileNotFoundError:
