@@ -56,6 +56,11 @@ class FileAnalysis:
     coverage_branch: float = 0.0
     lint_errors: int = 0
     type_errors: int = 0
+    # Teszt eredmények
+    test_passed: int = 0
+    test_failed: int = 0
+    test_errors: int = 0
+    test_warnings: int = 0
 
 
 class ASTAnalyzer:
@@ -341,11 +346,11 @@ class MarkdownGenerator:
             f"### {num}. {name} Layer (`{path}`)",
             "",
             (
-                "| Modul / Fájl | Státusz | Teszt Pár | Tesztek | "
+                "| Modul / Fájl | Státusz | Teszt Pár | Teszt Eredmény | "
                 "Cov (Stmt/Brch) | Lint/Type | Config | Logger | Teendők |"
             ),
             (
-                "|--------------|---------|-----------|---------|"
+                "|--------------|---------|-----------|----------------|"
                 "-----------------|-----------|--------|--------|---------|"
             ),
         ]
@@ -354,6 +359,21 @@ class MarkdownGenerator:
             # Rövidített fájl név
             short_path = file.relative_path.replace("neural_ai/", "")
             test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
+            
+            # Teszt eredmények formázás (Pass/Fail/Err/Warn)
+            if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0):
+                test_results = []
+                if file.test_passed > 0:
+                    test_results.append(f"✅{file.test_passed}")
+                if file.test_failed > 0:
+                    test_results.append(f"**❌{file.test_failed}**")
+                if file.test_errors > 0:
+                    test_results.append(f"**🔥{file.test_errors}**")
+                if file.test_warnings > 0:
+                    test_results.append(f"⚠️{file.test_warnings}")
+                test_status = " ".join(test_results) if test_results else f"{file.test_count} tests"
+            else:
+                test_status = f"{file.test_count}" if file.test_count > 0 else "-"
             
             # Coverage formázás
             cov_stmt = f"**{file.coverage_stmt:.0f}%**" if file.coverage_stmt < 80 else f"{file.coverage_stmt:.0f}%"
@@ -369,7 +389,7 @@ class MarkdownGenerator:
                 f"| `{short_path}` "
                 f"| {file.overall_status} "
                 f"| {test_pair} "
-                f"| {file.test_count} "
+                f"| {test_status} "
                 f"| {coverage} "
                 f"| {lint_type} "
                 f"| {file.config_status} "
@@ -447,6 +467,7 @@ class TaskTreeGenerator:
         self.coverage_data = {}
         self.ruff_data = []
         self.mypy_data = []
+        self.pytest_data = {}  # test_file_path -> {passed, failed, errors, warnings}
 
     def run_dynamic_tools(self) -> None:
         """Futtatja a dinamikus ellenőrző eszközöket."""
@@ -456,14 +477,24 @@ class TaskTreeGenerator:
 
         print("\n🚀 Dinamikus eszközök futtatása...")
 
-        # 1. Coverage + Pytest
+        # 1. Coverage + Pytest + JSON Report
         print("  📊 Coverage + Pytest...")
         try:
-            cmd = [
+            # Először pytest JSON reporttal
+            cmd_pytest = [
+                str(PYTEST_BIN),
+                "-q", "--tb=no",
+                "--json-report", f"--json-report-file={REPORT_DIR}/pytest_report.json",
+                "tests/"
+            ]
+            subprocess.run(cmd_pytest, check=False, env=env, capture_output=True)
+            
+            # Majd coverage futtatás
+            cmd_cov = [
                 str(COVERAGE_BIN), "run", "--branch", "--source=neural_ai",
                 "-m", "pytest", "-q", "--tb=no", "tests/"
             ]
-            subprocess.run(cmd, check=False, env=env, capture_output=True)
+            subprocess.run(cmd_cov, check=False, env=env, capture_output=True)
             
             cmd_json = [str(COVERAGE_BIN), "json", "-o", str(COVERAGE_FILE)]
             subprocess.run(cmd_json, check=False, env=env)
@@ -513,6 +544,45 @@ class TaskTreeGenerator:
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
 
+        # 4. Pytest Report feldolgozása
+        print("  📋 Pytest eredmények feldolgozása...")
+        pytest_report_file = REPORT_DIR / "pytest_report.json"
+        if pytest_report_file.exists():
+            try:
+                with open(pytest_report_file) as f:
+                    pytest_json = json.load(f)
+                    
+                # Tesztek csoportosítása fájlonként
+                for test in pytest_json.get("tests", []):
+                    nodeid = test.get("nodeid", "")
+                    outcome = test.get("outcome", "")
+                    
+                    # nodeid formátum: tests/core/config/test_config_factory.py::TestClass::test_method
+                    if "::" in nodeid:
+                        test_file = nodeid.split("::")[0]
+                        
+                        if test_file not in self.pytest_data:
+                            self.pytest_data[test_file] = {
+                                "passed": 0,
+                                "failed": 0,
+                                "errors": 0,
+                                "warnings": 0
+                            }
+                        
+                        if outcome == "passed":
+                            self.pytest_data[test_file]["passed"] += 1
+                        elif outcome == "failed":
+                            self.pytest_data[test_file]["failed"] += 1
+                        elif outcome == "error":
+                            self.pytest_data[test_file]["errors"] += 1
+                        
+                        # Warnings számolása
+                        if "warnings" in test:
+                            self.pytest_data[test_file]["warnings"] += len(test["warnings"])
+                            
+            except Exception as e:
+                print(f"    ⚠️ Hiba a pytest report feldolgozásakor: {e}")
+
     def get_dynamic_metrics(self, file_path: Path) -> dict:
         """Visszaadja a dinamikus metrikákat egy fájlhoz."""
         rel_path = str(file_path)
@@ -521,6 +591,10 @@ class TaskTreeGenerator:
             "coverage_branch": 0.0,
             "lint_errors": 0,
             "type_errors": 0,
+            "test_passed": 0,
+            "test_failed": 0,
+            "test_errors": 0,
+            "test_warnings": 0,
         }
 
         # Coverage
@@ -548,6 +622,17 @@ class TaskTreeGenerator:
                 1 for err in self.mypy_data 
                 if err.get("file") == rel_path and err.get("severity") == "error"
             )
+
+        # Pytest eredmények (a tesztfájl alapján)
+        # Megkeressük a mirror test fájlt
+        test_path = MirrorChecker.get_test_path(file_path)
+        if test_path and test_path.exists():
+            test_rel = str(test_path)
+            if test_rel in self.pytest_data:
+                metrics["test_passed"] = self.pytest_data[test_rel]["passed"]
+                metrics["test_failed"] = self.pytest_data[test_rel]["failed"]
+                metrics["test_errors"] = self.pytest_data[test_rel]["errors"]
+                metrics["test_warnings"] = self.pytest_data[test_rel]["warnings"]
 
         return metrics
 
@@ -623,6 +708,10 @@ class TaskTreeGenerator:
             coverage_branch=dyn_metrics["coverage_branch"],
             lint_errors=dyn_metrics["lint_errors"],
             type_errors=dyn_metrics["type_errors"],
+            test_passed=dyn_metrics["test_passed"],
+            test_failed=dyn_metrics["test_failed"],
+            test_errors=dyn_metrics["test_errors"],
+            test_warnings=dyn_metrics["test_warnings"],
         )
 
     def generate(self) -> None:
