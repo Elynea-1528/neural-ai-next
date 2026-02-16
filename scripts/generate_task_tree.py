@@ -513,6 +513,7 @@ class HTMLGenerator:
         secure_pct = (stats["secure"] / stats["total"] * 100) if stats["total"] > 0 else 0
         warning_pct = (stats["warning"] / stats["total"] * 100) if stats["total"] > 0 else 0
         critical_pct = (stats["critical"] / stats["total"] * 100) if stats["total"] > 0 else 0
+        tested_pct = (stats["tested"] / stats["total"] * 100) if stats["total"] > 0 else 0
 
         html = f"""<!DOCTYPE html>
 <html lang="hu">
@@ -520,125 +521,303 @@ class HTMLGenerator:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neural AI Next - Task Tree Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        
         body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0d1117;
-            color: #c9d1d9;
-            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e4e7eb;
+            min-height: 100vh;
+            padding: 0;
         }}
-        .container {{ max-width: 1400px; margin: 0 auto; }}
-        h1 {{ color: #58a6ff; margin-bottom: 10px; }}
-        .meta {{ color: #8b949e; margin-bottom: 30px; }}
+        
+        .header {{
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 2rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }}
+        
+        .header-content {{
+            max-width: 100%;
+            padding: 0 3rem;
+        }}
+        
+        h1 {{
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }}
+        
+        .meta {{
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }}
+        
+        .meta strong {{ color: #cbd5e1; }}
+        
+        .container {{
+            max-width: 100%;
+            padding: 2rem 3rem;
+        }}
+        
         .stats {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
         }}
-        .stat-card {{
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            padding: 20px;
-        }}
-        .stat-value {{ font-size: 32px; font-weight: bold; margin-bottom: 5px; }}
-        .stat-label {{ color: #8b949e; font-size: 14px; }}
-        .secure {{ color: #3fb950; }}
-        .warning {{ color: #d29922; }}
-        .critical {{ color: #f85149; }}
         
-        .layer {{ margin-bottom: 40px; }}
-        .layer-title {{
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 6px 6px 0 0;
-            padding: 15px 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #58a6ff;
+        .stat-card {{
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }}
+        
+        .stat-card::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), transparent);
+        }}
+        
+        .stat-card:hover {{
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
+            border-color: rgba(148, 163, 184, 0.2);
+        }}
+        
+        .stat-card.secure {{ --accent-color: #10b981; }}
+        .stat-card.warning {{ --accent-color: #f59e0b; }}
+        .stat-card.critical {{ --accent-color: #ef4444; }}
+        .stat-card.tested {{ --accent-color: #3b82f6; }}
+        
+        .stat-header {{
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }}
+        
+        .stat-icon {{
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }}
+        
+        .stat-card.secure .stat-icon {{ background: rgba(16, 185, 129, 0.15); }}
+        .stat-card.warning .stat-icon {{ background: rgba(245, 158, 11, 0.15); }}
+        .stat-card.critical .stat-icon {{ background: rgba(239, 68, 68, 0.15); }}
+        .stat-card.tested .stat-icon {{ background: rgba(59, 130, 246, 0.15); }}
+        
+        .stat-value {{
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }}
+        
+        .stat-card.secure .stat-value {{ color: #10b981; }}
+        .stat-card.warning .stat-value {{ color: #f59e0b; }}
+        .stat-card.critical .stat-value {{ color: #ef4444; }}
+        .stat-card.tested .stat-value {{ color: #3b82f6; }}
+        
+        .stat-label {{
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }}
+        
+        .stat-percent {{
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }}
+        
+        .search-box {{
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            color: #e4e7eb;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }}
+        
+        .search-box:focus {{
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(30, 41, 59, 0.8);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }}
+        
+        .search-box::placeholder {{ color: #64748b; }}
+        
+        .layer {{
+            margin-bottom: 2.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }}
+        
+        .layer-title {{
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 1.25rem 1.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #60a5fa;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }}
+        
         table {{
             width: 100%;
             border-collapse: collapse;
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-top: none;
         }}
+        
         th {{
-            background: #161b22;
-            padding: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 1rem 1.25rem;
             text-align: left;
             font-weight: 600;
-            border-bottom: 2px solid #30363d;
-            color: #8b949e;
-            font-size: 12px;
+            color: #94a3b8;
+            font-size: 0.8rem;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
         }}
+        
         td {{
-            padding: 12px;
-            border-bottom: 1px solid #21262d;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+            font-size: 0.9rem;
         }}
-        tr:hover {{ background: #161b22; }}
-        .file-path {{ font-family: 'Courier New', monospace; color: #79c0ff; }}
+        
+        tr:hover td {{
+            background: rgba(30, 41, 59, 0.4);
+        }}
+        
+        .file-path {{
+            font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Courier New', monospace;
+            color: #93c5fd;
+            font-size: 0.875rem;
+        }}
+        
         .status-badge {{
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-        }}
-        .status-secure {{ background: #1a7f37; color: #fff; }}
-        .status-warning {{ background: #9e6a03; color: #fff; }}
-        .status-critical {{ background: #da3633; color: #fff; }}
-        .test-found {{ color: #3fb950; }}
-        .test-missing {{ color: #f85149; }}
-        .test-results {{ font-family: 'Courier New', monospace; }}
-        .test-pass {{ color: #3fb950; font-weight: bold; }}
-        .test-fail {{ color: #f85149; font-weight: bold; }}
-        .test-error {{ color: #ff6b6b; font-weight: bold; }}
-        .test-warn {{ color: #d29922; font-weight: bold; }}
-        .coverage {{ font-family: 'Courier New', monospace; }}
-        .cov-low {{ color: #f85149; font-weight: bold; }}
-        .cov-good {{ color: #3fb950; }}
-        .search-box {{
-            margin-bottom: 20px;
-            padding: 10px;
-            width: 100%;
-            background: #0d1117;
-            border: 1px solid #30363d;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
             border-radius: 6px;
-            color: #c9d1d9;
-            font-size: 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
         }}
+        
+        .status-secure {{
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }}
+        
+        .status-warning {{
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }}
+        
+        .status-critical {{
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }}
+        
+        .icon {{ font-style: normal; }}
+        .test-found {{ color: #10b981; font-weight: 600; }}
+        .test-missing {{ color: #ef4444; font-weight: 600; }}
+        .test-results {{ font-family: 'SF Mono', monospace; font-size: 0.875rem; }}
+        .test-pass {{ color: #10b981; font-weight: 600; }}
+        .test-fail {{ color: #ef4444; font-weight: 600; }}
+        .test-error {{ color: #f87171; font-weight: 600; }}
+        .test-warn {{ color: #f59e0b; font-weight: 600; }}
+        .coverage {{ font-family: 'SF Mono', monospace; font-size: 0.875rem; }}
+        .cov-low {{ color: #ef4444; font-weight: 600; }}
+        .cov-good {{ color: #10b981; font-weight: 600; }}
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌳 NEURAL AI NEXT - TASK TREE DASHBOARD</h1>
-        <div class="meta">
-            <strong>Generálva:</strong> {now}<br>
-            <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy)<br>
-            <strong>Fájlok száma:</strong> {stats['total']}
+    <div class="header">
+        <div class="header-content">
+            <h1>⚡ Neural AI Next - Task Tree Dashboard</h1>
+            <div class="meta">
+                <strong>Generálva:</strong> {now} &nbsp;|&nbsp;
+                <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy) &nbsp;|&nbsp;
+                <strong>Fájlok:</strong> {stats['total']}
+            </div>
         </div>
+    </div>
 
+    <div class="container">
         <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value secure">{stats['secure']}</div>
-                <div class="stat-label">✅ SECURE ({secure_pct:.1f}%)</div>
+            <div class="stat-card secure">
+                <div class="stat-header">
+                    <div class="stat-icon">✓</div>
+                </div>
+                <div class="stat-value">{stats['secure']}</div>
+                <div class="stat-label">Secure</div>
+                <div class="stat-percent">{secure_pct:.1f}% a teljes kódbázisból</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value warning">{stats['warning']}</div>
-                <div class="stat-label">🟡 WARNING ({warning_pct:.1f}%)</div>
+            <div class="stat-card warning">
+                <div class="stat-header">
+                    <div class="stat-icon">⚠</div>
+                </div>
+                <div class="stat-value">{stats['warning']}</div>
+                <div class="stat-label">Warning</div>
+                <div class="stat-percent">{warning_pct:.1f}% javítást igényel</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value critical">{stats['critical']}</div>
-                <div class="stat-label">🔴 CRITICAL ({critical_pct:.1f}%)</div>
+            <div class="stat-card critical">
+                <div class="stat-header">
+                    <div class="stat-icon">✕</div>
+                </div>
+                <div class="stat-value">{stats['critical']}</div>
+                <div class="stat-label">Critical</div>
+                <div class="stat-percent">{critical_pct:.1f}% azonnali beavatkozás</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card tested">
+                <div class="stat-header">
+                    <div class="stat-icon">◉</div>
+                </div>
                 <div class="stat-value">{stats['tested']}/{stats['total']}</div>
-                <div class="stat-label">📋 Teszt lefedettség</div>
+                <div class="stat-label">Tesztelt</div>
+                <div class="stat-percent">{tested_pct:.1f}% teszt lefedettség</div>
             </div>
         </div>
 
@@ -653,22 +832,22 @@ class HTMLGenerator:
         html += """
     </div>
     <script>
-        function filterTable() {
+        function filterTable() {{
             const input = document.getElementById('searchBox');
             const filter = input.value.toLowerCase();
             const tables = document.querySelectorAll('table');
             
-            tables.forEach(table => {
+            tables.forEach(table => {{
                 const rows = table.getElementsByTagName('tr');
-                for (let i = 1; i < rows.length; i++) {
+                for (let i = 1; i < rows.length; i++) {{
                     const td = rows[i].getElementsByTagName('td')[0];
-                    if (td) {
+                    if (td) {{
                         const txtValue = td.textContent || td.innerText;
                         rows[i].style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
-                    }
-                }
-            });
-        }
+                    }}
+                }}
+            }});
+        }}
     </script>
 </body>
 </html>"""
@@ -680,10 +859,20 @@ class HTMLGenerator:
             return ""
 
         num, name, path = self.LAYER_MAPPING[layer]
+        
+        # Layer ikonok
+        layer_icons = {
+            "core": "⚙️",
+            "collectors": "📡",
+            "data": "💾",
+            "processors": "🧠",
+            "ui": "🎨"
+        }
+        icon = layer_icons.get(layer, "📦")
 
         html = f"""
         <div class="layer">
-            <div class="layer-title">{num}. {name} Layer ({path})</div>
+            <div class="layer-title">{icon} {num}. {name} Layer <span style="opacity: 0.6; font-size: 0.9rem;">({path})</span></div>
             <table>
                 <thead>
                     <tr>
@@ -706,14 +895,14 @@ class HTMLGenerator:
             
             # Státusz badge
             if file.overall_status == "✅ SECURE":
-                status_badge = '<span class="status-badge status-secure">SECURE</span>'
+                status_badge = '<span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span>'
             elif file.overall_status == "🟡 WARNING":
-                status_badge = '<span class="status-badge status-warning">WARNING</span>'
+                status_badge = '<span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span>'
             else:
-                status_badge = '<span class="status-badge status-critical">CRITICAL</span>'
+                status_badge = '<span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span>'
             
             # Teszt pár
-            test_pair = '<span class="test-found">✅ FOUND</span>' if file.test_file_exists else '<span class="test-missing">❌ MISSING</span>'
+            test_pair = '<span class="test-found">✓ FOUND</span>' if file.test_file_exists else '<span class="test-missing">✕ MISSING</span>'
             
             # Teszt eredmények
             if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0):
@@ -723,19 +912,25 @@ class HTMLGenerator:
                 warn_str = f'<span class="test-warn">{file.test_warnings}</span>' if file.test_warnings > 0 else '0'
                 test_results = f'{pass_str}/{fail_str}/{error_str}/{warn_str}'
             else:
-                test_results = '-'
+                test_results = '<span style="opacity: 0.4;">-</span>'
             
             # Coverage
             if file.coverage_stmt > 0:
                 cov_class = 'cov-good' if file.coverage_stmt >= 80 else 'cov-low'
                 coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
             else:
-                coverage = 'N/A'
+                coverage = '<span style="opacity: 0.4;">N/A</span>'
             
             # Lint/Type
-            lint_str = f'<span class="test-fail">{file.lint_errors}</span>' if file.lint_errors > 0 else '0'
-            type_str = f'<span class="test-fail">{file.type_errors}</span>' if file.type_errors > 0 else '0'
+            lint_str = f'<span class="test-fail">{file.lint_errors}</span>' if file.lint_errors > 0 else '<span style="opacity: 0.6;">0</span>'
+            type_str = f'<span class="test-fail">{file.type_errors}</span>' if file.type_errors > 0 else '<span style="opacity: 0.6;">0</span>'
             lint_type = f'{lint_str} / {type_str}'
+            
+            # Config és Logger státusz tisztítása
+            config_display = file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○")
+            logger_display = file.logger_status.replace("✅", "✓").replace("⚠️", "⚠").replace("🔴", "✕").replace("⚪", "○")
+            
+            notes_display = file.notes if file.notes else '<span style="opacity: 0.4;">-</span>'
             
             html += f"""
                     <tr>
@@ -745,9 +940,9 @@ class HTMLGenerator:
                         <td class="test-results">{test_results}</td>
                         <td class="coverage">{coverage}</td>
                         <td>{lint_type}</td>
-                        <td>{file.config_status}</td>
-                        <td>{file.logger_status}</td>
-                        <td>{file.notes if file.notes else '-'}</td>
+                        <td>{config_display}</td>
+                        <td>{logger_display}</td>
+                        <td>{notes_display}</td>
                     </tr>
 """
 
