@@ -1,14 +1,14 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-02-16 19:07:24 UTC
+**Generálva:** 2026-02-16 19:15:34 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
-**Fájlok száma:** 241
+**Fájlok száma:** 214
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 137 (56.8%)
-- 🟡 **WARNING:** 17 (7.1%)
-- 🔴 **VULNERABLE:** 87 (36.1%)
+- ✅ **SECURE:** 137 (64.0%)
+- 🟡 **WARNING:** 17 (7.9%)
+- 🔴 **VULNERABLE:** 60 (28.0%)
 
 ---
 
@@ -260,35 +260,3 @@
 | `scripts/test_d2_standalone.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 25 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
 | `scripts/test_tick_pipeline.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 1 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
 | `scripts/validation_end_to_end.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 11 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-
-## 8. Documentation Layer (`docs/`)
-
-| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Config | Logger | Teendők |
-|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:-------|:-------|:--------|
-| `docs/INSTALLATION_GUIDE.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/architecture/hierarchical_system/overview.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/CLEANUP_SUMMARY.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/CLINE_ROO_WORKFLOW.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/DETAILED_MODE_COMPARISON.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/FINAL_COMPARISON_TABLE.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/FINAL_MODEL_ALLOCATION.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/QUOTA_OPTIMIZATION_PLAN.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/ROO_CODE_FULL_SETTINGS.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/ROO_SETTINGS_VERIFICATION.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/SETTINGS_VALIDATION_REPORT.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/TASK_TREE.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/architecture_standards.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/coding_standards.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/custom-instructions.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/development/hierarchical_agent_system.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/models/hierarchical/structure.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/planning/phase2_2_jforex_live.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/planning/phase2_jforex.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/planning/specs/01_system_architecture.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/planning/specs/02_dynamic_configuration.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/planning/specs/03_observability_logging.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/planning/specs/04_data_warehouse.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/planning/specs/05_collectors_strategy.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/planning/specs/06_user_interface.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/planning/technical_design/01_processor_architecture.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |
-| `docs/processors/dimensions/overview.md` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | ⚪ N/A | ⚪ N/A | **KRITIKUS: Teszt írás!** |

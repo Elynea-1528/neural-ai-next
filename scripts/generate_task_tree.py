@@ -66,6 +66,8 @@ class FileAnalysis:
     test_failed: int = 0
     test_errors: int = 0
     test_warnings: int = 0
+    # Dokumentáció
+    has_documentation: bool = False
 
 
 class ASTAnalyzer:
@@ -160,6 +162,30 @@ class ASTAnalyzer:
 
 class MirrorChecker:
     """Mirror Rule ellenőrző (neural_ai/x.py ↔ tests/x/test_x.py)."""
+
+    @staticmethod
+    def check_documentation(source_path: Path) -> bool:
+        """Ellenőrzi, hogy van-e dokumentáció a fájlhoz a docs/ mappában.
+        
+        Példa: neural_ai/core/config/factory.py -> docs/components/core/config/factory.md
+        """
+        parts = source_path.parts
+        
+        # Csak neural_ai fájlokhoz keresünk dokumentációt
+        if parts[0] != "neural_ai":
+            return False
+        
+        # neural_ai/core/config/factory.py -> core/config/factory.py
+        relative_parts = parts[1:]
+        
+        # Fájlnév .py -> .md
+        file_name = relative_parts[-1].replace('.py', '.md')
+        dir_parts = relative_parts[:-1]
+        
+        # docs/components/core/config/factory.md
+        doc_path = Path("docs/components") / Path(*dir_parts) / file_name
+        
+        return doc_path.exists()
 
     @staticmethod
     def get_test_path(source_path: Path) -> Path:
@@ -308,7 +334,7 @@ class MarkdownGenerator:
         "ui": ("5", "Presentation", "neural_ai/ui/"),
         "tests": ("6", "Tests", "tests/"),
         "scripts": ("7", "Scripts", "scripts/"),
-        "docs": ("8", "Documentation", "docs/"),
+        
     }
 
     def __init__(self, analyses: list[FileAnalysis]) -> None:
@@ -411,7 +437,7 @@ class MarkdownGenerator:
 """
 
         # Rétegek
-        for layer in ["core", "collectors", "data", "processors", "ui", "tests", "scripts", "docs"]:
+        for layer in ["core", "collectors", "data", "processors", "ui", "tests", "scripts"]:
             if layer in self.grouped and self.grouped[layer]:
                 content += self._create_table(layer, self.grouped[layer])
 
@@ -429,7 +455,7 @@ class HTMLGenerator:
         "ui": ("5", "Presentation", "neural_ai/ui/"),
         "tests": ("6", "Tests", "tests/"),
         "scripts": ("7", "Scripts", "scripts/"),
-        "docs": ("8", "Documentation", "docs/"),
+        
     }
 
     def __init__(self, analyses: list[FileAnalysis]) -> None:
@@ -822,7 +848,7 @@ class HTMLGenerator:
 """
 
         # Rétegek
-        for layer in ["core", "collectors", "data", "processors", "ui", "tests", "scripts", "docs"]:
+        for layer in ["core", "collectors", "data", "processors", "ui", "tests", "scripts"]:
             if layer in self.grouped and self.grouped[layer]:
                 html += self._create_html_table(layer, self.grouped[layer])
 
@@ -1203,10 +1229,13 @@ class TaskTreeGenerator:
         return metrics
 
     def scan_codebase(self) -> list[Path]:
-        """Rekurzívan bejárja a neural_ai/, tests/, scripts/, docs/ mappákat."""
+        """Rekurzívan bejárja a neural_ai/, tests/, scripts/ mappákat."""
         python_files: list[Path] = []
 
-        for scan_dir in self.scan_dirs:
+        # Csak Python fájlokat szkennelünk (docs mappát nem)
+        scan_dirs = [Path("neural_ai"), Path("tests"), Path("scripts")]
+        
+        for scan_dir in scan_dirs:
             if not scan_dir.exists():
                 continue
                 
@@ -1215,11 +1244,7 @@ class TaskTreeGenerator:
                 dirs[:] = [d for d in dirs if d not in self.ignored_dirs]
 
                 for file in files:
-                    # Python fájlok és Markdown fájlok (docs mappában)
                     if file.endswith(".py") and file not in self.ignored_files:
-                        python_files.append(Path(root) / file)
-                    elif file.endswith(".md") and "docs" in str(root):
-                        # Markdown fájlokat is hozzáadjuk a docs mappából
                         python_files.append(Path(root) / file)
 
         return python_files
@@ -1268,6 +1293,9 @@ class TaskTreeGenerator:
         # Végleges FileAnalysis
         dyn_metrics = self.get_dynamic_metrics(file_path)
         
+        # Dokumentáció ellenőrzése
+        has_documentation = MirrorChecker.check_documentation(file_path)
+        
         return FileAnalysis(
             path=file_path,
             relative_path=relative_path,
@@ -1287,6 +1315,7 @@ class TaskTreeGenerator:
             test_failed=dyn_metrics["test_failed"],
             test_errors=dyn_metrics["test_errors"],
             test_warnings=dyn_metrics["test_warnings"],
+            has_documentation=has_documentation,
         )
 
     def generate(self) -> None:
