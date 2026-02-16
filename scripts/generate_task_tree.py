@@ -346,11 +346,11 @@ class MarkdownGenerator:
             f"### {num}. {name} Layer (`{path}`)",
             "",
             (
-                "| Modul / Fájl | Státusz | Teszt Pár | Teszt Eredmény | "
+                "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | "
                 "Cov (Stmt/Brch) | Lint/Type | Config | Logger | Teendők |"
             ),
             (
-                "|--------------|---------|-----------|----------------|"
+                "|--------------|---------|-----------|-------------------|"
                 "-----------------|-----------|--------|--------|---------|"
             ),
         ]
@@ -360,20 +360,20 @@ class MarkdownGenerator:
             short_path = file.relative_path.replace("neural_ai/", "")
             test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
             
-            # Teszt eredmények formázás (Pass/Fail/Err/Warn)
+            # Teszt eredmények formázás (Pass/Fail/Err/Warn) - MINDIG 4 részes
             if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0):
-                test_results = []
-                if file.test_passed > 0:
-                    test_results.append(f"✅ {file.test_passed}")
-                if file.test_failed > 0:
-                    test_results.append(f"❌ **{file.test_failed}**")
-                if file.test_errors > 0:
-                    test_results.append(f"🔥 **{file.test_errors}**")
-                if file.test_warnings > 0:
-                    test_results.append(f"⚠️ {file.test_warnings}")
-                test_status = " / ".join(test_results) if test_results else f"{file.test_count}"
+                # Pass
+                passed_str = f"**{file.test_passed}**" if file.test_passed > 0 else "0"
+                # Fail
+                failed_str = f"**{file.test_failed}**" if file.test_failed > 0 else "0"
+                # Error
+                error_str = f"**{file.test_errors}**" if file.test_errors > 0 else "0"
+                # Warn
+                warn_str = f"**{file.test_warnings}**" if file.test_warnings > 0 else "0"
+                
+                test_status = f"{passed_str}/{failed_str}/{error_str}/{warn_str}"
             else:
-                test_status = f"{file.test_count}" if file.test_count > 0 else "-"
+                test_status = "-"
             
             # Coverage formázás
             cov_stmt = f"**{file.coverage_stmt:.0f}%**" if file.coverage_stmt < 80 else f"{file.coverage_stmt:.0f}%"
