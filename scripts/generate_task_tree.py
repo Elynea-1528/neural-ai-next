@@ -741,13 +741,14 @@ class HTMLGenerator:
         
         th:nth-child(1) {{ width: 25%; min-width: 300px; }} /* Fájl */
         th:nth-child(2) {{ width: 10%; min-width: 100px; }} /* Státusz */
-        th:nth-child(3) {{ width: 8%; min-width: 80px; }} /* Teszt Pár */
-        th:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Warn */
+        th:nth-child(3) {{ width: 8%; min-width: 80px; }} /* Teszt Pár / Pass-Fail (tests/scripts) */
+        th:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Warn / Lint (tests/scripts) */
         th:nth-child(5) {{ width: 10%; min-width: 120px; }} /* Coverage */
         th:nth-child(6) {{ width: 10%; min-width: 120px; }} /* Lint/Mypy/Pylance */
         th:nth-child(7) {{ width: 7%; min-width: 70px; }} /* Config */
         th:nth-child(8) {{ width: 7%; min-width: 70px; }} /* Logger */
-        th:nth-child(9) {{ width: auto; min-width: 150px; }} /* Teendők */
+        th:nth-child(9) {{ width: 7%; min-width: 70px; }} /* Dokumentálva */
+        th:nth-child(10) {{ width: auto; min-width: 150px; }} /* Teendők */
         
         td {{
             padding: 1rem 1.25rem;
@@ -759,13 +760,14 @@ class HTMLGenerator:
         
         td:nth-child(1) {{ width: 25%; min-width: 300px; }} /* Fájl */
         td:nth-child(2) {{ width: 10%; min-width: 100px; }} /* Státusz */
-        td:nth-child(3) {{ width: 8%; min-width: 80px; }} /* Teszt Pár */
-        td:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Warn */
+        td:nth-child(3) {{ width: 8%; min-width: 80px; }} /* Teszt Pár / Pass-Fail (tests/scripts) */
+        td:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Warn / Lint (tests/scripts) */
         td:nth-child(5) {{ width: 10%; min-width: 120px; }} /* Coverage */
         td:nth-child(6) {{ width: 10%; min-width: 120px; }} /* Lint/Mypy/Pylance */
         td:nth-child(7) {{ width: 7%; min-width: 70px; }} /* Config */
         td:nth-child(8) {{ width: 7%; min-width: 70px; }} /* Logger */
-        td:nth-child(9) {{ width: auto; min-width: 150px; }} /* Teendők */
+        td:nth-child(9) {{ width: 7%; min-width: 70px; }} /* Dokumentálva */
+        td:nth-child(10) {{ width: auto; min-width: 150px; }} /* Teendők */
         
         tr:hover td {{
             background: rgba(30, 41, 59, 0.4);
@@ -901,108 +903,138 @@ class HTMLGenerator:
         return html
 
     def _create_html_table(self, layer: str, files: list[FileAnalysis]) -> str:
-        """Létrehoz egy HTML táblázatot egy réteghez."""
-        if not files:
-            return ""
+            """Létrehoz egy HTML táblázatot egy réteghez."""
+            if not files:
+                return ""
 
-        num, name, path = self.LAYER_MAPPING[layer]
-        
-        # Layer ikonok
-        layer_icons = {
-            "core": "⚙️",
-            "collectors": "📡",
-            "data": "💾",
-            "processors": "🧠",
-            "ui": "🎨",
-            "tests": "🧪",
-            "scripts": "📜",
-            "docs": "📚",
-        }
-        icon = layer_icons.get(layer, "📦")
+            num, name, path = self.LAYER_MAPPING[layer]
 
-        html = f"""
-        <div class="layer">
-            <div class="layer-title">{icon} {num}. {name} Layer <span style="opacity: 0.6; font-size: 0.9rem;">({path})</span></div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Modul / Fájl</th>
-                        <th>Státusz</th>
-                        <th>Teszt Pár</th>
-                        <th>Pass/Fail/Err/Warn</th>
-                        <th>Coverage (Stmt/Brch)</th>
-                        <th>Lint/Mypy/Pylance</th>
-                        <th>Config</th>
-                        <th>Logger</th>
-                        <th>Teendők</th>
-                    </tr>
-                </thead>
-                <tbody>
-"""
+            # Layer ikonok
+            layer_icons = {
+                "core": "⚙️",
+                "collectors": "📡",
+                "data": "💾",
+                "processors": "🧠",
+                "ui": "🎨",
+                "tests": "🧪",
+                "scripts": "📜",
+            }
+            icon = layer_icons.get(layer, "📦")
 
-        for file in sorted(files, key=lambda x: x.relative_path):
-            short_path = file.relative_path.replace("neural_ai/", "")
-            
-            # Státusz badge
-            if file.overall_status == "✅ SECURE":
-                status_badge = '<span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span>'
-            elif file.overall_status == "🟡 WARNING":
-                status_badge = '<span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span>'
+            html = f"""
+            <div class="layer">
+                <div class="layer-title">{icon} {num}. {name} Layer <span style="opacity: 0.6; font-size: 0.9rem;">({path})</span></div>
+                <table>
+                    <thead>
+                        <tr>"""
+
+            # Tests és Scripts layerekhez egyszerűsített fejléc
+            if layer in ["tests", "scripts"]:
+                html += """
+                            <th>Fájl</th>
+                            <th>Státusz</th>
+                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Lint/Mypy/Pylance</th>"""
             else:
-                status_badge = '<span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span>'
-            
-            # Teszt pár
-            test_pair = '<span class="test-found">✓ FOUND</span>' if file.test_file_exists else '<span class="test-missing">✕ MISSING</span>'
-            
-            # Teszt eredmények
-            if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0):
-                pass_str = f'<span class="test-pass">{file.test_passed}</span>' if file.test_passed > 0 else '0'
-                fail_str = f'<span class="test-fail">{file.test_failed}</span>' if file.test_failed > 0 else '0'
-                error_str = f'<span class="test-error">{file.test_errors}</span>' if file.test_errors > 0 else '0'
-                warn_str = f'<span class="test-warn">{file.test_warnings}</span>' if file.test_warnings > 0 else '0'
-                test_results = f'{pass_str}/{fail_str}/{error_str}/{warn_str}'
-            else:
-                test_results = '<span style="opacity: 0.4;">-</span>'
-            
-            # Coverage
-            if file.coverage_stmt > 0:
-                cov_class = 'cov-good' if file.coverage_stmt >= 80 else 'cov-low'
-                coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
-            else:
-                coverage = '<span style="opacity: 0.4;">N/A</span>'
-            
-            # Lint/Mypy/Pylance
-            lint_str = f'<span class="test-fail">{file.lint_errors}</span>' if file.lint_errors > 0 else '<span style="opacity: 0.6;">0</span>'
-            mypy_str = f'<span class="test-fail">{file.type_errors}</span>' if file.type_errors > 0 else '<span style="opacity: 0.6;">0</span>'
-            pylance_str = f'<span class="test-fail">{file.pylance_errors}</span>' if file.pylance_errors > 0 else '<span style="opacity: 0.6;">0</span>'
-            lint_type = f'{lint_str} / {mypy_str} / {pylance_str}'
-            
-            # Config és Logger státusz tisztítása
-            config_display = file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○")
-            logger_display = file.logger_status.replace("✅", "✓").replace("⚠️", "⚠").replace("🔴", "✕").replace("⚪", "○")
-            
-            notes_display = file.notes if file.notes else '<span style="opacity: 0.4;">-</span>'
-            
-            html += f"""
-                    <tr>
-                        <td class="file-path">{short_path}</td>
-                        <td>{status_badge}</td>
-                        <td>{test_pair}</td>
-                        <td class="test-results">{test_results}</td>
-                        <td class="coverage">{coverage}</td>
-                        <td>{lint_type}</td>
-                        <td>{config_display}</td>
-                        <td>{logger_display}</td>
-                        <td>{notes_display}</td>
-                    </tr>
-"""
+                # Neural_ai layerekhez teljes fejléc + Dokumentálva
+                html += """
+                            <th>Modul / Fájl</th>
+                            <th>Státusz</th>
+                            <th>Teszt Pár</th>
+                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Coverage (Stmt/Brch)</th>
+                            <th>Lint/Mypy/Pylance</th>
+                            <th>Config</th>
+                            <th>Logger</th>
+                            <th>Dokumentálva</th>
+                            <th>Teendők</th>"""
 
-        html += """
-                </tbody>
-            </table>
-        </div>
-"""
-        return html
+            html += """
+                        </tr>
+                    </thead>
+                    <tbody>
+    """
+
+            for file in sorted(files, key=lambda x: x.relative_path):
+                short_path = file.relative_path.replace("neural_ai/", "") if layer not in ["tests", "scripts"] else file.relative_path
+
+                # Státusz badge
+                if file.overall_status == "✅ SECURE":
+                    status_badge = '<span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span>'
+                elif file.overall_status == "🟡 WARNING":
+                    status_badge = '<span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span>'
+                else:
+                    status_badge = '<span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span>'
+
+                # Teszt eredmények
+                if file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0:
+                    pass_str = f'<span class="test-pass">{file.test_passed}</span>' if file.test_passed > 0 else '0'
+                    fail_str = f'<span class="test-fail">{file.test_failed}</span>' if file.test_failed > 0 else '0'
+                    error_str = f'<span class="test-error">{file.test_errors}</span>' if file.test_errors > 0 else '0'
+                    warn_str = f'<span class="test-warn">{file.test_warnings}</span>' if file.test_warnings > 0 else '0'
+                    test_results = f'{pass_str}/{fail_str}/{error_str}/{warn_str}'
+                else:
+                    test_results = '<span style="opacity: 0.4;">-</span>'
+
+                # Lint/Mypy/Pylance
+                lint_str = f'<span class="test-fail">{file.lint_errors}</span>' if file.lint_errors > 0 else '<span style="opacity: 0.6;">0</span>'
+                mypy_str = f'<span class="test-fail">{file.type_errors}</span>' if file.type_errors > 0 else '<span style="opacity: 0.6;">0</span>'
+                pylance_str = f'<span class="test-fail">{file.pylance_errors}</span>' if file.pylance_errors > 0 else '<span style="opacity: 0.6;">0</span>'
+                lint_type = f'{lint_str} / {mypy_str} / {pylance_str}'
+
+                # Tests és Scripts layerekhez egyszerűsített sor
+                if layer in ["tests", "scripts"]:
+                    html += f"""
+                        <tr>
+                            <td class="file-path">{short_path}</td>
+                            <td>{status_badge}</td>
+                            <td class="test-results">{test_results}</td>
+                            <td>{lint_type}</td>
+                        </tr>
+    """
+                else:
+                    # Neural_ai layerekhez teljes sor
+                    # Teszt pár
+                    test_pair = '<span class="test-found">✓ FOUND</span>' if file.test_file_exists else '<span class="test-missing">✕ MISSING</span>'
+
+                    # Coverage
+                    if file.coverage_stmt > 0:
+                        cov_class = 'cov-good' if file.coverage_stmt >= 80 else 'cov-low'
+                        coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
+                    else:
+                        coverage = '<span style="opacity: 0.4;">N/A</span>'
+
+                    # Config és Logger státusz
+                    config_display = file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○")
+                    logger_display = file.logger_status.replace("✅", "✓").replace("⚠️", "⚠").replace("🔴", "✕").replace("⚪", "○")
+
+                    # Dokumentálva
+                    doc_display = '<span class="test-found">✓</span>' if file.has_documentation else '<span class="test-missing">✕</span>'
+
+                    # Teendők
+                    notes_display = file.notes if file.notes else '<span style="opacity: 0.4;">-</span>'
+
+                    html += f"""
+                        <tr>
+                            <td class="file-path">{short_path}</td>
+                            <td>{status_badge}</td>
+                            <td>{test_pair}</td>
+                            <td class="test-results">{test_results}</td>
+                            <td class="coverage">{coverage}</td>
+                            <td>{lint_type}</td>
+                            <td>{config_display}</td>
+                            <td>{logger_display}</td>
+                            <td>{doc_display}</td>
+                            <td>{notes_display}</td>
+                        </tr>
+    """
+
+            html += """
+                    </tbody>
+                </table>
+            </div>
+    """
+            return html
 
 
 class TaskTreeGenerator:
