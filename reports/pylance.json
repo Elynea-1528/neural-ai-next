@@ -1,0 +1,512 @@
+[
+  {
+    "file": "neural_ai/collectors/jforex/factory.py",
+    "line": 57,
+    "severity": "error",
+    "message": "Arguments missing for parameters \"enabled\", \"base_url\", \"download\", \"logging\", \"symbols\", \"date_range\", \"rate_limiting\", \"circuit_breaker\""
+  },
+  {
+    "file": "neural_ai/collectors/jforex/factory.py",
+    "line": 126,
+    "severity": "error",
+    "message": "Arguments missing for parameters \"enabled\", \"host\", \"tick_port\", \"command_port\""
+  },
+  {
+    "file": "neural_ai/collectors/jforex/implementations/bi5_downloader.py",
+    "line": 9,
+    "severity": "error",
+    "message": "Import \"tenacity\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/collectors/jforex/implementations/live_feed.py",
+    "line": 12,
+    "severity": "error",
+    "message": "Import \"zmq\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/collectors/jforex/implementations/live_feed.py",
+    "line": 13,
+    "severity": "error",
+    "message": "Import \"zmq.asyncio\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/collectors/jforex/implementations/live_feed.py",
+    "line": 104,
+    "severity": "error",
+    "message": "\"socket\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/collectors/jforex/implementations/live_feed.py",
+    "line": 108,
+    "severity": "error",
+    "message": "\"connect\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/collectors/jforex/implementations/live_feed.py",
+    "line": 111,
+    "severity": "error",
+    "message": "\"setsockopt_string\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/core/events/implementations/zeromq_bus.py",
+    "line": 72,
+    "severity": "error",
+    "message": "Import \"zmq.asyncio\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/core/events/implementations/zeromq_bus.py",
+    "line": 107,
+    "severity": "error",
+    "message": "\"setsockopt\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/core/events/implementations/zeromq_bus.py",
+    "line": 108,
+    "severity": "error",
+    "message": "\"setsockopt\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/core/events/implementations/zeromq_bus.py",
+    "line": 118,
+    "severity": "error",
+    "message": "\"bind\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/core/events/implementations/zeromq_bus.py",
+    "line": 129,
+    "severity": "error",
+    "message": "\"close\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/core/system/implementations/health_monitor.py",
+    "line": 10,
+    "severity": "warning",
+    "message": "Import \"psutil\" could not be resolved from source"
+  },
+  {
+    "file": "neural_ai/data/ingestion/market_data_persister.py",
+    "line": 64,
+    "severity": "error",
+    "message": "Cannot access attribute \"get\" for class \"IngestionConfig\"\n\u00a0\u00a0Attribute \"get\" is unknown"
+  },
+  {
+    "file": "neural_ai/data/ingestion/market_data_persister.py",
+    "line": 65,
+    "severity": "error",
+    "message": "Cannot access attribute \"get\" for class \"IngestionConfig\"\n\u00a0\u00a0Attribute \"get\" is unknown"
+  },
+  {
+    "file": "neural_ai/data/ingestion/market_data_persister.py",
+    "line": 380,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/ingestion/market_data_persister.py",
+    "line": 443,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/backends/polars_backend.py",
+    "line": 40,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 31,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 281,
+    "severity": "error",
+    "message": "Argument of type \"str\" cannot be assigned to parameter \"compression\" of type \"dict[str, Any]\" in function \"write\"\n\u00a0\u00a0\"str\" is not assignable to \"dict[str, Any]\""
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 357,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 388,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 419,
+    "severity": "error",
+    "message": "Variable not allowed in type expression"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 419,
+    "severity": "error",
+    "message": "Variable not allowed in type expression"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 434,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 452,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 530,
+    "severity": "error",
+    "message": "No overloads for \"drop_duplicates\" match the provided arguments\n\u00a0\u00a0Argument types: (list[str], Literal['first'])"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 548,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 619,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 735,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 809,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 886,
+    "severity": "error",
+    "message": "Variable not allowed in type expression"
+  },
+  {
+    "file": "neural_ai/data/storage/implementations/parquet_storage.py",
+    "line": 896,
+    "severity": "error",
+    "message": "Variable not allowed in type expression"
+  },
+  {
+    "file": "neural_ai/processors/dimensions/d01_price/processor.py",
+    "line": 5,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/processors/dimensions/d02_support/implementations/support_processor.py",
+    "line": 5,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/processors/dimensions/d02_support/implementations/support_processor.py",
+    "line": 31,
+    "severity": "error",
+    "message": "Cannot assign to attribute \"dim_config\" for class \"D02SupportProcessor*\"\n\u00a0\u00a0\"ProcessorConfig\" is not assignable to \"dict[str, Any]\""
+  },
+  {
+    "file": "neural_ai/processors/dimensions/d02_support/implementations/support_processor.py",
+    "line": 45,
+    "severity": "error",
+    "message": "Cannot access attribute \"min_candles\" for class \"dict[str, Any]\"\n\u00a0\u00a0Attribute \"min_candles\" is unknown"
+  },
+  {
+    "file": "neural_ai/processors/dimensions/d02_support/implementations/support_processor.py",
+    "line": 85,
+    "severity": "error",
+    "message": "Cannot access attribute \"min_candles\" for class \"dict[str, Any]\"\n\u00a0\u00a0Attribute \"min_candles\" is unknown"
+  },
+  {
+    "file": "neural_ai/processors/dimensions/d02_support/implementations/support_processor.py",
+    "line": 138,
+    "severity": "error",
+    "message": "Cannot access attribute \"level_merge\" for class \"dict[str, Any]\"\n\u00a0\u00a0Attribute \"level_merge\" is unknown"
+  },
+  {
+    "file": "neural_ai/processors/dimensions/d02_support/implementations/support_processor.py",
+    "line": 203,
+    "severity": "error",
+    "message": "Cannot access attribute \"strength_window\" for class \"dict[str, Any]\"\n\u00a0\u00a0Attribute \"strength_window\" is unknown"
+  },
+  {
+    "file": "neural_ai/processors/dimensions/d02_support/implementations/support_processor.py",
+    "line": 250,
+    "severity": "error",
+    "message": "Cannot access attribute \"min_touches\" for class \"dict[str, Any]\"\n\u00a0\u00a0Attribute \"min_touches\" is unknown"
+  },
+  {
+    "file": "neural_ai/processors/dimensions/d02_support/implementations/support_processor.py",
+    "line": 289,
+    "severity": "error",
+    "message": "Cannot access attribute \"volume_confirmation\" for class \"dict[str, Any]\"\n\u00a0\u00a0Attribute \"volume_confirmation\" is unknown"
+  },
+  {
+    "file": "neural_ai/processors/dimensions/d02_support/implementations/support_processor.py",
+    "line": 348,
+    "severity": "error",
+    "message": "Cannot access attribute \"market_hours\" for class \"dict[str, Any]\"\n\u00a0\u00a0Attribute \"market_hours\" is unknown"
+  },
+  {
+    "file": "neural_ai/processors/implementations/time_alignment_service.py",
+    "line": 5,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/processors/interfaces/dimension_processor_interface.py",
+    "line": 7,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/processors/interfaces/time_alignment_interface.py",
+    "line": 7,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/processors/resampler_service/implementations/resampler_service.py",
+    "line": 6,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/processors/resampler_service/interfaces/resampler_interface.py",
+    "line": 8,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 44,
+    "severity": "error",
+    "message": "Cannot assign to attribute \"_logger\" for class \"UIServiceFactory*\"\n\u00a0\u00a0\"None\" is not assignable to \"LoggerInterface\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 103,
+    "severity": "error",
+    "message": "Argument missing for parameter \"default_page\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 109,
+    "severity": "error",
+    "message": "Argument of type \"NavigationConfig | None\" cannot be assigned to parameter \"config\" of type \"dict[str, Any]\" in function \"__init__\"\n\u00a0\u00a0Type \"NavigationConfig | None\" is not assignable to type \"dict[str, Any]\"\n\u00a0\u00a0\u00a0\u00a0\"NavigationConfig\" is not assignable to \"dict[str, Any]\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 142,
+    "severity": "error",
+    "message": "Argument missing for parameter \"refresh_rate\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 148,
+    "severity": "error",
+    "message": "Argument of type \"DashboardConfig | None\" cannot be assigned to parameter \"config\" of type \"dict[str, Any]\" in function \"__init__\"\n\u00a0\u00a0Type \"DashboardConfig | None\" is not assignable to type \"dict[str, Any]\"\n\u00a0\u00a0\u00a0\u00a0\"DashboardConfig\" is not assignable to \"dict[str, Any]\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 181,
+    "severity": "error",
+    "message": "Argument missing for parameter \"jforex\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 218,
+    "severity": "error",
+    "message": "Argument missing for parameter \"model_path\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 223,
+    "severity": "error",
+    "message": "Argument of type \"AIServiceConfig | None\" cannot be assigned to parameter \"config\" of type \"dict[str, Any]\" in function \"__init__\"\n\u00a0\u00a0Type \"AIServiceConfig | None\" is not assignable to type \"dict[str, Any]\"\n\u00a0\u00a0\u00a0\u00a0\"AIServiceConfig\" is not assignable to \"dict[str, Any]\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 255,
+    "severity": "error",
+    "message": "Argument missing for parameter \"backtest_enabled\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 261,
+    "severity": "error",
+    "message": "Argument of type \"StrategyConfig | None\" cannot be assigned to parameter \"config\" of type \"dict[str, Any]\" in function \"__init__\"\n\u00a0\u00a0Type \"StrategyConfig | None\" is not assignable to type \"dict[str, Any]\"\n\u00a0\u00a0\u00a0\u00a0\"StrategyConfig\" is not assignable to \"dict[str, Any]\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 294,
+    "severity": "error",
+    "message": "Argument missing for parameter \"auto_reconnect\""
+  },
+  {
+    "file": "neural_ai/ui/factory.py",
+    "line": 300,
+    "severity": "error",
+    "message": "Argument of type \"LiveOpsConfig | None\" cannot be assigned to parameter \"config\" of type \"dict[str, Any]\" in function \"__init__\"\n\u00a0\u00a0Type \"LiveOpsConfig | None\" is not assignable to type \"dict[str, Any]\"\n\u00a0\u00a0\u00a0\u00a0\"LiveOpsConfig\" is not assignable to \"dict[str, Any]\""
+  },
+  {
+    "file": "neural_ai/ui/interfaces/strategy_service_interface.py",
+    "line": 10,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/ui/pages/01_\ud83d\ude80_Launchpad.py",
+    "line": 9,
+    "severity": "error",
+    "message": "Import \"streamlit\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/ui/pages/02_\ud83d\udee0\ufe0f_Dev_Center.py",
+    "line": 8,
+    "severity": "error",
+    "message": "Import \"streamlit\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/ui/pages/03_\ud83d\udce5_Data_Hub.py",
+    "line": 7,
+    "severity": "error",
+    "message": "Import \"streamlit\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/ui/pages/04_\ud83e\udde0_AI_Lab.py",
+    "line": 5,
+    "severity": "error",
+    "message": "Import \"streamlit\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/ui/pages/05_\ud83e\udeb2_Strategy_Lab.py",
+    "line": 11,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/ui/pages/05_\ud83e\udeb2_Strategy_Lab.py",
+    "line": 12,
+    "severity": "error",
+    "message": "Import \"streamlit\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/ui/pages/05_\ud83e\udeb2_Strategy_Lab.py",
+    "line": 694,
+    "severity": "error",
+    "message": "\"height\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/ui/pages/05_\ud83e\udeb2_Strategy_Lab.py",
+    "line": 694,
+    "severity": "error",
+    "message": "\"width\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/ui/pages/05_\ud83e\udeb2_Strategy_Lab.py",
+    "line": 695,
+    "severity": "error",
+    "message": "\"columns\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/ui/services/data_service.py",
+    "line": 14,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/ui/services/data_service.py",
+    "line": 39,
+    "severity": "error",
+    "message": "Argument missing for parameter \"jforex\""
+  },
+  {
+    "file": "neural_ai/ui/services/data_service.py",
+    "line": 413,
+    "severity": "error",
+    "message": "Cannot access attribute \"store_tick_data\" for class \"StorageInterface\"\n\u00a0\u00a0Attribute \"store_tick_data\" is unknown"
+  },
+  {
+    "file": "neural_ai/ui/services/data_service.py",
+    "line": 636,
+    "severity": "error",
+    "message": "Cannot access attribute \"get_storage_stats\" for class \"StorageInterface\"\n\u00a0\u00a0Attribute \"get_storage_stats\" is unknown"
+  },
+  {
+    "file": "neural_ai/ui/services/data_service.py",
+    "line": 689,
+    "severity": "error",
+    "message": "Cannot access attribute \"BASE_PATH\" for class \"StorageInterface\"\n\u00a0\u00a0Attribute \"BASE_PATH\" is unknown"
+  },
+  {
+    "file": "neural_ai/ui/services/strategy_service.py",
+    "line": 14,
+    "severity": "error",
+    "message": "Import \"polars\" could not be resolved"
+  },
+  {
+    "file": "neural_ai/ui/services/strategy_service.py",
+    "line": 394,
+    "severity": "error",
+    "message": "Cannot access attribute \"ma_crossed_above\" for class \"Tuple[Any, ...]\"\n\u00a0\u00a0Attribute \"ma_crossed_above\" is unknown"
+  },
+  {
+    "file": "neural_ai/ui/services/strategy_service.py",
+    "line": 394,
+    "severity": "error",
+    "message": "Cannot access attribute \"ma_crossed_above\" for class \"RawOutputT\"\n\u00a0\u00a0Attribute \"ma_crossed_above\" is unknown"
+  },
+  {
+    "file": "neural_ai/ui/services/strategy_service.py",
+    "line": 395,
+    "severity": "error",
+    "message": "Cannot access attribute \"ma_crossed_below\" for class \"Tuple[Any, ...]\"\n\u00a0\u00a0Attribute \"ma_crossed_below\" is unknown"
+  },
+  {
+    "file": "neural_ai/ui/services/strategy_service.py",
+    "line": 395,
+    "severity": "error",
+    "message": "Cannot access attribute \"ma_crossed_below\" for class \"RawOutputT\"\n\u00a0\u00a0Attribute \"ma_crossed_below\" is unknown"
+  },
+  {
+    "file": "neural_ai/ui/services/strategy_service.py",
+    "line": 408,
+    "severity": "error",
+    "message": "\"to_dict\" is not a known attribute of \"None\""
+  },
+  {
+    "file": "neural_ai/ui/services/strategy_service.py",
+    "line": 416,
+    "severity": "error",
+    "message": "Cannot access attribute \"records_readable\" for class \"FunctionType\"\n\u00a0\u00a0Attribute \"records_readable\" is unknown"
+  },
+  {
+    "file": "neural_ai/ui/services/strategy_service.py",
+    "line": 533,
+    "severity": "error",
+    "message": "No parameter named \"timeframe\""
+  },
+  {
+    "file": "neural_ai/ui/streamlit_app.py",
+    "line": 12,
+    "severity": "error",
+    "message": "Import \"streamlit\" could not be resolved"
+  }
+]

@@ -1092,6 +1092,12 @@ class TaskTreeGenerator:
                     
                     # Csak error és warning szintű hibák
                     if severity in ["error", "warning"]:
+                        # Abszolút útvonal -> relatív útvonal konverzió
+                        # Pyright abszolút útvonalat ad: /home/.../neural-ai-next/neural_ai/...
+                        # Nekünk relatív kell: neural_ai/...
+                        if file_path.startswith(str(PROJECT_ROOT)):
+                            file_path = file_path[len(str(PROJECT_ROOT)) + 1:]  # +1 a / miatt
+                        
                         pylance_errors.append({
                             "file": file_path,
                             "line": diagnostic.get("range", {}).get("start", {}).get("line", 0) + 1,
@@ -1103,6 +1109,7 @@ class TaskTreeGenerator:
                     json.dump(pylance_errors, f, indent=2)
                 
                 self.pylance_data = pylance_errors
+                print(f"    ✅ {len(pylance_errors)} Pylance hiba/figyelmeztetés találva")
             else:
                 self.pylance_data = []
         except FileNotFoundError:
