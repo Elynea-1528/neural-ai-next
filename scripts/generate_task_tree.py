@@ -60,6 +60,7 @@ class FileAnalysis:
     coverage_branch: float = 0.0
     lint_errors: int = 0
     type_errors: int = 0
+    pylance_errors: int = 0
     # Teszt eredmények
     test_passed: int = 0
     test_failed: int = 0
@@ -712,13 +713,36 @@ class HTMLGenerator:
             text-transform: uppercase;
             letter-spacing: 0.05em;
             border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            white-space: nowrap;
         }}
+        
+        th:nth-child(1) {{ width: 25%; min-width: 300px; }} /* Fájl */
+        th:nth-child(2) {{ width: 10%; min-width: 100px; }} /* Státusz */
+        th:nth-child(3) {{ width: 8%; min-width: 80px; }} /* Teszt Pár */
+        th:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Warn */
+        th:nth-child(5) {{ width: 10%; min-width: 120px; }} /* Coverage */
+        th:nth-child(6) {{ width: 10%; min-width: 120px; }} /* Lint/Mypy/Pylance */
+        th:nth-child(7) {{ width: 7%; min-width: 70px; }} /* Config */
+        th:nth-child(8) {{ width: 7%; min-width: 70px; }} /* Logger */
+        th:nth-child(9) {{ width: auto; min-width: 150px; }} /* Teendők */
         
         td {{
             padding: 1rem 1.25rem;
             border-bottom: 1px solid rgba(148, 163, 184, 0.05);
             font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }}
+        
+        td:nth-child(1) {{ width: 25%; min-width: 300px; }} /* Fájl */
+        td:nth-child(2) {{ width: 10%; min-width: 100px; }} /* Státusz */
+        td:nth-child(3) {{ width: 8%; min-width: 80px; }} /* Teszt Pár */
+        td:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Warn */
+        td:nth-child(5) {{ width: 10%; min-width: 120px; }} /* Coverage */
+        td:nth-child(6) {{ width: 10%; min-width: 120px; }} /* Lint/Mypy/Pylance */
+        td:nth-child(7) {{ width: 7%; min-width: 70px; }} /* Config */
+        td:nth-child(8) {{ width: 7%; min-width: 70px; }} /* Logger */
+        td:nth-child(9) {{ width: auto; min-width: 150px; }} /* Teendők */
         
         tr:hover td {{
             background: rgba(30, 41, 59, 0.4);
@@ -881,7 +905,7 @@ class HTMLGenerator:
                         <th>Teszt Pár</th>
                         <th>Pass/Fail/Err/Warn</th>
                         <th>Coverage (Stmt/Brch)</th>
-                        <th>Lint/Type</th>
+                        <th>Lint/Mypy/Pylance</th>
                         <th>Config</th>
                         <th>Logger</th>
                         <th>Teendők</th>
@@ -921,10 +945,11 @@ class HTMLGenerator:
             else:
                 coverage = '<span style="opacity: 0.4;">N/A</span>'
             
-            # Lint/Type
+            # Lint/Mypy/Pylance
             lint_str = f'<span class="test-fail">{file.lint_errors}</span>' if file.lint_errors > 0 else '<span style="opacity: 0.6;">0</span>'
-            type_str = f'<span class="test-fail">{file.type_errors}</span>' if file.type_errors > 0 else '<span style="opacity: 0.6;">0</span>'
-            lint_type = f'{lint_str} / {type_str}'
+            mypy_str = f'<span class="test-fail">{file.type_errors}</span>' if file.type_errors > 0 else '<span style="opacity: 0.6;">0</span>'
+            pylance_str = f'<span class="test-fail">{file.pylance_errors}</span>' if file.pylance_errors > 0 else '<span style="opacity: 0.6;">0</span>'
+            lint_type = f'{lint_str} / {mypy_str} / {pylance_str}'
             
             # Config és Logger státusz tisztítása
             config_display = file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○")
@@ -970,6 +995,7 @@ class TaskTreeGenerator:
         self.coverage_data = {}
         self.ruff_data = []
         self.mypy_data = []
+        self.pylance_data = []
         self.pytest_data = {}  # test_file_path -> {passed, failed, errors, warnings}
 
     def run_dynamic_tools(self) -> None:
@@ -1047,7 +1073,46 @@ class TaskTreeGenerator:
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
 
-        # 4. Pytest Report feldolgozása
+        # 4. Pylance (Pyright) - Problems fül hibák
+        print("  🔎 Pylance/Pyright type checker...")
+        pylance_file = REPORT_DIR / "pylance.json"
+        try:
+            # Pyright futtatása JSON outputtal
+            cmd = ["pyright", "neural_ai", "--outputjson"]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env)
+            
+            if result.stdout.strip():
+                pylance_json = json.loads(result.stdout)
+                
+                # Hibák kinyerése
+                pylance_errors = []
+                for diagnostic in pylance_json.get("generalDiagnostics", []):
+                    file_path = diagnostic.get("file", "")
+                    severity = diagnostic.get("severity", "")
+                    
+                    # Csak error és warning szintű hibák
+                    if severity in ["error", "warning"]:
+                        pylance_errors.append({
+                            "file": file_path,
+                            "line": diagnostic.get("range", {}).get("start", {}).get("line", 0) + 1,
+                            "severity": severity,
+                            "message": diagnostic.get("message", "")
+                        })
+                
+                with open(pylance_file, "w") as f:
+                    json.dump(pylance_errors, f, indent=2)
+                
+                self.pylance_data = pylance_errors
+            else:
+                self.pylance_data = []
+        except FileNotFoundError:
+            print("    ⚠️ Pyright nincs telepítve, Pylance hibák nem elérhetők")
+            self.pylance_data = []
+        except Exception as e:
+            print(f"    ⚠️ Hiba: {e}")
+            self.pylance_data = []
+
+        # 5. Pytest Report feldolgozása
         print("  📋 Pytest eredmények feldolgozása...")
         pytest_report_file = REPORT_DIR / "pytest_report.json"
         if pytest_report_file.exists():
@@ -1094,6 +1159,7 @@ class TaskTreeGenerator:
             "coverage_branch": 0.0,
             "lint_errors": 0,
             "type_errors": 0,
+            "pylance_errors": 0,
             "test_passed": 0,
             "test_failed": 0,
             "test_errors": 0,
@@ -1124,6 +1190,13 @@ class TaskTreeGenerator:
             metrics["type_errors"] = sum(
                 1 for err in self.mypy_data 
                 if err.get("file") == rel_path and err.get("severity") == "error"
+            )
+
+        # Pylance
+        if isinstance(self.pylance_data, list):
+            metrics["pylance_errors"] = sum(
+                1 for err in self.pylance_data 
+                if err.get("file") == rel_path and err.get("severity") in ["error", "warning"]
             )
 
         # Pytest eredmények (a tesztfájl alapján)
@@ -1211,6 +1284,7 @@ class TaskTreeGenerator:
             coverage_branch=dyn_metrics["coverage_branch"],
             lint_errors=dyn_metrics["lint_errors"],
             type_errors=dyn_metrics["type_errors"],
+            pylance_errors=dyn_metrics["pylance_errors"],
             test_passed=dyn_metrics["test_passed"],
             test_failed=dyn_metrics["test_failed"],
             test_errors=dyn_metrics["test_errors"],

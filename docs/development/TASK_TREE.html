@@ -195,13 +195,36 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            white-space: nowrap;
         }
+        
+        th:nth-child(1) { width: 25%; min-width: 300px; } /* Fájl */
+        th:nth-child(2) { width: 10%; min-width: 100px; } /* Státusz */
+        th:nth-child(3) { width: 8%; min-width: 80px; } /* Teszt Pár */
+        th:nth-child(4) { width: 10%; min-width: 120px; } /* Pass/Fail/Err/Warn */
+        th:nth-child(5) { width: 10%; min-width: 120px; } /* Coverage */
+        th:nth-child(6) { width: 10%; min-width: 120px; } /* Lint/Mypy/Pylance */
+        th:nth-child(7) { width: 7%; min-width: 70px; } /* Config */
+        th:nth-child(8) { width: 7%; min-width: 70px; } /* Logger */
+        th:nth-child(9) { width: auto; min-width: 150px; } /* Teendők */
         
         td {
             padding: 1rem 1.25rem;
             border-bottom: 1px solid rgba(148, 163, 184, 0.05);
             font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+        
+        td:nth-child(1) { width: 25%; min-width: 300px; } /* Fájl */
+        td:nth-child(2) { width: 10%; min-width: 100px; } /* Státusz */
+        td:nth-child(3) { width: 8%; min-width: 80px; } /* Teszt Pár */
+        td:nth-child(4) { width: 10%; min-width: 120px; } /* Pass/Fail/Err/Warn */
+        td:nth-child(5) { width: 10%; min-width: 120px; } /* Coverage */
+        td:nth-child(6) { width: 10%; min-width: 120px; } /* Lint/Mypy/Pylance */
+        td:nth-child(7) { width: 7%; min-width: 70px; } /* Config */
+        td:nth-child(8) { width: 7%; min-width: 70px; } /* Logger */
+        td:nth-child(9) { width: auto; min-width: 150px; } /* Teendők */
         
         tr:hover td {
             background: rgba(30, 41, 59, 0.4);
@@ -261,7 +284,7 @@
         <div class="header-content">
             <h1>⚡ Neural AI Next - Task Tree Dashboard</h1>
             <div class="meta">
-                <strong>Generálva:</strong> 2026-02-16 17:58:56 UTC &nbsp;|&nbsp;
+                <strong>Generálva:</strong> 2026-02-16 18:06:22 UTC &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy) &nbsp;|&nbsp;
                 <strong>Fájlok:</strong> 99
             </div>
@@ -316,7 +339,7 @@
                         <th>Teszt Pár</th>
                         <th>Pass/Fail/Err/Warn</th>
                         <th>Coverage (Stmt/Brch)</th>
-                        <th>Lint/Type</th>
+                        <th>Lint/Mypy/Pylance</th>
                         <th>Config</th>
                         <th>Logger</th>
                         <th>Teendők</th>
@@ -330,7 +353,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">42</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -342,7 +365,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">35</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">23%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>✓ OK</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -354,7 +377,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">39</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">39%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -366,7 +389,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">24</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">28%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -378,7 +401,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">10</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">43%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -390,7 +413,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">10</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">43%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -402,7 +425,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">13</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">76%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -414,7 +437,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">20</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">75%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -426,7 +449,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">15</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">40%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -438,7 +461,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">31</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">26%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -450,7 +473,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">48</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">10%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -462,7 +485,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">65</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">13%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -474,7 +497,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">25</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -486,7 +509,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">17</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -498,7 +521,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">23</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">80%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -510,7 +533,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">84%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>✓ OK</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -522,7 +545,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">9</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">54%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -534,7 +557,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">21</span>/<span class="test-fail">1</span>/0/0</td>
                         <td class="coverage"><span class="cov-low">62%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -546,7 +569,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">52%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -558,7 +581,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">92%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -570,7 +593,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">17%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>✓ OK</td>
                         <td>-</td>
@@ -582,7 +605,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">9</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">54%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -594,7 +617,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">11</span>/<span class="test-fail">1</span>/0/0</td>
                         <td class="coverage"><span class="cov-low">28%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -606,7 +629,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">24</span>/<span class="test-fail">25</span>/0/0</td>
                         <td class="coverage"><span class="cov-low">14%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>✓ OK</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -618,7 +641,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">27</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>✓ OK</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -630,7 +653,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">26</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">64%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>✓ OK</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -642,7 +665,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">14</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -654,7 +677,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">5</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">30%</span> / 11%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -666,7 +689,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">6</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">45%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -678,7 +701,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">32%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>✕ MISSING</td>
                         <td>**Logger DI hiányzik!**</td>
@@ -690,7 +713,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">9</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">70%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>✕ MISSING</td>
                         <td>**Logger DI hiányzik!**</td>
@@ -702,7 +725,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">22%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>✕ MISSING</td>
                         <td>**Logger DI hiányzik!**</td>
@@ -714,7 +737,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">81%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -726,7 +749,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">3</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">70%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -738,7 +761,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -750,7 +773,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">19</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">35%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -762,7 +785,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">28</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">11%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -774,7 +797,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -786,7 +809,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">2</span>/<span class="test-fail">11</span>/0/0</td>
                         <td class="coverage"><span class="cov-low">39%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -798,7 +821,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">56%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -810,7 +833,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">11</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">60%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -822,7 +845,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">15</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">19%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -834,7 +857,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">3</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -854,7 +877,7 @@
                         <th>Teszt Pár</th>
                         <th>Pass/Fail/Err/Warn</th>
                         <th>Coverage (Stmt/Brch)</th>
-                        <th>Lint/Type</th>
+                        <th>Lint/Mypy/Pylance</th>
                         <th>Config</th>
                         <th>Logger</th>
                         <th>Teendők</th>
@@ -868,7 +891,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -880,7 +903,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">10</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">19%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">12</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">12</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -892,7 +915,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">43</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">8%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -904,7 +927,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">13%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>✓ OK</td>
                         <td>-</td>
@@ -916,7 +939,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">75%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -928,7 +951,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">73%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -940,7 +963,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">88%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -960,7 +983,7 @@
                         <th>Teszt Pár</th>
                         <th>Pass/Fail/Err/Warn</th>
                         <th>Coverage (Stmt/Brch)</th>
-                        <th>Lint/Type</th>
+                        <th>Lint/Mypy/Pylance</th>
                         <th>Config</th>
                         <th>Logger</th>
                         <th>Teendők</th>
@@ -974,7 +997,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">20</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">7%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>✓ OK</td>
                         <td>-</td>
@@ -986,7 +1009,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">2</span>/<span class="test-fail">6</span>/0/0</td>
                         <td class="coverage"><span class="cov-low">32%</span> / 6%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -998,7 +1021,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">30</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">19%</span> / 3%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -1010,7 +1033,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">13</span>/<span class="test-fail">13</span>/0/0</td>
                         <td class="coverage"><span class="cov-low">16%</span> / 2%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -1022,7 +1045,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">28%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -1034,7 +1057,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">46</span>/<span class="test-fail">4</span>/0/0</td>
                         <td class="coverage"><span class="cov-low">11%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>✓ OK</td>
                         <td>-</td>
@@ -1046,7 +1069,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">33</span>/<span class="test-fail">1</span>/0/0</td>
                         <td class="coverage"><span class="cov-low">12%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>✓ OK</td>
                         <td>✓ OK</td>
                         <td>-</td>
@@ -1058,7 +1081,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">83%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1070,7 +1093,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">11</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -1090,7 +1113,7 @@
                         <th>Teszt Pár</th>
                         <th>Pass/Fail/Err/Warn</th>
                         <th>Coverage (Stmt/Brch)</th>
-                        <th>Lint/Type</th>
+                        <th>Lint/Mypy/Pylance</th>
                         <th>Config</th>
                         <th>Logger</th>
                         <th>Teendők</th>
@@ -1104,7 +1127,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">47%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>✓ OK</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1116,7 +1139,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">86%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1128,7 +1151,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">8%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>✓ OK</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1140,7 +1163,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1152,7 +1175,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">86%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1164,7 +1187,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">6%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">9</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">9</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>✓ OK</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1176,7 +1199,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">3</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">37%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -1188,7 +1211,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">1</span>/<span class="test-fail">7</span>/0/0</td>
                         <td class="coverage"><span class="cov-low">18%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -1200,7 +1223,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">80%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1212,7 +1235,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1224,7 +1247,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">78%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1236,7 +1259,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">41%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1248,7 +1271,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">39%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1260,7 +1283,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">12%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1272,7 +1295,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">86%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1292,7 +1315,7 @@
                         <th>Teszt Pár</th>
                         <th>Pass/Fail/Err/Warn</th>
                         <th>Coverage (Stmt/Brch)</th>
-                        <th>Lint/Type</th>
+                        <th>Lint/Mypy/Pylance</th>
                         <th>Config</th>
                         <th>Logger</th>
                         <th>Teendők</th>
@@ -1306,7 +1329,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">15</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">34%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -1318,7 +1341,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1330,7 +1353,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">21</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">14%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -1342,7 +1365,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">28</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">15%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">17</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">17</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -1354,7 +1377,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1366,7 +1389,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1378,7 +1401,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1390,7 +1413,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">19</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>-</td>
@@ -1402,7 +1425,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1414,7 +1437,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1426,7 +1449,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1438,7 +1461,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1450,7 +1473,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">24%</span> / 50%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1462,7 +1485,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1474,7 +1497,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">9%</span> / 2%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1486,7 +1509,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1498,7 +1521,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">6%</span> / 1%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">15</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">15</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1510,7 +1533,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1522,7 +1545,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">17%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1534,7 +1557,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">13</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">17%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -1546,7 +1569,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">26</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">8%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -1558,7 +1581,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">18%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1570,7 +1593,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span class="cov-low">20%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
@@ -1582,7 +1605,7 @@
                         <td><span class="test-found">✓ FOUND</span></td>
                         <td class="test-results"><span class="test-pass">24</span>/0/0/0</td>
                         <td class="coverage"><span class="cov-low">8%</span> / 0%</td>
-                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">8</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">8</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>⚠ UNUSED</td>
                         <td>-</td>
@@ -1594,7 +1617,7 @@
                         <td><span class="test-missing">✕ MISSING</span></td>
                         <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                         <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         <td>○ N/A</td>
                         <td>○ N/A</td>
                         <td>**KRITIKUS: Teszt írás!**</td>
