@@ -37,6 +37,10 @@ COVERAGE_FILE = REPORT_DIR / "coverage.json"
 RUFF_FILE = REPORT_DIR / "ruff.json"
 MYPY_FILE = REPORT_DIR / "mypy.json"
 
+# Output fájlok
+OUTPUT_MD = PROJECT_ROOT / "docs" / "development" / "TASK_TREE.md"
+OUTPUT_HTML = PROJECT_ROOT / "docs" / "development" / "TASK_TREE.html"
+
 
 @dataclass
 class FileAnalysis:
@@ -451,6 +455,310 @@ class MarkdownGenerator:
         return "\n".join(lines)
 
 
+class HTMLGenerator:
+    """HTML Dashboard generátor."""
+
+    LAYER_MAPPING = {
+        "core": ("1", "Infrastructure", "neural_ai/core/"),
+        "collectors": ("2", "Input", "neural_ai/collectors/"),
+        "data": ("3", "Persistence", "neural_ai/data/"),
+        "processors": ("4", "Domain", "neural_ai/processors/"),
+        "ui": ("5", "Presentation", "neural_ai/ui/"),
+    }
+
+    def __init__(self, analyses: list[FileAnalysis]) -> None:
+        """Inicializálja a generátort."""
+        self.analyses = analyses
+        self.grouped = self._group_by_layer()
+
+    def _group_by_layer(self) -> dict[str, list[FileAnalysis]]:
+        """Csoportosítja a fájlokat réteg szerint."""
+        grouped: dict[str, list[FileAnalysis]] = {layer: [] for layer in self.LAYER_MAPPING.keys()}
+
+        for analysis in self.analyses:
+            parts = Path(analysis.relative_path).parts
+            if len(parts) > 1 and parts[1] in self.LAYER_MAPPING:
+                grouped[parts[1]].append(analysis)
+
+        return grouped
+
+    def calculate_statistics(self) -> dict[str, int]:
+        """Statisztikákat számol."""
+        stats = {
+            "total": len(self.analyses),
+            "secure": 0,
+            "warning": 0,
+            "critical": 0,
+            "tested": 0,
+        }
+
+        for analysis in self.analyses:
+            if analysis.overall_status == "✅ SECURE":
+                stats["secure"] += 1
+            elif analysis.overall_status == "🟡 WARNING":
+                stats["warning"] += 1
+            elif analysis.overall_status == "🔴 VULNERABLE":
+                stats["critical"] += 1
+
+            if analysis.test_file_exists:
+                stats["tested"] += 1
+
+        return stats
+
+    def generate(self) -> str:
+        """Generálja a teljes HTML tartalmat."""
+        stats = self.calculate_statistics()
+        now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+        secure_pct = (stats["secure"] / stats["total"] * 100) if stats["total"] > 0 else 0
+        warning_pct = (stats["warning"] / stats["total"] * 100) if stats["total"] > 0 else 0
+        critical_pct = (stats["critical"] / stats["total"] * 100) if stats["total"] > 0 else 0
+
+        html = f"""<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural AI Next - Task Tree Dashboard</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+        }}
+        .container {{ max-width: 1400px; margin: 0 auto; }}
+        h1 {{ color: #58a6ff; margin-bottom: 10px; }}
+        .meta {{ color: #8b949e; margin-bottom: 30px; }}
+        .stats {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }}
+        .stat-card {{
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+        }}
+        .stat-value {{ font-size: 32px; font-weight: bold; margin-bottom: 5px; }}
+        .stat-label {{ color: #8b949e; font-size: 14px; }}
+        .secure {{ color: #3fb950; }}
+        .warning {{ color: #d29922; }}
+        .critical {{ color: #f85149; }}
+        
+        .layer {{ margin-bottom: 40px; }}
+        .layer-title {{
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px 6px 0 0;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #58a6ff;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-top: none;
+        }}
+        th {{
+            background: #161b22;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #30363d;
+            color: #8b949e;
+            font-size: 12px;
+            text-transform: uppercase;
+        }}
+        td {{
+            padding: 12px;
+            border-bottom: 1px solid #21262d;
+        }}
+        tr:hover {{ background: #161b22; }}
+        .file-path {{ font-family: 'Courier New', monospace; color: #79c0ff; }}
+        .status-badge {{
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }}
+        .status-secure {{ background: #1a7f37; color: #fff; }}
+        .status-warning {{ background: #9e6a03; color: #fff; }}
+        .status-critical {{ background: #da3633; color: #fff; }}
+        .test-found {{ color: #3fb950; }}
+        .test-missing {{ color: #f85149; }}
+        .test-results {{ font-family: 'Courier New', monospace; }}
+        .test-pass {{ color: #3fb950; font-weight: bold; }}
+        .test-fail {{ color: #f85149; font-weight: bold; }}
+        .test-error {{ color: #ff6b6b; font-weight: bold; }}
+        .test-warn {{ color: #d29922; font-weight: bold; }}
+        .coverage {{ font-family: 'Courier New', monospace; }}
+        .cov-low {{ color: #f85149; font-weight: bold; }}
+        .cov-good {{ color: #3fb950; }}
+        .search-box {{
+            margin-bottom: 20px;
+            padding: 10px;
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 14px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌳 NEURAL AI NEXT - TASK TREE DASHBOARD</h1>
+        <div class="meta">
+            <strong>Generálva:</strong> {now}<br>
+            <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy)<br>
+            <strong>Fájlok száma:</strong> {stats['total']}
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value secure">{stats['secure']}</div>
+                <div class="stat-label">✅ SECURE ({secure_pct:.1f}%)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value warning">{stats['warning']}</div>
+                <div class="stat-label">🟡 WARNING ({warning_pct:.1f}%)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value critical">{stats['critical']}</div>
+                <div class="stat-label">🔴 CRITICAL ({critical_pct:.1f}%)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{stats['tested']}/{stats['total']}</div>
+                <div class="stat-label">📋 Teszt lefedettség</div>
+            </div>
+        </div>
+
+        <input type="text" class="search-box" id="searchBox" placeholder="🔍 Keresés fájl név alapján..." onkeyup="filterTable()">
+"""
+
+        # Rétegek
+        for layer in ["core", "collectors", "data", "processors", "ui"]:
+            if layer in self.grouped and self.grouped[layer]:
+                html += self._create_html_table(layer, self.grouped[layer])
+
+        html += """
+    </div>
+    <script>
+        function filterTable() {
+            const input = document.getElementById('searchBox');
+            const filter = input.value.toLowerCase();
+            const tables = document.querySelectorAll('table');
+            
+            tables.forEach(table => {
+                const rows = table.getElementsByTagName('tr');
+                for (let i = 1; i < rows.length; i++) {
+                    const td = rows[i].getElementsByTagName('td')[0];
+                    if (td) {
+                        const txtValue = td.textContent || td.innerText;
+                        rows[i].style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>"""
+        return html
+
+    def _create_html_table(self, layer: str, files: list[FileAnalysis]) -> str:
+        """Létrehoz egy HTML táblázatot egy réteghez."""
+        if not files:
+            return ""
+
+        num, name, path = self.LAYER_MAPPING[layer]
+
+        html = f"""
+        <div class="layer">
+            <div class="layer-title">{num}. {name} Layer ({path})</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Modul / Fájl</th>
+                        <th>Státusz</th>
+                        <th>Teszt Pár</th>
+                        <th>Pass/Fail/Err/Warn</th>
+                        <th>Coverage (Stmt/Brch)</th>
+                        <th>Lint/Type</th>
+                        <th>Config</th>
+                        <th>Logger</th>
+                        <th>Teendők</th>
+                    </tr>
+                </thead>
+                <tbody>
+"""
+
+        for file in sorted(files, key=lambda x: x.relative_path):
+            short_path = file.relative_path.replace("neural_ai/", "")
+            
+            # Státusz badge
+            if file.overall_status == "✅ SECURE":
+                status_badge = '<span class="status-badge status-secure">SECURE</span>'
+            elif file.overall_status == "🟡 WARNING":
+                status_badge = '<span class="status-badge status-warning">WARNING</span>'
+            else:
+                status_badge = '<span class="status-badge status-critical">CRITICAL</span>'
+            
+            # Teszt pár
+            test_pair = '<span class="test-found">✅ FOUND</span>' if file.test_file_exists else '<span class="test-missing">❌ MISSING</span>'
+            
+            # Teszt eredmények
+            if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0):
+                pass_str = f'<span class="test-pass">{file.test_passed}</span>' if file.test_passed > 0 else '0'
+                fail_str = f'<span class="test-fail">{file.test_failed}</span>' if file.test_failed > 0 else '0'
+                error_str = f'<span class="test-error">{file.test_errors}</span>' if file.test_errors > 0 else '0'
+                warn_str = f'<span class="test-warn">{file.test_warnings}</span>' if file.test_warnings > 0 else '0'
+                test_results = f'{pass_str}/{fail_str}/{error_str}/{warn_str}'
+            else:
+                test_results = '-'
+            
+            # Coverage
+            if file.coverage_stmt > 0:
+                cov_class = 'cov-good' if file.coverage_stmt >= 80 else 'cov-low'
+                coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
+            else:
+                coverage = 'N/A'
+            
+            # Lint/Type
+            lint_str = f'<span class="test-fail">{file.lint_errors}</span>' if file.lint_errors > 0 else '0'
+            type_str = f'<span class="test-fail">{file.type_errors}</span>' if file.type_errors > 0 else '0'
+            lint_type = f'{lint_str} / {type_str}'
+            
+            html += f"""
+                    <tr>
+                        <td class="file-path">{short_path}</td>
+                        <td>{status_badge}</td>
+                        <td>{test_pair}</td>
+                        <td class="test-results">{test_results}</td>
+                        <td class="coverage">{coverage}</td>
+                        <td>{lint_type}</td>
+                        <td>{file.config_status}</td>
+                        <td>{file.logger_status}</td>
+                        <td>{file.notes if file.notes else '-'}</td>
+                    </tr>
+"""
+
+        html += """
+                </tbody>
+            </table>
+        </div>
+"""
+        return html
+
+
 class TaskTreeGenerator:
     """Fő orchestrator osztály."""
 
@@ -715,7 +1023,7 @@ class TaskTreeGenerator:
         )
 
     def generate(self) -> None:
-        """Generálja a TASK_TREE.md fájlt."""
+        """Generálja a TASK_TREE.md és TASK_TREE.html fájlokat."""
         # 1. Dinamikus eszközök futtatása
         self.run_dynamic_tools()
         
@@ -730,19 +1038,27 @@ class TaskTreeGenerator:
             analysis = self.analyze_file(file_path)
             analyses.append(analysis)
 
-        print("\n📝 TASK_TREE.md generálása...")
-        generator = MarkdownGenerator(analyses)
-        content = generator.generate()
+        # 2. Markdown generálás (AI számára)
+        print("\n📝 TASK_TREE.md generálása (AI)...")
+        md_generator = MarkdownGenerator(analyses)
+        md_content = md_generator.generate()
 
-        # Kimenet írása
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
         with open(self.output_file, "w", encoding="utf-8") as f:
-            f.write(content)
-
+            f.write(md_content)
         print(f"✅ TASK_TREE.md generálva: {self.output_file}")
 
+        # 3. HTML generálás (Ember számára)
+        print("\n🌐 TASK_TREE.html generálása (Ember)...")
+        html_generator = HTMLGenerator(analyses)
+        html_content = html_generator.generate()
+
+        with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
+            f.write(html_content)
+        print(f"✅ TASK_TREE.html generálva: {OUTPUT_HTML}")
+
         # Statisztika
-        stats = generator.calculate_statistics()
+        stats = md_generator.calculate_statistics()
         print("\n📈 Statisztika:")
         secure_pct = stats["secure"] / stats["total"] * 100
         warning_pct = stats["warning"] / stats["total"] * 100
@@ -750,6 +1066,7 @@ class TaskTreeGenerator:
         print(f"  ✅ SECURE: {stats['secure']} ({secure_pct:.1f}%)")
         print(f"  🟡 WARNING: {stats['warning']} ({warning_pct:.1f}%)")
         print(f"  🔴 VULNERABLE: {stats['vulnerable']} ({vuln_pct:.1f}%)")
+
 
 
 if __name__ == "__main__":
