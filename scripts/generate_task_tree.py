@@ -364,14 +364,14 @@ class MarkdownGenerator:
             if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0):
                 test_results = []
                 if file.test_passed > 0:
-                    test_results.append(f"✅{file.test_passed}")
+                    test_results.append(f"✅ {file.test_passed}")
                 if file.test_failed > 0:
-                    test_results.append(f"**❌{file.test_failed}**")
+                    test_results.append(f"❌ **{file.test_failed}**")
                 if file.test_errors > 0:
-                    test_results.append(f"**🔥{file.test_errors}**")
+                    test_results.append(f"🔥 **{file.test_errors}**")
                 if file.test_warnings > 0:
-                    test_results.append(f"⚠️{file.test_warnings}")
-                test_status = " ".join(test_results) if test_results else f"{file.test_count} tests"
+                    test_results.append(f"⚠️ {file.test_warnings}")
+                test_status = " / ".join(test_results) if test_results else f"{file.test_count}"
             else:
                 test_status = f"{file.test_count}" if file.test_count > 0 else "-"
             
