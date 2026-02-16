@@ -187,6 +187,15 @@ class MirrorChecker:
         if test_path.exists():
             return test_path
 
+        # 1.5 Factory speciális kezelés: test_MODULE_factory.py
+        # pl. neural_ai/core/config/factory.py -> tests/core/config/test_config_factory.py
+        if base_name == "factory" and dir_parts:
+            module_name = dir_parts[-1]  # pl. "config", "db", "logger"
+            module_factory_name = f"test_{module_name}_factory.py"
+            module_factory_path = Path("tests") / Path(*dir_parts) / module_factory_name
+            if module_factory_path.exists():
+                return module_factory_path
+
         # UI Services Fallback (ha a standard logika valamiért nem találja)
         if "ui" in dir_parts and "services" in dir_parts:
              ui_test_path = Path("tests/ui/services") / test_file_name
