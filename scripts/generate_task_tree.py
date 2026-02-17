@@ -370,15 +370,21 @@ class MarkdownGenerator:
         return grouped
 
     def calculate_statistics(self) -> dict[str, int]:
-        """Statisztikákat számol."""
+        """Statisztikákat számol csak a megadott layerekhez."""
+        # Csak a megadott layerek fájljait számoljuk
+        relevant_files = []
+        for layer in self.layers:
+            if layer in self.grouped:
+                relevant_files.extend(self.grouped[layer])
+        
         stats = {
-            "total": len(self.analyses),
+            "total": len(relevant_files),
             "secure": 0,
             "warning": 0,
             "vulnerable": 0,
         }
 
-        for analysis in self.analyses:
+        for analysis in relevant_files:
             if analysis.overall_status == "✅ SECURE":
                 stats["secure"] += 1
             elif analysis.overall_status == "🟡 WARNING":
@@ -532,16 +538,22 @@ class HTMLGenerator:
         return grouped
 
     def calculate_statistics(self) -> dict[str, int]:
-        """Statisztikákat számol."""
+        """Statisztikákat számol csak a megadott layerekhez."""
+        # Csak a megadott layerek fájljait számoljuk
+        relevant_files = []
+        for layer in self.layers:
+            if layer in self.grouped:
+                relevant_files.extend(self.grouped[layer])
+        
         stats = {
-            "total": len(self.analyses),
+            "total": len(relevant_files),
             "secure": 0,
             "warning": 0,
             "critical": 0,
             "tested": 0,
         }
 
-        for analysis in self.analyses:
+        for analysis in relevant_files:
             if analysis.overall_status == "✅ SECURE":
                 stats["secure"] += 1
             elif analysis.overall_status == "🟡 WARNING":
@@ -867,7 +879,7 @@ class HTMLGenerator:
             <h1>{header_title}</h1>
             <div class="meta">
                 <strong>Generálva:</strong> {now} &nbsp;|&nbsp;
-                <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy) &nbsp;|&nbsp;
+                <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance) &nbsp;|&nbsp;
                 <strong>Fájlok:</strong> {stats['total']}
             </div>
         </div>

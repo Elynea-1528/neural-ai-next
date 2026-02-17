@@ -1,14 +1,14 @@
 # 📜 NEURAL AI NEXT - SCRIPTS
 
-**Generálva:** 2026-02-17 14:13:42 UTC
+**Generálva:** 2026-02-17 14:20:36 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
-**Fájlok száma:** 214
+**Fájlok száma:** 15
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 137 (64.0%)
-- 🟡 **WARNING:** 17 (7.9%)
-- 🔴 **VULNERABLE:** 60 (28.0%)
+- ✅ **SECURE:** 0 (0.0%)
+- 🟡 **WARNING:** 0 (0.0%)
+- 🔴 **VULNERABLE:** 15 (100.0%)
 
 ---
 
@@ -24,7 +24,7 @@
 | `scripts/download_history.py` | 🔴 VULNERABLE | - | 0 / 0 / 2 |
 | `scripts/force_kill.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
 | `scripts/generate_docs.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
-| `scripts/generate_task_tree.py` | 🔴 VULNERABLE | - | 0 / 0 / 60 |
+| `scripts/generate_task_tree.py` | 🔴 VULNERABLE | - | 0 / 0 / 73 |
 | `scripts/install.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
 | `scripts/migrate_structure.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
 | `scripts/smart_pack.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |

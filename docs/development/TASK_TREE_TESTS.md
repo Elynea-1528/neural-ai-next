@@ -1,14 +1,14 @@
 # 🧪 NEURAL AI NEXT - TESTS
 
-**Generálva:** 2026-02-17 14:13:42 UTC
+**Generálva:** 2026-02-17 14:20:36 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
-**Fájlok száma:** 214
+**Fájlok száma:** 100
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 137 (64.0%)
-- 🟡 **WARNING:** 17 (7.9%)
-- 🔴 **VULNERABLE:** 60 (28.0%)
+- ✅ **SECURE:** 97 (97.0%)
+- 🟡 **WARNING:** 1 (1.0%)
+- 🔴 **VULNERABLE:** 2 (2.0%)
 
 ---
 

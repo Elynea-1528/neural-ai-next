@@ -1,14 +1,14 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-02-17 14:13:42 UTC
+**Generálva:** 2026-02-17 14:20:36 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
-**Fájlok száma:** 214
+**Fájlok száma:** 99
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 137 (64.0%)
-- 🟡 **WARNING:** 17 (7.9%)
-- 🔴 **VULNERABLE:** 60 (28.0%)
+- ✅ **SECURE:** 40 (40.4%)
+- 🟡 **WARNING:** 16 (16.2%)
+- 🔴 **VULNERABLE:** 43 (43.4%)
 
 ---
 
