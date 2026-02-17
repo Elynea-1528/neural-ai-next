@@ -1202,7 +1202,7 @@ class TaskTreeGenerator:
         self.source_dir = Path(source_dir)
         self.output_file = Path(output_file)
         self.ignored_dirs = {"__pycache__", ".pytest_cache", ".ruff_cache"}
-        self.ignored_files = {"__init__.py"}
+        self.ignored_files = set()  # Üres - __init__.py fájlokat is szkenneljük
         # Szkennelendő mappák
         self.scan_dirs = [
             Path("neural_ai"),
