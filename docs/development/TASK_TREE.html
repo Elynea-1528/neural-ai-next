@@ -201,7 +201,7 @@
         th:nth-child(1) { width: 25%; min-width: 300px; } /* Fájl */
         th:nth-child(2) { width: 10%; min-width: 100px; } /* Státusz */
         th:nth-child(3) { width: 8%; min-width: 80px; } /* Teszt Pár / Pass-Fail (tests/scripts) */
-        th:nth-child(4) { width: 10%; min-width: 120px; } /* Pass/Fail/Err/Warn / Lint (tests/scripts) */
+        th:nth-child(4) { width: 10%; min-width: 120px; } /* Pass/Fail/Err/Skip / Lint (tests/scripts) */
         th:nth-child(5) { width: 10%; min-width: 120px; } /* Coverage */
         th:nth-child(6) { width: 10%; min-width: 120px; } /* Lint/Mypy/Pylance */
         th:nth-child(7) { width: 6%; min-width: 60px; } /* Src Warn */
@@ -221,7 +221,7 @@
         td:nth-child(1) { width: 25%; min-width: 300px; } /* Fájl */
         td:nth-child(2) { width: 10%; min-width: 100px; } /* Státusz */
         td:nth-child(3) { width: 8%; min-width: 80px; } /* Teszt Pár / Pass-Fail (tests/scripts) */
-        td:nth-child(4) { width: 10%; min-width: 120px; } /* Pass/Fail/Err/Warn / Lint (tests/scripts) */
+        td:nth-child(4) { width: 10%; min-width: 120px; } /* Pass/Fail/Err/Skip / Lint (tests/scripts) */
         td:nth-child(5) { width: 10%; min-width: 120px; } /* Coverage */
         td:nth-child(6) { width: 10%; min-width: 120px; } /* Lint/Mypy/Pylance */
         td:nth-child(7) { width: 6%; min-width: 60px; } /* Src Warn */
@@ -277,6 +277,7 @@
         .test-pass { color: #10b981; font-weight: 600; }
         .test-fail { color: #ef4444; font-weight: 600; }
         .test-error { color: #f87171; font-weight: 600; }
+        .test-skip { color: #f59e0b; font-weight: 600; }
         .test-warn { color: #f59e0b; font-weight: 600; }
         .coverage { font-family: 'SF Mono', monospace; font-size: 0.875rem; }
         .cov-low { color: #ef4444; font-weight: 600; }
@@ -288,7 +289,7 @@
         <div class="header-content">
             <h1>⚡ Neural AI Next - Task Tree Dashboard</h1>
             <div class="meta">
-                <strong>Generálva:</strong> 2026-02-17 13:20:30 UTC &nbsp;|&nbsp;
+                <strong>Generálva:</strong> 2026-02-17 13:36:16 UTC &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy) &nbsp;|&nbsp;
                 <strong>Fájlok:</strong> 214
             </div>
@@ -341,7 +342,7 @@
                             <th>Modul / Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
-                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Pass/Fail/Err/Skip</th>
                             <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
                             <th>Src Warn</th>
@@ -637,7 +638,7 @@
                             <td class="file-path">core/db/implementations/sqlalchemy_session.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
+                            <td class="test-results"><span class="test-pass">22</span>/0/0/<span class="test-skip">3</span></td>
                             <td class="coverage"><span class="cov-low">17%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">10</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -967,7 +968,7 @@
                             <th>Modul / Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
-                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Pass/Fail/Err/Skip</th>
                             <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
                             <th>Src Warn</th>
@@ -1089,7 +1090,7 @@
                             <th>Modul / Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
-                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Pass/Fail/Err/Skip</th>
                             <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
                             <th>Src Warn</th>
@@ -1105,7 +1106,7 @@
                             <td class="file-path">data/ingestion/market_data_persister.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">20</span>/0/0/0</td>
+                            <td class="test-results"><span class="test-pass">20</span>/0/0/<span class="test-skip">5</span></td>
                             <td class="coverage"><span class="cov-low">7%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span> / <span class="test-fail">10</span></td>
                             <td><span class="test-warn">1</span></td>
@@ -1147,7 +1148,7 @@
                             <td class="file-path">data/storage/backends/polars_backend.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">13</span>/<span class="test-fail">13</span>/0/0</td>
+                            <td class="test-results"><span class="test-pass">13</span>/<span class="test-fail">13</span>/0/<span class="test-skip">4</span></td>
                             <td class="coverage"><span class="cov-low">16%</span> / 2%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -1175,7 +1176,7 @@
                             <td class="file-path">data/storage/implementations/file_storage.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">46</span>/<span class="test-fail">4</span>/0/0</td>
+                            <td class="test-results"><span class="test-pass">46</span>/<span class="test-fail">4</span>/0/<span class="test-skip">2</span></td>
                             <td class="coverage"><span class="cov-low">11%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span> / <span class="test-fail">6</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -1239,7 +1240,7 @@
                             <th>Modul / Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
-                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Pass/Fail/Err/Skip</th>
                             <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
                             <th>Src Warn</th>
@@ -1473,7 +1474,7 @@
                             <th>Modul / Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
-                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Pass/Fail/Err/Skip</th>
                             <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
                             <th>Src Warn</th>
@@ -1846,7 +1847,7 @@
                         <tr>
                             <th>Fájl</th>
                             <th>Státusz</th>
-                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Pass/Fail/Err/Skip</th>
                             <th>Lint/Mypy/Pylance</th>
                         </tr>
                     </thead>
@@ -2100,7 +2101,7 @@
                         <tr>
                             <td class="file-path">tests/core/db/implementations/test_sqlalchemy_session.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
+                            <td class="test-results"><span class="test-pass">22</span>/0/0/<span class="test-skip">3</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
@@ -2338,7 +2339,7 @@
                         <tr>
                             <td class="file-path">tests/data/ingestion/test_market_data_persister.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span class="test-pass">20</span>/0/0/0</td>
+                            <td class="test-results"><span class="test-pass">20</span>/0/0/<span class="test-skip">5</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
@@ -2359,14 +2360,14 @@
                         <tr>
                             <td class="file-path">tests/data/storage/backends/test_polars_backend.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span class="test-pass">13</span>/<span class="test-fail">13</span>/0/0</td>
+                            <td class="test-results"><span class="test-pass">13</span>/<span class="test-fail">13</span>/0/<span class="test-skip">4</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">13</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/data/storage/implementations/test_file_storage.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span class="test-pass">46</span>/<span class="test-fail">4</span>/0/0</td>
+                            <td class="test-results"><span class="test-pass">46</span>/<span class="test-fail">4</span>/0/<span class="test-skip">2</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">30</span></td>
                         </tr>
     
@@ -2563,7 +2564,7 @@
                         <tr>
                             <th>Fájl</th>
                             <th>Státusz</th>
-                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Pass/Fail/Err/Skip</th>
                             <th>Lint/Mypy/Pylance</th>
                         </tr>
                     </thead>
@@ -2629,7 +2630,7 @@
                             <td class="file-path">scripts/generate_task_tree.py</td>
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">59</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">60</span></td>
                         </tr>
     
                         <tr>

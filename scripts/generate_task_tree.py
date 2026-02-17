@@ -65,7 +65,7 @@ class FileAnalysis:
     test_passed: int = 0
     test_failed: int = 0
     test_errors: int = 0
-    test_warnings: int = 0  # Mindig 0, mert warnings nem teszt-specifikusak
+    test_skipped: int = 0
     # Forráskód warnings (pytest warnings)
     source_warnings: int = 0
     # Dokumentáció
@@ -393,15 +393,15 @@ class MarkdownGenerator:
 
             # Tests és Scripts layerekhez egyszerűsített táblázat
             if layer in ["tests", "scripts"]:
-                table += "| Fájl | Státusz | Pass/Fail/Err/Warn | Lint/Mypy/Pylance |\n"
+                table += "| Fájl | Státusz | Pass/Fail/Err/Skip | Lint/Mypy/Pylance |\n"
                 table += "|:-----|:--------|:-------------------|:------------------|\n"
 
                 for file in sorted(files, key=lambda x: x.relative_path):
                     short_path = file.relative_path
 
                     # Teszt eredmények
-                    if file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0:
-                        test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_warnings}"
+                    if file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0 or file.test_skipped > 0:
+                        test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
                     else:
                         test_results = "-"
 
@@ -411,7 +411,7 @@ class MarkdownGenerator:
                     table += f"| `{short_path}` | {file.overall_status} | {test_results} | {lint_mypy_pylance} |\n"
             else:
                 # Neural_ai layerekhez teljes táblázat + Dokumentálva oszlop
-                table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
+                table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
                 table += "|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|\n"
 
                 for file in sorted(files, key=lambda x: x.relative_path):
@@ -421,8 +421,8 @@ class MarkdownGenerator:
                     test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
 
                     # Teszt eredmények
-                    if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0):
-                        test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_warnings}"
+                    if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0 or file.test_skipped > 0):
+                        test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
                     else:
                         test_results = "-"
 
@@ -747,7 +747,7 @@ class HTMLGenerator:
         th:nth-child(1) {{ width: 25%; min-width: 300px; }} /* Fájl */
         th:nth-child(2) {{ width: 10%; min-width: 100px; }} /* Státusz */
         th:nth-child(3) {{ width: 8%; min-width: 80px; }} /* Teszt Pár / Pass-Fail (tests/scripts) */
-        th:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Warn / Lint (tests/scripts) */
+        th:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Skip / Lint (tests/scripts) */
         th:nth-child(5) {{ width: 10%; min-width: 120px; }} /* Coverage */
         th:nth-child(6) {{ width: 10%; min-width: 120px; }} /* Lint/Mypy/Pylance */
         th:nth-child(7) {{ width: 6%; min-width: 60px; }} /* Src Warn */
@@ -767,7 +767,7 @@ class HTMLGenerator:
         td:nth-child(1) {{ width: 25%; min-width: 300px; }} /* Fájl */
         td:nth-child(2) {{ width: 10%; min-width: 100px; }} /* Státusz */
         td:nth-child(3) {{ width: 8%; min-width: 80px; }} /* Teszt Pár / Pass-Fail (tests/scripts) */
-        td:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Warn / Lint (tests/scripts) */
+        td:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Skip / Lint (tests/scripts) */
         td:nth-child(5) {{ width: 10%; min-width: 120px; }} /* Coverage */
         td:nth-child(6) {{ width: 10%; min-width: 120px; }} /* Lint/Mypy/Pylance */
         td:nth-child(7) {{ width: 6%; min-width: 60px; }} /* Src Warn */
@@ -823,6 +823,7 @@ class HTMLGenerator:
         .test-pass {{ color: #10b981; font-weight: 600; }}
         .test-fail {{ color: #ef4444; font-weight: 600; }}
         .test-error {{ color: #f87171; font-weight: 600; }}
+        .test-skip {{ color: #f59e0b; font-weight: 600; }}
         .test-warn {{ color: #f59e0b; font-weight: 600; }}
         .coverage {{ font-family: 'SF Mono', monospace; font-size: 0.875rem; }}
         .cov-low {{ color: #ef4444; font-weight: 600; }}
@@ -940,7 +941,7 @@ class HTMLGenerator:
                 html += """
                             <th>Fájl</th>
                             <th>Státusz</th>
-                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Pass/Fail/Err/Skip</th>
                             <th>Lint/Mypy/Pylance</th>"""
             else:
                 # Neural_ai layerekhez teljes fejléc + Dokumentálva
@@ -948,7 +949,7 @@ class HTMLGenerator:
                             <th>Modul / Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
-                            <th>Pass/Fail/Err/Warn</th>
+                            <th>Pass/Fail/Err/Skip</th>
                             <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
                             <th>Src Warn</th>
@@ -975,12 +976,12 @@ class HTMLGenerator:
                     status_badge = '<span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span>'
 
                 # Teszt eredmények
-                if file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0:
+                if file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0 or file.test_skipped > 0:
                     pass_str = f'<span class="test-pass">{file.test_passed}</span>' if file.test_passed > 0 else '0'
                     fail_str = f'<span class="test-fail">{file.test_failed}</span>' if file.test_failed > 0 else '0'
                     error_str = f'<span class="test-error">{file.test_errors}</span>' if file.test_errors > 0 else '0'
-                    warn_str = f'<span class="test-warn">{file.test_warnings}</span>' if file.test_warnings > 0 else '0'
-                    test_results = f'{pass_str}/{fail_str}/{error_str}/{warn_str}'
+                    skip_str = f'<span class="test-skip">{file.test_skipped}</span>' if file.test_skipped > 0 else '0'
+                    test_results = f'{pass_str}/{fail_str}/{error_str}/{skip_str}'
                 else:
                     test_results = '<span style="opacity: 0.4;">-</span>'
 
@@ -1219,7 +1220,7 @@ class TaskTreeGenerator:
                                 "passed": 0,
                                 "failed": 0,
                                 "errors": 0,
-                                "warnings": 0  # Mindig 0, mert warnings nem teszt-specifikusak
+                                "skipped": 0
                             }
                         
                         if outcome == "passed":
@@ -1228,6 +1229,8 @@ class TaskTreeGenerator:
                             self.pytest_data[test_file]["failed"] += 1
                         elif outcome == "error":
                             self.pytest_data[test_file]["errors"] += 1
+                        elif outcome == "skipped":
+                            self.pytest_data[test_file]["skipped"] += 1
                 
                 # Warnings feldolgozása (TOP LEVEL, forráskód fájlokhoz)
                 # A warnings-ok a forráskód fájlokban vannak, nem a teszt fájlokban
@@ -1257,7 +1260,7 @@ class TaskTreeGenerator:
             "test_passed": 0,
             "test_failed": 0,
             "test_errors": 0,
-            "test_warnings": 0,
+            "test_skipped": 0,
             "source_warnings": 0,  # Pytest warnings a forráskódban
         }
 
@@ -1307,7 +1310,7 @@ class TaskTreeGenerator:
                 metrics["test_passed"] = self.pytest_data[test_rel]["passed"]
                 metrics["test_failed"] = self.pytest_data[test_rel]["failed"]
                 metrics["test_errors"] = self.pytest_data[test_rel]["errors"]
-                metrics["test_warnings"] = self.pytest_data[test_rel]["warnings"]
+                metrics["test_skipped"] = self.pytest_data[test_rel]["skipped"]
 
         return metrics
 
@@ -1397,7 +1400,7 @@ class TaskTreeGenerator:
             test_passed=dyn_metrics["test_passed"],
             test_failed=dyn_metrics["test_failed"],
             test_errors=dyn_metrics["test_errors"],
-            test_warnings=dyn_metrics["test_warnings"],
+            test_skipped=dyn_metrics["test_skipped"],
             source_warnings=dyn_metrics["source_warnings"],
             has_documentation=has_documentation,
         )

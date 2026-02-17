@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-02-17 13:20:30 UTC
+**Generálva:** 2026-02-17 13:36:16 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 214
 
@@ -14,7 +14,7 @@
 
 ## 1. Infrastructure Layer (`neural_ai/core/`)
 
-| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
+| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
 | `core/base/exceptions/base_error.py` | ✅ SECURE | ✅ FOUND | **42**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | - |
 | `core/base/factory.py` | ✅ SECURE | ✅ FOUND | **35**/0/0/0 | 23% / 0% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ❌ | - |
@@ -36,7 +36,7 @@
 | `core/db/factory.py` | 🟡 WARNING | ✅ FOUND | **21**/1/0/0 | 62% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ❌ | - |
 | `core/db/implementations/model_base.py` | ✅ SECURE | ✅ FOUND | **12**/0/0/0 | 52% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | - |
 | `core/db/implementations/models.py` | ✅ SECURE | ✅ FOUND | **22**/0/0/0 | 92% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | - |
-| `core/db/implementations/sqlalchemy_session.py` | ✅ SECURE | ✅ FOUND | **22**/0/0/0 | 17% / 0% | 0 / 0 / 10 | - | ⚪ N/A | ✅ OK | ❌ | - |
+| `core/db/implementations/sqlalchemy_session.py` | ✅ SECURE | ✅ FOUND | **22**/0/0/3 | 17% / 0% | 0 / 0 / 10 | - | ⚪ N/A | ✅ OK | ❌ | - |
 | `core/events/exceptions/event_error.py` | ✅ SECURE | ✅ FOUND | **9**/0/0/0 | 54% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | - |
 | `core/events/factory.py` | 🟡 WARNING | ✅ FOUND | **11**/1/0/0 | 28% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ❌ | - |
 | `core/events/implementations/zeromq_bus.py` | 🟡 WARNING | ✅ FOUND | **24**/25/0/0 | 14% / 0% | 0 / 1 / 20 | - | ✅ OK | ⚠️ UNUSED | ❌ | - |
@@ -62,7 +62,7 @@
 
 ## 2. Input Layer (`neural_ai/collectors/`)
 
-| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
+| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
 | `collectors/jforex/exceptions/jforex_error.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | **KRITIKUS: Teszt írás!** |
 | `collectors/jforex/factory.py` | ✅ SECURE | ✅ FOUND | **10**/0/0/0 | 19% / 0% | 0 / 12 / 2 | - | ⚪ N/A | ⚪ N/A | ❌ | - |
@@ -74,21 +74,21 @@
 
 ## 3. Persistence Layer (`neural_ai/data/`)
 
-| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
+| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
-| `data/ingestion/market_data_persister.py` | ✅ SECURE | ✅ FOUND | **20**/0/0/0 | 7% / 0% | 0 / 6 / 10 | 1 | ⚪ N/A | ✅ OK | ❌ | - |
+| `data/ingestion/market_data_persister.py` | ✅ SECURE | ✅ FOUND | **20**/0/0/5 | 7% / 0% | 0 / 6 / 10 | 1 | ⚪ N/A | ✅ OK | ❌ | - |
 | `data/storage/backends/base.py` | 🟡 WARNING | ✅ FOUND | **2**/6/0/0 | 32% / 6% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ❌ | - |
 | `data/storage/backends/pandas_backend.py` | 🟡 WARNING | ✅ FOUND | **30**/0/0/0 | 19% / 3% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ❌ | - |
-| `data/storage/backends/polars_backend.py` | 🟡 WARNING | ✅ FOUND | **13**/13/0/0 | 16% / 2% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ❌ | - |
+| `data/storage/backends/polars_backend.py` | 🟡 WARNING | ✅ FOUND | **13**/13/0/4 | 16% / 2% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ❌ | - |
 | `data/storage/factory.py` | ✅ SECURE | ✅ FOUND | **12**/0/0/0 | 28% / 0% | 0 / 0 / 5 | - | ⚪ N/A | ⚪ N/A | ❌ | - |
-| `data/storage/implementations/file_storage.py` | ✅ SECURE | ✅ FOUND | **46**/4/0/0 | 11% / 0% | 0 / 5 / 6 | - | ⚪ N/A | ✅ OK | ❌ | - |
+| `data/storage/implementations/file_storage.py` | ✅ SECURE | ✅ FOUND | **46**/4/0/2 | 11% / 0% | 0 / 5 / 6 | - | ⚪ N/A | ✅ OK | ❌ | - |
 | `data/storage/implementations/parquet_storage.py` | ✅ SECURE | ✅ FOUND | **33**/1/0/0 | 12% / 0% | 0 / 1 / 21 | - | ✅ OK | ✅ OK | ❌ | - |
 | `data/storage/interfaces/factory_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 83% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | **KRITIKUS: Teszt írás!** |
 | `data/storage/interfaces/storage_interface.py` | ✅ SECURE | ✅ FOUND | **11**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | - |
 
 ## 4. Domain Layer (`neural_ai/processors/`)
 
-| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
+| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
 | `processors/dimensions/base.py` | 🔴 VULNERABLE | ❌ MISSING | - | 47% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ❌ | **KRITIKUS: Teszt írás!** |
 | `processors/dimensions/d01_price/factory.py` | 🔴 VULNERABLE | ❌ MISSING | - | 86% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | **KRITIKUS: Teszt írás!** |
@@ -108,7 +108,7 @@
 
 ## 5. Presentation Layer (`neural_ai/ui/`)
 
-| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
+| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
 | `ui/app.py` | 🟡 WARNING | ✅ FOUND | **15**/0/0/0 | 34% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ❌ | - |
 | `ui/components/base_widget.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | **KRITIKUS: Teszt írás!** |
@@ -138,7 +138,7 @@
 
 ## 6. Tests Layer (`tests/`)
 
-| Fájl | Státusz | Pass/Fail/Err/Warn | Lint/Mypy/Pylance |
+| Fájl | Státusz | Pass/Fail/Err/Skip | Lint/Mypy/Pylance |
 |:-----|:--------|:-------------------|:------------------|
 | `tests/collectors/jforex/exceptions/test_exceptions_init.py` | ✅ SECURE | **5**/0/0/0 | 0 / 0 / 0 |
 | `tests/collectors/jforex/interfaces/test_interfaces_init.py` | ✅ SECURE | **3**/0/0/0 | 0 / 0 / 0 |
@@ -175,7 +175,7 @@
 | `tests/core/db/implementations/test_db_implementations_init.py` | ✅ SECURE | **8**/0/0/0 | 0 / 0 / 3 |
 | `tests/core/db/implementations/test_model_base.py` | ✅ SECURE | **12**/0/0/0 | 0 / 0 / 2 |
 | `tests/core/db/implementations/test_models.py` | ✅ SECURE | **22**/0/0/0 | 0 / 0 / 13 |
-| `tests/core/db/implementations/test_sqlalchemy_session.py` | ✅ SECURE | **22**/0/0/0 | 0 / 0 / 0 |
+| `tests/core/db/implementations/test_sqlalchemy_session.py` | ✅ SECURE | **22**/0/0/3 | 0 / 0 / 0 |
 | `tests/core/db/interfaces/test_db_interfaces_init.py` | ✅ SECURE | **4**/0/0/0 | 0 / 0 / 1 |
 | `tests/core/db/test_db_factory.py` | ✅ SECURE | **21**/1/0/0 | 0 / 0 / 7 |
 | `tests/core/db/test_db_init.py` | ✅ SECURE | **8**/0/0/0 | 0 / 0 / 0 |
@@ -209,11 +209,11 @@
 | `tests/core/utils/test_decorators.py` | ✅ SECURE | **2**/11/0/0 | 0 / 0 / 0 |
 | `tests/core/utils/test_hardware_info.py` | ✅ SECURE | **15**/0/0/0 | 0 / 0 / 0 |
 | `tests/core/utils/test_utils_factory.py` | ✅ SECURE | **11**/0/0/0 | 0 / 0 / 0 |
-| `tests/data/ingestion/test_market_data_persister.py` | ✅ SECURE | **20**/0/0/0 | 0 / 0 / 0 |
+| `tests/data/ingestion/test_market_data_persister.py` | ✅ SECURE | **20**/0/0/5 | 0 / 0 / 0 |
 | `tests/data/storage/backends/test_base.py` | ✅ SECURE | **2**/6/0/0 | 0 / 0 / 76 |
 | `tests/data/storage/backends/test_pandas_backend.py` | ✅ SECURE | **30**/0/0/0 | 0 / 0 / 22 |
-| `tests/data/storage/backends/test_polars_backend.py` | ✅ SECURE | **13**/13/0/0 | 0 / 0 / 13 |
-| `tests/data/storage/implementations/test_file_storage.py` | ✅ SECURE | **46**/4/0/0 | 0 / 0 / 30 |
+| `tests/data/storage/backends/test_polars_backend.py` | ✅ SECURE | **13**/13/0/4 | 0 / 0 / 13 |
+| `tests/data/storage/implementations/test_file_storage.py` | ✅ SECURE | **46**/4/0/2 | 0 / 0 / 30 |
 | `tests/data/storage/implementations/test_parquet_storage.py` | ✅ SECURE | **33**/1/0/0 | 0 / 0 / 2 |
 | `tests/data/storage/interfaces/test_storage_factory_interface.py` | ✅ SECURE | **6**/0/0/0 | 0 / 0 / 0 |
 | `tests/data/storage/interfaces/test_storage_interface.py` | ✅ SECURE | **11**/0/0/0 | 0 / 0 / 0 |
@@ -243,7 +243,7 @@
 
 ## 7. Scripts Layer (`scripts/`)
 
-| Fájl | Státusz | Pass/Fail/Err/Warn | Lint/Mypy/Pylance |
+| Fájl | Státusz | Pass/Fail/Err/Skip | Lint/Mypy/Pylance |
 |:-----|:--------|:-------------------|:------------------|
 | `scripts/audit_data.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
 | `scripts/bootstrap_integration_test.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
@@ -253,7 +253,7 @@
 | `scripts/download_history.py` | 🔴 VULNERABLE | - | 0 / 0 / 2 |
 | `scripts/force_kill.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
 | `scripts/generate_docs.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
-| `scripts/generate_task_tree.py` | 🔴 VULNERABLE | - | 0 / 0 / 59 |
+| `scripts/generate_task_tree.py` | 🔴 VULNERABLE | - | 0 / 0 / 60 |
 | `scripts/install.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
 | `scripts/migrate_structure.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
 | `scripts/smart_pack.py` | 🔴 VULNERABLE | - | 0 / 0 / 0 |
