@@ -411,6 +411,7 @@ class MarkdownGenerator:
     """TASK_TREE.md generátor."""
 
     LAYER_MAPPING = {
+        "root": ("0", "Root", "./"),
         "core": ("1", "Infrastructure", "neural_ai/core/"),
         "collectors": ("2", "Input", "neural_ai/collectors/"),
         "data": ("3", "Persistence", "neural_ai/data/"),
@@ -438,15 +439,19 @@ class MarkdownGenerator:
 
         for analysis in self.analyses:
             parts = Path(analysis.relative_path).parts
-            # Első rész alapján csoportosítunk (neural_ai, tests, scripts, docs)
-            if len(parts) > 0:
+            
+            # Root fájlok (main.py, neural_ai/__init__.py)
+            if len(parts) == 1 or (len(parts) == 2 and parts[0] == "neural_ai" and parts[1] == "__init__.py"):
+                grouped["root"].append(analysis)
+            # Első rész alapján csoportosítunk (neural_ai, tests, scripts)
+            elif len(parts) > 0:
                 first_part = parts[0]
                 if first_part == "neural_ai" and len(parts) > 1:
                     # neural_ai esetén a második rész a layer (core, collectors, stb.)
                     if parts[1] in self.LAYER_MAPPING:
                         grouped[parts[1]].append(analysis)
                 elif first_part in self.LAYER_MAPPING:
-                    # tests, scripts, docs esetén az első rész a layer
+                    # tests, scripts esetén az első rész a layer
                     grouped[first_part].append(analysis)
 
         return grouped
@@ -512,7 +517,11 @@ class MarkdownGenerator:
                 table += "|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|\n"
 
                 for file in sorted(files, key=lambda x: x.relative_path):
-                    short_path = file.relative_path.replace("neural_ai/", "")
+                    # Root layer esetén ne távolítsuk el a neural_ai/ prefix-et
+                    if layer == "root":
+                        short_path = file.relative_path
+                    else:
+                        short_path = file.relative_path.replace("neural_ai/", "")
 
                     # Teszt pár
                     test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
@@ -582,6 +591,7 @@ class HTMLGenerator:
     """HTML Dashboard generátor."""
 
     LAYER_MAPPING = {
+        "root": ("0", "Root", "./"),
         "core": ("1", "Infrastructure", "neural_ai/core/"),
         "collectors": ("2", "Input", "neural_ai/collectors/"),
         "data": ("3", "Persistence", "neural_ai/data/"),
@@ -609,15 +619,19 @@ class HTMLGenerator:
 
         for analysis in self.analyses:
             parts = Path(analysis.relative_path).parts
-            # Első rész alapján csoportosítunk (neural_ai, tests, scripts, docs)
-            if len(parts) > 0:
+            
+            # Root fájlok (main.py, neural_ai/__init__.py)
+            if len(parts) == 1 or (len(parts) == 2 and parts[0] == "neural_ai" and parts[1] == "__init__.py"):
+                grouped["root"].append(analysis)
+            # Első rész alapján csoportosítunk (neural_ai, tests, scripts)
+            elif len(parts) > 0:
                 first_part = parts[0]
                 if first_part == "neural_ai" and len(parts) > 1:
                     # neural_ai esetén a második rész a layer (core, collectors, stb.)
                     if parts[1] in self.LAYER_MAPPING:
                         grouped[parts[1]].append(analysis)
                 elif first_part in self.LAYER_MAPPING:
-                    # tests, scripts, docs esetén az első rész a layer
+                    # tests, scripts esetén az első rész a layer
                     grouped[first_part].append(analysis)
 
         return grouped
@@ -1053,6 +1067,7 @@ class HTMLGenerator:
 
             # Layer ikonok
             layer_icons = {
+                "root": "🏠",
                 "core": "⚙️",
                 "collectors": "📡",
                 "data": "💾",
@@ -1101,7 +1116,13 @@ class HTMLGenerator:
     """
 
             for file in sorted(files, key=lambda x: x.relative_path):
-                short_path = file.relative_path.replace("neural_ai/", "") if layer not in ["tests", "scripts"] else file.relative_path
+                # Root layer esetén ne távolítsuk el a neural_ai/ prefix-et
+                if layer == "root":
+                    short_path = file.relative_path
+                elif layer not in ["tests", "scripts"]:
+                    short_path = file.relative_path.replace("neural_ai/", "")
+                else:
+                    short_path = file.relative_path
                 # HTML escape a biztonság érdekében
                 short_path_escaped = html.escape(short_path)
 
@@ -1467,10 +1488,20 @@ class TaskTreeGenerator:
         return metrics
 
     def scan_codebase(self) -> list[Path]:
-        """Rekurzívan bejárja a neural_ai/, tests/, scripts/ mappákat."""
+        """Rekurzívan bejárja a neural_ai/, tests/, scripts/ mappákat + projekt gyökér fájlok."""
         python_files: list[Path] = []
 
-        # Csak Python fájlokat szkennelünk (docs mappát nem)
+        # 1. Projekt gyökér fájlok (main.py, neural_ai/__init__.py)
+        root_files = [
+            Path("main.py"),
+            Path("neural_ai/__init__.py"),
+        ]
+        
+        for root_file in root_files:
+            if root_file.exists():
+                python_files.append(root_file)
+
+        # 2. Mappák szkennelése (neural_ai, tests, scripts)
         scan_dirs = [Path("neural_ai"), Path("tests"), Path("scripts")]
         
         for scan_dir in scan_dirs:
@@ -1483,7 +1514,10 @@ class TaskTreeGenerator:
 
                 for file in files:
                     if file.endswith(".py") and file not in self.ignored_files:
-                        python_files.append(Path(root) / file)
+                        file_path = Path(root) / file
+                        # Kihagyjuk a neural_ai/__init__.py-t, mert már hozzáadtuk a root_files-ban
+                        if file_path != Path("neural_ai/__init__.py"):
+                            python_files.append(file_path)
 
         return python_files
 
@@ -1585,9 +1619,9 @@ class TaskTreeGenerator:
             analysis = self.analyze_file(file_path)
             analyses.append(analysis)
 
-        # 2. Markdown generálás (AI számára) - csak neural_ai
-        print("\n📝 TASK_TREE.md generálása (neural_ai forráskód)...")
-        md_generator = MarkdownGenerator(analyses, layers=["core", "collectors", "data", "processors", "ui"])
+        # 2. Markdown generálás (AI számára) - root + neural_ai
+        print("\n📝 TASK_TREE.md generálása (root + neural_ai forráskód)...")
+        md_generator = MarkdownGenerator(analyses, layers=["root", "core", "collectors", "data", "processors", "ui"])
         md_content = md_generator.generate()
 
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -1615,9 +1649,9 @@ class TaskTreeGenerator:
             f.write(scripts_md_content)
         print(f"✅ TASK_TREE_SCRIPTS.md generálva: {scripts_output}")
 
-        # 3. HTML generálás (Ember számára) - csak neural_ai
-        print("\n🌐 TASK_TREE.html generálása (neural_ai forráskód)...")
-        html_generator = HTMLGenerator(analyses, layers=["core", "collectors", "data", "processors", "ui"])
+        # 3. HTML generálás (Ember számára) - root + neural_ai
+        print("\n🌐 TASK_TREE.html generálása (root + neural_ai forráskód)...")
+        html_generator = HTMLGenerator(analyses, layers=["root", "core", "collectors", "data", "processors", "ui"])
         html_content = html_generator.generate()
 
         with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
