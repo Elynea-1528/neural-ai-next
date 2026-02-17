@@ -228,7 +228,7 @@ def calculate(self, data: pl.DataFrame) -> pl.DataFrame:
 **JÓ:**
 - Csak formázás változik
 - Logika változatlan
-- Ruff/Pylance 0 hiba
+- Ruff/Mypy/Pyright 0 hiba
 - Olvashatóbb kód
 
 **ROSSZ:**

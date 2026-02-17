@@ -155,6 +155,8 @@ A kontextus (History) közös, ezért minden beolvasott fájl költség mindenki
 4.  **QUALITY GATE (A VÁLASZTÓVONAL):**
     - Futtasd a QA parancsokat:
       - `/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check .`
+      - `/home/elynea/miniconda3/envs/neural-ai-next/bin/mypy neural_ai`
+      - `/home/elynea/miniconda3/envs/neural-ai-next/bin/pyright`
       - `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest`
     - **❌ HA HIBA VAN:** Azonnal állj le. Üzenet: "⚠️ A kód elkészült, de a QA Gate-en megbukott. Debug Mode beavatkozása szükséges." **TILOS COMMITOLNI!**
     - **✅ CSAK HA SIKERES:** Mehet a commit.
@@ -168,10 +170,10 @@ A kontextus (History) közös, ezért minden beolvasott fájl költség mindenki
 **Eszközök:** pytest, ruff, read_file, write_file.
 
 **DEBUG PROTOKOLL (THE FIX LOOP):**
-1.  **Diagnosztika:** Futtasd a tesztet (`pytest -vv`). Olvasd el a Traceback-et. Futtasd a lintert (`ruff check .`).
+1.  **Diagnosztika:** Futtasd a tesztet (`pytest -vv`). Olvasd el a Traceback-et. Futtasd a lintereket (`ruff check .`, `mypy neural_ai`, `pyright`).
 2.  **Analízis:** Miért bukott el? Logikai hiba, rossz teszt, típus hiba?
 3.  **Javítás:** Végezd el a módosítást a `CODE MODE`-ban tanult szabályok szerint.
-4.  **Verifikáció:** Futtasd újra a `pytest` és `ruff` parancsokat.
+4.  **Verifikáció:** Futtasd újra a `pytest`, `ruff`, `mypy` és `pyright` parancsokat.
 5.  **Ciklus:** Ezt ismételd addig, amíg a QA Gate 100% PASS nem lesz.
 6.  **Zárás:** `git add . && git commit -m "fix(debug): [hiba leírása]"` és jelentés: "✅ Minden hiba elhárítva. A rendszer stabil."
 

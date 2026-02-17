@@ -202,7 +202,7 @@ class StorageFactory:
 
 ### Utána:
 - [ ] Tesztek futtatása (Test-Integration)
-- [ ] Linter ellenőrzés (QA)
+- [ ] Linter és type check ellenőrzés (QA: Ruff, Mypy, Pyright)
 - [ ] Performance mérés (ha releváns)
 - [ ] Dokumentáció frissítés
 

@@ -87,7 +87,7 @@ Kérdés típusa:
    "Test-Unit! Írj unit teszteket a `d05_momentum` modulhoz."
 
 3. switch_mode: qa
-   "QA! Ellenőrizd a `d05_momentum` modult (linter, type check)."
+   "QA! Ellenőrizd a `d05_momentum` modult (ruff, mypy, pyright)."
 
 4. switch_mode: commit
    "Commit! Véglegesítsd: feat(processor): add d05 momentum dimension"
@@ -166,7 +166,7 @@ Kérdés típusa:
    "Test-Integration! Futtasd az integration teszteket."
 
 3. switch_mode: qa
-   "QA! Teljes ellenőrzés (linter, type check, coverage)."
+   "QA! Teljes ellenőrzés (ruff, mypy, pyright, coverage)."
 
 4. switch_mode: commit
    "Commit! Véglegesítsd: refactor(processor): extract validation logic to separate class"
@@ -194,7 +194,7 @@ Kérdés típusa:
    "Code-Style! Javítsd a formázási hibákat a `pipeline.py`-ban: import rendezés, line length."
 
 2. switch_mode: qa
-   "QA! Ellenőrizd: Ruff 0 hiba, Pylance 0 hiba."
+   "QA! Ellenőrizd: Ruff 0 hiba, Mypy 0 hiba, Pyright 0 hiba."
 
 3. switch_mode: commit
    "Commit! Véglegesítsd: style(processor): fix linter errors in pipeline.py"

@@ -93,7 +93,7 @@ def calculate():
     return sys.platform
 ```
 
-### 2. Type Hint Hiba (Pylance):
+### 2. Type Hint Hiba (Mypy/Pylance/Pyright):
 ```python
 # HIBA: Missing type hint
 def calculate(data):

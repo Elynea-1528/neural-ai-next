@@ -71,13 +71,24 @@ Kérdés típusa:
 - E501: Line too long
 - N806: Variable name should be lowercase
 
-### 2. Pylance Type Check:
+### 2. Mypy Type Check:
 ```bash
+/home/elynea/miniconda3/envs/neural-ai-next/bin/mypy neural_ai
+```
+
+**Gyakori Hibák:**
+- Missing type hint
+- Type mismatch
+- Incompatible return type
+
+### 3. Pylance/Pyright Type Check:
+```bash
+/home/elynea/miniconda3/envs/neural-ai-next/bin/pyright
 # Pylance automatikusan fut VS Code-ban
 # Hibák: Missing type hint, Type mismatch
 ```
 
-### 3. Egyszerű Hibák Javítása:
+### 4. Egyszerű Hibák Javítása:
 
 **Példa 1: Unused Import**
 ```python
@@ -165,7 +176,8 @@ Debug-Complex válasz: Javítás (None check + exception chaining)
 - [ ] Naming convention (PascalCase, snake_case, UPPER_CASE)
 
 ### Type Check:
-- [ ] Pylance: 0 hiba
+- [ ] Mypy: 0 hiba
+- [ ] Pylance/Pyright: 0 hiba
 - [ ] Minden függvény paraméter típusozott
 - [ ] Minden függvény visszatérési érték típusozott
 - [ ] Nincs `Any` típus (kivéve boundary layer)
@@ -182,7 +194,8 @@ Debug-Complex válasz: Javítás (None check + exception chaining)
 ```
 ✅ QA PASSED
 - Ruff: 0 hiba
-- Pylance: 0 hiba
+- Mypy: 0 hiba
+- Pylance/Pyright: 0 hiba
 - Javított hibák: 3 (unused import, line length, type hint)
 ```
 
@@ -190,7 +203,8 @@ Debug-Complex válasz: Javítás (None check + exception chaining)
 ```
 ❌ QA FAILED
 - Ruff: 0 hiba
-- Pylance: 1 hiba (logic error)
+- Mypy: 0 hiba
+- Pylance/Pyright: 1 hiba (logic error)
 - Delegálás: Debug-Complex (AttributeError a 42. sorban)
 ```
 

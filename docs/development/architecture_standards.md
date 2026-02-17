@@ -282,9 +282,10 @@ A `tests/` mappa szerkezete bitre pontosan kövesse a `neural_ai/` szerkezetét.
 ### 9.2 Quality Gate (A Kapuőr)
 Commitolás előtt kötelező ellenőrizni:
 1.  **Ruff:** 0 hiba (Linting).
-2.  **Pylance:** 0 hiba (Strict Type Checking).
-3.  **Tests:** Minden teszt zöld.
-4.  **Coverage:** Törekedj a 100%-ra, de a kritikus üzleti logikánál (Processors, Data) ez kötelező.
+2.  **Mypy:** 0 hiba (Type Checking).
+3.  **Pylance/Pyright:** 0 hiba (Strict Type Checking - VS Code).
+4.  **Tests:** Minden teszt zöld.
+5.  **Coverage:** Törekedj a 100%-ra, de a kritikus üzleti logikánál (Processors, Data) ez kötelező.
 
 ### 9.3 Atomic Commit
 Egy commit = Egy logikai egység (Feat, Fix, Refactor, Docs). Soha ne keverd a formázást a logikai módosítással egy commitban. Az üzenet legyen konvencionális: `feat(processor): add d3 trend logic`.
