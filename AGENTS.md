@@ -217,7 +217,8 @@ except ValueError as e:
 ### 8. Quality Gate (A Kapuőr)
 Commitolás előtt kötelező ellenőrizni:
 - **Ruff:** 0 hiba (Linting)
-- **Pylance:** 0 hiba (Strict Type Checking)
+- **Mypy:** 0 hiba (Type Checking)
+- **Pylance/Pyright:** 0 hiba (Strict Type Checking - VS Code)
 - **Tests:** Minden teszt zöld
 - **Coverage:** Domain réteg 100% lefedettség
 
@@ -231,6 +232,8 @@ Commitolás előtt kötelező ellenőrizni:
 - **KÖTELEZŐ** abszolút útvonalak a parancsokhoz:
   - Python: `/home/elynea/miniconda3/envs/neural-ai-next/bin/python`
   - Ruff: `/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff`
+  - Mypy: `/home/elynea/miniconda3/envs/neural-ai-next/bin/mypy`
+  - Pyright: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pyright`
   - Pytest: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest`
 
 ## 💰 Token Economy (Hibrid Reader Stratégia)
@@ -326,6 +329,12 @@ Kérés érkezik
 
 # Linter futtatása
 /home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check .
+
+# Type checking (Mypy)
+/home/elynea/miniconda3/envs/neural-ai-next/bin/mypy neural_ai
+
+# Type checking (Pyright - CLI verzió a Pylance-hez)
+/home/elynea/miniconda3/envs/neural-ai-next/bin/pyright
 
 # Alkalmazás módok futtatása
 python main.py live                    # Élő kereskedési mód
