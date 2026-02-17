@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural AI Next - Scripts Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e4e7eb;
+            min-height: 100vh;
+            padding: 0;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 2rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-content {
+            max-width: 100%;
+            padding: 0 3rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .meta {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .meta strong { color: #cbd5e1; }
+        
+        .container {
+            max-width: 100%;
+            padding: 2rem 3rem;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), transparent);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+        
+        .stat-card.secure { --accent-color: #10b981; }
+        .stat-card.warning { --accent-color: #f59e0b; }
+        .stat-card.critical { --accent-color: #ef4444; }
+        .stat-card.tested { --accent-color: #3b82f6; }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .stat-card.secure .stat-icon { background: rgba(16, 185, 129, 0.15); }
+        .stat-card.warning .stat-icon { background: rgba(245, 158, 11, 0.15); }
+        .stat-card.critical .stat-icon { background: rgba(239, 68, 68, 0.15); }
+        .stat-card.tested .stat-icon { background: rgba(59, 130, 246, 0.15); }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card.secure .stat-value { color: #10b981; }
+        .stat-card.warning .stat-value { color: #f59e0b; }
+        .stat-card.critical .stat-value { color: #ef4444; }
+        .stat-card.tested .stat-value { color: #3b82f6; }
+        
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .stat-percent {
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            color: #e4e7eb;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(30, 41, 59, 0.8);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+        
+        .search-box::placeholder { color: #64748b; }
+        
+        .layer {
+            margin-bottom: 2.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        
+        .layer-title {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 1.25rem 1.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #60a5fa;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            white-space: nowrap;
+        }
+        
+        th:nth-child(1) { width: 25%; min-width: 300px; } /* Fájl */
+        th:nth-child(2) { width: 10%; min-width: 100px; } /* Státusz */
+        th:nth-child(3) { width: 8%; min-width: 80px; } /* Teszt Pár / Pass-Fail (tests/scripts) */
+        th:nth-child(4) { width: 10%; min-width: 120px; } /* Pass/Fail/Err/Skip / Lint (tests/scripts) */
+        th:nth-child(5) { width: 10%; min-width: 120px; } /* Coverage */
+        th:nth-child(6) { width: 10%; min-width: 120px; } /* Lint/Mypy/Pylance */
+        th:nth-child(7) { width: 6%; min-width: 60px; } /* Src Warn */
+        th:nth-child(8) { width: 6%; min-width: 60px; } /* Config */
+        th:nth-child(9) { width: 6%; min-width: 60px; } /* Logger */
+        th:nth-child(10) { width: 6%; min-width: 60px; } /* Dokumentálva */
+        th:nth-child(11) { width: auto; min-width: 150px; } /* Teendők */
+        
+        td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+            font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        td:nth-child(1) { width: 25%; min-width: 300px; } /* Fájl */
+        td:nth-child(2) { width: 10%; min-width: 100px; } /* Státusz */
+        td:nth-child(3) { width: 8%; min-width: 80px; } /* Teszt Pár / Pass-Fail (tests/scripts) */
+        td:nth-child(4) { width: 10%; min-width: 120px; } /* Pass/Fail/Err/Skip / Lint (tests/scripts) */
+        td:nth-child(5) { width: 10%; min-width: 120px; } /* Coverage */
+        td:nth-child(6) { width: 10%; min-width: 120px; } /* Lint/Mypy/Pylance */
+        td:nth-child(7) { width: 6%; min-width: 60px; } /* Src Warn */
+        td:nth-child(8) { width: 6%; min-width: 60px; } /* Config */
+        td:nth-child(9) { width: 6%; min-width: 60px; } /* Logger */
+        td:nth-child(10) { width: 6%; min-width: 60px; } /* Dokumentálva */
+        td:nth-child(11) { width: auto; min-width: 150px; } /* Teendők */
+        
+        tr:hover td {
+            background: rgba(30, 41, 59, 0.4);
+        }
+        
+        .file-path {
+            font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Courier New', monospace;
+            color: #93c5fd;
+            font-size: 0.875rem;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        .status-secure {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .status-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .status-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .icon { font-style: normal; }
+        .test-found { color: #10b981; font-weight: 600; }
+        .test-missing { color: #ef4444; font-weight: 600; }
+        .test-results { font-family: 'SF Mono', monospace; font-size: 0.875rem; }
+        .test-pass { color: #10b981; font-weight: 600; }
+        .test-fail { color: #ef4444; font-weight: 600; }
+        .test-error { color: #f87171; font-weight: 600; }
+        .test-skip { color: #f59e0b; font-weight: 600; }
+        .test-warn { color: #f59e0b; font-weight: 600; }
+        .coverage { font-family: 'SF Mono', monospace; font-size: 0.875rem; }
+        .cov-low { color: #ef4444; font-weight: 600; }
+        .cov-good { color: #10b981; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>📜 Neural AI Next - Scripts Dashboard</h1>
+            <div class="meta">
+                <strong>Generálva:</strong> 2026-02-17 14:13:42 UTC &nbsp;|&nbsp;
+                <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy) &nbsp;|&nbsp;
+                <strong>Fájlok:</strong> 214
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card secure">
+                <div class="stat-header">
+                    <div class="stat-icon">✓</div>
+                </div>
+                <div class="stat-value">137</div>
+                <div class="stat-label">Secure</div>
+                <div class="stat-percent">64.0% a teljes kódbázisból</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-header">
+                    <div class="stat-icon">⚠</div>
+                </div>
+                <div class="stat-value">17</div>
+                <div class="stat-label">Warning</div>
+                <div class="stat-percent">7.9% javítást igényel</div>
+            </div>
+            <div class="stat-card critical">
+                <div class="stat-header">
+                    <div class="stat-icon">✕</div>
+                </div>
+                <div class="stat-value">60</div>
+                <div class="stat-label">Critical</div>
+                <div class="stat-percent">28.0% azonnali beavatkozás</div>
+            </div>
+            <div class="stat-card tested">
+                <div class="stat-header">
+                    <div class="stat-icon">◉</div>
+                </div>
+                <div class="stat-value">159/214</div>
+                <div class="stat-label">Tesztelt</div>
+                <div class="stat-percent">74.3% teszt lefedettség</div>
+            </div>
+        </div>
+
+        <input type="text" class="search-box" id="searchBox" placeholder="🔍 Keresés fájl név alapján..." onkeyup="filterTable()">
+
+            <div class="layer">
+                <div class="layer-title">📜 7. Scripts Layer <span style="opacity: 0.6; font-size: 0.9rem;">(scripts/)</span></div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fájl</th>
+                            <th>Státusz</th>
+                            <th>Pass/Fail/Err/Skip</th>
+                            <th>Lint/Mypy/Pylance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    
+                        <tr>
+                            <td class="file-path">scripts/audit_data.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/bootstrap_integration_test.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/bootstrap_test.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/data_reset.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/deploy_jforex.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/download_history.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/force_kill.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/generate_docs.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/generate_task_tree.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">60</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/install.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/migrate_structure.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/smart_pack.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/test_d2_standalone.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">25</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/test_tick_pipeline.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/validation_end_to_end.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">11</span></td>
+                        </tr>
+    
+                    </tbody>
+                </table>
+            </div>
+    
+    </div>
+    <script>
+        function filterTable() {{
+            const input = document.getElementById('searchBox');
+            const filter = input.value.toLowerCase();
+            const tables = document.querySelectorAll('table');
+            
+            tables.forEach(table => {{
+                const rows = table.getElementsByTagName('tr');
+                for (let i = 1; i < rows.length; i++) {{
+                    const td = rows[i].getElementsByTagName('td')[0];
+                    if (td) {{
+                        const txtValue = td.textContent || td.innerText;
+                        rows[i].style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
+                    }}
+                }}
+            }});
+        }}
+    </script>
+</body>
+</html>

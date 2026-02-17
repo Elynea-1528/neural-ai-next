@@ -339,9 +339,15 @@ class MarkdownGenerator:
         
     }
 
-    def __init__(self, analyses: list[FileAnalysis]) -> None:
-        """Inicializálja a generátort."""
+    def __init__(self, analyses: list[FileAnalysis], layers: list[str] | None = None) -> None:
+        """Inicializálja a generátort.
+        
+        Args:
+            analyses: Fájl analízisek listája
+            layers: Generálandó rétegek listája (None = összes)
+        """
         self.analyses = analyses
+        self.layers = layers if layers else list(self.LAYER_MAPPING.keys())
         self.grouped = self._group_by_layer()
 
     def _group_by_layer(self) -> dict[str, list[FileAnalysis]]:
@@ -450,7 +456,15 @@ class MarkdownGenerator:
         stats = self.calculate_statistics()
         now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-        content = f"""# 🌳 NEURAL AI NEXT - TASK TREE
+        # Cím meghatározása a layers alapján
+        if self.layers == ["tests"]:
+            title = "# 🧪 NEURAL AI NEXT - TESTS"
+        elif self.layers == ["scripts"]:
+            title = "# 📜 NEURAL AI NEXT - SCRIPTS"
+        else:
+            title = "# 🌳 NEURAL AI NEXT - TASK TREE"
+
+        content = f"""{title}
 
 **Generálva:** {now}
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
@@ -465,8 +479,8 @@ class MarkdownGenerator:
 ---
 """
 
-        # Rétegek
-        for layer in ["core", "collectors", "data", "processors", "ui", "tests", "scripts"]:
+        # Csak a megadott rétegeket generáljuk
+        for layer in self.layers:
             if layer in self.grouped and self.grouped[layer]:
                 content += self._create_table(layer, self.grouped[layer])
 
@@ -487,9 +501,15 @@ class HTMLGenerator:
         
     }
 
-    def __init__(self, analyses: list[FileAnalysis]) -> None:
-        """Inicializálja a generátort."""
+    def __init__(self, analyses: list[FileAnalysis], layers: list[str] | None = None) -> None:
+        """Inicializálja a generátort.
+        
+        Args:
+            analyses: Fájl analízisek listája
+            layers: Generálandó rétegek listája (None = összes)
+        """
         self.analyses = analyses
+        self.layers = layers if layers else list(self.LAYER_MAPPING.keys())
         self.grouped = self._group_by_layer()
 
     def _group_by_layer(self) -> dict[str, list[FileAnalysis]]:
@@ -544,12 +564,23 @@ class HTMLGenerator:
         critical_pct = (stats["critical"] / stats["total"] * 100) if stats["total"] > 0 else 0
         tested_pct = (stats["tested"] / stats["total"] * 100) if stats["total"] > 0 else 0
 
+        # Cím meghatározása a layers alapján
+        if self.layers == ["tests"]:
+            page_title = "Neural AI Next - Tests Dashboard"
+            header_title = "🧪 Neural AI Next - Tests Dashboard"
+        elif self.layers == ["scripts"]:
+            page_title = "Neural AI Next - Scripts Dashboard"
+            header_title = "📜 Neural AI Next - Scripts Dashboard"
+        else:
+            page_title = "Neural AI Next - Task Tree Dashboard"
+            header_title = "⚡ Neural AI Next - Task Tree Dashboard"
+
         html = f"""<!DOCTYPE html>
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural AI Next - Task Tree Dashboard</title>
+    <title>{page_title}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
@@ -833,7 +864,7 @@ class HTMLGenerator:
 <body>
     <div class="header">
         <div class="header-content">
-            <h1>⚡ Neural AI Next - Task Tree Dashboard</h1>
+            <h1>{header_title}</h1>
             <div class="meta">
                 <strong>Generálva:</strong> {now} &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy) &nbsp;|&nbsp;
@@ -881,8 +912,8 @@ class HTMLGenerator:
         <input type="text" class="search-box" id="searchBox" placeholder="🔍 Keresés fájl név alapján..." onkeyup="filterTable()">
 """
 
-        # Rétegek
-        for layer in ["core", "collectors", "data", "processors", "ui", "tests", "scripts"]:
+        # Csak a megadott rétegeket generáljuk
+        for layer in self.layers:
             if layer in self.grouped and self.grouped[layer]:
                 html += self._create_html_table(layer, self.grouped[layer])
 
@@ -1421,9 +1452,9 @@ class TaskTreeGenerator:
             analysis = self.analyze_file(file_path)
             analyses.append(analysis)
 
-        # 2. Markdown generálás (AI számára)
-        print("\n📝 TASK_TREE.md generálása (AI)...")
-        md_generator = MarkdownGenerator(analyses)
+        # 2. Markdown generálás (AI számára) - csak neural_ai
+        print("\n📝 TASK_TREE.md generálása (neural_ai forráskód)...")
+        md_generator = MarkdownGenerator(analyses, layers=["core", "collectors", "data", "processors", "ui"])
         md_content = md_generator.generate()
 
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -1431,23 +1462,64 @@ class TaskTreeGenerator:
             f.write(md_content)
         print(f"✅ TASK_TREE.md generálva: {self.output_file}")
 
-        # 3. HTML generálás (Ember számára)
-        print("\n🌐 TASK_TREE.html generálása (Ember)...")
-        html_generator = HTMLGenerator(analyses)
+        # 2b. Tests Markdown generálás
+        print("\n📝 TASK_TREE_TESTS.md generálása...")
+        tests_md_generator = MarkdownGenerator(analyses, layers=["tests"])
+        tests_md_content = tests_md_generator.generate()
+        
+        tests_output = self.output_file.parent / "TASK_TREE_TESTS.md"
+        with open(tests_output, "w", encoding="utf-8") as f:
+            f.write(tests_md_content)
+        print(f"✅ TASK_TREE_TESTS.md generálva: {tests_output}")
+
+        # 2c. Scripts Markdown generálás
+        print("\n📝 TASK_TREE_SCRIPTS.md generálása...")
+        scripts_md_generator = MarkdownGenerator(analyses, layers=["scripts"])
+        scripts_md_content = scripts_md_generator.generate()
+        
+        scripts_output = self.output_file.parent / "TASK_TREE_SCRIPTS.md"
+        with open(scripts_output, "w", encoding="utf-8") as f:
+            f.write(scripts_md_content)
+        print(f"✅ TASK_TREE_SCRIPTS.md generálva: {scripts_output}")
+
+        # 3. HTML generálás (Ember számára) - csak neural_ai
+        print("\n🌐 TASK_TREE.html generálása (neural_ai forráskód)...")
+        html_generator = HTMLGenerator(analyses, layers=["core", "collectors", "data", "processors", "ui"])
         html_content = html_generator.generate()
 
         with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
             f.write(html_content)
         print(f"✅ TASK_TREE.html generálva: {OUTPUT_HTML}")
 
+        # 3b. Tests HTML generálás
+        print("\n🌐 TASK_TREE_TESTS.html generálása...")
+        tests_html_generator = HTMLGenerator(analyses, layers=["tests"])
+        tests_html_content = tests_html_generator.generate()
+        
+        tests_html_output = OUTPUT_HTML.parent / "TASK_TREE_TESTS.html"
+        with open(tests_html_output, "w", encoding="utf-8") as f:
+            f.write(tests_html_content)
+        print(f"✅ TASK_TREE_TESTS.html generálva: {tests_html_output}")
+
+        # 3c. Scripts HTML generálás
+        print("\n🌐 TASK_TREE_SCRIPTS.html generálása...")
+        scripts_html_generator = HTMLGenerator(analyses, layers=["scripts"])
+        scripts_html_content = scripts_html_generator.generate()
+        
+        scripts_html_output = OUTPUT_HTML.parent / "TASK_TREE_SCRIPTS.html"
+        with open(scripts_html_output, "w", encoding="utf-8") as f:
+            f.write(scripts_html_content)
+        print(f"✅ TASK_TREE_SCRIPTS.html generálva: {scripts_html_output}")
+
         # Statisztika
         stats = md_generator.calculate_statistics()
-        print("\n📈 Statisztika:")
+        print("\n📈 Statisztika (neural_ai):")
         secure_pct = stats["secure"] / stats["total"] * 100
         warning_pct = stats["warning"] / stats["total"] * 100
         vuln_pct = stats["vulnerable"] / stats["total"] * 100
         print(f"  ✅ SECURE: {stats['secure']} ({secure_pct:.1f}%)")
         print(f"  🟡 WARNING: {stats['warning']} ({warning_pct:.1f}%)")
+        print(f"  🔴 VULNERABLE: {stats['vulnerable']} ({vuln_pct:.1f}%)")
         print(f"  🔴 VULNERABLE: {stats['vulnerable']} ({vuln_pct:.1f}%)")
 
 

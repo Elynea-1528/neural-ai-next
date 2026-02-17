@@ -2197,355 +2197,355 @@
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1141,
+    "line": 1172,
     "severity": "error",
     "message": "Type of \"append\" is partially unknown\n\u00a0\u00a0Type of \"append\" is \"(object: Unknown, /) -> None\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1180,
+    "line": 1211,
     "severity": "error",
     "message": "Type of \"append\" is partially unknown\n\u00a0\u00a0Type of \"append\" is \"(object: Unknown, /) -> None\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1191,
+    "line": 1222,
     "severity": "error",
     "message": "Argument type is partially unknown\n\u00a0\u00a0Argument corresponds to parameter \"obj\" in function \"len\"\n\u00a0\u00a0Argument type is \"list[Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1218,
+    "line": 1249,
     "severity": "error",
     "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1219,
+    "line": 1250,
     "severity": "error",
     "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1227,
+    "line": 1258,
     "severity": "error",
     "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1229,
+    "line": 1260,
     "severity": "error",
     "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1231,
+    "line": 1262,
     "severity": "error",
     "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1233,
+    "line": 1264,
     "severity": "error",
     "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1244,
+    "line": 1275,
     "severity": "error",
     "message": "Type of \"source_warnings\" is partially unknown\n\u00a0\u00a0Type of \"source_warnings\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1245,
+    "line": 1276,
     "severity": "error",
     "message": "Type of \"source_warnings\" is partially unknown\n\u00a0\u00a0Type of \"source_warnings\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1246,
+    "line": 1277,
     "severity": "error",
     "message": "Type of \"source_warnings\" is partially unknown\n\u00a0\u00a0Type of \"source_warnings\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1251,
+    "line": 1282,
     "severity": "error",
     "message": "Return type, \"dict[Unknown, Unknown]\", is partially unknown"
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1251,
+    "line": 1282,
     "severity": "error",
     "message": "Expected type arguments for generic class \"dict\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1268,
+    "line": 1299,
     "severity": "error",
     "message": "Type of \"coverage_data\" is partially unknown\n\u00a0\u00a0Type of \"coverage_data\" is \"Any | dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1269,
+    "line": 1300,
     "severity": "error",
     "message": "Type of \"file_cov\" is partially unknown\n\u00a0\u00a0Type of \"file_cov\" is \"Any | Unknown\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1269,
+    "line": 1300,
     "severity": "error",
     "message": "Type of \"coverage_data\" is partially unknown\n\u00a0\u00a0Type of \"coverage_data\" is \"Any | dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1270,
+    "line": 1301,
     "severity": "error",
     "message": "Type of \"summary\" is partially unknown\n\u00a0\u00a0Type of \"summary\" is \"Any | Unknown\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1270,
-    "severity": "error",
-    "message": "Type of \"get\" is partially unknown\n\u00a0\u00a0Type of \"get\" is \"Any | Unknown\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1271,
-    "severity": "error",
-    "message": "Type of \"get\" is partially unknown\n\u00a0\u00a0Type of \"get\" is \"Any | Unknown\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1273,
-    "severity": "error",
-    "message": "Type of \"covered_branches\" is partially unknown\n\u00a0\u00a0Type of \"covered_branches\" is \"Any | Unknown\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1273,
-    "severity": "error",
-    "message": "Type of \"get\" is partially unknown\n\u00a0\u00a0Type of \"get\" is \"Any | Unknown\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1274,
-    "severity": "error",
-    "message": "Type of \"num_branches\" is partially unknown\n\u00a0\u00a0Type of \"num_branches\" is \"Any | Unknown\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1274,
-    "severity": "error",
-    "message": "Type of \"get\" is partially unknown\n\u00a0\u00a0Type of \"get\" is \"Any | Unknown\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1281,
-    "severity": "error",
-    "message": "Type of \"ruff_data\" is partially unknown\n\u00a0\u00a0Type of \"ruff_data\" is \"Any | list[Unknown]\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1283,
-    "severity": "error",
-    "message": "Type of \"err\" is unknown"
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1283,
-    "severity": "error",
-    "message": "Type of \"ruff_data\" is partially unknown\n\u00a0\u00a0Type of \"ruff_data\" is \"list[Unknown]\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1283,
-    "severity": "error",
-    "message": "Type of \"get\" is unknown"
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1287,
-    "severity": "error",
-    "message": "Unnecessary isinstance call; \"list[Unknown]\" is always an instance of \"list[Unknown]\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1287,
-    "severity": "error",
-    "message": "Type of \"mypy_data\" is partially unknown\n\u00a0\u00a0Type of \"mypy_data\" is \"list[Unknown]\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1289,
-    "severity": "error",
-    "message": "Type of \"err\" is unknown"
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1289,
-    "severity": "error",
-    "message": "Type of \"mypy_data\" is partially unknown\n\u00a0\u00a0Type of \"mypy_data\" is \"list[Unknown]\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1290,
-    "severity": "error",
-    "message": "Type of \"get\" is unknown"
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1290,
-    "severity": "error",
-    "message": "Type of \"get\" is unknown"
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1294,
-    "severity": "error",
-    "message": "Unnecessary isinstance call; \"list[Unknown]\" is always an instance of \"list[Unknown]\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1294,
-    "severity": "error",
-    "message": "Type of \"pylance_data\" is partially unknown\n\u00a0\u00a0Type of \"pylance_data\" is \"list[Unknown]\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1296,
-    "severity": "error",
-    "message": "Type of \"err\" is unknown"
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1296,
-    "severity": "error",
-    "message": "Type of \"pylance_data\" is partially unknown\n\u00a0\u00a0Type of \"pylance_data\" is \"list[Unknown]\""
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1297,
-    "severity": "error",
-    "message": "Type of \"get\" is unknown"
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
-    "line": 1297,
-    "severity": "error",
-    "message": "Type of \"get\" is unknown"
-  },
-  {
-    "file": "scripts/generate_task_tree.py",
     "line": 1301,
     "severity": "error",
-    "message": "Type of \"source_warnings\" is partially unknown\n\u00a0\u00a0Type of \"source_warnings\" is \"dict[Unknown, Unknown]\""
+    "message": "Type of \"get\" is partially unknown\n\u00a0\u00a0Type of \"get\" is \"Any | Unknown\""
   },
   {
     "file": "scripts/generate_task_tree.py",
     "line": 1302,
     "severity": "error",
-    "message": "Type of \"source_warnings\" is partially unknown\n\u00a0\u00a0Type of \"source_warnings\" is \"dict[Unknown, Unknown]\""
+    "message": "Type of \"get\" is partially unknown\n\u00a0\u00a0Type of \"get\" is \"Any | Unknown\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1309,
+    "line": 1304,
     "severity": "error",
-    "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
+    "message": "Type of \"covered_branches\" is partially unknown\n\u00a0\u00a0Type of \"covered_branches\" is \"Any | Unknown\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1310,
+    "line": 1304,
     "severity": "error",
-    "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
+    "message": "Type of \"get\" is partially unknown\n\u00a0\u00a0Type of \"get\" is \"Any | Unknown\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1311,
+    "line": 1305,
     "severity": "error",
-    "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
+    "message": "Type of \"num_branches\" is partially unknown\n\u00a0\u00a0Type of \"num_branches\" is \"Any | Unknown\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1305,
+    "severity": "error",
+    "message": "Type of \"get\" is partially unknown\n\u00a0\u00a0Type of \"get\" is \"Any | Unknown\""
   },
   {
     "file": "scripts/generate_task_tree.py",
     "line": 1312,
     "severity": "error",
-    "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
+    "message": "Type of \"ruff_data\" is partially unknown\n\u00a0\u00a0Type of \"ruff_data\" is \"Any | list[Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1313,
+    "line": 1314,
+    "severity": "error",
+    "message": "Type of \"err\" is unknown"
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1314,
+    "severity": "error",
+    "message": "Type of \"ruff_data\" is partially unknown\n\u00a0\u00a0Type of \"ruff_data\" is \"list[Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1314,
+    "severity": "error",
+    "message": "Type of \"get\" is unknown"
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1318,
+    "severity": "error",
+    "message": "Unnecessary isinstance call; \"list[Unknown]\" is always an instance of \"list[Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1318,
+    "severity": "error",
+    "message": "Type of \"mypy_data\" is partially unknown\n\u00a0\u00a0Type of \"mypy_data\" is \"list[Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1320,
+    "severity": "error",
+    "message": "Type of \"err\" is unknown"
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1320,
+    "severity": "error",
+    "message": "Type of \"mypy_data\" is partially unknown\n\u00a0\u00a0Type of \"mypy_data\" is \"list[Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1321,
+    "severity": "error",
+    "message": "Type of \"get\" is unknown"
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1321,
+    "severity": "error",
+    "message": "Type of \"get\" is unknown"
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1325,
+    "severity": "error",
+    "message": "Unnecessary isinstance call; \"list[Unknown]\" is always an instance of \"list[Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1325,
+    "severity": "error",
+    "message": "Type of \"pylance_data\" is partially unknown\n\u00a0\u00a0Type of \"pylance_data\" is \"list[Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1327,
+    "severity": "error",
+    "message": "Type of \"err\" is unknown"
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1327,
+    "severity": "error",
+    "message": "Type of \"pylance_data\" is partially unknown\n\u00a0\u00a0Type of \"pylance_data\" is \"list[Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1328,
+    "severity": "error",
+    "message": "Type of \"get\" is unknown"
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1328,
+    "severity": "error",
+    "message": "Type of \"get\" is unknown"
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1332,
+    "severity": "error",
+    "message": "Type of \"source_warnings\" is partially unknown\n\u00a0\u00a0Type of \"source_warnings\" is \"dict[Unknown, Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1333,
+    "severity": "error",
+    "message": "Type of \"source_warnings\" is partially unknown\n\u00a0\u00a0Type of \"source_warnings\" is \"dict[Unknown, Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1340,
     "severity": "error",
     "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1380,
+    "line": 1341,
+    "severity": "error",
+    "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1342,
+    "severity": "error",
+    "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1343,
+    "severity": "error",
+    "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1344,
+    "severity": "error",
+    "message": "Type of \"pytest_data\" is partially unknown\n\u00a0\u00a0Type of \"pytest_data\" is \"dict[Unknown, Unknown]\""
+  },
+  {
+    "file": "scripts/generate_task_tree.py",
+    "line": 1411,
     "severity": "error",
     "message": "Type of \"dyn_metrics\" is partially unknown\n\u00a0\u00a0Type of \"dyn_metrics\" is \"dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1380,
+    "line": 1411,
     "severity": "error",
     "message": "Type of \"get_dynamic_metrics\" is partially unknown\n\u00a0\u00a0Type of \"get_dynamic_metrics\" is \"(file_path: Path) -> dict[Unknown, Unknown]\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1395,
+    "line": 1426,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"coverage_stmt\" in function \"__init__\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1396,
+    "line": 1427,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"coverage_branch\" in function \"__init__\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1397,
+    "line": 1428,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"lint_errors\" in function \"__init__\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1398,
+    "line": 1429,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"type_errors\" in function \"__init__\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1399,
+    "line": 1430,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"pylance_errors\" in function \"__init__\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1400,
+    "line": 1431,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"test_passed\" in function \"__init__\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1401,
+    "line": 1432,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"test_failed\" in function \"__init__\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1402,
+    "line": 1433,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"test_errors\" in function \"__init__\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1403,
+    "line": 1434,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"test_skipped\" in function \"__init__\""
   },
   {
     "file": "scripts/generate_task_tree.py",
-    "line": 1404,
+    "line": 1435,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"source_warnings\" in function \"__init__\""
   },
