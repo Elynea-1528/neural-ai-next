@@ -296,10 +296,10 @@ A `tests/` mappa szerkezete **bitre pontosan** kövesse a `neural_ai/` struktúr
 
 ```
 neural_ai/processors/dimensions/d01_price/processor.py
-→ tests/processors/dimensions/d01_price/test_processor.py
+→ tests/neural_ai/processors/dimensions/d01_price/test_processor.py
 
 neural_ai/core/logger/factory.py
-→ tests/core/logger/test_factory.py
+→ tests/neural_ai/core/logger/test_factory.py
 ```
 
 **KÖTELEZŐ**: Minden új fájl igényel mirror teszt fájlt!
