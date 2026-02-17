@@ -3391,7 +3391,7 @@
     "code": "W293",
     "end_location": {
       "column": 13,
-      "row": 1261
+      "row": 1262
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3401,11 +3401,11 @@
           "content": "",
           "end_location": {
             "column": 13,
-            "row": 1261
+            "row": 1262
           },
           "location": {
             "column": 1,
-            "row": 1261
+            "row": 1262
           }
         }
       ],
@@ -3413,10 +3413,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1261
+      "row": 1262
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1261,
+    "noqa_row": 1262,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3424,7 +3424,7 @@
     "code": "W293",
     "end_location": {
       "column": 13,
-      "row": 1268
+      "row": 1269
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3434,11 +3434,11 @@
           "content": "",
           "end_location": {
             "column": 13,
-            "row": 1268
+            "row": 1269
           },
           "location": {
             "column": 1,
-            "row": 1268
+            "row": 1269
           }
         }
       ],
@@ -3446,10 +3446,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1268
+      "row": 1269
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1268,
+    "noqa_row": 1269,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3457,7 +3457,7 @@
     "code": "W293",
     "end_location": {
       "column": 13,
-      "row": 1271
+      "row": 1272
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3467,11 +3467,11 @@
           "content": "",
           "end_location": {
             "column": 13,
-            "row": 1271
+            "row": 1272
           },
           "location": {
             "column": 1,
-            "row": 1271
+            "row": 1272
           }
         }
       ],
@@ -3479,10 +3479,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1271
+      "row": 1272
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1271,
+    "noqa_row": 1272,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3490,16 +3490,16 @@
     "code": "E501",
     "end_location": {
       "column": 104,
-      "row": 1283
+      "row": 1284
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": null,
     "location": {
       "column": 101,
-      "row": 1283
+      "row": 1284
     },
     "message": "Line too long (103 > 100)",
-    "noqa_row": 1283,
+    "noqa_row": 1284,
     "url": "https://docs.astral.sh/ruff/rules/line-too-long"
   },
   {
@@ -3507,7 +3507,7 @@
     "code": "W293",
     "end_location": {
       "column": 13,
-      "row": 1285
+      "row": 1286
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3517,11 +3517,11 @@
           "content": "",
           "end_location": {
             "column": 13,
-            "row": 1285
+            "row": 1286
           },
           "location": {
             "column": 1,
-            "row": 1285
+            "row": 1286
           }
         }
       ],
@@ -3529,10 +3529,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1285
+      "row": 1286
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1285,
+    "noqa_row": 1286,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3540,7 +3540,7 @@
     "code": "W293",
     "end_location": {
       "column": 13,
-      "row": 1297
+      "row": 1298
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3550,11 +3550,11 @@
           "content": "",
           "end_location": {
             "column": 13,
-            "row": 1297
+            "row": 1298
           },
           "location": {
             "column": 1,
-            "row": 1297
+            "row": 1298
           }
         }
       ],
@@ -3562,10 +3562,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1297
+      "row": 1298
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1297,
+    "noqa_row": 1298,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3573,7 +3573,7 @@
     "code": "W293",
     "end_location": {
       "column": 13,
-      "row": 1309
+      "row": 1310
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3583,11 +3583,11 @@
           "content": "",
           "end_location": {
             "column": 13,
-            "row": 1309
+            "row": 1310
           },
           "location": {
             "column": 1,
-            "row": 1309
+            "row": 1310
           }
         }
       ],
@@ -3595,10 +3595,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1309
+      "row": 1310
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1309,
+    "noqa_row": 1310,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3606,7 +3606,7 @@
     "code": "W293",
     "end_location": {
       "column": 13,
-      "row": 1312
+      "row": 1313
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3616,11 +3616,11 @@
           "content": "",
           "end_location": {
             "column": 13,
-            "row": 1312
+            "row": 1313
           },
           "location": {
             "column": 1,
-            "row": 1312
+            "row": 1313
           }
         }
       ],
@@ -3628,10 +3628,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1312
+      "row": 1313
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1312,
+    "noqa_row": 1313,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3639,16 +3639,16 @@
     "code": "E501",
     "end_location": {
       "column": 107,
-      "row": 1323
+      "row": 1324
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": null,
     "location": {
       "column": 101,
-      "row": 1323
+      "row": 1324
     },
     "message": "Line too long (106 > 100)",
-    "noqa_row": 1323,
+    "noqa_row": 1324,
     "url": "https://docs.astral.sh/ruff/rules/line-too-long"
   },
   {
@@ -3656,7 +3656,7 @@
     "code": "W293",
     "end_location": {
       "column": 13,
-      "row": 1324
+      "row": 1325
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3666,11 +3666,11 @@
           "content": "",
           "end_location": {
             "column": 13,
-            "row": 1324
+            "row": 1325
           },
           "location": {
             "column": 1,
-            "row": 1324
+            "row": 1325
           }
         }
       ],
@@ -3678,10 +3678,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1324
+      "row": 1325
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1324,
+    "noqa_row": 1325,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3689,7 +3689,7 @@
     "code": "W293",
     "end_location": {
       "column": 17,
-      "row": 1327
+      "row": 1328
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3699,11 +3699,11 @@
           "content": "",
           "end_location": {
             "column": 17,
-            "row": 1327
+            "row": 1328
           },
           "location": {
             "column": 1,
-            "row": 1327
+            "row": 1328
           }
         }
       ],
@@ -3711,10 +3711,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1327
+      "row": 1328
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1327,
+    "noqa_row": 1328,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3722,7 +3722,7 @@
     "code": "W293",
     "end_location": {
       "column": 21,
-      "row": 1333
+      "row": 1334
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3732,11 +3732,11 @@
           "content": "",
           "end_location": {
             "column": 21,
-            "row": 1333
+            "row": 1334
           },
           "location": {
             "column": 1,
-            "row": 1333
+            "row": 1334
           }
         }
       ],
@@ -3744,10 +3744,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1333
+      "row": 1334
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1333,
+    "noqa_row": 1334,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3755,7 +3755,7 @@
     "code": "W293",
     "end_location": {
       "column": 25,
-      "row": 1341
+      "row": 1342
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3765,11 +3765,11 @@
           "content": "",
           "end_location": {
             "column": 25,
-            "row": 1341
+            "row": 1342
           },
           "location": {
             "column": 1,
-            "row": 1341
+            "row": 1342
           }
         }
       ],
@@ -3777,10 +3777,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1341
+      "row": 1342
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1341,
+    "noqa_row": 1342,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3788,7 +3788,7 @@
     "code": "W293",
     "end_location": {
       "column": 17,
-      "row": 1348
+      "row": 1349
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3798,11 +3798,11 @@
           "content": "",
           "end_location": {
             "column": 17,
-            "row": 1348
+            "row": 1349
           },
           "location": {
             "column": 1,
-            "row": 1348
+            "row": 1349
           }
         }
       ],
@@ -3810,10 +3810,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1348
+      "row": 1349
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1348,
+    "noqa_row": 1349,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3821,7 +3821,7 @@
     "code": "W293",
     "end_location": {
       "column": 17,
-      "row": 1351
+      "row": 1352
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3831,11 +3831,11 @@
           "content": "",
           "end_location": {
             "column": 17,
-            "row": 1351
+            "row": 1352
           },
           "location": {
             "column": 1,
-            "row": 1351
+            "row": 1352
           }
         }
       ],
@@ -3843,10 +3843,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1351
+      "row": 1352
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1351,
+    "noqa_row": 1352,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3854,16 +3854,16 @@
     "code": "E501",
     "end_location": {
       "column": 104,
-      "row": 1353
+      "row": 1354
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": null,
     "location": {
       "column": 100,
-      "row": 1353
+      "row": 1354
     },
     "message": "Line too long (104 > 100)",
-    "noqa_row": 1353,
+    "noqa_row": 1354,
     "url": "https://docs.astral.sh/ruff/rules/line-too-long"
   },
   {
@@ -3871,7 +3871,7 @@
     "code": "W293",
     "end_location": {
       "column": 21,
-      "row": 1373
+      "row": 1374
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3881,11 +3881,11 @@
           "content": "",
           "end_location": {
             "column": 21,
-            "row": 1373
+            "row": 1374
           },
           "location": {
             "column": 1,
-            "row": 1373
+            "row": 1374
           }
         }
       ],
@@ -3893,10 +3893,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1373
+      "row": 1374
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1373,
+    "noqa_row": 1374,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3904,7 +3904,7 @@
     "code": "W293",
     "end_location": {
       "column": 21,
-      "row": 1378
+      "row": 1379
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3914,11 +3914,11 @@
           "content": "",
           "end_location": {
             "column": 21,
-            "row": 1378
+            "row": 1379
           },
           "location": {
             "column": 1,
-            "row": 1378
+            "row": 1379
           }
         }
       ],
@@ -3926,10 +3926,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1378
+      "row": 1379
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1378,
+    "noqa_row": 1379,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3937,16 +3937,16 @@
     "code": "E501",
     "end_location": {
       "column": 104,
-      "row": 1379
+      "row": 1380
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": null,
     "location": {
       "column": 101,
-      "row": 1379
+      "row": 1380
     },
     "message": "Line too long (103 > 100)",
-    "noqa_row": 1379,
+    "noqa_row": 1380,
     "url": "https://docs.astral.sh/ruff/rules/line-too-long"
   },
   {
@@ -3954,7 +3954,7 @@
     "code": "W293",
     "end_location": {
       "column": 25,
-      "row": 1382
+      "row": 1383
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3964,11 +3964,11 @@
           "content": "",
           "end_location": {
             "column": 25,
-            "row": 1382
+            "row": 1383
           },
           "location": {
             "column": 1,
-            "row": 1382
+            "row": 1383
           }
         }
       ],
@@ -3976,10 +3976,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1382
+      "row": 1383
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1382,
+    "noqa_row": 1383,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -3987,7 +3987,7 @@
     "code": "W293",
     "end_location": {
       "column": 25,
-      "row": 1390
+      "row": 1391
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -3997,11 +3997,11 @@
           "content": "",
           "end_location": {
             "column": 25,
-            "row": 1390
+            "row": 1391
           },
           "location": {
             "column": 1,
-            "row": 1390
+            "row": 1391
           }
         }
       ],
@@ -4009,10 +4009,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1390
+      "row": 1391
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1390,
+    "noqa_row": 1391,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4020,7 +4020,7 @@
     "code": "W293",
     "end_location": {
       "column": 17,
-      "row": 1399
+      "row": 1400
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4030,11 +4030,11 @@
           "content": "",
           "end_location": {
             "column": 17,
-            "row": 1399
+            "row": 1400
           },
           "location": {
             "column": 1,
-            "row": 1399
+            "row": 1400
           }
         }
       ],
@@ -4042,10 +4042,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1399
+      "row": 1400
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1399,
+    "noqa_row": 1400,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4053,7 +4053,7 @@
     "code": "W293",
     "end_location": {
       "column": 29,
-      "row": 1412
+      "row": 1413
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4063,11 +4063,11 @@
           "content": "",
           "end_location": {
             "column": 29,
-            "row": 1412
+            "row": 1413
           },
           "location": {
             "column": 1,
-            "row": 1412
+            "row": 1413
           }
         }
       ],
@@ -4075,10 +4075,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1412
+      "row": 1413
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1412,
+    "noqa_row": 1413,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4086,7 +4086,7 @@
     "code": "W293",
     "end_location": {
       "column": 13,
-      "row": 1437
+      "row": 1438
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4096,11 +4096,11 @@
           "content": "",
           "end_location": {
             "column": 13,
-            "row": 1437
+            "row": 1438
           },
           "location": {
             "column": 1,
-            "row": 1437
+            "row": 1438
           }
         }
       ],
@@ -4108,10 +4108,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1437
+      "row": 1438
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1437,
+    "noqa_row": 1438,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4119,7 +4119,7 @@
     "code": "W291",
     "end_location": {
       "column": 45,
-      "row": 1454
+      "row": 1455
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4129,11 +4129,11 @@
           "content": "",
           "end_location": {
             "column": 45,
-            "row": 1454
+            "row": 1455
           },
           "location": {
             "column": 44,
-            "row": 1454
+            "row": 1455
           }
         }
       ],
@@ -4141,10 +4141,10 @@
     },
     "location": {
       "column": 44,
-      "row": 1454
+      "row": 1455
     },
     "message": "Trailing whitespace",
-    "noqa_row": 1454,
+    "noqa_row": 1455,
     "url": "https://docs.astral.sh/ruff/rules/trailing-whitespace"
   },
   {
@@ -4152,7 +4152,7 @@
     "code": "W291",
     "end_location": {
       "column": 48,
-      "row": 1461
+      "row": 1462
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4162,11 +4162,11 @@
           "content": "",
           "end_location": {
             "column": 48,
-            "row": 1461
+            "row": 1462
           },
           "location": {
             "column": 47,
-            "row": 1461
+            "row": 1462
           }
         }
       ],
@@ -4174,10 +4174,10 @@
     },
     "location": {
       "column": 47,
-      "row": 1461
+      "row": 1462
     },
     "message": "Trailing whitespace",
-    "noqa_row": 1461,
+    "noqa_row": 1462,
     "url": "https://docs.astral.sh/ruff/rules/trailing-whitespace"
   },
   {
@@ -4185,7 +4185,7 @@
     "code": "W293",
     "end_location": {
       "column": 9,
-      "row": 1500
+      "row": 1501
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4195,11 +4195,11 @@
           "content": "",
           "end_location": {
             "column": 9,
-            "row": 1500
+            "row": 1501
           },
           "location": {
             "column": 1,
-            "row": 1500
+            "row": 1501
           }
         }
       ],
@@ -4207,10 +4207,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1500
+      "row": 1501
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1500,
+    "noqa_row": 1501,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4218,7 +4218,7 @@
     "code": "W293",
     "end_location": {
       "column": 9,
-      "row": 1507
+      "row": 1508
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4228,11 +4228,11 @@
           "content": "",
           "end_location": {
             "column": 9,
-            "row": 1507
+            "row": 1508
           },
           "location": {
             "column": 1,
-            "row": 1507
+            "row": 1508
           }
         }
       ],
@@ -4240,10 +4240,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1507
+      "row": 1508
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1507,
+    "noqa_row": 1508,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4251,7 +4251,7 @@
     "code": "W293",
     "end_location": {
       "column": 17,
-      "row": 1511
+      "row": 1512
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4261,11 +4261,11 @@
           "content": "",
           "end_location": {
             "column": 17,
-            "row": 1511
+            "row": 1512
           },
           "location": {
             "column": 1,
-            "row": 1511
+            "row": 1512
           }
         }
       ],
@@ -4273,10 +4273,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1511
+      "row": 1512
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1511,
+    "noqa_row": 1512,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4284,7 +4284,7 @@
     "code": "W293",
     "end_location": {
       "column": 9,
-      "row": 1551
+      "row": 1552
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4294,11 +4294,11 @@
           "content": "",
           "end_location": {
             "column": 9,
-            "row": 1551
+            "row": 1552
           },
           "location": {
             "column": 1,
-            "row": 1551
+            "row": 1552
           }
         }
       ],
@@ -4306,10 +4306,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1551
+      "row": 1552
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1551,
+    "noqa_row": 1552,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4317,7 +4317,7 @@
     "code": "W293",
     "end_location": {
       "column": 9,
-      "row": 1582
+      "row": 1583
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4327,11 +4327,11 @@
           "content": "",
           "end_location": {
             "column": 9,
-            "row": 1582
+            "row": 1583
           },
           "location": {
             "column": 1,
-            "row": 1582
+            "row": 1583
           }
         }
       ],
@@ -4339,10 +4339,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1582
+      "row": 1583
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1582,
+    "noqa_row": 1583,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4350,7 +4350,7 @@
     "code": "W293",
     "end_location": {
       "column": 9,
-      "row": 1611
+      "row": 1612
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4360,11 +4360,11 @@
           "content": "",
           "end_location": {
             "column": 9,
-            "row": 1611
+            "row": 1612
           },
           "location": {
             "column": 1,
-            "row": 1611
+            "row": 1612
           }
         }
       ],
@@ -4372,10 +4372,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1611
+      "row": 1612
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1611,
+    "noqa_row": 1612,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4383,16 +4383,16 @@
     "code": "E501",
     "end_location": {
       "column": 118,
-      "row": 1625
+      "row": 1626
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": null,
     "location": {
       "column": 101,
-      "row": 1625
+      "row": 1626
     },
     "message": "Line too long (117 > 100)",
-    "noqa_row": 1625,
+    "noqa_row": 1626,
     "url": "https://docs.astral.sh/ruff/rules/line-too-long"
   },
   {
@@ -4400,7 +4400,7 @@
     "code": "W293",
     "end_location": {
       "column": 9,
-      "row": 1637
+      "row": 1638
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4410,11 +4410,11 @@
           "content": "",
           "end_location": {
             "column": 9,
-            "row": 1637
+            "row": 1638
           },
           "location": {
             "column": 1,
-            "row": 1637
+            "row": 1638
           }
         }
       ],
@@ -4422,10 +4422,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1637
+      "row": 1638
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1637,
+    "noqa_row": 1638,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4433,7 +4433,7 @@
     "code": "W293",
     "end_location": {
       "column": 9,
-      "row": 1647
+      "row": 1648
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4443,11 +4443,11 @@
           "content": "",
           "end_location": {
             "column": 9,
-            "row": 1647
+            "row": 1648
           },
           "location": {
             "column": 1,
-            "row": 1647
+            "row": 1648
           }
         }
       ],
@@ -4455,10 +4455,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1647
+      "row": 1648
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1647,
+    "noqa_row": 1648,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4466,16 +4466,16 @@
     "code": "E501",
     "end_location": {
       "column": 116,
-      "row": 1655
+      "row": 1656
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": null,
     "location": {
       "column": 101,
-      "row": 1655
+      "row": 1656
     },
     "message": "Line too long (115 > 100)",
-    "noqa_row": 1655,
+    "noqa_row": 1656,
     "url": "https://docs.astral.sh/ruff/rules/line-too-long"
   },
   {
@@ -4483,7 +4483,7 @@
     "code": "W293",
     "end_location": {
       "column": 9,
-      "row": 1666
+      "row": 1667
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4493,11 +4493,11 @@
           "content": "",
           "end_location": {
             "column": 9,
-            "row": 1666
+            "row": 1667
           },
           "location": {
             "column": 1,
-            "row": 1666
+            "row": 1667
           }
         }
       ],
@@ -4505,10 +4505,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1666
+      "row": 1667
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1666,
+    "noqa_row": 1667,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   },
   {
@@ -4516,7 +4516,7 @@
     "code": "W293",
     "end_location": {
       "column": 9,
-      "row": 1676
+      "row": 1677
     },
     "filename": "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_task_tree.py",
     "fix": {
@@ -4526,11 +4526,11 @@
           "content": "",
           "end_location": {
             "column": 9,
-            "row": 1676
+            "row": 1677
           },
           "location": {
             "column": 1,
-            "row": 1676
+            "row": 1677
           }
         }
       ],
@@ -4538,10 +4538,10 @@
     },
     "location": {
       "column": 1,
-      "row": 1676
+      "row": 1677
     },
     "message": "Blank line contains whitespace",
-    "noqa_row": 1676,
+    "noqa_row": 1677,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
   }
 ]

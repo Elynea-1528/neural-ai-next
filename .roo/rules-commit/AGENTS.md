@@ -167,7 +167,7 @@ git add neural_ai/processors/dimensions/d05_momentum/
 git commit -m "feat(processor): add d05 momentum dimension"
 
 # Commit 2: Dokumentáció
-git add docs/processors/dimensions/d05_momentum.md
+git add docs/neural_ai/processors/dimensions/d05_momentum.md
 git commit -m "docs(processor): add d05 momentum guide"
 ```
 
@@ -175,7 +175,7 @@ git commit -m "docs(processor): add d05 momentum guide"
 ```bash
 # Commit 1: Minden egyben (NEM ATOMIC!)
 git add neural_ai/processors/dimensions/d05_momentum/
-git add docs/processors/dimensions/d05_momentum.md
+git add docs/neural_ai/processors/dimensions/d05_momentum.md
 git add tests/neural_ai/processors/dimensions/test_d05_momentum.py
 git commit -m "add momentum dimension with docs and tests"
 ```

@@ -206,12 +206,12 @@ except ValueError as e:
 
 ### 6. Dokumentáció (Mirror Structure)
 - **Nyelv:** MINDEN docstring, komment és commit üzenet **MAGYAR** (Google Style).
-- **Mirror Dokumentáció:** Minden `neural_ai/X/Y.py` fájlhoz léteznie kell egy `docs/components/X/Y.md` fájlnak.
+- **Mirror Dokumentáció:** Minden `neural_ai/X/Y.py` fájlhoz léteznie kell egy `docs/components/neural_ai/X/Y.md` fájlnak.
 
 ### 7. Tesztelés (Quality Gate)
 - **Útvonalak:** Abszolút útvonalakat használj: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest`.
 - **Lefedettség:** Domain réteg (Processors, Data) 100% teszt lefedettséget igényel.
-- **Teszt Tükrözés:** A `tests/` mappa szerkezete bitre pontosan kövesse a `neural_ai/` szerkezetét.
+- **Teszt Tükrözés:** A `tests/` mappa szerkezete bitre pontosan kövesse a projeckt szerkezetét.
 - **Teszt Struktúra:** Arrange-Act-Assert pattern, leíró nevek, minimális mockolás.
 
 ### 8. Quality Gate (A Kapuőr)
@@ -312,7 +312,7 @@ Kérés érkezik
 
 ### 3. Mirror Structure & Atomic Commit
 - **Mirror Rule:** A dokumentációnak mappaszinten követnie KELL a kódot.
-  - Kód: `neural_ai/core/logger/factory.py` ➔ Dokumentáció: `docs/components/core/logger/factory.md`
+  - Kód: `neural_ai/core/logger/factory.py` ➔ Dokumentáció: `docs/components/neural_ai/core/logger/factory.md`
 - **Atomic Commit:** Minden egyes fájl javítása/létrehozása után `git commit` KÖTELEZŐ.
   - **Ha nincs commit, a feladat ❌ FAILED.**
 
