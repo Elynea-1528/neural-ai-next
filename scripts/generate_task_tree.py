@@ -14,6 +14,7 @@ Funkciók:
 """
 
 import ast
+import html  # HTML escape-hez
 import json
 import os
 import subprocess
@@ -603,6 +604,7 @@ class HTMLGenerator:
             color: #e4e7eb;
             min-height: 100vh;
             padding: 0;
+            overflow-x: auto;
         }}
         
         .header {{
@@ -614,7 +616,7 @@ class HTMLGenerator:
         
         .header-content {{
             max-width: 100%;
-            padding: 0 3rem;
+            padding: 0 2rem;
         }}
         
         h1 {{
@@ -638,7 +640,8 @@ class HTMLGenerator:
         
         .container {{
             max-width: 100%;
-            padding: 2rem 3rem;
+            padding: 2rem;
+            overflow-x: auto;
         }}
         
         .stats {{
@@ -752,7 +755,7 @@ class HTMLGenerator:
         .layer {{
             margin-bottom: 2.5rem;
             border-radius: 12px;
-            overflow: hidden;
+            overflow-x: auto;
             background: rgba(30, 41, 59, 0.4);
             border: 1px solid rgba(148, 163, 184, 0.1);
         }}
@@ -772,6 +775,8 @@ class HTMLGenerator:
         table {{
             width: 100%;
             border-collapse: collapse;
+            table-layout: auto;
+            min-width: 1200px;
         }}
         
         th {{
@@ -787,37 +792,39 @@ class HTMLGenerator:
             white-space: nowrap;
         }}
         
-        th:nth-child(1) {{ width: 25%; min-width: 300px; }} /* Fájl */
-        th:nth-child(2) {{ width: 10%; min-width: 100px; }} /* Státusz */
-        th:nth-child(3) {{ width: 8%; min-width: 80px; }} /* Teszt Pár / Pass-Fail (tests/scripts) */
-        th:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Skip / Lint (tests/scripts) */
-        th:nth-child(5) {{ width: 10%; min-width: 120px; }} /* Coverage */
-        th:nth-child(6) {{ width: 10%; min-width: 120px; }} /* Lint/Mypy/Pylance */
-        th:nth-child(7) {{ width: 6%; min-width: 60px; }} /* Src Warn */
-        th:nth-child(8) {{ width: 6%; min-width: 60px; }} /* Config */
-        th:nth-child(9) {{ width: 6%; min-width: 60px; }} /* Logger */
-        th:nth-child(10) {{ width: 6%; min-width: 60px; }} /* Dokumentálva */
-        th:nth-child(11) {{ width: auto; min-width: 150px; }} /* Teendők */
+        /* Rugalmas oszlopszélességek */
+        th:nth-child(1) {{ min-width: 250px; max-width: 400px; }} /* Fájl */
+        th:nth-child(2) {{ min-width: 100px; width: 120px; }} /* Státusz */
+        th:nth-child(3) {{ min-width: 80px; width: 100px; }} /* Teszt Pár / Pass-Fail */
+        th:nth-child(4) {{ min-width: 120px; width: 150px; }} /* Pass/Fail/Err/Skip */
+        th:nth-child(5) {{ min-width: 120px; width: 140px; }} /* Coverage */
+        th:nth-child(6) {{ min-width: 120px; width: 150px; }} /* Lint/Mypy/Pylance */
+        th:nth-child(7) {{ min-width: 60px; width: 80px; }} /* Src Warn */
+        th:nth-child(8) {{ min-width: 60px; width: 80px; }} /* Config */
+        th:nth-child(9) {{ min-width: 60px; width: 80px; }} /* Logger */
+        th:nth-child(10) {{ min-width: 60px; width: 100px; }} /* Dokumentálva */
+        th:nth-child(11) {{ min-width: 150px; }} /* Teendők */
         
         td {{
             padding: 1rem 1.25rem;
             border-bottom: 1px solid rgba(148, 163, 184, 0.05);
             font-size: 0.9rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }}
         
-        td:nth-child(1) {{ width: 25%; min-width: 300px; }} /* Fájl */
-        td:nth-child(2) {{ width: 10%; min-width: 100px; }} /* Státusz */
-        td:nth-child(3) {{ width: 8%; min-width: 80px; }} /* Teszt Pár / Pass-Fail (tests/scripts) */
-        td:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Skip / Lint (tests/scripts) */
-        td:nth-child(5) {{ width: 10%; min-width: 120px; }} /* Coverage */
-        td:nth-child(6) {{ width: 10%; min-width: 120px; }} /* Lint/Mypy/Pylance */
-        td:nth-child(7) {{ width: 6%; min-width: 60px; }} /* Src Warn */
-        td:nth-child(8) {{ width: 6%; min-width: 60px; }} /* Config */
-        td:nth-child(9) {{ width: 6%; min-width: 60px; }} /* Logger */
-        td:nth-child(10) {{ width: 6%; min-width: 60px; }} /* Dokumentálva */
-        td:nth-child(11) {{ width: auto; min-width: 150px; }} /* Teendők */
+        /* Rugalmas oszlopszélességek */
+        td:nth-child(1) {{ min-width: 250px; max-width: 400px; }} /* Fájl */
+        td:nth-child(2) {{ min-width: 100px; width: 120px; }} /* Státusz */
+        td:nth-child(3) {{ min-width: 80px; width: 100px; }} /* Teszt Pár / Pass-Fail */
+        td:nth-child(4) {{ min-width: 120px; width: 150px; }} /* Pass/Fail/Err/Skip */
+        td:nth-child(5) {{ min-width: 120px; width: 140px; }} /* Coverage */
+        td:nth-child(6) {{ min-width: 120px; width: 150px; }} /* Lint/Mypy/Pylance */
+        td:nth-child(7) {{ min-width: 60px; width: 80px; }} /* Src Warn */
+        td:nth-child(8) {{ min-width: 60px; width: 80px; }} /* Config */
+        td:nth-child(9) {{ min-width: 60px; width: 80px; }} /* Logger */
+        td:nth-child(10) {{ min-width: 60px; width: 100px; }} /* Dokumentálva */
+        td:nth-child(11) {{ min-width: 150px; }} /* Teendők */
         
         tr:hover td {{
             background: rgba(30, 41, 59, 0.4);
@@ -1009,6 +1016,8 @@ class HTMLGenerator:
 
             for file in sorted(files, key=lambda x: x.relative_path):
                 short_path = file.relative_path.replace("neural_ai/", "") if layer not in ["tests", "scripts"] else file.relative_path
+                # HTML escape a biztonság érdekében
+                short_path_escaped = html.escape(short_path)
 
                 # Státusz badge
                 if file.overall_status == "✅ SECURE":
@@ -1038,7 +1047,7 @@ class HTMLGenerator:
                 if layer in ["tests", "scripts"]:
                     html += f"""
                         <tr>
-                            <td class="file-path">{short_path}</td>
+                            <td class="file-path">{short_path_escaped}</td>
                             <td>{status_badge}</td>
                             <td class="test-results">{test_results}</td>
                             <td>{lint_type}</td>
@@ -1059,19 +1068,19 @@ class HTMLGenerator:
                     # Source Warnings
                     src_warn = f'<span class="test-warn">{file.source_warnings}</span>' if file.source_warnings > 0 else '<span style="opacity: 0.4;">-</span>'
 
-                    # Config és Logger státusz
-                    config_display = file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○")
-                    logger_display = file.logger_status.replace("✅", "✓").replace("⚠️", "⚠").replace("🔴", "✕").replace("⚪", "○")
+                    # Config és Logger státusz (HTML escape)
+                    config_display = html.escape(file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○"))
+                    logger_display = html.escape(file.logger_status.replace("✅", "✓").replace("⚠️", "⚠").replace("🔴", "✕").replace("⚪", "○"))
 
                     # Dokumentálva
                     doc_display = '<span class="test-found">✓</span>' if file.has_documentation else '<span class="test-missing">✕</span>'
 
-                    # Teendők
-                    notes_display = file.notes if file.notes else '<span style="opacity: 0.4;">-</span>'
+                    # Teendők (HTML escape)
+                    notes_display = html.escape(file.notes) if file.notes else '<span style="opacity: 0.4;">-</span>'
 
                     html += f"""
                         <tr>
-                            <td class="file-path">{short_path}</td>
+                            <td class="file-path">{short_path_escaped}</td>
                             <td>{status_badge}</td>
                             <td>{test_pair}</td>
                             <td class="test-results">{test_results}</td>
