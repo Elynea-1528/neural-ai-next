@@ -309,7 +309,9 @@ neural_ai/core/logger/factory.py
 | Ellenőrzés | Parancs | Követelmény |
 |------------|---------|-------------|
 | **Linting** | `/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check .` | 0 hiba |
-| **Type Check** | Pylance strict mode | 0 hiba |
+| **Type Check (Mypy)** | `/home/elynea/miniconda3/envs/neural-ai-next/bin/mypy neural_ai` | 0 hiba |
+| **Type Check (Pylance)** | Pylance strict mode (VS Code) | 0 hiba |
+| **Type Check (Pyright)** | `/home/elynea/miniconda3/envs/neural-ai-next/bin/pyright` | 0 hiba |
 | **Tests** | `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest` | 100% pass |
 | **Coverage** | `pytest --cov=neural_ai/module --cov-branch` | 100% (kritikus modulok) |
 
@@ -661,7 +663,8 @@ feat(scope): [Magyar üzenet]
 
 **QA GATE EREDMÉNYEK**:
 - Ruff: ✅ 0 hiba
-- Pylance: ✅ 0 hiba (strict mode)
+- Mypy: ✅ 0 hiba
+- Pylance/Pyright: ✅ 0 hiba (strict mode)
 - Pytest: ✅ 42/42 passed
 - Coverage: ✅ Stmt: 100% | Brch: 100%
 
@@ -938,7 +941,8 @@ feat(processors): D03 Trend Analysis implementálás (MACD, ADX)
 
 **QA GATE**:
 - Ruff: ✅ 0 error, 0 warning
-- Pylance: ✅ 0 error (strict mode)
+- Mypy: ✅ 0 error
+- Pylance/Pyright: ✅ 0 error (strict mode)
 - Pytest: ✅ 28/28 passed (0.42s)
 - Coverage: ✅ Stmt: 100% (124/124) | Brch: 100% (18/18)
 
