@@ -129,7 +129,7 @@ git commit -m "docs(processor): add d05 momentum dimension guide
 
 ### 5. Teszt (test):
 ```bash
-git add tests/processors/dimensions/test_d05_momentum.py
+git add tests/neural_ai/processors/dimensions/test_d05_momentum.py
 git commit -m "test(processor): add property tests for d05 momentum
 
 - Invariant property (length preservation)
@@ -176,7 +176,7 @@ git commit -m "docs(processor): add d05 momentum guide"
 # Commit 1: Minden egyben (NEM ATOMIC!)
 git add neural_ai/processors/dimensions/d05_momentum/
 git add docs/processors/dimensions/d05_momentum.md
-git add tests/processors/dimensions/test_d05_momentum.py
+git add tests/neural_ai/processors/dimensions/test_d05_momentum.py
 git commit -m "add momentum dimension with docs and tests"
 ```
 
@@ -222,7 +222,7 @@ git rev-parse HEAD
 - neural_ai/processors/dimensions/d05_momentum/implementations/momentum_processor.py
 - neural_ai/processors/dimensions/d05_momentum/factory.py
 - neural_ai/processors/dimensions/d05_momentum/__init__.py
-- tests/processors/dimensions/test_d05_momentum.py
+- tests/neural_ai/processors/dimensions/test_d05_momentum.py
 ```
 
 ## ✅ Sikeres Commit Munka
