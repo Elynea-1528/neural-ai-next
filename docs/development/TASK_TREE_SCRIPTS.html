@@ -295,9 +295,9 @@
         <div class="header-content">
             <h1>📜 Neural AI Next - Scripts Dashboard</h1>
             <div class="meta">
-                <strong>Generálva:</strong> 2026-02-17 18:11:48 UTC &nbsp;|&nbsp;
+                <strong>Generálva:</strong> 2026-02-17 19:39:44 UTC &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance) &nbsp;|&nbsp;
-                <strong>Fájlok:</strong> 15
+                <strong>Fájlok:</strong> 16
             </div>
         </div>
     </div>
@@ -308,31 +308,31 @@
                 <div class="stat-header">
                     <div class="stat-icon">✓</div>
                 </div>
-                <div class="stat-value">0</div>
+                <div class="stat-value">11</div>
                 <div class="stat-label">Secure</div>
-                <div class="stat-percent">0.0% a teljes kódbázisból</div>
+                <div class="stat-percent">68.8% a teljes kódbázisból</div>
             </div>
             <div class="stat-card warning">
                 <div class="stat-header">
                     <div class="stat-icon">⚠</div>
                 </div>
-                <div class="stat-value">0</div>
+                <div class="stat-value">5</div>
                 <div class="stat-label">Warning</div>
-                <div class="stat-percent">0.0% javítást igényel</div>
+                <div class="stat-percent">31.2% javítást igényel</div>
             </div>
             <div class="stat-card critical">
                 <div class="stat-header">
                     <div class="stat-icon">✕</div>
                 </div>
-                <div class="stat-value">15</div>
+                <div class="stat-value">0</div>
                 <div class="stat-label">Critical</div>
-                <div class="stat-percent">100.0% azonnali beavatkozás</div>
+                <div class="stat-percent">0.0% azonnali beavatkozás</div>
             </div>
             <div class="stat-card tested">
                 <div class="stat-header">
                     <div class="stat-icon">◉</div>
                 </div>
-                <div class="stat-value">0/15</div>
+                <div class="stat-value">0/16</div>
                 <div class="stat-label">Tesztelt</div>
                 <div class="stat-percent">0.0% teszt lefedettség</div>
             </div>
@@ -349,113 +349,154 @@
                             <th>Státusz</th>
                             <th>Pass/Fail/Err/Skip</th>
                             <th>Lint/Mypy/Pylance</th>
+                            <th>Src Warn</th>
+                            <th>Teendők</th>
                         </tr>
                     </thead>
                     <tbody>
     
                         <tr>
-                            <td class="file-path">scripts/audit_data.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="file-path">scripts/__init__.py</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">scripts/audit_data.py</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/bootstrap_integration_test.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/bootstrap_test.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/data_reset.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/deploy_jforex.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/download_history.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔎 Pylance: 2 hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/force_kill.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/generate_docs.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/generate_task_tree.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">101</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔎 Pylance: 101 hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/install.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/migrate_structure.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/smart_pack.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/test_d2_standalone.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">25</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔎 Pylance: 25 hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/test_tick_pipeline.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔎 Pylance: 1 hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">scripts/validation_end_to_end.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">11</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔎 Pylance: 11 hiba javítása</td>
                         </tr>
     
                     </tbody>

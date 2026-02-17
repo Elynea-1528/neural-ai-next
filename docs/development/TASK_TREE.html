@@ -295,9 +295,9 @@
         <div class="header-content">
             <h1>⚡ Neural AI Next - Task Tree Dashboard</h1>
             <div class="meta">
-                <strong>Generálva:</strong> 2026-02-17 18:11:48 UTC &nbsp;|&nbsp;
+                <strong>Generálva:</strong> 2026-02-17 19:39:44 UTC &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance) &nbsp;|&nbsp;
-                <strong>Fájlok:</strong> 99
+                <strong>Fájlok:</strong> 156
             </div>
         </div>
     </div>
@@ -308,38 +308,90 @@
                 <div class="stat-header">
                     <div class="stat-icon">✓</div>
                 </div>
-                <div class="stat-value">40</div>
+                <div class="stat-value">0</div>
                 <div class="stat-label">Secure</div>
-                <div class="stat-percent">40.4% a teljes kódbázisból</div>
+                <div class="stat-percent">0.0% a teljes kódbázisból</div>
             </div>
             <div class="stat-card warning">
                 <div class="stat-header">
                     <div class="stat-icon">⚠</div>
                 </div>
-                <div class="stat-value">16</div>
+                <div class="stat-value">56</div>
                 <div class="stat-label">Warning</div>
-                <div class="stat-percent">16.2% javítást igényel</div>
+                <div class="stat-percent">35.9% javítást igényel</div>
             </div>
             <div class="stat-card critical">
                 <div class="stat-header">
                     <div class="stat-icon">✕</div>
                 </div>
-                <div class="stat-value">43</div>
+                <div class="stat-value">100</div>
                 <div class="stat-label">Critical</div>
-                <div class="stat-percent">43.4% azonnali beavatkozás</div>
+                <div class="stat-percent">64.1% azonnali beavatkozás</div>
             </div>
             <div class="stat-card tested">
                 <div class="stat-header">
                     <div class="stat-icon">◉</div>
                 </div>
-                <div class="stat-value">59/99</div>
+                <div class="stat-value">59/156</div>
                 <div class="stat-label">Tesztelt</div>
-                <div class="stat-percent">59.6% teszt lefedettség</div>
+                <div class="stat-percent">37.8% teszt lefedettség</div>
             </div>
         </div>
 
         <input type="text" class="search-box" id="searchBox" placeholder="🔍 Keresés fájl név alapján..." onkeyup="filterTable()">
 
+            <div class="layer">
+                <div class="layer-title">🏠 0. Root Layer <span style="opacity: 0.6; font-size: 0.9rem;">(./)</span></div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Modul / Fájl</th>
+                            <th>Státusz</th>
+                            <th>Teszt Pár</th>
+                            <th>Pass/Fail/Err/Skip</th>
+                            <th>Coverage (Stmt/Brch)</th>
+                            <th>Lint/Mypy/Pylance</th>
+                            <th>Src Warn</th>
+                            <th>Config</th>
+                            <th>Logger</th>
+                            <th>Dokumentálva</th>
+                            <th>Teendők</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    
+                        <tr>
+                            <td class="file-path">main.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">neural_ai/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">83%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                    </tbody>
+                </table>
+            </div>
+    
             <div class="layer">
                 <div class="layer-title">⚙️ 1. Infrastructure Layer <span style="opacity: 0.6; font-size: 0.9rem;">(neural_ai/core/)</span></div>
                 <table>
@@ -361,213 +413,339 @@
                     <tbody>
     
                         <tr>
-                            <td class="file-path">core/base/exceptions/base_error.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">42</span>/0/0/0</td>
+                            <td class="file-path">core/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-low">11%</span> / 0%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 11% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/base/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/base/exceptions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/base/exceptions/base_error.py</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/base/factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">35</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">23%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>✓ OK</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 23% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/base/implementations/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/base/implementations/component_bundle.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">39</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">39%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 39% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/base/implementations/di_container.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">24</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">28%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 28% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/base/implementations/lazy_loader.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">10</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">43%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 43% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/base/implementations/singleton.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">10</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">43%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 43% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/base/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/base/interfaces/component_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">13</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">76%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 76% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/base/interfaces/container_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">20</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">75%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 75% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/config/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/config/exceptions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/config/exceptions/config_error.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">15</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">40%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 40% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/config/factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">31</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">26%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">4</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 4 hiba javítása | 📊 Coverage növelése: 26% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/config/implementations/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-low">78%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 78% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/config/implementations/dynamic_config_manager.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">48</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">10%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 10% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/config/implementations/yaml_config_manager.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">65</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">13%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">22</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 22 hiba javítása | 📊 Coverage növelése: 13% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/config/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/config/interfaces/async_config_interface.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">25</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/config/interfaces/config_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">17</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/config/interfaces/factory_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">23</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">80%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -581,231 +759,399 @@
                             <td>✓ OK</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/db/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/db/exceptions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/db/exceptions/db_error.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">9</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">54%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 54% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/db/factory.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">21</span>/<span class="test-fail">1</span>/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">62%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 62% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/db/implementations/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/db/implementations/model_base.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">52%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 52% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/db/implementations/models.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">92%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/db/implementations/sqlalchemy_session.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">22</span>/0/0/<span class="test-skip">3</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">17%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">10</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>✓ OK</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 10 hiba javítása | 📊 Coverage növelése: 17% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/db/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/events/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/events/exceptions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/events/exceptions/event_error.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">9</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">54%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 54% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/events/factory.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">11</span>/<span class="test-fail">1</span>/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">28%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 28% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/events/implementations/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/events/implementations/zeromq_bus.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">24</span>/<span class="test-fail">25</span>/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">14%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">20</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">20</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>✓ OK</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 20 hiba javítása | 📊 Coverage növelése: 14% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/events/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/events/interfaces/event_bus_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">27</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>✓ OK</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/events/interfaces/event_models.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">26</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">64%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>✓ OK</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 64% → 80%+</td>
                         </tr>
     
                         <tr>
-                            <td class="file-path">core/logger/exceptions/logger_error.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">14</span>/0/0/0</td>
+                            <td class="file-path">core/logger/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">88%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/logger/exceptions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
-                            <td class="file-path">core/logger/factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td class="file-path">core/logger/exceptions/logger_error.py</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">5</span>/0/0/0</td>
-                            <td class="coverage"><span class="cov-low">30%</span> / 11%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/logger/factory.py</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-low">30%</span> / 11%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 30% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/logger/formatters/logger_formatters.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">6</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">45%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 45% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/logger/implementations/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/logger/implementations/colored_logger.py</td>
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">32%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>✕ MISSING</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**Logger DI hiányzik!**</td>
+                            <td>🔴 **Logger DI hiányzik!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 32% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/logger/implementations/default_logger.py</td>
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">9</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">70%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>✕ MISSING</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**Logger DI hiányzik!**</td>
+                            <td>🔴 **Logger DI hiányzik!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 70% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/logger/implementations/rotating_file_logger.py</td>
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">22%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>✕ MISSING</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**Logger DI hiányzik!**</td>
+                            <td>🔴 **Logger DI hiányzik!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 22% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/logger/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-low">78%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 78% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -819,21 +1165,49 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/logger/interfaces/logger_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">3</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">70%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 70% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/system/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/system/exceptions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -847,63 +1221,105 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/system/factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">19</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">35%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 35% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/system/implementations/health_monitor.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">28</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">11%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 11% → 80%+</td>
                         </tr>
     
                         <tr>
-                            <td class="file-path">core/system/interfaces/health_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
+                            <td class="file-path">core/system/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/system/interfaces/health_interface.py</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/utils/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/utils/decorators.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">2</span>/<span class="test-fail">11</span>/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">39%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 39% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/utils/exceptions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -917,49 +1333,77 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 56% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/utils/factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">11</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">60%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 60% → 80%+</td>
                         </tr>
     
                         <tr>
-                            <td class="file-path">core/utils/implementations/hardware_info.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">15</span>/0/0/0</td>
-                            <td class="coverage"><span class="cov-low">19%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
-                            <td>○ N/A</td>
-                            <td>○ N/A</td>
-                            <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
-                        </tr>
-    
-                        <tr>
-                            <td class="file-path">core/utils/interfaces/hardware_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">3</span>/0/0/0</td>
+                            <td class="file-path">core/utils/implementations/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/utils/implementations/hardware_info.py</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-low">19%</span> / 0%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 19% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/utils/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">core/utils/interfaces/hardware_interface.py</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                     </tbody>
@@ -987,6 +1431,48 @@
                     <tbody>
     
                         <tr>
+                            <td class="file-path">collectors/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">collectors/jforex/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">collectors/jforex/exceptions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
                             <td class="file-path">collectors/jforex/exceptions/jforex_error.py</td>
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-missing">✕ MISSING</span></td>
@@ -997,49 +1483,77 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">collectors/jforex/factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">10</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">19%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">12</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 19% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">collectors/jforex/implementations/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">collectors/jforex/implementations/bi5_downloader.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">43</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">8%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 8% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">collectors/jforex/implementations/live_feed.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">13%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">3</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>✓ OK</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 3 hiba javítása | 📊 Coverage növelése: 13% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">collectors/jforex/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1053,7 +1567,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 75% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1067,7 +1581,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 73% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1081,7 +1595,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                     </tbody>
@@ -1109,101 +1623,199 @@
                     <tbody>
     
                         <tr>
+                            <td class="file-path">data/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">data/ingestion/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
                             <td class="file-path">data/ingestion/market_data_persister.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">20</span>/0/0/<span class="test-skip">5</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">7%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span> / <span class="test-fail">10</span></td>
-                            <td><span class="test-warn">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">10</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>✓ OK</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 10 hiba javítása | 📊 Coverage növelése: 7% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">data/storage/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">83%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">data/storage/backends/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">data/storage/backends/base.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">2</span>/<span class="test-fail">6</span>/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">32%</span> / 6%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 32% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">data/storage/backends/pandas_backend.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">30</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">19%</span> / 3%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 19% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">data/storage/backends/polars_backend.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">13</span>/<span class="test-fail">13</span>/0/<span class="test-skip">4</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">16%</span> / 2%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 16% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">data/storage/exceptions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">82%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">data/storage/factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">28%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 5 hiba javítása | 📊 Coverage növelése: 28% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">data/storage/implementations/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">data/storage/implementations/file_storage.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">46</span>/<span class="test-fail">4</span>/0/<span class="test-skip">2</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">11%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span> / <span class="test-fail">6</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>✓ OK</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 6 hiba javítása | 📊 Coverage növelése: 11% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">data/storage/implementations/parquet_storage.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">33</span>/<span class="test-fail">1</span>/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">12%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">21</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">21</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>✓ OK</td>
                             <td>✓ OK</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 21 hiba javítása | 📊 Coverage növelése: 12% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">data/storage/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1217,21 +1829,21 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">data/storage/interfaces/storage_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">11</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                     </tbody>
@@ -1259,6 +1871,34 @@
                     <tbody>
     
                         <tr>
+                            <td class="file-path">processors/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">processors/dimensions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
                             <td class="file-path">processors/dimensions/base.py</td>
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-missing">✕ MISSING</span></td>
@@ -1269,7 +1909,21 @@
                             <td>○ N/A</td>
                             <td>✓ OK</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 47% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">processors/dimensions/d01_price/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1283,7 +1937,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1297,7 +1951,35 @@
                             <td>○ N/A</td>
                             <td>✓ OK</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 8% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">processors/dimensions/d02_support/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">processors/dimensions/d02_support/exceptions/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1311,7 +1993,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1325,7 +2007,21 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">processors/dimensions/d02_support/implementations/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1334,40 +2030,82 @@
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">6%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">9</span> / <span class="test-fail">41</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">41</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>✓ OK</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 41 hiba javítása | 📊 Coverage növelése: 6% → 80%+</td>
                         </tr>
     
                         <tr>
-                            <td class="file-path">processors/factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">3</span>/0/0/0</td>
-                            <td class="coverage"><span class="cov-low">37%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td class="file-path">processors/dimensions/d02_support/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">processors/factory.py</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-low">37%</span> / 0%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 37% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">processors/implementations/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">processors/implementations/time_alignment_service.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">1</span>/<span class="test-fail">7</span>/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">18%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span class="test-fail">3</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">3</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 3 hiba javítása | 📊 Coverage növelése: 18% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">processors/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1381,7 +2119,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1395,7 +2133,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1409,7 +2147,21 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 78% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">processors/resampler_service/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1423,7 +2175,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 41% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1437,7 +2189,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 39% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1446,12 +2198,12 @@
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">12%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 1 hiba javítása | 📊 Coverage növelése: 12% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1465,7 +2217,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                     </tbody>
@@ -1493,17 +2245,45 @@
                     <tbody>
     
                         <tr>
+                            <td class="file-path">ui/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
                             <td class="file-path">ui/app.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">15</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">34%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 34% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">ui/components/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1517,35 +2297,49 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">ui/core_bridge.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">21</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">14%</span> / 0%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 14% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">ui/factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">28</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">15%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">17</span> / <span class="test-fail">20</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">20</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 20 hiba javítása | 📊 Coverage növelése: 15% → 80%+</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">ui/interfaces/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1559,7 +2353,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1573,7 +2367,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1587,21 +2381,21 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">ui/interfaces/data_service_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">19</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1615,7 +2409,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1629,7 +2423,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1643,7 +2437,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1657,7 +2451,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1671,7 +2465,7 @@
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 24% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1685,7 +2479,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1694,12 +2488,12 @@
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">9%</span> / 2%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">3</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">3</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 3 hiba javítása | 📊 Coverage növelése: 9% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1713,7 +2507,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1722,12 +2516,12 @@
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">6%</span> / 1%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">15</span> / <span class="test-fail">99</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">99</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 99 hiba javítása | 📊 Coverage növelése: 6% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1741,7 +2535,35 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">ui/pages/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">ui/services/__init__.py</td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>○ N/A</td>
+                            <td>○ N/A</td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                         <tr>
@@ -1755,35 +2577,35 @@
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 17% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">ui/services/dashboard_service.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">13</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">17%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 17% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">ui/services/data_service.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">26</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">8%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span> / <span class="test-fail">18</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">18</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 18 hiba javítása | 📊 Coverage növelése: 8% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1797,7 +2619,7 @@
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 18% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1811,21 +2633,21 @@
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) | 📊 Coverage növelése: 20% → 80%+</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">ui/services/strategy_service.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">24</span>/0/0/0</td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span class="cov-low">8%</span> / 0%</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">8</span> / <span class="test-fail">69</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">69</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>-</td>
+                            <td>📝 Dokumentáció írása (docs/components/) | 🔎 Pylance: 69 hiba javítása | 📊 Coverage növelése: 8% → 80%+</td>
                         </tr>
     
                         <tr>
@@ -1839,7 +2661,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>**KRITIKUS: Teszt írás!**</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/)</td>
                         </tr>
     
                     </tbody>
