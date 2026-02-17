@@ -170,7 +170,7 @@ class MirrorChecker:
     def check_documentation(source_path: Path) -> bool:
         """Ellenőrzi, hogy van-e dokumentáció a fájlhoz a docs/ mappában.
         
-        Példa: neural_ai/core/config/factory.py -> docs/components/core/config/factory.md
+        Példa: neural_ai/core/config/factory.py -> docs/components/neural_ai/core/config/factory.md
         """
         parts = source_path.parts
         
@@ -185,8 +185,8 @@ class MirrorChecker:
         file_name = relative_parts[-1].replace('.py', '.md')
         dir_parts = relative_parts[:-1]
         
-        # docs/components/core/config/factory.md
-        doc_path = Path("docs/components") / Path(*dir_parts) / file_name
+        # docs/components/neural_ai/core/config/factory.md (TELJES TÜKÖR)
+        doc_path = Path("docs/components/neural_ai") / Path(*dir_parts) / file_name
         
         return doc_path.exists()
 
@@ -224,8 +224,9 @@ class MirrorChecker:
         base_name = file_name.replace('.py', '')
         integration_file_name = f"test_{base_name}_integration.py"
 
-        # 1. Elsődleges hely (Mirror Rule szerint)
-        test_path = Path("tests") / Path(*dir_parts) / test_file_name
+        # 1. Elsődleges hely (Mirror Rule szerint - TELJES TÜKÖR)
+        # neural_ai/collectors/jforex/factory.py -> tests/neural_ai/collectors/jforex/test_factory.py
+        test_path = Path("tests") / Path("neural_ai") / Path(*dir_parts) / test_file_name
 
         # DEBUG: Útvonal ellenőrzés (csak UI fájloknál, hogy lássuk a hibát)
         if "ui" in str(source_path):
@@ -235,23 +236,23 @@ class MirrorChecker:
             return test_path
 
         # 1.5 Factory speciális kezelés: test_MODULE_factory.py
-        # pl. neural_ai/core/config/factory.py -> tests/core/config/test_config_factory.py
+        # pl. neural_ai/core/config/factory.py -> tests/neural_ai/core/config/test_config_factory.py
         if base_name == "factory" and dir_parts:
             module_name = dir_parts[-1]  # pl. "config", "db", "logger"
             module_factory_name = f"test_{module_name}_factory.py"
-            module_factory_path = Path("tests") / Path(*dir_parts) / module_factory_name
+            module_factory_path = Path("tests") / Path("neural_ai") / Path(*dir_parts) / module_factory_name
             if module_factory_path.exists():
                 return module_factory_path
 
         # UI Services Fallback (ha a standard logika valamiért nem találja)
         if "ui" in dir_parts and "services" in dir_parts:
-             ui_test_path = Path("tests/ui/services") / test_file_name
+             ui_test_path = Path("tests/neural_ai/ui/services") / test_file_name
              if ui_test_path.exists():
                  print(f"DEBUG: FOUND via fallback: {ui_test_path}")
                  return ui_test_path
 
-        # 2. Integration verzió (Mirror Rule szerint)
-        integration_path = Path("tests") / Path(*dir_parts) / integration_file_name
+        # 2. Integration verzió (Mirror Rule szerint - TELJES TÜKÖR)
+        integration_path = Path("tests") / Path("neural_ai") / Path(*dir_parts) / integration_file_name
         if integration_path.exists():
             return integration_path
 
@@ -259,14 +260,14 @@ class MirrorChecker:
         if dir_parts and dir_parts[-1] in ["implementations", "interfaces", "exceptions"]:
             parent_dir_parts = dir_parts[:-1]
 
-            # 3a. Szülő mappában test_X.py
-            parent_test_path = Path("tests") / Path(*parent_dir_parts) / test_file_name
+            # 3a. Szülő mappában test_X.py (TELJES TÜKÖR)
+            parent_test_path = Path("tests") / Path("neural_ai") / Path(*parent_dir_parts) / test_file_name
             if parent_test_path.exists():
                 return parent_test_path
 
-            # 3b. Szülő mappában test_X_integration.py
+            # 3b. Szülő mappában test_X_integration.py (TELJES TÜKÖR)
             parent_integration_path = (
-                Path("tests") / Path(*parent_dir_parts) / integration_file_name
+                Path("tests") / Path("neural_ai") / Path(*parent_dir_parts) / integration_file_name
             )
             if parent_integration_path.exists():
                 return parent_integration_path

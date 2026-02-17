@@ -145,7 +145,7 @@
         "commands": [
             {
                 "match": "\\.(py|md|yaml|toml|java)$",
-                "cmd": "/home/elynea/miniconda3/envs/neural-ai-next/bin/python ${workspaceFolder}/scripts/smart_pack.py",
+                "cmd": "/home/elynea/miniconda3/envs/neural-ai-next/bin/python ${workspaceFolder}/scripts/generate_task_tree.py",
                 "isAsync": true
             }
         ]
