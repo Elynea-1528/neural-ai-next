@@ -65,7 +65,9 @@ class FileAnalysis:
     test_passed: int = 0
     test_failed: int = 0
     test_errors: int = 0
-    test_warnings: int = 0
+    test_warnings: int = 0  # Mindig 0, mert warnings nem teszt-specifikusak
+    # Forráskód warnings (pytest warnings)
+    source_warnings: int = 0
     # Dokumentáció
     has_documentation: bool = False
 
@@ -409,8 +411,8 @@ class MarkdownGenerator:
                     table += f"| `{short_path}` | {file.overall_status} | {test_results} | {lint_mypy_pylance} |\n"
             else:
                 # Neural_ai layerekhez teljes táblázat + Dokumentálva oszlop
-                table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Config | Logger | Dokumentálva | Teendők |\n"
-                table += "|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:-------|:-------|:-------------|:--------|\n"
+                table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Warn | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
+                table += "|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|\n"
 
                 for file in sorted(files, key=lambda x: x.relative_path):
                     short_path = file.relative_path.replace("neural_ai/", "")
@@ -433,10 +435,13 @@ class MarkdownGenerator:
                     # Lint/Mypy/Pylance
                     lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
 
+                    # Source Warnings (pytest warnings a forráskódban)
+                    src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
+
                     # Dokumentálva
                     doc_status = "✅" if file.has_documentation else "❌"
 
-                    table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {file.config_status} | {file.logger_status} | {doc_status} | {file.notes if file.notes else '-'} |\n"
+                    table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {file.config_status} | {file.logger_status} | {doc_status} | {file.notes if file.notes else '-'} |\n"
 
             return table
 
@@ -745,10 +750,11 @@ class HTMLGenerator:
         th:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Warn / Lint (tests/scripts) */
         th:nth-child(5) {{ width: 10%; min-width: 120px; }} /* Coverage */
         th:nth-child(6) {{ width: 10%; min-width: 120px; }} /* Lint/Mypy/Pylance */
-        th:nth-child(7) {{ width: 7%; min-width: 70px; }} /* Config */
-        th:nth-child(8) {{ width: 7%; min-width: 70px; }} /* Logger */
-        th:nth-child(9) {{ width: 7%; min-width: 70px; }} /* Dokumentálva */
-        th:nth-child(10) {{ width: auto; min-width: 150px; }} /* Teendők */
+        th:nth-child(7) {{ width: 6%; min-width: 60px; }} /* Src Warn */
+        th:nth-child(8) {{ width: 6%; min-width: 60px; }} /* Config */
+        th:nth-child(9) {{ width: 6%; min-width: 60px; }} /* Logger */
+        th:nth-child(10) {{ width: 6%; min-width: 60px; }} /* Dokumentálva */
+        th:nth-child(11) {{ width: auto; min-width: 150px; }} /* Teendők */
         
         td {{
             padding: 1rem 1.25rem;
@@ -764,10 +770,11 @@ class HTMLGenerator:
         td:nth-child(4) {{ width: 10%; min-width: 120px; }} /* Pass/Fail/Err/Warn / Lint (tests/scripts) */
         td:nth-child(5) {{ width: 10%; min-width: 120px; }} /* Coverage */
         td:nth-child(6) {{ width: 10%; min-width: 120px; }} /* Lint/Mypy/Pylance */
-        td:nth-child(7) {{ width: 7%; min-width: 70px; }} /* Config */
-        td:nth-child(8) {{ width: 7%; min-width: 70px; }} /* Logger */
-        td:nth-child(9) {{ width: 7%; min-width: 70px; }} /* Dokumentálva */
-        td:nth-child(10) {{ width: auto; min-width: 150px; }} /* Teendők */
+        td:nth-child(7) {{ width: 6%; min-width: 60px; }} /* Src Warn */
+        td:nth-child(8) {{ width: 6%; min-width: 60px; }} /* Config */
+        td:nth-child(9) {{ width: 6%; min-width: 60px; }} /* Logger */
+        td:nth-child(10) {{ width: 6%; min-width: 60px; }} /* Dokumentálva */
+        td:nth-child(11) {{ width: auto; min-width: 150px; }} /* Teendők */
         
         tr:hover td {{
             background: rgba(30, 41, 59, 0.4);
@@ -944,6 +951,7 @@ class HTMLGenerator:
                             <th>Pass/Fail/Err/Warn</th>
                             <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
+                            <th>Src Warn</th>
                             <th>Config</th>
                             <th>Logger</th>
                             <th>Dokumentálva</th>
@@ -1004,6 +1012,9 @@ class HTMLGenerator:
                     else:
                         coverage = '<span style="opacity: 0.4;">N/A</span>'
 
+                    # Source Warnings
+                    src_warn = f'<span class="test-warn">{file.source_warnings}</span>' if file.source_warnings > 0 else '<span style="opacity: 0.4;">-</span>'
+
                     # Config és Logger státusz
                     config_display = file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○")
                     logger_display = file.logger_status.replace("✅", "✓").replace("⚠️", "⚠").replace("🔴", "✕").replace("⚪", "○")
@@ -1022,6 +1033,7 @@ class HTMLGenerator:
                             <td class="test-results">{test_results}</td>
                             <td class="coverage">{coverage}</td>
                             <td>{lint_type}</td>
+                            <td>{src_warn}</td>
                             <td>{config_display}</td>
                             <td>{logger_display}</td>
                             <td>{doc_display}</td>
@@ -1062,6 +1074,7 @@ class TaskTreeGenerator:
         self.mypy_data = []
         self.pylance_data = []
         self.pytest_data = {}  # test_file_path -> {passed, failed, errors, warnings}
+        self.source_warnings = {}  # source_file_path -> warning_count (pytest warnings)
 
     def run_dynamic_tools(self) -> None:
         """Futtatja a dinamikus ellenőrző eszközöket."""
@@ -1206,7 +1219,7 @@ class TaskTreeGenerator:
                                 "passed": 0,
                                 "failed": 0,
                                 "errors": 0,
-                                "warnings": 0
+                                "warnings": 0  # Mindig 0, mert warnings nem teszt-specifikusak
                             }
                         
                         if outcome == "passed":
@@ -1215,10 +1228,19 @@ class TaskTreeGenerator:
                             self.pytest_data[test_file]["failed"] += 1
                         elif outcome == "error":
                             self.pytest_data[test_file]["errors"] += 1
-                        
-                        # Warnings számolása
-                        if "warnings" in test:
-                            self.pytest_data[test_file]["warnings"] += len(test["warnings"])
+                
+                # Warnings feldolgozása (TOP LEVEL, forráskód fájlokhoz)
+                # A warnings-ok a forráskód fájlokban vannak, nem a teszt fájlokban
+                for warning in pytest_json.get("warnings", []):
+                    filename = warning.get("filename", "")
+                    # Ha a neural-ai-next projektben van
+                    if "neural-ai-next" in filename:
+                        rel_path = filename.split("neural-ai-next/")[-1]
+                        # Csak a neural_ai/ mappában lévő fájlokat számoljuk
+                        if rel_path.startswith("neural_ai/"):
+                            if rel_path not in self.source_warnings:
+                                self.source_warnings[rel_path] = 0
+                            self.source_warnings[rel_path] += 1
                             
             except Exception as e:
                 print(f"    ⚠️ Hiba a pytest report feldolgozásakor: {e}")
@@ -1236,6 +1258,7 @@ class TaskTreeGenerator:
             "test_failed": 0,
             "test_errors": 0,
             "test_warnings": 0,
+            "source_warnings": 0,  # Pytest warnings a forráskódban
         }
 
         # Coverage
@@ -1270,6 +1293,10 @@ class TaskTreeGenerator:
                 1 for err in self.pylance_data 
                 if err.get("file") == rel_path and err.get("severity") in ["error", "warning"]
             )
+
+        # Source Warnings (pytest warnings a forráskódban)
+        if rel_path in self.source_warnings:
+            metrics["source_warnings"] = self.source_warnings[rel_path]
 
         # Pytest eredmények (a tesztfájl alapján)
         # Megkeressük a mirror test fájlt
@@ -1371,6 +1398,7 @@ class TaskTreeGenerator:
             test_failed=dyn_metrics["test_failed"],
             test_errors=dyn_metrics["test_errors"],
             test_warnings=dyn_metrics["test_warnings"],
+            source_warnings=dyn_metrics["source_warnings"],
             has_documentation=has_documentation,
         )
 
