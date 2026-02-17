@@ -287,42 +287,123 @@ class StatusCalculator:
 
     @staticmethod
     def calculate(analysis: FileAnalysis) -> Literal["✅ SECURE", "🟡 WARNING", "🔴 VULNERABLE"]:
-        """Kiszámítja az overall státuszt."""
+        """Kiszámítja az overall státuszt.
+        
+        ✅ SECURE: Minden tökéletes (0 hiba, 0 warning, tesztek OK, dokumentáció OK)
+        🟡 WARNING: Van javítanivaló, de nem kritikus
+        🔴 VULNERABLE: Kritikus problémák (teszt hiány, TypedDict, Logger DI hiány, failed tesztek)
+        """
+        # Ellenőrizzük, hogy tests/ vagy scripts/ mappában vagyunk-e
+        is_test_or_script = analysis.relative_path.startswith(("tests/", "scripts/"))
+        
         # 🔴 VULNERABLE feltételek
-        if (
-            not analysis.test_file_exists
-            or analysis.test_count == 0
-            or analysis.config_status == "🔴 TYPED_DICT"
-            or analysis.logger_status == "🔴 MISSING"
-        ):
+        vulnerable_reasons = []
+        
+        # Neural_ai fájlokhoz: teszt pár kötelező
+        if not is_test_or_script:
+            if not analysis.test_file_exists or analysis.test_count == 0:
+                vulnerable_reasons.append("teszt_hiany")
+            if analysis.config_status == "🔴 TYPED_DICT":
+                vulnerable_reasons.append("typeddict")
+            if analysis.logger_status == "🔴 MISSING":
+                vulnerable_reasons.append("logger_di")
+        
+        # Minden fájlhoz: failed/error tesztek
+        if analysis.test_failed > 0 or analysis.test_errors > 0:
+            vulnerable_reasons.append("failed_tests")
+        
+        if vulnerable_reasons:
             return "🔴 VULNERABLE"
-
-        # ✅ SECURE feltételek
-        if (
-            analysis.test_file_exists
-            and analysis.test_count > 0
-            and analysis.config_status in ["✅ OK", "⚪ N/A"]
-            and analysis.logger_status in ["✅ OK", "⚪ N/A"]
-        ):
+        
+        # ✅ SECURE feltételek (SZIGORÚ!)
+        # Csak akkor SECURE, ha MINDEN rendben van
+        problems = []
+        
+        # 1. Lint hibák
+        if analysis.lint_errors > 0:
+            problems.append("lint")
+        
+        # 2. Type hibák (Mypy)
+        if analysis.type_errors > 0:
+            problems.append("mypy")
+        
+        # 3. Pylance hibák
+        if analysis.pylance_errors > 0:
+            problems.append("pylance")
+        
+        # 4. Source warnings
+        if analysis.source_warnings > 0:
+            problems.append("warnings")
+        
+        # 5. Skipped tesztek
+        if analysis.test_skipped > 0:
+            problems.append("skipped")
+        
+        # Neural_ai fájlokhoz további feltételek
+        if not is_test_or_script:
+            # 6. Dokumentáció hiány
+            if not analysis.has_documentation:
+                problems.append("docs")
+            
+            # 7. Alacsony coverage (ha van coverage adat)
+            if 0 < analysis.coverage_stmt < 80:
+                problems.append("coverage")
+        
+        # Ha NINCS probléma, akkor SECURE
+        if not problems:
             return "✅ SECURE"
-
-        # 🟡 WARNING: minden más
+        
+        # 🟡 WARNING: van javítanivaló, de nem kritikus
         return "🟡 WARNING"
 
     @staticmethod
     def generate_notes(analysis: FileAnalysis) -> str:
-        """Generál teendő megjegyzéseket."""
-        if analysis.overall_status == "✅ SECURE":
-            return "-"
-
+        """Generál részletes teendő megjegyzéseket."""
         notes: list[str] = []
-        if not analysis.test_file_exists or analysis.test_count == 0:
-            notes.append("**KRITIKUS: Teszt írás!**")
-        if analysis.config_status == "🔴 TYPED_DICT":
-            notes.append("**Migráld Pydantic-ra!**")
-        if analysis.logger_status == "🔴 MISSING":
-            notes.append("**Logger DI hiányzik!**")
-
+        
+        # Ellenőrizzük, hogy tests/ vagy scripts/ mappában vagyunk-e
+        is_test_or_script = analysis.relative_path.startswith(("tests/", "scripts/"))
+        
+        # 1. KRITIKUS problémák (VULNERABLE)
+        if not is_test_or_script:
+            if not analysis.test_file_exists or analysis.test_count == 0:
+                notes.append("🔴 **Teszt írás KÖTELEZŐ!**")
+            if analysis.config_status == "🔴 TYPED_DICT":
+                notes.append("🔴 **Migráld Pydantic-ra!**")
+            if analysis.logger_status == "🔴 MISSING":
+                notes.append("🔴 **Logger DI hiányzik!**")
+        
+        if analysis.test_failed > 0 or analysis.test_errors > 0:
+            notes.append(f"🔴 **Tesztek javítása: {analysis.test_failed} failed, {analysis.test_errors} error**")
+        
+        # 2. Dokumentáció hiány (neural_ai fájlokhoz)
+        if not is_test_or_script and not analysis.has_documentation:
+            notes.append("📝 Dokumentáció írása (docs/components/)")
+        
+        # 3. Linter hibák
+        if analysis.lint_errors > 0:
+            notes.append(f"🔧 Ruff: {analysis.lint_errors} hiba javítása")
+        
+        # 4. Type hibák
+        if analysis.type_errors > 0:
+            notes.append(f"🔬 Mypy: {analysis.type_errors} type hiba javítása")
+        
+        # 5. Pylance hibák
+        if analysis.pylance_errors > 0:
+            notes.append(f"🔎 Pylance: {analysis.pylance_errors} hiba javítása")
+        
+        # 6. Source warnings
+        if analysis.source_warnings > 0:
+            notes.append(f"⚠️ {analysis.source_warnings} warning javítása")
+        
+        # 7. Alacsony coverage (neural_ai fájlokhoz)
+        if not is_test_or_script and 0 < analysis.coverage_stmt < 80:
+            notes.append(f"📊 Coverage növelése: {analysis.coverage_stmt:.0f}% → 80%+")
+        
+        # 8. Skipped tesztek
+        if analysis.test_skipped > 0:
+            notes.append(f"⏭️ {analysis.test_skipped} skipped teszt aktiválása")
+        
         return " | ".join(notes) if notes else "-"
 
 
@@ -406,8 +487,8 @@ class MarkdownGenerator:
 
             # Tests és Scripts layerekhez egyszerűsített táblázat
             if layer in ["tests", "scripts"]:
-                table += "| Fájl | Státusz | Pass/Fail/Err/Skip | Lint/Mypy/Pylance |\n"
-                table += "|:-----|:--------|:-------------------|:------------------|\n"
+                table += "| Fájl | Státusz | Pass/Fail/Err/Skip | Lint/Mypy/Pylance | Src Warn | Teendők |\n"
+                table += "|:-----|:--------|:-------------------|:------------------|:---------|:--------|\n"
 
                 for file in sorted(files, key=lambda x: x.relative_path):
                     short_path = file.relative_path
@@ -421,7 +502,10 @@ class MarkdownGenerator:
                     # Lint/Mypy/Pylance
                     lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
 
-                    table += f"| `{short_path}` | {file.overall_status} | {test_results} | {lint_mypy_pylance} |\n"
+                    # Source Warnings
+                    src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
+
+                    table += f"| `{short_path}` | {file.overall_status} | {test_results} | {lint_mypy_pylance} | {src_warn} | {file.notes if file.notes else '-'} |\n"
             else:
                 # Neural_ai layerekhez teljes táblázat + Dokumentálva oszlop
                 table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
@@ -992,7 +1076,9 @@ class HTMLGenerator:
                             <th>Fájl</th>
                             <th>Státusz</th>
                             <th>Pass/Fail/Err/Skip</th>
-                            <th>Lint/Mypy/Pylance</th>"""
+                            <th>Lint/Mypy/Pylance</th>
+                            <th>Src Warn</th>
+                            <th>Teendők</th>"""
             else:
                 # Neural_ai layerekhez teljes fejléc + Dokumentálva
                 html_output += """
@@ -1043,6 +1129,12 @@ class HTMLGenerator:
                 pylance_str = f'<span class="test-fail">{file.pylance_errors}</span>' if file.pylance_errors > 0 else '<span style="opacity: 0.6;">0</span>'
                 lint_type = f'{lint_str} / {mypy_str} / {pylance_str}'
 
+                # Source Warnings
+                src_warn = f'<span class="test-warn">{file.source_warnings}</span>' if file.source_warnings > 0 else '<span style="opacity: 0.4;">-</span>'
+
+                # Teendők (HTML escape)
+                notes_display = html.escape(file.notes) if file.notes and file.notes != "-" else '<span style="opacity: 0.4;">-</span>'
+
                 # Tests és Scripts layerekhez egyszerűsített sor
                 if layer in ["tests", "scripts"]:
                     html_output += f"""
@@ -1051,6 +1143,8 @@ class HTMLGenerator:
                             <td>{status_badge}</td>
                             <td class="test-results">{test_results}</td>
                             <td>{lint_type}</td>
+                            <td>{src_warn}</td>
+                            <td>{notes_display}</td>
                         </tr>
     """
                 else:
@@ -1065,18 +1159,12 @@ class HTMLGenerator:
                     else:
                         coverage = '<span style="opacity: 0.4;">N/A</span>'
 
-                    # Source Warnings
-                    src_warn = f'<span class="test-warn">{file.source_warnings}</span>' if file.source_warnings > 0 else '<span style="opacity: 0.4;">-</span>'
-
                     # Config és Logger státusz (HTML escape)
                     config_display = html.escape(file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○"))
                     logger_display = html.escape(file.logger_status.replace("✅", "✓").replace("⚠️", "⚠").replace("🔴", "✕").replace("⚪", "○"))
 
                     # Dokumentálva
                     doc_display = '<span class="test-found">✓</span>' if file.has_documentation else '<span class="test-missing">✕</span>'
-
-                    # Teendők (HTML escape)
-                    notes_display = html.escape(file.notes) if file.notes else '<span style="opacity: 0.4;">-</span>'
 
                     html_output += f"""
                         <tr>
@@ -1356,16 +1444,25 @@ class TaskTreeGenerator:
         if rel_path in self.source_warnings:
             metrics["source_warnings"] = self.source_warnings[rel_path]
 
-        # Pytest eredmények (a tesztfájl alapján)
-        # Megkeressük a mirror test fájlt
-        test_path = MirrorChecker.get_test_path(file_path)
-        if test_path and test_path.exists():
-            test_rel = str(test_path)
-            if test_rel in self.pytest_data:
-                metrics["test_passed"] = self.pytest_data[test_rel]["passed"]
-                metrics["test_failed"] = self.pytest_data[test_rel]["failed"]
-                metrics["test_errors"] = self.pytest_data[test_rel]["errors"]
-                metrics["test_skipped"] = self.pytest_data[test_rel]["skipped"]
+        # Pytest eredmények
+        # Ha tests/ vagy scripts/ mappában vagyunk, akkor önmaga a teszt fájl
+        if rel_path.startswith(("tests/", "scripts/")):
+            # Önmaga a teszt fájl
+            if rel_path in self.pytest_data:
+                metrics["test_passed"] = self.pytest_data[rel_path]["passed"]
+                metrics["test_failed"] = self.pytest_data[rel_path]["failed"]
+                metrics["test_errors"] = self.pytest_data[rel_path]["errors"]
+                metrics["test_skipped"] = self.pytest_data[rel_path]["skipped"]
+        else:
+            # Neural_ai fájlokhoz: megkeressük a mirror test fájlt
+            test_path = MirrorChecker.get_test_path(file_path)
+            if test_path and test_path.exists():
+                test_rel = str(test_path)
+                if test_rel in self.pytest_data:
+                    metrics["test_passed"] = self.pytest_data[test_rel]["passed"]
+                    metrics["test_failed"] = self.pytest_data[test_rel]["failed"]
+                    metrics["test_errors"] = self.pytest_data[test_rel]["errors"]
+                    metrics["test_skipped"] = self.pytest_data[test_rel]["skipped"]
 
         return metrics
 
@@ -1414,7 +1511,13 @@ class TaskTreeGenerator:
             config_status = analyzer.check_config_type()
             logger_status = analyzer.check_logger_injection()
 
-        # Előzetes FileAnalysis (overall_status nélkül)
+        # Dinamikus metrikák gyűjtése (ELŐSZÖR!)
+        dyn_metrics = self.get_dynamic_metrics(file_path)
+        
+        # Dokumentáció ellenőrzése
+        has_documentation = MirrorChecker.check_documentation(file_path)
+
+        # Teljes FileAnalysis (dinamikus metrikákkal)
         temp_analysis = FileAnalysis(
             path=file_path,
             relative_path=relative_path,
@@ -1425,18 +1528,24 @@ class TaskTreeGenerator:
             logger_status=logger_status,
             overall_status="🟡 WARNING",  # Placeholder
             notes="",
+            coverage_stmt=dyn_metrics["coverage_stmt"],
+            coverage_branch=dyn_metrics["coverage_branch"],
+            lint_errors=dyn_metrics["lint_errors"],
+            type_errors=dyn_metrics["type_errors"],
+            pylance_errors=dyn_metrics["pylance_errors"],
+            test_passed=dyn_metrics["test_passed"],
+            test_failed=dyn_metrics["test_failed"],
+            test_errors=dyn_metrics["test_errors"],
+            test_skipped=dyn_metrics["test_skipped"],
+            source_warnings=dyn_metrics["source_warnings"],
+            has_documentation=has_documentation,
         )
 
-        # Overall status kiszámítása
+        # Overall status és notes kiszámítása (MOST már van dinamikus metrika!)
         overall_status = StatusCalculator.calculate(temp_analysis)
         notes = StatusCalculator.generate_notes(temp_analysis)
-
-        # Végleges FileAnalysis
-        dyn_metrics = self.get_dynamic_metrics(file_path)
         
-        # Dokumentáció ellenőrzése
-        has_documentation = MirrorChecker.check_documentation(file_path)
-        
+        # Végleges FileAnalysis (frissített státusszal és notes-szal)
         return FileAnalysis(
             path=file_path,
             relative_path=relative_path,
