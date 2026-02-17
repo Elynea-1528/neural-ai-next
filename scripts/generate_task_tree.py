@@ -1250,10 +1250,11 @@ class TaskTreeGenerator:
         # 1. Coverage + Pytest + JSON Report
         print("  📊 Coverage + Pytest...")
         try:
-            # Először pytest JSON reporttal
+            # Először pytest JSON reporttal (collection errorok ellenére folytatjuk)
             cmd_pytest = [
                 str(PYTEST_BIN),
                 "-q", "--tb=no",
+                "--continue-on-collection-errors",
                 "--json-report", f"--json-report-file={REPORT_DIR}/pytest_report.json",
                 "tests/"
             ]
