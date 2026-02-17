@@ -295,9 +295,9 @@
         <div class="header-content">
             <h1>🧪 Neural AI Next - Tests Dashboard</h1>
             <div class="meta">
-                <strong>Generálva:</strong> 2026-02-17 21:06:17 UTC &nbsp;|&nbsp;
+                <strong>Generálva:</strong> 2026-02-17 21:57:20 UTC &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance) &nbsp;|&nbsp;
-                <strong>Fájlok:</strong> 107
+                <strong>Fájlok:</strong> 110
             </div>
         </div>
     </div>
@@ -308,31 +308,31 @@
                 <div class="stat-header">
                     <div class="stat-icon">✓</div>
                 </div>
-                <div class="stat-value">53</div>
+                <div class="stat-value">56</div>
                 <div class="stat-label">Secure</div>
-                <div class="stat-percent">49.5% a teljes kódbázisból</div>
+                <div class="stat-percent">50.9% a teljes kódbázisból</div>
             </div>
             <div class="stat-card warning">
                 <div class="stat-header">
                     <div class="stat-icon">⚠</div>
                 </div>
-                <div class="stat-value">32</div>
+                <div class="stat-value">36</div>
                 <div class="stat-label">Warning</div>
-                <div class="stat-percent">29.9% javítást igényel</div>
+                <div class="stat-percent">32.7% javítást igényel</div>
             </div>
             <div class="stat-card critical">
                 <div class="stat-header">
                     <div class="stat-icon">✕</div>
                 </div>
-                <div class="stat-value">22</div>
+                <div class="stat-value">18</div>
                 <div class="stat-label">Critical</div>
-                <div class="stat-percent">20.6% azonnali beavatkozás</div>
+                <div class="stat-percent">16.4% azonnali beavatkozás</div>
             </div>
             <div class="stat-card tested">
                 <div class="stat-header">
                     <div class="stat-icon">◉</div>
                 </div>
-                <div class="stat-value">107/107</div>
+                <div class="stat-value">110/110</div>
                 <div class="stat-label">Tesztelt</div>
                 <div class="stat-percent">100.0% teszt lefedettség</div>
             </div>
@@ -354,6 +354,24 @@
                         </tr>
                     </thead>
                     <tbody>
+    
+                        <tr>
+                            <td class="file-path">tests/__init__.py</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">tests/neural_ai/__init__.py</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                        </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/collectors/__init__.py</td>
@@ -1059,29 +1077,29 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/data/storage/backends/test_polars_backend.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">13</span>/<span class="test-fail">13</span>/0/<span class="test-skip">4</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td class="test-results"><span class="test-pass">24</span>/0/0/<span class="test-skip">6</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">13</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
-                            <td>🔴 **Tesztek javítása: 13 failed, 0 error** | 🔎 Pylance: 13 hiba javítása | ⏭️ 4 skipped teszt aktiválása</td>
+                            <td>🔎 Pylance: 13 hiba javítása | ⏭️ 6 skipped teszt aktiválása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/data/storage/implementations/test_file_storage.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">46</span>/<span class="test-fail">4</span>/0/<span class="test-skip">2</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td class="test-results"><span class="test-pass">50</span>/0/0/<span class="test-skip">2</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">30</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
-                            <td>🔴 **Tesztek javítása: 4 failed, 0 error** | 🔎 Pylance: 30 hiba javítása | ⏭️ 2 skipped teszt aktiválása</td>
+                            <td>🔎 Pylance: 30 hiba javítása | ⏭️ 2 skipped teszt aktiválása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/data/storage/implementations/test_parquet_storage.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">33</span>/<span class="test-fail">1</span>/0/0</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td class="test-results"><span class="test-pass">34</span>/0/0/0</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
-                            <td>🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 2 hiba javítása</td>
+                            <td>🔎 Pylance: 2 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -1131,11 +1149,11 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/processors/dimensions/d02_support/test_processor.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">3</span>/<span class="test-fail">1</span>/0/0</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td class="test-results"><span class="test-pass">4</span>/0/0/0</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">28</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
-                            <td>🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 28 hiba javítása</td>
+                            <td>🔎 Pylance: 28 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -1149,11 +1167,11 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/processors/test_time_alignment_service.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">1</span>/<span class="test-fail">7</span>/0/0</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td class="test-results"><span class="test-pass">8</span>/0/0/0</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
-                            <td>🔴 **Tesztek javítása: 7 failed, 0 error** | 🔎 Pylance: 2 hiba javítása</td>
+                            <td>🔎 Pylance: 2 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -1247,6 +1265,15 @@
                         </tr>
     
                         <tr>
+                            <td class="file-path">tests/scripts/__init__.py</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                        </tr>
+    
+                        <tr>
                             <td class="file-path">tests/scripts/test_data_reset.py</td>
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td class="test-results"><span class="test-pass">12</span>/<span class="test-fail">2</span>/0/0</td>
@@ -1275,11 +1302,11 @@
     
                         <tr>
                             <td class="file-path">tests/scripts/test_test_tick_pipeline.py</td>
-                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span class="test-pass">1</span>/<span class="test-fail">4</span>/0/0</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">8</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
-                            <td>🔎 Pylance: 8 hiba javítása</td>
+                            <td>🔴 **Tesztek javítása: 4 failed, 0 error** | 🔎 Pylance: 8 hiba javítása</td>
                         </tr>
     
                         <tr>

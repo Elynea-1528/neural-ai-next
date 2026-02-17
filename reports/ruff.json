@@ -4543,5 +4543,56 @@
     "message": "Blank line contains whitespace",
     "noqa_row": 1677,
     "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace"
+  },
+  {
+    "cell": null,
+    "code": "D104",
+    "end_location": {
+      "column": 1,
+      "row": 1
+    },
+    "filename": "/home/elynea/Dokumentumok/neural-ai-next/tests/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Missing docstring in public package",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/undocumented-public-package"
+  },
+  {
+    "cell": null,
+    "code": "D104",
+    "end_location": {
+      "column": 1,
+      "row": 1
+    },
+    "filename": "/home/elynea/Dokumentumok/neural-ai-next/tests/neural_ai/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Missing docstring in public package",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/undocumented-public-package"
+  },
+  {
+    "cell": null,
+    "code": "D104",
+    "end_location": {
+      "column": 1,
+      "row": 1
+    },
+    "filename": "/home/elynea/Dokumentumok/neural-ai-next/tests/scripts/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Missing docstring in public package",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/undocumented-public-package"
   }
 ]

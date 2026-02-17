@@ -7921,109 +7921,109 @@
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 50,
+    "line": 56,
     "severity": "error",
     "message": "\"_core_components\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 51,
+    "line": 57,
     "severity": "error",
     "message": "\"_strategies\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 52,
+    "line": 58,
     "severity": "error",
     "message": "\"_strategies\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 67,
+    "line": 73,
     "severity": "error",
     "message": "\"_strategies\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 75,
+    "line": 81,
     "severity": "error",
     "message": "\"_strategies\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 86,
+    "line": 92,
     "severity": "error",
     "message": "\"_strategies\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 181,
+    "line": 187,
     "severity": "error",
     "message": "Invalid conditional operand of type \"DataFrame\"\n\u00a0\u00a0Method __bool__ for type \"DataFrame\" returns type \"NoReturn\" rather than \"bool\""
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 259,
+    "line": 265,
     "severity": "error",
     "message": "Argument type is partially unknown\n\u00a0\u00a0Argument corresponds to parameter \"side_effect\" in function \"__init__\"\n\u00a0\u00a0Argument type is \"(key: Unknown) -> MagicMock\""
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 259,
+    "line": 265,
     "severity": "error",
     "message": "Type of parameter \"key\" is unknown"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 505,
+    "line": 511,
     "severity": "error",
     "message": "\"_core_components\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 505,
+    "line": 511,
     "severity": "error",
     "message": "Type of parameter \"comp\" is unknown"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 508,
+    "line": 514,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"key\" in function \"get\""
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 533,
+    "line": 539,
     "severity": "error",
     "message": "Invalid conditional operand of type \"DataFrame\"\n\u00a0\u00a0Method __bool__ for type \"DataFrame\" returns type \"NoReturn\" rather than \"bool\""
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 556,
+    "line": 562,
     "severity": "error",
     "message": "\"_core_components\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 556,
+    "line": 562,
     "severity": "error",
     "message": "Type of parameter \"comp\" is unknown"
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 559,
+    "line": 565,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"key\" in function \"get\""
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 591,
+    "line": 597,
     "severity": "error",
     "message": "Invalid conditional operand of type \"DataFrame\"\n\u00a0\u00a0Method __bool__ for type \"DataFrame\" returns type \"NoReturn\" rather than \"bool\""
   },
   {
     "file": "tests/neural_ai/ui/services/test_strategy_service.py",
-    "line": 633,
+    "line": 639,
     "severity": "error",
     "message": "\"_core_components\" is protected and used outside of the class in which it is declared"
   },

@@ -1,14 +1,14 @@
 # 🧪 NEURAL AI NEXT - TESTS
 
-**Generálva:** 2026-02-17 21:06:17 UTC
+**Generálva:** 2026-02-17 21:57:20 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
-**Fájlok száma:** 107
+**Fájlok száma:** 110
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 53 (49.5%)
-- 🟡 **WARNING:** 32 (29.9%)
-- 🔴 **VULNERABLE:** 22 (20.6%)
+- ✅ **SECURE:** 56 (50.9%)
+- 🟡 **WARNING:** 36 (32.7%)
+- 🔴 **VULNERABLE:** 18 (16.4%)
 
 ---
 
@@ -16,6 +16,8 @@
 
 | Fájl | Státusz | Pass/Fail/Err/Skip | Lint/Mypy/Pylance | Src Warn | Teendők |
 |:-----|:--------|:-------------------|:------------------|:---------|:--------|
+| `tests/__init__.py` | ✅ SECURE | - | 0 / 0 / 0 | - | - |
+| `tests/neural_ai/__init__.py` | ✅ SECURE | - | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/collectors/__init__.py` | ✅ SECURE | - | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/collectors/jforex/__init__.py` | ✅ SECURE | - | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/collectors/jforex/exceptions/__init__.py` | ✅ SECURE | - | 0 / 0 / 0 | - | - |
@@ -94,17 +96,17 @@
 | `tests/neural_ai/data/ingestion/test_market_data_persister.py` | 🟡 WARNING | **20**/0/0/5 | 0 / 0 / 0 | - | ⏭️ 5 skipped teszt aktiválása |
 | `tests/neural_ai/data/storage/backends/test_base.py` | 🔴 VULNERABLE | **2**/6/0/0 | 0 / 0 / 76 | - | 🔴 **Tesztek javítása: 6 failed, 0 error** | 🔎 Pylance: 76 hiba javítása |
 | `tests/neural_ai/data/storage/backends/test_pandas_backend.py` | 🟡 WARNING | **30**/0/0/0 | 0 / 0 / 22 | - | 🔎 Pylance: 22 hiba javítása |
-| `tests/neural_ai/data/storage/backends/test_polars_backend.py` | 🔴 VULNERABLE | **13**/13/0/4 | 0 / 0 / 13 | - | 🔴 **Tesztek javítása: 13 failed, 0 error** | 🔎 Pylance: 13 hiba javítása | ⏭️ 4 skipped teszt aktiválása |
-| `tests/neural_ai/data/storage/implementations/test_file_storage.py` | 🔴 VULNERABLE | **46**/4/0/2 | 0 / 0 / 30 | - | 🔴 **Tesztek javítása: 4 failed, 0 error** | 🔎 Pylance: 30 hiba javítása | ⏭️ 2 skipped teszt aktiválása |
-| `tests/neural_ai/data/storage/implementations/test_parquet_storage.py` | 🔴 VULNERABLE | **33**/1/0/0 | 0 / 0 / 2 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 2 hiba javítása |
+| `tests/neural_ai/data/storage/backends/test_polars_backend.py` | 🟡 WARNING | **24**/0/0/6 | 0 / 0 / 13 | - | 🔎 Pylance: 13 hiba javítása | ⏭️ 6 skipped teszt aktiválása |
+| `tests/neural_ai/data/storage/implementations/test_file_storage.py` | 🟡 WARNING | **50**/0/0/2 | 0 / 0 / 30 | - | 🔎 Pylance: 30 hiba javítása | ⏭️ 2 skipped teszt aktiválása |
+| `tests/neural_ai/data/storage/implementations/test_parquet_storage.py` | 🟡 WARNING | **34**/0/0/0 | 0 / 0 / 2 | - | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/data/storage/interfaces/test_storage_factory_interface.py` | ✅ SECURE | **6**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/data/storage/interfaces/test_storage_interface.py` | ✅ SECURE | **11**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/data/storage/test_storage_factory.py` | 🟡 WARNING | **12**/0/0/0 | 0 / 0 / 8 | - | 🔎 Pylance: 8 hiba javítása |
 | `tests/neural_ai/data/storage/test_storage_init.py` | ✅ SECURE | **5**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/processors/__init__.py` | ✅ SECURE | - | 0 / 0 / 0 | - | - |
-| `tests/neural_ai/processors/dimensions/d02_support/test_processor.py` | 🔴 VULNERABLE | **3**/1/0/0 | 0 / 0 / 28 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 28 hiba javítása |
+| `tests/neural_ai/processors/dimensions/d02_support/test_processor.py` | 🟡 WARNING | **4**/0/0/0 | 0 / 0 / 28 | - | 🔎 Pylance: 28 hiba javítása |
 | `tests/neural_ai/processors/test_factory.py` | 🟡 WARNING | **3**/0/0/0 | 0 / 0 / 14 | - | 🔎 Pylance: 14 hiba javítása |
-| `tests/neural_ai/processors/test_time_alignment_service.py` | 🔴 VULNERABLE | **1**/7/0/0 | 0 / 0 / 2 | - | 🔴 **Tesztek javítása: 7 failed, 0 error** | 🔎 Pylance: 2 hiba javítása |
+| `tests/neural_ai/processors/test_time_alignment_service.py` | 🟡 WARNING | **8**/0/0/0 | 0 / 0 / 2 | - | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/ui/interfaces/test_data_service_interface.py` | ✅ SECURE | **19**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/ui/pages/test_data_hub_page.py` | ✅ SECURE | **11**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/ui/pages/test_launchpad_page.py` | ✅ SECURE | **10**/0/0/0 | 0 / 0 / 0 | - | - |
@@ -115,10 +117,11 @@
 | `tests/neural_ai/ui/test_app.py` | ✅ SECURE | **15**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/ui/test_core_bridge.py` | ✅ SECURE | **21**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/ui/test_ui_factory.py` | ✅ SECURE | **28**/0/0/0 | 0 / 0 / 0 | - | - |
+| `tests/scripts/__init__.py` | ✅ SECURE | - | 0 / 0 / 0 | - | - |
 | `tests/scripts/test_data_reset.py` | 🔴 VULNERABLE | **12**/2/0/0 | 0 / 0 / 0 | - | 🔴 **Tesztek javítása: 2 failed, 0 error** |
 | `tests/scripts/test_download_history.py` | 🔴 VULNERABLE | **9**/2/0/0 | 0 / 0 / 1 | - | 🔴 **Tesztek javítása: 2 failed, 0 error** | 🔎 Pylance: 1 hiba javítása |
 | `tests/scripts/test_migrate_structure.py` | 🔴 VULNERABLE | **12**/1/0/0 | 0 / 0 / 10 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 10 hiba javítása |
-| `tests/scripts/test_test_tick_pipeline.py` | 🟡 WARNING | - | 0 / 0 / 8 | - | 🔎 Pylance: 8 hiba javítása |
+| `tests/scripts/test_test_tick_pipeline.py` | 🔴 VULNERABLE | **1**/4/0/0 | 0 / 0 / 8 | - | 🔴 **Tesztek javítása: 4 failed, 0 error** | 🔎 Pylance: 8 hiba javítása |
 | `tests/scripts/test_validation_end_to_end.py` | 🔴 VULNERABLE | **2**/1/0/0 | 0 / 0 / 0 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** |
 | `tests/test_dashboard_command.py` | 🔴 VULNERABLE | **6**/7/0/0 | 0 / 0 / 5 | - | 🔴 **Tesztek javítása: 7 failed, 0 error** | 🔎 Pylance: 5 hiba javítása |
 | `tests/test_main.py` | 🔴 VULNERABLE | **5**/6/0/0 | 0 / 0 / 10 | - | 🔴 **Tesztek javítása: 6 failed, 0 error** | 🔎 Pylance: 10 hiba javítása |

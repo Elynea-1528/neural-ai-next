@@ -14,12 +14,18 @@ import pytest
 from neural_ai.ui.services.strategy_service import StrategyService
 
 # Mock vectorbt and polars to avoid import issues in tests
-sys.modules["vectorbt"] = Mock()  # type: ignore[assignment]
-sys.modules["polars"] = Mock()  # type: ignore[assignment]
+# sys.modules["vectorbt"] = Mock()  # type: ignore[assignment]
+# sys.modules["polars"] = Mock()  # type: ignore[assignment]
 
 
 class TestStrategyService:
     """Strategy Service tesztek."""
+
+    @pytest.fixture(autouse=True)
+    def mock_dependencies(self):
+        """Mock external dependencies."""
+        with patch.dict(sys.modules, {"vectorbt": Mock(), "polars": Mock()}):
+            yield
 
     @pytest.fixture
     def mock_components(self) -> MagicMock:
