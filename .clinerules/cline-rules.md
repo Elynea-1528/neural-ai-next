@@ -728,7 +728,7 @@ python scripts/generate_task_tree.py
 
 ```
 Kód: neural_ai/core/logger/factory.py
-→ Dokszi: docs/components/core/logger/factory.md
+→ Dokszi: docs/components/neural_ai/core/logger/factory.md
 ```
 
 ### 15.2 Auto-generálás
@@ -745,6 +745,8 @@ def process_data(df: pl.DataFrame, window: int = 10) -> pl.DataFrame:
     
     Args:
         df: Bemeneti DataFrame OHLCV oszlopokkal.
+### 15.2 Auto-generálás
+
         window: Mozgóátlag ablak mérete (alapértelmezett: 10).
         
     Returns:
