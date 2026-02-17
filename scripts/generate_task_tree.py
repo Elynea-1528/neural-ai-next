@@ -1166,11 +1166,11 @@ class TaskTreeGenerator:
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
 
-        # 2. Ruff
+        # 2. Ruff (neural_ai + tests + scripts)
         print("  🔍 Ruff linter...")
         try:
             with open(RUFF_FILE, "w") as f:
-                cmd = [str(RUFF_BIN), "check", "neural_ai", "--output-format=json"]
+                cmd = [str(RUFF_BIN), "check", "neural_ai", "tests", "scripts", "--output-format=json"]
                 subprocess.run(cmd, stdout=f, check=False, env=env)
             
             if RUFF_FILE.exists():
@@ -1179,10 +1179,10 @@ class TaskTreeGenerator:
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
 
-        # 3. Mypy
+        # 3. Mypy (neural_ai + tests + scripts)
         print("  🔬 Mypy type checker...")
         try:
-            cmd = [str(MYPY_BIN), "neural_ai", "--no-error-summary"]
+            cmd = [str(MYPY_BIN), "neural_ai", "tests", "scripts", "--no-error-summary"]
             result = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env)
             
             mypy_errors = []
@@ -1204,12 +1204,12 @@ class TaskTreeGenerator:
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
 
-        # 4. Pylance (Pyright) - Problems fül hibák
+        # 4. Pylance (Pyright) - Problems fül hibák (neural_ai + tests + scripts)
         print("  🔎 Pylance/Pyright type checker...")
         pylance_file = REPORT_DIR / "pylance.json"
         try:
-            # Pyright futtatása JSON outputtal (csak neural_ai mappa)
-            cmd = ["pyright", "neural_ai", "--outputjson"]
+            # Pyright futtatása JSON outputtal (neural_ai + tests + scripts)
+            cmd = ["pyright", "neural_ai", "tests", "scripts", "--outputjson"]
             result = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env, timeout=60)
             
             if result.stdout.strip():
