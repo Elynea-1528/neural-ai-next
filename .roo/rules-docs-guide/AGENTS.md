@@ -186,7 +186,7 @@ class CustomProcessor(CustomInterface):
 ## 4. Tesztelés
 
 \`\`\`python
-# tests/processors/dimensions/test_d16_custom.py
+# tests/neural_ai/processors/dimensions/test_d16_custom.py
 def test_custom_processor():
     data = pl.DataFrame({"price": [1.0, 2.0, 3.0]})
     processor = CustomProcessor(logger, config)

@@ -277,7 +277,7 @@ except ValueError as e:
 ### 9.1 Teszt Tükrözés (Mirror Testing)
 A `tests/` mappa szerkezete bitre pontosan kövesse a `neural_ai/` szerkezetét.
 *   Source: `neural_ai/processors/dimensions/d01_price/processor.py`
-*   Test: `tests/processors/dimensions/d01_price/test_processor.py`
+*   Test: `tests/neural_ai/processors/dimensions/d01_price/test_processor.py`
 
 ### 9.2 Quality Gate (A Kapuőr)
 Commitolás előtt kötelező ellenőrizni:

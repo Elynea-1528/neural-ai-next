@@ -108,7 +108,7 @@ class MomentumInterface(ABC):
 ```
 
 ### 3. Teszt:
-**Fájl:** `tests/processors/dimensions/test_d05_momentum.py`
+**Fájl:** `tests/neural_ai/processors/dimensions/test_d05_momentum.py`
 **Sor:** 10-20
 **Kontextus:**
 ```python
