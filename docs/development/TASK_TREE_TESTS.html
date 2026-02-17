@@ -14,6 +14,7 @@
             color: #e4e7eb;
             min-height: 100vh;
             padding: 0;
+            overflow-x: auto;
         }
         
         .header {
@@ -25,7 +26,7 @@
         
         .header-content {
             max-width: 100%;
-            padding: 0 3rem;
+            padding: 0 2rem;
         }
         
         h1 {
@@ -49,7 +50,8 @@
         
         .container {
             max-width: 100%;
-            padding: 2rem 3rem;
+            padding: 2rem;
+            overflow-x: auto;
         }
         
         .stats {
@@ -163,7 +165,7 @@
         .layer {
             margin-bottom: 2.5rem;
             border-radius: 12px;
-            overflow: hidden;
+            overflow-x: auto;
             background: rgba(30, 41, 59, 0.4);
             border: 1px solid rgba(148, 163, 184, 0.1);
         }
@@ -183,6 +185,8 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: auto;
+            min-width: 1200px;
         }
         
         th {
@@ -198,37 +202,39 @@
             white-space: nowrap;
         }
         
-        th:nth-child(1) { width: 25%; min-width: 300px; } /* Fájl */
-        th:nth-child(2) { width: 10%; min-width: 100px; } /* Státusz */
-        th:nth-child(3) { width: 8%; min-width: 80px; } /* Teszt Pár / Pass-Fail (tests/scripts) */
-        th:nth-child(4) { width: 10%; min-width: 120px; } /* Pass/Fail/Err/Skip / Lint (tests/scripts) */
-        th:nth-child(5) { width: 10%; min-width: 120px; } /* Coverage */
-        th:nth-child(6) { width: 10%; min-width: 120px; } /* Lint/Mypy/Pylance */
-        th:nth-child(7) { width: 6%; min-width: 60px; } /* Src Warn */
-        th:nth-child(8) { width: 6%; min-width: 60px; } /* Config */
-        th:nth-child(9) { width: 6%; min-width: 60px; } /* Logger */
-        th:nth-child(10) { width: 6%; min-width: 60px; } /* Dokumentálva */
-        th:nth-child(11) { width: auto; min-width: 150px; } /* Teendők */
+        /* Rugalmas oszlopszélességek */
+        th:nth-child(1) { min-width: 250px; max-width: 400px; } /* Fájl */
+        th:nth-child(2) { min-width: 100px; width: 120px; } /* Státusz */
+        th:nth-child(3) { min-width: 80px; width: 100px; } /* Teszt Pár / Pass-Fail */
+        th:nth-child(4) { min-width: 120px; width: 150px; } /* Pass/Fail/Err/Skip */
+        th:nth-child(5) { min-width: 120px; width: 140px; } /* Coverage */
+        th:nth-child(6) { min-width: 120px; width: 150px; } /* Lint/Mypy/Pylance */
+        th:nth-child(7) { min-width: 60px; width: 80px; } /* Src Warn */
+        th:nth-child(8) { min-width: 60px; width: 80px; } /* Config */
+        th:nth-child(9) { min-width: 60px; width: 80px; } /* Logger */
+        th:nth-child(10) { min-width: 60px; width: 100px; } /* Dokumentálva */
+        th:nth-child(11) { min-width: 150px; } /* Teendők */
         
         td {
             padding: 1rem 1.25rem;
             border-bottom: 1px solid rgba(148, 163, 184, 0.05);
             font-size: 0.9rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         
-        td:nth-child(1) { width: 25%; min-width: 300px; } /* Fájl */
-        td:nth-child(2) { width: 10%; min-width: 100px; } /* Státusz */
-        td:nth-child(3) { width: 8%; min-width: 80px; } /* Teszt Pár / Pass-Fail (tests/scripts) */
-        td:nth-child(4) { width: 10%; min-width: 120px; } /* Pass/Fail/Err/Skip / Lint (tests/scripts) */
-        td:nth-child(5) { width: 10%; min-width: 120px; } /* Coverage */
-        td:nth-child(6) { width: 10%; min-width: 120px; } /* Lint/Mypy/Pylance */
-        td:nth-child(7) { width: 6%; min-width: 60px; } /* Src Warn */
-        td:nth-child(8) { width: 6%; min-width: 60px; } /* Config */
-        td:nth-child(9) { width: 6%; min-width: 60px; } /* Logger */
-        td:nth-child(10) { width: 6%; min-width: 60px; } /* Dokumentálva */
-        td:nth-child(11) { width: auto; min-width: 150px; } /* Teendők */
+        /* Rugalmas oszlopszélességek */
+        td:nth-child(1) { min-width: 250px; max-width: 400px; } /* Fájl */
+        td:nth-child(2) { min-width: 100px; width: 120px; } /* Státusz */
+        td:nth-child(3) { min-width: 80px; width: 100px; } /* Teszt Pár / Pass-Fail */
+        td:nth-child(4) { min-width: 120px; width: 150px; } /* Pass/Fail/Err/Skip */
+        td:nth-child(5) { min-width: 120px; width: 140px; } /* Coverage */
+        td:nth-child(6) { min-width: 120px; width: 150px; } /* Lint/Mypy/Pylance */
+        td:nth-child(7) { min-width: 60px; width: 80px; } /* Src Warn */
+        td:nth-child(8) { min-width: 60px; width: 80px; } /* Config */
+        td:nth-child(9) { min-width: 60px; width: 80px; } /* Logger */
+        td:nth-child(10) { min-width: 60px; width: 100px; } /* Dokumentálva */
+        td:nth-child(11) { min-width: 150px; } /* Teendők */
         
         tr:hover td {
             background: rgba(30, 41, 59, 0.4);
@@ -289,7 +295,7 @@
         <div class="header-content">
             <h1>🧪 Neural AI Next - Tests Dashboard</h1>
             <div class="meta">
-                <strong>Generálva:</strong> 2026-02-17 14:20:36 UTC &nbsp;|&nbsp;
+                <strong>Generálva:</strong> 2026-02-17 18:11:48 UTC &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance) &nbsp;|&nbsp;
                 <strong>Fájlok:</strong> 100
             </div>
@@ -365,7 +371,7 @@
                             <td class="file-path">tests/collectors/jforex/test_bi5_downloader.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">43</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">286</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -386,14 +392,14 @@
                             <td class="file-path">tests/collectors/jforex/test_live_feed.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">25</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/collectors/jforex/test_live_feed_integration.py</td>
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td class="test-results"><span class="test-pass">8</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">17</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -421,7 +427,7 @@
                             <td class="file-path">tests/core/base/implementations/test_di_container.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">24</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">20</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -449,21 +455,21 @@
                             <td class="file-path">tests/core/base/interfaces/test_component_interface.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">13</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">3</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/base/interfaces/test_container_interface.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">20</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/base/interfaces/test_interfaces_init.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">4</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -477,7 +483,7 @@
                             <td class="file-path">tests/core/base/test_factory.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">35</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">37</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -498,56 +504,56 @@
                             <td class="file-path">tests/core/config/implementations/test_dynamic_config_manager.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">48</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">54</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/config/implementations/test_dynamic_config_manager_comprehensive.py</td>
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td class="test-results"><span class="test-pass">13</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">9</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/config/implementations/test_yaml_config_manager.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">65</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">17</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/config/interfaces/test_async_config_interface.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span class="test-pass">25</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/config/interfaces/test_config_interface.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">17</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/config/interfaces/test_factory_interface.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">23</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">11</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/config/test_config_factory.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">31</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/config/test_processors_config.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results">0/<span class="test-fail">26</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">44</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -575,21 +581,21 @@
                             <td class="file-path">tests/core/db/implementations/test_db_implementations_init.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">8</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">3</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/db/implementations/test_model_base.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/db/implementations/test_models.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">13</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -603,14 +609,14 @@
                             <td class="file-path">tests/core/db/interfaces/test_db_interfaces_init.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">4</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/db/test_db_factory.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">21</span>/<span class="test-fail">1</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">7</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -659,7 +665,7 @@
                             <td class="file-path">tests/core/events/interfaces/test_event_models.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">26</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">8</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -722,14 +728,14 @@
                             <td class="file-path">tests/core/logger/interfaces/test_logger_factory_interface.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">5</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/logger/interfaces/test_logger_interface.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">3</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -750,42 +756,42 @@
                             <td class="file-path">tests/core/logger/test_logger_init.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">14</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/system/implementations/test_health_monitor.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">28</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/system/interfaces/test_health_interface.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">22</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">16</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/system/test_system_factory.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">19</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/test_core_init.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">11</span>/<span class="test-fail">8</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">26</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/core/test_init_version_fallback.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">4</span>/<span class="test-fail">1</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -841,35 +847,35 @@
                             <td class="file-path">tests/data/storage/backends/test_base.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">2</span>/<span class="test-fail">6</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">76</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/data/storage/backends/test_pandas_backend.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">30</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">22</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/data/storage/backends/test_polars_backend.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">13</span>/<span class="test-fail">13</span>/0/<span class="test-skip">4</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">13</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/data/storage/implementations/test_file_storage.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">46</span>/<span class="test-fail">4</span>/0/<span class="test-skip">2</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">30</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/data/storage/implementations/test_parquet_storage.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">33</span>/<span class="test-fail">1</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -890,7 +896,7 @@
                             <td class="file-path">tests/data/storage/test_storage_factory.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">8</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -904,21 +910,21 @@
                             <td class="file-path">tests/processors/dimensions/d02_support/test_processor.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">3</span>/<span class="test-fail">1</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">28</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/processors/test_factory.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">3</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">14</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/processors/test_time_alignment_service.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">1</span>/<span class="test-fail">7</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -932,21 +938,21 @@
                             <td class="file-path">tests/scripts/test_download_history.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">9</span>/<span class="test-fail">2</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/scripts/test_migrate_structure.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">12</span>/<span class="test-fail">1</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">10</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/scripts/test_test_tick_pipeline.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">4</span>/<span class="test-fail">1</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">8</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -960,21 +966,21 @@
                             <td class="file-path">tests/test_dashboard_command.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">6</span>/<span class="test-fail">7</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/test_main.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">5</span>/<span class="test-fail">6</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">10</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/test_neural_ai_init.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">4</span>/<span class="test-fail">1</span>/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>
@@ -1023,7 +1029,7 @@
                             <td class="file-path">tests/ui/services/test_strategy_service.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">24</span>/0/0/0</td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">18</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                         </tr>
     
                         <tr>

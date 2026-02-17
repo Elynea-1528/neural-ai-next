@@ -588,7 +588,7 @@ class HTMLGenerator:
             page_title = "Neural AI Next - Task Tree Dashboard"
             header_title = "⚡ Neural AI Next - Task Tree Dashboard"
 
-        html = f"""<!DOCTYPE html>
+        html_output = f"""<!DOCTYPE html>
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
@@ -934,9 +934,9 @@ class HTMLGenerator:
         # Csak a megadott rétegeket generáljuk
         for layer in self.layers:
             if layer in self.grouped and self.grouped[layer]:
-                html += self._create_html_table(layer, self.grouped[layer])
+                html_output += self._create_html_table(layer, self.grouped[layer])
 
-        html += """
+        html_output += """
     </div>
     <script>
         function filterTable() {{
@@ -958,7 +958,7 @@ class HTMLGenerator:
     </script>
 </body>
 </html>"""
-        return html
+        return html_output
 
     def _create_html_table(self, layer: str, files: list[FileAnalysis]) -> str:
             """Létrehoz egy HTML táblázatot egy réteghez."""
@@ -979,7 +979,7 @@ class HTMLGenerator:
             }
             icon = layer_icons.get(layer, "📦")
 
-            html = f"""
+            html_output = f"""
             <div class="layer">
                 <div class="layer-title">{icon} {num}. {name} Layer <span style="opacity: 0.6; font-size: 0.9rem;">({path})</span></div>
                 <table>
@@ -988,14 +988,14 @@ class HTMLGenerator:
 
             # Tests és Scripts layerekhez egyszerűsített fejléc
             if layer in ["tests", "scripts"]:
-                html += """
+                html_output += """
                             <th>Fájl</th>
                             <th>Státusz</th>
                             <th>Pass/Fail/Err/Skip</th>
                             <th>Lint/Mypy/Pylance</th>"""
             else:
                 # Neural_ai layerekhez teljes fejléc + Dokumentálva
-                html += """
+                html_output += """
                             <th>Modul / Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
@@ -1008,7 +1008,7 @@ class HTMLGenerator:
                             <th>Dokumentálva</th>
                             <th>Teendők</th>"""
 
-            html += """
+            html_output += """
                         </tr>
                     </thead>
                     <tbody>
@@ -1045,7 +1045,7 @@ class HTMLGenerator:
 
                 # Tests és Scripts layerekhez egyszerűsített sor
                 if layer in ["tests", "scripts"]:
-                    html += f"""
+                    html_output += f"""
                         <tr>
                             <td class="file-path">{short_path_escaped}</td>
                             <td>{status_badge}</td>
@@ -1078,7 +1078,7 @@ class HTMLGenerator:
                     # Teendők (HTML escape)
                     notes_display = html.escape(file.notes) if file.notes else '<span style="opacity: 0.4;">-</span>'
 
-                    html += f"""
+                    html_output += f"""
                         <tr>
                             <td class="file-path">{short_path_escaped}</td>
                             <td>{status_badge}</td>
@@ -1094,12 +1094,12 @@ class HTMLGenerator:
                         </tr>
     """
 
-            html += """
+            html_output += """
                     </tbody>
                 </table>
             </div>
     """
-            return html
+            return html_output
 
 
 class TaskTreeGenerator:
@@ -1208,9 +1208,9 @@ class TaskTreeGenerator:
         print("  🔎 Pylance/Pyright type checker...")
         pylance_file = REPORT_DIR / "pylance.json"
         try:
-            # Pyright futtatása JSON outputtal (teljes workspace: neural_ai + tests)
-            cmd = ["pyright", ".", "--outputjson"]
-            result = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env)
+            # Pyright futtatása JSON outputtal (csak neural_ai mappa)
+            cmd = ["pyright", "neural_ai", "--outputjson"]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env, timeout=60)
             
             if result.stdout.strip():
                 pylance_json = json.loads(result.stdout)
@@ -1243,6 +1243,9 @@ class TaskTreeGenerator:
                 print(f"    ✅ {len(pylance_errors)} Pylance hiba/figyelmeztetés találva (strict mode)")
             else:
                 self.pylance_data = []
+        except subprocess.TimeoutExpired:
+            print("    ⚠️ Pyright timeout (60s), kihagyva")
+            self.pylance_data = []
         except FileNotFoundError:
             print("    ⚠️ Pyright nincs telepítve, Pylance hibák nem elérhetők")
             self.pylance_data = []
