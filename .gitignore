@@ -36,6 +36,7 @@ ENV/
 .coverage
 htmlcov/
 .pytest_cache/
+reports/
 
 # Logs
 logs/
