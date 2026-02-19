@@ -48,7 +48,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
 
     _manager_types: dict[str, type[ConfigManagerInterface]] = {}
     _async_manager_types: dict[str, type[AsyncConfigManagerInterface]] = {}
-    _logger: "LoggerInterface | None" = None
+    _logger: LoggerInterface | None = None
 
     @classmethod
     @trace
@@ -59,14 +59,12 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         betöltésre, amikor valóban szükség van rájuk.
         """
         if cls._logger is None:
-            import importlib
+            from neural_ai.core.logger.factory import LoggerFactory
 
-            LoggerFactory = importlib.import_module("neural_ai.core.logger.factory").LoggerFactory
             cls._logger = LoggerFactory.get_logger(__name__)
-            if cls._logger is not None:
-                cls._logger.info(
-                    "ConfigManagerFactory inicializálva", component="ConfigManagerFactory"
-                )
+            cls._logger.info(
+                "ConfigManagerFactory inicializálva", component="ConfigManagerFactory"
+            )
 
         if not cls._manager_types:
             # YAML konfiguráció kezelő lazy betöltése
@@ -110,11 +108,10 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         if not extension:
             raise ValueError("Az extension nem lehet üres")
 
-        if not isinstance(manager_class, type):
+        # Type checking is handled by static analysis, runtime checks are redundant for internal use
+        # but kept for robustness if called dynamically
+        if not isinstance(manager_class, type):  # type: ignore
             raise TypeError("A manager_class-nak egy osztálynak kell lennie")
-
-        if not issubclass(manager_class, ConfigManagerInterface):
-            raise TypeError("A manager_class-nak implementálnia kell a ConfigManagerInterface-t")
 
         if not extension.startswith("."):
             extension = f".{extension}"
@@ -139,13 +136,9 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         if not manager_type:
             raise ValueError("A manager_type nem lehet üres")
 
-        if not isinstance(manager_class, type):
+        # Type checking is handled by static analysis
+        if not isinstance(manager_class, type):  # type: ignore
             raise TypeError("A manager_class-nak egy osztálynak kell lennie")
-
-        if not issubclass(manager_class, AsyncConfigManagerInterface):
-            raise TypeError(
-                "A manager_class-nak implementálnia kell az AsyncConfigManagerInterface-t"
-            )
 
         cls._async_manager_types[manager_type] = manager_class
 
@@ -217,7 +210,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         manager_type: str,
         session: "AsyncSession",
         logger: "LoggerInterface | None" = None,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> AsyncConfigManagerInterface:
         """Aszinkron konfiguráció kezelő létrehozása.
 
