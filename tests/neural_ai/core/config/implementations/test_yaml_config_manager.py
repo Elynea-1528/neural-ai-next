@@ -518,11 +518,12 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager(logger=mock_logger)
         manager.load(str(config_path))
 
-        # Ellenőrizzük, hogy a warning metódus meghívásra került
+        # Ellenőrizzük, hogy a warning metódus meghívásra került strukturált formátummal
         mock_logger.warning.assert_called_once()
-        warning_message = mock_logger.warning.call_args[0][0]
-        assert "2.0" in warning_message
-        assert "1.0" in warning_message
+        call_args = mock_logger.warning.call_args
+        assert call_args[0][0] == "Konfiguráció verzió eltérés"
+        assert call_args[1]["extra"]["loaded_version"] == "2.0"
+        assert call_args[1]["extra"]["expected_version"] == "1.0"
 
     def test_validate_dict_with_dict_value(self) -> None:
         """Teszteli a _validate_dict metódust dictionary értékkel (sor 264-265)."""

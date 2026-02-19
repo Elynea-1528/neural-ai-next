@@ -2,10 +2,10 @@
 
 import os
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import yaml
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from neural_ai.core.config.exceptions import ConfigLoadError, ConfigValidationError
 from neural_ai.core.config.interfaces import ConfigManagerInterface
@@ -22,6 +22,9 @@ from neural_ai.core.config.interfaces.types import (
 if TYPE_CHECKING:
     from neural_ai.core.logger.interfaces import LoggerInterface
     from neural_ai.data.storage.interfaces import StorageInterface
+
+# Generic type for Pydantic models
+T = TypeVar("T", bound=BaseModel)
 
 
 @dataclass
@@ -73,6 +76,12 @@ class YAMLConfigManager(ConfigManagerInterface):
         self._filename: str | None = None
         self._logger: LoggerInterface | None = logger
         self._storage: StorageInterface | None = storage
+
+        if self._logger:
+            self._logger.info(
+                "YAMLConfigManager inicializálva",
+                extra={"filename": filename, "has_storage": storage is not None},
+            )
 
         if filename:
             self.load(filename)
@@ -153,7 +162,14 @@ class YAMLConfigManager(ConfigManagerInterface):
 
         # DEBUG log a konfigurációs lekérdezésekhez
         if self._logger:
-            self._logger.debug(f"Config get: {'.'.join(keys)} -> {current}")
+            self._logger.debug(
+                "Config lekérés",
+                extra={
+                    "keys": ".".join(keys),
+                    "found": current is not None,
+                    "type": type(current).__name__,
+                },
+            )
 
         return current
 
@@ -323,6 +339,49 @@ class YAMLConfigManager(ConfigManagerInterface):
             # Ha nincs collectors szekció, üres dict-tel hívjuk (Pydantic optional mezők)
             return CollectorsConfig(**{})
 
+    def get_validated_config(self, key: str, schema: type[T]) -> T:
+        """Konfiguráció betöltés Pydantic validációval.
+
+        Args:
+            key: Konfiguráció kulcs (pl. "database", "logging")
+            schema: Pydantic BaseModel séma validációhoz
+
+        Returns:
+            Validált Pydantic modell
+
+        Raises:
+            ConfigValidationError: Ha a validáció sikertelen
+            KeyError: Ha a kulcs nem található
+        """
+        try:
+            raw_data = self.get_section(key)
+        except KeyError:
+            # Ha nincs szekció, üres dict-tel próbáljuk (Pydantic optional mezők)
+            raw_data = {}
+
+        try:
+            validated = schema(**raw_data)
+            if self._logger:
+                self._logger.info(
+                    "Konfiguráció validálva",
+                    extra={"key": key, "schema": schema.__name__, "fields": len(raw_data)},
+                )
+            return validated
+        except ValidationError as e:
+            if self._logger:
+                self._logger.error(
+                    "Konfiguráció validációs hiba",
+                    extra={
+                        "key": key,
+                        "schema": schema.__name__,
+                        "errors": e.errors(),
+                        "raw_data": raw_data,
+                    },
+                )
+            raise ConfigValidationError(
+                f"Validáció hiba: {key}", field_path=key, invalid_value=raw_data
+            ) from e
+
     def get_section(self, section: str) -> dict[str, Any]:
         """Teljes konfigurációs szekció lekérése.
 
@@ -418,18 +477,26 @@ class YAMLConfigManager(ConfigManagerInterface):
                 loaded_version = config_data.get("_schema_version")
                 if loaded_version and not self._check_schema_compatibility(loaded_version):
                     if self._logger:
-                        msg = (
-                            f"Konfiguráció verziója ({loaded_version}) eltér a vártól "
-                            f"({self._CURRENT_SCHEMA_VERSION}). "
-                            "Kompatibilitási problémák léphetnek fel."
+                        self._logger.warning(
+                            "Konfiguráció verzió eltérés",
+                            extra={
+                                "loaded_version": loaded_version,
+                                "expected_version": self._CURRENT_SCHEMA_VERSION,
+                                "filename": filename,
+                            },
                         )
-                        self._logger.warning(msg)
 
                 # Verzióinformáció eltávolítása a konfigurációból
                 config_data.pop("_schema_version", None)
 
                 self._config = config_data
                 self._filename = filename
+
+                if self._logger:
+                    self._logger.info(
+                        "Config betöltve",
+                        extra={"filename": filename, "keys": len(config_data)},
+                    )
         except (FileNotFoundError, yaml.YAMLError) as e:
             raise ConfigLoadError(f"Konfiguráció betöltése sikertelen: {str(e)}") from e
 
@@ -601,20 +668,18 @@ class YAMLConfigManager(ConfigManagerInterface):
                 # Fájlnév kiterjesztés nélkül (kulcsként használjuk)
                 key = os.path.splitext(filename)[0]
 
-                # DEBUG log a fájlbetöltéshez
-                if self._logger:
-                    self._logger.debug(f"Config betöltve: {filename}")
-
                 # Fájl tartalmának betöltése
                 with open(file_path, encoding="utf-8") as f:
                     data = yaml.safe_load(f)
                     if data:
                         # Tartalom elhelyezése a kulcs alatt
                         self._config[key] = data
+
                         if self._logger:
-                            self._logger.debug(f"Config loaded into key: {key}")
-                        else:
-                            print(f"DEBUG: Config loaded into key: {key}")
+                            self._logger.debug(
+                                "Config fájl betöltve",
+                                extra={"filename": filename, "key": key, "fields": len(data)},
+                            )
 
                         # system.yaml speciális kezelése: gyökérbe is betöltjük
                         if key == "system":
@@ -623,5 +688,15 @@ class YAMLConfigManager(ConfigManagerInterface):
                                 if sys_key not in self._config:
                                     self._config[sys_key] = sys_value
 
+            if self._logger:
+                self._logger.info(
+                    "Config mappa betöltve",
+                    extra={"path": path, "files": len(yaml_files), "keys": len(self._config)},
+                )
+
         except (OSError, yaml.YAMLError) as e:
+            if self._logger:
+                self._logger.error(
+                    "Config mappa betöltési hiba", extra={"path": path, "error": str(e)}
+                )
             raise ConfigLoadError(f"Konfigurációs mappa betöltése sikertelen: {str(e)}") from e
