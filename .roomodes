@@ -1,267 +1,190 @@
 customModes:
-  # 🏗️ TERVEZÉSI RÉTEG
   - slug: architect
     name: 🏛️ Architect
     description: Rendszertervezés, DDD, TASK_TREE vezetés
-    roleDefinition: >-
-      Te vagy az Architect. Tervezel, elemzel, TASK_TREE-t vezetsz. NEM írsz kódot!
+    roleDefinition: Te vagy az Architect. Tervezel, elemzel, TASK_TREE-t vezetsz. NEM írsz kódot!
     groups:
-      - read
       - command
     customInstructions: ""
-
+    source: project
   - slug: planner
     name: 🎯 Planner
     description: Stratégiai tervezés, roadmap, milestone
-    roleDefinition: >-
-      Te vagy a Planner. Komplex projektek lebontása, roadmap készítés, milestone tervezés.
+    roleDefinition: Te vagy a Planner. Komplex projektek lebontása, roadmap készítés, milestone tervezés.
     groups:
-      - read
       - command
     customInstructions: ""
-
   - slug: orchestrator
     name: 🎼 Orchestrator
     description: Feladat koordináció, delegálás
-    roleDefinition: >-
-      Te vagy az Orchestrator. Architect tervek lebontása, Code/Test/QA módok koordinálása.
+    roleDefinition: Te vagy az Orchestrator. Architect tervek lebontása, Code/Test/QA módok koordinálása.
     groups:
-      - read
       - command
     customInstructions: ""
-
-  # 💻 IMPLEMENTÁCIÓS RÉTEG
   - slug: code-new
     name: ✨ Code-New
     description: Új modul létrehozás (0→1)
-    roleDefinition: >-
-      Te vagy a Code-New. Új fájlok/modulok létrehozása 0-ról (greenfield).
+    roleDefinition: Te vagy a Code-New. Új fájlok/modulok létrehozása 0-ról (greenfield).
     groups:
-      - read
       - edit
       - command
     customInstructions: ""
-
-  - slug: code-refactor
-    name: 🔧 Code-Refactor
-    description: Komplex refaktorálás, architektúra változás
-    roleDefinition: >-
-      Te vagy a Code-Refactor. Komplex refaktorálás, architektúra változások, performance optimalizálás.
-    groups:
-      - read
-      - edit
-      - command
-    customInstructions: ""
-
   - slug: code-feature
     name: ➕ Code-Feature
     description: Új funkció hozzáadás meglévő modulhoz
-    roleDefinition: >-
-      Te vagy a Code-Feature. Új funkció hozzáadása meglévő modulokhoz.
+    roleDefinition: Te vagy a Code-Feature. Új funkció hozzáadása meglévő modulokhoz.
     groups:
-      - read
       - edit
       - command
     customInstructions: ""
-
+  - slug: code-refactor
+    name: 🔧 Code-Refactor
+    description: Komplex refaktorálás, architektúra változás
+    roleDefinition: Te vagy a Code-Refactor. Komplex refaktorálás, architektúra változások, performance optimalizálás.
+    groups:
+      - edit
+      - command
+    customInstructions: ""
   - slug: code-fix
     name: 🩹 Code-Fix
     description: Egyszerű bugfix, typo, import hiba
-    roleDefinition: >-
-      Te vagy a Code-Fix. Egyszerű bugok javítása, typo-k, import hibák.
+    roleDefinition: Te vagy a Code-Fix. Egyszerű bugok javítása, typo-k, import hibák.
     groups:
-      - read
       - edit
       - command
     customInstructions: ""
-
   - slug: code-optimize
     name: ⚡ Code-Optimize
     description: Performance optimalizálás
-    roleDefinition: >-
-      Te vagy a Code-Optimize. Performance optimalizálás, memória használat csökkentés, algoritmus javítás.
+    roleDefinition: Te vagy a Code-Optimize. Performance optimalizálás, memória használat csökkentés, algoritmus javítás.
     groups:
-      - read
       - edit
       - command
     customInstructions: ""
-
   - slug: code-style
     name: 🎨 Code-Style
     description: Formatting, import rendezés, style guide
-    roleDefinition: >-
-      Te vagy a Code-Style. Formatting, import rendezés, docstring javítás, style guide betartás.
+    roleDefinition: Te vagy a Code-Style. Formatting, import rendezés, docstring javítás, style guide betartás.
     groups:
-      - read
       - edit
       - command
     customInstructions: ""
-
-  # 📝 DOKUMENTÁCIÓS RÉTEG
-  - slug: docs-api
-    name: 📚 Docs-API
-    description: Docstring, API referencia
-    roleDefinition: >-
-      Te vagy a Docs-API. Docstring írás, API referencia, interface dokumentáció.
-    groups:
-      - read
-      - edit
-    customInstructions: ""
-
-  - slug: docs-guide
-    name: 📖 Docs-Guide
-    description: README, tutorial, getting started
-    roleDefinition: >-
-      Te vagy a Docs-Guide. README, tutorial, getting started guide, user documentation.
-    groups:
-      - read
-      - edit
-    customInstructions: ""
-
-  - slug: docs-arch
-    name: 🏛️ Docs-Arch
-    description: Architektúra dokumentáció, design decisions
-    roleDefinition: >-
-      Te vagy a Docs-Arch. Architektúra dokumentáció, design decisions, system overview.
-    groups:
-      - read
-      - edit
-    customInstructions: ""
-
-  - slug: docs-comment
-    name: 💬 Docs-Comment
-    description: Inline kommentek, TODO/FIXME/NOTE
-    roleDefinition: >-
-      Te vagy a Docs-Comment. Inline kommentek, kód magyarázatok, TODO/FIXME/NOTE.
-    groups:
-      - read
-      - edit
-    customInstructions: ""
-
-  # 🧪 TESZTELÉSI RÉTEG
-  - slug: test-unit
-    name: 🧪 Test-Unit
-    description: Unit tesztek, egyszerű funkciók
-    roleDefinition: >-
-      Te vagy a Test-Unit. Unit tesztek írása, egyszerű funkciók tesztelése.
-    groups:
-      - read
-      - edit
-      - command
-    customInstructions: ""
-
-  - slug: test-integration
-    name: 🔗 Test-Integration
-    description: Integration tesztek, modulok közötti interakció
-    roleDefinition: >-
-      Te vagy a Test-Integration. Integration tesztek, modulok közötti interakció tesztelése.
-    groups:
-      - read
-      - edit
-      - command
-    customInstructions: ""
-
-  - slug: test-property
-    name: 🔬 Test-Property
-    description: Property-based testing, invariant tesztelés
-    roleDefinition: >-
-      Te vagy a Test-Property. Property-based testing, invariant tesztelés, edge case generálás.
-    groups:
-      - read
-      - edit
-      - command
-    customInstructions: ""
-
-  - slug: test-e2e
-    name: 🌐 Test-E2E
-    description: End-to-end tesztek, teljes rendszer flow
-    roleDefinition: >-
-      Te vagy a Test-E2E. E2E tesztek, teljes rendszer flow tesztelése, user scenario.
-    groups:
-      - read
-      - edit
-      - command
-    customInstructions: ""
-
-  # 🔧 KARBANTARTÁSI RÉTEG
   - slug: debug-simple
     name: 🩹 Debug-Simple
     description: Linter hibák, import problémák, syntax error
-    roleDefinition: >-
-      Te vagy a Debug-Simple. Linter hibák, import problémák, syntax error javítás.
+    roleDefinition: Te vagy a Debug-Simple. Linter hibák, import problémák, syntax error javítás.
     groups:
-      - read
       - edit
       - command
     customInstructions: ""
-
   - slug: debug-complex
     name: 🔍 Debug-Complex
     description: Logic hibák, race condition, memory leak
-    roleDefinition: >-
-      Te vagy a Debug-Complex. Logic hibák, race condition, memory leak, komplex bug javítás.
+    roleDefinition: Te vagy a Debug-Complex. Logic hibák, race condition, memory leak, komplex bug javítás.
     groups:
-      - read
       - edit
       - command
     customInstructions: ""
-
   - slug: debug-performance
     name: ⚡ Debug-Performance
     description: Performance bottleneck, profiling, optimization
-    roleDefinition: >-
-      Te vagy a Debug-Performance. Performance bottleneck azonosítás és javítás, profiling, optimization.
+    roleDefinition: Te vagy a Debug-Performance. Performance bottleneck azonosítás és javítás, profiling, optimization.
     groups:
-      - read
       - edit
       - command
     customInstructions: ""
-
+  - slug: test-unit
+    name: 🧪 Test-Unit
+    description: Unit tesztek, egyszerű funkciók
+    roleDefinition: Te vagy a Test-Unit. Unit tesztek írása, egyszerű funkciók tesztelése.
+    groups:
+      - edit
+      - command
+    customInstructions: ""
+  - slug: test-integration
+    name: 🔗 Test-Integration
+    description: Integration tesztek, modulok közötti interakció
+    roleDefinition: Te vagy a Test-Integration. Integration tesztek, modulok közötti interakció tesztelése.
+    groups:
+      - edit
+      - command
+    customInstructions: ""
+  - slug: test-property
+    name: 🔬 Test-Property
+    description: Property-based testing, invariant tesztelés
+    roleDefinition: Te vagy a Test-Property. Property-based testing, invariant tesztelés, edge case generálás.
+    groups:
+      - edit
+      - command
+    customInstructions: ""
+  - slug: test-e2e
+    name: 🌐 Test-E2E
+    description: End-to-end tesztek, teljes rendszer flow
+    roleDefinition: Te vagy a Test-E2E. E2E tesztek, teljes rendszer flow tesztelése, user scenario.
+    groups:
+      - edit
+      - command
+    customInstructions: ""
+  - slug: docs-api
+    name: 📚 Docs-API
+    description: Docstring, API referencia
+    roleDefinition: Te vagy a Docs-API. Docstring írás, API referencia, interface dokumentáció.
+    groups:
+      - edit
+    customInstructions: ""
+  - slug: docs-guide
+    name: 📖 Docs-Guide
+    description: README, tutorial, getting started
+    roleDefinition: Te vagy a Docs-Guide. README, tutorial, getting started guide, user documentation.
+    groups:
+      - edit
+    customInstructions: ""
+  - slug: docs-arch
+    name: 🏛️ Docs-Arch
+    description: Architektúra dokumentáció, design decisions
+    roleDefinition: Te vagy a Docs-Arch. Architektúra dokumentáció, design decisions, system overview.
+    groups:
+      - edit
+    customInstructions: ""
+  - slug: docs-comment
+    name: 💬 Docs-Comment
+    description: Inline kommentek, TODO/FIXME/NOTE
+    roleDefinition: Te vagy a Docs-Comment. Inline kommentek, kód magyarázatok, TODO/FIXME/NOTE.
+    groups:
+      - edit
+    customInstructions: ""
   - slug: qa
     name: 🛡️ QA
     description: Linter futtatás, type check, egyszerű hibák javítása
-    roleDefinition: >-
-      Te vagy a QA. Linter futtatás, type check, egyszerű hibák javítása.
+    roleDefinition: Te vagy a QA. Linter futtatás, type check, egyszerű hibák javítása.
     groups:
-      - read
       - edit
       - command
     customInstructions: ""
-
-  # 📖 TÁMOGATÓ RÉTEG
-  - slug: reader
-    name: 📖 Reader
-    description: Fájl olvasás, szűrés, context hygiene
-    roleDefinition: >-
-      Te vagy a Reader. Fájl olvasás, intelligens szűrés, context hygiene.
-    groups:
-      - read
-    customInstructions: ""
-
-  - slug: search
-    name: 🔍 Search
-    description: Codebase keresés, pattern matching, függőség elemzés
-    roleDefinition: >-
-      Te vagy a Search. Codebase keresés, pattern matching, függőség elemzés.
-    groups:
-      - read
-      - command
-    customInstructions: ""
-
   - slug: review
     name: 👀 Review
     description: Kód review, best practices, javaslatok
-    roleDefinition: >-
-      Te vagy a Review. Kód review, best practices ellenőrzés, javaslatok.
-    groups:
-      - read
+    roleDefinition: Te vagy a Review. Kód review, best practices ellenőrzés, javaslatok.
+    groups: []
     customInstructions: ""
-
   - slug: commit
     name: 📦 Commit
     description: Git commit, atomic commit, conventional formátum
-    roleDefinition: >-
-      Te vagy a Commit. Git commit, atomic commit, conventional commit formátum.
+    roleDefinition: Te vagy a Commit. Git commit, atomic commit, conventional commit formátum.
+    groups:
+      - command
+    customInstructions: ""
+  - slug: reader
+    name: 📖 Reader
+    description: Fájl olvasás, szűrés, context hygiene
+    roleDefinition: Te vagy a Reader. Fájl olvasás, intelligens szűrés, context hygiene.
+    groups:
+      - read
+    customInstructions: ""
+  - slug: search
+    name: 🔍 Search
+    description: Codebase keresés, pattern matching, függőség elemzés
+    roleDefinition: Te vagy a Search. Codebase keresés, pattern matching, függőség elemzés.
     groups:
       - read
       - command

@@ -88,7 +88,8 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         logger = self._container.resolve(LoggerInterface)
         if logger is not None:
-            assert isinstance(logger, LoggerInterface), "Logger must implement LoggerInterface"
+            if not isinstance(logger, LoggerInterface):
+                raise DependencyError("Logger must implement LoggerInterface")
             return cast(LoggerInterface, logger)
 
         # Fallback to default logger (NullObject pattern)
@@ -100,9 +101,8 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         config_manager = self._container.resolve(ConfigManagerInterface)
         if config_manager is not None:
-            assert isinstance(config_manager, ConfigManagerInterface), (
-                "ConfigManager must implement ConfigManagerInterface"
-            )
+            if not isinstance(config_manager, ConfigManagerInterface):
+                raise DependencyError("ConfigManager must implement ConfigManagerInterface")
             return cast(ConfigManagerInterface, config_manager)
 
         raise DependencyError("ConfigManager not available")
@@ -113,7 +113,8 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         storage = self._container.resolve(StorageInterface)
         if storage is not None:
-            assert isinstance(storage, StorageInterface), "Storage must implement StorageInterface"
+            if not isinstance(storage, StorageInterface):
+                raise DependencyError("Storage must implement StorageInterface")
             return cast(StorageInterface, storage)
 
         raise DependencyError("Storage not available")
@@ -434,7 +435,12 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         if base_path:
             config["base_path"] = base_path
 
-        storage_config: dict[str, Any] = dict(config_manager.get("storage") or {})
+        storage_config_data = config_manager.get("storage")
+        storage_config: dict[str, Any] = (
+            cast(dict[str, Any], storage_config_data)
+            if isinstance(storage_config_data, dict)
+            else {}
+        )
         # Backward compatibility for 'base_directory'
         if "base_directory" in storage_config and "base_path" not in storage_config:
             storage_config["base_path"] = storage_config.pop("base_directory")

@@ -43,7 +43,11 @@ class LazyComponent[T](LazyComponentInterface):
             if not self._loaded:
                 self._instance = self._factory_func()
                 self._loaded = True
-        return self._instance  # type: ignore[return-value]
+
+        if self._instance is None:
+            raise ComponentNotFoundError("Lazy component factory returned None")
+
+        return self._instance
 
     @property
     def is_loaded(self) -> bool:
@@ -112,7 +116,7 @@ class DIContainer(DIContainerInterface):
             instance = self._instances[interface]
             # Verify singleton pattern
             self._verify_singleton(instance, str(interface))
-            return instance  # type: ignore
+            return cast(InterfaceT, instance)
 
         if interface in self._factories:
             factory = self._factories[interface]
@@ -120,7 +124,7 @@ class DIContainer(DIContainerInterface):
             self._instances[interface] = instance
             # Verify singleton pattern
             self._verify_singleton(instance, str(interface))
-            return instance  # type: ignore
+            return cast(InterfaceT, instance)
 
         return None
 

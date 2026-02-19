@@ -23,28 +23,28 @@ from neural_ai.core.utils.decorators import trace
 if TYPE_CHECKING:
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.config.interfaces.config_interface import (
-        ConfigManagerInterface,  # noqa: F401  # type: ignore
+        ConfigManagerInterface,  # noqa: F401
     )
     from neural_ai.core.db.implementations.sqlalchemy_session import (
-        DatabaseManager,  # noqa: F401  # type: ignore
+        DatabaseManager,  # noqa: F401
     )
     from neural_ai.core.events.interfaces.event_bus_interface import (
-        EventBusInterface,  # noqa: F401  # type: ignore
+        EventBusInterface,  # noqa: F401
     )
     from neural_ai.core.logger.interfaces.logger_interface import (
-        LoggerInterface,  # noqa: F401  # type: ignore
+        LoggerInterface,  # noqa: F401
     )
     from neural_ai.core.system.interfaces.health_interface import (
-        HealthMonitorInterface,  # noqa: F401  # type: ignore
+        HealthMonitorInterface,  # noqa: F401
     )
     from neural_ai.core.utils.interfaces.hardware_interface import (
-        HardwareInterface,  # noqa: F401  # type: ignore
+        HardwareInterface,  # noqa: F401
     )
     from neural_ai.data.ingestion.market_data_persister import (
-        MarketDataPersister,  # noqa: F401  # type: ignore
+        MarketDataPersister,  # noqa: F401
     )
     from neural_ai.data.storage.interfaces.storage_interface import (
-        StorageInterface,  # noqa: F401  # type: ignore
+        StorageInterface,  # noqa: F401
     )
 
 
@@ -135,11 +135,16 @@ def bootstrap_core(
     container = DIContainer()
 
     # 1. Konfiguráció létrehozása (először, hogy legyen konfig a loggernek)
-    config = ConfigManagerFactory.create_manager("yaml")
     # Betöltjük a configs/ mappát vagy a megadott útvonalat
     path_to_load = config_path if config_path else "configs"
-    config.load_directory(path_to_load)
-    container.register_instance(ConfigManagerInterface, config)
+    try:
+        config = ConfigManagerFactory.create_manager("yaml")
+        config.load_directory(path_to_load)
+        container.register_instance(ConfigManagerInterface, config)
+    except Exception as e:
+        from neural_ai.core.config.exceptions.config_error import ConfigLoadError
+
+        raise ConfigLoadError(f"Failed to load configuration from {path_to_load}: {e}") from e
 
     # 2. Logger inicializálása a konfiggal
     logging_config_dict = config.get_section("logging") or {}
@@ -253,6 +258,10 @@ def bootstrap_core(
     return CoreComponents(container=container)
 
 
+# Globális változó a singleton példány tárolására
+_core_components_instance: "CoreComponents | None" = None
+
+
 @trace
 def get_core_components() -> "CoreComponents":
     """Globális core komponensek lekérdezése.
@@ -268,10 +277,11 @@ def get_core_components() -> "CoreComponents":
         >>> core = get_core_components()
         >>> core.logger.info("Komponens használatban")
     """
-    if not hasattr(get_core_components, "_instance"):
-        get_core_components._instance = bootstrap_core()  # type: ignore
+    global _core_components_instance
+    if _core_components_instance is None:
+        _core_components_instance = bootstrap_core()
 
-    return get_core_components._instance  # type: ignore
+    return _core_components_instance
 
 
 # Publikus interfészek exportálása a könnyű hozzáférés érdekében

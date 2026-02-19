@@ -52,6 +52,15 @@ class TestLazyComponent:
         assert instance2 is instance1
 
 
+    def test_lazy_component_factory_returns_none(self) -> None:
+        """LazyComponent factory_func None visszatérése → ComponentNotFoundError"""
+        from neural_ai.core.base.implementations.di_container import LazyComponent
+        from neural_ai.core.base.exceptions import ComponentNotFoundError
+        
+        lazy = LazyComponent(lambda: None)
+        with pytest.raises(ComponentNotFoundError, match="Lazy component factory returned None"):
+            lazy.get()
+
 class TestDIContainer:
     """DIContainer tesztjei."""
 
@@ -139,7 +148,7 @@ class TestDIContainer:
         container = DIContainer()
 
         with pytest.raises(ValueError, match="Factory function must be callable"):
-            container.register_lazy("test", "not_callable")
+            container.register_lazy("test", lambda: "not_callable")
 
     def test_get_regular_instance(self) -> None:
         """Teszteli a reguláris instance lekérését."""
@@ -208,7 +217,7 @@ class TestDIContainer:
 
         container.preload_components(["preload_comp"])
 
-        assert container.get("preload_comp").value == "preload"
+        assert container.get("preload_comp").value == "preload" # type: ignore
 
     def test_preload_components_not_found(self) -> None:
         """Teszteli a komponensek előtöltését nem létező komponenssel."""
@@ -259,14 +268,16 @@ class TestDIContainer:
 
     def test_enforce_singleton_violation(self) -> None:
         """Teszteli a singleton megsértését."""
+        from neural_ai.core.base.exceptions import SingletonViolationError
+
         container = DIContainer()
         instance1 = MockComponent("1")
         instance2 = MockComponent("2")
 
         container.register("singleton_comp", instance1)
 
-        # SingletonViolationError várása, nem általános Exception
-        with pytest.raises(Exception):  # noqa: B017
+        # SingletonViolationError várása
+        with pytest.raises(SingletonViolationError):
             container.register("singleton_comp", instance2)
 
     def test_enforce_singleton_no_violation(self) -> None:

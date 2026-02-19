@@ -236,60 +236,120 @@ Commitolás előtt kötelező ellenőrizni:
   - Pyright: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pyright`
   - Pytest: `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest`
 
-## 💰 Token Economy (Hibrid Reader Stratégia)
+## 💰 Token Economy & Módváltási Mátrix
 
 **Cél:** A drága modellek (Architect/Code/Debug) védelme nagy fájlok olvasásától.
 
 **Alapelv:**
 - **Drága modellek (Architect, Code, Debug):** SOHA nem olvasnak fájlokat közvetlenül!
-- **Search mód (Gemini Pro):** Codebase keresés, metódus/osztály definíció keresése
-- **Reader mód (Flash modell):** Beolvassa az EGÉSZ fájlt (olcsó), majd intelligensen szűr
+- **Search mód (Qwen3 Coder):** Codebase keresés, metódus/osztály definíció keresése
+- **Reader mód (Haiku 4.5):** Beolvassa az EGÉSZ fájlt (olcsó), majd intelligensen szűr
 - **Eredmény:** 90%+ token megtakarítás a drága modellek kontextusában
-
-**Döntési Fa (Mikor mit használj):**
-```
-Kérdés típusa:
-  │
-  ├─ "Hol van definiálva X?" → SEARCH mód
-  ├─ "Mi az X return type-ja?" → SEARCH mód
-  ├─ "Hol használják X-et?" → SEARCH mód
-  ├─ "Van már Y modul?" → SEARCH mód
-  │
-  ├─ "Mi az X struktúrája?" → READER mód
-  ├─ "Add meg X metódus kódját" → READER mód
-  ├─ "Milyen importokat használ X?" → READER mód
-  └─ "Hogyan néz ki X modul?" → READER mód
-```
-
-**Szabály (Egyszerű):**
-1. **Drága agent:** Ha **keresés** kell → `switch_mode → search`
-2. **Search:** Megkeresi a definíciót/használati helyeket
-3. **Drága agent:** Ha **olvasás** kell → `switch_mode → reader`
-4. **Reader:** Beolvassa az EGÉSZ fájlt, intelligensen szűr
-5. **Drága agent:** `switch_mode → [eredeti mód]`
-6. **Drága agent:** Feldolgozza a snippet-et (tiszta kontextus)
 
 **Token Megtakarítás:**
 - Régi: 15,000 token (drágán)
 - Új: 1,500 token (drágán) + 15,000 token (olcsón)
 - **Megtakarítás: 90%** ✅
 
-### Szűrési Döntési Fa
+### 📊 Teljes Módváltási Táblázat
+
+| Mód | Sikeres → | Hiba → | Olvasás → | Speciális → |
+|:----|:----------|:-------|:----------|:------------|
+| **Architect** | Planner, Orchestrator | - | Reader, Search | - |
+| **Planner** | Architect | - | Reader, Search | - |
+| **Orchestrator** | Code-*, Debug-*, Test-*, Docs-*, QA, Review, Commit | - | Reader, Search | - |
+| **Code-New** | Test-Unit | Debug-Simple, Debug-Complex | Reader, Search | Docs-API |
+| **Code-Feature** | Test-Unit | Debug-Simple, Debug-Complex | Reader, Search | Docs-API |
+| **Code-Refactor** | Test-Integration | Debug-Complex | Reader, Search | Docs-Arch |
+| **Code-Fix** | Test-Unit | Debug-Complex | Reader, Search | - |
+| **Code-Optimize** | Test-E2E | Debug-Performance | Reader, Search | Docs-Comment |
+| **Code-Style** | QA | - | Reader, Search | - |
+| **Debug-Simple** | Test-Unit | Debug-Complex | Reader, Search | Code-Fix |
+| **Debug-Complex** | Test-Integration | - | Reader, Search | Code-Refactor |
+| **Debug-Performance** | Test-E2E | - | Reader, Search | Code-Optimize |
+| **Test-Unit** | QA | Debug-Simple | Reader, Search | Code-Fix |
+| **Test-Integration** | QA | Debug-Complex | Reader, Search | Code-Refactor |
+| **Test-Property** | QA | Debug-Complex | Reader, Search | Docs-API |
+| **Test-E2E** | QA | Debug-Performance, Debug-Complex | Reader, Search | Docs-Guide |
+| **Docs-API** | Review | - | Reader, Search | Code-New, Code-Feature |
+| **Docs-Guide** | Review | - | Reader, Search | Test-E2E |
+| **Docs-Arch** | Review | - | Reader, Search | Code-Refactor |
+| **Docs-Comment** | Review | - | Reader, Search | Code-* |
+| **QA** | Commit | Debug-Simple, Debug-Complex, Code-Style | Reader, Search | - |
+| **Review** | Commit | Code-Refactor | Reader, Search | Docs-* |
+| **Commit** | KÉSZ | - | Reader, Search | - |
+| **Reader** | Válaszol | - | - | - |
+| **Search** | Válaszol | - | - | - |
+
+**Alapszabály:** Minden mód (kivéve Reader/Search) SOHA nem olvas közvetlenül → Mindig Reader/Search
+
+### 🔄 Mikor melyik módra válts?
+
+**Olvasási Igény:**
 ```
-Kérés érkezik
-  │
-  ├─ Specifikus (metódus/osztály neve)?
-  │   └─ IGEN → Snippet (30-100 sor)
-  │
-  ├─ Általános (struktúra/API)?
-  │   └─ IGEN → Teljes fájl (formázva)
-  │
-  ├─ Hiba kontextus (sor szám)?
-  │   └─ IGEN → Snippet (±20 sor)
-  │
-  └─ Dokumentáció szekció?
-      └─ IGEN → Snippet (releváns szekció)
+"Hol van X?" / "Milyen modulok vannak?" → search
+"Mi az X struktúrája?" / "Add meg X kódját" → reader
 ```
+
+**Tervezési Igény:**
+```
+Nagy projekt (>1 hónap) → planner
+Közepes/Kis projekt → orchestrator
+```
+
+**Implementációs Igény:**
+```
+Új modul (0→1) → code-new
+Új funkció → code-feature
+Refaktorálás → code-refactor
+Optimalizálás → code-optimize
+Formatting → code-style
+```
+
+**Hibakezelési Igény:**
+```
+Egyszerű (linter, import) → debug-simple
+Komplex (logic, race) → debug-complex
+Performance → debug-performance
+```
+
+**Tesztelési Igény:**
+```
+Unit → test-unit
+Integration → test-integration
+Property → test-property
+E2E → test-e2e
+```
+
+**Dokumentációs Igény:**
+```
+API (docstring) → docs-api
+Guide (README) → docs-guide
+Arch (ADR) → docs-arch
+Comment (inline) → docs-comment
+```
+
+**Minőségbiztosítási Igény:**
+```
+Linter/Type check → qa
+Code review → review
+Commit → commit
+```
+
+### 🎯 Delegálási Sablon
+
+```
+switch_mode: [target]
+Üzenet: "[Mód]! [Parancs] [Részletek]"
+```
+
+### 🚨 Kritikus Módváltási Szabályok
+
+1. **Architect/Planner/Orchestrator SOHA NEM OLVAS fájlokat** (groups: [command] vagy [read, command])
+2. **Code-*/Debug-* MINDIG Reader/Search-t használ** (groups: [read, edit, command])
+3. **Reader/Search SOHA NEM DELEGÁL** (csak válaszol)
+4. **QA CSAK egyszerű hibákat javít** (komplex → Debug-*)
+5. **Commit MINDIG utolsó lépés** (QA után)
 
 ## 🌳 TASK TREE PROTOKOLL (Granular Dashboard)
 - **SSOT Template:** A projekt állapotát kizárólag a `docs/development/TASK_TREE.md` alapján vezetheted.
