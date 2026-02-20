@@ -39,7 +39,7 @@ class TestDatabaseURL:
     def test_get_database_url_fallback_to_env(self) -> None:
         """Teszteli az adatbázis URL lekérdezést env fallbackkel."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
-        mock_config.get.side_effect = lambda *args: (  # type: ignore[reportUnknownLambdaType]
+        mock_config.get.side_effect = lambda *args: (
             None if args == ("database", "connection") else "sqlite+aiosqlite:///fallback.db"
         )
 
@@ -128,9 +128,30 @@ class TestGetEngine:
         assert engine is mock_engine
         mock_create.assert_called_once()
 
-    def test_get_engine_caches_result(self) -> None:
-        """Teszteli, hogy az engine cache-elődik (skip, komplex mock-olás miatt)."""
-        pytest.skip("Globális cache tesztelése komplex, kihagyjuk")
+    @patch("neural_ai.core.db.implementations.sqlalchemy_session._engine", None)
+    @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_database_url")
+    @patch("neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory")
+    @patch("neural_ai.core.db.implementations.sqlalchemy_session.create_engine")
+    def test_get_engine_caches_result(
+        self, mock_create: MagicMock, mock_config_factory: MagicMock, mock_get_url: MagicMock
+    ) -> None:
+        """Teszteli, hogy az engine cache-elődik."""
+        mock_engine: MagicMock = MagicMock()
+        mock_create.return_value = mock_engine
+        mock_get_url.return_value = "sqlite+aiosqlite:///:memory:"
+        mock_config: MagicMock = MagicMock()
+        mock_config.get.return_value = "INFO"
+        mock_config_factory.get_manager.return_value = mock_config
+
+        # Első hívás
+        engine1 = get_engine()
+        # Második hívás
+        engine2 = get_engine()
+
+        # Ugyanaz az engine objektum
+        assert engine1 is engine2
+        # create_engine csak egyszer hívódott meg
+        assert mock_create.call_count == 1
 
 
 class TestGetAsyncSessionMaker:
@@ -193,8 +214,16 @@ class TestDatabaseManager:
 
     @pytest.mark.asyncio
     async def test_database_manager_get_session_raises_when_not_initialized(self) -> None:
-        """Teszteli, hogy get_session hibát dob, ha nincs inicializálva (skip, Singleton miatt)."""
-        pytest.skip("Singleton pattern tesztelése komplex, kihagyjuk")
+        """Teszteli, hogy get_session hibát dob, ha nincs inicializálva."""
+        mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
+        manager = DatabaseManager(mock_config)
+        # Explicit None-ra állítjuk a _session_maker-t
+        manager._session_maker = None
+
+        # Nincs inicializálva, ezért DBConnectionError-t kell dobnia
+        with pytest.raises(DBConnectionError):
+            async with manager.get_session():
+                pass
 
     @pytest.mark.asyncio
     async def test_database_manager_close(self) -> None:
@@ -235,9 +264,9 @@ class TestDatabaseManager:
 
         # Mock-oljuk a session maker-t, hogy ellenőrizzük a rollback-et
         mock_session = AsyncMock(spec=AsyncSession)
-        manager._session_maker = MagicMock()  # type: ignore[reportPrivateUsage]
-        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)  # type: ignore[reportPrivateUsage]
-        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)  # type: ignore[reportPrivateUsage]
+        manager._session_maker = MagicMock()
+        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
+        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)
 
         # Szimuláljuk a kivételt
         mock_session.commit = AsyncMock(side_effect=Exception("Test exception"))
@@ -260,12 +289,12 @@ class TestDatabaseManager:
 
         manager = DatabaseManager(mock_config)
         # Ne inicializáljuk, hanem mock-oljuk a _session_maker-t
-        manager._session_maker = MagicMock()  # type: ignore[reportPrivateUsage]
+        manager._session_maker = MagicMock()
 
         # Mock session
         mock_session = AsyncMock(spec=AsyncSession)
-        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)  # type: ignore[reportPrivateUsage]
-        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)  # type: ignore[reportPrivateUsage]
+        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
+        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)
 
         # Mock result
         mock_config1 = MagicMock()
@@ -293,7 +322,7 @@ class TestDatabaseManager:
         manager = DatabaseManager(mock_config)
         # Mivel Singleton, a _session_maker már inicializálva van
         # Hozzunk létre egy új példányt, és állítsuk None-ra a _session_maker-t
-        manager._session_maker = None  # type: ignore[reportPrivateUsage]
+        manager._session_maker = None
 
         # Nincs inicializálva, ezért RuntimeError-t kell dobnia
         with pytest.raises(RuntimeError):
@@ -388,8 +417,8 @@ class TestDatabaseInitialization:
             # Ellenőrizzük, hogy a globális változók None-ra lettek-e állítva
             from neural_ai.core.db.implementations import sqlalchemy_session
 
-            assert sqlalchemy_session._engine is None  # type: ignore[reportPrivateUsage]
-            assert sqlalchemy_session._async_session_maker is None  # type: ignore[reportPrivateUsage]
+            assert sqlalchemy_session._engine is None
+            assert sqlalchemy_session._async_session_maker is None
 
 
 class TestGetActiveConfigs:
@@ -397,5 +426,33 @@ class TestGetActiveConfigs:
 
     @pytest.mark.asyncio
     async def test_get_active_configs(self) -> None:
-        """Teszteli a get_active_configs függvényt (skip, tábla létrehozás miatt)."""
-        pytest.skip("Tábla létrehozás tesztelése komplex, kihagyjuk")
+        """Teszteli a get_active_configs függvényt a DatabaseManager-en keresztül."""
+        from unittest.mock import AsyncMock
+
+        mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
+        mock_config.get.return_value = "sqlite+aiosqlite:///:memory:"
+
+        manager = DatabaseManager(mock_config)
+        # Mock-oljuk a _session_maker-t
+        manager._session_maker = MagicMock()
+
+        # Mock session
+        mock_session = AsyncMock(spec=AsyncSession)
+        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
+        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)
+
+        # Mock result
+        mock_config1 = MagicMock()
+        mock_config1.key = "key1"
+        mock_config1.value = "value1"
+
+        mock_result = MagicMock()
+        mock_result.scalars.return_value.all.return_value = [mock_config1]
+        mock_session.execute = AsyncMock(return_value=mock_result)
+
+        # Hívjuk meg a metódust
+        result = await manager.get_active_configs()
+
+        # Ellenőrizzük az eredményt
+        assert result == {"key1": "value1"}
+        mock_session.execute.assert_called_once()
