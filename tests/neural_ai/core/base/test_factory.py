@@ -13,7 +13,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from neural_ai.core.base.exceptions import ConfigurationError, DependencyError
-from neural_ai.core.base.factory import CoreComponentFactory, DEFAULT_CONFIG_FILE
+from neural_ai.core.base.factory import CoreComponentFactory
 from neural_ai.core.base.implementations.di_container import DIContainer
 
 
@@ -31,13 +31,13 @@ class TestCoreComponentFactory:
         # Használjuk a MagicMock-ot spec-el, de mockoljuk az isinstance-t is a biztonság kedvéért
         # Vagy egyszerűen mockoljuk a factory._get_logger metódust, ha a property-t teszteljük
         # De itt az init-et teszteljük, ami nem hívja a loggert, csak a property hozzáférés.
-        
+
         # A legegyszerűbb, ha a mock objektumot úgy állítjuk be, hogy átmenjen az ellenőrzésen
         mock_logger = MagicMock(spec=LoggerInterface)
         container.register_instance(LoggerInterface, mock_logger)
 
         factory: CoreComponentFactory = CoreComponentFactory(container)
-        
+
         # Mockoljuk az isinstance-t a factory modulban, hogy elfogadja a mock-ot
         with patch("neural_ai.core.base.factory.isinstance", return_value=True):
              # A factory használja a konténert, ezt a logger property-n keresztül ellenőrizzük
@@ -59,9 +59,9 @@ class TestCoreComponentFactory:
             def error(self, message: str, **kwargs): pass
             def critical(self, message: str, **kwargs): pass
             def log(self, level: str, message: str, **kwargs): pass
-            def set_level(self, level: int): pass  # Javítva: int típus
+            def set_level(self, level: int) -> None: pass  # Javítva: int típus
             def get_level(self) -> int: return 20  # get_level int-et ad vissza
-            
+
         mock_logger = DummyLogger(name="test")
         container.register_instance(LoggerInterface, mock_logger)
 
@@ -94,6 +94,7 @@ class TestCoreComponentFactory:
         container: DIContainer = DIContainer()
         # Mock logger regisztrálása
         from unittest.mock import MagicMock
+
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
         mock_logger = MagicMock(spec=LoggerInterface)
@@ -285,7 +286,7 @@ class TestCoreComponentFactory:
     ) -> None:
         """Teszteli a komponensek létrehozását config fájllal, de logger section nélkül."""
         mock_config = MagicMock()
-        mock_config.get.side_effect = lambda k: ({"base_path": "/tmp"} if k == "storage" else {})
+        mock_config.get.side_effect = lambda k: ({"base_path": "/tmp"} if k == "storage" else {})  # type: ignore[arg-type,return-value]
         mock_get_manager.return_value = mock_config
 
         with patch("neural_ai.data.storage.implementations.file_storage.FileStorage"):
@@ -422,26 +423,32 @@ class TestCoreComponentFactory:
         assert isinstance(logger, LoggerInterface)
 
     def test_get_logger_fallback_to_default_logger_factory(self) -> None:
-        """Teszteli, hogy a _get_logger metódus fallbackel a DefaultLoggerFactory-ra, ha a konténer None-t ad vissza."""
-        from unittest.mock import patch
+        """Teszteli, hogy a _get_logger metódus fallbackel a DefaultLoggerFactory-ra."""
+        from unittest.mock import MagicMock, patch
+
+        from neural_ai.core.base.implementations.di_container import DIContainer
         from neural_ai.core.logger.factory import LoggerFactory
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-        from neural_ai.core.base.implementations.di_container import DIContainer
 
         container: DIContainer = DIContainer()
         factory: CoreComponentFactory = CoreComponentFactory(container)
 
         # Mockoljuk a container.resolve metódust, hogy None-t adjon vissza
         with patch.object(factory._container, "resolve", return_value=None):
+            # Mock logger létrehozása spec-el
+            mock_logger = MagicMock(spec=LoggerInterface)
             # Mockoljuk a LoggerFactory.get_logger metódust
-            with patch.object(LoggerFactory, "get_logger") as mock_get_logger:
+            with patch.object(
+                LoggerFactory, "get_logger", return_value=mock_logger
+            ) as mock_get_logger:
                 # Közvetlenül hívjuk meg a _get_logger metódust
                 result = factory._get_logger()
 
                 # Ellenőrizzük, hogy a LoggerFactory.get_logger meghívódott
-                mock_get_logger.assert_called_once_with(__name__)
-                # Ellenőrizzük, hogy a visszaadott érték egy LoggerInterface
-                assert isinstance(result, LoggerInterface)
+                # A factory.py a saját __name__-jét használja ("neural_ai.core.base.factory")
+                mock_get_logger.assert_called_once_with("neural_ai.core.base.factory")
+                # Ellenőrizzük, hogy a visszaadott érték a mock logger
+                assert result is mock_logger
 
     def test_get_logger_with_invalid_logger_raises_dependency_error(self) -> None:
         """Teszteli a _get_logger metódust érvénytelen loggerrel."""
@@ -486,6 +493,7 @@ class TestCoreComponentFactory:
     def test_get_storage_raises_dependency_error_if_not_found(self) -> None:
         """Teszteli, hogy a _get_storage DependencyError-t dob, ha nincs regisztrálva."""
         from unittest.mock import patch
+
         from neural_ai.core.base.implementations.di_container import DIContainer
 
         container: DIContainer = DIContainer()
@@ -516,7 +524,7 @@ class TestCoreComponentFactory:
         with patch.object(container, "resolve", return_value=mock_config):
             # Csak a DIContainer._verify_interface_implementation metódusában
             # mockoljuk az isinstance-t
-            def isinstance_mock(obj: Any, class_or_tuple: Any) -> bool: # type: ignore
+            def isinstance_mock(obj: Any, class_or_tuple: Any) -> bool:  # type: ignore[no-untyped-def,arg-type]
                 if class_or_tuple in [ConfigManagerInterface, StorageInterface]:
                     return True
                 return isinstance(obj, class_or_tuple)
@@ -535,7 +543,7 @@ class TestCoreComponentFactory:
                     with patch("neural_ai.core.base.factory.time.sleep"):
                         # Mockoljuk a _process_config metódust, hogy a
                         # config.get() eredményét adja vissza
-                        with patch.object(factory, "_process_config", side_effect=lambda x: x):
+                        with patch.object(factory, "_process_config", side_effect=lambda x: x):  # type: ignore[attr-defined,arg-type]
                             # Első hozzáféréskor töltse be
                             expensive_config1 = factory._expensive_config
                             expensive_config2 = factory._expensive_config
