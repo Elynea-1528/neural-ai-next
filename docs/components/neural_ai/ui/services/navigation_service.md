@@ -1,0 +1,169 @@
+# neural_ai/ui/services/navigation_service.py
+
+Navigation Service implementáció.
+
+Ez a modul implementálja a navigációs szolgáltatást, amely
+az oldalak közötti navigációt kezeli.
+
+## Importok
+
+```python
+from collections.abc import Callable
+from typing import TYPE_CHECKING
+from typing import Any
+from neural_ai.ui.interfaces.navigation_service_interface import NavigationServiceInterface
+from neural_ai.ui.interfaces.page_interface import PageInterface
+```
+
+## Osztály: `NavigationService(NavigationServiceInterface)`
+
+Navigation Service - Oldalak közötti navigációért felelős.
+
+Ez az osztály implementálja a navigációs logikát kezelő metódusokat,
+és nyilvántartja a navigációs előzményeket.
+
+### Metódusok
+
+#### `__init__()`
+
+```python
+def __init__(self, logger: Any, config: dict[str, Any], core_components: Any) -> None
+```
+
+A Navigation Service inicializálása.
+
+**Paraméterek:**
+
+- **`self`**
+- **`logger`** (`Any`): A logger példány
+- **`config`** (`dict[str, Any]`): A szolgáltatás konfiguráció
+- **`core_components`** (`Any`): A core komponensek
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `navigate_to()`
+
+```python
+def navigate_to(self, page_name: str, params: dict[str, Any] | None = None) -> None
+```
+
+Navigálás egy adott oldalra.
+
+**Paraméterek:**
+
+- **`self`**
+- **`page_name`** (`str`): A céloldal neve
+- **`params`** (`dict[str, Any] | None`) = `None`: Navigációs paraméterek
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `go_back()`
+
+```python
+def go_back(self) -> None
+```
+
+Visszalépés az előző oldalra.
+
+**Paraméterek:**
+
+- **`self`**
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `get_current_page()`
+
+```python
+def get_current_page(self) -> PageInterface | None
+```
+
+Az aktuális oldal lekérdezése.
+
+**Paraméterek:**
+
+- **`self`**
+
+**Visszatérési érték:**
+
+- Típus: `PageInterface | None`
+- Optional[PageInterface]: Az aktuális oldal vagy None
+
+#### `get_page_history()`
+
+```python
+def get_page_history(self) -> list[str]
+```
+
+A navigációs előzmények lekérdezése.
+
+**Paraméterek:**
+
+- **`self`**
+
+**Visszatérési érték:**
+
+- Típus: `list[str]`
+- List[str]: Az oldalnevek listája
+
+#### `register_page()`
+
+```python
+def register_page(self, page_name: str, page: PageInterface) -> None
+```
+
+Oldal regisztrálása a navigációs rendszerben.
+
+**Paraméterek:**
+
+- **`self`**
+- **`page_name`** (`str`): Az oldal neve
+- **`page`** (`PageInterface`): Az oldal példánya
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `subscribe()`
+
+```python
+def subscribe(self, callback: Callable[[str, dict[str, Any]], None]) -> None
+```
+
+Feliratkozás navigációs eseményekre.
+
+**Paraméterek:**
+
+- **`self`**
+- **`callback`** (`Callable[[str, dict[str, Any]], None]`): A hívandó callback függvény
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `_notify_subscribers()`
+
+```python
+def _notify_subscribers(self, page_name: str, params: dict[str, Any]) -> None
+```
+
+Értesítés küldése a feliratkozóknak.
+
+**Paraméterek:**
+
+- **`self`**
+- **`page_name`** (`str`): Az oldal neve
+- **`params`** (`dict[str, Any]`): A navigációs paraméterek
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+---
+
+**Forrásfájl:** [`neural_ai/ui/services/navigation_service.py`](../../neural_ai/ui/services/navigation_service.py)
