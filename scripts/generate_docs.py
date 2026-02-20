@@ -511,7 +511,7 @@ class DocumentationGenerator:
         self.source_dirs = [Path(d) for d in (source_dirs or ["neural_ai", "scripts", "."])]
         self.docs_dir = Path(docs_dir)
         self.ignored_dirs = {"__pycache__", ".pytest_cache", ".ruff_cache", ".git", "tests", ".venv", "venv"}
-        self.ignored_files = {"__init__.py"}
+        self.ignored_files: set[str] = set()  # Üres - minden fájlt dokumentálunk
 
     def extract_module_info(self, file_path: Path) -> ModuleInfo | None:
         """Modul információ kinyerése.
