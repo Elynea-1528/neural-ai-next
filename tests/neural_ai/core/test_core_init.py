@@ -404,17 +404,21 @@ class TestIntegration:
 
     def test_version_and_bootstrap_integration(self) -> None:
         """Teszteli a verzió lekérdezés és a bootstrap integrációját."""
-        with patch("neural_ai.core.bootstrap_core") as mock_bootstrap:
-            with patch("importlib.metadata.version") as mock_version:
-                mock_version.return_value = "1.0.0"
-                mock_components = MagicMock()
-                mock_bootstrap.return_value = mock_components
+        with patch("importlib.metadata.version") as mock_version:
+            mock_version.return_value = "1.0.0"
+            
+            version = get_version()
+            components = get_core_components()
 
-                version = get_version()
-                components = get_core_components()
-
-                assert version == "1.0.0"
-                assert components is mock_components
+            # Ellenőrizzük, hogy a verzió helyesen jön vissza
+            assert version == "1.0.0"
+            # Ellenőrizzük, hogy a komponensek CoreComponents példány
+            assert isinstance(components, CoreComponents)
+            # Ellenőrizzük, hogy a komponensek rendelkeznek a szükséges property-kkel
+            assert hasattr(components, "logger")
+            assert hasattr(components, "config")
+            assert hasattr(components, "storage")
+            assert hasattr(components, "database")
 
     def test_all_imports_available(self) -> None:
         """Teszteli, hogy minden publikus függvény elérhető-e a csomag szintjén."""

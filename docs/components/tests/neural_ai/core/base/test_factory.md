@@ -18,7 +18,7 @@ import pytest
 from neural_ai.core.base.exceptions import ConfigurationError
 from neural_ai.core.base.exceptions import DependencyError
 from neural_ai.core.base.factory import CoreComponentFactory
-from neural_ai.core.base.factory import DEFAULT_CONFIG_FILE
+from neural_ai.core.base.implementations.di_container import DIContainer
 # ... és még 30 import
 ```
 
@@ -130,6 +130,10 @@ from neural_ai.core.base.factory import DEFAULT_CONFIG_FILE
 
 - **`result`**
 : `factory._get_logger()`
+
+
+- **`mock_logger`**
+: `MagicMock(spec=LoggerInterface)`
 
 
 - **`result`**
@@ -261,13 +265,17 @@ def log(self, level: str, message: str)
 #### `set_level()`
 
 ```python
-def set_level(self, level: int)
+def set_level(self, level: int) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
 - **`level`** (`int`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `get_level()`
 
@@ -773,7 +781,7 @@ Teszteli a _get_logger metódust regisztrált loggerrel (58-59. sorok).
 def test_get_logger_fallback_to_default_logger_factory(self) -> None
 ```
 
-Teszteli, hogy a _get_logger metódus fallbackel a DefaultLoggerFactory-ra, ha a konténer None-t ad vissza.
+Teszteli, hogy a _get_logger metódus fallbackel a DefaultLoggerFactory-ra.
 
 **Paraméterek:**
 

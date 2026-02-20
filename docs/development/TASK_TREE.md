@@ -1,14 +1,14 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-02-20 23:02:35 UTC
+**Generálva:** 2026-02-20 23:54:32 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
-**Fájlok száma:** 285
+**Fájlok száma:** 286
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 18 (6.3%)
-- 🟡 **WARNING:** 141 (49.5%)
-- 🔴 **VULNERABLE:** 126 (44.2%)
+- ✅ **SECURE:** 19 (6.6%)
+- 🟡 **WARNING:** 146 (51.0%)
+- 🔴 **VULNERABLE:** 121 (42.3%)
 
 ---
 
@@ -16,33 +16,33 @@
 
 | Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
-| `main.py` | 🟡 WARNING | ✅ FOUND | **29**/0/0/0 | 8% / 2% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 8% → 80%+ |
-| `neural_ai/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 83% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
+| `main.py` | 🟡 WARNING | ✅ FOUND | **29**/0/0/0 | 8% / 2% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 8% → 100% |
+| `neural_ai/__init__.py` | ✅ SECURE | ✅ FOUND | **21**/0/0/0 | 83% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 
 ## 1. Infrastructure Layer (`neural_ai/core/`)
 
 | Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
-| `core/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 12% / 0% | 0 / 0 / 8 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 8 hiba javítása | 📊 Coverage növelése: 12% → 80%+ |
+| `core/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 12% / 0% | 0 / 0 / 8 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 8 hiba javítása | 📊 Coverage növelése: 12% → 100% |
 | `core/base/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/base/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/base/exceptions/base_error.py` | ✅ SECURE | ✅ FOUND | **42**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/base/factory.py` | 🔴 VULNERABLE | ✅ FOUND | **29**/7/0/0 | 22% / 0% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | 🔴 **Tesztek javítása: 7 failed, 0 error** | 📊 Coverage növelése: 22% → 80%+ |
+| `core/base/factory.py` | 🔴 VULNERABLE | ✅ FOUND | **29**/7/0/0 | 22% / 0% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | 🔴 **Tesztek javítása: 7 failed, 0 error** | 📊 Coverage növelése: 22% → 100% |
 | `core/base/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/base/implementations/component_bundle.py` | 🟡 WARNING | ✅ FOUND | **39**/0/0/0 | 39% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 39% → 80%+ |
-| `core/base/implementations/di_container.py` | 🔴 VULNERABLE | ✅ FOUND | **24**/1/0/0 | 27% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Tesztek javítása: 1 failed, 0 error** | 📊 Coverage növelése: 27% → 80%+ |
-| `core/base/implementations/lazy_loader.py` | 🟡 WARNING | ✅ FOUND | **10**/0/0/0 | 43% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 43% → 80%+ |
-| `core/base/implementations/singleton.py` | 🟡 WARNING | ✅ FOUND | **10**/0/0/0 | 43% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 43% → 80%+ |
+| `core/base/implementations/component_bundle.py` | 🟡 WARNING | ✅ FOUND | **39**/0/0/0 | 39% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 39% → 100% |
+| `core/base/implementations/di_container.py` | 🟡 WARNING | ✅ FOUND | **25**/0/0/0 | 27% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 27% → 100% |
+| `core/base/implementations/lazy_loader.py` | 🟡 WARNING | ✅ FOUND | **10**/0/0/0 | 43% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 43% → 100% |
+| `core/base/implementations/singleton.py` | 🟡 WARNING | ✅ FOUND | **10**/0/0/0 | 43% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 43% → 100% |
 | `core/base/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/base/interfaces/component_interface.py` | 🟡 WARNING | ✅ FOUND | **13**/0/0/0 | 76% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 76% → 80%+ |
-| `core/base/interfaces/container_interface.py` | 🟡 WARNING | ✅ FOUND | **20**/0/0/0 | 75% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 75% → 80%+ |
+| `core/base/interfaces/component_interface.py` | 🟡 WARNING | ✅ FOUND | **13**/0/0/0 | 76% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 76% → 100% |
+| `core/base/interfaces/container_interface.py` | 🟡 WARNING | ✅ FOUND | **20**/0/0/0 | 75% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 75% → 100% |
 | `core/config/__init__.py` | ✅ SECURE | ✅ FOUND | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/config/exceptions/__init__.py` | ✅ SECURE | ✅ FOUND | **22**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/config/exceptions/config_error.py` | 🟡 WARNING | ✅ FOUND | **15**/0/0/0 | 40% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 40% → 80%+ |
-| `core/config/factory.py` | 🟡 WARNING | ✅ FOUND | **27**/0/0/0 | 28% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 28% → 80%+ |
-| `core/config/implementations/__init__.py` | 🟡 WARNING | ✅ FOUND | - | 78% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 78% → 80%+ |
-| `core/config/implementations/dynamic_config_manager.py` | 🟡 WARNING | ✅ FOUND | **48**/0/0/0 | 10% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 10% → 80%+ |
-| `core/config/implementations/yaml_config_manager.py` | 🟡 WARNING | ✅ FOUND | **65**/0/0/0 | 12% / 0% | 0 / 0 / 22 | - | ✅ OK | ⚠️ UNUSED | ✅ | 🔎 Pylance: 22 hiba javítása | 📊 Coverage növelése: 12% → 80%+ |
+| `core/config/exceptions/config_error.py` | 🟡 WARNING | ✅ FOUND | **15**/0/0/0 | 40% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 40% → 100% |
+| `core/config/factory.py` | 🟡 WARNING | ✅ FOUND | **27**/0/0/0 | 28% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 28% → 100% |
+| `core/config/implementations/__init__.py` | 🟡 WARNING | ✅ FOUND | - | 78% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 78% → 100% |
+| `core/config/implementations/dynamic_config_manager.py` | 🟡 WARNING | ✅ FOUND | **48**/0/0/0 | 10% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 10% → 100% |
+| `core/config/implementations/yaml_config_manager.py` | 🟡 WARNING | ✅ FOUND | **65**/0/0/0 | 12% / 0% | 0 / 0 / 22 | - | ✅ OK | ⚠️ UNUSED | ✅ | 🔎 Pylance: 22 hiba javítása | 📊 Coverage növelése: 12% → 100% |
 | `core/config/interfaces/__init__.py` | ✅ SECURE | ✅ FOUND | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/config/interfaces/async_config_interface.py` | ✅ SECURE | ✅ FOUND | **25**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | - |
 | `core/config/interfaces/config_interface.py` | ✅ SECURE | ✅ FOUND | **17**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
@@ -50,48 +50,48 @@
 | `core/config/interfaces/types.py` | ✅ SECURE | ✅ FOUND | **28**/0/0/0 | 84% / 0% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | - |
 | `core/db/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/db/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/db/exceptions/db_error.py` | 🟡 WARNING | ✅ FOUND | **9**/0/0/0 | 54% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 54% → 80%+ |
-| `core/db/factory.py` | 🟡 WARNING | ✅ FOUND | **22**/0/0/0 | 62% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 62% → 80%+ |
+| `core/db/exceptions/db_error.py` | 🟡 WARNING | ✅ FOUND | **9**/0/0/0 | 54% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 54% → 100% |
+| `core/db/factory.py` | 🟡 WARNING | ✅ FOUND | **22**/0/0/0 | 62% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 62% → 100% |
 | `core/db/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/db/implementations/model_base.py` | 🟡 WARNING | ✅ FOUND | **12**/0/0/0 | 52% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 52% → 80%+ |
+| `core/db/implementations/model_base.py` | 🟡 WARNING | ✅ FOUND | **12**/0/0/0 | 52% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 52% → 100% |
 | `core/db/implementations/models.py` | ✅ SECURE | ✅ FOUND | **22**/0/0/0 | 92% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/db/implementations/sqlalchemy_session.py` | 🔴 VULNERABLE | ✅ FOUND | **13**/9/0/3 | 17% / 0% | 0 / 0 / 10 | - | ⚪ N/A | ✅ OK | ✅ | 🔴 **Tesztek javítása: 9 failed, 0 error** | 🔎 Pylance: 10 hiba javítása | 📊 Coverage növelése: 17% → 80%+ | ⏭️ 3 skipped teszt aktiválása |
+| `core/db/implementations/sqlalchemy_session.py` | 🔴 VULNERABLE | ✅ FOUND | **15**/10/0/0 | 17% / 0% | 0 / 0 / 10 | - | ⚪ N/A | ✅ OK | ✅ | 🔴 **Tesztek javítása: 10 failed, 0 error** | 🔎 Pylance: 10 hiba javítása | 📊 Coverage növelése: 17% → 100% |
 | `core/db/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/events/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/events/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/events/exceptions/event_error.py` | 🟡 WARNING | ✅ FOUND | **9**/0/0/0 | 54% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 54% → 80%+ |
-| `core/events/factory.py` | 🔴 VULNERABLE | ✅ FOUND | **7**/5/0/0 | 28% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 5 failed, 0 error** | 📊 Coverage növelése: 28% → 80%+ |
+| `core/events/exceptions/event_error.py` | 🟡 WARNING | ✅ FOUND | **9**/0/0/0 | 54% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 54% → 100% |
+| `core/events/factory.py` | 🔴 VULNERABLE | ✅ FOUND | **7**/5/0/0 | 28% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 5 failed, 0 error** | 📊 Coverage növelése: 28% → 100% |
 | `core/events/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/events/implementations/zeromq_bus.py` | 🔴 VULNERABLE | ✅ FOUND | **24**/25/0/0 | 14% / 0% | 0 / 0 / 20 | - | ✅ OK | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 25 failed, 0 error** | 🔎 Pylance: 20 hiba javítása | 📊 Coverage növelése: 14% → 80%+ |
+| `core/events/implementations/zeromq_bus.py` | 🔴 VULNERABLE | ✅ FOUND | **24**/25/0/0 | 14% / 0% | 0 / 0 / 20 | - | ✅ OK | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 25 failed, 0 error** | 🔎 Pylance: 20 hiba javítása | 📊 Coverage növelése: 14% → 100% |
 | `core/events/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/events/interfaces/event_bus_interface.py` | ✅ SECURE | ✅ FOUND | **27**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | - |
-| `core/events/interfaces/event_models.py` | 🟡 WARNING | ✅ FOUND | **26**/0/0/0 | 64% / 0% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | 📊 Coverage növelése: 64% → 80%+ |
+| `core/events/interfaces/event_models.py` | 🟡 WARNING | ✅ FOUND | **26**/0/0/0 | 64% / 0% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | 📊 Coverage növelése: 64% → 100% |
 | `core/logger/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 88% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/logger/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/logger/exceptions/logger_error.py` | ✅ SECURE | ✅ FOUND | **14**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/logger/factory.py` | 🟡 WARNING | ✅ FOUND | **12**/0/0/0 | 30% / 11% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 30% → 80%+ |
-| `core/logger/formatters/logger_formatters.py` | 🟡 WARNING | ✅ FOUND | **6**/0/0/0 | 45% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 45% → 80%+ |
+| `core/logger/factory.py` | 🟡 WARNING | ✅ FOUND | **12**/0/0/0 | 30% / 11% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 30% → 100% |
+| `core/logger/formatters/logger_formatters.py` | 🟡 WARNING | ✅ FOUND | **6**/0/0/0 | 45% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 45% → 100% |
 | `core/logger/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/logger/implementations/colored_logger.py` | 🔴 VULNERABLE | ✅ FOUND | **12**/0/0/0 | 32% / 0% | 0 / 0 / 0 | - | ⚪ N/A | 🔴 MISSING | ✅ | 🔴 **Logger DI hiányzik!** | 📊 Coverage növelése: 32% → 80%+ |
-| `core/logger/implementations/default_logger.py` | 🔴 VULNERABLE | ✅ FOUND | **9**/0/0/0 | 70% / 100% | 0 / 0 / 0 | - | ⚪ N/A | 🔴 MISSING | ✅ | 🔴 **Logger DI hiányzik!** | 📊 Coverage növelése: 70% → 80%+ |
-| `core/logger/implementations/rotating_file_logger.py` | 🔴 VULNERABLE | ✅ FOUND | **22**/0/0/0 | 22% / 0% | 0 / 0 / 0 | - | ⚪ N/A | 🔴 MISSING | ✅ | 🔴 **Logger DI hiányzik!** | 📊 Coverage növelése: 22% → 80%+ |
-| `core/logger/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 78% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 78% → 80%+ |
+| `core/logger/implementations/colored_logger.py` | 🔴 VULNERABLE | ✅ FOUND | **12**/0/0/0 | 32% / 0% | 0 / 0 / 0 | - | ⚪ N/A | 🔴 MISSING | ✅ | 🔴 **Logger DI hiányzik!** | 📊 Coverage növelése: 32% → 100% |
+| `core/logger/implementations/default_logger.py` | 🔴 VULNERABLE | ✅ FOUND | **9**/0/0/0 | 70% / 100% | 0 / 0 / 0 | - | ⚪ N/A | 🔴 MISSING | ✅ | 🔴 **Logger DI hiányzik!** | 📊 Coverage növelése: 70% → 100% |
+| `core/logger/implementations/rotating_file_logger.py` | 🔴 VULNERABLE | ✅ FOUND | **22**/0/0/0 | 22% / 0% | 0 / 0 / 0 | - | ⚪ N/A | 🔴 MISSING | ✅ | 🔴 **Logger DI hiányzik!** | 📊 Coverage növelése: 22% → 100% |
+| `core/logger/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 78% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 78% → 100% |
 | `core/logger/interfaces/factory_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 81% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/logger/interfaces/logger_interface.py` | 🟡 WARNING | ✅ FOUND | **3**/0/0/0 | 70% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 70% → 80%+ |
+| `core/logger/interfaces/logger_interface.py` | 🟡 WARNING | ✅ FOUND | **3**/0/0/0 | 70% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 70% → 100% |
 | `core/system/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/system/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/system/exceptions/health_error.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/system/factory.py` | 🟡 WARNING | ✅ FOUND | **19**/0/0/0 | 35% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 35% → 80%+ |
-| `core/system/implementations/health_monitor.py` | 🟡 WARNING | ✅ FOUND | **28**/0/0/0 | 11% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 11% → 80%+ |
+| `core/system/factory.py` | 🟡 WARNING | ✅ FOUND | **19**/0/0/0 | 35% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 35% → 100% |
+| `core/system/implementations/health_monitor.py` | 🟡 WARNING | ✅ FOUND | **28**/0/0/0 | 11% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 11% → 100% |
 | `core/system/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/system/interfaces/health_interface.py` | ✅ SECURE | ✅ FOUND | **22**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/utils/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/utils/decorators.py` | 🔴 VULNERABLE | ✅ FOUND | **2**/11/0/0 | 39% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Tesztek javítása: 11 failed, 0 error** | 📊 Coverage növelése: 39% → 80%+ |
+| `core/utils/decorators.py` | 🟡 WARNING | ✅ FOUND | **13**/0/0/0 | 39% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 39% → 100% |
 | `core/utils/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/utils/exceptions/util_error.py` | 🔴 VULNERABLE | ❌ MISSING | - | 56% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 56% → 80%+ |
-| `core/utils/factory.py` | 🟡 WARNING | ✅ FOUND | **11**/0/0/0 | 60% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 60% → 80%+ |
+| `core/utils/exceptions/util_error.py` | 🔴 VULNERABLE | ❌ MISSING | - | 56% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 56% → 100% |
+| `core/utils/factory.py` | 🟡 WARNING | ✅ FOUND | **11**/0/0/0 | 60% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 60% → 100% |
 | `core/utils/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/utils/implementations/hardware_info.py` | 🟡 WARNING | ✅ FOUND | **15**/0/0/0 | 19% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 19% → 80%+ |
+| `core/utils/implementations/hardware_info.py` | 🟡 WARNING | ✅ FOUND | **15**/0/0/0 | 19% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 19% → 100% |
 | `core/utils/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/utils/interfaces/hardware_interface.py` | ✅ SECURE | ✅ FOUND | **3**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 
@@ -103,13 +103,13 @@
 | `collectors/jforex/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `collectors/jforex/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `collectors/jforex/exceptions/jforex_error.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `collectors/jforex/factory.py` | 🟡 WARNING | ✅ FOUND | **10**/0/0/0 | 19% / 0% | 0 / 0 / 2 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 19% → 80%+ |
+| `collectors/jforex/factory.py` | 🟡 WARNING | ✅ FOUND | **10**/0/0/0 | 19% / 0% | 0 / 0 / 2 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 19% → 100% |
 | `collectors/jforex/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `collectors/jforex/implementations/bi5_downloader.py` | 🟡 WARNING | ✅ FOUND | **43**/0/0/0 | 8% / 0% | 0 / 0 / 2 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 8% → 80%+ |
-| `collectors/jforex/implementations/live_feed.py` | 🟡 WARNING | ✅ FOUND | **12**/0/0/0 | 13% / 0% | 0 / 0 / 3 | - | ⚪ N/A | ✅ OK | ✅ | 🔎 Pylance: 3 hiba javítása | 📊 Coverage növelése: 13% → 80%+ |
+| `collectors/jforex/implementations/bi5_downloader.py` | 🟡 WARNING | ✅ FOUND | **43**/0/0/0 | 8% / 0% | 0 / 0 / 2 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 8% → 100% |
+| `collectors/jforex/implementations/live_feed.py` | 🟡 WARNING | ✅ FOUND | **12**/0/0/0 | 13% / 0% | 0 / 0 / 3 | - | ⚪ N/A | ✅ OK | ✅ | 🔎 Pylance: 3 hiba javítása | 📊 Coverage növelése: 13% → 100% |
 | `collectors/jforex/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `collectors/jforex/interfaces/downloader_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 75% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 75% → 80%+ |
-| `collectors/jforex/interfaces/live_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 73% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 73% → 80%+ |
+| `collectors/jforex/interfaces/downloader_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 75% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 75% → 100% |
+| `collectors/jforex/interfaces/live_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 73% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 73% → 100% |
 | `collectors/jforex/interfaces/tick_data.py` | 🔴 VULNERABLE | ❌ MISSING | - | 88% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 
 ## 3. Persistence Layer (`neural_ai/data/`)
@@ -118,17 +118,17 @@
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
 | `data/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `data/ingestion/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `data/ingestion/market_data_persister.py` | 🟡 WARNING | ✅ FOUND | **20**/0/0/5 | 7% / 0% | 0 / 0 / 10 | 1 | ⚪ N/A | ✅ OK | ✅ | 🔎 Pylance: 10 hiba javítása | ⚠️ 1 warning javítása | 📊 Coverage növelése: 7% → 80%+ | ⏭️ 5 skipped teszt aktiválása |
+| `data/ingestion/market_data_persister.py` | 🟡 WARNING | ✅ FOUND | **20**/0/0/5 | 7% / 0% | 0 / 0 / 10 | 1 | ⚪ N/A | ✅ OK | ✅ | 🔎 Pylance: 10 hiba javítása | ⚠️ 1 warning javítása | 📊 Coverage növelése: 7% → 100% | ⏭️ 5 skipped teszt aktiválása |
 | `data/storage/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 83% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `data/storage/backends/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `data/storage/backends/base.py` | 🔴 VULNERABLE | ✅ FOUND | **2**/6/0/0 | 32% / 6% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 6 failed, 0 error** | 📊 Coverage növelése: 32% → 80%+ |
-| `data/storage/backends/pandas_backend.py` | 🟡 WARNING | ✅ FOUND | **30**/0/0/0 | 19% / 3% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 19% → 80%+ |
-| `data/storage/backends/polars_backend.py` | 🟡 WARNING | ✅ FOUND | **24**/0/0/6 | 16% / 2% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 16% → 80%+ | ⏭️ 6 skipped teszt aktiválása |
+| `data/storage/backends/base.py` | 🔴 VULNERABLE | ✅ FOUND | **2**/6/0/0 | 32% / 6% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 6 failed, 0 error** | 📊 Coverage növelése: 32% → 100% |
+| `data/storage/backends/pandas_backend.py` | 🟡 WARNING | ✅ FOUND | **30**/0/0/0 | 19% / 3% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 19% → 100% |
+| `data/storage/backends/polars_backend.py` | 🟡 WARNING | ✅ FOUND | **24**/0/0/6 | 16% / 2% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 16% → 100% | ⏭️ 6 skipped teszt aktiválása |
 | `data/storage/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 82% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `data/storage/factory.py` | 🟡 WARNING | ✅ FOUND | **12**/0/0/0 | 28% / 0% | 0 / 0 / 5 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔎 Pylance: 5 hiba javítása | 📊 Coverage növelése: 28% → 80%+ |
+| `data/storage/factory.py` | 🟡 WARNING | ✅ FOUND | **12**/0/0/0 | 28% / 0% | 0 / 0 / 5 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔎 Pylance: 5 hiba javítása | 📊 Coverage növelése: 28% → 100% |
 | `data/storage/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `data/storage/implementations/file_storage.py` | 🟡 WARNING | ✅ FOUND | **50**/0/0/2 | 11% / 0% | 0 / 0 / 6 | - | ⚪ N/A | ✅ OK | ✅ | 🔎 Pylance: 6 hiba javítása | 📊 Coverage növelése: 11% → 80%+ | ⏭️ 2 skipped teszt aktiválása |
-| `data/storage/implementations/parquet_storage.py` | 🟡 WARNING | ✅ FOUND | **34**/0/0/0 | 12% / 0% | 0 / 0 / 21 | - | ✅ OK | ✅ OK | ✅ | 🔎 Pylance: 21 hiba javítása | 📊 Coverage növelése: 12% → 80%+ |
+| `data/storage/implementations/file_storage.py` | 🟡 WARNING | ✅ FOUND | **50**/0/0/2 | 11% / 0% | 0 / 0 / 6 | - | ⚪ N/A | ✅ OK | ✅ | 🔎 Pylance: 6 hiba javítása | 📊 Coverage növelése: 11% → 100% | ⏭️ 2 skipped teszt aktiválása |
+| `data/storage/implementations/parquet_storage.py` | 🟡 WARNING | ✅ FOUND | **34**/0/0/0 | 12% / 0% | 0 / 0 / 21 | - | ✅ OK | ✅ OK | ✅ | 🔎 Pylance: 21 hiba javítása | 📊 Coverage növelése: 12% → 100% |
 | `data/storage/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `data/storage/interfaces/factory_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 83% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `data/storage/interfaces/storage_interface.py` | ✅ SECURE | ✅ FOUND | **11**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
@@ -139,28 +139,28 @@
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
 | `processors/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/dimensions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `processors/dimensions/base.py` | 🔴 VULNERABLE | ❌ MISSING | - | 47% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 47% → 80%+ |
+| `processors/dimensions/base.py` | 🔴 VULNERABLE | ❌ MISSING | - | 47% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 47% → 100% |
 | `processors/dimensions/d01_price/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/dimensions/d01_price/factory.py` | 🔴 VULNERABLE | ❌ MISSING | - | 86% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `processors/dimensions/d01_price/processor.py` | 🟡 WARNING | ✅ FOUND | **18**/0/0/0 | 8% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | 📊 Coverage növelése: 8% → 80%+ |
+| `processors/dimensions/d01_price/processor.py` | 🟡 WARNING | ✅ FOUND | **18**/0/0/0 | 8% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | 📊 Coverage növelése: 8% → 100% |
 | `processors/dimensions/d02_support/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/dimensions/d02_support/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/dimensions/d02_support/exceptions/support_error.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/dimensions/d02_support/factory.py` | 🔴 VULNERABLE | ❌ MISSING | - | 86% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/dimensions/d02_support/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `processors/dimensions/d02_support/implementations/support_processor.py` | 🔴 VULNERABLE | ❌ MISSING | - | 6% / 0% | 0 / 0 / 41 | - | ⚪ N/A | ✅ OK | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 41 hiba javítása | 📊 Coverage növelése: 6% → 80%+ |
+| `processors/dimensions/d02_support/implementations/support_processor.py` | 🔴 VULNERABLE | ❌ MISSING | - | 6% / 0% | 0 / 0 / 41 | - | ⚪ N/A | ✅ OK | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 41 hiba javítása | 📊 Coverage növelése: 6% → 100% |
 | `processors/dimensions/d02_support/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `processors/factory.py` | 🟡 WARNING | ✅ FOUND | **3**/0/0/0 | 37% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 37% → 80%+ |
+| `processors/factory.py` | 🟡 WARNING | ✅ FOUND | **3**/0/0/0 | 37% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 37% → 100% |
 | `processors/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `processors/implementations/time_alignment_service.py` | 🟡 WARNING | ✅ FOUND | **8**/0/0/0 | 18% / 0% | 0 / 0 / 3 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔎 Pylance: 3 hiba javítása | 📊 Coverage növelése: 18% → 80%+ |
+| `processors/implementations/time_alignment_service.py` | 🟡 WARNING | ✅ FOUND | **8**/0/0/0 | 18% / 0% | 0 / 0 / 3 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔎 Pylance: 3 hiba javítása | 📊 Coverage növelése: 18% → 100% |
 | `processors/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/interfaces/dimension_processor_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 80% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/interfaces/tensor_converter_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `processors/interfaces/time_alignment_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 78% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 78% → 80%+ |
+| `processors/interfaces/time_alignment_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 78% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 78% → 100% |
 | `processors/resampler_service/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `processors/resampler_service/exceptions/resampler_error.py` | 🔴 VULNERABLE | ❌ MISSING | - | 41% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 41% → 80%+ |
-| `processors/resampler_service/factory.py` | 🔴 VULNERABLE | ❌ MISSING | - | 39% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 39% → 80%+ |
-| `processors/resampler_service/implementations/resampler_service.py` | 🔴 VULNERABLE | ❌ MISSING | - | 12% / 0% | 0 / 0 / 1 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 1 hiba javítása | 📊 Coverage növelése: 12% → 80%+ |
+| `processors/resampler_service/exceptions/resampler_error.py` | 🔴 VULNERABLE | ❌ MISSING | - | 41% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 41% → 100% |
+| `processors/resampler_service/factory.py` | 🔴 VULNERABLE | ❌ MISSING | - | 39% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 39% → 100% |
+| `processors/resampler_service/implementations/resampler_service.py` | 🔴 VULNERABLE | ❌ MISSING | - | 12% / 0% | 0 / 0 / 1 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 1 hiba javítása | 📊 Coverage növelése: 12% → 100% |
 | `processors/resampler_service/interfaces/resampler_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 86% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 
 ## 5. Presentation Layer (`neural_ai/ui/`)
@@ -168,11 +168,11 @@
 | Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
 | `ui/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `ui/app.py` | 🟡 WARNING | ✅ FOUND | **15**/0/0/0 | 34% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 34% → 80%+ |
+| `ui/app.py` | 🟡 WARNING | ✅ FOUND | **15**/0/0/0 | 34% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 34% → 100% |
 | `ui/components/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/components/base_widget.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `ui/core_bridge.py` | 🟡 WARNING | ✅ FOUND | **21**/0/0/0 | 14% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 14% → 80%+ |
-| `ui/factory.py` | 🟡 WARNING | ✅ FOUND | **28**/0/0/0 | 15% / 0% | 0 / 0 / 20 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔎 Pylance: 20 hiba javítása | 📊 Coverage növelése: 15% → 80%+ |
+| `ui/core_bridge.py` | 🟡 WARNING | ✅ FOUND | **21**/0/0/0 | 14% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 14% → 100% |
+| `ui/factory.py` | 🟡 WARNING | ✅ FOUND | **28**/0/0/0 | 15% / 0% | 0 / 0 / 20 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔎 Pylance: 20 hiba javítása | 📊 Coverage növelése: 15% → 100% |
 | `ui/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/interfaces/ai_service_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/interfaces/core_bridge_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
@@ -182,20 +182,20 @@
 | `ui/interfaces/navigation_service_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/interfaces/page_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/interfaces/strategy_service_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `ui/pages/01_🚀_Launchpad.py` | 🔴 VULNERABLE | ❌ MISSING | - | 24% / 50% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 24% → 80%+ |
+| `ui/pages/01_🚀_Launchpad.py` | 🔴 VULNERABLE | ❌ MISSING | - | 24% / 50% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 24% → 100% |
 | `ui/pages/02_🛠️_Dev_Center.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `ui/pages/03_📥_Data_Hub.py` | 🔴 VULNERABLE | ❌ MISSING | - | 9% / 2% | 0 / 0 / 3 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 3 hiba javítása | 📊 Coverage növelése: 9% → 80%+ |
+| `ui/pages/03_📥_Data_Hub.py` | 🔴 VULNERABLE | ❌ MISSING | - | 9% / 2% | 0 / 0 / 3 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 3 hiba javítása | 📊 Coverage növelése: 9% → 100% |
 | `ui/pages/04_🧠_AI_Lab.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `ui/pages/05_🪲_Strategy_Lab.py` | 🔴 VULNERABLE | ❌ MISSING | - | 6% / 1% | 0 / 0 / 99 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 99 hiba javítása | 📊 Coverage növelése: 6% → 80%+ |
+| `ui/pages/05_🪲_Strategy_Lab.py` | 🔴 VULNERABLE | ❌ MISSING | - | 6% / 1% | 0 / 0 / 99 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 99 hiba javítása | 📊 Coverage növelése: 6% → 100% |
 | `ui/pages/06_⚡_Live_Ops.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/pages/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/services/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `ui/services/ai_service.py` | 🔴 VULNERABLE | ❌ MISSING | - | 17% / 0% | 0 / 0 / 2 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 17% → 80%+ |
-| `ui/services/dashboard_service.py` | 🟡 WARNING | ✅ FOUND | **13**/0/0/0 | 17% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 17% → 80%+ |
-| `ui/services/data_service.py` | 🟡 WARNING | ✅ FOUND | **26**/0/0/0 | 8% / 0% | 0 / 0 / 18 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔎 Pylance: 18 hiba javítása | 📊 Coverage növelése: 8% → 80%+ |
-| `ui/services/live_ops_service.py` | 🔴 VULNERABLE | ❌ MISSING | - | 18% / 0% | 0 / 0 / 2 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 18% → 80%+ |
-| `ui/services/navigation_service.py` | 🔴 VULNERABLE | ❌ MISSING | - | 20% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 20% → 80%+ |
-| `ui/services/strategy_service.py` | 🟡 WARNING | ✅ FOUND | **24**/0/0/0 | 8% / 0% | 0 / 0 / 69 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔎 Pylance: 69 hiba javítása | 📊 Coverage növelése: 8% → 80%+ |
+| `ui/services/ai_service.py` | 🔴 VULNERABLE | ❌ MISSING | - | 17% / 0% | 0 / 0 / 2 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 17% → 100% |
+| `ui/services/dashboard_service.py` | 🟡 WARNING | ✅ FOUND | **13**/0/0/0 | 17% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 17% → 100% |
+| `ui/services/data_service.py` | 🟡 WARNING | ✅ FOUND | **26**/0/0/0 | 8% / 0% | 0 / 0 / 18 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔎 Pylance: 18 hiba javítása | 📊 Coverage növelése: 8% → 100% |
+| `ui/services/live_ops_service.py` | 🔴 VULNERABLE | ❌ MISSING | - | 18% / 0% | 0 / 0 / 2 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 18% → 100% |
+| `ui/services/navigation_service.py` | 🔴 VULNERABLE | ❌ MISSING | - | 20% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 20% → 100% |
+| `ui/services/strategy_service.py` | 🟡 WARNING | ✅ FOUND | **24**/0/0/0 | 8% / 0% | 0 / 0 / 69 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔎 Pylance: 69 hiba javítása | 📊 Coverage növelése: 8% → 100% |
 | `ui/streamlit_app.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 
 ## 6. Tests Layer (`tests/`)
@@ -220,7 +220,7 @@
 | `tests/neural_ai/core/base/exceptions/test_base_error.py` | 🟡 WARNING | **42**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/base/exceptions/test_exceptions_init.py` | 🟡 WARNING | **18**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/base/implementations/test_component_bundle.py` | 🟡 WARNING | **39**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/core/base/implementations/test_di_container.py` | 🔴 VULNERABLE | **24**/1/0/0 | N/A | 0 / 0 / 17 | - | ❌ | 🔴 **Tesztek javítása: 1 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 17 hiba javítása |
+| `tests/neural_ai/core/base/implementations/test_di_container.py` | 🟡 WARNING | **25**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/base/implementations/test_implementations_init.py` | 🟡 WARNING | **13**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/base/implementations/test_lazy_loader.py` | 🟡 WARNING | **10**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/base/implementations/test_singleton.py` | 🟡 WARNING | **10**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
@@ -228,7 +228,7 @@
 | `tests/neural_ai/core/base/interfaces/test_container_interface.py` | 🟡 WARNING | **20**/0/0/0 | N/A | 0 / 0 / 6 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 6 hiba javítása |
 | `tests/neural_ai/core/base/interfaces/test_interfaces_init.py` | 🟡 WARNING | **12**/0/0/0 | N/A | 0 / 0 / 4 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 4 hiba javítása |
 | `tests/neural_ai/core/base/test_base_init.py` | 🟡 WARNING | **8**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/core/base/test_factory.py` | 🔴 VULNERABLE | **29**/7/0/0 | N/A | 0 / 0 / 39 | - | ❌ | 🔴 **Tesztek javítása: 7 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 39 hiba javítása |
+| `tests/neural_ai/core/base/test_factory.py` | 🔴 VULNERABLE | **29**/7/0/0 | N/A | 0 / 0 / 35 | - | ❌ | 🔴 **Tesztek javítása: 7 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 35 hiba javítása |
 | `tests/neural_ai/core/config/exceptions/test___init__.py` | 🟡 WARNING | **22**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/config/exceptions/test_config_error.py` | 🟡 WARNING | **15**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/config/implementations/test_config_implementations_init.py` | 🟡 WARNING | **4**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
@@ -249,7 +249,7 @@
 | `tests/neural_ai/core/db/implementations/test_db_implementations_init.py` | 🟡 WARNING | **8**/0/0/0 | N/A | 0 / 0 / 3 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 3 hiba javítása |
 | `tests/neural_ai/core/db/implementations/test_model_base.py` | 🟡 WARNING | **12**/0/0/0 | N/A | 0 / 0 / 2 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/core/db/implementations/test_models.py` | 🟡 WARNING | **22**/0/0/0 | N/A | 0 / 0 / 13 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 13 hiba javítása |
-| `tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py` | 🔴 VULNERABLE | **13**/9/0/3 | N/A | 0 / 0 / 0 | - | ❌ | 🔴 **Tesztek javítása: 9 failed, 0 error** | 📝 Dokumentáció írása | ⏭️ 3 skipped teszt aktiválása |
+| `tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py` | 🔴 VULNERABLE | **15**/10/0/0 | N/A | 0 / 0 / 14 | - | ❌ | 🔴 **Tesztek javítása: 10 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 14 hiba javítása |
 | `tests/neural_ai/core/db/interfaces/test_db_interfaces_init.py` | 🟡 WARNING | **4**/0/0/0 | N/A | 0 / 0 / 1 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 1 hiba javítása |
 | `tests/neural_ai/core/db/test_db_factory.py` | 🟡 WARNING | **22**/0/0/0 | N/A | 0 / 1 / 7 | - | ❌ | 📝 Dokumentáció írása | 🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 7 hiba javítása |
 | `tests/neural_ai/core/db/test_db_init.py` | 🟡 WARNING | **8**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
@@ -280,7 +280,7 @@
 | `tests/neural_ai/core/test_pyproject_ui_dependencies.py` | 🔴 VULNERABLE | **0**/6/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 🔴 **Tesztek javítása: 6 failed, 0 error** | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/utils/exceptions/test_util_errors.py` | 🟡 WARNING | **12**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/utils/interfaces/test_hardware_interface.py` | 🟡 WARNING | **3**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/core/utils/test_decorators.py` | 🔴 VULNERABLE | **2**/11/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 🔴 **Tesztek javítása: 11 failed, 0 error** | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/utils/test_decorators.py` | 🟡 WARNING | **13**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/utils/test_hardware_info.py` | 🟡 WARNING | **15**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/utils/test_utils_factory.py` | 🟡 WARNING | **11**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/data/ingestion/test_market_data_persister.py` | 🟡 WARNING | **20**/0/0/5 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása | ⏭️ 5 skipped teszt aktiválása |
@@ -298,6 +298,7 @@
 | `tests/neural_ai/processors/dimensions/d02_support/test_processor.py` | 🟡 WARNING | - | N/A | 0 / 0 / 28 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 28 hiba javítása |
 | `tests/neural_ai/processors/test_factory.py` | 🟡 WARNING | **3**/0/0/0 | N/A | 0 / 0 / 14 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 14 hiba javítása |
 | `tests/neural_ai/processors/test_time_alignment_service.py` | 🟡 WARNING | **8**/0/0/0 | N/A | 0 / 0 / 2 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 2 hiba javítása |
+| `tests/neural_ai/test___init__.py` | 🟡 WARNING | **21**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/ui/interfaces/test_data_service_interface.py` | 🟡 WARNING | **19**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/ui/pages/test_data_hub_page.py` | 🟡 WARNING | **11**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/ui/pages/test_launchpad_page.py` | 🟡 WARNING | **10**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |

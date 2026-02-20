@@ -9,8 +9,8 @@ import pytest
 from neural_ai.core.base.exceptions import ComponentNotFoundError
 from neural_ai.core.base.implementations.di_container import DIContainer
 from neural_ai.core.base.implementations.di_container import LazyComponent
-from neural_ai.core.base.implementations.di_container import LazyComponent
 from neural_ai.core.base.exceptions import ComponentNotFoundError
+from neural_ai.core.base.implementations.di_container import LazyComponent
 from neural_ai.core.base.exceptions import SingletonViolationError
 ```
 
@@ -101,7 +101,7 @@ def factory() -> MockComponent
 def test_lazy_component_factory_returns_none(self) -> None
 ```
 
-LazyComponent factory_func None visszatérése → ComponentNotFoundError
+LazyComponent factory_func None visszatérése → ComponentNotFoundError.
 
 **Paraméterek:**
 

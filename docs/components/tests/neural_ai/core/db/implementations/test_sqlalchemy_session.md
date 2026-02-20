@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.db.exceptions import DBConnectionError
 from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
-# ... és még 14 import
+# ... és még 15 import
 ```
 
 ## Osztály: `TestDatabaseURL`
@@ -172,14 +172,17 @@ Teszteli, hogy az engine létrejön az első hívásnál.
 #### `test_get_engine_caches_result()`
 
 ```python
-def test_get_engine_caches_result(self) -> None
+def test_get_engine_caches_result(self, mock_create: MagicMock, mock_config_factory: MagicMock, mock_get_url: MagicMock) -> None
 ```
 
-Teszteli, hogy az engine cache-elődik (skip, komplex mock-olás miatt).
+Teszteli, hogy az engine cache-elődik.
 
 **Paraméterek:**
 
 - **`self`**
+- **`mock_create`** (`MagicMock`)
+- **`mock_config_factory`** (`MagicMock`)
+- **`mock_get_url`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -268,7 +271,7 @@ Teszteli a DatabaseManager get_session metódusát.
 async def test_database_manager_get_session_raises_when_not_initialized(self) -> None
 ```
 
-Teszteli, hogy get_session hibát dob, ha nincs inicializálva (skip, Singleton miatt).
+Teszteli, hogy get_session hibát dob, ha nincs inicializálva.
 
 **Paraméterek:**
 
@@ -462,7 +465,7 @@ Aktív konfigurációk lekérdezésének tesztjei.
 async def test_get_active_configs(self) -> None
 ```
 
-Teszteli a get_active_configs függvényt (skip, tábla létrehozás miatt).
+Teszteli a get_active_configs függvényt a DatabaseManager-en keresztül.
 
 **Paraméterek:**
 

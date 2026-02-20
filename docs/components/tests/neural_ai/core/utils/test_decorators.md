@@ -25,7 +25,7 @@ Tesztek a @trace dekorátorhoz.
 #### `test_trace_successful_execution()`
 
 ```python
-def test_trace_successful_execution(self, mock_logger: MagicMock) -> None
+def test_trace_successful_execution(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli a sikeres függvényhívás logolását.
@@ -33,7 +33,7 @@ Teszteli a sikeres függvényhívás logolását.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -57,7 +57,7 @@ def add(a: int, b: int) -> int
 #### `test_trace_with_kwargs()`
 
 ```python
-def test_trace_with_kwargs(self, mock_logger: MagicMock) -> None
+def test_trace_with_kwargs(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli a kulcsszavas argumentumokkal történő hívást.
@@ -65,7 +65,7 @@ Teszteli a kulcsszavas argumentumokkal történő hívást.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -90,7 +90,7 @@ def multiply(a: int, b: int, factor: int = 1) -> int
 #### `test_trace_with_unsafe_args()`
 
 ```python
-def test_trace_with_unsafe_args(self, mock_logger: MagicMock) -> None
+def test_trace_with_unsafe_args(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli a nem biztonságos argumentumok logolását.
@@ -98,7 +98,7 @@ Teszteli a nem biztonságos argumentumok logolását.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -121,7 +121,7 @@ def process_data(data: Any) -> str
 #### `test_trace_function_name_preserved()`
 
 ```python
-def test_trace_function_name_preserved(self, mock_logger: MagicMock) -> None
+def test_trace_function_name_preserved(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli, hogy a függvény neve megőrződik a dekorálás után.
@@ -129,7 +129,7 @@ Teszteli, hogy a függvény neve megőrződik a dekorálás után.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -148,7 +148,7 @@ def my_custom_function() -> str
 #### `test_trace_docstring_preserved()`
 
 ```python
-def test_trace_docstring_preserved(self, mock_logger: MagicMock) -> None
+def test_trace_docstring_preserved(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli, hogy a függvény docstringje megőrződik.
@@ -156,7 +156,7 @@ Teszteli, hogy a függvény docstringje megőrződik.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -177,7 +177,7 @@ Ez egy dokumentált függvény.
 #### `test_trace_exception_handling()`
 
 ```python
-def test_trace_exception_handling(self, mock_logger: MagicMock) -> None
+def test_trace_exception_handling(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli a kivételkezelést és logolást.
@@ -185,7 +185,7 @@ Teszteli a kivételkezelést és logolást.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -204,7 +204,7 @@ def failing_function() -> None
 #### `test_trace_call_id_uniqueness()`
 
 ```python
-def test_trace_call_id_uniqueness(self, mock_logger: MagicMock) -> None
+def test_trace_call_id_uniqueness(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli, hogy minden hívás egyedi call_id-t kap.
@@ -212,7 +212,7 @@ Teszteli, hogy minden hívás egyedi call_id-t kap.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -231,7 +231,7 @@ def simple_function() -> None
 #### `test_trace_duration_measurement()`
 
 ```python
-def test_trace_duration_measurement(self, mock_logger: MagicMock) -> None
+def test_trace_duration_measurement(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli a futási idő mérésének helyességét.
@@ -239,7 +239,7 @@ Teszteli a futási idő mérésének helyességét.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -258,7 +258,7 @@ def slow_function() -> None
 #### `test_trace_with_mixed_args()`
 
 ```python
-def test_trace_with_mixed_args(self, mock_logger: MagicMock) -> None
+def test_trace_with_mixed_args(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli a vegyes típusú argumentumok kezelését.
@@ -266,7 +266,7 @@ Teszteli a vegyes típusú argumentumok kezelését.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -291,7 +291,7 @@ def mixed_function(safe: str, unsafe: list[int], safe_num: int) -> str
 #### `test_trace_no_args_function()`
 
 ```python
-def test_trace_no_args_function(self, mock_logger: MagicMock) -> None
+def test_trace_no_args_function(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli az argumentumok nélküli függvényt.
@@ -299,7 +299,7 @@ Teszteli az argumentumok nélküli függvényt.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
@@ -318,7 +318,7 @@ def no_args_function() -> str
 #### `test_trace_with_safe_types()`
 
 ```python
-def test_trace_with_safe_types(self, mock_logger: MagicMock) -> None
+def test_trace_with_safe_types(self, mock_ensure_logger: MagicMock) -> None
 ```
 
 Teszteli a biztonságos típusok logolását.
@@ -326,7 +326,7 @@ Teszteli a biztonságos típusok logolását.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_logger`** (`MagicMock`)
+- **`mock_ensure_logger`** (`MagicMock`)
 
 **Visszatérési érték:**
 
