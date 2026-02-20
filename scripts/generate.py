@@ -306,19 +306,25 @@ class StatusCalculator:
         🔴 VULNERABLE: Kritikus problémák (teszt hiány, TypedDict, Logger DI hiány, failed tesztek)
         """
         # Ellenőrizzük, hogy tests/ vagy scripts/ mappában vagyunk-e
-        is_test_or_script = analysis.relative_path.startswith(("tests/", "scripts/"))
+        is_test_layer = analysis.relative_path.startswith("tests/")
+        is_script_layer = analysis.relative_path.startswith("scripts/")
 
         # 🔴 VULNERABLE feltételek
         vulnerable_reasons = []
 
         # Neural_ai fájlokhoz: teszt pár kötelező
-        if not is_test_or_script:
+        if not is_test_layer and not is_script_layer:
             if not analysis.test_file_exists or analysis.test_count == 0:
                 vulnerable_reasons.append("teszt_hiany")
             if analysis.config_status == "🔴 TYPED_DICT":
                 vulnerable_reasons.append("typeddict")
             if analysis.logger_status == "🔴 MISSING":
                 vulnerable_reasons.append("logger_di")
+
+        # Scripts layerhez: teszt pár kötelező (kivéve __init__.py)
+        if is_script_layer and not analysis.relative_path.endswith("__init__.py"):
+            if not analysis.test_file_exists:
+                vulnerable_reasons.append("teszt_hiany")
 
         # Minden fájlhoz: failed/error tesztek
         if analysis.test_failed > 0 or analysis.test_errors > 0:
@@ -351,12 +357,12 @@ class StatusCalculator:
         if analysis.test_skipped > 0:
             problems.append("skipped")
 
-        # Neural_ai fájlokhoz további feltételek
-        if not is_test_or_script:
-            # 6. Dokumentáció hiány
-            if not analysis.has_documentation:
-                problems.append("docs")
+        # Dokumentáció hiány ellenőrzése (minden layerhez)
+        if not analysis.has_documentation:
+            problems.append("docs")
 
+        # Neural_ai fájlokhoz további feltételek
+        if not is_test_layer and not is_script_layer:
             # 7. Alacsony coverage (ha van coverage adat)
             if 0 < analysis.coverage_stmt < 80:
                 problems.append("coverage")
@@ -1067,14 +1073,30 @@ class HTMLGenerator(GeneratorBase):
                     <thead>
                         <tr>"""
 
-            # Tests és Scripts layerekhez egyszerűsített fejléc
-            if layer in ["tests", "scripts"]:
+            # Scripts layer - teljes fejléc
+            if layer == "scripts":
+                html_output += """
+                            <th>Fájl</th>
+                            <th>Státusz</th>
+                            <th>Teszt Pár</th>
+                            <th>Pass/Fail/Err/Skip</th>
+                            <th>Coverage (Stmt/Brch)</th>
+                            <th>Lint/Mypy/Pylance</th>
+                            <th>Src Warn</th>
+                            <th>Config</th>
+                            <th>Logger</th>
+                            <th>Dokumentálva</th>
+                            <th>Teendők</th>"""
+            # Tests layer - egyszerűsített fejléc
+            elif layer == "tests":
                 html_output += """
                             <th>Fájl</th>
                             <th>Státusz</th>
                             <th>Pass/Fail/Err/Skip</th>
+                            <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
                             <th>Src Warn</th>
+                            <th>Dokumentálva</th>
                             <th>Teendők</th>"""
             else:
                 # Neural_ai layerekhez teljes fejléc + Dokumentálva
@@ -1138,15 +1160,61 @@ class HTMLGenerator(GeneratorBase):
                 # Teendők (HTML escape)
                 notes_display = html.escape(file.notes) if file.notes and file.notes != "-" else '<span style="opacity: 0.4;">-</span>'
 
-                # Tests és Scripts layerekhez egyszerűsített sor
-                if layer in ["tests", "scripts"]:
+                # Scripts layer - teljes sor
+                if layer == "scripts":
+                    # Teszt pár
+                    test_pair = '<span class="test-found">✓ FOUND</span>' if file.test_file_exists else '<span class="test-missing">✕ MISSING</span>'
+
+                    # Coverage
+                    if file.coverage_stmt > 0:
+                        cov_class = 'cov-good' if file.coverage_stmt >= 80 else 'cov-low'
+                        coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
+                    else:
+                        coverage = '<span style="opacity: 0.4;">N/A</span>'
+
+                    # Config és Logger státusz
+                    config_display = html.escape(file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○"))
+                    logger_display = html.escape(file.logger_status.replace("✅", "✓").replace("⚠️", "⚠").replace("🔴", "✕").replace("⚪", "○"))
+
+                    # Dokumentálva
+                    doc_display = '<span class="test-found">✓</span>' if file.has_documentation else '<span class="test-missing">✕</span>'
+
+                    html_output += f"""
+                        <tr>
+                            <td class="file-path">{short_path_escaped}</td>
+                            <td>{status_badge}</td>
+                            <td>{test_pair}</td>
+                            <td class="test-results">{test_results}</td>
+                            <td class="coverage">{coverage}</td>
+                            <td>{lint_type}</td>
+                            <td>{src_warn}</td>
+                            <td>{config_display}</td>
+                            <td>{logger_display}</td>
+                            <td>{doc_display}</td>
+                            <td>{notes_display}</td>
+                        </tr>
+    """
+                # Tests layer - egyszerűsített sor
+                elif layer == "tests":
+                    # Coverage
+                    if file.coverage_stmt > 0:
+                        cov_class = 'cov-good' if file.coverage_stmt >= 80 else 'cov-low'
+                        coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
+                    else:
+                        coverage = '<span style="opacity: 0.4;">N/A</span>'
+
+                    # Dokumentálva
+                    doc_display = '<span class="test-found">✓</span>' if file.has_documentation else '<span class="test-missing">✕</span>'
+
                     html_output += f"""
                         <tr>
                             <td class="file-path">{short_path_escaped}</td>
                             <td>{status_badge}</td>
                             <td class="test-results">{test_results}</td>
+                            <td class="coverage">{coverage}</td>
                             <td>{lint_type}</td>
                             <td>{src_warn}</td>
+                            <td>{doc_display}</td>
                             <td>{notes_display}</td>
                         </tr>
     """
