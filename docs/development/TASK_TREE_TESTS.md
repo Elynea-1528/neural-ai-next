@@ -1,14 +1,14 @@
 # 🧪 NEURAL AI NEXT - TESTS
 
-**Generálva:** 2026-02-17 21:57:20 UTC
+**Generálva:** 2026-02-20 15:09:55 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
-**Fájlok száma:** 110
+**Fájlok száma:** 115
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 56 (50.9%)
-- 🟡 **WARNING:** 36 (32.7%)
-- 🔴 **VULNERABLE:** 18 (16.4%)
+- ✅ **SECURE:** 59 (51.3%)
+- 🟡 **WARNING:** 38 (33.0%)
+- 🔴 **VULNERABLE:** 18 (15.7%)
 
 ---
 
@@ -34,7 +34,7 @@
 | `tests/neural_ai/core/base/exceptions/test_base_error.py` | ✅ SECURE | **42**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/base/exceptions/test_exceptions_init.py` | ✅ SECURE | **18**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/base/implementations/test_component_bundle.py` | ✅ SECURE | **39**/0/0/0 | 0 / 0 / 0 | - | - |
-| `tests/neural_ai/core/base/implementations/test_di_container.py` | 🟡 WARNING | **24**/0/0/0 | 0 / 0 / 20 | - | 🔎 Pylance: 20 hiba javítása |
+| `tests/neural_ai/core/base/implementations/test_di_container.py` | 🔴 VULNERABLE | **24**/1/0/0 | 0 / 0 / 17 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 17 hiba javítása |
 | `tests/neural_ai/core/base/implementations/test_implementations_init.py` | ✅ SECURE | **13**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/base/implementations/test_lazy_loader.py` | ✅ SECURE | **10**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/base/implementations/test_singleton.py` | ✅ SECURE | **10**/0/0/0 | 0 / 0 / 0 | - | - |
@@ -42,17 +42,21 @@
 | `tests/neural_ai/core/base/interfaces/test_container_interface.py` | 🟡 WARNING | **20**/0/0/0 | 0 / 0 / 6 | - | 🔎 Pylance: 6 hiba javítása |
 | `tests/neural_ai/core/base/interfaces/test_interfaces_init.py` | 🟡 WARNING | **12**/0/0/0 | 0 / 0 / 4 | - | 🔎 Pylance: 4 hiba javítása |
 | `tests/neural_ai/core/base/test_base_init.py` | ✅ SECURE | **8**/0/0/0 | 0 / 0 / 0 | - | - |
-| `tests/neural_ai/core/base/test_factory.py` | 🟡 WARNING | **35**/0/0/0 | 0 / 0 / 37 | - | 🔎 Pylance: 37 hiba javítása |
+| `tests/neural_ai/core/base/test_factory.py` | 🔴 VULNERABLE | **35**/1/0/0 | 0 / 0 / 39 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 39 hiba javítása |
+| `tests/neural_ai/core/config/exceptions/test___init__.py` | ✅ SECURE | **22**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/config/exceptions/test_config_error.py` | ✅ SECURE | **15**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/config/implementations/test_config_implementations_init.py` | ✅ SECURE | **4**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/config/implementations/test_dynamic_config_manager.py` | 🟡 WARNING | **48**/0/0/0 | 0 / 0 / 54 | - | 🔎 Pylance: 54 hiba javítása |
 | `tests/neural_ai/core/config/implementations/test_dynamic_config_manager_comprehensive.py` | 🟡 WARNING | **13**/0/0/0 | 0 / 0 / 9 | - | 🔎 Pylance: 9 hiba javítása |
 | `tests/neural_ai/core/config/implementations/test_yaml_config_manager.py` | 🟡 WARNING | **65**/0/0/0 | 0 / 0 / 17 | - | 🔎 Pylance: 17 hiba javítása |
+| `tests/neural_ai/core/config/interfaces/test___init__.py` | ✅ SECURE | - | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/config/interfaces/test_async_config_interface.py` | 🟡 WARNING | **25**/0/0/0 | 0 / 0 / 1 | - | 🔎 Pylance: 1 hiba javítása |
 | `tests/neural_ai/core/config/interfaces/test_config_interface.py` | 🟡 WARNING | **17**/0/0/0 | 0 / 0 / 1 | - | 🔎 Pylance: 1 hiba javítása |
 | `tests/neural_ai/core/config/interfaces/test_factory_interface.py` | 🟡 WARNING | **23**/0/0/0 | 0 / 0 / 11 | - | 🔎 Pylance: 11 hiba javítása |
-| `tests/neural_ai/core/config/test_config_factory.py` | 🔴 VULNERABLE | **21**/10/0/0 | 0 / 0 / 1 | - | 🔴 **Tesztek javítása: 10 failed, 0 error** | 🔎 Pylance: 1 hiba javítása |
-| `tests/neural_ai/core/config/test_processors_config.py` | 🔴 VULNERABLE | **0**/26/0/0 | 0 / 0 / 44 | - | 🔴 **Tesztek javítása: 26 failed, 0 error** | 🔎 Pylance: 44 hiba javítása |
+| `tests/neural_ai/core/config/interfaces/test_types.py` | 🟡 WARNING | **28**/0/0/0 | 0 / 0 / 4 | - | 🔎 Pylance: 4 hiba javítása |
+| `tests/neural_ai/core/config/test___init__.py` | 🟡 WARNING | - | 0 / 0 / 3 | - | 🔎 Pylance: 3 hiba javítása |
+| `tests/neural_ai/core/config/test_config_factory.py` | 🟡 WARNING | **27**/0/0/0 | 0 / 0 / 1 | - | 🔎 Pylance: 1 hiba javítása |
+| `tests/neural_ai/core/config/test_processors_config.py` | 🟡 WARNING | **26**/0/0/0 | 0 / 0 / 33 | - | 🔎 Pylance: 33 hiba javítása |
 | `tests/neural_ai/core/config/test_yaml_config_manager_validation.py` | ✅ SECURE | **11**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/db/exceptions/test_db_error.py` | ✅ SECURE | **9**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/db/exceptions/test_db_exceptions_init.py` | ✅ SECURE | **5**/0/0/0 | 0 / 0 / 0 | - | - |
@@ -80,12 +84,12 @@
 | `tests/neural_ai/core/logger/interfaces/test_logger_factory_interface.py` | 🟡 WARNING | **5**/0/0/0 | 0 / 0 / 2 | - | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/core/logger/interfaces/test_logger_interface.py` | 🟡 WARNING | **3**/0/0/0 | 0 / 0 / 1 | - | 🔎 Pylance: 1 hiba javítása |
 | `tests/neural_ai/core/logger/interfaces/test_logger_interfaces_init.py` | ✅ SECURE | **4**/0/0/0 | 0 / 0 / 0 | - | - |
-| `tests/neural_ai/core/logger/test_logger_factory.py` | ✅ SECURE | **5**/0/0/0 | 0 / 0 / 0 | - | - |
+| `tests/neural_ai/core/logger/test_logger_factory.py` | ✅ SECURE | **12**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/core/logger/test_logger_init.py` | 🟡 WARNING | **14**/0/0/0 | 0 / 0 / 2 | - | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/core/system/implementations/test_health_monitor.py` | 🟡 WARNING | **28**/0/0/0 | 0 / 0 / 1 | - | 🔎 Pylance: 1 hiba javítása |
 | `tests/neural_ai/core/system/interfaces/test_health_interface.py` | 🟡 WARNING | **22**/0/0/0 | 0 / 0 / 16 | - | 🔎 Pylance: 16 hiba javítása |
 | `tests/neural_ai/core/system/test_system_factory.py` | 🟡 WARNING | **19**/0/0/0 | 0 / 0 / 2 | - | 🔎 Pylance: 2 hiba javítása |
-| `tests/neural_ai/core/test_core_init.py` | 🔴 VULNERABLE | **11**/8/0/0 | 0 / 0 / 26 | - | 🔴 **Tesztek javítása: 8 failed, 0 error** | 🔎 Pylance: 26 hiba javítása |
+| `tests/neural_ai/core/test_core_init.py` | 🔴 VULNERABLE | **18**/1/0/0 | 0 / 0 / 28 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 28 hiba javítása |
 | `tests/neural_ai/core/test_init_version_fallback.py` | 🔴 VULNERABLE | **4**/1/0/0 | 0 / 0 / 2 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/core/test_pyproject_ui_dependencies.py` | 🔴 VULNERABLE | **0**/6/0/0 | 0 / 0 / 0 | - | 🔴 **Tesztek javítása: 6 failed, 0 error** |
 | `tests/neural_ai/core/utils/exceptions/test_util_errors.py` | ✅ SECURE | **12**/0/0/0 | 0 / 0 / 0 | - | - |
@@ -104,7 +108,8 @@
 | `tests/neural_ai/data/storage/test_storage_factory.py` | 🟡 WARNING | **12**/0/0/0 | 0 / 0 / 8 | - | 🔎 Pylance: 8 hiba javítása |
 | `tests/neural_ai/data/storage/test_storage_init.py` | ✅ SECURE | **5**/0/0/0 | 0 / 0 / 0 | - | - |
 | `tests/neural_ai/processors/__init__.py` | ✅ SECURE | - | 0 / 0 / 0 | - | - |
-| `tests/neural_ai/processors/dimensions/d02_support/test_processor.py` | 🟡 WARNING | **4**/0/0/0 | 0 / 0 / 28 | - | 🔎 Pylance: 28 hiba javítása |
+| `tests/neural_ai/processors/dimensions/d01_price/test_processor.py` | ✅ SECURE | **18**/0/0/0 | 0 / 0 / 0 | - | - |
+| `tests/neural_ai/processors/dimensions/d02_support/test_processor.py` | 🟡 WARNING | - | 0 / 0 / 28 | - | 🔎 Pylance: 28 hiba javítása |
 | `tests/neural_ai/processors/test_factory.py` | 🟡 WARNING | **3**/0/0/0 | 0 / 0 / 14 | - | 🔎 Pylance: 14 hiba javítása |
 | `tests/neural_ai/processors/test_time_alignment_service.py` | 🟡 WARNING | **8**/0/0/0 | 0 / 0 / 2 | - | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/ui/interfaces/test_data_service_interface.py` | ✅ SECURE | **19**/0/0/0 | 0 / 0 / 0 | - | - |
@@ -123,6 +128,6 @@
 | `tests/scripts/test_migrate_structure.py` | 🔴 VULNERABLE | **12**/1/0/0 | 0 / 0 / 10 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 10 hiba javítása |
 | `tests/scripts/test_test_tick_pipeline.py` | 🔴 VULNERABLE | **1**/4/0/0 | 0 / 0 / 8 | - | 🔴 **Tesztek javítása: 4 failed, 0 error** | 🔎 Pylance: 8 hiba javítása |
 | `tests/scripts/test_validation_end_to_end.py` | 🔴 VULNERABLE | **2**/1/0/0 | 0 / 0 / 0 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** |
-| `tests/test_dashboard_command.py` | 🔴 VULNERABLE | **6**/7/0/0 | 0 / 0 / 5 | - | 🔴 **Tesztek javítása: 7 failed, 0 error** | 🔎 Pylance: 5 hiba javítása |
+| `tests/test_dashboard_command.py` | 🔴 VULNERABLE | **8**/5/0/0 | 0 / 0 / 5 | - | 🔴 **Tesztek javítása: 5 failed, 0 error** | 🔎 Pylance: 5 hiba javítása |
 | `tests/test_main.py` | 🔴 VULNERABLE | **5**/6/0/0 | 0 / 0 / 10 | - | 🔴 **Tesztek javítása: 6 failed, 0 error** | 🔎 Pylance: 10 hiba javítása |
 | `tests/test_neural_ai_init.py` | 🔴 VULNERABLE | **4**/1/0/0 | 0 / 0 / 2 | - | 🔴 **Tesztek javítása: 1 failed, 0 error** | 🔎 Pylance: 2 hiba javítása |

@@ -1,6 +1,6 @@
 # 📜 NEURAL AI NEXT - SCRIPTS
 
-**Generálva:** 2026-02-17 21:57:20 UTC
+**Generálva:** 2026-02-20 15:09:55 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 16
 

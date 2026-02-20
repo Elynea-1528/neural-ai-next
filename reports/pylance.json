@@ -42,158 +42,182 @@
     "message": "Type of \"get\" is partially unknown\n\u00a0\u00a0Type of \"get\" is \"Any | Overload[(key: Unknown, default: None = None, /) -> (Unknown | None), (key: Unknown, default: Unknown, /) -> Unknown, (key: Unknown, default: _T@get, /) -> (Unknown | _T@get)]\""
   },
   {
-    "file": "neural_ai/core/config/factory.py",
-    "line": 113,
+    "file": "neural_ai/core/__init__.py",
+    "line": 26,
     "severity": "error",
-    "message": "Unnecessary isinstance call; \"type[ConfigManagerInterface]\" is always an instance of \"type\""
+    "message": "Import \"ConfigManagerInterface\" is not accessed"
   },
   {
-    "file": "neural_ai/core/config/factory.py",
-    "line": 116,
+    "file": "neural_ai/core/__init__.py",
+    "line": 29,
     "severity": "error",
-    "message": "Unnecessary issubclass call; \"type[ConfigManagerInterface]\" is always a subclass of \"ConfigManagerInterface\""
+    "message": "Import \"DatabaseManager\" is not accessed"
   },
   {
-    "file": "neural_ai/core/config/factory.py",
-    "line": 142,
+    "file": "neural_ai/core/__init__.py",
+    "line": 32,
     "severity": "error",
-    "message": "Unnecessary isinstance call; \"type[AsyncConfigManagerInterface]\" is always an instance of \"type\""
+    "message": "Import \"EventBusInterface\" is not accessed"
   },
   {
-    "file": "neural_ai/core/config/factory.py",
-    "line": 145,
+    "file": "neural_ai/core/__init__.py",
+    "line": 35,
     "severity": "error",
-    "message": "Unnecessary issubclass call; \"type[AsyncConfigManagerInterface]\" is always a subclass of \"AsyncConfigManagerInterface\""
+    "message": "Import \"LoggerInterface\" is not accessed"
+  },
+  {
+    "file": "neural_ai/core/__init__.py",
+    "line": 38,
+    "severity": "error",
+    "message": "Import \"HealthMonitorInterface\" is not accessed"
+  },
+  {
+    "file": "neural_ai/core/__init__.py",
+    "line": 41,
+    "severity": "error",
+    "message": "Import \"HardwareInterface\" is not accessed"
+  },
+  {
+    "file": "neural_ai/core/__init__.py",
+    "line": 44,
+    "severity": "error",
+    "message": "Import \"MarketDataPersister\" is not accessed"
+  },
+  {
+    "file": "neural_ai/core/__init__.py",
+    "line": 47,
+    "severity": "error",
+    "message": "Import \"StorageInterface\" is not accessed"
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 135,
+    "line": 144,
     "severity": "error",
     "message": "Unnecessary isinstance call; \"str\" is always an instance of \"str\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 180,
+    "line": 196,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"app_name\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 180,
+    "line": 196,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"version\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 180,
+    "line": 196,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"environment\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 180,
+    "line": 196,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"debug\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 180,
+    "line": 196,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"paths\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 205,
+    "line": 221,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"type\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 205,
+    "line": 221,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"base_path\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 205,
+    "line": 221,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"compression\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 205,
+    "line": 221,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"engine\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 205,
+    "line": 221,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"partitioning\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 229,
+    "line": 245,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"processors\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 254,
+    "line": 270,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"default_level\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 254,
+    "line": 270,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"handlers\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 254,
+    "line": 270,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"loggers\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 278,
+    "line": 294,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"connection\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 278,
+    "line": 294,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"pool\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 300,
+    "line": 316,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"type\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 300,
+    "line": 316,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"connection\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 300,
+    "line": 316,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"socket_timeout\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 324,
+    "line": 340,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"jforex\" in function \"__init__\""
   },
   {
     "file": "neural_ai/core/config/implementations/yaml_config_manager.py",
-    "line": 324,
+    "line": 340,
     "severity": "error",
     "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"jforex_live\" in function \"__init__\""
   },
@@ -4987,121 +5011,103 @@
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 61,
+    "line": 70,
     "severity": "error",
     "message": "\"_instances\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 62,
+    "line": 71,
     "severity": "error",
     "message": "\"_factories\" is protected and used outside of the class in which it is declared"
-  },
-  {
-    "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 63,
-    "severity": "error",
-    "message": "\"_lazy_components\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
     "line": 72,
     "severity": "error",
+    "message": "\"_lazy_components\" is protected and used outside of the class in which it is declared"
+  },
+  {
+    "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
+    "line": 81,
+    "severity": "error",
     "message": "\"_instances\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 83,
+    "line": 92,
     "severity": "error",
     "message": "\"_factories\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 127,
+    "line": 136,
     "severity": "error",
     "message": "\"_lazy_components\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 128,
+    "line": 137,
     "severity": "error",
     "message": "\"_lazy_components\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 142,
-    "severity": "error",
-    "message": "Argument of type \"Literal['not_callable']\" cannot be assigned to parameter \"factory_func\" of type \"() -> T@register_lazy\"\n\u00a0\u00a0Type \"Literal['not_callable']\" is not assignable to type \"() -> T@register_lazy\""
-  },
-  {
-    "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 149,
+    "line": 158,
     "severity": "error",
     "message": "\"_instances\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 168,
+    "line": 177,
     "severity": "error",
     "message": "\"_instances\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 169,
+    "line": 178,
     "severity": "error",
     "message": "\"_lazy_components\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 211,
-    "severity": "error",
-    "message": "Type of \"value\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 211,
-    "severity": "error",
-    "message": "Cannot access attribute \"value\" for class \"object\"\n\u00a0\u00a0Attribute \"value\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 221,
+    "line": 230,
     "severity": "error",
     "message": "\"_lazy_components\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 227,
+    "line": 236,
     "severity": "error",
     "message": "\"_instances\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 228,
+    "line": 237,
     "severity": "error",
     "message": "\"_factories\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 233,
+    "line": 242,
     "severity": "error",
     "message": "\"_instances\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 234,
+    "line": 243,
     "severity": "error",
     "message": "\"_factories\" is protected and used outside of the class in which it is declared"
-  },
-  {
-    "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
-    "line": 235,
-    "severity": "error",
-    "message": "\"_lazy_components\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
     "line": 244,
+    "severity": "error",
+    "message": "\"_lazy_components\" is protected and used outside of the class in which it is declared"
+  },
+  {
+    "file": "tests/neural_ai/core/base/implementations/test_di_container.py",
+    "line": 253,
     "severity": "error",
     "message": "\"_instances\" is protected and used outside of the class in which it is declared"
   },
@@ -5185,43 +5191,61 @@
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 82,
+    "line": 16,
+    "severity": "error",
+    "message": "Import \"DEFAULT_CONFIG_FILE\" is not accessed"
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 56,
+    "severity": "error",
+    "message": "Type annotation is missing for parameter \"kwargs\""
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 57,
+    "severity": "error",
+    "message": "Type annotation is missing for parameter \"kwargs\""
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 58,
+    "severity": "error",
+    "message": "Type annotation is missing for parameter \"kwargs\""
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 59,
+    "severity": "error",
+    "message": "Type annotation is missing for parameter \"kwargs\""
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 60,
+    "severity": "error",
+    "message": "Type annotation is missing for parameter \"kwargs\""
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 61,
+    "severity": "error",
+    "message": "Type of parameter \"kwargs\" is unknown"
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 61,
+    "severity": "error",
+    "message": "Type annotation is missing for parameter \"kwargs\""
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 121,
     "severity": "error",
     "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 89,
-    "severity": "error",
-    "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 98,
-    "severity": "error",
-    "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 105,
-    "severity": "error",
-    "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 112,
-    "severity": "error",
-    "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 119,
-    "severity": "error",
-    "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 126,
+    "line": 128,
     "severity": "error",
     "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
   },
@@ -5233,175 +5257,169 @@
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 146,
+    "line": 144,
     "severity": "error",
     "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 197,
+    "line": 151,
+    "severity": "error",
+    "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 158,
+    "severity": "error",
+    "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 165,
+    "severity": "error",
+    "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 176,
+    "severity": "error",
+    "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 185,
+    "severity": "error",
+    "message": "\"_validate_dependencies\" is protected and used outside of the class in which it is declared"
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 236,
     "severity": "error",
     "message": "Type of parameter \"k\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 249,
+    "line": 288,
     "severity": "error",
     "message": "Type of parameter \"k\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 355,
+    "line": 394,
     "severity": "error",
     "message": "\"_component_cache\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 356,
+    "line": 395,
     "severity": "error",
     "message": "\"_component_cache\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 376,
+    "line": 415,
     "severity": "error",
     "message": "\"_container\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 378,
+    "line": 417,
     "severity": "error",
     "message": "\"_get_logger\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 396,
+    "line": 435,
     "severity": "error",
     "message": "\"_container\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 399,
+    "line": 439,
     "severity": "error",
     "message": "\"_get_logger\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 414,
+    "line": 457,
     "severity": "error",
     "message": "\"_container\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 420,
+    "line": 460,
+    "severity": "error",
+    "message": "\"_get_logger\" is protected and used outside of the class in which it is declared"
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 475,
+    "severity": "error",
+    "message": "\"_container\" is protected and used outside of the class in which it is declared"
+  },
+  {
+    "file": "tests/neural_ai/core/base/test_factory.py",
+    "line": 481,
     "severity": "error",
     "message": "\"_get_config_manager\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 438,
+    "line": 495,
     "severity": "error",
     "message": "\"_container\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 444,
+    "line": 497,
     "severity": "error",
     "message": "\"_get_storage\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 469,
-    "severity": "error",
-    "message": "Type of parameter \"obj\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 469,
-    "severity": "error",
-    "message": "Type annotation is missing for parameter \"obj\""
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 469,
-    "severity": "error",
-    "message": "Type of parameter \"class_or_tuple\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 469,
-    "severity": "error",
-    "message": "Type annotation is missing for parameter \"class_or_tuple\""
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 488,
+    "line": 538,
     "severity": "error",
     "message": "Type of parameter \"x\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 488,
+    "line": 538,
     "severity": "error",
     "message": "Return type of lambda is unknown"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 490,
+    "line": 540,
     "severity": "error",
     "message": "\"_expensive_config\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 491,
+    "line": 541,
     "severity": "error",
     "message": "\"_expensive_config\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 504,
+    "line": 554,
     "severity": "error",
     "message": "\"_process_config\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 528,
-    "severity": "error",
-    "message": "Type of parameter \"obj\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 528,
-    "severity": "error",
-    "message": "Type annotation is missing for parameter \"obj\""
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 528,
-    "severity": "error",
-    "message": "Type of parameter \"class_or_tuple\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 528,
-    "severity": "error",
-    "message": "Type annotation is missing for parameter \"class_or_tuple\""
-  },
-  {
-    "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 547,
+    "line": 597,
     "severity": "error",
     "message": "Type of parameter \"x\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 547,
+    "line": 597,
     "severity": "error",
     "message": "Return type of lambda is unknown"
   },
   {
     "file": "tests/neural_ai/core/base/test_factory.py",
-    "line": 549,
+    "line": 599,
     "severity": "error",
     "message": "\"_expensive_config\" is protected and used outside of the class in which it is declared"
   },
@@ -5863,25 +5881,25 @@
   },
   {
     "file": "tests/neural_ai/core/config/implementations/test_yaml_config_manager.py",
-    "line": 655,
+    "line": 656,
     "severity": "error",
     "message": "Type of \"schema\" is partially unknown\n\u00a0\u00a0Type of \"schema\" is \"dict[str, dict[Unknown, Unknown]]\""
   },
   {
     "file": "tests/neural_ai/core/config/implementations/test_yaml_config_manager.py",
-    "line": 659,
+    "line": 660,
     "severity": "error",
     "message": "Argument type is partially unknown\n\u00a0\u00a0Argument corresponds to parameter \"schema\" in function \"validate\"\n\u00a0\u00a0Argument type is \"dict[str, dict[Unknown, Unknown]]\""
   },
   {
     "file": "tests/neural_ai/core/config/implementations/test_yaml_config_manager.py",
-    "line": 807,
+    "line": 808,
     "severity": "error",
     "message": "\"_validate_dict\" is protected and used outside of the class in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/config/implementations/test_yaml_config_manager.py",
-    "line": 827,
+    "line": 828,
     "severity": "error",
     "message": "\"_validate_nested\" is protected and used outside of the class in which it is declared"
   },
@@ -5964,10 +5982,52 @@
     "message": "Method \"create_manager\" cannot be called because it is abstract and unimplemented"
   },
   {
-    "file": "tests/neural_ai/core/config/test_config_factory.py",
-    "line": 124,
+    "file": "tests/neural_ai/core/config/interfaces/test_types.py",
+    "line": 172,
     "severity": "error",
-    "message": "Argument of type \"Literal['tests/core/config/test_config.yaml']\" cannot be assigned to parameter \"filename\" of type \"dict[str, object]\"\n\u00a0\u00a0\"Literal['tests/core/config/test_config.yaml']\" is not assignable to \"dict[str, object]\""
+    "message": "Arguments missing for parameters \"enabled\", \"colored\", \"filename\", \"json_format\", \"rotating\", \"max_bytes\", \"backup_count\", \"class\", \"maxBytes\", \"backupCount\", \"encoding\""
+  },
+  {
+    "file": "tests/neural_ai/core/config/interfaces/test_types.py",
+    "line": 181,
+    "severity": "error",
+    "message": "Arguments missing for parameters \"logs\", \"models\", \"cache\""
+  },
+  {
+    "file": "tests/neural_ai/core/config/interfaces/test_types.py",
+    "line": 190,
+    "severity": "error",
+    "message": "Arguments missing for parameters \"enabled\", \"level\", \"colored\", \"filename\", \"json_format\", \"rotating\", \"backup_count\", \"class\", \"maxBytes\", \"backupCount\", \"encoding\""
+  },
+  {
+    "file": "tests/neural_ai/core/config/interfaces/test_types.py",
+    "line": 199,
+    "severity": "error",
+    "message": "Arguments missing for parameters \"enabled\", \"level\", \"colored\", \"filename\", \"json_format\", \"rotating\", \"max_bytes\", \"class\", \"maxBytes\", \"backupCount\", \"encoding\""
+  },
+  {
+    "file": "tests/neural_ai/core/config/test___init__.py",
+    "line": 91,
+    "severity": "error",
+    "message": "Type of \"config_file\" is unknown"
+  },
+  {
+    "file": "tests/neural_ai/core/config/test___init__.py",
+    "line": 92,
+    "severity": "error",
+    "message": "Type of \"write_text\" is unknown"
+  },
+  {
+    "file": "tests/neural_ai/core/config/test___init__.py",
+    "line": 95,
+    "severity": "error",
+    "message": "Argument type is unknown\n\u00a0\u00a0Argument corresponds to parameter \"object\" in function \"__new__\""
+  },
+  {
+    "file": "tests/neural_ai/core/config/test_config_factory.py",
+    "line": 129,
+    "severity": "error",
+    "message": "Argument of type \"str\" cannot be assigned to parameter \"filename\" of type \"dict[str, object]\"\n\u00a0\u00a0\"str\" is not assignable to \"dict[str, object]\""
   },
   {
     "file": "tests/neural_ai/core/config/test_processors_config.py",
@@ -6166,72 +6226,6 @@
     "line": 82,
     "severity": "error",
     "message": "Type of \"get\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 86,
-    "severity": "error",
-    "message": "Type of parameter \"config_manager\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 86,
-    "severity": "error",
-    "message": "Type annotation is missing for parameter \"config_manager\""
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 88,
-    "severity": "error",
-    "message": "Type of \"tick_window\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 88,
-    "severity": "error",
-    "message": "Type of \"get\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 91,
-    "severity": "error",
-    "message": "Type of \"m1_window\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 91,
-    "severity": "error",
-    "message": "Type of \"get\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 98,
-    "severity": "error",
-    "message": "Type of parameter \"config_manager\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 98,
-    "severity": "error",
-    "message": "Type annotation is missing for parameter \"config_manager\""
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 100,
-    "severity": "error",
-    "message": "Type of \"processors_section\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 100,
-    "severity": "error",
-    "message": "Type of \"get_section\" is unknown"
-  },
-  {
-    "file": "tests/neural_ai/core/config/test_processors_config.py",
-    "line": 103,
-    "severity": "error",
-    "message": "Type of \"d01_section\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/db/implementations/test_db_implementations_init.py",
@@ -6591,149 +6585,161 @@
     "file": "tests/neural_ai/core/test_core_init.py",
     "line": 220,
     "severity": "error",
-    "message": "Type of parameter \"key\" is unknown"
+    "message": "Type of parameter \"args\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
     "line": 220,
     "severity": "error",
-    "message": "Type annotation is missing for parameter \"key\""
+    "message": "Type annotation is missing for parameter \"args\""
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
     "line": 220,
     "severity": "error",
-    "message": "Type of parameter \"default\" is partially unknown\n\u00a0\u00a0Parameter type is \"Unknown | None\""
+    "message": "Type of parameter \"kwargs\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
     "line": 220,
     "severity": "error",
-    "message": "Type annotation is missing for parameter \"default\""
+    "message": "Type annotation is missing for parameter \"kwargs\""
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 227,
+    "line": 221,
+    "severity": "error",
+    "message": "Type of \"key\" is partially unknown\n\u00a0\u00a0Type of \"key\" is \"Unknown | None\""
+  },
+  {
+    "file": "tests/neural_ai/core/test_core_init.py",
+    "line": 223,
+    "severity": "error",
+    "message": "Argument type is partially unknown\n\u00a0\u00a0Argument corresponds to parameter \"obj\" in function \"len\"\n\u00a0\u00a0Argument type is \"tuple[Unknown, ...]\""
+  },
+  {
+    "file": "tests/neural_ai/core/test_core_init.py",
+    "line": 233,
+    "severity": "error",
+    "message": "Type of \"get\" is partially unknown\n\u00a0\u00a0Type of \"get\" is \"Overload[(key: str, default: None = None, /) -> (Unknown | None), (key: str, default: Unknown, /) -> Unknown, (key: str, default: _T@get, /) -> (Unknown | _T@get)]\""
+  },
+  {
+    "file": "tests/neural_ai/core/test_core_init.py",
+    "line": 233,
     "severity": "error",
     "message": "Return type, \"Unknown | None\", is partially unknown"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 274,
+    "line": 239,
+    "severity": "error",
+    "message": "Return type, \"dict[str, bool] | dict[Unknown, Unknown]\", is partially unknown"
+  },
+  {
+    "file": "tests/neural_ai/core/test_core_init.py",
+    "line": 239,
+    "severity": "error",
+    "message": "Type of parameter \"key\" is unknown"
+  },
+  {
+    "file": "tests/neural_ai/core/test_core_init.py",
+    "line": 239,
+    "severity": "error",
+    "message": "Type annotation is missing for parameter \"key\""
+  },
+  {
+    "file": "tests/neural_ai/core/test_core_init.py",
+    "line": 263,
+    "severity": "error",
+    "message": "Return type, \"dict[Unknown, Unknown]\", is partially unknown"
+  },
+  {
+    "file": "tests/neural_ai/core/test_core_init.py",
+    "line": 264,
+    "severity": "error",
+    "message": "Return type, \"dict[Unknown, Unknown]\", is partially unknown"
+  },
+  {
+    "file": "tests/neural_ai/core/test_core_init.py",
+    "line": 330,
     "severity": "error",
     "message": "Return type, \"dict[str, bool] | dict[str, str] | Unknown | None\", is partially unknown"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 274,
+    "line": 330,
     "severity": "error",
     "message": "Type of parameter \"key\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 274,
+    "line": 330,
     "severity": "error",
     "message": "Type annotation is missing for parameter \"key\""
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 274,
+    "line": 330,
     "severity": "error",
     "message": "Type of parameter \"default\" is partially unknown\n\u00a0\u00a0Parameter type is \"Unknown | None\""
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 274,
+    "line": 330,
     "severity": "error",
     "message": "Type annotation is missing for parameter \"default\""
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 281,
+    "line": 337,
     "severity": "error",
     "message": "Return type, \"Unknown | None\", is partially unknown"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 302,
+    "line": 358,
     "severity": "error",
-    "message": "\"_core_components\" is not a known attribute of module \"neural_ai.core\""
+    "message": "\"_core_components_instance\" is private and used outside of the module in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 319,
+    "line": 377,
     "severity": "error",
-    "message": "\"_core_components\" is not a known attribute of module \"neural_ai.core\""
+    "message": "\"_core_components_instance\" is private and used outside of the module in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 332,
+    "line": 390,
     "severity": "error",
-    "message": "\"_core_components\" is not a known attribute of module \"neural_ai.core\""
+    "message": "\"_core_components_instance\" is private and used outside of the module in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 335,
+    "line": 437,
     "severity": "error",
-    "message": "No parameter named \"config\""
+    "message": "\"_core_components_instance\" is private and used outside of the module in which it is declared"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 336,
+    "line": 604,
     "severity": "error",
-    "message": "No parameter named \"logger\""
+    "message": "Type of \"_\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 337,
-    "severity": "error",
-    "message": "No parameter named \"database\""
-  },
-  {
-    "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 338,
-    "severity": "error",
-    "message": "No parameter named \"event_bus\""
-  },
-  {
-    "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 339,
-    "severity": "error",
-    "message": "No parameter named \"storage\""
-  },
-  {
-    "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 340,
-    "severity": "error",
-    "message": "No parameter named \"health_monitor\""
-  },
-  {
-    "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 341,
-    "severity": "error",
-    "message": "No parameter named \"hardware\""
-  },
-  {
-    "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 385,
-    "severity": "error",
-    "message": "\"_core_components\" is not a known attribute of module \"neural_ai.core\""
-  },
-  {
-    "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 517,
+    "line": 604,
     "severity": "error",
     "message": "Type of \"get_engine\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 517,
+    "line": 604,
     "severity": "error",
     "message": "Cannot access attribute \"get_engine\" for class \"DatabaseManager\"\n\u00a0\u00a0Attribute \"get_engine\" is unknown"
   },
   {
     "file": "tests/neural_ai/core/test_core_init.py",
-    "line": 517,
+    "line": 604,
     "severity": "error",
     "message": "\"get_engine\" is not a known attribute of \"None\""
   },
