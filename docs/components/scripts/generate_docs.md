@@ -377,7 +377,7 @@ Inicializálja a generátort.
 **Paraméterek:**
 
 - **`self`**
-- **`source_dirs`** (`list[str] | None`) = `None`: A forráskód mappák listája (default: ["neural_ai", "scripts", "."]).
+- **`source_dirs`** (`list[str] | None`) = `None`: A forráskód mappák listája (default: ["neural_ai", "scripts", "tests", "."]).
 - **`docs_dir`** (`str`) = `'docs/components'`: A dokumentáció mappa elérési útja.
 
 **Visszatérési érték:**

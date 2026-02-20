@@ -1,0 +1,48 @@
+# neural_ai/data/storage/interfaces/__init__.py
+
+Storage komponens interfészek.
+
+Ez a csomag a tárolási réteg interfészeit tartalmazza, amelyek a különböző
+tárolási megoldások egységes kezelését teszik lehetővé.
+
+Az interfészek lehetővé teszik a függőség injektálást, ami a komponensek
+laza csatolását és egyszerű tesztelését eredményezi.
+
+Elérhető interfészek:
+    - StorageInterface: Alapvető tárolási műveletek (mentés, betöltés, törlés)
+    - StorageFactoryInterface: Tároló objektumok létrehozásáért felelős gyártó
+
+Példa:
+    >>> from neural_ai.data.storage.interfaces import StorageInterface
+    >>> from neural_ai.core.config import ConfigInterface
+    >>> from neural_ai.core.logger import LoggerInterface
+    >>>
+    >>> class MyStorage(StorageInterface):
+    ...     def __init__(
+    ...         self,
+    ...         config: ConfigInterface,
+    ...         logger: LoggerInterface
+    ...     ):
+    ...         self._config = config
+    ...         self._logger = logger
+    ...
+    ...     def save(self, data: bytes, path: str) -> None:
+    ...         # Implementáció
+    ...         pass
+
+## Importok
+
+```python
+from neural_ai.data.storage.interfaces.factory_interface import StorageFactoryInterface
+from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
+```
+
+## Konstansok
+
+- **`__all__`**
+: `['StorageInterface', 'StorageFactoryInterface']`
+
+
+---
+
+**Forrásfájl:** [`neural_ai/data/storage/interfaces/__init__.py`](../../neural_ai/data/storage/interfaces/__init__.py)

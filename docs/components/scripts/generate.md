@@ -184,7 +184,7 @@ Mirror Rule ellenőrző (neural_ai/x.py ↔ tests/x/test_x.py).
 def check_documentation(source_path: Path) -> bool
 ```
 
-Ellenőrzi, hogy van-e dokumentáció a fájlhoz a docs/ mappában. Példa: neural_ai/core/config/factory.py -> docs/components/neural_ai/core/config/factory.md
+Ellenőrzi, hogy van-e dokumentáció a fájlhoz a docs/ mappában. Példák: - main.py -> docs/components/main.md - scripts/generate.py -> docs/components/scripts/generate.md - neural_ai/core/config/factory.py -> docs/components/neural_ai/core/config/factory.md
 
 **Paraméterek:**
 
