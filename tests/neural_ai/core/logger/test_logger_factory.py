@@ -147,3 +147,137 @@ class TestLoggerFactoryCoverage:
 
         LoggerFactory.configure(config)
         assert log_file.exists()
+
+    def test_configure_rotating_file_handler(self, tmp_path: Path) -> None:
+        """Rotating file handler létrehozásának tesztelése."""
+        log_file = tmp_path / "rotating.log"
+
+        config: dict[str, Any] = {
+            "default_level": "DEBUG",
+            "handlers": {
+                "file": {
+                    "enabled": True,
+                    "filename": str(log_file),
+                    "level": "INFO",
+                    "rotating": True,
+                    "max_bytes": 1024,
+                    "backup_count": 3,
+                }
+            },
+        }
+
+        LoggerFactory.configure(config)
+
+        # Ellenőrizzük, hogy a root logger-hez hozzáadódott a rotating handler
+        root_logger = logging.getLogger()
+        rotating_handlers = [
+            h for h in root_logger.handlers
+            if h.__class__.__name__ == "RotatingFileHandler"
+        ]
+        assert len(rotating_handlers) > 0
+
+    def test_configure_trace_file_handler(self, tmp_path: Path) -> None:
+        """Trace file handler létrehozásának tesztelése."""
+        trace_file = tmp_path / "trace.log"
+
+        config: dict[str, Any] = {
+            "default_level": "DEBUG",
+            "handlers": {
+                "trace_file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "filename": str(trace_file),
+                    "level": "DEBUG",
+                    "encoding": "utf-8",
+                    "maxBytes": 2048,
+                    "backupCount": 2,
+                }
+            },
+            "loggers": {
+                "neural_ai.trace": {
+                    "level": "DEBUG",
+                    "propagate": False,
+                }
+            },
+        }
+
+        LoggerFactory.configure(config)
+
+        # Ellenőrizzük, hogy a trace logger létrejött
+        trace_logger = logging.getLogger("neural_ai.trace")
+        assert trace_logger.level == logging.DEBUG
+        assert not trace_logger.propagate
+
+        # Ellenőrizzük, hogy van handler
+        assert len(trace_logger.handlers) > 0
+
+    def test_configure_trace_file_handler_non_rotating(self, tmp_path: Path) -> None:
+        """Trace file handler nem-rotating változatának tesztelése."""
+        trace_file = tmp_path / "trace_simple.log"
+
+        config: dict[str, Any] = {
+            "default_level": "DEBUG",
+            "handlers": {
+                "trace_file": {
+                    "class": "logging.FileHandler",
+                    "filename": str(trace_file),
+                    "level": "INFO",
+                    "encoding": "utf-8",
+                }
+            },
+            "loggers": {
+                "neural_ai.trace": {
+                    "level": "INFO",
+                    "propagate": True,
+                }
+            },
+        }
+
+        LoggerFactory.configure(config)
+
+        # Ellenőrizzük, hogy a trace logger létrejött
+        trace_logger = logging.getLogger("neural_ai.trace")
+        assert trace_logger.level == logging.INFO
+        assert trace_logger.propagate
+
+    def test_schema_version_methods(self) -> None:
+        """Schema version getter/setter tesztelése."""
+        # Eredeti verzió mentése
+        original_version = LoggerFactory.get_schema_version()
+
+        # Új verzió beállítása
+        LoggerFactory.set_schema_version("2.0.0")
+        assert LoggerFactory.get_schema_version() == "2.0.0"
+
+        # Visszaállítás
+        LoggerFactory.set_schema_version(original_version)
+
+    def test_clear_instances(self) -> None:
+        """clear_instances() metódus tesztelése."""
+        # Logger létrehozása
+        logger1 = LoggerFactory.get_logger("test_clear_1")
+        _ = LoggerFactory.get_logger("test_clear_2")
+
+        # Cache törlése
+        LoggerFactory.clear_instances()
+
+        # Új logger létrehozása ugyanazzal a névvel
+        logger3 = LoggerFactory.get_logger("test_clear_1")
+
+        # Az új logger más példány kell legyen
+        assert logger1 is not logger3
+
+    def test_get_registered_types(self) -> None:
+        """get_registered_types() metódus tesztelése."""
+        types = LoggerFactory.get_registered_types()
+
+        assert isinstance(types, list)
+        assert "default" in types
+        assert "colored" in types
+        assert "rotating" in types
+
+    def test_is_logger_registered(self) -> None:
+        """is_logger_registered() metódus tesztelése."""
+        assert LoggerFactory.is_logger_registered("default") is True
+        assert LoggerFactory.is_logger_registered("colored") is True
+        assert LoggerFactory.is_logger_registered("rotating") is True
+        assert LoggerFactory.is_logger_registered("non_existent") is False
