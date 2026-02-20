@@ -1,8 +1,0 @@
-[
-  {
-    "file": "tests/neural_ai/core/db/test_db_factory.py",
-    "line": "315",
-    "severity": "error",
-    "message": "Invalid syntax  [syntax]"
-  }
-]
