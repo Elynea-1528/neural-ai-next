@@ -16,11 +16,13 @@ from neural_ai.core.utils.decorators import trace
 class TestTraceDecorator:
     """Tesztek a @trace dekorátorhoz."""
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_successful_execution(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_successful_execution(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli a sikeres függvényhívás logolását."""
-
         # Arrange
+        mock_logger = MagicMock()
+        mock_ensure_logger.return_value = mock_logger
+
         @trace
         def add(a: int, b: int) -> int:
             return a + b
@@ -40,11 +42,13 @@ class TestTraceDecorator:
         assert "duration_ms" in call_kwargs
         assert isinstance(call_kwargs["duration_ms"], (int, float))
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_with_kwargs(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_with_kwargs(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli a kulcsszavas argumentumokkal történő hívást."""
-
         # Arrange
+        mock_logger = MagicMock()
+        mock_ensure_logger.return_value = mock_logger
+
         @trace
         def multiply(a: int, b: int, factor: int = 1) -> int:
             return a * b * factor
@@ -60,11 +64,13 @@ class TestTraceDecorator:
         assert call_kwargs["function"] == "multiply"
         assert call_kwargs["call_kwargs"] == {"factor": "2"}
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_with_unsafe_args(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_with_unsafe_args(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli a nem biztonságos argumentumok logolását."""
-
         # Arrange
+        mock_logger = MagicMock()
+        mock_ensure_logger.return_value = mock_logger
+
         @trace
         def process_data(data: Any) -> str:
             return "processed"
@@ -77,11 +83,13 @@ class TestTraceDecorator:
         call_kwargs = mock_logger.debug.call_args[1]
         assert call_kwargs["call_args"] == ["UNSAFE_ARG"]
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_function_name_preserved(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_function_name_preserved(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli, hogy a függvény neve megőrződik a dekorálás után."""
-
         # Arrange
+        mock_logger = MagicMock()
+        mock_ensure_logger.return_value = mock_logger
+
         @trace
         def my_custom_function() -> str:
             return "test"
@@ -92,8 +100,8 @@ class TestTraceDecorator:
         # Assert
         assert my_custom_function.__name__ == "my_custom_function"
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_docstring_preserved(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_docstring_preserved(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli, hogy a függvény docstringje megőrződik."""
 
         # Arrange
@@ -105,11 +113,13 @@ class TestTraceDecorator:
         # Assert
         assert documented_function.__doc__ == "Ez egy dokumentált függvény."
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_exception_handling(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_exception_handling(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli a kivételkezelést és logolást."""
-
         # Arrange
+        mock_logger = MagicMock()
+        mock_ensure_logger.return_value = mock_logger
+
         @trace
         def failing_function() -> None:
             raise ValueError("Test error")
@@ -124,11 +134,13 @@ class TestTraceDecorator:
         assert "error" in call_kwargs
         assert "Test error" in call_kwargs["error"]
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_call_id_uniqueness(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_call_id_uniqueness(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli, hogy minden hívás egyedi call_id-t kap."""
-
         # Arrange
+        mock_logger = MagicMock()
+        mock_ensure_logger.return_value = mock_logger
+
         @trace
         def simple_function() -> None:
             pass
@@ -145,11 +157,13 @@ class TestTraceDecorator:
         second_call_id = mock_logger.debug.call_args_list[1][1]["call_id"]
         assert first_call_id != second_call_id
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_duration_measurement(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_duration_measurement(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli a futási idő mérésének helyességét."""
-
         # Arrange
+        mock_logger = MagicMock()
+        mock_ensure_logger.return_value = mock_logger
+
         @trace
         def slow_function() -> None:
             time.sleep(0.1)  # 100ms késleltetés
@@ -165,11 +179,13 @@ class TestTraceDecorator:
         assert duration_ms >= 100
         assert isinstance(duration_ms, (int, float))
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_with_mixed_args(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_with_mixed_args(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli a vegyes típusú argumentumok kezelését."""
-
         # Arrange
+        mock_logger = MagicMock()
+        mock_ensure_logger.return_value = mock_logger
+
         @trace
         def mixed_function(safe: str, unsafe: list[int], safe_num: int) -> str:
             return "ok"
@@ -182,11 +198,13 @@ class TestTraceDecorator:
         call_kwargs = mock_logger.debug.call_args[1]
         assert call_kwargs["call_args"] == ["test", "UNSAFE_ARG", "42"]
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_no_args_function(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_no_args_function(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli az argumentumok nélküli függvényt."""
-
         # Arrange
+        mock_logger = MagicMock()
+        mock_ensure_logger.return_value = mock_logger
+
         @trace
         def no_args_function() -> str:
             return "no args"
@@ -200,11 +218,13 @@ class TestTraceDecorator:
         assert call_kwargs["call_args"] == []
         assert call_kwargs["call_kwargs"] == {}
 
-    @patch("neural_ai.core.utils.decorators._TRACE_LOGGER")
-    def test_trace_with_safe_types(self, mock_logger: MagicMock) -> None:
+    @patch("neural_ai.core.utils.decorators._ensure_trace_logger")
+    def test_trace_with_safe_types(self, mock_ensure_logger: MagicMock) -> None:
         """Teszteli a biztonságos típusok logolását."""
-
         # Arrange
+        mock_logger = MagicMock()
+        mock_ensure_logger.return_value = mock_logger
+
         @trace
         def safe_types_function(s: str, i: int, f: float, b: bool) -> None:
             pass
