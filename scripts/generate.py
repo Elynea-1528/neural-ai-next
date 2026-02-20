@@ -167,25 +167,30 @@ class MirrorChecker:
     def check_documentation(source_path: Path) -> bool:
         """Ellenőrzi, hogy van-e dokumentáció a fájlhoz a docs/ mappában.
         
-        Példa: neural_ai/core/config/factory.py -> docs/components/neural_ai/core/config/factory.md
+        Példák:
+        - main.py -> docs/components/main.md
+        - scripts/generate.py -> docs/components/scripts/generate.md
+        - neural_ai/core/config/factory.py -> docs/components/neural_ai/core/config/factory.md
         """
         parts = source_path.parts
 
-        # Csak neural_ai fájlokhoz keresünk dokumentációt
-        if parts[0] != "neural_ai":
-            return False
+        # Root fájlok (main.py)
+        if len(parts) == 1 and parts[0].endswith('.py'):
+            doc_path = Path("docs/components") / parts[0].replace('.py', '.md')
+            return doc_path.exists()
 
-        # neural_ai/core/config/factory.py -> core/config/factory.py
-        relative_parts = parts[1:]
+        # scripts/ mappában
+        if parts[0] == "scripts":
+            doc_path = Path("docs/components") / source_path.with_suffix('.md')
+            return doc_path.exists()
 
-        # Fájlnév .py -> .md
-        file_name = relative_parts[-1].replace('.py', '.md')
-        dir_parts = relative_parts[:-1]
+        # neural_ai/ mappában
+        if parts[0] == "neural_ai":
+            doc_path = Path("docs/components") / source_path.with_suffix('.md')
+            return doc_path.exists()
 
-        # docs/components/neural_ai/core/config/factory.md (TELJES TÜKÖR)
-        doc_path = Path("docs/components/neural_ai") / Path(*dir_parts) / file_name
-
-        return doc_path.exists()
+        # Egyéb mappák (tests, stb.) - nincs dokumentáció
+        return False
 
     @staticmethod
     def get_test_path(source_path: Path) -> Path:
@@ -492,10 +497,44 @@ class MarkdownGenerator(GeneratorBase):
 
             table = f"\n## {num}. {name} Layer (`{path}`)\n\n"
 
-            # Tests és Scripts layerekhez egyszerűsített táblázat
-            if layer in ["tests", "scripts"]:
-                table += "| Fájl | Státusz | Pass/Fail/Err/Skip | Lint/Mypy/Pylance | Src Warn | Teendők |\n"
-                table += "|:-----|:--------|:-------------------|:------------------|:---------|:--------|\n"
+            # Scripts layer - teljes táblázat
+            if layer == "scripts":
+                table += "| Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
+                table += "|:-----|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|\n"
+
+                for file in sorted(files, key=lambda x: x.relative_path):
+                    short_path = file.relative_path
+
+                    # Teszt pár
+                    test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
+
+                    # Teszt eredmények
+                    if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0 or file.test_skipped > 0):
+                        test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
+                    else:
+                        test_results = "-"
+
+                    # Coverage
+                    if file.coverage_stmt > 0:
+                        coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
+                    else:
+                        coverage = "N/A"
+
+                    # Lint/Mypy/Pylance
+                    lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
+
+                    # Source Warnings
+                    src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
+
+                    # Dokumentálva
+                    doc_status = "✅" if file.has_documentation else "❌"
+
+                    table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {file.config_status} | {file.logger_status} | {doc_status} | {file.notes if file.notes else '-'} |\n"
+
+            # Tests layer - egyszerűsített táblázat
+            elif layer == "tests":
+                table += "| Fájl | Státusz | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Dokumentálva | Teendők |\n"
+                table += "|:-----|:--------|:-------------------|:---------------------|:------------------|:---------|:-------------|:--------|\n"
 
                 for file in sorted(files, key=lambda x: x.relative_path):
                     short_path = file.relative_path
@@ -506,13 +545,22 @@ class MarkdownGenerator(GeneratorBase):
                     else:
                         test_results = "-"
 
+                    # Coverage
+                    if file.coverage_stmt > 0:
+                        coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
+                    else:
+                        coverage = "N/A"
+
                     # Lint/Mypy/Pylance
                     lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
 
                     # Source Warnings
                     src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
 
-                    table += f"| `{short_path}` | {file.overall_status} | {test_results} | {lint_mypy_pylance} | {src_warn} | {file.notes if file.notes else '-'} |\n"
+                    # Dokumentálva
+                    doc_status = "✅" if file.has_documentation else "❌"
+
+                    table += f"| `{short_path}` | {file.overall_status} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {doc_status} | {file.notes if file.notes else '-'} |\n"
             else:
                 # Neural_ai layerekhez teljes táblázat + Dokumentálva oszlop
                 table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"

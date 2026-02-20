@@ -486,6 +486,10 @@ class MirrorManager:
         if parts[0] == "scripts":
             return Path("docs/components") / source_path.with_suffix(".md")
 
+        # tests/ mappában
+        if parts[0] == "tests":
+            return Path("docs/components") / source_path.with_suffix(".md")
+
         # neural_ai/ mappában
         if parts[0] == "neural_ai":
             return Path("docs/components") / source_path.with_suffix(".md")
@@ -505,12 +509,12 @@ class DocumentationGenerator:
         """Inicializálja a generátort.
 
         Args:
-            source_dirs: A forráskód mappák listája (default: ["neural_ai", "scripts", "."]).
+            source_dirs: A forráskód mappák listája (default: ["neural_ai", "scripts", "tests", "."]).
             docs_dir: A dokumentáció mappa elérési útja.
         """
-        self.source_dirs = [Path(d) for d in (source_dirs or ["neural_ai", "scripts", "."])]
+        self.source_dirs = [Path(d) for d in (source_dirs or ["neural_ai", "scripts", "tests", "."])]
         self.docs_dir = Path(docs_dir)
-        self.ignored_dirs = {"__pycache__", ".pytest_cache", ".ruff_cache", ".git", "tests", ".venv", "venv"}
+        self.ignored_dirs = {"__pycache__", ".pytest_cache", ".ruff_cache", ".git", ".venv", "venv"}
         self.ignored_files: set[str] = set()  # Üres - minden fájlt dokumentálunk
 
     def extract_module_info(self, file_path: Path) -> ModuleInfo | None:
