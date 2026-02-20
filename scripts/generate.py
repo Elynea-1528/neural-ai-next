@@ -308,6 +308,7 @@ class StatusCalculator:
         # Ellenőrizzük, hogy tests/ vagy scripts/ mappában vagyunk-e
         is_test_layer = analysis.relative_path.startswith("tests/")
         is_script_layer = analysis.relative_path.startswith("scripts/")
+        is_init_file = analysis.relative_path.endswith("__init__.py")
 
         # 🔴 VULNERABLE feltételek
         vulnerable_reasons = []
@@ -322,7 +323,7 @@ class StatusCalculator:
                 vulnerable_reasons.append("logger_di")
 
         # Scripts layerhez: teszt pár kötelező (kivéve __init__.py)
-        if is_script_layer and not analysis.relative_path.endswith("__init__.py"):
+        if is_script_layer and not is_init_file:
             if not analysis.test_file_exists:
                 vulnerable_reasons.append("teszt_hiany")
 
@@ -378,47 +379,55 @@ class StatusCalculator:
     def generate_notes(analysis: FileAnalysis) -> str:
         """Generál részletes teendő megjegyzéseket."""
         notes: list[str] = []
-
-        # Ellenőrizzük, hogy tests/ vagy scripts/ mappában vagyunk-e
-        is_test_or_script = analysis.relative_path.startswith(("tests/", "scripts/"))
+        is_test_layer = analysis.relative_path.startswith("tests/")
+        is_script_layer = analysis.relative_path.startswith("scripts/")
+        is_init_file = analysis.relative_path.endswith("__init__.py")
 
         # 1. KRITIKUS problémák (VULNERABLE)
-        if not is_test_or_script:
+        # Neural_ai fájlokhoz: teszt kötelező
+        if not is_test_layer and not is_script_layer:
             if not analysis.test_file_exists or analysis.test_count == 0:
                 notes.append("🔴 **Teszt írás KÖTELEZŐ!**")
             if analysis.config_status == "🔴 TYPED_DICT":
                 notes.append("🔴 **Migráld Pydantic-ra!**")
             if analysis.logger_status == "🔴 MISSING":
                 notes.append("🔴 **Logger DI hiányzik!**")
+        
+        # Scripts layerhez: teszt kötelező (kivéve __init__.py)
+        if is_script_layer and not is_init_file:
+            if not analysis.test_file_exists:
+                notes.append("⚠️ Teszt fájl létrehozása")
 
+        # Failed/Error tesztek (minden layerhez)
         if analysis.test_failed > 0 or analysis.test_errors > 0:
             notes.append(f"🔴 **Tesztek javítása: {analysis.test_failed} failed, {analysis.test_errors} error**")
 
-        # 2. Dokumentáció hiány (neural_ai fájlokhoz)
-        if not is_test_or_script and not analysis.has_documentation:
-            notes.append("📝 Dokumentáció írása (docs/components/)")
+        # 2. Dokumentáció hiány (minden layerhez)
+        if not analysis.has_documentation:
+            notes.append("📝 Dokumentáció írása")
 
-        # 3. Linter hibák
+        # 3. Linter hibák (minden layerhez)
         if analysis.lint_errors > 0:
             notes.append(f"🔧 Ruff: {analysis.lint_errors} hiba javítása")
 
-        # 4. Type hibák
+        # 4. Type hibák (minden layerhez)
         if analysis.type_errors > 0:
             notes.append(f"🔬 Mypy: {analysis.type_errors} type hiba javítása")
 
-        # 5. Pylance hibák
+        # 5. Pylance hibák (minden layerhez)
         if analysis.pylance_errors > 0:
             notes.append(f"🔎 Pylance: {analysis.pylance_errors} hiba javítása")
 
-        # 6. Source warnings
+        # 6. Source warnings (minden layerhez)
         if analysis.source_warnings > 0:
             notes.append(f"⚠️ {analysis.source_warnings} warning javítása")
 
-        # 7. Alacsony coverage (neural_ai fájlokhoz)
-        if not is_test_or_script and 0 < analysis.coverage_stmt < 80:
-            notes.append(f"📊 Coverage növelése: {analysis.coverage_stmt:.0f}% → 80%+")
+        # 7. Alacsony coverage (csak neural_ai)
+        if not is_test_layer and not is_script_layer:
+            if 0 < analysis.coverage_stmt < 80:
+                notes.append(f"📊 Coverage növelése: {analysis.coverage_stmt:.0f}% → 80%+")
 
-        # 8. Skipped tesztek
+        # 8. Skipped tesztek (minden layerhez)
         if analysis.test_skipped > 0:
             notes.append(f"⏭️ {analysis.test_skipped} skipped teszt aktiválása")
 
