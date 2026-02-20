@@ -1318,9 +1318,9 @@ class TaskTreeGenerator:
             ]
             subprocess.run(cmd_pytest, check=False, env=env, capture_output=True)
 
-            # Majd coverage futtatás
+            # Majd coverage futtatás (neural_ai + scripts + root)
             cmd_cov = [
-                str(COVERAGE_BIN), "run", "--branch", "--source=neural_ai",
+                str(COVERAGE_BIN), "run", "--branch", "--source=neural_ai,scripts,.",
                 "-m", "pytest", "-q", "--tb=no", "tests/"
             ]
             subprocess.run(cmd_cov, check=False, env=env, capture_output=True)
