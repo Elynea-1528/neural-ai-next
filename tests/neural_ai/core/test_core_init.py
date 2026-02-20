@@ -222,7 +222,7 @@ class TestBootstrapCore:
             # Ha több argumentum van (nested get), akkor a második a kulcs
             if len(args) > 1 and args[0] == "collectors" and args[1] == "jforex_live":
                 return {"enabled": True}
-            
+
             if key == "live":
                 return {"enabled": True}
             elif key == "storage":
@@ -233,7 +233,7 @@ class TestBootstrapCore:
             return kwargs.get("default")
 
         self.mock_config.get.side_effect = get_side_effect
-        
+
         # A get_section("ingestion") hívásnál ne legyen extra mező
         # A get_section("logging") hívásnál se legyen extra mező
         def get_section_side_effect(key):
@@ -248,21 +248,21 @@ class TestBootstrapCore:
                 #   Extra inputs are not permitted [type=extra_forbidden, input_value='test_logger', input_type=str]
                 # level
                 #   Extra inputs are not permitted [type=extra_forbidden, input_value='INFO', input_type=str]
-                
+
                 # Ez azt jelenti, hogy a LoggingConfig modellben a 'extra="forbid"' beállítás miatt
                 # a 'name' és 'level' mezők nem engedélyezettek, VAGY a LoggingConfig modell
                 # nem tartalmazza ezeket a mezőket.
-                
+
                 # De a neural_ai/core/base/factory.py-ban láttuk, hogy a LoggerConfig tartalmazza a 'name' és 'level' mezőket.
                 # Lehet, hogy a bootstrap_core NEM a neural_ai.core.base.factory.LoggerConfig-ot használja,
                 # hanem a neural_ai.core.config.interfaces.types.LoggingConfig-ot?
                 # Igen: from neural_ai.core.config.interfaces.types import LoggingConfig
-                
+
                 # És a types.LoggingConfig valószínűleg nem tartalmazza ezeket a mezőket, vagy más a neve.
                 # Próbáljuk meg üres dict-tel, és reméljük, hogy a 'name' nem kötelező a types.LoggingConfig-ban.
                 return {}
             return {}
-            
+
         self.mock_config.get_section.side_effect = get_section_side_effect
 
         # JForex factory mock
@@ -278,22 +278,22 @@ class TestBootstrapCore:
         # A hibaüzenet szerint: Expected 'create_live_feed' to have been called once. Called 0 times.
         # Ez azt jelenti, hogy a bootstrap_core nem hívta meg a create_live_feed-et.
         # Miért? Mert a live_conf.enabled False lehetett, vagy a config nem adta vissza a megfelelő értéket.
-        
+
         # A bootstrap_core-ban:
         # live_conf_dict = cast(dict[str, Any], config.get("collectors", "jforex_live") or {})
         # live_conf = JForexLiveConfig(**live_conf_dict)
         # if live_conf.enabled:
-        
+
         # A tesztben:
         # def get_side_effect(key, default=None):
         #     if key == "live": ...
-        
+
         # A bootstrap_core a config.get("collectors", "jforex_live")-t hívja.
         # A mock_config.get.side_effect-nek ezt kezelnie kell.
         # A jelenlegi side_effect csak egy kulcsot kezel.
-        
+
         # Javítsuk a side_effect-et, hogy kezelje a nested kulcsokat is (vagy *args-t)
-        
+
         mock_jforex_factory.create_live_feed.assert_called_once()
         # self.mock_container.register_instance.assert_any_call(MagicMock, mock_jforex_instance)
 
@@ -406,7 +406,7 @@ class TestIntegration:
         """Teszteli a verzió lekérdezés és a bootstrap integrációját."""
         with patch("importlib.metadata.version") as mock_version:
             mock_version.return_value = "1.0.0"
-            
+
             version = get_version()
             components = get_core_components()
 
