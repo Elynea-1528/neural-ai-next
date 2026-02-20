@@ -1,14 +1,14 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-02-20 21:24:18 UTC
+**Generálva:** 2026-02-20 21:48:50 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 285
 
 ## 📊 Statisztika
 
 - ✅ **SECURE:** 71 (24.9%)
-- 🟡 **WARNING:** 97 (34.0%)
-- 🔴 **VULNERABLE:** 117 (41.1%)
+- 🟡 **WARNING:** 98 (34.4%)
+- 🔴 **VULNERABLE:** 116 (40.7%)
 
 ---
 
@@ -16,7 +16,7 @@
 
 | Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
-| `main.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | 🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) |
+| `main.py` | 🟡 WARNING | ✅ FOUND | **29**/0/0/0 | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | 📝 Dokumentáció írása (docs/components/) |
 | `neural_ai/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 83% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | 🔴 **Teszt írás KÖTELEZŐ!** | 📝 Dokumentáció írása (docs/components/) |
 
 ## 1. Infrastructure Layer (`neural_ai/core/`)

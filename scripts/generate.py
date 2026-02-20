@@ -200,9 +200,18 @@ class MirrorChecker:
         if parts[0] == "tests":
             return source_path  # Önmaga
 
-        # Ha scripts/ vagy docs/ mappában van, nincs mirror test
+        # Root fájlok (main.py) kezelése
+        if len(parts) == 1 and parts[0].endswith('.py'):
+            # main.py -> tests/test_main.py
+            test_file_name = f"test_{parts[0]}"
+            return Path("tests") / test_file_name
+
+        # Ha scripts/ vagy docs/ mappában van
         if parts[0] in ["scripts", "docs"]:
-            return Path("tests") / source_path  # Nem létező útvonal
+            # scripts/generate.py -> tests/scripts/test_generate.py
+            file_name = parts[-1]
+            test_file_name = f"test_{file_name}"
+            return Path("tests") / Path(*parts[:-1]) / test_file_name
 
         # neural_ai/ esetén
         if parts[0] != "neural_ai":
