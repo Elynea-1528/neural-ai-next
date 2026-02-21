@@ -175,7 +175,7 @@ class TestDataReset:
         mock_exit.assert_not_called()
 
         # Ellenőrizzük a siker üzenetet
-        success_messages = [call.args[0] for call in mock_print.call_args_list]
+        success_messages = [call[0][0] for call in mock_print.call_args_list if call[0]]
         assert any("✅ Adat reset sikeres!" in msg for msg in success_messages)
 
     @patch("scripts.data_reset.remove_logs")
@@ -199,7 +199,7 @@ class TestDataReset:
         mock_exit.assert_called_once_with(1)
 
         # Ellenőrizzük a hiba üzenetet
-        error_messages = [call.args[0] for call in mock_print.call_args_list]
+        error_messages = [call[0][0] for call in mock_print.call_args_list if call[0]]
         assert any(
             "❌ Adat reset részben vagy teljesen sikertelen." in msg for msg in error_messages
         )
