@@ -3,6 +3,7 @@
 Ez a modul tartalmazza a StorageBackend és DataFrameProtocol tesztjeit.
 """
 
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -33,19 +34,19 @@ class TestStorageBackend:
         class MockBackend(StorageBackend):
             """Mock backend implementáció."""
 
-            def write(self, data, path, **kwargs):
+            def write(self, data: bytes, path: str, **kwargs: Any) -> None:
                 pass
 
-            def read(self, path, **kwargs):
+            def read(self, path: str, **kwargs: Any) -> Mock:
                 return Mock()
 
-            def append(self, data, path, **kwargs):
+            def append(self, data: bytes, path: str, **kwargs: Any) -> None:
                 pass
 
-            def supports_format(self, format_name):
+            def supports_format(self, format_name: str) -> bool:
                 return format_name in self.supported_formats
 
-            def get_info(self, path):
+            def get_info(self, path: str) -> dict[str, Any]:
                 return {
                     "size": 1000,
                     "rows": 100,
@@ -55,7 +56,7 @@ class TestStorageBackend:
                     "modified": "2023-01-02",
                 }
 
-        backend = MockBackend("test_backend", ["parquet", "csv"])
+        backend = MockBackend(Mock(), "test_backend", ["parquet", "csv"])
 
         assert backend.name == "test_backend"
         assert backend.supported_formats == ["parquet", "csv"]
@@ -67,22 +68,22 @@ class TestStorageBackend:
         class MockBackend(StorageBackend):
             """Mock backend implementáció."""
 
-            def write(self, data, path, **kwargs):
+            def write(self, data: bytes, path: str, **kwargs: Any) -> None:
                 pass
 
-            def read(self, path, **kwargs):
+            def read(self, path: str, **kwargs: Any) -> Mock:
                 return Mock()
 
-            def append(self, data, path, **kwargs):
+            def append(self, data: bytes, path: str, **kwargs: Any) -> None:
                 pass
 
-            def supports_format(self, format_name):
+            def supports_format(self, format_name: str) -> bool:
                 return True
 
-            def get_info(self, path):
+            def get_info(self, path: str) -> dict[str, Any]:
                 return {}
 
-        backend = MockBackend("test", ["parquet"])
+        backend = MockBackend(Mock(), "test", ["parquet"])
 
         # Teszt: None adat
         assert not backend.validate_data(None)
@@ -127,22 +128,22 @@ class TestStorageBackend:
         class MockBackend(StorageBackend):
             """Mock backend implementáció."""
 
-            def write(self, data, path, **kwargs):
+            def write(self, data: bytes, path: str, **kwargs: Any) -> None:
                 pass
 
-            def read(self, path, **kwargs):
+            def read(self, path: str, **kwargs: Any) -> Mock:
                 return Mock()
 
-            def append(self, data, path, **kwargs):
+            def append(self, data: bytes, path: str, **kwargs: Any) -> None:
                 pass
 
-            def supports_format(self, format_name):
+            def supports_format(self, format_name: str) -> bool:
                 return format_name in self.supported_formats
 
-            def get_info(self, path):
+            def get_info(self, path: str) -> dict[str, Any]:
                 return {}
 
-        backend = MockBackend("test", ["parquet", "csv"])
+        backend = MockBackend(Mock(), "test", ["parquet", "csv"])
 
         assert backend.supports_format("parquet")
         assert backend.supports_format("csv")
@@ -154,22 +155,22 @@ class TestStorageBackend:
         class MockBackend(StorageBackend):
             """Mock backend implementáció."""
 
-            def write(self, data, path, **kwargs):
+            def write(self, data: bytes, path: str, **kwargs: Any) -> None:
                 pass
 
-            def read(self, path, **kwargs):
+            def read(self, path: str, **kwargs: Any) -> Mock:
                 return Mock()
 
-            def append(self, data, path, **kwargs):
+            def append(self, data: bytes, path: str, **kwargs: Any) -> None:
                 pass
 
-            def supports_format(self, format_name):
+            def supports_format(self, format_name: str) -> bool:
                 return True
 
-            def get_info(self, path):
+            def get_info(self, path: str) -> dict[str, Any]:
                 return {}
 
-        backend = MockBackend("test_backend", ["parquet"])
+        backend = MockBackend(Mock(), "test_backend", ["parquet"])
         repr_str = repr(backend)
 
         assert "MockBackend" in repr_str
@@ -182,33 +183,33 @@ class TestStorageBackend:
         class MockBackend(StorageBackend):
             """Mock backend implementáció."""
 
-            def __init__(self):
-                super().__init__("test", ["parquet"])
+            def __init__(self, logger: Mock | None = None, name: str = "test", supported_formats: list[str] | None = None) -> None:
+                super().__init__(logger or Mock(), name, supported_formats or ["parquet"])
                 self.write_called = False
                 self.read_called = False
                 self.append_called = False
                 self.supports_format_called = False
                 self.get_info_called = False
 
-            def write(self, data, path, **kwargs):
+            def write(self, data: bytes, path: str, **kwargs: Any) -> None:
                 self.write_called = True
 
-            def read(self, path, **kwargs):
+            def read(self, path: str, **kwargs: Any) -> Mock:
                 self.read_called = True
                 return Mock()
 
-            def append(self, data, path, **kwargs):
+            def append(self, data: bytes, path: str, **kwargs: Any) -> None:
                 self.append_called = True
 
-            def supports_format(self, format_name):
+            def supports_format(self, format_name: str) -> bool:
                 self.supports_format_called = True
                 return True
 
-            def get_info(self, path):
+            def get_info(self, path: str) -> dict[str, Any]:
                 self.get_info_called = True
                 return {}
 
-        backend = MockBackend()
+        backend = MockBackend(Mock(), "test", ["parquet"])
 
         # Hívjuk meg az összes metódust
         backend.write(Mock(), "/test/path")
@@ -230,22 +231,22 @@ class TestStorageBackend:
         class MockBackend(StorageBackend):
             """Mock backend implementáció."""
 
-            def write(self, data, path, **kwargs):
+            def write(self, data: bytes, path: str, **kwargs: Any) -> None:
                 pass
 
-            def read(self, path, **kwargs):
+            def read(self, path: str, **kwargs: Any) -> Mock:
                 return Mock()
 
-            def append(self, data, path, **kwargs):
+            def append(self, data: bytes, path: str, **kwargs: Any) -> None:
                 pass
 
-            def supports_format(self, format_name):
+            def supports_format(self, format_name: str) -> bool:
                 return True
 
-            def get_info(self, path):
+            def get_info(self, path: str) -> dict[str, Any]:
                 return {}
 
-        backend = MockBackend("test", ["parquet"])
+        backend = MockBackend(Mock(), "test", ["parquet"])
 
         # Teszt: 0 hosszúságú adat (nem negatív, de üres)
         mock_zero_length = Mock()
