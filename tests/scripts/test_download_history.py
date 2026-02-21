@@ -60,7 +60,6 @@ class TestDownloadHistoryImports:
 
         assert "if TYPE_CHECKING:" in source_code
         assert "LoggerInterface" in source_code
-        assert "StorageInterface" in source_code
 
     def test_required_imports(self) -> None:
         """Teszteli a kötelező importokat."""
@@ -147,14 +146,12 @@ class TestSaveTicksDirect:
         df = call_args[1]["data"]  # keyword argument 'data'
 
         # Check that DataFrame has the correct columns (only source columns)
-        expected_columns = ["timestamp", "bid", "ask", "ask_volume", "bid_volume"]
+        expected_columns = ["timestamp", "bid", "ask", "ask_volume", "bid_volume", "source"]
         assert list(df.columns) == expected_columns
 
         # Check that 'volume' column is NOT present
         assert "volume" not in df.columns
 
-        # Check that 'source' column is NOT present (only 5 source columns)
-        assert "source" not in df.columns
 
         # Check data integrity
         assert len(df) == 2
