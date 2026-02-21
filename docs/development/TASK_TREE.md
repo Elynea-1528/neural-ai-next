@@ -1,14 +1,14 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-02-21 05:16:54 UTC
+**Generálva:** 2026-02-21 05:31:08 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
-**Fájlok száma:** 286
+**Fájlok száma:** 287
 
 ## 📊 Statisztika
 
 - ✅ **SECURE:** 19 (6.6%)
-- 🟡 **WARNING:** 154 (53.8%)
-- 🔴 **VULNERABLE:** 113 (39.5%)
+- 🟡 **WARNING:** 155 (54.0%)
+- 🔴 **VULNERABLE:** 113 (39.4%)
 
 ---
 
@@ -276,6 +276,7 @@
 | `tests/neural_ai/core/system/interfaces/test_health_interface.py` | 🟡 WARNING | **22**/0/0/0 | N/A | 0 / 0 / 16 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 16 hiba javítása |
 | `tests/neural_ai/core/system/test_system_factory.py` | 🟡 WARNING | **19**/0/0/0 | N/A | 0 / 0 / 2 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/core/test_core_init.py` | 🔴 VULNERABLE | **12**/7/0/0 | N/A | 0 / 0 / 28 | - | ❌ | 🔴 **Tesztek javítása: 7 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 28 hiba javítása |
+| `tests/neural_ai/core/test_core_init_missing_coverage.py` | 🟡 WARNING | **2**/0/0/0 | N/A | 0 / 0 / 8 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 8 hiba javítása |
 | `tests/neural_ai/core/test_init_version_fallback.py` | 🟡 WARNING | **5**/0/0/0 | N/A | 0 / 0 / 2 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/core/test_pyproject_ui_dependencies.py` | 🟡 WARNING | **6**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/utils/exceptions/test_util_errors.py` | 🟡 WARNING | **12**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
