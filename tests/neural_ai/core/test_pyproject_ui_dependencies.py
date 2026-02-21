@@ -15,7 +15,7 @@ def test_ui_optional_dependencies_exist() -> None:
     Raises:
         AssertionError: Ha az 'ui' csoport nem létezik vagy üres.
     """
-    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+    pyproject_path = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
     with open(pyproject_path, encoding="utf-8") as f:
         config = toml.load(f)
 
@@ -31,7 +31,7 @@ def test_ui_dependencies_contain_required_packages() -> None:
     Raises:
         AssertionError: Ha bármelyik kötelező csomag hiányzik.
     """
-    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+    pyproject_path = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
     with open(pyproject_path, encoding="utf-8") as f:
         config = toml.load(f)
 
@@ -58,7 +58,7 @@ def test_ui_dependencies_have_correct_versions() -> None:
     Raises:
         AssertionError: Ha a verziókövetelmények nem megfelelőek.
     """
-    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+    pyproject_path = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
     with open(pyproject_path, encoding="utf-8") as f:
         config = toml.load(f)
 
@@ -81,7 +81,7 @@ def test_full_includes_ui() -> None:
     Raises:
         AssertionError: Ha a 'full' csoport nem tartalmazza az 'ui'-t.
     """
-    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+    pyproject_path = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
     with open(pyproject_path, encoding="utf-8") as f:
         config = toml.load(f)
 
@@ -98,7 +98,7 @@ def test_ui_dependencies_no_duplicates() -> None:
     Raises:
         AssertionError: Ha duplikátumokat talál.
     """
-    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+    pyproject_path = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
     with open(pyproject_path, encoding="utf-8") as f:
         config = toml.load(f)
 
@@ -122,7 +122,7 @@ def test_pyproject_toml_is_valid() -> None:
     Raises:
         toml.TomlDecodeError: Ha a fájl nem érvényes TOML.
     """
-    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+    pyproject_path = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
 
     # Ha a toml.load nem dob kivételt, a fájl érvényes
     with open(pyproject_path, encoding="utf-8") as f:
