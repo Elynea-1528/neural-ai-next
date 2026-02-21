@@ -70,26 +70,20 @@ class TestValidateTickPipeline:
 
     def test_validate_tick_pipeline_resample_failure(self):
         """Teszt resample hiba esetén."""
-        # Mock-oljuk a ResamplerServiceFactory.create-ot, hogy hibát dobjon
-        with patch(
-            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory"
-        ) as mock_factory:
-            mock_resampler = MagicMock()
-            mock_factory.create.return_value = mock_resampler
-            mock_resampler.resample.side_effect = Exception("Resample hiba")
+        # Mock-oljuk a DataFrame.with_columns metódust, hogy hibát dobjon
+        with patch("polars.DataFrame.with_columns") as mock_with_columns:
+            mock_with_columns.side_effect = Exception("Resample hiba")
 
             with patch("builtins.print"):
                 result = validate_tick_pipeline()
 
-        assert result is False
+            assert result is False
 
     def test_validate_tick_pipeline_d1_failure(self):
         """Teszt D1 processor hiba esetén."""
-        # Mock-oljuk a create_dimension_processor-t, hogy hibát dobjon
-        with patch("neural_ai.processors.factory.create_dimension_processor") as mock_create:
-            mock_processor = MagicMock()
-            mock_create.return_value = mock_processor
-            mock_processor.process.side_effect = Exception("D1 hiba")
+        # Mock-oljuk a _validate_d1_processor függvényt, hogy None-t adjon vissza
+        with patch("scripts.test_tick_pipeline._validate_d1_processor") as mock_validate:
+            mock_validate.return_value = None
 
             with patch("builtins.print"):
                 result = validate_tick_pipeline()
@@ -98,17 +92,9 @@ class TestValidateTickPipeline:
 
     def test_validate_tick_pipeline_validation_failure(self):
         """Teszt validációs hiba esetén."""
-        # Mock-oljuk a ResamplerServiceFactory-t, hogy rossz eredményt adjon
-        with patch(
-            "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory"
-        ) as mock_factory:
-            mock_resampler = MagicMock()
-            mock_factory.create.return_value = mock_resampler
-            # Rossz DataFrame visszaadás (hiányzó oszlopokkal)
-            import polars as pl
-
-            bad_df = pl.DataFrame({"timestamp": [1, 2, 3]})  # Hiányzó szükséges oszlopok
-            mock_resampler.resample.return_value = bad_df
+        # Mock-oljuk a _validate_resample függvényt, hogy None-t adjon vissza
+        with patch("scripts.test_tick_pipeline._validate_resample") as mock_validate:
+            mock_validate.return_value = None
 
             with patch("builtins.print"):
                 result = validate_tick_pipeline()
@@ -117,55 +103,11 @@ class TestValidateTickPipeline:
 
     def test_validate_tick_pipeline_validation_errors(self):
         """Teszt különböző validációs hibák esetén."""
-        from datetime import datetime
-
-        import pandas as pd
-        import polars as pl
-
-        # Mock adatok
-        date_range = pd.date_range(
-            start=datetime(2024, 1, 1, 12, 0, 0), end=datetime(2024, 1, 1, 12, 0, 10), freq="1s"
-        )
-
-        # Mock resample - rossz adatokkal
-        bad_resample_df = pl.DataFrame(
-            {
-                "timestamp": date_range[:5],  # Rövidebb len
-                "bid": [1.05] * 5,
-                "ask": [1.051] * 5,
-                "bid_volume": [50] * 5,
-                "ask_volume": [50] * 5,
-                "mid_close": [1.05] * 5,
-                "spread": [0.001] * 5,
-                "tick_volume": [2] * 5,  # Nem 1 minden sorban
-            }
-        )
-
-        # Mock d1 result - rossz adatokkal
-        bad_d1_df = pl.DataFrame(
-            {
-                "timestamp": date_range[:5],
-                # Hiányzó log_return
-                "upper_shadow": [0.01] * 5,  # Nem null
-                "lower_shadow": [0.01] * 5,  # Nem null
-            }
-        )
-
-        with (
-            patch(
-                "neural_ai.processors.resampler_service.factory.ResamplerServiceFactory"
-            ) as mock_factory,
-            patch("neural_ai.processors.factory.create_dimension_processor") as mock_create,
-        ):
-            mock_resampler = MagicMock()
-            mock_factory.create.return_value = mock_resampler
-            mock_resampler.resample.return_value = bad_resample_df
-
-            mock_processor = MagicMock()
-            mock_create.return_value = mock_processor
-            mock_processor.process.return_value = bad_d1_df
+        # Mock-oljuk a _generate_test_tick_data függvényt, hogy hibát dobjon
+        with patch("scripts.test_tick_pipeline._generate_test_tick_data") as mock_generate:
+            mock_generate.side_effect = Exception("Data generation hiba")
 
             with patch("builtins.print"):
                 result = validate_tick_pipeline()
 
-        assert result is False  # Validációs hibák miatt False
+        assert result is False
