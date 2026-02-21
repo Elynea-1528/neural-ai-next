@@ -1,4 +1,4 @@
-# tests/neural_ai/processors/dimensions/d02_support/test_processor.py
+# tests/neural_ai/processors/dimensions/d02_support/test_d02_processor.py
 
 Tests for D02 Support Processor.
 
@@ -103,4 +103,4 @@ Test D02SupportProcessor with invalid type in config.
 
 ---
 
-**Forrásfájl:** [`tests/neural_ai/processors/dimensions/d02_support/test_processor.py`](../../tests/neural_ai/processors/dimensions/d02_support/test_processor.py)
+**Forrásfájl:** [`tests/neural_ai/processors/dimensions/d02_support/test_d02_processor.py`](../../tests/neural_ai/processors/dimensions/d02_support/test_d02_processor.py)

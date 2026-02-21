@@ -1,14 +1,14 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-02-21 05:31:08 UTC
+**Generálva:** 2026-02-21 17:14:00 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 287
 
 ## 📊 Statisztika
 
 - ✅ **SECURE:** 19 (6.6%)
-- 🟡 **WARNING:** 155 (54.0%)
-- 🔴 **VULNERABLE:** 113 (39.4%)
+- 🟡 **WARNING:** 154 (53.7%)
+- 🔴 **VULNERABLE:** 114 (39.7%)
 
 ---
 
@@ -142,7 +142,7 @@
 | `processors/dimensions/base.py` | 🔴 VULNERABLE | ❌ MISSING | - | 47% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 47% → 100% |
 | `processors/dimensions/d01_price/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/dimensions/d01_price/factory.py` | 🔴 VULNERABLE | ❌ MISSING | - | 86% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `processors/dimensions/d01_price/processor.py` | 🟡 WARNING | ✅ FOUND | **18**/0/0/0 | 8% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | 📊 Coverage növelése: 8% → 100% |
+| `processors/dimensions/d01_price/processor.py` | 🔴 VULNERABLE | ❌ MISSING | - | 8% / 0% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 8% → 100% |
 | `processors/dimensions/d02_support/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/dimensions/d02_support/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `processors/dimensions/d02_support/exceptions/support_error.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
@@ -295,8 +295,8 @@
 | `tests/neural_ai/data/storage/test_storage_factory.py` | 🟡 WARNING | **12**/0/0/0 | N/A | 0 / 0 / 8 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 8 hiba javítása |
 | `tests/neural_ai/data/storage/test_storage_init.py` | 🟡 WARNING | **5**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/processors/__init__.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/dimensions/d01_price/test_processor.py` | 🟡 WARNING | **18**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/dimensions/d02_support/test_processor.py` | 🟡 WARNING | - | N/A | 0 / 0 / 28 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 28 hiba javítása |
+| `tests/neural_ai/processors/dimensions/d01_price/test_d01_processor.py` | 🟡 WARNING | **18**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/processors/dimensions/d02_support/test_d02_processor.py` | 🟡 WARNING | **4**/0/0/0 | N/A | 0 / 0 / 28 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 28 hiba javítása |
 | `tests/neural_ai/processors/test_factory.py` | 🟡 WARNING | **3**/0/0/0 | N/A | 0 / 0 / 14 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 14 hiba javítása |
 | `tests/neural_ai/processors/test_time_alignment_service.py` | 🟡 WARNING | **8**/0/0/0 | N/A | 0 / 0 / 2 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/test___init__.py` | 🟡 WARNING | **21**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |

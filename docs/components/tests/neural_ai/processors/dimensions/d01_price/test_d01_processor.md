@@ -1,4 +1,4 @@
-# tests/neural_ai/processors/dimensions/d01_price/test_processor.py
+# tests/neural_ai/processors/dimensions/d01_price/test_d01_processor.py
 
 Unit tesztek a D01PriceProcessor osztályhoz.
 
@@ -422,4 +422,4 @@ Minta OHLCV adat fixture.
 
 ---
 
-**Forrásfájl:** [`tests/neural_ai/processors/dimensions/d01_price/test_processor.py`](../../tests/neural_ai/processors/dimensions/d01_price/test_processor.py)
+**Forrásfájl:** [`tests/neural_ai/processors/dimensions/d01_price/test_d01_processor.py`](../../tests/neural_ai/processors/dimensions/d01_price/test_d01_processor.py)
