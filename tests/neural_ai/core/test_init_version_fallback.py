@@ -57,7 +57,7 @@ class TestVersionFallback:
             import neural_ai as reloaded_neural_ai
 
             # Ellenőrizzük, hogy a fallback verzió beállításra került-e
-            assert reloaded_neural_ai.__version__ == "0.5.0"
+            assert reloaded_neural_ai.__version__ == "1.0.0"
             assert isinstance(reloaded_neural_ai.__version__, str)
 
         finally:
