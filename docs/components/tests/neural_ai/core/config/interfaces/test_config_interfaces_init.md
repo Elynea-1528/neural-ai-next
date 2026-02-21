@@ -1,4 +1,4 @@
-# tests/neural_ai/core/config/interfaces/test___init__.py
+# tests/neural_ai/core/config/interfaces/test_config_interfaces_init.py
 
 Unit tesztek a neural_ai.core.config.interfaces __init__ modulhoz.
 
@@ -302,4 +302,4 @@ Ellenőrzi, hogy a ConfigSchema Pydantic BaseModel.
 
 ---
 
-**Forrásfájl:** [`tests/neural_ai/core/config/interfaces/test___init__.py`](../../tests/neural_ai/core/config/interfaces/test___init__.py)
+**Forrásfájl:** [`tests/neural_ai/core/config/interfaces/test_config_interfaces_init.py`](../../tests/neural_ai/core/config/interfaces/test_config_interfaces_init.py)

@@ -1,4 +1,4 @@
-# tests/neural_ai/core/config/exceptions/test___init__.py
+# tests/neural_ai/core/config/exceptions/test_config_exceptions_init.py
 
 Unit tesztek a neural_ai.core.config.exceptions __init__ modulhoz.
 
@@ -398,4 +398,4 @@ Ellenőrzi a ConfigValidationError exception chaining-et.
 
 ---
 
-**Forrásfájl:** [`tests/neural_ai/core/config/exceptions/test___init__.py`](../../tests/neural_ai/core/config/exceptions/test___init__.py)
+**Forrásfájl:** [`tests/neural_ai/core/config/exceptions/test_config_exceptions_init.py`](../../tests/neural_ai/core/config/exceptions/test_config_exceptions_init.py)

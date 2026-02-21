@@ -1,4 +1,4 @@
-# tests/neural_ai/core/config/test___init__.py
+# tests/neural_ai/core/config/test_config_init.py
 
 Unit tesztek a neural_ai.core.config __init__ modulhoz.
 
@@ -217,4 +217,4 @@ Ellenőrzi, hogy a config hibák dobhatók.
 
 ---
 
-**Forrásfájl:** [`tests/neural_ai/core/config/test___init__.py`](../../tests/neural_ai/core/config/test___init__.py)
+**Forrásfájl:** [`tests/neural_ai/core/config/test_config_init.py`](../../tests/neural_ai/core/config/test_config_init.py)
