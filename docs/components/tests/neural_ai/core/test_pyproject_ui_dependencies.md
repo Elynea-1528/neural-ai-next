@@ -16,7 +16,7 @@ import pytest
 ## Konstansok
 
 - **`pyproject_path`**
-: `Path(__file__).parent.parent.parent / 'pyproject.toml'`
+: `Path(__file__).parent.parent.parent.parent / 'pyproject.toml'`
 
 
 - **`config`**
@@ -28,7 +28,7 @@ import pytest
 
 
 - **`pyproject_path`**
-: `Path(__file__).parent.parent.parent / 'pyproject.toml'`
+: `Path(__file__).parent.parent.parent.parent / 'pyproject.toml'`
 
 
 - **`config`**
@@ -44,7 +44,7 @@ import pytest
 
 
 - **`pyproject_path`**
-: `Path(__file__).parent.parent.parent / 'pyproject.toml'`
+: `Path(__file__).parent.parent.parent.parent / 'pyproject.toml'`
 
 
 - **`config`**
@@ -64,7 +64,7 @@ import pytest
 
 
 - **`pyproject_path`**
-: `Path(__file__).parent.parent.parent / 'pyproject.toml'`
+: `Path(__file__).parent.parent.parent.parent / 'pyproject.toml'`
 
 
 - **`config`**
@@ -76,7 +76,7 @@ import pytest
 
 
 - **`pyproject_path`**
-: `Path(__file__).parent.parent.parent / 'pyproject.toml'`
+: `Path(__file__).parent.parent.parent.parent / 'pyproject.toml'`
 
 
 - **`config`**
@@ -92,7 +92,7 @@ import pytest
 
 
 - **`pyproject_path`**
-: `Path(__file__).parent.parent.parent / 'pyproject.toml'`
+: `Path(__file__).parent.parent.parent.parent / 'pyproject.toml'`
 
 
 ### `test_ui_optional_dependencies_exist()`

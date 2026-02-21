@@ -12,10 +12,6 @@ from unittest.mock import patch
 from scripts.test_tick_pipeline import validate_tick_pipeline
 from datetime import datetime
 import polars
-import polars
-from datetime import datetime
-import pandas
-import polars
 ```
 
 ## Osztály: `TestValidateTickPipeline`

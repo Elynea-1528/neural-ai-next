@@ -1,14 +1,14 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-02-20 23:54:32 UTC
+**Generálva:** 2026-02-21 05:16:54 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 286
 
 ## 📊 Statisztika
 
 - ✅ **SECURE:** 19 (6.6%)
-- 🟡 **WARNING:** 146 (51.0%)
-- 🔴 **VULNERABLE:** 121 (42.3%)
+- 🟡 **WARNING:** 154 (53.8%)
+- 🔴 **VULNERABLE:** 113 (39.5%)
 
 ---
 
@@ -121,7 +121,7 @@
 | `data/ingestion/market_data_persister.py` | 🟡 WARNING | ✅ FOUND | **20**/0/0/5 | 7% / 0% | 0 / 0 / 10 | 1 | ⚪ N/A | ✅ OK | ✅ | 🔎 Pylance: 10 hiba javítása | ⚠️ 1 warning javítása | 📊 Coverage növelése: 7% → 100% | ⏭️ 5 skipped teszt aktiválása |
 | `data/storage/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 83% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `data/storage/backends/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `data/storage/backends/base.py` | 🔴 VULNERABLE | ✅ FOUND | **2**/6/0/0 | 32% / 6% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 6 failed, 0 error** | 📊 Coverage növelése: 32% → 100% |
+| `data/storage/backends/base.py` | 🟡 WARNING | ✅ FOUND | **8**/0/0/0 | 32% / 6% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 32% → 100% |
 | `data/storage/backends/pandas_backend.py` | 🟡 WARNING | ✅ FOUND | **30**/0/0/0 | 19% / 3% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 19% → 100% |
 | `data/storage/backends/polars_backend.py` | 🟡 WARNING | ✅ FOUND | **24**/0/0/6 | 16% / 2% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 📊 Coverage növelése: 16% → 100% | ⏭️ 6 skipped teszt aktiválása |
 | `data/storage/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 82% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
@@ -276,15 +276,15 @@
 | `tests/neural_ai/core/system/interfaces/test_health_interface.py` | 🟡 WARNING | **22**/0/0/0 | N/A | 0 / 0 / 16 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 16 hiba javítása |
 | `tests/neural_ai/core/system/test_system_factory.py` | 🟡 WARNING | **19**/0/0/0 | N/A | 0 / 0 / 2 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/core/test_core_init.py` | 🔴 VULNERABLE | **12**/7/0/0 | N/A | 0 / 0 / 28 | - | ❌ | 🔴 **Tesztek javítása: 7 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 28 hiba javítása |
-| `tests/neural_ai/core/test_init_version_fallback.py` | 🔴 VULNERABLE | **4**/1/0/0 | N/A | 0 / 0 / 2 | - | ❌ | 🔴 **Tesztek javítása: 1 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 2 hiba javítása |
-| `tests/neural_ai/core/test_pyproject_ui_dependencies.py` | 🔴 VULNERABLE | **0**/6/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 🔴 **Tesztek javítása: 6 failed, 0 error** | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/test_init_version_fallback.py` | 🟡 WARNING | **5**/0/0/0 | N/A | 0 / 0 / 2 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 2 hiba javítása |
+| `tests/neural_ai/core/test_pyproject_ui_dependencies.py` | 🟡 WARNING | **6**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/utils/exceptions/test_util_errors.py` | 🟡 WARNING | **12**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/utils/interfaces/test_hardware_interface.py` | 🟡 WARNING | **3**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/utils/test_decorators.py` | 🟡 WARNING | **13**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/utils/test_hardware_info.py` | 🟡 WARNING | **15**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/utils/test_utils_factory.py` | 🟡 WARNING | **11**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/data/ingestion/test_market_data_persister.py` | 🟡 WARNING | **20**/0/0/5 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása | ⏭️ 5 skipped teszt aktiválása |
-| `tests/neural_ai/data/storage/backends/test_base.py` | 🔴 VULNERABLE | **2**/6/0/0 | N/A | 0 / 0 / 76 | - | ❌ | 🔴 **Tesztek javítása: 6 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 76 hiba javítása |
+| `tests/neural_ai/data/storage/backends/test_base.py` | 🟡 WARNING | **8**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/data/storage/backends/test_pandas_backend.py` | 🟡 WARNING | **30**/0/0/0 | N/A | 0 / 0 / 22 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 22 hiba javítása |
 | `tests/neural_ai/data/storage/backends/test_polars_backend.py` | 🟡 WARNING | **24**/0/0/6 | N/A | 0 / 0 / 13 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 13 hiba javítása | ⏭️ 6 skipped teszt aktiválása |
 | `tests/neural_ai/data/storage/implementations/test_file_storage.py` | 🟡 WARNING | **50**/0/0/2 | N/A | 0 / 0 / 30 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 30 hiba javítása | ⏭️ 2 skipped teszt aktiválása |
@@ -310,10 +310,10 @@
 | `tests/neural_ai/ui/test_core_bridge.py` | 🟡 WARNING | **21**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/ui/test_ui_factory.py` | 🟡 WARNING | **28**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/scripts/__init__.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/scripts/test_data_reset.py` | 🔴 VULNERABLE | **12**/2/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 🔴 **Tesztek javítása: 2 failed, 0 error** | 📝 Dokumentáció írása |
-| `tests/scripts/test_download_history.py` | 🔴 VULNERABLE | **9**/2/0/0 | N/A | 0 / 0 / 1 | - | ❌ | 🔴 **Tesztek javítása: 2 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 1 hiba javítása |
-| `tests/scripts/test_migrate_structure.py` | 🔴 VULNERABLE | **12**/1/0/0 | N/A | 0 / 0 / 10 | - | ❌ | 🔴 **Tesztek javítása: 1 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 10 hiba javítása |
-| `tests/scripts/test_test_tick_pipeline.py` | 🔴 VULNERABLE | **1**/4/0/0 | N/A | 0 / 0 / 8 | - | ❌ | 🔴 **Tesztek javítása: 4 failed, 0 error** | 📝 Dokumentáció írása | 🔎 Pylance: 8 hiba javítása |
+| `tests/scripts/test_data_reset.py` | 🟡 WARNING | **14**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/scripts/test_download_history.py` | 🟡 WARNING | **11**/0/0/0 | N/A | 0 / 0 / 1 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 1 hiba javítása |
+| `tests/scripts/test_migrate_structure.py` | 🟡 WARNING | **13**/0/0/0 | N/A | 0 / 0 / 10 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 10 hiba javítása |
+| `tests/scripts/test_test_tick_pipeline.py` | 🟡 WARNING | **5**/0/0/0 | N/A | 0 / 0 / 8 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 8 hiba javítása |
 | `tests/scripts/test_validation_end_to_end.py` | 🔴 VULNERABLE | **2**/1/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 🔴 **Tesztek javítása: 1 failed, 0 error** | 📝 Dokumentáció írása |
 | `tests/test_main.py` | 🟡 WARNING | **29**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 

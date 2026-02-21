@@ -166,7 +166,7 @@ class MirrorChecker:
     @staticmethod
     def check_documentation(source_path: Path) -> bool:
         """Ellenőrzi, hogy van-e dokumentáció a fájlhoz a docs/ mappában.
-        
+
         Példák:
         - main.py -> docs/components/main.md
         - scripts/generate.py -> docs/components/scripts/generate.md
@@ -175,18 +175,18 @@ class MirrorChecker:
         parts = source_path.parts
 
         # Root fájlok (main.py)
-        if len(parts) == 1 and parts[0].endswith('.py'):
-            doc_path = Path("docs/components") / parts[0].replace('.py', '.md')
+        if len(parts) == 1 and parts[0].endswith(".py"):
+            doc_path = Path("docs/components") / parts[0].replace(".py", ".md")
             return doc_path.exists()
 
         # scripts/ mappában
         if parts[0] == "scripts":
-            doc_path = Path("docs/components") / source_path.with_suffix('.md')
+            doc_path = Path("docs/components") / source_path.with_suffix(".md")
             return doc_path.exists()
 
         # neural_ai/ mappában
         if parts[0] == "neural_ai":
-            doc_path = Path("docs/components") / source_path.with_suffix('.md')
+            doc_path = Path("docs/components") / source_path.with_suffix(".md")
             return doc_path.exists()
 
         # Egyéb mappák (tests, stb.) - nincs dokumentáció
@@ -206,7 +206,7 @@ class MirrorChecker:
             return source_path  # Önmaga
 
         # Root fájlok (main.py) kezelése
-        if len(parts) == 1 and parts[0].endswith('.py'):
+        if len(parts) == 1 and parts[0].endswith(".py"):
             # main.py -> tests/test_main.py
             test_file_name = f"test_{parts[0]}"
             return Path("tests") / test_file_name
@@ -232,7 +232,7 @@ class MirrorChecker:
 
         # test_ prefix hozzáadása
         test_file_name = f"test_{file_name}"
-        base_name = file_name.replace('.py', '')
+        base_name = file_name.replace(".py", "")
         integration_file_name = f"test_{base_name}_integration.py"
 
         # 1. Elsődleges hely (Mirror Rule szerint - TELJES TÜKÖR)
@@ -251,19 +251,23 @@ class MirrorChecker:
         if base_name == "factory" and dir_parts:
             module_name = dir_parts[-1]  # pl. "config", "db", "logger"
             module_factory_name = f"test_{module_name}_factory.py"
-            module_factory_path = Path("tests") / Path("neural_ai") / Path(*dir_parts) / module_factory_name
+            module_factory_path = (
+                Path("tests") / Path("neural_ai") / Path(*dir_parts) / module_factory_name
+            )
             if module_factory_path.exists():
                 return module_factory_path
 
         # UI Services Fallback (ha a standard logika valamiért nem találja)
         if "ui" in dir_parts and "services" in dir_parts:
-             ui_test_path = Path("tests/neural_ai/ui/services") / test_file_name
-             if ui_test_path.exists():
-                 print(f"DEBUG: FOUND via fallback: {ui_test_path}")
-                 return ui_test_path
+            ui_test_path = Path("tests/neural_ai/ui/services") / test_file_name
+            if ui_test_path.exists():
+                print(f"DEBUG: FOUND via fallback: {ui_test_path}")
+                return ui_test_path
 
         # 2. Integration verzió (Mirror Rule szerint - TELJES TÜKÖR)
-        integration_path = Path("tests") / Path("neural_ai") / Path(*dir_parts) / integration_file_name
+        integration_path = (
+            Path("tests") / Path("neural_ai") / Path(*dir_parts) / integration_file_name
+        )
         if integration_path.exists():
             return integration_path
 
@@ -272,7 +276,9 @@ class MirrorChecker:
             parent_dir_parts = dir_parts[:-1]
 
             # 3a. Szülő mappában test_X.py (TELJES TÜKÖR)
-            parent_test_path = Path("tests") / Path("neural_ai") / Path(*parent_dir_parts) / test_file_name
+            parent_test_path = (
+                Path("tests") / Path("neural_ai") / Path(*parent_dir_parts) / test_file_name
+            )
             if parent_test_path.exists():
                 return parent_test_path
 
@@ -300,7 +306,7 @@ class StatusCalculator:
     @staticmethod
     def calculate(analysis: FileAnalysis) -> Literal["✅ SECURE", "🟡 WARNING", "🔴 VULNERABLE"]:
         """Kiszámítja az overall státuszt.
-        
+
         ✅ SECURE: Minden tökéletes (0 hiba, 0 warning, tesztek OK, dokumentáció OK)
         🟡 WARNING: Van javítanivaló, de nem kritikus
         🔴 VULNERABLE: Kritikus problémák (teszt hiány, TypedDict, Logger DI hiány, failed tesztek)
@@ -392,7 +398,7 @@ class StatusCalculator:
                 notes.append("🔴 **Migráld Pydantic-ra!**")
             if analysis.logger_status == "🔴 MISSING":
                 notes.append("🔴 **Logger DI hiányzik!**")
-        
+
         # Scripts layerhez: teszt kötelező (kivéve __init__.py)
         if is_script_layer and not is_init_file:
             if not analysis.test_file_exists:
@@ -400,7 +406,9 @@ class StatusCalculator:
 
         # Failed/Error tesztek (minden layerhez)
         if analysis.test_failed > 0 or analysis.test_errors > 0:
-            notes.append(f"🔴 **Tesztek javítása: {analysis.test_failed} failed, {analysis.test_errors} error**")
+            notes.append(
+                f"🔴 **Tesztek javítása: {analysis.test_failed} failed, {analysis.test_errors} error**"
+            )
 
         # 2. Dokumentáció hiány (minden layerhez)
         if not analysis.has_documentation:
@@ -425,7 +433,7 @@ class StatusCalculator:
         # 7. Alacsony coverage (csak neural_ai)
         if not is_test_layer and not is_script_layer:
             if 0 < analysis.coverage_stmt < 80:
-                notes.append(f"📊 Coverage növelése: {analysis.coverage_stmt:.0f}% → 80%+")
+                notes.append(f"📊 Coverage növelése: {analysis.coverage_stmt:.0f}% → 100%")
 
         # 8. Skipped tesztek (minden layerhez)
         if analysis.test_skipped > 0:
@@ -450,7 +458,7 @@ class GeneratorBase:
 
     def __init__(self, analyses: list[FileAnalysis]) -> None:
         """Inicializálja a generátort.
-        
+
         Args:
             analyses: Fájl analízisek listája
         """
@@ -465,7 +473,9 @@ class GeneratorBase:
             parts = Path(analysis.relative_path).parts
 
             # Root fájlok (main.py, neural_ai/__init__.py)
-            if len(parts) == 1 or (len(parts) == 2 and parts[0] == "neural_ai" and parts[1] == "__init__.py"):
+            if len(parts) == 1 or (
+                len(parts) == 2 and parts[0] == "neural_ai" and parts[1] == "__init__.py"
+            ):
                 grouped["root"].append(analysis)
             # Első rész alapján csoportosítunk (neural_ai, tests, scripts)
             elif len(parts) > 0:
@@ -504,117 +514,138 @@ class MarkdownGenerator(GeneratorBase):
     """TASK_TREE.md generátor."""
 
     def _create_table(self, layer: str, files: list[FileAnalysis]) -> str:
-            """Létrehoz egy Markdown táblázatot egy réteghez."""
-            if not files:
-                return ""
+        """Létrehoz egy Markdown táblázatot egy réteghez."""
+        if not files:
+            return ""
 
-            num, name, path = self.LAYER_MAPPING[layer]
+        num, name, path = self.LAYER_MAPPING[layer]
 
-            table = f"\n## {num}. {name} Layer (`{path}`)\n\n"
+        table = f"\n## {num}. {name} Layer (`{path}`)\n\n"
 
-            # Scripts layer - teljes táblázat
-            if layer == "scripts":
-                table += "| Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
-                table += "|:-----|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|\n"
+        # Scripts layer - teljes táblázat
+        if layer == "scripts":
+            table += "| Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
+            table += "|:-----|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|\n"
 
-                for file in sorted(files, key=lambda x: x.relative_path):
+            for file in sorted(files, key=lambda x: x.relative_path):
+                short_path = file.relative_path
+
+                # Teszt pár
+                test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
+
+                # Teszt eredmények
+                if file.test_file_exists and (
+                    file.test_passed > 0
+                    or file.test_failed > 0
+                    or file.test_errors > 0
+                    or file.test_skipped > 0
+                ):
+                    test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
+                else:
+                    test_results = "-"
+
+                # Coverage
+                if file.coverage_stmt > 0:
+                    coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
+                else:
+                    coverage = "N/A"
+
+                # Lint/Mypy/Pylance
+                lint_mypy_pylance = (
+                    f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
+                )
+
+                # Source Warnings
+                src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
+
+                # Dokumentálva
+                doc_status = "✅" if file.has_documentation else "❌"
+
+                table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {file.config_status} | {file.logger_status} | {doc_status} | {file.notes if file.notes else '-'} |\n"
+
+        # Tests layer - egyszerűsített táblázat
+        elif layer == "tests":
+            table += "| Fájl | Státusz | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Dokumentálva | Teendők |\n"
+            table += "|:-----|:--------|:-------------------|:---------------------|:------------------|:---------|:-------------|:--------|\n"
+
+            for file in sorted(files, key=lambda x: x.relative_path):
+                short_path = file.relative_path
+
+                # Teszt eredmények
+                if (
+                    file.test_passed > 0
+                    or file.test_failed > 0
+                    or file.test_errors > 0
+                    or file.test_skipped > 0
+                ):
+                    test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
+                else:
+                    test_results = "-"
+
+                # Coverage
+                if file.coverage_stmt > 0:
+                    coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
+                else:
+                    coverage = "N/A"
+
+                # Lint/Mypy/Pylance
+                lint_mypy_pylance = (
+                    f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
+                )
+
+                # Source Warnings
+                src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
+
+                # Dokumentálva
+                doc_status = "✅" if file.has_documentation else "❌"
+
+                table += f"| `{short_path}` | {file.overall_status} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {doc_status} | {file.notes if file.notes else '-'} |\n"
+        else:
+            # Neural_ai layerekhez teljes táblázat + Dokumentálva oszlop
+            table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
+            table += "|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|\n"
+
+            for file in sorted(files, key=lambda x: x.relative_path):
+                # Root layer esetén ne távolítsuk el a neural_ai/ prefix-et
+                if layer == "root":
                     short_path = file.relative_path
+                else:
+                    short_path = file.relative_path.replace("neural_ai/", "")
 
-                    # Teszt pár
-                    test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
+                # Teszt pár
+                test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
 
-                    # Teszt eredmények
-                    if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0 or file.test_skipped > 0):
-                        test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
-                    else:
-                        test_results = "-"
+                # Teszt eredmények
+                if file.test_file_exists and (
+                    file.test_passed > 0
+                    or file.test_failed > 0
+                    or file.test_errors > 0
+                    or file.test_skipped > 0
+                ):
+                    test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
+                else:
+                    test_results = "-"
 
-                    # Coverage
-                    if file.coverage_stmt > 0:
-                        coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
-                    else:
-                        coverage = "N/A"
+                # Coverage
+                if file.coverage_stmt > 0:
+                    coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
+                else:
+                    coverage = "N/A"
 
-                    # Lint/Mypy/Pylance
-                    lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
+                # Lint/Mypy/Pylance
+                lint_mypy_pylance = (
+                    f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
+                )
 
-                    # Source Warnings
-                    src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
+                # Source Warnings (pytest warnings a forráskódban)
+                src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
 
-                    # Dokumentálva
-                    doc_status = "✅" if file.has_documentation else "❌"
+                # Dokumentálva
+                doc_status = "✅" if file.has_documentation else "❌"
 
-                    table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {file.config_status} | {file.logger_status} | {doc_status} | {file.notes if file.notes else '-'} |\n"
+                table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {file.config_status} | {file.logger_status} | {doc_status} | {file.notes if file.notes else '-'} |\n"
 
-            # Tests layer - egyszerűsített táblázat
-            elif layer == "tests":
-                table += "| Fájl | Státusz | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Dokumentálva | Teendők |\n"
-                table += "|:-----|:--------|:-------------------|:---------------------|:------------------|:---------|:-------------|:--------|\n"
-
-                for file in sorted(files, key=lambda x: x.relative_path):
-                    short_path = file.relative_path
-
-                    # Teszt eredmények
-                    if file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0 or file.test_skipped > 0:
-                        test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
-                    else:
-                        test_results = "-"
-
-                    # Coverage
-                    if file.coverage_stmt > 0:
-                        coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
-                    else:
-                        coverage = "N/A"
-
-                    # Lint/Mypy/Pylance
-                    lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
-
-                    # Source Warnings
-                    src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
-
-                    # Dokumentálva
-                    doc_status = "✅" if file.has_documentation else "❌"
-
-                    table += f"| `{short_path}` | {file.overall_status} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {doc_status} | {file.notes if file.notes else '-'} |\n"
-            else:
-                # Neural_ai layerekhez teljes táblázat + Dokumentálva oszlop
-                table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
-                table += "|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|\n"
-
-                for file in sorted(files, key=lambda x: x.relative_path):
-                    # Root layer esetén ne távolítsuk el a neural_ai/ prefix-et
-                    if layer == "root":
-                        short_path = file.relative_path
-                    else:
-                        short_path = file.relative_path.replace("neural_ai/", "")
-
-                    # Teszt pár
-                    test_pair = "✅ FOUND" if file.test_file_exists else "❌ MISSING"
-
-                    # Teszt eredmények
-                    if file.test_file_exists and (file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0 or file.test_skipped > 0):
-                        test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
-                    else:
-                        test_results = "-"
-
-                    # Coverage
-                    if file.coverage_stmt > 0:
-                        coverage = f"{file.coverage_stmt:.0f}% / {file.coverage_branch:.0f}%"
-                    else:
-                        coverage = "N/A"
-
-                    # Lint/Mypy/Pylance
-                    lint_mypy_pylance = f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
-
-                    # Source Warnings (pytest warnings a forráskódban)
-                    src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
-
-                    # Dokumentálva
-                    doc_status = "✅" if file.has_documentation else "❌"
-
-                    table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {file.config_status} | {file.logger_status} | {doc_status} | {file.notes if file.notes else '-'} |\n"
-
-            return table
+        return table
 
     def generate(self) -> str:
         """Generálja a teljes Markdown tartalmat."""
@@ -625,13 +656,13 @@ class MarkdownGenerator(GeneratorBase):
 
 **Generálva:** {now}
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
-**Fájlok száma:** {stats['total']}
+**Fájlok száma:** {stats["total"]}
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** {stats['secure']} ({stats['secure'] / stats['total'] * 100:.1f}%)
-- 🟡 **WARNING:** {stats['warning']} ({stats['warning'] / stats['total'] * 100:.1f}%)
-- 🔴 **VULNERABLE:** {stats['vulnerable']} ({stats['vulnerable'] / stats['total'] * 100:.1f}%)
+- ✅ **SECURE:** {stats["secure"]} ({stats["secure"] / stats["total"] * 100:.1f}%)
+- 🟡 **WARNING:** {stats["warning"]} ({stats["warning"] / stats["total"] * 100:.1f}%)
+- 🔴 **VULNERABLE:** {stats["vulnerable"]} ({stats["vulnerable"] / stats["total"] * 100:.1f}%)
 
 ---
 """
@@ -982,7 +1013,7 @@ class HTMLGenerator(GeneratorBase):
             <div class="meta">
                 <strong>Generálva:</strong> {now} &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance) &nbsp;|&nbsp;
-                <strong>Fájlok:</strong> {stats['total']}
+                <strong>Fájlok:</strong> {stats["total"]}
             </div>
         </div>
     </div>
@@ -993,7 +1024,7 @@ class HTMLGenerator(GeneratorBase):
                 <div class="stat-header">
                     <div class="stat-icon">✓</div>
                 </div>
-                <div class="stat-value">{stats['secure']}</div>
+                <div class="stat-value">{stats["secure"]}</div>
                 <div class="stat-label">Secure</div>
                 <div class="stat-percent">{secure_pct:.1f}% a teljes kódbázisból</div>
             </div>
@@ -1001,7 +1032,7 @@ class HTMLGenerator(GeneratorBase):
                 <div class="stat-header">
                     <div class="stat-icon">⚠</div>
                 </div>
-                <div class="stat-value">{stats['warning']}</div>
+                <div class="stat-value">{stats["warning"]}</div>
                 <div class="stat-label">Warning</div>
                 <div class="stat-percent">{warning_pct:.1f}% javítást igényel</div>
             </div>
@@ -1009,7 +1040,7 @@ class HTMLGenerator(GeneratorBase):
                 <div class="stat-header">
                     <div class="stat-icon">✕</div>
                 </div>
-                <div class="stat-value">{stats['critical']}</div>
+                <div class="stat-value">{stats["critical"]}</div>
                 <div class="stat-label">Critical</div>
                 <div class="stat-percent">{critical_pct:.1f}% azonnali beavatkozás</div>
             </div>
@@ -1017,7 +1048,7 @@ class HTMLGenerator(GeneratorBase):
                 <div class="stat-header">
                     <div class="stat-icon">◉</div>
                 </div>
-                <div class="stat-value">{stats['tested']}/{stats['total']}</div>
+                <div class="stat-value">{stats["tested"]}/{stats["total"]}</div>
                 <div class="stat-label">Tesztelt</div>
                 <div class="stat-percent">{tested_pct:.1f}% teszt lefedettség</div>
             </div>
@@ -1056,35 +1087,35 @@ class HTMLGenerator(GeneratorBase):
         return html_output
 
     def _create_html_table(self, layer: str, files: list[FileAnalysis]) -> str:
-            """Létrehoz egy HTML táblázatot egy réteghez."""
-            if not files:
-                return ""
+        """Létrehoz egy HTML táblázatot egy réteghez."""
+        if not files:
+            return ""
 
-            num, name, path = self.LAYER_MAPPING[layer]
+        num, name, path = self.LAYER_MAPPING[layer]
 
-            # Layer ikonok
-            layer_icons = {
-                "root": "🏠",
-                "core": "⚙️",
-                "collectors": "📡",
-                "data": "💾",
-                "processors": "🧠",
-                "ui": "🎨",
-                "tests": "🧪",
-                "scripts": "📜",
-            }
-            icon = layer_icons.get(layer, "📦")
+        # Layer ikonok
+        layer_icons = {
+            "root": "🏠",
+            "core": "⚙️",
+            "collectors": "📡",
+            "data": "💾",
+            "processors": "🧠",
+            "ui": "🎨",
+            "tests": "🧪",
+            "scripts": "📜",
+        }
+        icon = layer_icons.get(layer, "📦")
 
-            html_output = f"""
+        html_output = f"""
             <div class="layer">
                 <div class="layer-title">{icon} {num}. {name} Layer <span style="opacity: 0.6; font-size: 0.9rem;">({path})</span></div>
                 <table>
                     <thead>
                         <tr>"""
 
-            # Scripts layer - teljes fejléc
-            if layer == "scripts":
-                html_output += """
+        # Scripts layer - teljes fejléc
+        if layer == "scripts":
+            html_output += """
                             <th>Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
@@ -1096,9 +1127,9 @@ class HTMLGenerator(GeneratorBase):
                             <th>Logger</th>
                             <th>Dokumentálva</th>
                             <th>Teendők</th>"""
-            # Tests layer - egyszerűsített fejléc
-            elif layer == "tests":
-                html_output += """
+        # Tests layer - egyszerűsített fejléc
+        elif layer == "tests":
+            html_output += """
                             <th>Fájl</th>
                             <th>Státusz</th>
                             <th>Pass/Fail/Err/Skip</th>
@@ -1107,9 +1138,9 @@ class HTMLGenerator(GeneratorBase):
                             <th>Src Warn</th>
                             <th>Dokumentálva</th>
                             <th>Teendők</th>"""
-            else:
-                # Neural_ai layerekhez teljes fejléc + Dokumentálva
-                html_output += """
+        else:
+            # Neural_ai layerekhez teljes fejléc + Dokumentálva
+            html_output += """
                             <th>Modul / Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
@@ -1122,73 +1153,129 @@ class HTMLGenerator(GeneratorBase):
                             <th>Dokumentálva</th>
                             <th>Teendők</th>"""
 
-            html_output += """
+        html_output += """
                         </tr>
                     </thead>
                     <tbody>
     """
 
-            for file in sorted(files, key=lambda x: x.relative_path):
-                # Root layer esetén ne távolítsuk el a neural_ai/ prefix-et
-                if layer == "root":
-                    short_path = file.relative_path
-                elif layer not in ["tests", "scripts"]:
-                    short_path = file.relative_path.replace("neural_ai/", "")
+        for file in sorted(files, key=lambda x: x.relative_path):
+            # Root layer esetén ne távolítsuk el a neural_ai/ prefix-et
+            if layer == "root":
+                short_path = file.relative_path
+            elif layer not in ["tests", "scripts"]:
+                short_path = file.relative_path.replace("neural_ai/", "")
+            else:
+                short_path = file.relative_path
+            # HTML escape a biztonság érdekében
+            short_path_escaped = html.escape(short_path)
+
+            # Státusz badge
+            if file.overall_status == "✅ SECURE":
+                status_badge = '<span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span>'
+            elif file.overall_status == "🟡 WARNING":
+                status_badge = '<span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span>'
+            else:
+                status_badge = '<span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span>'
+
+            # Teszt eredmények
+            if (
+                file.test_passed > 0
+                or file.test_failed > 0
+                or file.test_errors > 0
+                or file.test_skipped > 0
+            ):
+                pass_str = (
+                    f'<span class="test-pass">{file.test_passed}</span>'
+                    if file.test_passed > 0
+                    else "0"
+                )
+                fail_str = (
+                    f'<span class="test-fail">{file.test_failed}</span>'
+                    if file.test_failed > 0
+                    else "0"
+                )
+                error_str = (
+                    f'<span class="test-error">{file.test_errors}</span>'
+                    if file.test_errors > 0
+                    else "0"
+                )
+                skip_str = (
+                    f'<span class="test-skip">{file.test_skipped}</span>'
+                    if file.test_skipped > 0
+                    else "0"
+                )
+                test_results = f"{pass_str}/{fail_str}/{error_str}/{skip_str}"
+            else:
+                test_results = '<span style="opacity: 0.4;">-</span>'
+
+            # Lint/Mypy/Pylance
+            lint_str = (
+                f'<span class="test-fail">{file.lint_errors}</span>'
+                if file.lint_errors > 0
+                else '<span style="opacity: 0.6;">0</span>'
+            )
+            mypy_str = (
+                f'<span class="test-fail">{file.type_errors}</span>'
+                if file.type_errors > 0
+                else '<span style="opacity: 0.6;">0</span>'
+            )
+            pylance_str = (
+                f'<span class="test-fail">{file.pylance_errors}</span>'
+                if file.pylance_errors > 0
+                else '<span style="opacity: 0.6;">0</span>'
+            )
+            lint_type = f"{lint_str} / {mypy_str} / {pylance_str}"
+
+            # Source Warnings
+            src_warn = (
+                f'<span class="test-warn">{file.source_warnings}</span>'
+                if file.source_warnings > 0
+                else '<span style="opacity: 0.4;">-</span>'
+            )
+
+            # Teendők (HTML escape)
+            notes_display = (
+                html.escape(file.notes)
+                if file.notes and file.notes != "-"
+                else '<span style="opacity: 0.4;">-</span>'
+            )
+
+            # Scripts layer - teljes sor
+            if layer == "scripts":
+                # Teszt pár
+                test_pair = (
+                    '<span class="test-found">✓ FOUND</span>'
+                    if file.test_file_exists
+                    else '<span class="test-missing">✕ MISSING</span>'
+                )
+
+                # Coverage
+                if file.coverage_stmt > 0:
+                    cov_class = "cov-good" if file.coverage_stmt >= 80 else "cov-low"
+                    coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
                 else:
-                    short_path = file.relative_path
-                # HTML escape a biztonság érdekében
-                short_path_escaped = html.escape(short_path)
+                    coverage = '<span style="opacity: 0.4;">N/A</span>'
 
-                # Státusz badge
-                if file.overall_status == "✅ SECURE":
-                    status_badge = '<span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span>'
-                elif file.overall_status == "🟡 WARNING":
-                    status_badge = '<span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span>'
-                else:
-                    status_badge = '<span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span>'
+                # Config és Logger státusz
+                config_display = html.escape(
+                    file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○")
+                )
+                logger_display = html.escape(
+                    file.logger_status.replace("✅", "✓")
+                    .replace("⚠️", "⚠")
+                    .replace("🔴", "✕")
+                    .replace("⚪", "○")
+                )
 
-                # Teszt eredmények
-                if file.test_passed > 0 or file.test_failed > 0 or file.test_errors > 0 or file.test_skipped > 0:
-                    pass_str = f'<span class="test-pass">{file.test_passed}</span>' if file.test_passed > 0 else '0'
-                    fail_str = f'<span class="test-fail">{file.test_failed}</span>' if file.test_failed > 0 else '0'
-                    error_str = f'<span class="test-error">{file.test_errors}</span>' if file.test_errors > 0 else '0'
-                    skip_str = f'<span class="test-skip">{file.test_skipped}</span>' if file.test_skipped > 0 else '0'
-                    test_results = f'{pass_str}/{fail_str}/{error_str}/{skip_str}'
-                else:
-                    test_results = '<span style="opacity: 0.4;">-</span>'
+                # Dokumentálva
+                doc_display = (
+                    '<span class="test-found">✓</span>'
+                    if file.has_documentation
+                    else '<span class="test-missing">✕</span>'
+                )
 
-                # Lint/Mypy/Pylance
-                lint_str = f'<span class="test-fail">{file.lint_errors}</span>' if file.lint_errors > 0 else '<span style="opacity: 0.6;">0</span>'
-                mypy_str = f'<span class="test-fail">{file.type_errors}</span>' if file.type_errors > 0 else '<span style="opacity: 0.6;">0</span>'
-                pylance_str = f'<span class="test-fail">{file.pylance_errors}</span>' if file.pylance_errors > 0 else '<span style="opacity: 0.6;">0</span>'
-                lint_type = f'{lint_str} / {mypy_str} / {pylance_str}'
-
-                # Source Warnings
-                src_warn = f'<span class="test-warn">{file.source_warnings}</span>' if file.source_warnings > 0 else '<span style="opacity: 0.4;">-</span>'
-
-                # Teendők (HTML escape)
-                notes_display = html.escape(file.notes) if file.notes and file.notes != "-" else '<span style="opacity: 0.4;">-</span>'
-
-                # Scripts layer - teljes sor
-                if layer == "scripts":
-                    # Teszt pár
-                    test_pair = '<span class="test-found">✓ FOUND</span>' if file.test_file_exists else '<span class="test-missing">✕ MISSING</span>'
-
-                    # Coverage
-                    if file.coverage_stmt > 0:
-                        cov_class = 'cov-good' if file.coverage_stmt >= 80 else 'cov-low'
-                        coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
-                    else:
-                        coverage = '<span style="opacity: 0.4;">N/A</span>'
-
-                    # Config és Logger státusz
-                    config_display = html.escape(file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○"))
-                    logger_display = html.escape(file.logger_status.replace("✅", "✓").replace("⚠️", "⚠").replace("🔴", "✕").replace("⚪", "○"))
-
-                    # Dokumentálva
-                    doc_display = '<span class="test-found">✓</span>' if file.has_documentation else '<span class="test-missing">✕</span>'
-
-                    html_output += f"""
+                html_output += f"""
                         <tr>
                             <td class="file-path">{short_path_escaped}</td>
                             <td>{status_badge}</td>
@@ -1203,19 +1290,23 @@ class HTMLGenerator(GeneratorBase):
                             <td>{notes_display}</td>
                         </tr>
     """
-                # Tests layer - egyszerűsített sor
-                elif layer == "tests":
-                    # Coverage
-                    if file.coverage_stmt > 0:
-                        cov_class = 'cov-good' if file.coverage_stmt >= 80 else 'cov-low'
-                        coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
-                    else:
-                        coverage = '<span style="opacity: 0.4;">N/A</span>'
+            # Tests layer - egyszerűsített sor
+            elif layer == "tests":
+                # Coverage
+                if file.coverage_stmt > 0:
+                    cov_class = "cov-good" if file.coverage_stmt >= 80 else "cov-low"
+                    coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
+                else:
+                    coverage = '<span style="opacity: 0.4;">N/A</span>'
 
-                    # Dokumentálva
-                    doc_display = '<span class="test-found">✓</span>' if file.has_documentation else '<span class="test-missing">✕</span>'
+                # Dokumentálva
+                doc_display = (
+                    '<span class="test-found">✓</span>'
+                    if file.has_documentation
+                    else '<span class="test-missing">✕</span>'
+                )
 
-                    html_output += f"""
+                html_output += f"""
                         <tr>
                             <td class="file-path">{short_path_escaped}</td>
                             <td>{status_badge}</td>
@@ -1227,26 +1318,41 @@ class HTMLGenerator(GeneratorBase):
                             <td>{notes_display}</td>
                         </tr>
     """
+            else:
+                # Neural_ai layerekhez teljes sor
+                # Teszt pár
+                test_pair = (
+                    '<span class="test-found">✓ FOUND</span>'
+                    if file.test_file_exists
+                    else '<span class="test-missing">✕ MISSING</span>'
+                )
+
+                # Coverage
+                if file.coverage_stmt > 0:
+                    cov_class = "cov-good" if file.coverage_stmt >= 80 else "cov-low"
+                    coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
                 else:
-                    # Neural_ai layerekhez teljes sor
-                    # Teszt pár
-                    test_pair = '<span class="test-found">✓ FOUND</span>' if file.test_file_exists else '<span class="test-missing">✕ MISSING</span>'
+                    coverage = '<span style="opacity: 0.4;">N/A</span>'
 
-                    # Coverage
-                    if file.coverage_stmt > 0:
-                        cov_class = 'cov-good' if file.coverage_stmt >= 80 else 'cov-low'
-                        coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
-                    else:
-                        coverage = '<span style="opacity: 0.4;">N/A</span>'
+                # Config és Logger státusz (HTML escape)
+                config_display = html.escape(
+                    file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○")
+                )
+                logger_display = html.escape(
+                    file.logger_status.replace("✅", "✓")
+                    .replace("⚠️", "⚠")
+                    .replace("🔴", "✕")
+                    .replace("⚪", "○")
+                )
 
-                    # Config és Logger státusz (HTML escape)
-                    config_display = html.escape(file.config_status.replace("✅", "✓").replace("🔴", "✕").replace("⚪", "○"))
-                    logger_display = html.escape(file.logger_status.replace("✅", "✓").replace("⚠️", "⚠").replace("🔴", "✕").replace("⚪", "○"))
+                # Dokumentálva
+                doc_display = (
+                    '<span class="test-found">✓</span>'
+                    if file.has_documentation
+                    else '<span class="test-missing">✕</span>'
+                )
 
-                    # Dokumentálva
-                    doc_display = '<span class="test-found">✓</span>' if file.has_documentation else '<span class="test-missing">✕</span>'
-
-                    html_output += f"""
+                html_output += f"""
                         <tr>
                             <td class="file-path">{short_path_escaped}</td>
                             <td>{status_badge}</td>
@@ -1262,12 +1368,12 @@ class HTMLGenerator(GeneratorBase):
                         </tr>
     """
 
-            html_output += """
+        html_output += """
                     </tbody>
                 </table>
             </div>
     """
-            return html_output
+        return html_output
 
 
 class TaskTreeGenerator:
@@ -1311,17 +1417,26 @@ class TaskTreeGenerator:
             # Először pytest JSON reporttal (collection errorok ellenére folytatjuk)
             cmd_pytest = [
                 str(PYTEST_BIN),
-                "-q", "--tb=no",
+                "-q",
+                "--tb=no",
                 "--continue-on-collection-errors",
-                "--json-report", f"--json-report-file={REPORT_DIR}/pytest_report.json",
-                "tests/"
+                "--json-report",
+                f"--json-report-file={REPORT_DIR}/pytest_report.json",
+                "tests/",
             ]
             subprocess.run(cmd_pytest, check=False, env=env, capture_output=True)
 
             # Majd coverage futtatás (neural_ai + scripts + root)
             cmd_cov = [
-                str(COVERAGE_BIN), "run", "--branch", "--source=neural_ai,scripts,.",
-                "-m", "pytest", "-q", "--tb=no", "tests/"
+                str(COVERAGE_BIN),
+                "run",
+                "--branch",
+                "--source=neural_ai,scripts,.",
+                "-m",
+                "pytest",
+                "-q",
+                "--tb=no",
+                "tests/",
             ]
             subprocess.run(cmd_cov, check=False, env=env, capture_output=True)
 
@@ -1339,7 +1454,14 @@ class TaskTreeGenerator:
         print("  🔍 Ruff linter...")
         try:
             with open(RUFF_FILE, "w") as f:
-                cmd = [str(RUFF_BIN), "check", "neural_ai", "tests", "scripts", "--output-format=json"]
+                cmd = [
+                    str(RUFF_BIN),
+                    "check",
+                    "neural_ai",
+                    "tests",
+                    "scripts",
+                    "--output-format=json",
+                ]
                 subprocess.run(cmd, stdout=f, check=False, env=env)
 
             if RUFF_FILE.exists():
@@ -1359,12 +1481,14 @@ class TaskTreeGenerator:
                 if line.strip() and ": error:" in line:
                     parts = line.split(":", 3)
                     if len(parts) >= 4:
-                        mypy_errors.append({
-                            "file": parts[0].strip(),
-                            "line": parts[1].strip(),
-                            "severity": "error",
-                            "message": parts[3].strip()
-                        })
+                        mypy_errors.append(
+                            {
+                                "file": parts[0].strip(),
+                                "line": parts[1].strip(),
+                                "severity": "error",
+                                "message": parts[3].strip(),
+                            }
+                        )
 
             with open(MYPY_FILE, "w") as f:
                 json.dump(mypy_errors, f, indent=2)
@@ -1379,7 +1503,9 @@ class TaskTreeGenerator:
         try:
             # Pyright futtatása JSON outputtal (neural_ai + tests + scripts)
             cmd = ["pyright", "neural_ai", "tests", "scripts", "--outputjson"]
-            result = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env, timeout=60)
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, check=False, env=env, timeout=60
+            )
 
             if result.stdout.strip():
                 pylance_json = json.loads(result.stdout)
@@ -1396,20 +1522,25 @@ class TaskTreeGenerator:
                         # Pyright abszolút útvonalat ad: /home/.../neural-ai-next/neural_ai/...
                         # Nekünk relatív kell: neural_ai/...
                         if file_path.startswith(str(PROJECT_ROOT)):
-                            file_path = file_path[len(str(PROJECT_ROOT)) + 1:]  # +1 a / miatt
+                            file_path = file_path[len(str(PROJECT_ROOT)) + 1 :]  # +1 a / miatt
 
-                        pylance_errors.append({
-                            "file": file_path,
-                            "line": diagnostic.get("range", {}).get("start", {}).get("line", 0) + 1,
-                            "severity": severity,
-                            "message": diagnostic.get("message", "")
-                        })
+                        pylance_errors.append(
+                            {
+                                "file": file_path,
+                                "line": diagnostic.get("range", {}).get("start", {}).get("line", 0)
+                                + 1,
+                                "severity": severity,
+                                "message": diagnostic.get("message", ""),
+                            }
+                        )
 
                 with open(pylance_file, "w") as f:
                     json.dump(pylance_errors, f, indent=2)
 
                 self.pylance_data = pylance_errors
-                print(f"    ✅ {len(pylance_errors)} Pylance hiba/figyelmeztetés találva (strict mode)")
+                print(
+                    f"    ✅ {len(pylance_errors)} Pylance hiba/figyelmeztetés találva (strict mode)"
+                )
             else:
                 self.pylance_data = []
         except subprocess.TimeoutExpired:
@@ -1444,7 +1575,7 @@ class TaskTreeGenerator:
                                 "passed": 0,
                                 "failed": 0,
                                 "errors": 0,
-                                "skipped": 0
+                                "skipped": 0,
                             }
 
                         if outcome == "passed":
@@ -1510,14 +1641,16 @@ class TaskTreeGenerator:
         # Mypy
         if isinstance(self.mypy_data, list):
             metrics["type_errors"] = sum(
-                1 for err in self.mypy_data
+                1
+                for err in self.mypy_data
                 if err.get("file") == rel_path and err.get("severity") == "error"
             )
 
         # Pylance
         if isinstance(self.pylance_data, list):
             metrics["pylance_errors"] = sum(
-                1 for err in self.pylance_data
+                1
+                for err in self.pylance_data
                 if err.get("file") == rel_path and err.get("severity") in ["error", "warning"]
             )
 
@@ -1708,7 +1841,6 @@ class TaskTreeGenerator:
         print(f"  🟡 WARNING: {stats['warning']} ({warning_pct:.1f}%)")
         print(f"  🔴 VULNERABLE: {stats['vulnerable']} ({vuln_pct:.1f}%)")
         print(f"  🔴 VULNERABLE: {stats['vulnerable']} ({vuln_pct:.1f}%)")
-
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ Ez a modul tartalmazza a StorageBackend és DataFrameProtocol tesztjeit.
 ## Importok
 
 ```python
+from typing import Any
 from unittest.mock import Mock
 import pytest
 from neural_ai.data.storage.backends.base import DataFrameProtocol
@@ -16,11 +17,11 @@ from neural_ai.data.storage.backends.base import StorageBackend
 ## Konstansok
 
 - **`backend`**
-: `MockBackend('test_backend', ['parquet', 'csv'])`
+: `MockBackend(Mock(), 'test_backend', ['parquet', 'csv'])`
 
 
 - **`backend`**
-: `MockBackend('test', ['parquet'])`
+: `MockBackend(Mock(), 'test', ['parquet'])`
 
 
 - **`mock_invalid`**
@@ -48,11 +49,11 @@ from neural_ai.data.storage.backends.base import StorageBackend
 
 
 - **`backend`**
-: `MockBackend('test', ['parquet', 'csv'])`
+: `MockBackend(Mock(), 'test', ['parquet', 'csv'])`
 
 
 - **`backend`**
-: `MockBackend('test_backend', ['parquet'])`
+: `MockBackend(Mock(), 'test_backend', ['parquet'])`
 
 
 - **`repr_str`**
@@ -60,11 +61,11 @@ from neural_ai.data.storage.backends.base import StorageBackend
 
 
 - **`backend`**
-: `MockBackend()`
+: `MockBackend(Mock(), 'test', ['parquet'])`
 
 
 - **`backend`**
-: `MockBackend('test', ['parquet'])`
+: `MockBackend(Mock(), 'test', ['parquet'])`
 
 
 - **`mock_zero_length`**
@@ -118,59 +119,79 @@ Mock backend implementáció.
 #### `write()`
 
 ```python
-def write(self, data, path)
+def write(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `read()`
 
 ```python
-def read(self, path)
+def read(self, path: str) -> Mock
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `Mock`
 
 #### `append()`
 
 ```python
-def append(self, data, path)
+def append(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `supports_format()`
 
 ```python
-def supports_format(self, format_name)
+def supports_format(self, format_name: str) -> bool
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`format_name`**
+- **`format_name`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `bool`
 
 #### `get_info()`
 
 ```python
-def get_info(self, path)
+def get_info(self, path: str) -> dict[str, Any]
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `dict[str, Any]`
 
 ## Osztály: `MockBackend(StorageBackend)`
 
@@ -181,59 +202,79 @@ Mock backend implementáció.
 #### `write()`
 
 ```python
-def write(self, data, path)
+def write(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `read()`
 
 ```python
-def read(self, path)
+def read(self, path: str) -> Mock
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `Mock`
 
 #### `append()`
 
 ```python
-def append(self, data, path)
+def append(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `supports_format()`
 
 ```python
-def supports_format(self, format_name)
+def supports_format(self, format_name: str) -> bool
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`format_name`**
+- **`format_name`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `bool`
 
 #### `get_info()`
 
 ```python
-def get_info(self, path)
+def get_info(self, path: str) -> dict[str, Any]
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `dict[str, Any]`
 
 ## Osztály: `MockBackend(StorageBackend)`
 
@@ -244,59 +285,79 @@ Mock backend implementáció.
 #### `write()`
 
 ```python
-def write(self, data, path)
+def write(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `read()`
 
 ```python
-def read(self, path)
+def read(self, path: str) -> Mock
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `Mock`
 
 #### `append()`
 
 ```python
-def append(self, data, path)
+def append(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `supports_format()`
 
 ```python
-def supports_format(self, format_name)
+def supports_format(self, format_name: str) -> bool
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`format_name`**
+- **`format_name`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `bool`
 
 #### `get_info()`
 
 ```python
-def get_info(self, path)
+def get_info(self, path: str) -> dict[str, Any]
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `dict[str, Any]`
 
 ## Osztály: `MockBackend(StorageBackend)`
 
@@ -307,59 +368,79 @@ Mock backend implementáció.
 #### `write()`
 
 ```python
-def write(self, data, path)
+def write(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `read()`
 
 ```python
-def read(self, path)
+def read(self, path: str) -> Mock
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `Mock`
 
 #### `append()`
 
 ```python
-def append(self, data, path)
+def append(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `supports_format()`
 
 ```python
-def supports_format(self, format_name)
+def supports_format(self, format_name: str) -> bool
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`format_name`**
+- **`format_name`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `bool`
 
 #### `get_info()`
 
 ```python
-def get_info(self, path)
+def get_info(self, path: str) -> dict[str, Any]
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `dict[str, Any]`
 
 ## Osztály: `MockBackend(StorageBackend)`
 
@@ -370,69 +451,96 @@ Mock backend implementáció.
 #### `__init__()`
 
 ```python
-def __init__(self)
+def __init__(self, logger: Mock | None = None, name: str = 'test', supported_formats: list[str] | None = None) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
+- **`logger`** (`Mock | None`) = `None`
+- **`name`** (`str`) = `'test'`
+- **`supported_formats`** (`list[str] | None`) = `None`
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `write()`
 
 ```python
-def write(self, data, path)
+def write(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `read()`
 
 ```python
-def read(self, path)
+def read(self, path: str) -> Mock
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `Mock`
 
 #### `append()`
 
 ```python
-def append(self, data, path)
+def append(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `supports_format()`
 
 ```python
-def supports_format(self, format_name)
+def supports_format(self, format_name: str) -> bool
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`format_name`**
+- **`format_name`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `bool`
 
 #### `get_info()`
 
 ```python
-def get_info(self, path)
+def get_info(self, path: str) -> dict[str, Any]
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `dict[str, Any]`
 
 ## Osztály: `MockBackend(StorageBackend)`
 
@@ -443,59 +551,79 @@ Mock backend implementáció.
 #### `write()`
 
 ```python
-def write(self, data, path)
+def write(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `read()`
 
 ```python
-def read(self, path)
+def read(self, path: str) -> Mock
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `Mock`
 
 #### `append()`
 
 ```python
-def append(self, data, path)
+def append(self, data: bytes, path: str) -> None
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`data`**
-- **`path`**
+- **`data`** (`bytes`)
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
 
 #### `supports_format()`
 
 ```python
-def supports_format(self, format_name)
+def supports_format(self, format_name: str) -> bool
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`format_name`**
+- **`format_name`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `bool`
 
 #### `get_info()`
 
 ```python
-def get_info(self, path)
+def get_info(self, path: str) -> dict[str, Any]
 ```
 
 **Paraméterek:**
 
 - **`self`**
-- **`path`**
+- **`path`** (`str`)
+
+**Visszatérési érték:**
+
+- Típus: `dict[str, Any]`
 
 ## Osztály: `TestStorageBackend`
 
