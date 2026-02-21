@@ -111,7 +111,7 @@ class TestMigrateStructure:
         mock_logger.info.assert_any_call("Üres tick mappa törlésre kerül: " + str(mock_tick_dir))
         mock_logger.info.assert_any_call("Sikeresen törölve: " + str(mock_tick_dir))
         mock_logger.info.assert_any_call(
-            "Migráció befejezve. Feldolgozott szimbólumok: 1, Migrált: 1"
+            "Migráció befejezve. Feldolgozott: 1, Migrált: 1"
         )
 
     @patch("scripts.migrate_structure.CoreComponentFactory.create_minimal")
