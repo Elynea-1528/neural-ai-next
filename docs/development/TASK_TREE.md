@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-02-21 17:24:54 UTC
+**Generálva:** 2026-02-21 18:08:43 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 287
 
@@ -16,7 +16,7 @@
 
 | Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
-| `main.py` | ✅ SECURE | ✅ FOUND | **29**/0/0/0 | 99% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
+| `main.py` | ✅ SECURE | ✅ FOUND | **29**/0/0/0 | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `neural_ai/__init__.py` | ✅ SECURE | ✅ FOUND | **21**/0/0/0 | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 
 ## 1. Infrastructure Layer (`neural_ai/core/`)
@@ -57,15 +57,15 @@
 | `core/db/implementations/models.py` | ✅ SECURE | ✅ FOUND | **22**/0/0/0 | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/db/implementations/sqlalchemy_session.py` | 🔴 VULNERABLE | ✅ FOUND | **15**/10/0/0 | N/A | 0 / 0 / 10 | - | ⚪ N/A | ✅ OK | ✅ | 🔴 **Tesztek javítása: 10 failed, 0 error** | 🔎 Pylance: 10 hiba javítása |
 | `core/db/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/events/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/events/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/events/exceptions/event_error.py` | ✅ SECURE | ✅ FOUND | **9**/0/0/0 | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/events/factory.py` | 🔴 VULNERABLE | ✅ FOUND | **7**/5/0/0 | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 5 failed, 0 error** |
-| `core/events/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/events/implementations/zeromq_bus.py` | 🔴 VULNERABLE | ✅ FOUND | **24**/25/0/0 | N/A | 0 / 0 / 20 | - | ✅ OK | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 25 failed, 0 error** | 🔎 Pylance: 20 hiba javítása |
-| `core/events/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `core/events/interfaces/event_bus_interface.py` | ✅ SECURE | ✅ FOUND | **27**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | - |
-| `core/events/interfaces/event_models.py` | ✅ SECURE | ✅ FOUND | **26**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | - |
+| `core/events/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
+| `core/events/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
+| `core/events/exceptions/event_error.py` | ✅ SECURE | ✅ FOUND | **9**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
+| `core/events/factory.py` | 🔴 VULNERABLE | ✅ FOUND | **7**/5/0/0 | 93% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 5 failed, 0 error** |
+| `core/events/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
+| `core/events/implementations/zeromq_bus.py` | 🔴 VULNERABLE | ✅ FOUND | **24**/25/0/0 | 100% / 100% | 0 / 0 / 20 | - | ✅ OK | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 25 failed, 0 error** | 🔎 Pylance: 20 hiba javítása |
+| `core/events/interfaces/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
+| `core/events/interfaces/event_bus_interface.py` | ✅ SECURE | ✅ FOUND | **27**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | - |
+| `core/events/interfaces/event_models.py` | ✅ SECURE | ✅ FOUND | **26**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | - |
 | `core/logger/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/logger/exceptions/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/logger/exceptions/logger_error.py` | ✅ SECURE | ✅ FOUND | **14**/0/0/0 | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
