@@ -199,7 +199,6 @@ class LoggerFactory(LoggerFactoryInterface):
         )
 
         # Alap beállítások
-        # type: ignore - logging constant is int, config is dict[str, Any]
         default_level = getattr(logging, config.get("default_level", "DEBUG"))
 
         # Root logger konfigurálása
@@ -330,7 +329,6 @@ class LoggerFactory(LoggerFactoryInterface):
         for logger_name, logger_settings in loggers_config.items():
             logger_instance = logging.getLogger(logger_name)
             if "level" in logger_settings:
-                # type: ignore - logging constant is int
                 logger_instance.setLevel(getattr(logging, logger_settings["level"]))
             if "propagate" in logger_settings:
                 logger_instance.propagate = logger_settings["propagate"]

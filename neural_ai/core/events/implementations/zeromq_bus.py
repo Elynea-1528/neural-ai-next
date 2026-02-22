@@ -183,7 +183,7 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
             try:
                 # Az asyncio socket send_multipart metódusa awaitable
-                await self._publisher.send_multipart([topic, message])  # type: ignore[no-untyped-call]
+                await self._publisher.send_multipart([topic, message])
             except Exception as e:
                 self._logger.error(
                     "Hiba az esemény közzétételekor",
@@ -350,6 +350,9 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
                         # Továbbítjuk az eseményt
                         await self._dispatch_event(event_type, event_data)
 
+                except asyncio.CancelledError:
+                    # CancelledError-t tovább kell dobni, ne kapjuk el
+                    raise
                 except TimeoutError:
                     # Időtúllépés, ellenőrizzük a futási állapotot
                     continue

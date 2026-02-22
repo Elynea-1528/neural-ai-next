@@ -61,8 +61,8 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
         storage = cast(ParquetStorageService, core.storage)
 
         # Debug: Ellenőrizzük, hogy a storage létezik-e
-        print(f"   ✅ Storage: {storage is not None} (type: {type(storage)})")
-        if storage is None:
+        print(f"   ✅ Storage: {core.storage is not None} (type: {type(storage)})")
+        if core.storage is None:
             print("   ❌ Hiba: Storage None!")
             return
 

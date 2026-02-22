@@ -24,7 +24,8 @@ from dataclasses import dataclass
 from datetime import UTC
 from datetime import datetime
 from pathlib import Path
-from typing import Literal
+from typing import Any
+# ... és még 1 import
 ```
 
 ## Konstansok
@@ -458,7 +459,7 @@ Futtatja a dinamikus ellenőrző eszközöket.
 #### `get_dynamic_metrics()`
 
 ```python
-def get_dynamic_metrics(self, file_path: Path) -> dict
+def get_dynamic_metrics(self, file_path: Path) -> dict[str, Any]
 ```
 
 Visszaadja a dinamikus metrikákat egy fájlhoz.
@@ -470,7 +471,7 @@ Visszaadja a dinamikus metrikákat egy fájlhoz.
 
 **Visszatérési érték:**
 
-- Típus: `dict`
+- Típus: `dict[str, Any]`
 
 #### `scan_codebase()`
 

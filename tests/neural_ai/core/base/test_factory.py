@@ -33,7 +33,7 @@ class TestCoreComponentFactory:
         # De itt az init-et teszteljük, ami nem hívja a loggert, csak a property hozzáférés.
 
         # A legegyszerűbb, ha a mock objektumot úgy állítjuk be, hogy átmenjen az ellenőrzésen
-        mock_logger = MagicMock(spec=LoggerInterface)
+        mock_logger = MagicMock()
         container.register_instance(LoggerInterface, mock_logger)
 
         factory: CoreComponentFactory = CoreComponentFactory(container)
@@ -97,7 +97,7 @@ class TestCoreComponentFactory:
 
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
-        mock_logger = MagicMock(spec=LoggerInterface)
+        mock_logger = MagicMock()
         container.register_instance(LoggerInterface, mock_logger)
 
         factory: CoreComponentFactory = CoreComponentFactory(container)

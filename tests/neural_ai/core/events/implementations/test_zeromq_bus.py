@@ -973,8 +973,8 @@ class TestEventBusRunForever:
             call_count += 1
             if call_count == 1:
                 raise Exception("Általános hiba")
-            else:
-                raise asyncio.CancelledError()
+            # Minden további hívásra CancelledError
+            raise asyncio.CancelledError()
 
         mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
 
