@@ -1414,19 +1414,7 @@ class TaskTreeGenerator:
         # 1. Coverage + Pytest + JSON Report
         print("  📊 Coverage + Pytest...")
         try:
-            # Először pytest JSON reporttal (collection errorok ellenére folytatjuk)
-            cmd_pytest = [
-                str(PYTEST_BIN),
-                "-q",
-                "--tb=no",
-                "--continue-on-collection-errors",
-                "--json-report",
-                f"--json-report-file={REPORT_DIR}/pytest_report.json",
-                "tests/",
-            ]
-            subprocess.run(cmd_pytest, check=False, env=env, capture_output=True)
-
-            # Majd coverage futtatás (neural_ai + scripts + root)
+            # Egyetlen futtatás: coverage + pytest + JSON report
             cmd_cov = [
                 str(COVERAGE_BIN),
                 "run",
@@ -1436,17 +1424,41 @@ class TaskTreeGenerator:
                 "pytest",
                 "-q",
                 "--tb=no",
+                "--continue-on-collection-errors",
+                "--json-report",
+                f"--json-report-file={REPORT_DIR}/pytest_report.json",
                 "tests/",
             ]
-            subprocess.run(cmd_cov, check=False, env=env, capture_output=True)
+            # STDOUT/STDERR pipe nélkül (elkerüli a deadlock-ot)
+            # Timeout: 300s (5 perc) - sok teszt van
+            subprocess.run(
+                cmd_cov,
+                check=False,
+                env=env,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=300,
+            )
 
             cmd_json = [str(COVERAGE_BIN), "json", "-o", str(COVERAGE_FILE)]
-            subprocess.run(cmd_json, check=False, env=env)
+            subprocess.run(cmd_json, check=False, env=env, timeout=30)
 
             if COVERAGE_FILE.exists():
                 with open(COVERAGE_FILE) as f:
                     cov_json = json.load(f)
                     self.coverage_data = cov_json.get("files", {})
+        except subprocess.TimeoutExpired:
+            print("    ⚠️ Pytest/Coverage timeout (300s), folytatás részleges adatokkal...")
+            # Próbáljuk meg a coverage JSON-t generálni, ha van .coverage fájl
+            try:
+                cmd_json = [str(COVERAGE_BIN), "json", "-o", str(COVERAGE_FILE)]
+                subprocess.run(cmd_json, check=False, env=env, timeout=30)
+                if COVERAGE_FILE.exists():
+                    with open(COVERAGE_FILE) as f:
+                        cov_json = json.load(f)
+                        self.coverage_data = cov_json.get("files", {})
+            except Exception:
+                pass
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
 

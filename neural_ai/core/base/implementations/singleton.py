@@ -75,6 +75,10 @@ class SingletonMeta(ABCMeta):
             >>> db1.connection_string
             'sqlite:///mydb.db'
         """
+        # Biztosítjuk, hogy a _instances mindig dict legyen (teszt fixture védelem)
+        if not hasattr(cls, '_instances') or cls._instances is None:
+            cls._instances = {}  # type: ignore[attr-defined]
+        
         if cls not in cls._instances:  # type: ignore[attr-defined]
             # Példány létrehozása
             instance = super().__call__(*args, **kwargs)  # type: ignore[misc]
