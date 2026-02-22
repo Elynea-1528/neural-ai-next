@@ -1,0 +1,130 @@
+{
+  "version": "1.5.0",
+  "exportedAt": 1771741927444,
+  "accounts": [
+    {
+      "email": "szabogergely152800@gmail.com",
+      "userId": "d-9067c98495.74f814b8-f0c1-70e4-e5fd-66a3aa7612ab",
+      "nickname": "szabogergely152800",
+      "idp": "Google",
+      "credentials": {
+        "accessToken": "aoaAAAAAGmasNsG07pEwqRyjb8OJcqH38Y6iy1xjEua7JIT_Z6bBcXL6dX4kfcc9LaW4oMlx2Q-VvC5aOjyFgQGfwBkc0:MGQCMA15r9h4k3rYcK3pNuot/m+tgm8NxWOnoGFF11X3n/4ZH2OsDtZ8s5PwnMU924X15wIwTJEVUOWdgMS2dpq/bORZ/oNRDrYjNCCnezU/GbCfcl9Ca8hk4aAWN9/rjria4HMP",
+        "csrfToken": "",
+        "refreshToken": "aorAAAAAGoMuyIDI-K5txsxaghmXPu7LRuV2NSJZOQwspMUU3MSy9FoUnqQ3a_P-5zUpp6ZrstFBCRqrUlVTkmpXQBkc0:MGUCMQCgg1G5XYmYRqwfYuDiI9Cvn7NMO99MdR0ibUkh+Tx3a0HP6YzuaHmpPdjkf+ja3mMCMEFX3EXkeTTokTk5CbdUkZgLJ55gnVHTy0ABQn+soDmlFhRf4SpNawfBqO0f4PL7pg",
+        "clientId": "",
+        "clientSecret": "",
+        "region": "us-east-1",
+        "expiresAt": 1771745501387,
+        "authMethod": "social",
+        "provider": "Google"
+      },
+      "subscription": {
+        "type": "Free",
+        "title": "KIRO FREE",
+        "rawType": "Q_DEVELOPER_STANDALONE_FREE",
+        "daysRemaining": 7,
+        "expiresAt": 1772323200000,
+        "managementTarget": "PURCHASE",
+        "upgradeCapability": "UPGRADE_CAPABLE",
+        "overageCapability": "OVERAGE_INCAPABLE"
+      },
+      "usage": {
+        "current": 550,
+        "limit": 550,
+        "percentUsed": 1,
+        "lastUpdated": 1771741901387,
+        "baseLimit": 50,
+        "baseCurrent": 50,
+        "freeTrialLimit": 500,
+        "freeTrialCurrent": 500,
+        "freeTrialExpiry": "2026-03-06T17:51:41.450Z",
+        "bonuses": [],
+        "nextResetDate": "2026-03-01T00:00:00.000Z",
+        "resourceDetail": {
+          "resourceType": "CREDIT",
+          "displayName": "Credit",
+          "displayNamePlural": "Credits",
+          "currency": "USD",
+          "unit": "INVOCATIONS",
+          "overageRate": 0.04,
+          "overageCap": 10000,
+          "overageEnabled": false
+        }
+      },
+      "tags": [],
+      "status": "active",
+      "lastUsedAt": 1771451350676,
+      "id": "b63be69f-d1d3-47fa-9a00-85955087ff8e",
+      "machineId": "bcefa1dbd850b9cc2c4bdbd5a08ea019cd86ad7b2d0463fa126489f1c05bf2ed",
+      "createdAt": 1771443236674,
+      "lastCheckedAt": 1771741901387
+    },
+    {
+      "email": "szabogergely152800.1@gmail.com",
+      "userId": "d-9067c98495.9468e468-9061-7014-74e6-9b56b17b65af",
+      "nickname": "szabogergely152800.1",
+      "idp": "Google",
+      "credentials": {
+        "accessToken": "aoaAAAAAGmasNwXKwzM_cKX_C_vuS49dO8cs6UvcsDJsSbgtWvsiyOuJkW07u97Wej68GQ1s2nz54dH2A_nz03-ZQBkc0:MGQCMCJEo30rk0G4fd7t4wrIr3imu+WqokyKSx8pfEDZxgHI14bkjQefVAPsQqK35bNBmwIwPCh0kcFEwHfvFp9XgEQonuC5+cDqtio/JDkhIkAZ4Iijh+ZKfN1VHetiawNVtYym",
+        "csrfToken": "",
+        "refreshToken": "aorAAAAAGoMvCQBuZkXqDr2IjzTqxhqWWRZGiUylyT2JN_mXk3j8YzJqOFQc5o9-PZksvwACdM-Mm3JiJcitO7mSkBkc0:MGUCMH2VqK/9iWNebaTGAyAkSq4btCZ0BX8pJPucrmlGPDpjOP9N6H355kErBto5PD5bjwIxAJEPszwqZL6gb5ZvskTIyhKjBmF7P5WhVocoqARtzopZFlo8WsEb8fVrbxFi9mRwmw",
+        "clientId": "",
+        "clientSecret": "",
+        "region": "us-east-1",
+        "expiresAt": 1771745501027,
+        "authMethod": "social",
+        "provider": "Google"
+      },
+      "subscription": {
+        "type": "Free",
+        "title": "KIRO FREE",
+        "rawType": "Q_DEVELOPER_STANDALONE_FREE",
+        "daysRemaining": 7,
+        "expiresAt": 1772323200000,
+        "managementTarget": "PURCHASE",
+        "upgradeCapability": "UPGRADE_CAPABLE",
+        "overageCapability": "OVERAGE_INCAPABLE"
+      },
+      "usage": {
+        "current": 482.05,
+        "limit": 550,
+        "percentUsed": 0.8764545454545455,
+        "lastUpdated": 1771741901027,
+        "baseLimit": 50,
+        "baseCurrent": 0,
+        "freeTrialLimit": 500,
+        "freeTrialCurrent": 482.05,
+        "freeTrialExpiry": "2026-03-20T19:38:13.316Z",
+        "bonuses": [],
+        "nextResetDate": "2026-03-01T00:00:00.000Z",
+        "resourceDetail": {
+          "resourceType": "CREDIT",
+          "displayName": "Credit",
+          "displayNamePlural": "Credits",
+          "currency": "USD",
+          "unit": "INVOCATIONS",
+          "overageRate": 0.04,
+          "overageCap": 10000,
+          "overageEnabled": false
+        }
+      },
+      "tags": [
+        "dd2b104d-73f3-4eab-b214-183bbdccd342"
+      ],
+      "status": "active",
+      "lastUsedAt": 1771530523778,
+      "id": "afb9b015-ca50-4dc6-b588-741c2d762085",
+      "machineId": "1030743903809e296cb816f5be186fbaa5a28b3df8aefb3161f84777ae3ba43d",
+      "createdAt": 1771443494360,
+      "lastCheckedAt": 1771741901027
+    }
+  ],
+  "groups": [],
+  "tags": [
+    {
+      "name": "szabogergely152800.1@gmail.com",
+      "color": "#ff3b82f6",
+      "id": "dd2b104d-73f3-4eab-b214-183bbdccd342"
+    }
+  ]
+}
