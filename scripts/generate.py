@@ -19,7 +19,7 @@ import subprocess
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 # --- KONSTANSOK ---
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -227,8 +227,8 @@ class MirrorChecker:
         relative_parts = parts[1:]  # processors/dimensions/d01_price/processor.py
 
         # Szétválasztjuk könyvtár és fájl
-        dir_parts = relative_parts[:-1]  # processors/dimensions/d01_price
-        file_name = relative_parts[-1]  # processor.py
+        dir_parts = relative_parts[:-1] if len(relative_parts) > 1 else ()
+        file_name = relative_parts[-1] if relative_parts else ""
 
         # test_ prefix hozzáadása
         test_file_name = f"test_{file_name}"
@@ -236,12 +236,11 @@ class MirrorChecker:
         integration_file_name = f"test_{base_name}_integration.py"
 
         # 1. Elsődleges hely (Mirror Rule szerint - TELJES TÜKÖR)
-        # neural_ai/collectors/jforex/factory.py -> tests/neural_ai/collectors/jforex/test_factory.py
-        test_path = Path("tests") / Path("neural_ai") / Path(*dir_parts) / test_file_name
-
-        # DEBUG: Útvonal ellenőrzés (csak UI fájloknál, hogy lássuk a hibát)
-        if "ui" in str(source_path):
-            print(f"DEBUG: Checking {source_path} -> {test_path} (Exists: {test_path.exists()})")
+        # neural_ai/collectors/jforex/factory.py ->
+        # tests/neural_ai/collectors/jforex/test_factory.py
+        test_path = (
+            Path("tests") / Path("neural_ai") / Path(*dir_parts) / test_file_name
+        )
 
         if test_path.exists():
             return test_path
@@ -261,7 +260,6 @@ class MirrorChecker:
         if "ui" in dir_parts and "services" in dir_parts:
             ui_test_path = Path("tests/neural_ai/ui/services") / test_file_name
             if ui_test_path.exists():
-                print(f"DEBUG: FOUND via fallback: {ui_test_path}")
                 return ui_test_path
 
         # 2. Integration verzió (Mirror Rule szerint - TELJES TÜKÖR)
@@ -317,7 +315,7 @@ class StatusCalculator:
         is_init_file = analysis.relative_path.endswith("__init__.py")
 
         # 🔴 VULNERABLE feltételek
-        vulnerable_reasons = []
+        vulnerable_reasons: list[str] = []
 
         # Neural_ai fájlokhoz: teszt pár kötelező
         if not is_test_layer and not is_script_layer:
@@ -342,7 +340,7 @@ class StatusCalculator:
 
         # ✅ SECURE feltételek (SZIGORÚ!)
         # Csak akkor SECURE, ha MINDEN rendben van
-        problems = []
+        problems: list[str] = []
 
         # 1. Lint hibák
         if analysis.lint_errors > 0:
@@ -407,7 +405,8 @@ class StatusCalculator:
         # Failed/Error tesztek (minden layerhez)
         if analysis.test_failed > 0 or analysis.test_errors > 0:
             notes.append(
-                f"🔴 **Tesztek javítása: {analysis.test_failed} failed, {analysis.test_errors} error**"
+                f"🔴 **Tesztek javítása: {analysis.test_failed} failed, "
+                f"{analysis.test_errors} error**"
             )
 
         # 2. Dokumentáció hiány (minden layerhez)
@@ -524,8 +523,16 @@ class MarkdownGenerator(GeneratorBase):
 
         # Scripts layer - teljes táblázat
         if layer == "scripts":
-            table += "| Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
-            table += "|:-----|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|\n"
+            table += (
+                "| Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | "
+                "Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | "
+                "Config | Logger | Dokumentálva | Teendők |\n"
+            )
+            table += (
+                "|:-----|:--------|:----------|:-------------------|"
+                ":---------------------|:------------------|:---------|"
+                ":-------|:-------|:-------------|:--------|\n"
+            )
 
             for file in sorted(files, key=lambda x: x.relative_path):
                 short_path = file.relative_path
@@ -540,7 +547,10 @@ class MarkdownGenerator(GeneratorBase):
                     or file.test_errors > 0
                     or file.test_skipped > 0
                 ):
-                    test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
+                    test_results = (
+                        f"**{file.test_passed}**/{file.test_failed}/"
+                        f"{file.test_errors}/{file.test_skipped}"
+                    )
                 else:
                     test_results = "-"
 
@@ -552,21 +562,37 @@ class MarkdownGenerator(GeneratorBase):
 
                 # Lint/Mypy/Pylance
                 lint_mypy_pylance = (
-                    f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
+                    f"{file.lint_errors} / {file.type_errors} / "
+                    f"{file.pylance_errors}"
                 )
 
                 # Source Warnings
-                src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
+                src_warn = (
+                    str(file.source_warnings) if file.source_warnings > 0 else "-"
+                )
 
                 # Dokumentálva
                 doc_status = "✅" if file.has_documentation else "❌"
 
-                table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {file.config_status} | {file.logger_status} | {doc_status} | {file.notes if file.notes else '-'} |\n"
+                table += (
+                    f"| `{short_path}` | {file.overall_status} | {test_pair} | "
+                    f"{test_results} | {coverage} | {lint_mypy_pylance} | "
+                    f"{src_warn} | {file.config_status} | {file.logger_status} | "
+                    f"{doc_status} | {file.notes if file.notes else '-'} |\n"
+                )
 
         # Tests layer - egyszerűsített táblázat
         elif layer == "tests":
-            table += "| Fájl | Státusz | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Dokumentálva | Teendők |\n"
-            table += "|:-----|:--------|:-------------------|:---------------------|:------------------|:---------|:-------------|:--------|\n"
+            table += (
+                "| Fájl | Státusz | Pass/Fail/Err/Skip | "
+                "Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | "
+                "Dokumentálva | Teendők |\n"
+            )
+            table += (
+                "|:-----|:--------|:-------------------|"
+                ":---------------------|:------------------|:---------|"
+                ":-------------|:--------|\n"
+            )
 
             for file in sorted(files, key=lambda x: x.relative_path):
                 short_path = file.relative_path
@@ -578,7 +604,10 @@ class MarkdownGenerator(GeneratorBase):
                     or file.test_errors > 0
                     or file.test_skipped > 0
                 ):
-                    test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
+                    test_results = (
+                        f"**{file.test_passed}**/{file.test_failed}/"
+                        f"{file.test_errors}/{file.test_skipped}"
+                    )
                 else:
                     test_results = "-"
 
@@ -599,11 +628,23 @@ class MarkdownGenerator(GeneratorBase):
                 # Dokumentálva
                 doc_status = "✅" if file.has_documentation else "❌"
 
-                table += f"| `{short_path}` | {file.overall_status} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {doc_status} | {file.notes if file.notes else '-'} |\n"
+                table += (
+                    f"| `{short_path}` | {file.overall_status} | {test_results} | "
+                    f"{coverage} | {lint_mypy_pylance} | {src_warn} | {doc_status} | "
+                    f"{file.notes if file.notes else '-'} |\n"
+                )
         else:
             # Neural_ai layerekhez teljes táblázat + Dokumentálva oszlop
-            table += "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |\n"
-            table += "|:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|\n"
+            table += (
+                "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | "
+                "Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | "
+                "Config | Logger | Dokumentálva | Teendők |\n"
+            )
+            table += (
+                "|:-------------|:--------|:----------|:-------------------|"
+                ":---------------------|:------------------|:---------|"
+                ":-------|:-------|:-------------|:--------|\n"
+            )
 
             for file in sorted(files, key=lambda x: x.relative_path):
                 # Root layer esetén ne távolítsuk el a neural_ai/ prefix-et
@@ -622,7 +663,10 @@ class MarkdownGenerator(GeneratorBase):
                     or file.test_errors > 0
                     or file.test_skipped > 0
                 ):
-                    test_results = f"**{file.test_passed}**/{file.test_failed}/{file.test_errors}/{file.test_skipped}"
+                    test_results = (
+                        f"**{file.test_passed}**/{file.test_failed}/"
+                        f"{file.test_errors}/{file.test_skipped}"
+                    )
                 else:
                     test_results = "-"
 
@@ -643,7 +687,12 @@ class MarkdownGenerator(GeneratorBase):
                 # Dokumentálva
                 doc_status = "✅" if file.has_documentation else "❌"
 
-                table += f"| `{short_path}` | {file.overall_status} | {test_pair} | {test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | {file.config_status} | {file.logger_status} | {doc_status} | {file.notes if file.notes else '-'} |\n"
+                table += (
+                    f"| `{short_path}` | {file.overall_status} | {test_pair} | "
+                    f"{test_results} | {coverage} | {lint_mypy_pylance} | {src_warn} | "
+                    f"{file.config_status} | {file.logger_status} | {doc_status} | "
+                    f"{file.notes if file.notes else '-'} |\n"
+                )
 
         return table
 
@@ -720,10 +769,11 @@ class HTMLGenerator(GeneratorBase):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{page_title}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        
+
         body {{
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
@@ -732,19 +782,19 @@ class HTMLGenerator(GeneratorBase):
             padding: 0;
             overflow-x: auto;
         }}
-        
+
         .header {{
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-bottom: 1px solid rgba(148, 163, 184, 0.1);
             padding: 2rem 0;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
         }}
-        
+
         .header-content {{
             max-width: 100%;
             padding: 0 2rem;
         }}
-        
+
         h1 {{
             font-size: 2.5rem;
             font-weight: 700;
@@ -755,28 +805,28 @@ class HTMLGenerator(GeneratorBase):
             margin-bottom: 0.75rem;
             letter-spacing: -0.02em;
         }}
-        
+
         .meta {{
             color: #94a3b8;
             font-size: 0.95rem;
             line-height: 1.6;
         }}
-        
+
         .meta strong {{ color: #cbd5e1; }}
-        
+
         .container {{
             max-width: 100%;
             padding: 2rem;
             overflow-x: auto;
         }}
-        
+
         .stats {{
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2.5rem;
         }}
-        
+
         .stat-card {{
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border: 1px solid rgba(148, 163, 184, 0.1);
@@ -786,7 +836,7 @@ class HTMLGenerator(GeneratorBase):
             position: relative;
             overflow: hidden;
         }}
-        
+
         .stat-card::before {{
             content: '';
             position: absolute;
@@ -796,25 +846,25 @@ class HTMLGenerator(GeneratorBase):
             height: 3px;
             background: linear-gradient(90deg, var(--accent-color), transparent);
         }}
-        
+
         .stat-card:hover {{
             transform: translateY(-4px);
             box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
             border-color: rgba(148, 163, 184, 0.2);
         }}
-        
+
         .stat-card.secure {{ --accent-color: #10b981; }}
         .stat-card.warning {{ --accent-color: #f59e0b; }}
         .stat-card.critical {{ --accent-color: #ef4444; }}
         .stat-card.tested {{ --accent-color: #3b82f6; }}
-        
+
         .stat-header {{
             display: flex;
             align-items: center;
             gap: 0.75rem;
             margin-bottom: 1rem;
         }}
-        
+
         .stat-icon {{
             width: 40px;
             height: 40px;
@@ -824,24 +874,24 @@ class HTMLGenerator(GeneratorBase):
             justify-content: center;
             font-size: 1.25rem;
         }}
-        
+
         .stat-card.secure .stat-icon {{ background: rgba(16, 185, 129, 0.15); }}
         .stat-card.warning .stat-icon {{ background: rgba(245, 158, 11, 0.15); }}
         .stat-card.critical .stat-icon {{ background: rgba(239, 68, 68, 0.15); }}
         .stat-card.tested .stat-icon {{ background: rgba(59, 130, 246, 0.15); }}
-        
+
         .stat-value {{
             font-size: 2.5rem;
             font-weight: 700;
             line-height: 1;
             margin-bottom: 0.5rem;
         }}
-        
+
         .stat-card.secure .stat-value {{ color: #10b981; }}
         .stat-card.warning .stat-value {{ color: #f59e0b; }}
         .stat-card.critical .stat-value {{ color: #ef4444; }}
         .stat-card.tested .stat-value {{ color: #3b82f6; }}
-        
+
         .stat-label {{
             color: #94a3b8;
             font-size: 0.875rem;
@@ -849,13 +899,13 @@ class HTMLGenerator(GeneratorBase):
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }}
-        
+
         .stat-percent {{
             color: #cbd5e1;
             font-size: 0.875rem;
             margin-top: 0.25rem;
         }}
-        
+
         .search-box {{
             width: 100%;
             padding: 1rem 1.25rem;
@@ -868,16 +918,16 @@ class HTMLGenerator(GeneratorBase):
             transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
         }}
-        
+
         .search-box:focus {{
             outline: none;
             border-color: #60a5fa;
             background: rgba(30, 41, 59, 0.8);
             box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
         }}
-        
+
         .search-box::placeholder {{ color: #64748b; }}
-        
+
         .layer {{
             margin-bottom: 2.5rem;
             border-radius: 12px;
@@ -885,7 +935,7 @@ class HTMLGenerator(GeneratorBase):
             background: rgba(30, 41, 59, 0.4);
             border: 1px solid rgba(148, 163, 184, 0.1);
         }}
-        
+
         .layer-title {{
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             padding: 1.25rem 1.5rem;
@@ -897,14 +947,14 @@ class HTMLGenerator(GeneratorBase):
             align-items: center;
             gap: 0.75rem;
         }}
-        
+
         table {{
             width: 100%;
             border-collapse: collapse;
             table-layout: auto;
             min-width: 1200px;
         }}
-        
+
         th {{
             background: rgba(15, 23, 42, 0.6);
             padding: 1rem 1.25rem;
@@ -917,7 +967,7 @@ class HTMLGenerator(GeneratorBase):
             border-bottom: 1px solid rgba(148, 163, 184, 0.1);
             white-space: nowrap;
         }}
-        
+
         /* Rugalmas oszlopszélességek */
         th:nth-child(1) {{ min-width: 250px; max-width: 400px; }} /* Fájl */
         th:nth-child(2) {{ min-width: 100px; width: 120px; }} /* Státusz */
@@ -930,7 +980,7 @@ class HTMLGenerator(GeneratorBase):
         th:nth-child(9) {{ min-width: 60px; width: 80px; }} /* Logger */
         th:nth-child(10) {{ min-width: 60px; width: 100px; }} /* Dokumentálva */
         th:nth-child(11) {{ min-width: 150px; }} /* Teendők */
-        
+
         td {{
             padding: 1rem 1.25rem;
             border-bottom: 1px solid rgba(148, 163, 184, 0.05);
@@ -938,7 +988,7 @@ class HTMLGenerator(GeneratorBase):
             word-wrap: break-word;
             overflow-wrap: break-word;
         }}
-        
+
         /* Rugalmas oszlopszélességek */
         td:nth-child(1) {{ min-width: 250px; max-width: 400px; }} /* Fájl */
         td:nth-child(2) {{ min-width: 100px; width: 120px; }} /* Státusz */
@@ -951,17 +1001,17 @@ class HTMLGenerator(GeneratorBase):
         td:nth-child(9) {{ min-width: 60px; width: 80px; }} /* Logger */
         td:nth-child(10) {{ min-width: 60px; width: 100px; }} /* Dokumentálva */
         td:nth-child(11) {{ min-width: 150px; }} /* Teendők */
-        
+
         tr:hover td {{
             background: rgba(30, 41, 59, 0.4);
         }}
-        
+
         .file-path {{
             font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Courier New', monospace;
             color: #93c5fd;
             font-size: 0.875rem;
         }}
-        
+
         .status-badge {{
             display: inline-flex;
             align-items: center;
@@ -973,25 +1023,25 @@ class HTMLGenerator(GeneratorBase):
             text-transform: uppercase;
             letter-spacing: 0.025em;
         }}
-        
+
         .status-secure {{
             background: rgba(16, 185, 129, 0.15);
             color: #10b981;
             border: 1px solid rgba(16, 185, 129, 0.3);
         }}
-        
+
         .status-warning {{
             background: rgba(245, 158, 11, 0.15);
             color: #f59e0b;
             border: 1px solid rgba(245, 158, 11, 0.3);
         }}
-        
+
         .status-critical {{
             background: rgba(239, 68, 68, 0.15);
             color: #ef4444;
             border: 1px solid rgba(239, 68, 68, 0.3);
         }}
-        
+
         .icon {{ font-style: normal; }}
         .test-found {{ color: #10b981; font-weight: 600; }}
         .test-missing {{ color: #ef4444; font-weight: 600; }}
@@ -1012,7 +1062,8 @@ class HTMLGenerator(GeneratorBase):
             <h1>{header_title}</h1>
             <div class="meta">
                 <strong>Generálva:</strong> {now} &nbsp;|&nbsp;
-                <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance) &nbsp;|&nbsp;
+                <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
+                &nbsp;|&nbsp;
                 <strong>Fájlok:</strong> {stats["total"]}
             </div>
         </div>
@@ -1054,7 +1105,9 @@ class HTMLGenerator(GeneratorBase):
             </div>
         </div>
 
-        <input type="text" class="search-box" id="searchBox" placeholder="🔍 Keresés fájl név alapján..." onkeyup="filterTable()">
+        <input type="text" class="search-box" id="searchBox"
+               placeholder="🔍 Keresés fájl név alapján..."
+               onkeyup="filterTable()">
 """
 
         # Összes réteg generálása
@@ -1069,14 +1122,16 @@ class HTMLGenerator(GeneratorBase):
             const input = document.getElementById('searchBox');
             const filter = input.value.toLowerCase();
             const tables = document.querySelectorAll('table');
-            
+
             tables.forEach(table => {{
                 const rows = table.getElementsByTagName('tr');
                 for (let i = 1; i < rows.length; i++) {{
                     const td = rows[i].getElementsByTagName('td')[0];
                     if (td) {{
                         const txtValue = td.textContent || td.innerText;
-                        rows[i].style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
+                        rows[i].style.display = (
+                            txtValue.toLowerCase().indexOf(filter) > -1 ? '' : 'none'
+                        );
                     }}
                 }}
             }});
@@ -1108,7 +1163,10 @@ class HTMLGenerator(GeneratorBase):
 
         html_output = f"""
             <div class="layer">
-                <div class="layer-title">{icon} {num}. {name} Layer <span style="opacity: 0.6; font-size: 0.9rem;">({path})</span></div>
+                <div class="layer-title">
+                    {icon} {num}. {name} Layer
+                    <span style="opacity: 0.6; font-size: 0.9rem;">({path})</span>
+                </div>
                 <table>
                     <thead>
                         <tr>"""
@@ -1172,11 +1230,20 @@ class HTMLGenerator(GeneratorBase):
 
             # Státusz badge
             if file.overall_status == "✅ SECURE":
-                status_badge = '<span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span>'
+                status_badge = (
+                    '<span class="status-badge status-secure">'
+                    '<span class="icon">✓</span> SECURE</span>'
+                )
             elif file.overall_status == "🟡 WARNING":
-                status_badge = '<span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span>'
+                status_badge = (
+                    '<span class="status-badge status-warning">'
+                    '<span class="icon">⚠</span> WARNING</span>'
+                )
             else:
-                status_badge = '<span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span>'
+                status_badge = (
+                    '<span class="status-badge status-critical">'
+                    '<span class="icon">✕</span> CRITICAL</span>'
+                )
 
             # Teszt eredmények
             if (
@@ -1253,7 +1320,10 @@ class HTMLGenerator(GeneratorBase):
                 # Coverage
                 if file.coverage_stmt > 0:
                     cov_class = "cov-good" if file.coverage_stmt >= 80 else "cov-low"
-                    coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
+                    coverage = (
+                        f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / '
+                        f'{file.coverage_branch:.0f}%'
+                    )
                 else:
                     coverage = '<span style="opacity: 0.4;">N/A</span>'
 
@@ -1295,7 +1365,10 @@ class HTMLGenerator(GeneratorBase):
                 # Coverage
                 if file.coverage_stmt > 0:
                     cov_class = "cov-good" if file.coverage_stmt >= 80 else "cov-low"
-                    coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
+                    coverage = (
+                        f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / '
+                        f'{file.coverage_branch:.0f}%'
+                    )
                 else:
                     coverage = '<span style="opacity: 0.4;">N/A</span>'
 
@@ -1330,7 +1403,10 @@ class HTMLGenerator(GeneratorBase):
                 # Coverage
                 if file.coverage_stmt > 0:
                     cov_class = "cov-good" if file.coverage_stmt >= 80 else "cov-low"
-                    coverage = f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / {file.coverage_branch:.0f}%'
+                    coverage = (
+                        f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / '
+                        f'{file.coverage_branch:.0f}%'
+                    )
                 else:
                     coverage = '<span style="opacity: 0.4;">N/A</span>'
 
@@ -1388,7 +1464,7 @@ class TaskTreeGenerator:
         self.source_dir = Path(source_dir)
         self.output_file = Path(output_file)
         self.ignored_dirs = {"__pycache__", ".pytest_cache", ".ruff_cache"}
-        self.ignored_files = set()  # Üres - __init__.py fájlokat is szkenneljük
+        self.ignored_files: set[str] = set()
         # Szkennelendő mappák
         self.scan_dirs = [
             Path("neural_ai"),
@@ -1396,12 +1472,12 @@ class TaskTreeGenerator:
             Path("scripts"),
             Path("docs"),
         ]
-        self.coverage_data = {}
-        self.ruff_data = []
-        self.mypy_data = []
-        self.pylance_data = []
-        self.pytest_data = {}  # test_file_path -> {passed, failed, errors, warnings}
-        self.source_warnings = {}  # source_file_path -> warning_count (pytest warnings)
+        self.coverage_data: dict[str, Any] = {}
+        self.ruff_data: list[dict[str, Any]] = []
+        self.mypy_data: list[dict[str, Any]] = []
+        self.pylance_data: list[dict[str, Any]] = []
+        self.pytest_data: dict[str, dict[str, int]] = {}
+        self.source_warnings: dict[str, int] = {}
 
     def run_dynamic_tools(self) -> None:
         """Futtatja a dinamikus ellenőrző eszközöket."""
@@ -1488,19 +1564,18 @@ class TaskTreeGenerator:
             cmd = [str(MYPY_BIN), "neural_ai", "tests", "scripts", "--no-error-summary"]
             result = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env)
 
-            mypy_errors = []
+            mypy_errors: list[dict[str, Any]] = []
             for line in result.stdout.strip().split("\n"):
                 if line.strip() and ": error:" in line:
                     parts = line.split(":", 3)
                     if len(parts) >= 4:
-                        mypy_errors.append(
-                            {
-                                "file": parts[0].strip(),
-                                "line": parts[1].strip(),
-                                "severity": "error",
-                                "message": parts[3].strip(),
-                            }
-                        )
+                        mypy_error: dict[str, Any] = {
+                            "file": parts[0].strip(),
+                            "line": parts[1].strip(),
+                            "severity": "error",
+                            "message": parts[3].strip(),
+                        }
+                        mypy_errors.append(mypy_error)
 
             with open(MYPY_FILE, "w") as f:
                 json.dump(mypy_errors, f, indent=2)
@@ -1523,7 +1598,7 @@ class TaskTreeGenerator:
                 pylance_json = json.loads(result.stdout)
 
                 # Hibák kinyerése
-                pylance_errors = []
+                pylance_errors: list[dict[str, Any]] = []
                 for diagnostic in pylance_json.get("generalDiagnostics", []):
                     file_path = diagnostic.get("file", "")
                     severity = diagnostic.get("severity", "")
@@ -1536,22 +1611,21 @@ class TaskTreeGenerator:
                         if file_path.startswith(str(PROJECT_ROOT)):
                             file_path = file_path[len(str(PROJECT_ROOT)) + 1 :]  # +1 a / miatt
 
-                        pylance_errors.append(
-                            {
-                                "file": file_path,
-                                "line": diagnostic.get("range", {}).get("start", {}).get("line", 0)
-                                + 1,
-                                "severity": severity,
-                                "message": diagnostic.get("message", ""),
-                            }
-                        )
+                        error_entry: dict[str, Any] = {
+                            "file": file_path,
+                            "line": diagnostic.get("range", {}).get("start", {}).get("line", 0) + 1,
+                            "severity": severity,
+                            "message": diagnostic.get("message", ""),
+                        }
+                        pylance_errors.append(error_entry)
 
                 with open(pylance_file, "w") as f:
                     json.dump(pylance_errors, f, indent=2)
 
                 self.pylance_data = pylance_errors
                 print(
-                    f"    ✅ {len(pylance_errors)} Pylance hiba/figyelmeztetés találva (strict mode)"
+                    f"    ✅ {len(pylance_errors)} Pylance hiba/figyelmeztetés találva "
+                    f"(strict mode)"
                 )
             else:
                 self.pylance_data = []
@@ -1578,7 +1652,8 @@ class TaskTreeGenerator:
                     nodeid = test.get("nodeid", "")
                     outcome = test.get("outcome", "")
 
-                    # nodeid formátum: tests/core/config/test_config_factory.py::TestClass::test_method
+                    # nodeid formátum:
+                    # tests/core/config/test_config_factory.py::TestClass::test_method
                     if "::" in nodeid:
                         test_file = nodeid.split("::")[0]
 
@@ -1615,7 +1690,7 @@ class TaskTreeGenerator:
             except Exception as e:
                 print(f"    ⚠️ Hiba a pytest report feldolgozásakor: {e}")
 
-    def get_dynamic_metrics(self, file_path: Path) -> dict:
+    def get_dynamic_metrics(self, file_path: Path) -> dict[str, Any]:
         """Visszaadja a dinamikus metrikákat egy fájlhoz."""
         rel_path = str(file_path)
         metrics = {
@@ -1645,26 +1720,23 @@ class TaskTreeGenerator:
                 metrics["coverage_branch"] = 100.0 if metrics["coverage_stmt"] > 0 else 0.0
 
         # Ruff
-        if isinstance(self.ruff_data, list):
-            metrics["lint_errors"] = sum(
-                1 for err in self.ruff_data if err.get("filename") == rel_path
-            )
+        metrics["lint_errors"] = sum(
+            1 for err in self.ruff_data if err.get("filename") == rel_path
+        )
 
         # Mypy
-        if isinstance(self.mypy_data, list):
-            metrics["type_errors"] = sum(
-                1
-                for err in self.mypy_data
-                if err.get("file") == rel_path and err.get("severity") == "error"
-            )
+        metrics["type_errors"] = sum(
+            1
+            for err in self.mypy_data
+            if err.get("file") == rel_path and err.get("severity") == "error"
+        )
 
         # Pylance
-        if isinstance(self.pylance_data, list):
-            metrics["pylance_errors"] = sum(
-                1
-                for err in self.pylance_data
-                if err.get("file") == rel_path and err.get("severity") in ["error", "warning"]
-            )
+        metrics["pylance_errors"] = sum(
+            1
+            for err in self.pylance_data
+            if err.get("file") == rel_path and err.get("severity") in ["error", "warning"]
+        )
 
         # Source Warnings (pytest warnings a forráskódban)
         if rel_path in self.source_warnings:
@@ -1744,8 +1816,10 @@ class TaskTreeGenerator:
         analyzer = ASTAnalyzer(file_path)
         if not analyzer.parse():
             # Parse hiba esetén alapértelmezett értékek
-            config_status = "⚪ N/A"
-            logger_status = "⚪ N/A"
+            config_status: Literal["✅ OK", "🔴 TYPED_DICT", "⚪ N/A"] = "⚪ N/A"
+            logger_status: Literal[
+                "✅ OK", "⚠️ UNUSED", "🔴 MISSING", "⚪ N/A"
+            ] = "⚪ N/A"
         else:
             config_status = analyzer.check_config_type()
             logger_status = analyzer.check_logger_injection()
@@ -1851,7 +1925,6 @@ class TaskTreeGenerator:
         vuln_pct = stats["vulnerable"] / stats["total"] * 100
         print(f"  ✅ SECURE: {stats['secure']} ({secure_pct:.1f}%)")
         print(f"  🟡 WARNING: {stats['warning']} ({warning_pct:.1f}%)")
-        print(f"  🔴 VULNERABLE: {stats['vulnerable']} ({vuln_pct:.1f}%)")
         print(f"  🔴 VULNERABLE: {stats['vulnerable']} ({vuln_pct:.1f}%)")
 
 
