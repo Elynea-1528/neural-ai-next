@@ -335,19 +335,45 @@ class TestContextManagers:
     @pytest.mark.asyncio
     async def test_get_db_session(self) -> None:
         """Teszteli a get_db_session context managert."""
-        async with get_db_session() as session:
-            assert session is not None
-            assert isinstance(session, AsyncSession)
+        # Mock-oljuk a session maker-t
+        mock_session = AsyncMock(spec=AsyncSession)
+        mock_session.commit = AsyncMock()
+        mock_session.close = AsyncMock()
+
+        mock_session_maker = MagicMock()
+        mock_session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_maker.return_value.__aexit__ = AsyncMock(return_value=None)
+
+        with patch(
+            "neural_ai.core.db.implementations.sqlalchemy_session.get_async_session_maker"
+        ) as mock_get_maker:
+            mock_get_maker.return_value = mock_session_maker
+
+            async with get_db_session() as session:
+                assert session is not None
+                assert isinstance(session, AsyncSession)
 
     @pytest.mark.asyncio
     async def test_get_db_session_direct(self) -> None:
         """Teszteli a get_db_session_direct függvényt."""
-        session = await get_db_session_direct()
+        # Mock-oljuk a session-t
+        mock_session = MagicMock(spec=AsyncSession)
+        mock_session.close = AsyncMock()
 
-        assert session is not None
-        assert isinstance(session, AsyncSession)
+        # A session_maker egy callable, ami visszaadja a mock_session-t (NEM AsyncMock!)
+        mock_session_maker = MagicMock(return_value=mock_session)
 
-        await session.close()
+        with patch(
+            "neural_ai.core.db.implementations.sqlalchemy_session.get_async_session_maker"
+        ) as mock_get_maker:
+            mock_get_maker.return_value = mock_session_maker
+
+            session = await get_db_session_direct()
+
+            assert session is not None
+            assert session is mock_session
+
+            await session.close()
 
     @pytest.mark.asyncio
     async def test_get_db_session_exception_rollback(self) -> None:
