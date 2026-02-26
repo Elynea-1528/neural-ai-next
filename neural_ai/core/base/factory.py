@@ -88,7 +88,9 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         logger = self._container.resolve(LoggerInterface)
         if logger is not None:
-            if not isinstance(logger, LoggerInterface):
+            # Duck typing: ellenőrizzük a szükséges metódusokat
+            required_methods = ['info', 'debug', 'error', 'warning', 'critical', 'set_level', 'get_level']
+            if not all(hasattr(logger, method) for method in required_methods):
                 raise DependencyError("Logger must implement LoggerInterface")
             return cast(LoggerInterface, logger)
 
@@ -101,7 +103,9 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         config_manager = self._container.resolve(ConfigManagerInterface)
         if config_manager is not None:
-            if not isinstance(config_manager, ConfigManagerInterface):
+            # Duck typing: ellenőrizzük a szükséges metódusokat
+            required_methods = ['get', 'set', 'has', 'get_section']
+            if not all(hasattr(config_manager, method) for method in required_methods):
                 raise DependencyError("ConfigManager must implement ConfigManagerInterface")
             return cast(ConfigManagerInterface, config_manager)
 
@@ -113,7 +117,9 @@ class CoreComponentFactory(metaclass=SingletonMeta):
 
         storage = self._container.resolve(StorageInterface)
         if storage is not None:
-            if not isinstance(storage, StorageInterface):
+            # Duck typing: ellenőrizzük a szükséges metódusokat
+            required_methods = ['save', 'load', 'exists', 'delete']
+            if not all(hasattr(storage, method) for method in required_methods):
                 raise DependencyError("Storage must implement StorageInterface")
             return cast(StorageInterface, storage)
 

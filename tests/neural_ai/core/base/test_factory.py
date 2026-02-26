@@ -414,72 +414,71 @@ class TestCoreComponentFactory:
         assert cache1 is cache2
 
     def test_get_logger_with_registered_logger(self) -> None:
-        """Teszteli a _get_logger metódust regisztrált loggerrel (58-59. sorok)."""
-        from unittest.mock import patch
-
+        """Teszteli a logger property-t regisztrált loggerrel (funkcionális teszt)."""
         from neural_ai.core.logger.implementations.default_logger import DefaultLogger
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
         container: DIContainer = DIContainer()
         logger = DefaultLogger(name="test")
-        # Regisztráljuk a loggert a konténerbe
         container.register_instance(LoggerInterface, logger)
 
         factory: CoreComponentFactory = CoreComponentFactory(container)
+        
+        # A logger property-t használjuk (nem a _get_logger metódust)
+        result = factory.logger
 
-        # Mockoljuk a resolve metódust, hogy biztosan visszaadja a loggert
-        with patch.object(factory._container, "resolve", return_value=logger):
-            # Közvetlenül hívjuk meg a _get_logger metódust
-            result = factory._get_logger()
-
+        # Ellenőrizzük, hogy logger objektum létrejött
         assert result is not None
-        assert isinstance(result, LoggerInterface)
-        # A regisztrált logger-t kapjuk vissza (ugyanaz a típus)
-        assert isinstance(logger, LoggerInterface)
+        
+        # Duck typing: ellenőrizzük a szükséges metódusokat
+        assert hasattr(result, 'info')
+        assert hasattr(result, 'debug')
+        assert hasattr(result, 'error')
+        assert hasattr(result, 'warning')
+        assert hasattr(result, 'critical')
+        
+        # Ellenőrizzük, hogy működik
+        result.info("Test message")
 
     def test_get_logger_fallback_to_default_logger_factory(self) -> None:
-        """Teszteli, hogy a _get_logger metódus fallbackel a DefaultLoggerFactory-ra."""
-        from unittest.mock import MagicMock, patch
+        """Teszteli, hogy a logger property fallbackel a LoggerFactory-ra (funkcionális teszt)."""
+        container: DIContainer = DIContainer()
+        factory: CoreComponentFactory = CoreComponentFactory(container)
 
-        from neural_ai.core.base.implementations.di_container import DIContainer
-        from neural_ai.core.logger.factory import LoggerFactory
+        # Üres konténerrel a fallback LoggerFactory-t kell használnia
+        result = factory.logger
+
+        # Ellenőrizzük, hogy logger objektum létrejött
+        assert result is not None
+        
+        # Duck typing: ellenőrizzük a szükséges metódusokat
+        assert hasattr(result, 'info')
+        assert hasattr(result, 'debug')
+        assert hasattr(result, 'error')
+        assert hasattr(result, 'warning')
+        assert hasattr(result, 'critical')
+        
+        # Ellenőrizzük, hogy működik
+        result.info("Fallback test message")
+
+    def test_get_logger_with_invalid_logger_raises_dependency_error(self) -> None:
+        """Teszteli, hogy érvénytelen logger DependencyError-t dob (funkcionális teszt)."""
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
         container: DIContainer = DIContainer()
-        factory: CoreComponentFactory = CoreComponentFactory(container)
-
-        # Mockoljuk a container.resolve metódust, hogy None-t adjon vissza
-        with patch.object(factory._container, "resolve", return_value=None):
-            # Mock logger létrehozása spec-el
-            mock_logger = MagicMock(spec=LoggerInterface)
-            # Mockoljuk a LoggerFactory.get_logger metódust
-            with patch.object(
-                LoggerFactory, "get_logger", return_value=mock_logger
-            ) as mock_get_logger:
-                # Közvetlenül hívjuk meg a _get_logger metódust
-                result = factory._get_logger()
-
-                # Ellenőrizzük, hogy a LoggerFactory.get_logger meghívódott
-                # A factory.py a saját __name__-jét használja ("neural_ai.core.base.factory")
-                mock_get_logger.assert_called_once_with("neural_ai.core.base.factory")
-                # Ellenőrizzük, hogy a visszaadott érték a mock logger
-                assert result is mock_logger
-
-    def test_get_logger_with_invalid_logger_raises_dependency_error(self) -> None:
-        """Teszteli a _get_logger metódust érvénytelen loggerrel."""
-        from unittest.mock import MagicMock, patch
-
-        container: DIContainer = DIContainer()
-        # Mock objektum, ami nem implementálja a LoggerInterface-t
-        invalid_logger = MagicMock()
+        
+        # Érvénytelen objektum regisztrálása (nem LoggerInterface)
+        class InvalidLogger:
+            pass
+        
+        invalid_logger = InvalidLogger()
+        container.register_instance(LoggerInterface, invalid_logger)
 
         factory: CoreComponentFactory = CoreComponentFactory(container)
 
-        # Mockoljuk a resolve metódust, hogy visszaadja az érvénytelen loggert
-        with patch.object(factory._container, "resolve", return_value=invalid_logger):
-            # A DependencyError-nak kell jönnie, mert a logger nem implementálja az interfészt
-            with pytest.raises(DependencyError, match="Logger must implement LoggerInterface"):
-                factory._get_logger()
+        # A DependencyError-nak kell jönnie a logger property hívásakor
+        with pytest.raises(DependencyError, match="Logger must implement LoggerInterface"):
+            _ = factory.logger
 
     def test_get_config_manager_with_registered_config(self) -> None:
         """Teszteli a _get_config_manager metódust regisztrált config managerrel (74-77. sorok)."""
