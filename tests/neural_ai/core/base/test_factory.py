@@ -220,11 +220,24 @@ class TestCoreComponentFactory:
             assert components.has_storage()
 
     def test_create_components_without_paths(self) -> None:
-        """Teszteli a komponensek létrehozását elérési utak nélkül."""
+        """Teszteli a komponensek létrehozását elérési utak nélkül (funkcionális teszt)."""
+        # Tiszta állapotból indulunk - új factory példány
+        from neural_ai.core.base.implementations.di_container import DIContainer
+        
+        container = DIContainer()
+        factory = CoreComponentFactory(container)
+        
+        # Reset lazy loaders a tiszta állapot biztosításához
+        factory.reset_lazy_loaders()
+        
         components = CoreComponentFactory.create_components()
 
         assert components is not None
-        # Nem minden komponens lesz inicializálva
+        # Ellenőrizzük, hogy a komponensek létrejöttek
+        assert hasattr(components, 'logger')
+        assert hasattr(components, 'validate')
+        
+        # Nem minden komponens lesz inicializálva (config_manager és storage hiányzik)
         assert not components.validate()
 
     def test_create_with_container(self) -> None:
