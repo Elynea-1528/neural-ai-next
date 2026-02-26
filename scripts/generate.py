@@ -1487,54 +1487,54 @@ class TaskTreeGenerator:
 
         print("\n🚀 Dinamikus eszközök futtatása...")
 
-        # 1. Coverage + Pytest + JSON Report
+        # 1. Coverage + Pytest + JSON Report (MINDIG FRISS ADATOK)
         print("  📊 Coverage + Pytest...")
+        print("    🔄 Friss coverage gyűjtés futtatása...")
         try:
-            # Egyetlen futtatás: coverage + pytest + JSON report
-            cmd_cov = [
-                str(COVERAGE_BIN),
-                "run",
-                "--branch",
-                "--source=neural_ai,scripts,.",
-                "-m",
-                "pytest",
+            # Pytest-cov használata: gyorsabb és közvetlenül generálja a JSON-t
+            cmd_pytest_cov = [
+                str(PYTEST_BIN),
+                "tests/",
+                "--cov=neural_ai",
+                "--cov=scripts",
+                f"--cov-report=json:{COVERAGE_FILE}",
+                "--cov-branch",
                 "-q",
                 "--tb=no",
                 "--continue-on-collection-errors",
                 "--json-report",
                 f"--json-report-file={REPORT_DIR}/pytest_report.json",
-                "tests/",
             ]
             # STDOUT/STDERR pipe nélkül (elkerüli a deadlock-ot)
             # Timeout: 300s (5 perc) - sok teszt van
             subprocess.run(
-                cmd_cov,
+                cmd_pytest_cov,
                 check=False,
                 env=env,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 timeout=300,
             )
-
-            cmd_json = [str(COVERAGE_BIN), "json", "-o", str(COVERAGE_FILE)]
-            subprocess.run(cmd_json, check=False, env=env, timeout=30)
-
+            
             if COVERAGE_FILE.exists():
                 with open(COVERAGE_FILE) as f:
                     cov_json = json.load(f)
                     self.coverage_data = cov_json.get("files", {})
+                    print(f"    ✅ Coverage adatok betöltve: {len(self.coverage_data)} fájl")
+            else:
+                print("    ⚠️ Coverage JSON fájl nem jött létre - coverage adatok nem elérhetők")
         except subprocess.TimeoutExpired:
             print("    ⚠️ Pytest/Coverage timeout (300s), folytatás részleges adatokkal...")
-            # Próbáljuk meg a coverage JSON-t generálni, ha van .coverage fájl
-            try:
-                cmd_json = [str(COVERAGE_BIN), "json", "-o", str(COVERAGE_FILE)]
-                subprocess.run(cmd_json, check=False, env=env, timeout=30)
-                if COVERAGE_FILE.exists():
+            # Próbáljuk meg betölteni a részleges coverage adatokat
+            if COVERAGE_FILE.exists():
+                try:
                     with open(COVERAGE_FILE) as f:
                         cov_json = json.load(f)
                         self.coverage_data = cov_json.get("files", {})
-            except Exception:
-                pass
+                        if self.coverage_data:
+                            print(f"    ✅ Részleges coverage adatok betöltve: {len(self.coverage_data)} fájl")
+                except Exception as e:
+                    print(f"    ⚠️ Részleges coverage betöltési hiba: {e}")
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
 
@@ -1644,10 +1644,13 @@ class TaskTreeGenerator:
         pytest_report_file = REPORT_DIR / "pytest_report.json"
         if pytest_report_file.exists():
             try:
+                print(f"    🔄 JSON betöltése ({pytest_report_file.stat().st_size / 1024 / 1024:.1f} MB)...")
                 with open(pytest_report_file) as f:
                     pytest_json = json.load(f)
+                print(f"    ✅ JSON betöltve: {len(pytest_json.get('tests', []))} teszt")
 
                 # Tesztek csoportosítása fájlonként
+                print("    🔄 Tesztek csoportosítása...")
                 for test in pytest_json.get("tests", []):
                     nodeid = test.get("nodeid", "")
                     outcome = test.get("outcome", "")
@@ -1676,6 +1679,7 @@ class TaskTreeGenerator:
 
                 # Warnings feldolgozása (TOP LEVEL, forráskód fájlokhoz)
                 # A warnings-ok a forráskód fájlokban vannak, nem a teszt fájlokban
+                print(f"    🔄 Warnings feldolgozása ({len(pytest_json.get('warnings', []))} db)...")
                 for warning in pytest_json.get("warnings", []):
                     filename = warning.get("filename", "")
                     # Ha a neural-ai-next projektben van
