@@ -23,27 +23,29 @@ class TestCoreComponentFactory:
     def test_init_with_container(self) -> None:
         """Teszteli a factory inicializálását DI konténerrel."""
         container: DIContainer = DIContainer()
-        # Mock logger regisztrálása, mert a factory.logger property lekéri
-        from unittest.mock import MagicMock
-
+        # Valódi LoggerInterface implementáció használata
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
-        # Használjuk a MagicMock-ot spec-el, de mockoljuk az isinstance-t is a biztonság kedvéért
-        # Vagy egyszerűen mockoljuk a factory._get_logger metódust, ha a property-t teszteljük
-        # De itt az init-et teszteljük, ami nem hívja a loggert, csak a property hozzáférés.
+        class DummyLogger(LoggerInterface):
+            def __init__(self, name: str, **kwargs): pass
+            def debug(self, message: str, **kwargs): pass
+            def info(self, message: str, **kwargs): pass
+            def warning(self, message: str, **kwargs): pass
+            def error(self, message: str, **kwargs): pass
+            def critical(self, message: str, **kwargs): pass
+            def log(self, level: str, message: str, **kwargs): pass
+            def set_level(self, level: int) -> None: pass
+            def get_level(self) -> int: return 20
 
-        # A legegyszerűbb, ha a mock objektumot úgy állítjuk be, hogy átmenjen az ellenőrzésen
-        mock_logger = MagicMock()
+        mock_logger = DummyLogger(name="test")
         container.register_instance(LoggerInterface, mock_logger)
 
         factory: CoreComponentFactory = CoreComponentFactory(container)
 
-        # Mockoljuk az isinstance-t a factory modulban, hogy elfogadja a mock-ot
-        with patch("neural_ai.core.base.factory.isinstance", return_value=True):
-             # A factory használja a konténert, ezt a logger property-n keresztül ellenőrizzük
-            logger = factory.logger
-            assert logger is not None
-            # assert logger is mock_logger
+        # A factory használja a konténert, ezt a logger property-n keresztül ellenőrizzük
+        logger = factory.logger
+        assert logger is not None
+        assert logger is mock_logger
 
     def test_logger_property_returns_logger(self) -> None:
         """Teszteli, hogy a logger property logger interfészt ad vissza."""
@@ -92,26 +94,33 @@ class TestCoreComponentFactory:
     def test_reset_lazy_loaders(self) -> None:
         """Teszteli a lazy loader-ek visszaállítását."""
         container: DIContainer = DIContainer()
-        # Mock logger regisztrálása
-        from unittest.mock import MagicMock
-
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
-        mock_logger = MagicMock()
+        class DummyLogger(LoggerInterface):
+            def __init__(self, name: str, **kwargs): pass
+            def debug(self, message: str, **kwargs): pass
+            def info(self, message: str, **kwargs): pass
+            def warning(self, message: str, **kwargs): pass
+            def error(self, message: str, **kwargs): pass
+            def critical(self, message: str, **kwargs): pass
+            def log(self, level: str, message: str, **kwargs): pass
+            def set_level(self, level: int) -> None: pass
+            def get_level(self) -> int: return 20
+
+        mock_logger = DummyLogger(name="test")
         container.register_instance(LoggerInterface, mock_logger)
 
         factory: CoreComponentFactory = CoreComponentFactory(container)
 
-        with patch("neural_ai.core.base.factory.isinstance", return_value=True):
-            # Először betöltjük a loggert
-            logger1 = factory.logger
-            # Visszaállítjuk a loader-eket
-            factory.reset_lazy_loaders()
-            # Újra betöltjük
-            logger2 = factory.logger
+        # Először betöltjük a loggert
+        logger1 = factory.logger
+        # Visszaállítjuk a loader-eket
+        factory.reset_lazy_loaders()
+        # Újra betöltjük
+        logger2 = factory.logger
 
-            assert logger1 is not None
-            assert logger2 is not None
+        assert logger1 is not None
+        assert logger2 is not None
 
     def test_validate_dependencies_storage_missing_base_directory(self) -> None:
         """Teszteli a storage függőség validálását hiányzó base_path esetén."""
