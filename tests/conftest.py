@@ -25,10 +25,37 @@ def reset_singletons() -> Generator[None, None, None]:
     _clear_all_singletons()
 
 
+def _clear_import_cache() -> None:
+    """
+    Törli a Python import cache-t, hogy a mock-olt vagy elrontott importok
+    ne szivárogjon át tesztek között.
+    
+    Ez megoldja a teszt izolációs problémát, ahol egy teszt mock-olja
+    a LoggerInterface-t, és az összes utána következő teszt elromlik.
+    """
+    import sys
+    
+    # Modulok listája, amelyeket törölni kell
+    modules_to_clear = [
+        'neural_ai.core.logger.interfaces.logger_interface',
+        'neural_ai.core.config.interfaces.config_manager_interface',
+        'neural_ai.data.storage.interfaces.storage_interface',
+        'neural_ai.core.base.factory',
+        'neural_ai.core.logger.factory',
+    ]
+    
+    for module_name in modules_to_clear:
+        if module_name in sys.modules:
+            del sys.modules[module_name]
+
+
 def _clear_all_singletons() -> None:
     """Törli az összes Singleton példányt a memóriából."""
     import sys
     import gc
+    
+    # 0. Import cache tisztítása (KRITIKUS: teszt izolációhoz)
+    _clear_import_cache()
     
     # 1. SingletonMeta instances
     try:
