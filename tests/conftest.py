@@ -10,6 +10,23 @@ from typing import Generator
 
 
 @pytest.fixture(autouse=True)
+def reset_mock_state() -> Generator[None, None, None]:
+    """
+    Automatikusan reseteli az összes mock állapotot minden teszt előtt és után.
+    
+    Ez megoldja a mock state szennyeződést, ahol a @patch dekorátorok
+    állapota átszivárodik tesztek között.
+    """
+    # Teszt előtt: mock tisztítás
+    _clear_mock_state()
+    
+    yield
+    
+    # Teszt után: mock tisztítás
+    _clear_mock_state()
+
+
+@pytest.fixture(autouse=True)
 def reset_singletons() -> Generator[None, None, None]:
     """
     Automatikusan reseteli az összes Singleton példányt minden teszt előtt és után.
@@ -23,6 +40,30 @@ def reset_singletons() -> Generator[None, None, None]:
     
     # Teszt után: tisztítás
     _clear_all_singletons()
+
+
+def _clear_mock_state() -> None:
+    """
+    Törli az összes mock állapotot, hogy a @patch dekorátorok
+    ne szivárogjon át tesztek között.
+    
+    Ez megoldja a mock state szennyeződést, ahol egy teszt mock-ja
+    befolyásolja a következő teszteket.
+    """
+    from unittest.mock import _patch, patch
+    
+    # 1. Stopoljuk az összes aktív patch-et
+    try:
+        patch.stopall()
+    except Exception:
+        pass
+    
+    # 2. Töröljük a _patch._active_patches listát
+    try:
+        if hasattr(_patch, '_active_patches'):
+            _patch._active_patches.clear()
+    except Exception:
+        pass
 
 
 def _clear_import_cache() -> None:
@@ -75,7 +116,15 @@ def _clear_all_singletons() -> None:
     except (ImportError, AttributeError):
         pass
     
-    # 3. CoreComponentFactory
+    # 3. LoggerFactory (KRITIKUS: _instances cache)
+    try:
+        from neural_ai.core.logger.factory import LoggerFactory
+        if hasattr(LoggerFactory, '_instances'):
+            LoggerFactory._instances.clear()
+    except (ImportError, AttributeError):
+        pass
+    
+    # 4. CoreComponentFactory
     try:
         from neural_ai.core.base.factory import CoreComponentFactory
         for attr in ['_instance', '_instances']:

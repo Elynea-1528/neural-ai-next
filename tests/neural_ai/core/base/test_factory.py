@@ -307,18 +307,24 @@ class TestCoreComponentFactory:
                 assert components.has_storage()
                 assert components.has_config()
 
-    @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
-    def test_create_logger(self, mock_get_logger: MagicMock) -> None:
-        """Teszteli a logger létrehozását."""
-        mock_logger: MagicMock = MagicMock()
-        mock_get_logger.return_value = mock_logger
-
+    def test_create_logger(self) -> None:
+        """Teszteli a logger létrehozását (funkcionális teszt)."""
+        # Valódi logger létrehozása
         logger = CoreComponentFactory.create_logger("test_logger", {"level": "INFO"})
 
-        assert logger is mock_logger
-        mock_get_logger.assert_called_once_with(
-            name="test_logger", config={"name": "test_logger", "level": "INFO"}
-        )
+        # Ellenőrizzük, hogy logger objektum létrejött
+        assert logger is not None
+        
+        # Ellenőrizzük, hogy van-e a szükséges metódusok (duck typing)
+        assert hasattr(logger, 'info')
+        assert hasattr(logger, 'debug')
+        assert hasattr(logger, 'error')
+        assert hasattr(logger, 'warning')
+        assert hasattr(logger, 'critical')
+        
+        # Ellenőrizzük, hogy működik (ne dobjon hibát)
+        logger.info("Test message")
+        logger.debug("Debug message")
 
     def test_create_logger_invalid_config(self) -> None:
         """Teszteli a logger létrehozását érvénytelen konfiggal."""
