@@ -481,25 +481,38 @@ class TestCoreComponentFactory:
             _ = factory.logger
 
     def test_get_config_manager_with_registered_config(self) -> None:
-        """Teszteli a _get_config_manager metódust regisztrált config managerrel (74-77. sorok)."""
-        from unittest.mock import MagicMock, patch
-
+        """Teszteli a _get_config_manager metódust regisztrált config managerrel (funkcionális teszt)."""
+        from pathlib import Path
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 
         container: DIContainer = DIContainer()
+        
+        # Dummy ConfigManager implementáció
+        class DummyConfigManager(ConfigManagerInterface):
+            def __init__(self, config_path: Path | None = None):
+                pass
+            def get(self, key: str, default: object = None) -> object:
+                return default
+            def set(self, key: str, value: object) -> None:
+                pass
+            def has(self, key: str) -> bool:
+                return False
+            def get_section(self, section: str) -> dict[str, object]:
+                return {}
+            def load(self, path: Path) -> None:
+                pass
+            def load_directory(self, directory: Path) -> None:
+                pass
+            def save(self, path: Path) -> None:
+                pass
+            def validate(self) -> bool:
+                return True
+
+        mock_config = DummyConfigManager()
+        container.register_instance(ConfigManagerInterface, mock_config)
+        
         factory: CoreComponentFactory = CoreComponentFactory(container)
-
-        # Mock config manager létrehozása, ami implementálja az interfészt
-        mock_config = MagicMock(spec=ConfigManagerInterface)
-
-        # Mockoljuk a factory _container.resolve metódusát
-        with patch.object(factory._container, "resolve", return_value=mock_config):
-            # Mockoljuk az isinstance-t, hogy mindig True-t adjon vissza
-            with patch(
-                "neural_ai.core.base.implementations.di_container.isinstance", return_value=True
-            ):
-                # Közvetlenül hívjuk meg a _get_config_manager metódust
-                result = factory._get_config_manager()
+        result = factory._get_config_manager()
 
         assert result is not None
         assert result is mock_config
