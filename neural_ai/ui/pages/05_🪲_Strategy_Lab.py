@@ -272,20 +272,20 @@ class StrategyLabPage(PageInterface):
                     extra={"error": str(e), "page": "StrategyLab"},
                 )
 
-    def _prepare_data_for_view(self, df: "pl.DataFrame", price_type: str) -> "pl.DataFrame":
+    def _prepare_data_for_view(self, df: pd.DataFrame, price_type: str) -> pd.DataFrame:
         """Adatok előkészítése megjelenítéshez - oszlopok átnevezése price_type alapján.
 
         Args:
-            df: Az eredeti DataFrame
+            df: Az eredeti Pandas DataFrame
             price_type: Az ár típus ('Bid' vagy 'Mid')
 
         Returns:
-            DataFrame: Az átnevezett oszlopokkal rendelkező DataFrame
+            pd.DataFrame: Az átnevezett oszlopokkal rendelkező Pandas DataFrame
         """
-        df = df.copy()
-        prefix = f"{price_type.lower()}_"  # "bid_" vagy "mid_"
+        df_copy: pd.DataFrame = df.copy()
+        prefix: str = f"{price_type.lower()}_"  # "bid_" vagy "mid_"
 
-        rename_map = {
+        rename_map: dict[str, str] = {
             f"{prefix}open": "open",
             f"{prefix}high": "high",
             f"{prefix}low": "low",
@@ -293,9 +293,9 @@ class StrategyLabPage(PageInterface):
         }
 
         # Csak akkor nevezzük át, ha léteznek az oszlopok
-        valid_map = {k: v for k, v in rename_map.items() if k in df.columns}
-        df = df.rename(columns=valid_map)
-        return df
+        valid_map: dict[str, str] = {k: v for k, v in rename_map.items() if k in df_copy.columns}
+        df_result: pd.DataFrame = df_copy.rename(columns=valid_map)
+        return df_result
 
     def _render_candlestick_chart(self, signals: dict[str, list[int]] | None = None) -> None:
         """Interaktív Plotly candlestick chart megjelenítése jelekkel."""
@@ -306,10 +306,10 @@ class StrategyLabPage(PageInterface):
                 return
 
             # Polars DataFrame konvertálása Pandas-ra megjelenítéshez
-            df_pd = self._candles.to_pandas()
+            df_pd: pd.DataFrame = self._candles.to_pandas()
             # Adatok előkészítése oszlop-átnevezéssel
-            price_type = st.session_state.price_type
-            df = self._prepare_data_for_view(df_pd, price_type)
+            price_type: str = st.session_state.price_type
+            df: pd.DataFrame = self._prepare_data_for_view(df_pd, price_type)
 
             # Ellenőrzés, hogy az átnevezés sikeres volt-e
             required_cols = ["open", "high", "low", "close"]
@@ -387,7 +387,7 @@ class StrategyLabPage(PageInterface):
                     )
 
             # D2 swing pontok hozzáadása, ha aktívak a checkboxok és van elemzés
-            df_plot = df.reset_index(drop=True)  # Mindig létrehozzuk df_plot-ot
+            df_plot: pd.DataFrame = df.reset_index(drop=True)  # Mindig létrehozzuk df_plot-ot
 
             if (
                 st.session_state.show_body_swings or st.session_state.show_wick_swings
@@ -575,12 +575,13 @@ class StrategyLabPage(PageInterface):
         try:
             if self._candles is not None and not self._candles.is_empty():
                 # Polars DataFrame konvertálása Pandas-ra megjelenítéshez
-                df = self._candles.to_pandas()
+                df: pd.DataFrame = self._candles.to_pandas()
                 # Oszlopnevek normalizálása
                 df.columns = [col.lower() for col in df.columns]
 
                 # Price type alapján OHLC oszlopok kiválasztása megjelenítéshez
-                price_type = st.session_state.price_type
+                price_type: str = st.session_state.price_type
+                ohlc_cols: list[str]
                 if price_type == "Mid":
                     ohlc_cols = ["mid_open", "mid_high", "mid_low", "mid_close"]
                 else:
@@ -589,7 +590,7 @@ class StrategyLabPage(PageInterface):
                         ohlc_cols = ["open", "high", "low", "close"]
 
                 # Megjelenítendő oszlopok: OHLC, spread, z-score, volume, nearest levels, strengths
-                display_cols = []
+                display_cols: list[str] = []
                 display_cols.extend(ohlc_cols)
 
                 # Spread oszlop hozzáadása, ha létezik
@@ -601,13 +602,13 @@ class StrategyLabPage(PageInterface):
                     display_cols.append("rolling_z_score")
 
                 # Volume oszlop hozzáadása
-                volume_cols = ["real_volume", "tick_volume"]
+                volume_cols: list[str] = ["real_volume", "tick_volume"]
                 for col in volume_cols:
                     if col in df.columns:
                         display_cols.append(col)
 
                 # D2 oszlopok hozzáadása, ha elérhetők
-                d2_cols = [
+                d2_cols: list[str] = [
                     "nearest_resistance",
                     "nearest_support",
                     "resistance_strength",
@@ -618,7 +619,7 @@ class StrategyLabPage(PageInterface):
                         display_cols.append(col)
 
                 # Csak a meglévő oszlopokat tartjuk meg
-                available_cols = [col for col in display_cols if col in df.columns]
+                available_cols: list[str] = [col for col in display_cols if col in df.columns]
 
                 # Az első 10 sor megjelenítése
                 st.dataframe(df[available_cols].head(10), width="stretch")

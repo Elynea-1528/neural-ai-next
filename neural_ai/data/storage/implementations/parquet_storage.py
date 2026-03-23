@@ -118,11 +118,11 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
         # Base path inicializáció
         if base_path:
-            self.BASE_PATH = Path(base_path)
+            self.base_path = Path(base_path)
         elif self.storage_config.base_path:
-            self.BASE_PATH = Path(self.storage_config.base_path)
+            self.base_path = Path(self.storage_config.base_path)
         else:
-            self.BASE_PATH = Path("data/tick")
+            self.base_path = Path("data/tick")
 
         self.engine = self.storage_config.engine or "fastparquet"
         self.compression = compression or self.storage_config.compression or "snappy"
@@ -142,7 +142,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         # Debug log az inicializáláshoz
         self.logger.debug(
             "Initializing ParquetStorageService",
-            base_path=str(self.BASE_PATH),
+            base_path=str(self.base_path),
             engine=self.engine,
             compression=self.compression,
         )
@@ -217,7 +217,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             filename = f"tick_{date.strftime('%Y%m%d')}_{ts_str}.parquet"
 
         return (
-            self.BASE_PATH
+            self.base_path
             / symbol.upper()
             / f"year={date.year}"
             / f"month={date.month:02d}"
@@ -334,7 +334,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         current_date = start_date
         while current_date <= end_date:
             date_dir = (
-                self.BASE_PATH
+                self.base_path
                 / symbol.upper()
                 / f"year={current_date.year}"
                 / f"month={current_date.month:02d}"
@@ -663,7 +663,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             >>> dates = await service.get_available_dates('EURUSD')
             >>> print(f"Elérhető dátumok: {len(dates)}")
         """
-        symbol_path = self.BASE_PATH / symbol.upper()
+        symbol_path = self.base_path / symbol.upper()
 
         if not symbol_path.exists():
             return []
@@ -701,7 +701,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         """
         # Az adott nap mappájának elérési útja
         date_dir = (
-            self.BASE_PATH
+            self.base_path
             / symbol.upper()
             / f"year={date.year}"
             / f"month={date.month:02d}"
@@ -769,7 +769,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         """
         # Az adott nap mappájának elérési útja
         date_dir = (
-            self.BASE_PATH
+            self.base_path
             / symbol.upper()
             / f"year={date.year}"
             / f"month={date.month:02d}"
@@ -852,7 +852,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         """
         stats = {"total_files": 0, "total_size_gb": 0.0, "symbols": {}}
 
-        base_path = self.BASE_PATH
+        base_path = self.base_path
         if symbol:
             base_path = base_path / symbol.upper()
 
@@ -976,4 +976,4 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
         path_obj = Path(path)
         if path_obj.is_absolute():
             return path_obj
-        return self.BASE_PATH / path_obj
+        return self.base_path / path_obj

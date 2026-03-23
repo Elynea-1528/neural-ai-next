@@ -28,7 +28,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
         """
         super().__init__(config, logger)
         # Config validáció és konverzió Pydantic modellé
-        self.dim_config = ProcessorConfig(**cast(dict[str, Any], self.dim_config))
+        self.dim_config = ProcessorConfig(**cast(dict[str, Any], self.dim_config))  # type: ignore[assignment]
 
     def _find_swing_points_close_open(self, df: pl.DataFrame) -> pl.DataFrame:
         """Swing pontok keresése záró/nyitó árak alapján.
@@ -42,7 +42,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
         Returns:
             pl.DataFrame: swing_high_body és swing_low_body oszlopokkal kiegészített DataFrame
         """
-        min_candles = self.dim_config.min_candles
+        min_candles: int | None = cast(ProcessorConfig, self.dim_config).min_candles
         if min_candles is None:
             self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
             min_candles = 5
@@ -82,7 +82,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
         Returns:
             pl.DataFrame: swing_high_wick és swing_low_wick oszlopokkal kiegészített DataFrame
         """
-        min_candles = self.dim_config.min_candles
+        min_candles: int | None = cast(ProcessorConfig, self.dim_config).min_candles
         if min_candles is None:
             self.logger.warning("min_candles paraméter hiányzik a configból, default 5 használata")
             min_candles = 5
@@ -135,7 +135,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
             )
             return df
 
-        level_merge = self.dim_config.level_merge
+        level_merge: float | None = cast(ProcessorConfig, self.dim_config).level_merge
         if level_merge is None:
             self.logger.warning(
                 "level_merge paraméter hiányzik a configból, default 0.0005 használata"
@@ -200,7 +200,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
                 'strength' kulccsal.
         """
         base_weight = 0.1
-        strength_window = self.dim_config.strength_window
+        strength_window: int | None = cast(ProcessorConfig, self.dim_config).strength_window
         if strength_window is None:
             self.logger.warning(
                 "strength_window paraméter hiányzik a configból, default 10 használata"
@@ -247,7 +247,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
                     "resistance": {"strong": [...], "moderate": [...], "weak": [...]}
                 }
         """
-        min_touches = self.dim_config.min_touches
+        min_touches: int | None = cast(ProcessorConfig, self.dim_config).min_touches
         if min_touches is None:
             self.logger.warning("min_touches paraméter hiányzik a configból, default 1 használata")
             min_touches = 1
@@ -286,7 +286,9 @@ class D02SupportProcessor(BaseDimensionProcessor):
         Returns:
             pl.Expr: Szorzó kifejezés (1.2 ha megerősített, 1.0 ha nem)
         """
-        volume_confirmation = self.dim_config.volume_confirmation
+        volume_confirmation: bool | None = cast(
+            ProcessorConfig, self.dim_config
+        ).volume_confirmation
         if volume_confirmation is None:
             self.logger.warning(
                 "volume_confirmation paraméter hiányzik a configból, default False használata"
@@ -345,7 +347,7 @@ class D02SupportProcessor(BaseDimensionProcessor):
                 # később, vagy megpróbáljuk a meglévő oszlopokkal.
 
         # Market Hours szűrés és logolás
-        market_hours = self.dim_config.market_hours
+        market_hours = cast(ProcessorConfig, self.dim_config).market_hours
         if market_hours and market_hours.enabled:
             enabled_weekdays = market_hours.weekdays or [
                 "Monday",
