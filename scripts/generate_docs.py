@@ -10,7 +10,6 @@ Ez a script AST-alapú elemzéssel generál részletes, profi szintű dokumentá
 """
 
 import ast
-import inspect
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -241,7 +240,9 @@ class ASTExtractor(ast.NodeVisitor):
                     self.module_info.constants.append((target.id, value_str))
         self.generic_visit(node)
 
-    def _extract_function(self, node: ast.FunctionDef | ast.AsyncFunctionDef, is_async: bool) -> FunctionInfo:
+    def _extract_function(
+        self, node: ast.FunctionDef | ast.AsyncFunctionDef, is_async: bool
+    ) -> FunctionInfo:
         """Függvény információ kinyerése."""
         docstring = ast.get_docstring(node)
         parsed_doc = GoogleDocstringParser.parse(docstring)
@@ -342,6 +343,17 @@ class MarkdownBuilder:
         Returns:
             A generált Markdown tartalom.
         """
+        # Teszt fájl detektálás
+        is_test_file = module_info.file_path.parts[0] == "tests"
+
+        if is_test_file:
+            return MarkdownBuilder._build_test_file(module_info)
+        else:
+            return MarkdownBuilder._build_source_file(module_info)
+
+    @staticmethod
+    def _build_source_file(module_info: ModuleInfo) -> str:
+        """Forrás fájl dokumentáció építése (eredeti logika)."""
         sections: list[str] = []
 
         # Header
@@ -383,6 +395,72 @@ class MarkdownBuilder:
         sections.append(f"**Forrásfájl:** [`{relative_path}`](../../{relative_path})\n")
 
         return "\n".join(sections)
+
+    @staticmethod
+    def _build_test_file(module_info: ModuleInfo) -> str:
+        """Teszt fájl specifikus dokumentáció."""
+        sections: list[str] = []
+
+        # Header
+        sections.append(f"# 🧪 Teszt: {module_info.file_path}\n")
+
+        # Tesztelt modul
+        tested_module = MarkdownBuilder._get_tested_module(module_info.file_path)
+        sections.append(f"**Tesztelt modul:** [`{tested_module}`](../../{tested_module})\n")
+
+        # Module docstring
+        if module_info.module_docstring:
+            sections.append(f"{module_info.module_docstring}\n")
+
+        # Teszt osztályok
+        for class_info in module_info.classes:
+            sections.append(f"## Teszt Osztály: `{class_info.name}`\n")
+
+            if class_info.docstring:
+                sections.append(f"{class_info.docstring}\n")
+
+            # Teszt metódusok
+            for method in class_info.methods:
+                if method.name.startswith("test_"):
+                    sections.append(f"### ✓ `{method.name}()`\n")
+                    if method.docstring:
+                        sections.append(f"{method.docstring}\n")
+
+        # Teszt függvények (osztályon kívül)
+        test_functions = [f for f in module_info.functions if f.name.startswith("test_")]
+        if test_functions:
+            sections.append("## Teszt Függvények\n")
+            for func in test_functions:
+                sections.append(f"### ✓ `{func.name}()`\n")
+                if func.docstring:
+                    sections.append(f"{func.docstring}\n")
+
+        # Footer
+        sections.append("---\n")
+        sections.append(
+            f"**Teszt fájl:** "
+            f"[`{module_info.file_path}`](../../{module_info.file_path})\n"
+        )
+        sections.append(
+            f"**Tesztelt modul:** [`{tested_module}`](../../{tested_module})\n"
+        )
+
+        return "\n".join(sections)
+
+    @staticmethod
+    def _get_tested_module(test_path: Path) -> Path:
+        """Tesztelt modul útvonal kiszámítása."""
+        # tests/neural_ai/core/config/test_factory.py
+        # -> neural_ai/core/config/factory.py
+        parts = list(test_path.parts)
+        if parts[0] == "tests":
+            parts = parts[1:]  # Eltávolítjuk a "tests/" prefix-et
+
+        # test_factory.py -> factory.py
+        filename = parts[-1].replace("test_", "")
+        parts[-1] = filename
+
+        return Path(*parts)
 
     @staticmethod
     def _build_class(class_info: ClassInfo) -> str:
@@ -509,10 +587,11 @@ class DocumentationGenerator:
         """Inicializálja a generátort.
 
         Args:
-            source_dirs: A forráskód mappák listája (default: ["neural_ai", "scripts", "tests", "."]).
+            source_dirs: A forráskód mappák listája.
             docs_dir: A dokumentáció mappa elérési útja.
         """
-        self.source_dirs = [Path(d) for d in (source_dirs or ["neural_ai", "scripts", "tests", "."])]
+        default_dirs = ["neural_ai", "scripts", "tests", "."]
+        self.source_dirs = [Path(d) for d in (source_dirs or default_dirs)]
         self.docs_dir = Path(docs_dir)
         self.ignored_dirs = {"__pycache__", ".pytest_cache", ".ruff_cache", ".git", ".venv", "venv"}
         self.ignored_files: set[str] = set()  # Üres - minden fájlt dokumentálunk
@@ -562,7 +641,10 @@ class DocumentationGenerator:
 
     def generate_all(self) -> None:
         """Összes dokumentáció generálása."""
-        print(f"Dokumentáció generálása: {', '.join(str(d) for d in self.source_dirs)} -> {self.docs_dir}")
+        print(
+            f"Dokumentáció generálása: "
+            f"{', '.join(str(d) for d in self.source_dirs)} -> {self.docs_dir}"
+        )
 
         # Docs dir tisztítása
         if self.docs_dir.exists():

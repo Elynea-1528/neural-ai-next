@@ -12,12 +12,16 @@ Funkciók:
 """
 
 import ast
+import hashlib
 import html  # HTML escape-hez
 import json
 import os
+import pickle
 import subprocess
+import time
+from concurrent.futures import ThreadPoolExecutor, wait
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, Literal
 
@@ -38,6 +42,61 @@ MYPY_FILE = REPORT_DIR / "mypy.json"
 # Output fájlok
 OUTPUT_MD = PROJECT_ROOT / "docs" / "development" / "TASK_TREE.md"
 OUTPUT_HTML = PROJECT_ROOT / "docs" / "development" / "TASK_TREE.html"
+
+
+class CacheManager:
+    """Cache kezelő a gyorsabb futáshoz."""
+
+    def __init__(self, cache_dir: Path = Path(".cache")) -> None:
+        """Inicializálja a cache kezelőt."""
+        self.cache_dir = cache_dir
+        self.cache_dir.mkdir(exist_ok=True)
+        self.cache_file = self.cache_dir / "task_tree_cache.pkl"
+        self.cache_validity = timedelta(hours=1)
+
+    def is_valid(self) -> bool:
+        """Ellenőrzi, hogy a cache érvényes-e."""
+        if not self.cache_file.exists():
+            return False
+
+        # Időbélyeg ellenőrzés
+        mtime = datetime.fromtimestamp(self.cache_file.stat().st_mtime)
+        if datetime.now() - mtime > self.cache_validity:
+            return False
+
+        # Fájlok hash ellenőrzés
+        current_hash = self._calculate_files_hash()
+        cached_data = self.load()
+        if cached_data and cached_data.get("files_hash") == current_hash:
+            return True
+
+        return False
+
+    def _calculate_files_hash(self) -> str:
+        """Kiszámítja a fájlok hash-ét."""
+        hasher = hashlib.md5()
+        for file in sorted(Path("neural_ai").rglob("*.py")):
+            hasher.update(str(file).encode())
+            hasher.update(str(file.stat().st_mtime).encode())
+        return hasher.hexdigest()
+
+    def save(self, data: dict[str, Any]) -> None:
+        """Menti a cache-t."""
+        data["files_hash"] = self._calculate_files_hash()
+        data["timestamp"] = datetime.now()
+        with open(self.cache_file, "wb") as f:
+            pickle.dump(data, f)
+
+    def load(self) -> dict[str, Any] | None:
+        """Betölti a cache-t."""
+        if not self.cache_file.exists():
+            return None
+        try:
+            with open(self.cache_file, "rb") as f:
+                data: dict[str, Any] = pickle.load(f)
+                return data
+        except Exception:
+            return None
 
 
 @dataclass
@@ -1478,8 +1537,9 @@ class TaskTreeGenerator:
         self.pylance_data: list[dict[str, Any]] = []
         self.pytest_data: dict[str, dict[str, int]] = {}
         self.source_warnings: dict[str, int] = {}
+        self.cache_manager = CacheManager()
 
-    def run_dynamic_tools(self) -> None:
+    def run_dynamic_tools(self, force_refresh: bool = False) -> None:
         """Futtatja a dinamikus ellenőrző eszközöket."""
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
@@ -1487,58 +1547,114 @@ class TaskTreeGenerator:
 
         print("\n🚀 Dinamikus eszközök futtatása...")
 
-        # 1. Coverage + Pytest + JSON Report (MINDIG FRISS ADATOK)
+        # Cache ellenőrzés
+        if not force_refresh and self.cache_manager.is_valid():
+            print("  ⚡ Cache használata (gyors mód)")
+            cached_data = self.cache_manager.load()
+            if cached_data:
+                self.coverage_data = cached_data.get("coverage_data", {})
+                self.ruff_data = cached_data.get("ruff_data", [])
+                self.mypy_data = cached_data.get("mypy_data", [])
+                self.pylance_data = cached_data.get("pylance_data", [])
+                self.pytest_data = cached_data.get("pytest_data", {})
+                self.source_warnings = cached_data.get("source_warnings", {})
+                print(f"    ✅ Cache betöltve: {len(self.coverage_data)} fájl coverage adat")
+                return
+
+        print("  🔄 Friss adatok gyűjtése...")
+
+        # 1. Coverage + Pytest (LASSÚ - külön futtatjuk)
+        self._run_pytest_cov(env)
+
+        # 2. Párhuzamos futtatás: Ruff + Mypy + Pyright
+        print("  ⚡ Párhuzamos QA eszközök futtatása...")
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = [
+                executor.submit(self._run_ruff, env),
+                executor.submit(self._run_mypy, env),
+                executor.submit(self._run_pyright, env),
+            ]
+            wait(futures)
+
+        # 3. Pytest Report feldolgozása
+        self._process_pytest_report()
+
+        # 4. Cache mentése
+        cache_data = {
+            "coverage_data": self.coverage_data,
+            "ruff_data": self.ruff_data,
+            "mypy_data": self.mypy_data,
+            "pylance_data": self.pylance_data,
+            "pytest_data": self.pytest_data,
+            "source_warnings": self.source_warnings,
+        }
+        self.cache_manager.save(cache_data)
+        print("  💾 Cache mentve")
+
+    def _run_pytest_cov(self, env: dict[str, str]) -> None:
+        """Pytest-cov futtatása retry mechanizmussal."""
         print("  📊 Coverage + Pytest...")
         print("    🔄 Friss coverage gyűjtés futtatása...")
+
+        cmd_pytest_cov = [
+            str(PYTEST_BIN),
+            "tests/",
+            "--cov=neural_ai",
+            "--cov=scripts",
+            f"--cov-report=json:{COVERAGE_FILE}",
+            "--cov-branch",
+            "-q",
+            "--tb=no",
+            "--continue-on-collection-errors",
+            "--json-report",
+            f"--json-report-file={REPORT_DIR}/pytest_report.json",
+        ]
+
         try:
-            # Pytest-cov használata: gyorsabb és közvetlenül generálja a JSON-t
-            cmd_pytest_cov = [
-                str(PYTEST_BIN),
-                "tests/",
-                "--cov=neural_ai",
-                "--cov=scripts",
-                f"--cov-report=json:{COVERAGE_FILE}",
-                "--cov-branch",
-                "-q",
-                "--tb=no",
-                "--continue-on-collection-errors",
-                "--json-report",
-                f"--json-report-file={REPORT_DIR}/pytest_report.json",
-            ]
-            # STDOUT/STDERR pipe nélkül (elkerüli a deadlock-ot)
-            # Timeout: 300s (5 perc) - sok teszt van
             subprocess.run(
                 cmd_pytest_cov,
                 check=False,
                 env=env,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                timeout=300,
+                timeout=600,  # 10 perc
             )
-            
+
+            # Retry mechanizmus
+            max_retries = 3
+            for attempt in range(max_retries):
+                if COVERAGE_FILE.exists():
+                    break
+                print(f"    🔄 Várakozás coverage fájlra... ({attempt+1}/{max_retries})")
+                time.sleep(2)
+
             if COVERAGE_FILE.exists():
                 with open(COVERAGE_FILE) as f:
                     cov_json = json.load(f)
                     self.coverage_data = cov_json.get("files", {})
                     print(f"    ✅ Coverage adatok betöltve: {len(self.coverage_data)} fájl")
             else:
-                print("    ⚠️ Coverage JSON fájl nem jött létre - coverage adatok nem elérhetők")
+                print("    ❌ Coverage fájl nem jött létre!")
+                self.coverage_data = {}
         except subprocess.TimeoutExpired:
-            print("    ⚠️ Pytest/Coverage timeout (300s), folytatás részleges adatokkal...")
-            # Próbáljuk meg betölteni a részleges coverage adatokat
+            print("    ⚠️ Pytest/Coverage timeout (600s), folytatás részleges adatokkal...")
             if COVERAGE_FILE.exists():
                 try:
                     with open(COVERAGE_FILE) as f:
                         cov_json = json.load(f)
                         self.coverage_data = cov_json.get("files", {})
                         if self.coverage_data:
-                            print(f"    ✅ Részleges coverage adatok betöltve: {len(self.coverage_data)} fájl")
+                            print(
+                                f"    ✅ Részleges coverage adatok betöltve: "
+                                f"{len(self.coverage_data)} fájl"
+                            )
                 except Exception as e:
                     print(f"    ⚠️ Részleges coverage betöltési hiba: {e}")
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
 
-        # 2. Ruff (neural_ai + tests + scripts)
+    def _run_ruff(self, env: dict[str, str]) -> None:
+        """Ruff linter futtatása."""
         print("  🔍 Ruff linter...")
         try:
             with open(RUFF_FILE, "w") as f:
@@ -1558,7 +1674,8 @@ class TaskTreeGenerator:
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
 
-        # 3. Mypy (neural_ai + tests + scripts)
+    def _run_mypy(self, env: dict[str, str]) -> None:
+        """Mypy type checker futtatása."""
         print("  🔬 Mypy type checker...")
         try:
             cmd = [str(MYPY_BIN), "neural_ai", "tests", "scripts", "--no-error-summary"]
@@ -1584,32 +1701,27 @@ class TaskTreeGenerator:
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
 
-        # 4. Pylance (Pyright) - Problems fül hibák (neural_ai + tests + scripts)
+    def _run_pyright(self, env: dict[str, str]) -> None:
+        """Pylance/Pyright type checker futtatása."""
         print("  🔎 Pylance/Pyright type checker...")
         pylance_file = REPORT_DIR / "pylance.json"
         try:
-            # Pyright futtatása JSON outputtal (neural_ai + tests + scripts)
             cmd = ["pyright", "neural_ai", "tests", "scripts", "--outputjson"]
             result = subprocess.run(
-                cmd, capture_output=True, text=True, check=False, env=env, timeout=60
+                cmd, capture_output=True, text=True, check=False, env=env, timeout=120  # 2 perc
             )
 
             if result.stdout.strip():
                 pylance_json = json.loads(result.stdout)
 
-                # Hibák kinyerése
                 pylance_errors: list[dict[str, Any]] = []
                 for diagnostic in pylance_json.get("generalDiagnostics", []):
                     file_path = diagnostic.get("file", "")
                     severity = diagnostic.get("severity", "")
 
-                    # Csak error és warning szintű hibák
                     if severity in ["error", "warning"]:
-                        # Abszolút útvonal -> relatív útvonal konverzió
-                        # Pyright abszolút útvonalat ad: /home/.../neural-ai-next/neural_ai/...
-                        # Nekünk relatív kell: neural_ai/...
                         if file_path.startswith(str(PROJECT_ROOT)):
-                            file_path = file_path[len(str(PROJECT_ROOT)) + 1 :]  # +1 a / miatt
+                            file_path = file_path[len(str(PROJECT_ROOT)) + 1:]
 
                         error_entry: dict[str, Any] = {
                             "file": file_path,
@@ -1623,40 +1735,39 @@ class TaskTreeGenerator:
                     json.dump(pylance_errors, f, indent=2)
 
                 self.pylance_data = pylance_errors
-                print(
-                    f"    ✅ {len(pylance_errors)} Pylance hiba/figyelmeztetés találva "
-                    f"(strict mode)"
-                )
+                print(f"    ✅ {len(pylance_errors)} Pylance hiba/figyelmeztetés találva")
             else:
                 self.pylance_data = []
         except subprocess.TimeoutExpired:
-            print("    ⚠️ Pyright timeout (60s), kihagyva")
+            print("    ⚠️ Pyright timeout (120s), kihagyva")
             self.pylance_data = []
         except FileNotFoundError:
-            print("    ⚠️ Pyright nincs telepítve, Pylance hibák nem elérhetők")
+            print("    ⚠️ Pyright nincs telepítve")
             self.pylance_data = []
         except Exception as e:
             print(f"    ⚠️ Hiba: {e}")
             self.pylance_data = []
 
-        # 5. Pytest Report feldolgozása
+    def _process_pytest_report(self) -> None:
+        """Pytest Report feldolgozása."""
         print("  📋 Pytest eredmények feldolgozása...")
         pytest_report_file = REPORT_DIR / "pytest_report.json"
         if pytest_report_file.exists():
             try:
-                print(f"    🔄 JSON betöltése ({pytest_report_file.stat().st_size / 1024 / 1024:.1f} MB)...")
+                print(
+                    f"    🔄 JSON betöltése "
+                    f"({pytest_report_file.stat().st_size / 1024 / 1024:.1f} MB)..."
+                )
                 with open(pytest_report_file) as f:
                     pytest_json = json.load(f)
                 print(f"    ✅ JSON betöltve: {len(pytest_json.get('tests', []))} teszt")
 
-                # Tesztek csoportosítása fájlonként
+                # Tesztek csoportosítása
                 print("    🔄 Tesztek csoportosítása...")
                 for test in pytest_json.get("tests", []):
                     nodeid = test.get("nodeid", "")
                     outcome = test.get("outcome", "")
 
-                    # nodeid formátum:
-                    # tests/core/config/test_config_factory.py::TestClass::test_method
                     if "::" in nodeid:
                         test_file = nodeid.split("::")[0]
 
@@ -1677,15 +1788,15 @@ class TaskTreeGenerator:
                         elif outcome == "skipped":
                             self.pytest_data[test_file]["skipped"] += 1
 
-                # Warnings feldolgozása (TOP LEVEL, forráskód fájlokhoz)
-                # A warnings-ok a forráskód fájlokban vannak, nem a teszt fájlokban
-                print(f"    🔄 Warnings feldolgozása ({len(pytest_json.get('warnings', []))} db)...")
+                # Warnings feldolgozása
+                print(
+                    f"    🔄 Warnings feldolgozása "
+                    f"({len(pytest_json.get('warnings', []))} db)..."
+                )
                 for warning in pytest_json.get("warnings", []):
                     filename = warning.get("filename", "")
-                    # Ha a neural-ai-next projektben van
                     if "neural-ai-next" in filename:
                         rel_path = filename.split("neural-ai-next/")[-1]
-                        # Csak a neural_ai/ mappában lévő fájlokat számoljuk
                         if rel_path.startswith("neural_ai/"):
                             if rel_path not in self.source_warnings:
                                 self.source_warnings[rel_path] = 0

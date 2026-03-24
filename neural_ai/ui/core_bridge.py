@@ -46,9 +46,16 @@ class CoreBridge(metaclass=SingletonMeta):
         Ez a metódus meghívja a bootstrap_core() függvényt, amely elindítja
         az összes alapvető rendszerkomponenst (logger, config, storage, stb.).
         """
+        from pathlib import Path
+
         from neural_ai.core import bootstrap_core
 
-        self._core = bootstrap_core()
+        # Projekt gyökér meghatározása (neural_ai mappa szülője)
+        project_root = Path(__file__).parent.parent.parent
+        config_path = project_root / "configs"
+
+        # Bootstrap core komponensekkel, abszolút config path használatával
+        self._core = bootstrap_core(config_path=str(config_path))
         self._connected = True
 
         if self._core and self._core.logger:

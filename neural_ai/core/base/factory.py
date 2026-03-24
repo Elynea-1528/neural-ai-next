@@ -89,7 +89,9 @@ class CoreComponentFactory(metaclass=SingletonMeta):
         logger = self._container.resolve(LoggerInterface)
         if logger is not None:
             # Duck typing: ellenőrizzük a szükséges metódusokat
-            required_methods = ['info', 'debug', 'error', 'warning', 'critical', 'set_level', 'get_level']
+            required_methods = [
+                'info', 'debug', 'error', 'warning', 'critical', 'set_level', 'get_level'
+            ]
             if not all(hasattr(logger, method) for method in required_methods):
                 raise DependencyError("Logger must implement LoggerInterface")
             return cast(LoggerInterface, logger)

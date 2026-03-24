@@ -41,7 +41,7 @@ from neural_ai.core.base.implementations.di_container import DIContainer
 
 
 - **`mock_logger`**
-: `MagicMock(spec=LoggerInterface)`
+: `MagicMock()`
 
 
 - **`logger1`**

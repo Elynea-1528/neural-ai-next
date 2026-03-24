@@ -6,6 +6,7 @@ from collections.abc import Callable
 from typing import TypeVar, cast
 
 from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
+from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.base.interfaces import DIContainerInterface, LazyComponentInterface
 from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
@@ -59,15 +60,19 @@ class LazyComponent[T](LazyComponentInterface):
         return self._loaded
 
 
-class DIContainer(DIContainerInterface):
-    """Egyszerű dependency injection konténer.
+class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
+    """Egyszerű dependency injection konténer (Singleton).
 
     A konténer kezeli a komponensek közötti függőségeket és biztosítja
-    azok megfelelő inicializálását.
+    azok megfelelő inicializálását. Singleton pattern biztosítja, hogy
+    az alkalmazásban egyetlen konténer példány létezzen.
     """
 
     def __init__(self) -> None:
         """Konténer inicializálása."""
+        # Singleton védelem: csak egyszer inicializáljuk
+        if hasattr(self, '_instances'):
+            return
         self._instances: dict[object, object] = {}
         self._factories: dict[object, Callable[[], object]] = {}
         self._lazy_components: dict[str, LazyComponent[object]] = {}

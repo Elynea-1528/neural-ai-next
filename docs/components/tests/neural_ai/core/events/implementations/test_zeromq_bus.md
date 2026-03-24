@@ -20,13 +20,17 @@ from unittest.mock import patch
 import pytest
 from neural_ai.core.events.exceptions.event_error import EventBusError
 from neural_ai.core.events.exceptions.event_error import PublishError
-# ... és még 15 import
+# ... és még 16 import
 ```
 
 ## Konstansok
 
-- **`original_instances`**
-: `getattr(SingletonMeta, '_instances', {}).copy()`
+- **`mock_context`**
+: `MagicMock()`
+
+
+- **`mock_socket`**
+: `MagicMock()`
 
 
 ## Osztály: `TestEventBusInitialization`
@@ -38,7 +42,7 @@ EventBus inicializálás tesztek.
 #### `test_default_initialization()`
 
 ```python
-def test_default_initialization(self, mock_context_class: MagicMock) -> None
+def test_default_initialization(self, mock_zmq_context: tuple[MagicMock, MagicMock]) -> None
 ```
 
 Teszteli az alapértelmezett inicializálást.
@@ -46,7 +50,7 @@ Teszteli az alapértelmezett inicializálást.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_context_class`** (`MagicMock`)
+- **`mock_zmq_context`** (`tuple[MagicMock, MagicMock]`)
 
 **Visszatérési érték:**
 
@@ -55,7 +59,7 @@ Teszteli az alapértelmezett inicializálást.
 #### `test_custom_config_initialization()`
 
 ```python
-def test_custom_config_initialization(self, mock_context_class: MagicMock) -> None
+def test_custom_config_initialization(self, mock_zmq_context: tuple[MagicMock, MagicMock]) -> None
 ```
 
 Teszteli az egyéni konfigurációval történő inicializálást.
@@ -63,7 +67,7 @@ Teszteli az egyéni konfigurációval történő inicializálást.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_context_class`** (`MagicMock`)
+- **`mock_zmq_context`** (`tuple[MagicMock, MagicMock]`)
 
 **Visszatérési érték:**
 
@@ -72,7 +76,7 @@ Teszteli az egyéni konfigurációval történő inicializálást.
 #### `test_external_zmq_context()`
 
 ```python
-def test_external_zmq_context(self, mock_context_class: MagicMock) -> None
+def test_external_zmq_context(self, mock_zmq_context: tuple[MagicMock, MagicMock]) -> None
 ```
 
 Teszteli a külső ZMQ kontextus használatát.
@@ -80,7 +84,7 @@ Teszteli a külső ZMQ kontextus használatát.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_context_class`** (`MagicMock`)
+- **`mock_zmq_context`** (`tuple[MagicMock, MagicMock]`)
 
 **Visszatérési érték:**
 
@@ -89,7 +93,7 @@ Teszteli a külső ZMQ kontextus használatát.
 #### `test_zmq_import_error()`
 
 ```python
-def test_zmq_import_error(self, mock_context_class: MagicMock) -> None
+def test_zmq_import_error(self, mock_zmq_context: tuple[MagicMock, MagicMock]) -> None
 ```
 
 Teszteli a ZMQ import hibát.
@@ -97,7 +101,7 @@ Teszteli a ZMQ import hibát.
 **Paraméterek:**
 
 - **`self`**
-- **`mock_context_class`** (`MagicMock`)
+- **`mock_zmq_context`** (`tuple[MagicMock, MagicMock]`)
 
 **Visszatérési érték:**
 
@@ -976,7 +980,15 @@ Teszteli a socket close hiba kezelését a leállításkor.
 def reset_singleton()
 ```
 
-Singleton reset minden teszt előtt.
+Singleton reset minden teszt előtt és után.
+
+### `mock_zmq_context()`
+
+```python
+def mock_zmq_context()
+```
+
+Konzisztens ZMQ mock setup minden teszthez.
 
 ---
 

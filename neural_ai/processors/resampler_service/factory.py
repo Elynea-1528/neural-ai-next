@@ -45,6 +45,7 @@ class ResamplerServiceFactory:
             ComponentNotFoundError: Ha a komponens nem található a konténerben
         """
         from neural_ai.core.logger.factory import LoggerFactory
+        from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
         container = DIContainer()
 
@@ -57,9 +58,18 @@ class ResamplerServiceFactory:
             return instance  # type: ignore
         except Exception:
             # Ha nem létezik, létrehozzuk és regisztráljuk
-            from neural_ai.data.storage.factory import StorageFactory
+            # Storage lekérése a DI konténerből (már inicializálva a bootstrap_core által)
+            storage: StorageInterface
+            try:
+                resolved_storage = container.resolve(StorageInterface)
+                if not isinstance(resolved_storage, StorageInterface):
+                    raise TypeError("Resolved storage is not a StorageInterface instance")
+                storage = resolved_storage
+            except Exception:
+                # Fallback: ha nincs a konténerben, létrehozzuk
+                from neural_ai.data.storage.factory import StorageFactory
+                storage = StorageFactory.get_storage(storage_type="parquet")
 
-            storage = StorageFactory.get_storage(storage_type="parquet")
             logger = LoggerFactory.get_logger(__name__)
             instance = cls.create(storage=storage, logger=logger)
             container.register(component_name, instance)
