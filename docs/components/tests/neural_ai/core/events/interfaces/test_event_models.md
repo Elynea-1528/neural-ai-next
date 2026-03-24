@@ -1,4 +1,6 @@
-# tests/neural_ai/core/events/interfaces/test_event_models.py
+# 🧪 Teszt: tests/neural_ai/core/events/interfaces/test_event_models.py
+
+**Tesztelt modul:** [`neural_ai/core/events/interfaces/event_models.py`](../../neural_ai/core/events/interfaces/event_models.py)
 
 Tesztek az EventModel-ekhez.
 
@@ -8,480 +10,140 @@ beleértve a validációt és a szerializációt.
 Author: Neural AI Next Team
 Version: 1.0.0
 
-## Importok
-
-```python
-from datetime import UTC
-from datetime import datetime
-import pytest
-from pydantic import ValidationError
-from neural_ai.core.events.interfaces.event_models import EventType
-from neural_ai.core.events.interfaces.event_models import MarketDataEvent
-from neural_ai.core.events.interfaces.event_models import OrderEvent
-from neural_ai.core.events.interfaces.event_models import PositionEvent
-from neural_ai.core.events.interfaces.event_models import SignalEvent
-from neural_ai.core.events.interfaces.event_models import SystemLogEvent
-# ... és még 1 import
-```
-
-## Osztály: `TestEventType`
+## Teszt Osztály: `TestEventType`
 
 EventType enumeráció tesztei.
 
-### Metódusok
-
-#### `test_event_type_values()`
-
-```python
-def test_event_type_values(self) -> None
-```
+### ✓ `test_event_type_values()`
 
 Teszteli az EventType értékeit.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestMarketDataEvent`
+## Teszt Osztály: `TestMarketDataEvent`
 
 MarketDataEvent tesztek.
 
-### Metódusok
-
-#### `test_valid_market_data_event()`
-
-```python
-def test_valid_market_data_event(self) -> None
-```
+### ✓ `test_valid_market_data_event()`
 
 Teszteli az érvényes MarketDataEvent létrehozását.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_market_data_event_without_volume()`
-
-```python
-def test_market_data_event_without_volume(self) -> None
-```
+### ✓ `test_market_data_event_without_volume()`
 
 Teszteli a MarketDataEvent létrehozását volume nélkül.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_market_data_event_invalid_source()`
-
-```python
-def test_market_data_event_invalid_source(self) -> None
-```
+### ✓ `test_market_data_event_invalid_source()`
 
 Teszteli az érvénytelen forrást.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_market_data_event_invalid_bid()`
-
-```python
-def test_market_data_event_invalid_bid(self) -> None
-```
+### ✓ `test_market_data_event_invalid_bid()`
 
 Teszteli az érvénytelen bid értéket.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_market_data_event_invalid_ask()`
-
-```python
-def test_market_data_event_invalid_ask(self) -> None
-```
+### ✓ `test_market_data_event_invalid_ask()`
 
 Teszteli az érvénytelen ask értéket.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestTradeEvent`
+## Teszt Osztály: `TestTradeEvent`
 
 TradeEvent tesztek.
 
-### Metódusok
-
-#### `test_valid_trade_event()`
-
-```python
-def test_valid_trade_event(self) -> None
-```
+### ✓ `test_valid_trade_event()`
 
 Teszteli az érvényes TradeEvent létrehozását.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_trade_event_without_strategy_id()`
-
-```python
-def test_trade_event_without_strategy_id(self) -> None
-```
+### ✓ `test_trade_event_without_strategy_id()`
 
 Teszteli a TradeEvent létrehozását strategy_id nélkül.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_trade_event_invalid_direction()`
-
-```python
-def test_trade_event_invalid_direction(self) -> None
-```
+### ✓ `test_trade_event_invalid_direction()`
 
 Teszteli az érvénytelen irányt.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_trade_event_invalid_price()`
-
-```python
-def test_trade_event_invalid_price(self) -> None
-```
+### ✓ `test_trade_event_invalid_price()`
 
 Teszteli az érvénytelen árat.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestSignalEvent`
+## Teszt Osztály: `TestSignalEvent`
 
 SignalEvent tesztek.
 
-### Metódusok
-
-#### `test_valid_signal_event()`
-
-```python
-def test_valid_signal_event(self) -> None
-```
+### ✓ `test_valid_signal_event()`
 
 Teszteli az érvényes SignalEvent létrehozását.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_signal_event_without_prices()`
-
-```python
-def test_signal_event_without_prices(self) -> None
-```
+### ✓ `test_signal_event_without_prices()`
 
 Teszteli a SignalEvent létrehozását árak nélkül.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_signal_event_invalid_signal_type()`
-
-```python
-def test_signal_event_invalid_signal_type(self) -> None
-```
+### ✓ `test_signal_event_invalid_signal_type()`
 
 Teszteli az érvénytelen jelzés típust.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_signal_event_invalid_confidence()`
-
-```python
-def test_signal_event_invalid_confidence(self) -> None
-```
+### ✓ `test_signal_event_invalid_confidence()`
 
 Teszteli az érvénytelen konfidenciát.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestSystemLogEvent`
+## Teszt Osztály: `TestSystemLogEvent`
 
 SystemLogEvent tesztek.
 
-### Metódusok
-
-#### `test_valid_system_log_event()`
-
-```python
-def test_valid_system_log_event(self) -> None
-```
+### ✓ `test_valid_system_log_event()`
 
 Teszteli az érvényes SystemLogEvent létrehozását.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_system_log_event_without_extra_data()`
-
-```python
-def test_system_log_event_without_extra_data(self) -> None
-```
+### ✓ `test_system_log_event_without_extra_data()`
 
 Teszteli a SystemLogEvent létrehozását extra_data nélkül.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_system_log_event_invalid_level()`
-
-```python
-def test_system_log_event_invalid_level(self) -> None
-```
+### ✓ `test_system_log_event_invalid_level()`
 
 Teszteli az érvénytelen log szintet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestOrderEvent`
+## Teszt Osztály: `TestOrderEvent`
 
 OrderEvent tesztek.
 
-### Metódusok
-
-#### `test_valid_order_event()`
-
-```python
-def test_valid_order_event(self) -> None
-```
+### ✓ `test_valid_order_event()`
 
 Teszteli az érvényes OrderEvent létrehozását.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_order_event_with_price()`
-
-```python
-def test_order_event_with_price(self) -> None
-```
+### ✓ `test_order_event_with_price()`
 
 Teszteli az OrderEvent létrehozását árrésztvevővel.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_order_event_invalid_order_type()`
-
-```python
-def test_order_event_invalid_order_type(self) -> None
-```
+### ✓ `test_order_event_invalid_order_type()`
 
 Teszteli az érvénytelen rendelés típust.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_order_event_invalid_direction()`
-
-```python
-def test_order_event_invalid_direction(self) -> None
-```
+### ✓ `test_order_event_invalid_direction()`
 
 Teszteli az érvénytelen irányt.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_order_event_invalid_status()`
-
-```python
-def test_order_event_invalid_status(self) -> None
-```
+### ✓ `test_order_event_invalid_status()`
 
 Teszteli az érvénytelen állapotot.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestPositionEvent`
+## Teszt Osztály: `TestPositionEvent`
 
 PositionEvent tesztek.
 
-### Metódusok
-
-#### `test_valid_position_event()`
-
-```python
-def test_valid_position_event(self) -> None
-```
+### ✓ `test_valid_position_event()`
 
 Teszteli az érvényes PositionEvent létrehozását.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_position_event_without_profit_loss()`
-
-```python
-def test_position_event_without_profit_loss(self) -> None
-```
+### ✓ `test_position_event_without_profit_loss()`
 
 Teszteli a PositionEvent létrehozását profit_loss nélkül.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_position_event_invalid_direction()`
-
-```python
-def test_position_event_invalid_direction(self) -> None
-```
+### ✓ `test_position_event_invalid_direction()`
 
 Teszteli az érvénytelen irányt.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_position_event_invalid_status()`
-
-```python
-def test_position_event_invalid_status(self) -> None
-```
+### ✓ `test_position_event_invalid_status()`
 
 Teszteli az érvénytelen állapotot.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
 ---
 
-**Forrásfájl:** [`tests/neural_ai/core/events/interfaces/test_event_models.py`](../../tests/neural_ai/core/events/interfaces/test_event_models.py)
+**Teszt fájl:** [`tests/neural_ai/core/events/interfaces/test_event_models.py`](../../tests/neural_ai/core/events/interfaces/test_event_models.py)
+
+**Tesztelt modul:** [`neural_ai/core/events/interfaces/event_models.py`](../../neural_ai/core/events/interfaces/event_models.py)

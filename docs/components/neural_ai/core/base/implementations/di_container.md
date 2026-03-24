@@ -12,10 +12,10 @@ from typing import TypeVar
 from typing import cast
 from neural_ai.core.base.exceptions import ComponentNotFoundError
 from neural_ai.core.base.exceptions import SingletonViolationError
+from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.base.interfaces import DIContainerInterface
 from neural_ai.core.base.interfaces import LazyComponentInterface
-from neural_ai.core.logger.factory import LoggerFactory
-# ... és még 1 import
+# ... és még 2 import
 ```
 
 ## Konstansok
@@ -91,10 +91,11 @@ Ellenőrzi, hogy a komponens betöltődött-e már.
 
 ## Osztály: `DIContainer(DIContainerInterface)`
 
-Egyszerű dependency injection konténer.
+Egyszerű dependency injection konténer (Singleton).
 
 A konténer kezeli a komponensek közötti függőségeket és biztosítja
-azok megfelelő inicializálását.
+azok megfelelő inicializálását. Singleton pattern biztosítja, hogy
+az alkalmazásban egyetlen konténer példány létezzen.
 
 ### Metódusok
 

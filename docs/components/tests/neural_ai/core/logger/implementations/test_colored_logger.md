@@ -1,226 +1,63 @@
-# tests/neural_ai/core/logger/implementations/test_colored_logger.py
+# 🧪 Teszt: tests/neural_ai/core/logger/implementations/test_colored_logger.py
+
+**Tesztelt modul:** [`neural_ai/core/logger/implementations/colored_logger.py`](../../neural_ai/core/logger/implementations/colored_logger.py)
 
 Colored logger implementáció tesztei.
 
-## Importok
-
-```python
-import logging
-import pytest
-from neural_ai.core.logger.implementations.colored_logger import ColoredLogger
-import io
-import sys
-import io
-import sys
-import io
-import sys
-import io
-# ... és még 4 import
-```
-
-## Osztály: `TestColoredLogger`
+## Teszt Osztály: `TestColoredLogger`
 
 ColoredLogger osztály tesztei.
 
-### Metódusok
-
-#### `test_init_basic()`
-
-```python
-def test_init_basic(self) -> None
-```
+### ✓ `test_init_basic()`
 
 Alap logger inicializálás tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_init_with_custom_level()`
-
-```python
-def test_init_with_custom_level(self) -> None
-```
+### ✓ `test_init_with_custom_level()`
 
 Logger inicializálás egyéni szinttel.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_debug_logging()`
-
-```python
-def test_debug_logging(self, monkeypatch: pytest.MonkeyPatch) -> None
-```
+### ✓ `test_debug_logging()`
 
 Debug üzenet logolásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-- **`monkeypatch`** (`pytest.MonkeyPatch`)
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_info_logging()`
-
-```python
-def test_info_logging(self, monkeypatch: pytest.MonkeyPatch) -> None
-```
+### ✓ `test_info_logging()`
 
 Info üzenet logolásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-- **`monkeypatch`** (`pytest.MonkeyPatch`)
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_warning_logging()`
-
-```python
-def test_warning_logging(self, monkeypatch: pytest.MonkeyPatch) -> None
-```
+### ✓ `test_warning_logging()`
 
 Warning üzenet logolásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-- **`monkeypatch`** (`pytest.MonkeyPatch`)
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_error_logging()`
-
-```python
-def test_error_logging(self, monkeypatch: pytest.MonkeyPatch) -> None
-```
+### ✓ `test_error_logging()`
 
 Error üzenet logolásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-- **`monkeypatch`** (`pytest.MonkeyPatch`)
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_critical_logging()`
-
-```python
-def test_critical_logging(self, monkeypatch: pytest.MonkeyPatch) -> None
-```
+### ✓ `test_critical_logging()`
 
 Critical üzenet logolásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-- **`monkeypatch`** (`pytest.MonkeyPatch`)
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_set_level()`
-
-```python
-def test_set_level(self) -> None
-```
+### ✓ `test_set_level()`
 
 Log szint módosításának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_name()`
-
-```python
-def test_logger_name(self) -> None
-```
+### ✓ `test_logger_name()`
 
 Logger nevének ellenőrzése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_colored_formatter_present()`
-
-```python
-def test_colored_formatter_present(self) -> None
-```
+### ✓ `test_colored_formatter_present()`
 
 Színes formázó jelenlétének ellenőrzése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_existing_handlers_removed()`
-
-```python
-def test_existing_handlers_removed(self) -> None
-```
+### ✓ `test_existing_handlers_removed()`
 
 Teszteli, hogy a meglévő handlerek eltávolításra kerülnek. Ez a teszt lefedi a 54-55. sorokat, ahol a meglévő handlerek eltávolítása történik, hogy ne legyenek duplikált üzenetek.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_di_dependencies_none()`
-
-```python
-def test_di_dependencies_none(self) -> None
-```
+### ✓ `test_di_dependencies_none()`
 
 DI függőségek None értékkel történő elfogadásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
 ---
 
-**Forrásfájl:** [`tests/neural_ai/core/logger/implementations/test_colored_logger.py`](../../tests/neural_ai/core/logger/implementations/test_colored_logger.py)
+**Teszt fájl:** [`tests/neural_ai/core/logger/implementations/test_colored_logger.py`](../../tests/neural_ai/core/logger/implementations/test_colored_logger.py)
+
+**Tesztelt modul:** [`neural_ai/core/logger/implementations/colored_logger.py`](../../neural_ai/core/logger/implementations/colored_logger.py)

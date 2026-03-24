@@ -1,7 +1,11 @@
-# tests/neural_ai/processors/__init__.py
+# 🧪 Teszt: tests/neural_ai/processors/__init__.py
+
+**Tesztelt modul:** [`neural_ai/processors/__init__.py`](../../neural_ai/processors/__init__.py)
 
 Processors teszt modul.
 
 ---
 
-**Forrásfájl:** [`tests/neural_ai/processors/__init__.py`](../../tests/neural_ai/processors/__init__.py)
+**Teszt fájl:** [`tests/neural_ai/processors/__init__.py`](../../tests/neural_ai/processors/__init__.py)
+
+**Tesztelt modul:** [`neural_ai/processors/__init__.py`](../../neural_ai/processors/__init__.py)

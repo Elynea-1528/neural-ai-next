@@ -1,495 +1,84 @@
-# tests/neural_ai/core/base/implementations/test_singleton.py
+# 🧪 Teszt: tests/neural_ai/core/base/implementations/test_singleton.py
+
+**Tesztelt modul:** [`neural_ai/core/base/implementations/singleton.py`](../../neural_ai/core/base/implementations/singleton.py)
 
 SingletonMeta tesztelése.
 
 Ez a modul tartalmazza a SingletonMeta metaclass egységtesztjeit,
 beleértve a singleton minta ellenőrzését és a DI kompatibilitást.
 
-## Importok
+## Teszt Osztály: `TestClass`
 
-```python
-from neural_ai.core.base.implementations.singleton import SingletonMeta
-```
+## Teszt Osztály: `ClassA`
 
-## Konstansok
+## Teszt Osztály: `ClassB`
 
-- **`obj1`**
-: `TestClass(42)`
+## Teszt Osztály: `TestClass`
 
+## Teszt Osztály: `TestClass`
 
-- **`obj2`**
-: `TestClass(100)`
+## Teszt Osztály: `TestClass`
 
+## Teszt Osztály: `TestClass`
 
-- **`obj_a`**
-: `ClassA('A')`
+## Teszt Osztály: `BaseClass`
 
+## Teszt Osztály: `TestClass`
 
-- **`obj_b`**
-: `ClassB('B')`
+## Teszt Osztály: `TestClass`
 
+## Teszt Osztály: `TestClass`
 
-- **`obj1`**
-: `TestClass(value=42)`
+## Teszt Osztály: `TestClass`
 
-
-- **`obj2`**
-: `TestClass(value=100)`
-
-
-- **`obj1`**
-: `TestClass()`
-
-
-- **`obj2`**
-: `TestClass()`
-
-
-- **`obj`**
-: `TestClass()`
-
-
-- **`obj1`**
-: `TestClass()`
-
-
-- **`obj2`**
-: `TestClass()`
-
-
-- **`obj1`**
-: `TestClass()`
-
-
-- **`obj2`**
-: `TestClass()`
-
-
-- **`obj1`**
-: `TestClass()`
-
-
-- **`obj2`**
-: `TestClass()`
-
-
-- **`obj1`**
-: `TestClass()`
-
-
-- **`obj2`**
-: `TestClass()`
-
-
-- **`obj1`**
-: `TestClass(42)`
-
-
-- **`obj2`**
-: `TestClass(100)`
-
-
-## Osztály: `TestClass`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self, value: int) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-- **`value`** (`int`)
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `ClassA`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self, value: str) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-- **`value`** (`str`)
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `ClassB`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self, value: str) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-- **`value`** (`str`)
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestClass`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self, value: int = 0) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-- **`value`** (`int`) = `0`
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestClass`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestClass`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestClass`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `BaseClass`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestClass(BaseClass)`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestClass`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `get_value()`
-
-```python
-def get_value(cls) -> int
-```
-
-**Paraméterek:**
-
-- **`cls`**
-
-**Visszatérési érték:**
-
-- Típus: `int`
-
-## Osztály: `TestClass`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestClass`
-
-### Metódusok
-
-#### `__init__()`
-
-```python
-def __init__(self, value: int) -> None
-```
-
-**Paraméterek:**
-
-- **`self`**
-- **`value`** (`int`)
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestSingletonMeta`
+## Teszt Osztály: `TestSingletonMeta`
 
 SingletonMeta metaclass tesztjei.
 
-### Metódusok
-
-#### `test_singleton_creates_only_one_instance()`
-
-```python
-def test_singleton_creates_only_one_instance(self) -> None
-```
+### ✓ `test_singleton_creates_only_one_instance()`
 
 Teszteli, hogy csak egy példány jön létre.
 
-**Paraméterek:**
+## Teszt Függvények
 
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-### `test_singleton_different_classes()`
-
-```python
-def test_singleton_different_classes(self) -> None
-```
+### ✓ `test_singleton_different_classes()`
 
 Teszteli, hogy különböző osztályok külön példányt kapnak.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-### `test_singleton_with_kwargs()`
-
-```python
-def test_singleton_with_kwargs(self) -> None
-```
+### ✓ `test_singleton_with_kwargs()`
 
 Teszteli a singleton-t kulcsszavas argumentumokkal.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-### `test_singleton_without_args()`
-
-```python
-def test_singleton_without_args(self) -> None
-```
+### ✓ `test_singleton_without_args()`
 
 Teszteli a singleton-t argumentumok nélkül.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-### `test_singleton_has_initialized_flag()`
-
-```python
-def test_singleton_has_initialized_flag(self) -> None
-```
+### ✓ `test_singleton_has_initialized_flag()`
 
 Teszteli, hogy a példánynak van _initialized flag-je (DI kompatibilitás).
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-### `test_singleton_has_instance_class_variable()`
-
-```python
-def test_singleton_has_instance_class_variable(self) -> None
-```
+### ✓ `test_singleton_has_instance_class_variable()`
 
 Teszteli, hogy az osztálynak van _instance class változója (DI kompatibilitás).
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-### `test_singleton_multiple_inheritance()`
-
-```python
-def test_singleton_multiple_inheritance(self) -> None
-```
+### ✓ `test_singleton_multiple_inheritance()`
 
 Teszteli a singleton-t többszörös öröklődés esetén.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-### `test_singleton_with_class_method()`
-
-```python
-def test_singleton_with_class_method(self) -> None
-```
+### ✓ `test_singleton_with_class_method()`
 
 Teszteli a singleton-t osztálymetódussal.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-### `test_singleton_instances_dict()`
-
-```python
-def test_singleton_instances_dict(self) -> None
-```
+### ✓ `test_singleton_instances_dict()`
 
 Teszteli, hogy a singleton tényleg egy példányt hoz létre.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-### `test_singleton_reset_behavior()`
-
-```python
-def test_singleton_reset_behavior(self) -> None
-```
+### ✓ `test_singleton_reset_behavior()`
 
 Teszteli, hogy a singleton nem enged második inicializálást.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
 ---
 
-**Forrásfájl:** [`tests/neural_ai/core/base/implementations/test_singleton.py`](../../tests/neural_ai/core/base/implementations/test_singleton.py)
+**Teszt fájl:** [`tests/neural_ai/core/base/implementations/test_singleton.py`](../../tests/neural_ai/core/base/implementations/test_singleton.py)
+
+**Tesztelt modul:** [`neural_ai/core/base/implementations/singleton.py`](../../neural_ai/core/base/implementations/singleton.py)

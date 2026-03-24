@@ -18,7 +18,7 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
-# ... és még 5 import
+# ... és még 6 import
 ```
 
 ## Osztály: `CoreBridge`

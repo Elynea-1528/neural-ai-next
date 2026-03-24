@@ -1,284 +1,83 @@
-# tests/neural_ai/core/logger/exceptions/test_logger_error.py
+# 🧪 Teszt: tests/neural_ai/core/logger/exceptions/test_logger_error.py
+
+**Tesztelt modul:** [`neural_ai/core/logger/exceptions/logger_error.py`](../../neural_ai/core/logger/exceptions/logger_error.py)
 
 Logger error exception tesztek.
 
-## Importok
-
-```python
-import pytest
-from neural_ai.core.logger.exceptions.logger_error import LoggerConfigurationError
-from neural_ai.core.logger.exceptions.logger_error import LoggerError
-from neural_ai.core.logger.exceptions.logger_error import LoggerInitializationError
-```
-
-## Osztály: `TestLoggerError`
+## Teszt Osztály: `TestLoggerError`
 
 LoggerError osztály tesztei.
 
-### Metódusok
-
-#### `test_logger_error_is_exception()`
-
-```python
-def test_logger_error_is_exception(self) -> None
-```
+### ✓ `test_logger_error_is_exception()`
 
 LoggerError Exception-ből származik.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_error_can_be_raised()`
-
-```python
-def test_logger_error_can_be_raised(self) -> None
-```
+### ✓ `test_logger_error_can_be_raised()`
 
 LoggerError kiváltható.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_error_has_message()`
-
-```python
-def test_logger_error_has_message(self) -> None
-```
+### ✓ `test_logger_error_has_message()`
 
 LoggerError tartalmaz üzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_error_without_message()`
-
-```python
-def test_logger_error_without_message(self) -> None
-```
+### ✓ `test_logger_error_without_message()`
 
 LoggerError hozható létre üzenet nélkül.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestLoggerConfigurationError`
+## Teszt Osztály: `TestLoggerConfigurationError`
 
 LoggerConfigurationError osztály tesztei.
 
-### Metódusok
-
-#### `test_logger_configuration_error_is_logger_error()`
-
-```python
-def test_logger_configuration_error_is_logger_error(self) -> None
-```
+### ✓ `test_logger_configuration_error_is_logger_error()`
 
 LoggerConfigurationError LoggerError-ből származik.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_configuration_error_can_be_raised()`
-
-```python
-def test_logger_configuration_error_can_be_raised(self) -> None
-```
+### ✓ `test_logger_configuration_error_can_be_raised()`
 
 LoggerConfigurationError kiváltható.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_configuration_error_has_message()`
-
-```python
-def test_logger_configuration_error_has_message(self) -> None
-```
+### ✓ `test_logger_configuration_error_has_message()`
 
 LoggerConfigurationError tartalmaz üzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_configuration_error_without_message()`
-
-```python
-def test_logger_configuration_error_without_message(self) -> None
-```
+### ✓ `test_logger_configuration_error_without_message()`
 
 LoggerConfigurationError hozható létre üzenet nélkül.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestLoggerInitializationError`
+## Teszt Osztály: `TestLoggerInitializationError`
 
 LoggerInitializationError osztály tesztei.
 
-### Metódusok
-
-#### `test_logger_initialization_error_is_logger_error()`
-
-```python
-def test_logger_initialization_error_is_logger_error(self) -> None
-```
+### ✓ `test_logger_initialization_error_is_logger_error()`
 
 LoggerInitializationError LoggerError-ből származik.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_initialization_error_can_be_raised()`
-
-```python
-def test_logger_initialization_error_can_be_raised(self) -> None
-```
+### ✓ `test_logger_initialization_error_can_be_raised()`
 
 LoggerInitializationError kiváltható.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_initialization_error_has_message()`
-
-```python
-def test_logger_initialization_error_has_message(self) -> None
-```
+### ✓ `test_logger_initialization_error_has_message()`
 
 LoggerInitializationError tartalmaz üzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_initialization_error_without_message()`
-
-```python
-def test_logger_initialization_error_without_message(self) -> None
-```
+### ✓ `test_logger_initialization_error_without_message()`
 
 LoggerInitializationError hozható létre üzenet nélkül.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestLoggerErrorHierarchy`
+## Teszt Osztály: `TestLoggerErrorHierarchy`
 
 Logger error hierarchia tesztek.
 
-### Metódusok
-
-#### `test_logger_error_hierarchy()`
-
-```python
-def test_logger_error_hierarchy(self) -> None
-```
+### ✓ `test_logger_error_hierarchy()`
 
 A kivételek helyes hierarchiát alkotnak.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_catch_logger_error_catches_subclasses()`
-
-```python
-def test_catch_logger_error_catches_subclasses(self) -> None
-```
+### ✓ `test_catch_logger_error_catches_subclasses()`
 
 LoggerError elkapja az összes alosztályt.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `raise_config_error()`
-
-```python
-def raise_config_error() -> None
-```
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `raise_init_error()`
-
-```python
-def raise_init_error() -> None
-```
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
 ---
 
-**Forrásfájl:** [`tests/neural_ai/core/logger/exceptions/test_logger_error.py`](../../tests/neural_ai/core/logger/exceptions/test_logger_error.py)
+**Teszt fájl:** [`tests/neural_ai/core/logger/exceptions/test_logger_error.py`](../../tests/neural_ai/core/logger/exceptions/test_logger_error.py)
+
+**Tesztelt modul:** [`neural_ai/core/logger/exceptions/logger_error.py`](../../neural_ai/core/logger/exceptions/logger_error.py)

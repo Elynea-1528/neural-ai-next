@@ -1,376 +1,103 @@
-# tests/neural_ai/core/logger/implementations/test_rotating_file_logger.py
+# 🧪 Teszt: tests/neural_ai/core/logger/implementations/test_rotating_file_logger.py
+
+**Tesztelt modul:** [`neural_ai/core/logger/implementations/rotating_file_logger.py`](../../neural_ai/core/logger/implementations/rotating_file_logger.py)
 
 Rotating file logger implementáció tesztei.
 
-## Importok
-
-```python
-import logging
-import tempfile
-from pathlib import Path
-import pytest
-from neural_ai.core.logger.implementations.rotating_file_logger import RotatingFileLogger
-import io
-```
-
-## Osztály: `TestRotatingFileLogger`
+## Teszt Osztály: `TestRotatingFileLogger`
 
 RotatingFileLogger osztály tesztei.
 
-### Metódusok
-
-#### `test_init_basic()`
-
-```python
-def test_init_basic(self) -> None
-```
+### ✓ `test_init_basic()`
 
 Alap logger inicializálás tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_init_without_file_raises_error()`
-
-```python
-def test_init_without_file_raises_error(self) -> None
-```
+### ✓ `test_init_without_file_raises_error()`
 
 Logger inicializálás fájl nélkül hibát dob.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_init_with_empty_file_raises_error()`
-
-```python
-def test_init_with_empty_file_raises_error(self) -> None
-```
+### ✓ `test_init_with_empty_file_raises_error()`
 
 Logger inicializálás üres fájlnévvel hibát dob. Ez a teszt lefedi a 60. sort, ahol a ValueError-t dobjuk.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_init_with_custom_level()`
-
-```python
-def test_init_with_custom_level(self) -> None
-```
+### ✓ `test_init_with_custom_level()`
 
 Logger inicializálás egyéni szinttel.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_init_creates_directory()`
-
-```python
-def test_init_creates_directory(self) -> None
-```
+### ✓ `test_init_creates_directory()`
 
 Logger létrehozza a könyvtárat, ha az nem létezik.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_debug_logging()`
-
-```python
-def test_debug_logging(self) -> None
-```
+### ✓ `test_debug_logging()`
 
 Debug üzenet logolásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_debug_logging_without_kwargs()`
-
-```python
-def test_debug_logging_without_kwargs(self) -> None
-```
+### ✓ `test_debug_logging_without_kwargs()`
 
 Debug üzenet logolásának tesztelése kwargs nélkül. Ez a teszt lefedi a 106. sort.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_info_logging()`
-
-```python
-def test_info_logging(self) -> None
-```
+### ✓ `test_info_logging()`
 
 Info üzenet logolásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_info_logging_without_kwargs()`
-
-```python
-def test_info_logging_without_kwargs(self) -> None
-```
+### ✓ `test_info_logging_without_kwargs()`
 
 Info üzenet logolásának tesztelése kwargs nélkül. Ez a teszt lefedi a 118. sort.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_warning_logging()`
-
-```python
-def test_warning_logging(self) -> None
-```
+### ✓ `test_warning_logging()`
 
 Warning üzenet logolásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_warning_logging_without_kwargs()`
-
-```python
-def test_warning_logging_without_kwargs(self) -> None
-```
+### ✓ `test_warning_logging_without_kwargs()`
 
 Warning üzenet logolásának tesztelése kwargs nélkül. Ez a teszt lefedi a 130. sort.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_error_logging()`
-
-```python
-def test_error_logging(self) -> None
-```
+### ✓ `test_error_logging()`
 
 Error üzenet logolásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_error_logging_without_kwargs()`
-
-```python
-def test_error_logging_without_kwargs(self) -> None
-```
+### ✓ `test_error_logging_without_kwargs()`
 
 Error üzenet logolásának tesztelése kwargs nélkül. Ez a teszt lefedi a 142. sort.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_critical_logging()`
-
-```python
-def test_critical_logging(self) -> None
-```
+### ✓ `test_critical_logging()`
 
 Critical üzenet logolásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_critical_logging_without_kwargs()`
-
-```python
-def test_critical_logging_without_kwargs(self) -> None
-```
+### ✓ `test_critical_logging_without_kwargs()`
 
 Critical üzenet logolásának tesztelése kwargs nélkül. Ez a teszt lefedi a 154. sort.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_set_level()`
-
-```python
-def test_set_level(self) -> None
-```
+### ✓ `test_set_level()`
 
 Log szint módosításának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_logger_name()`
-
-```python
-def test_logger_name(self) -> None
-```
+### ✓ `test_logger_name()`
 
 Logger nevének ellenőrzése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_invalid_rotation_type_raises_error()`
-
-```python
-def test_invalid_rotation_type_raises_error(self) -> None
-```
+### ✓ `test_invalid_rotation_type_raises_error()`
 
 Érvénytelen rotáció típus hibát dob.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_time_based_rotation()`
-
-```python
-def test_time_based_rotation(self) -> None
-```
+### ✓ `test_time_based_rotation()`
 
 Időalapú rotáció tesztelése. Ez a teszt lefedi a 75. sort, ahol a TimedRotatingFileHandler-t hozzuk létre.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_clean_old_logs()`
-
-```python
-def test_clean_old_logs(self) -> None
-```
+### ✓ `test_clean_old_logs()`
 
 Régi log fájlok törlésének tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_existing_handlers_removed()`
-
-```python
-def test_existing_handlers_removed(self) -> None
-```
+### ✓ `test_existing_handlers_removed()`
 
 Teszteli, hogy a meglévő handlerek eltávolításra kerülnek. Ez a teszt lefedi a 56. sort, ahol a meglévő handlerek eltávolítása történik.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_di_dependencies_none()`
-
-```python
-def test_di_dependencies_none(self) -> None
-```
+### ✓ `test_di_dependencies_none()`
 
 DI függőségek None értékkel történő elfogadásának tesztelése.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
 ---
 
-**Forrásfájl:** [`tests/neural_ai/core/logger/implementations/test_rotating_file_logger.py`](../../tests/neural_ai/core/logger/implementations/test_rotating_file_logger.py)
+**Teszt fájl:** [`tests/neural_ai/core/logger/implementations/test_rotating_file_logger.py`](../../tests/neural_ai/core/logger/implementations/test_rotating_file_logger.py)
+
+**Tesztelt modul:** [`neural_ai/core/logger/implementations/rotating_file_logger.py`](../../neural_ai/core/logger/implementations/rotating_file_logger.py)

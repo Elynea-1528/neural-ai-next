@@ -13,7 +13,6 @@ Ez a script AST-alapú elemzéssel generál részletes, profi szintű dokumentá
 
 ```python
 import ast
-import inspect
 import re
 from dataclasses import dataclass
 from dataclasses import field
@@ -304,6 +303,54 @@ Markdown dokumentáció építése.
 - Típus: `str`
 - A generált Markdown tartalom.
 
+#### `_build_source_file()`
+
+```python
+def _build_source_file(module_info: ModuleInfo) -> str
+```
+
+Forrás fájl dokumentáció építése (eredeti logika).
+
+**Paraméterek:**
+
+- **`module_info`** (`ModuleInfo`)
+
+**Visszatérési érték:**
+
+- Típus: `str`
+
+#### `_build_test_file()`
+
+```python
+def _build_test_file(module_info: ModuleInfo) -> str
+```
+
+Teszt fájl specifikus dokumentáció.
+
+**Paraméterek:**
+
+- **`module_info`** (`ModuleInfo`)
+
+**Visszatérési érték:**
+
+- Típus: `str`
+
+#### `_get_tested_module()`
+
+```python
+def _get_tested_module(test_path: Path) -> Path
+```
+
+Tesztelt modul útvonal kiszámítása.
+
+**Paraméterek:**
+
+- **`test_path`** (`Path`)
+
+**Visszatérési érték:**
+
+- Típus: `Path`
+
 #### `_build_class()`
 
 ```python
@@ -377,7 +424,7 @@ Inicializálja a generátort.
 **Paraméterek:**
 
 - **`self`**
-- **`source_dirs`** (`list[str] | None`) = `None`: A forráskód mappák listája (default: ["neural_ai", "scripts", "tests", "."]).
+- **`source_dirs`** (`list[str] | None`) = `None`: A forráskód mappák listája.
 - **`docs_dir`** (`str`) = `'docs/components'`: A dokumentáció mappa elérési útja.
 
 **Visszatérési érték:**

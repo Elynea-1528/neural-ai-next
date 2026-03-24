@@ -1,782 +1,238 @@
-# tests/neural_ai/core/base/exceptions/test_base_error.py
+# 🧪 Teszt: tests/neural_ai/core/base/exceptions/test_base_error.py
+
+**Tesztelt modul:** [`neural_ai/core/base/exceptions/base_error.py`](../../neural_ai/core/base/exceptions/base_error.py)
 
 Base kivételek tesztelése.
 
 Ez a modul tartalmazza a neural_ai.core.base.exceptions modulban
 definiált összes kivétel osztály tesztjeit.
 
-## Importok
-
-```python
-import pytest
-from neural_ai.core.base.exceptions import ComponentNotFoundError
-from neural_ai.core.base.exceptions import ConfigurationError
-from neural_ai.core.base.exceptions import ConnectionError
-from neural_ai.core.base.exceptions import DependencyError
-from neural_ai.core.base.exceptions import InsufficientDiskSpaceError
-from neural_ai.core.base.exceptions import NetworkException
-from neural_ai.core.base.exceptions import NeuralAIException
-from neural_ai.core.base.exceptions import PermissionDeniedError
-from neural_ai.core.base.exceptions import SingletonViolationError
-# ... és még 5 import
-```
-
-## Osztály: `TestNeuralAIException`
+## Teszt Osztály: `TestNeuralAIException`
 
 NeuralAIException alap kivétel tesztjei.
 
-### Metódusok
-
-#### `test_base_exception_can_be_raised()`
-
-```python
-def test_base_exception_can_be_raised(self) -> None
-```
+### ✓ `test_base_exception_can_be_raised()`
 
 Teszteli, hogy az alap kivétel dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_base_exception_with_message()`
-
-```python
-def test_base_exception_with_message(self) -> None
-```
+### ✓ `test_base_exception_with_message()`
 
 Teszteli a kivételt üzenettel.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_base_exception_inheritance()`
-
-```python
-def test_base_exception_inheritance(self) -> None
-```
+### ✓ `test_base_exception_inheritance()`
 
 Teszteli, hogy a kivétel az Exception osztályból származik.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestStorageException`
+## Teszt Osztály: `TestStorageException`
 
 StorageException kivétel tesztjei.
 
-### Metódusok
-
-#### `test_storage_exception_can_be_raised()`
-
-```python
-def test_storage_exception_can_be_raised(self) -> None
-```
+### ✓ `test_storage_exception_can_be_raised()`
 
 Teszteli, hogy a tároló kivétel dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_storage_exception_inheritance()`
-
-```python
-def test_storage_exception_inheritance(self) -> None
-```
+### ✓ `test_storage_exception_inheritance()`
 
 Teszteli, hogy a kivétel a NeuralAIException-ből származik.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_storage_exception_with_message()`
-
-```python
-def test_storage_exception_with_message(self) -> None
-```
+### ✓ `test_storage_exception_with_message()`
 
 Teszteli a kivételt üzenettel.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestStorageWriteError`
+## Teszt Osztály: `TestStorageWriteError`
 
 StorageWriteError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_storage_write_error_can_be_raised()`
-
-```python
-def test_storage_write_error_can_be_raised(self) -> None
-```
+### ✓ `test_storage_write_error_can_be_raised()`
 
 Teszteli, hogy az írási hiba dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_storage_write_error_inheritance()`
-
-```python
-def test_storage_write_error_inheritance(self) -> None
-```
+### ✓ `test_storage_write_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_storage_write_error_message()`
-
-```python
-def test_storage_write_error_message(self) -> None
-```
+### ✓ `test_storage_write_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestStorageReadError`
+## Teszt Osztály: `TestStorageReadError`
 
 StorageReadError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_storage_read_error_can_be_raised()`
-
-```python
-def test_storage_read_error_can_be_raised(self) -> None
-```
+### ✓ `test_storage_read_error_can_be_raised()`
 
 Teszteli, hogy az olvasási hiba dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_storage_read_error_inheritance()`
-
-```python
-def test_storage_read_error_inheritance(self) -> None
-```
+### ✓ `test_storage_read_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_storage_read_error_message()`
-
-```python
-def test_storage_read_error_message(self) -> None
-```
+### ✓ `test_storage_read_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestStoragePermissionError`
+## Teszt Osztály: `TestStoragePermissionError`
 
 StoragePermissionError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_storage_permission_error_can_be_raised()`
-
-```python
-def test_storage_permission_error_can_be_raised(self) -> None
-```
+### ✓ `test_storage_permission_error_can_be_raised()`
 
 Teszteli, hogy a jogosultsági hiba dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_storage_permission_error_inheritance()`
-
-```python
-def test_storage_permission_error_inheritance(self) -> None
-```
+### ✓ `test_storage_permission_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_storage_permission_error_message()`
-
-```python
-def test_storage_permission_error_message(self) -> None
-```
+### ✓ `test_storage_permission_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestConfigurationError`
+## Teszt Osztály: `TestConfigurationError`
 
 ConfigurationError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_configuration_error_can_be_raised()`
-
-```python
-def test_configuration_error_can_be_raised(self) -> None
-```
+### ✓ `test_configuration_error_can_be_raised()`
 
 Teszteli, hogy a konfigurációs hiba dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_configuration_error_inheritance()`
-
-```python
-def test_configuration_error_inheritance(self) -> None
-```
+### ✓ `test_configuration_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_configuration_error_message()`
-
-```python
-def test_configuration_error_message(self) -> None
-```
+### ✓ `test_configuration_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestDependencyError`
+## Teszt Osztály: `TestDependencyError`
 
 DependencyError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_dependency_error_can_be_raised()`
-
-```python
-def test_dependency_error_can_be_raised(self) -> None
-```
+### ✓ `test_dependency_error_can_be_raised()`
 
 Teszteli, hogy a függőségi hiba dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_dependency_error_inheritance()`
-
-```python
-def test_dependency_error_inheritance(self) -> None
-```
+### ✓ `test_dependency_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_dependency_error_message()`
-
-```python
-def test_dependency_error_message(self) -> None
-```
+### ✓ `test_dependency_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestSingletonViolationError`
+## Teszt Osztály: `TestSingletonViolationError`
 
 SingletonViolationError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_singleton_violation_error_can_be_raised()`
-
-```python
-def test_singleton_violation_error_can_be_raised(self) -> None
-```
+### ✓ `test_singleton_violation_error_can_be_raised()`
 
 Teszteli, hogy a singleton megsértésének hibája dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_singleton_violation_error_inheritance()`
-
-```python
-def test_singleton_violation_error_inheritance(self) -> None
-```
+### ✓ `test_singleton_violation_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_singleton_violation_error_message()`
-
-```python
-def test_singleton_violation_error_message(self) -> None
-```
+### ✓ `test_singleton_violation_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestComponentNotFoundError`
+## Teszt Osztály: `TestComponentNotFoundError`
 
 ComponentNotFoundError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_component_not_found_error_can_be_raised()`
-
-```python
-def test_component_not_found_error_can_be_raised(self) -> None
-```
+### ✓ `test_component_not_found_error_can_be_raised()`
 
 Teszteli, hogy a komponens nem található hiba dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_component_not_found_error_inheritance()`
-
-```python
-def test_component_not_found_error_inheritance(self) -> None
-```
+### ✓ `test_component_not_found_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_component_not_found_error_message()`
-
-```python
-def test_component_not_found_error_message(self) -> None
-```
+### ✓ `test_component_not_found_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestNetworkException`
+## Teszt Osztály: `TestNetworkException`
 
 NetworkException kivétel tesztjei.
 
-### Metódusok
-
-#### `test_network_exception_can_be_raised()`
-
-```python
-def test_network_exception_can_be_raised(self) -> None
-```
+### ✓ `test_network_exception_can_be_raised()`
 
 Teszteli, hogy a hálózati kivétel dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_network_exception_inheritance()`
-
-```python
-def test_network_exception_inheritance(self) -> None
-```
+### ✓ `test_network_exception_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_network_exception_message()`
-
-```python
-def test_network_exception_message(self) -> None
-```
+### ✓ `test_network_exception_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestTimeoutError`
+## Teszt Osztály: `TestTimeoutError`
 
 TimeoutError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_timeout_error_can_be_raised()`
-
-```python
-def test_timeout_error_can_be_raised(self) -> None
-```
+### ✓ `test_timeout_error_can_be_raised()`
 
 Teszteli, hogy az időtúllépési hiba dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_timeout_error_inheritance()`
-
-```python
-def test_timeout_error_inheritance(self) -> None
-```
+### ✓ `test_timeout_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_timeout_error_message()`
-
-```python
-def test_timeout_error_message(self) -> None
-```
+### ✓ `test_timeout_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestConnectionError`
+## Teszt Osztály: `TestConnectionError`
 
 ConnectionError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_connection_error_can_be_raised()`
-
-```python
-def test_connection_error_can_be_raised(self) -> None
-```
+### ✓ `test_connection_error_can_be_raised()`
 
 Teszteli, hogy a kapcsolódási hiba dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_connection_error_inheritance()`
-
-```python
-def test_connection_error_inheritance(self) -> None
-```
+### ✓ `test_connection_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_connection_error_message()`
-
-```python
-def test_connection_error_message(self) -> None
-```
+### ✓ `test_connection_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestInsufficientDiskSpaceError`
+## Teszt Osztály: `TestInsufficientDiskSpaceError`
 
 InsufficientDiskSpaceError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_insufficient_disk_space_error_can_be_raised()`
-
-```python
-def test_insufficient_disk_space_error_can_be_raised(self) -> None
-```
+### ✓ `test_insufficient_disk_space_error_can_be_raised()`
 
 Teszteli, hogy a lemezterület hiány hiba dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_insufficient_disk_space_error_inheritance()`
-
-```python
-def test_insufficient_disk_space_error_inheritance(self) -> None
-```
+### ✓ `test_insufficient_disk_space_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_insufficient_disk_space_error_message()`
-
-```python
-def test_insufficient_disk_space_error_message(self) -> None
-```
+### ✓ `test_insufficient_disk_space_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-## Osztály: `TestPermissionDeniedError`
+## Teszt Osztály: `TestPermissionDeniedError`
 
 PermissionDeniedError kivétel tesztjei.
 
-### Metódusok
-
-#### `test_permission_denied_error_can_be_raised()`
-
-```python
-def test_permission_denied_error_can_be_raised(self) -> None
-```
+### ✓ `test_permission_denied_error_can_be_raised()`
 
 Teszteli, hogy a jogosultság megtagadva hiba dobható-e.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_permission_denied_error_inheritance()`
-
-```python
-def test_permission_denied_error_inheritance(self) -> None
-```
+### ✓ `test_permission_denied_error_inheritance()`
 
 Teszteli az öröklődést.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_permission_denied_error_message()`
-
-```python
-def test_permission_denied_error_message(self) -> None
-```
+### ✓ `test_permission_denied_error_message()`
 
 Teszteli a hibaüzenetet.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
 ---
 
-**Forrásfájl:** [`tests/neural_ai/core/base/exceptions/test_base_error.py`](../../tests/neural_ai/core/base/exceptions/test_base_error.py)
+**Teszt fájl:** [`tests/neural_ai/core/base/exceptions/test_base_error.py`](../../tests/neural_ai/core/base/exceptions/test_base_error.py)
+
+**Tesztelt modul:** [`neural_ai/core/base/exceptions/base_error.py`](../../neural_ai/core/base/exceptions/base_error.py)

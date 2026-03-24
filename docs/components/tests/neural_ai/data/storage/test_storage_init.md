@@ -1,105 +1,35 @@
-# tests/neural_ai/data/storage/test_storage_init.py
+# 🧪 Teszt: tests/neural_ai/data/storage/test_storage_init.py
+
+**Tesztelt modul:** [`neural_ai/data/storage/storage_init.py`](../../neural_ai/data/storage/storage_init.py)
 
 Storage __init__.py tesztek.
 
-## Importok
-
-```python
-from importlib import metadata
-from unittest.mock import patch
-from neural_ai.data.storage import __schema_version__
-from neural_ai.data.storage import __version__
-from neural_ai.data.storage import __all__
-import importlib
-import neural_ai.data.storage
-```
-
-## Osztály: `TestStorageInit`
+## Teszt Osztály: `TestStorageInit`
 
 Storage __init__.py tesztek.
 
-### Metódusok
-
-#### `test_version_is_available()`
-
-```python
-def test_version_is_available(self) -> None
-```
+### ✓ `test_version_is_available()`
 
 A __version__ változó elérhető és string típusú.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_schema_version_is_available()`
-
-```python
-def test_schema_version_is_available(self) -> None
-```
+### ✓ `test_schema_version_is_available()`
 
 A __schema_version__ változó elérhető és string típusú.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_all_list_is_exported()`
-
-```python
-def test_all_list_is_exported(self) -> None
-```
+### ✓ `test_all_list_is_exported()`
 
 Az __all__ lista tartalmazza az exportált elemeket.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_version_fallback_on_package_not_found()`
-
-```python
-def test_version_fallback_on_package_not_found(self) -> None
-```
+### ✓ `test_version_fallback_on_package_not_found()`
 
 Verzió fallback tesztelése, ha a csomag nincs telepítve (27-29. sorok).
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
-#### `test_version_is_final()`
-
-```python
-def test_version_is_final(self) -> None
-```
+### ✓ `test_version_is_final()`
 
 A __version__ változó Final típusú és nem módosítható.
 
-**Paraméterek:**
-
-- **`self`**
-
-**Visszatérési érték:**
-
-- Típus: `None`
-
 ---
 
-**Forrásfájl:** [`tests/neural_ai/data/storage/test_storage_init.py`](../../tests/neural_ai/data/storage/test_storage_init.py)
+**Teszt fájl:** [`tests/neural_ai/data/storage/test_storage_init.py`](../../tests/neural_ai/data/storage/test_storage_init.py)
+
+**Tesztelt modul:** [`neural_ai/data/storage/storage_init.py`](../../neural_ai/data/storage/storage_init.py)

@@ -12,6 +12,7 @@ from neural_ai.processors.resampler_service.interfaces.resampler_interface impor
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 from neural_ai.core.logger.factory import LoggerFactory
+from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 from neural_ai.data.storage.factory import StorageFactory
 ```
 

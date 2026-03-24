@@ -16,16 +16,16 @@ Funkciók:
 
 ```python
 import ast
+import hashlib
 import html
 import json
 import os
+import pickle
 import subprocess
-from dataclasses import dataclass
-from datetime import UTC
-from datetime import datetime
-from pathlib import Path
-from typing import Any
-# ... és még 1 import
+import time
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import wait
+# ... és még 7 import
 ```
 
 ## Konstansok
@@ -81,6 +81,94 @@ from typing import Any
 - **`generator`**
 : `TaskTreeGenerator()`
 
+
+## Osztály: `CacheManager`
+
+Cache kezelő a gyorsabb futáshoz.
+
+### Metódusok
+
+#### `__init__()`
+
+```python
+def __init__(self, cache_dir: Path = Path('.cache')) -> None
+```
+
+Inicializálja a cache kezelőt.
+
+**Paraméterek:**
+
+- **`self`**
+- **`cache_dir`** (`Path`) = `Path('.cache')`
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `is_valid()`
+
+```python
+def is_valid(self) -> bool
+```
+
+Ellenőrzi, hogy a cache érvényes-e.
+
+**Paraméterek:**
+
+- **`self`**
+
+**Visszatérési érték:**
+
+- Típus: `bool`
+
+#### `_calculate_files_hash()`
+
+```python
+def _calculate_files_hash(self) -> str
+```
+
+Kiszámítja a fájlok hash-ét.
+
+**Paraméterek:**
+
+- **`self`**
+
+**Visszatérési érték:**
+
+- Típus: `str`
+
+#### `save()`
+
+```python
+def save(self, data: dict[str, Any]) -> None
+```
+
+Menti a cache-t.
+
+**Paraméterek:**
+
+- **`self`**
+- **`data`** (`dict[str, Any]`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `load()`
+
+```python
+def load(self) -> dict[str, Any] | None
+```
+
+Betölti a cache-t.
+
+**Paraméterek:**
+
+- **`self`**
+
+**Visszatérési érték:**
+
+- Típus: `dict[str, Any] | None`
 
 ## Osztály: `FileAnalysis`
 
@@ -443,10 +531,95 @@ Inicializálja a generátort.
 #### `run_dynamic_tools()`
 
 ```python
-def run_dynamic_tools(self) -> None
+def run_dynamic_tools(self, force_refresh: bool = False) -> None
 ```
 
 Futtatja a dinamikus ellenőrző eszközöket.
+
+**Paraméterek:**
+
+- **`self`**
+- **`force_refresh`** (`bool`) = `False`
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `_run_pytest_cov()`
+
+```python
+def _run_pytest_cov(self, env: dict[str, str]) -> None
+```
+
+Pytest-cov futtatása retry mechanizmussal.
+
+**Paraméterek:**
+
+- **`self`**
+- **`env`** (`dict[str, str]`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `_run_ruff()`
+
+```python
+def _run_ruff(self, env: dict[str, str]) -> None
+```
+
+Ruff linter futtatása.
+
+**Paraméterek:**
+
+- **`self`**
+- **`env`** (`dict[str, str]`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `_run_mypy()`
+
+```python
+def _run_mypy(self, env: dict[str, str]) -> None
+```
+
+Mypy type checker futtatása.
+
+**Paraméterek:**
+
+- **`self`**
+- **`env`** (`dict[str, str]`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `_run_pyright()`
+
+```python
+def _run_pyright(self, env: dict[str, str]) -> None
+```
+
+Pylance/Pyright type checker futtatása.
+
+**Paraméterek:**
+
+- **`self`**
+- **`env`** (`dict[str, str]`)
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `_process_pytest_report()`
+
+```python
+def _process_pytest_report(self) -> None
+```
+
+Pytest Report feldolgozása.
 
 **Paraméterek:**
 

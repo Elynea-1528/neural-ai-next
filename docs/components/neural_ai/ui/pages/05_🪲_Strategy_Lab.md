@@ -125,7 +125,7 @@ Backtest eredmények megjelenítése.
 #### `_prepare_data_for_view()`
 
 ```python
-def _prepare_data_for_view(self, df: 'pl.DataFrame', price_type: str) -> 'pl.DataFrame'
+def _prepare_data_for_view(self, df: pd.DataFrame, price_type: str) -> pd.DataFrame
 ```
 
 Adatok előkészítése megjelenítéshez - oszlopok átnevezése price_type alapján.
@@ -133,13 +133,13 @@ Adatok előkészítése megjelenítéshez - oszlopok átnevezése price_type ala
 **Paraméterek:**
 
 - **`self`**
-- **`df`** (`'pl.DataFrame'`): Az eredeti DataFrame
+- **`df`** (`pd.DataFrame`): Az eredeti Pandas DataFrame
 - **`price_type`** (`str`): Az ár típus ('Bid' vagy 'Mid')
 
 **Visszatérési érték:**
 
-- Típus: `'pl.DataFrame'`
-- DataFrame: Az átnevezett oszlopokkal rendelkező DataFrame
+- Típus: `pd.DataFrame`
+- pd.DataFrame: Az átnevezett oszlopokkal rendelkező Pandas DataFrame
 
 #### `_render_candlestick_chart()`
 
