@@ -70,6 +70,8 @@ class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
     az alkalmazásban egyetlen konténer példány létezzen.
     """
 
+    _initialized: bool
+
     def __init__(self, logger: "LoggerInterface | None" = None) -> None:
         """Konténer inicializálása.
 
