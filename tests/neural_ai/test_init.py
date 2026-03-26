@@ -6,7 +6,7 @@ a neural_ai/__init__.py fájlhoz. Teszteli a verziókezelést, konstansokat,
 """
 
 from importlib import metadata
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -107,7 +107,7 @@ class TestLoggerInitialization:
         # Assert - Ellenőrizzük, hogy a LoggerFactory elérhető és működik
         assert hasattr(neural_ai, 'LoggerFactory')
         assert hasattr(LoggerFactory, 'get_logger')
-        
+
         # Funkcionális teszt: létrehozunk egy loggert
         logger = LoggerFactory.get_logger("test_module")
         assert logger is not None
@@ -124,7 +124,7 @@ class TestLoggerInitialization:
         # Assert - Funkcionális teszt: létrehozunk egy loggert és használjuk
         logger = LoggerFactory.get_logger("neural_ai")
         assert logger is not None
-        
+
         # Ellenőrizzük, hogy az info metódus meghívható
         try:
             logger.info("Neural-AI-Next modul inicializálva", extra={"version": neural_ai.__version__})

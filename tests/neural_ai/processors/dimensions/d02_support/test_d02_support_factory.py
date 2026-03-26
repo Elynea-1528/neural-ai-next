@@ -14,9 +14,9 @@ def test_d02_factory_create():
     """Test: Factory létrehozza a D02SupportProcessor példányt."""
     config = MagicMock(spec=ConfigManagerInterface)
     logger = MagicMock(spec=LoggerInterface)
-    
+
     processor = D02SupportFactory.create(config, logger)
-    
+
     assert isinstance(processor, D02SupportProcessor)
     assert processor.dimension_id == 2  # D02 = 2
 
@@ -26,8 +26,8 @@ def test_d02_factory_create_with_config():
     config = MagicMock(spec=ConfigManagerInterface)
     logger = MagicMock(spec=LoggerInterface)
     config.get.return_value = {"min_candles": 10, "level_merge": 0.001}
-    
+
     processor = D02SupportFactory.create(config, logger)
-    
+
     assert isinstance(processor, D02SupportProcessor)
     assert processor.dimension_id == 2  # D02 = 2

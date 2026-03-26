@@ -16,26 +16,26 @@ async def reset_db_globals():
     test isolation problémákat.
     """
     import neural_ai.core.db.implementations.sqlalchemy_session as db_module
-    
+
     # Reset ELŐTTE
     if db_module._engine is not None:
         try:
             await db_module._engine.dispose()
         except Exception:
             pass
-    
+
     db_module._engine = None
     db_module._async_session_maker = None
-    
+
     yield
-    
+
     # Cleanup UTÁNA
     if db_module._engine is not None:
         try:
             await db_module._engine.dispose()
         except Exception:
             pass
-    
+
     db_module._engine = None
     db_module._async_session_maker = None
 
@@ -49,14 +49,14 @@ def reset_db_singleton():
     """
     from neural_ai.core.base.implementations.singleton import SingletonMeta
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
-    
+
     # Clear ELŐTTE
     if hasattr(SingletonMeta, '_instances'):
         if DatabaseManager in SingletonMeta._instances:
             del SingletonMeta._instances[DatabaseManager]
-    
+
     yield
-    
+
     # Cleanup UTÁNA
     if hasattr(SingletonMeta, '_instances'):
         if DatabaseManager in SingletonMeta._instances:

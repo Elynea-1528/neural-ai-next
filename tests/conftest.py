@@ -1,63 +1,60 @@
-"""
-Pytest configuration and fixtures for test isolation.
+"""Pytest configuration and fixtures for test isolation.
 
 Ez a fájl biztosítja a Singleton és DI Container állapot tisztítását
 minden teszt között, megoldva a test isolation problémát.
 """
 
+from collections.abc import Generator
+
 import pytest
-from typing import Generator
 
 
 @pytest.fixture(autouse=True)
 def reset_mock_state() -> Generator[None, None, None]:
-    """
-    Automatikusan reseteli az összes mock állapotot minden teszt előtt és után.
+    """Automatikusan reseteli az összes mock állapotot minden teszt előtt és után.
     
     Ez megoldja a mock state szennyeződést, ahol a @patch dekorátorok
     állapota átszivárodik tesztek között.
     """
     # Teszt előtt: mock tisztítás
     _clear_mock_state()
-    
+
     yield
-    
+
     # Teszt után: mock tisztítás
     _clear_mock_state()
 
 
 @pytest.fixture(autouse=True)
 def reset_singletons() -> Generator[None, None, None]:
-    """
-    Automatikusan reseteli az összes Singleton példányt minden teszt előtt és után.
+    """Automatikusan reseteli az összes Singleton példányt minden teszt előtt és után.
     
     Ez a fixture autouse=True-val fut minden tesztnél, biztosítva a tiszta állapotot.
     """
     # Teszt előtt: tisztítás
     _clear_all_singletons()
-    
+
     yield
-    
+
     # Teszt után: tisztítás
     _clear_all_singletons()
 
 
 def _clear_mock_state() -> None:
-    """
-    Törli az összes mock állapotot, hogy a @patch dekorátorok
+    """Törli az összes mock állapotot, hogy a @patch dekorátorok
     ne szivárogjon át tesztek között.
     
     Ez megoldja a mock state szennyeződést, ahol egy teszt mock-ja
     befolyásolja a következő teszteket.
     """
     from unittest.mock import _patch, patch
-    
+
     # 1. Stopoljuk az összes aktív patch-et
     try:
         patch.stopall()
     except Exception:
         pass
-    
+
     # 2. Töröljük a _patch._active_patches listát
     try:
         if hasattr(_patch, '_active_patches'):
@@ -67,15 +64,14 @@ def _clear_mock_state() -> None:
 
 
 def _clear_import_cache() -> None:
-    """
-    Törli a Python import cache-t, hogy a mock-olt vagy elrontott importok
+    """Törli a Python import cache-t, hogy a mock-olt vagy elrontott importok
     ne szivárogjon át tesztek között.
     
     Ez megoldja a teszt izolációs problémát, ahol egy teszt mock-olja
     a LoggerInterface-t, és az összes utána következő teszt elromlik.
     """
     import sys
-    
+
     # Modulok listája, amelyeket törölni kell
     modules_to_clear = [
         'neural_ai.core.logger.interfaces.logger_interface',
@@ -84,7 +80,7 @@ def _clear_import_cache() -> None:
         'neural_ai.core.base.factory',
         'neural_ai.core.logger.factory',
     ]
-    
+
     for module_name in modules_to_clear:
         if module_name in sys.modules:
             del sys.modules[module_name]
@@ -92,12 +88,11 @@ def _clear_import_cache() -> None:
 
 def _clear_all_singletons() -> None:
     """Törli az összes Singleton példányt a memóriából."""
-    import sys
     import gc
-    
+
     # 0. Import cache tisztítása (KRITIKUS: teszt izolációhoz)
     _clear_import_cache()
-    
+
     # 1. SingletonMeta instances
     try:
         from neural_ai.core.base.implementations.singleton import SingletonMeta
@@ -105,7 +100,7 @@ def _clear_all_singletons() -> None:
             SingletonMeta._instances.clear()  # type: ignore
     except (ImportError, AttributeError):
         pass
-    
+
     # 2. DIContainer
     try:
         from neural_ai.core.base.implementations.di_container import DIContainer
@@ -115,7 +110,7 @@ def _clear_all_singletons() -> None:
                 setattr(DIContainer, attr, {} if attr == '_instances' else None)
     except (ImportError, AttributeError):
         pass
-    
+
     # 3. LoggerFactory (KRITIKUS: _instances cache)
     try:
         from neural_ai.core.logger.factory import LoggerFactory
@@ -123,7 +118,7 @@ def _clear_all_singletons() -> None:
             LoggerFactory._instances.clear()
     except (ImportError, AttributeError):
         pass
-    
+
     # 4. CoreComponentFactory
     try:
         from neural_ai.core.base.factory import CoreComponentFactory
@@ -132,7 +127,7 @@ def _clear_all_singletons() -> None:
                 setattr(CoreComponentFactory, attr, {} if attr == '_instances' else None)
     except (ImportError, AttributeError):
         pass
-    
+
     # 4. CoreBridge
     try:
         from neural_ai.ui.core_bridge import CoreBridge
@@ -141,7 +136,7 @@ def _clear_all_singletons() -> None:
                 setattr(CoreBridge, attr, {} if attr == '_instances' else None)
     except (ImportError, AttributeError):
         pass
-    
+
     # 5. DatabaseManager
     try:
         from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
@@ -150,23 +145,22 @@ def _clear_all_singletons() -> None:
                 setattr(DatabaseManager, attr, None)
     except (ImportError, AttributeError):
         pass
-    
+
     # 6. Force garbage collection
     gc.collect()
 
 
 @pytest.fixture(autouse=True)
 def reset_di_container() -> Generator[None, None, None]:
-    """
-    Automatikusan reseteli a DI Container-t minden teszt előtt és után.
+    """Automatikusan reseteli a DI Container-t minden teszt előtt és után.
     
     Ez biztosítja, hogy a dependency injection állapot ne szivárogjon át tesztek között.
     """
     # Teszt előtt: tisztítás
     _clear_di_container()
-    
+
     yield
-    
+
     # Teszt után: tisztítás
     _clear_di_container()
 
@@ -175,13 +169,13 @@ def _clear_di_container() -> None:
     """Törli a DI Container állapotát."""
     try:
         from neural_ai.core.base.implementations.di_container import DIContainer
-        
+
         # Singleton példány törlése
         if hasattr(DIContainer, '_instance'):
             DIContainer._instance = None
         if hasattr(DIContainer, '_instances'):
             DIContainer._instances.clear()
-        
+
         # Ha van aktív példány, annak állapotát is töröljük
         try:
             container = DIContainer()
@@ -191,25 +185,23 @@ def _clear_di_container() -> None:
                 container._factories.clear()
         except Exception:
             pass
-            
+
     except (ImportError, AttributeError):
         pass
 
 
 @pytest.fixture
 def clean_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    """
-    Tiszta környezeti változók minden teszthez.
+    """Tiszta környezeti változók minden teszthez.
     
     Ez a fixture nem autouse, csak explicit használatra.
     """
     # Környezeti változók tisztítása
-    import os
     env_vars_to_clear = [
         'DATABASE_URL',
         'NEURAL_AI_ENV',
         'NEURAL_AI_CONFIG_PATH',
     ]
-    
+
     for var in env_vars_to_clear:
         monkeypatch.delenv(var, raising=False)

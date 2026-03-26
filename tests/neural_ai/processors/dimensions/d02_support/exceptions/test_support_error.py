@@ -2,8 +2,8 @@
 
 from neural_ai.processors.dimensions.d02_support.exceptions.support_error import (
     SupportError,
-    SwingPointCalculationError,
     SupportResistanceLevelError,
+    SwingPointCalculationError,
     TimeframeConfigurationError,
 )
 
@@ -91,11 +91,11 @@ def test_exception_hierarchy():
     swing_error = SwingPointCalculationError("Swing")
     level_error = SupportResistanceLevelError("Level")
     config_error = TimeframeConfigurationError("Config")
-    
+
     assert isinstance(swing_error, SupportError)
     assert isinstance(level_error, SupportError)
     assert isinstance(config_error, SupportError)
-    
+
     assert isinstance(swing_error, Exception)
     assert isinstance(level_error, Exception)
     assert isinstance(config_error, Exception)

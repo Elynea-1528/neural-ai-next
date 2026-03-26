@@ -223,20 +223,20 @@ class TestCoreComponentFactory:
         """Teszteli a komponensek létrehozását elérési utak nélkül (funkcionális teszt)."""
         # Tiszta állapotból indulunk - új factory példány
         from neural_ai.core.base.implementations.di_container import DIContainer
-        
+
         container = DIContainer()
         factory = CoreComponentFactory(container)
-        
+
         # Reset lazy loaders a tiszta állapot biztosításához
         factory.reset_lazy_loaders()
-        
+
         components = CoreComponentFactory.create_components()
 
         assert components is not None
         # Ellenőrizzük, hogy a komponensek létrejöttek
         assert hasattr(components, 'logger')
         assert hasattr(components, 'validate')
-        
+
         # Nem minden komponens lesz inicializálva (config_manager és storage hiányzik)
         assert not components.validate()
 
@@ -327,14 +327,14 @@ class TestCoreComponentFactory:
 
         # Ellenőrizzük, hogy logger objektum létrejött
         assert logger is not None
-        
+
         # Ellenőrizzük, hogy van-e a szükséges metódusok (duck typing)
         assert hasattr(logger, 'info')
         assert hasattr(logger, 'debug')
         assert hasattr(logger, 'error')
         assert hasattr(logger, 'warning')
         assert hasattr(logger, 'critical')
-        
+
         # Ellenőrizzük, hogy működik (ne dobjon hibát)
         logger.info("Test message")
         logger.debug("Debug message")
@@ -436,20 +436,20 @@ class TestCoreComponentFactory:
         container.register_instance(LoggerInterface, logger)
 
         factory: CoreComponentFactory = CoreComponentFactory(container)
-        
+
         # A logger property-t használjuk (nem a _get_logger metódust)
         result = factory.logger
 
         # Ellenőrizzük, hogy logger objektum létrejött
         assert result is not None
-        
+
         # Duck typing: ellenőrizzük a szükséges metódusokat
         assert hasattr(result, 'info')
         assert hasattr(result, 'debug')
         assert hasattr(result, 'error')
         assert hasattr(result, 'warning')
         assert hasattr(result, 'critical')
-        
+
         # Ellenőrizzük, hogy működik
         result.info("Test message")
 
@@ -463,14 +463,14 @@ class TestCoreComponentFactory:
 
         # Ellenőrizzük, hogy logger objektum létrejött
         assert result is not None
-        
+
         # Duck typing: ellenőrizzük a szükséges metódusokat
         assert hasattr(result, 'info')
         assert hasattr(result, 'debug')
         assert hasattr(result, 'error')
         assert hasattr(result, 'warning')
         assert hasattr(result, 'critical')
-        
+
         # Ellenőrizzük, hogy működik
         result.info("Fallback test message")
 
@@ -479,11 +479,11 @@ class TestCoreComponentFactory:
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
         container: DIContainer = DIContainer()
-        
+
         # Érvénytelen objektum regisztrálása (nem LoggerInterface)
         class InvalidLogger:
             pass
-        
+
         invalid_logger = InvalidLogger()
         container.register_instance(LoggerInterface, invalid_logger)
 
@@ -496,10 +496,11 @@ class TestCoreComponentFactory:
     def test_get_config_manager_with_registered_config(self) -> None:
         """Teszteli a _get_config_manager metódust regisztrált config managerrel (funkcionális teszt)."""
         from pathlib import Path
+
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 
         container: DIContainer = DIContainer()
-        
+
         # Dummy ConfigManager implementáció
         class DummyConfigManager(ConfigManagerInterface):
             def __init__(self, config_path: Path | None = None):
@@ -523,7 +524,7 @@ class TestCoreComponentFactory:
 
         mock_config = DummyConfigManager()
         container.register_instance(ConfigManagerInterface, mock_config)
-        
+
         factory: CoreComponentFactory = CoreComponentFactory(container)
         result = factory._get_config_manager()
 
