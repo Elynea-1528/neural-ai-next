@@ -4,7 +4,7 @@ Ez a modul exportálja az összes alap és specifikus kivétel osztályt,
 amelyeket a rendszer különböző komponensei használnak.
 """
 
-from .base_error import (
+from neural_ai.core.base.exceptions.base_error import (
     ComponentNotFoundError,
     ConfigurationError,
     ConnectionError,

@@ -3,13 +3,15 @@
 import sys
 import threading
 from collections.abc import Callable
-from typing import TypeVar, cast
+from typing import TYPE_CHECKING, TypeVar, cast
 
 from neural_ai.core.base.exceptions import ComponentNotFoundError, SingletonViolationError
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.base.interfaces import DIContainerInterface, LazyComponentInterface
-from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
+
+if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 T = TypeVar("T")
 InterfaceT = TypeVar("InterfaceT")
@@ -68,15 +70,28 @@ class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
     az alkalmazásban egyetlen konténer példány létezzen.
     """
 
-    def __init__(self) -> None:
-        """Konténer inicializálása."""
-        # Singleton védelem: csak egyszer inicializáljuk
-        if hasattr(self, '_instances'):
+    def __init__(self, logger: "LoggerInterface | None" = None) -> None:
+        """Konténer inicializálása.
+
+        Args:
+            logger: Logger példány. Ha nincs megadva, alapértelmezett logger-t használ.
+        """
+        # Singleton védelem: csak egyszer inicializáljuk (SingletonMeta kezeli)
+        if hasattr(self, '_initialized') and self._initialized:
             return
+
         self._instances: dict[object, object] = {}
         self._factories: dict[object, Callable[[], object]] = {}
         self._lazy_components: dict[str, LazyComponent[object]] = {}
-        self._logger = LoggerFactory.get_logger(__name__)
+        self._initialized = True
+
+        # Logger injektálás (opcionális, backward compatible)
+        if logger is None:
+            from neural_ai.core.logger.factory import LoggerFactory
+            self._logger = LoggerFactory.get_logger(__name__)
+        else:
+            self._logger = logger
+
         self._logger.info("DI konténer inicializálva")
 
     @trace

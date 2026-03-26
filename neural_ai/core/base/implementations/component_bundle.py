@@ -3,7 +3,6 @@
 from typing import TYPE_CHECKING, Optional, TypeVar
 
 from neural_ai.core.base.factory import CoreComponentFactory
-from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 
 # Körkörös importok elkerüléséhez
@@ -25,19 +24,31 @@ T = TypeVar("T")
 class CoreComponents:
     """Alap komponensek lusta betöltéssel."""
 
-    def __init__(self, container: Optional["DIContainer"] = None):
+    def __init__(
+        self,
+        container: Optional["DIContainer"] = None,
+        logger: Optional["LoggerInterface"] = None,
+    ):
         """Alap komponensek inicializálása.
 
         Args:
             container: Egy függőséginjektáló konténer példány.
                        Ha nincs megadva, új konténert hoz létre.
+            logger: Logger példány. Ha nincs megadva, alapértelmezett logger-t használ.
         """
         # Körkörös import elkerüléséhez
         from neural_ai.core.base.implementations.di_container import DIContainer
 
         self._container = container or DIContainer()
         self._factory = CoreComponentFactory(self._container)
-        self._logger = LoggerFactory.get_logger(__name__)
+
+        # Logger injektálás (opcionális, backward compatible)
+        if logger is None:
+            from neural_ai.core.logger.factory import LoggerFactory
+            self._logger = LoggerFactory.get_logger(__name__)
+        else:
+            self._logger = logger
+
         self._logger.info(
             "Core komponensek inicializálása befejezve",
             extra={"container_type": type(self._container).__name__},

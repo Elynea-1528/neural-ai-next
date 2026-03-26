@@ -8,7 +8,6 @@ singleton mintát és komponens gyűjteményeket.
 from neural_ai.core.base.implementations.di_container import DIContainer, LazyComponent
 from neural_ai.core.base.implementations.lazy_loader import LazyLoader, lazy_property
 from neural_ai.core.base.implementations.singleton import SingletonMeta
-from neural_ai.core.logger.factory import LoggerFactory
 
 __all__ = [
     "DIContainer",
@@ -17,9 +16,3 @@ __all__ = [
     "lazy_property",
     "SingletonMeta",
 ]
-
-_logger = LoggerFactory.get_logger("neural_ai.core.base.implementations")
-_logger.info(
-    "Base implementations module initialized",
-    extra={"module": "neural_ai.core.base.implementations"},
-)

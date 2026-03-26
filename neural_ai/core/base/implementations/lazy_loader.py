@@ -7,10 +7,12 @@ Ez jelentősen javítja az alkalmazás indítási idejét és a memóriahasznál
 
 import threading
 from collections.abc import Callable
-from typing import TypeVar, cast
+from typing import TYPE_CHECKING, TypeVar, cast
 
-from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
+
+if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 T = TypeVar("T")
 
@@ -28,18 +30,30 @@ class LazyLoader[T]:
     használható.
     """
 
-    def __init__(self, loader_func: Callable[[], T]) -> None:
+    def __init__(
+        self,
+        loader_func: Callable[[], T],
+        logger: "LoggerInterface | None" = None
+    ) -> None:
         """Inicializálja a lustatöltőt.
 
         Args:
             loader_func: A függvény, amely betölti az erőforrást.
                 Ennek a függvénynek vissza kell térnie a betöltött erőforrással.
+            logger: Logger példány. Ha nincs megadva, alapértelmezett logger-t használ.
         """
         self._loader_func = loader_func
         self._loaded: bool = False
         self._value: T | None = None
         self._lock = threading.RLock()
-        self._logger = LoggerFactory.get_logger(__name__)
+
+        # Logger injektálás (opcionális, backward compatible)
+        if logger is None:
+            from neural_ai.core.logger.factory import LoggerFactory
+            self._logger = LoggerFactory.get_logger(__name__)
+        else:
+            self._logger = logger
+
         self._logger.info(
             "LazyLoader inicializálva",
             extra={"loader_func": getattr(loader_func, "__name__", str(loader_func))},
