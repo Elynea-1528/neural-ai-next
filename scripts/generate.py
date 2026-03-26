@@ -303,21 +303,13 @@ class MirrorChecker:
         # test_ prefix hozzáadása
         # __init__.py fájlok speciális kezelése
         if file_name == "__init__.py" and dir_parts:
-            if len(dir_parts) <= 2:
-                # 1-2 mélység: neural_ai/core/__init__.py -> test_core_init.py
-                # neural_ai/core/base/__init__.py -> test_base_init.py
-                module_name = dir_parts[-1]
-                test_file_name = f"test_{module_name}_init.py"
-                base_name = f"{module_name}_init"
-                integration_file_name = f"test_{module_name}_init_integration.py"
-            else:
-                # 3+ mélység: neural_ai/core/config/exceptions/__init__.py
-                # -> test_config_exceptions_init.py
-                parent_module = dir_parts[-2]
-                submodule = dir_parts[-1]
-                test_file_name = f"test_{parent_module}_{submodule}_init.py"
-                base_name = f"{parent_module}_{submodule}_init"
-                integration_file_name = f"test_{parent_module}_{submodule}_init_integration.py"
+            # Minden __init__.py teszt fájl neve egyszerűen test_init.py
+            # neural_ai/core/__init__.py -> test_init.py
+            # neural_ai/core/base/__init__.py -> test_init.py
+            # neural_ai/core/base/exceptions/__init__.py -> test_init.py
+            test_file_name = "test_init.py"
+            base_name = "init"
+            integration_file_name = "test_init_integration.py"
         else:
             test_file_name = f"test_{file_name}"
             base_name = file_name.replace(".py", "")
