@@ -3,9 +3,9 @@
 Ez a modul tartalmazza az adatbázis műveletek konkrét implementációit.
 """
 
-from .model_base import Base
-from .models import DynamicConfig, LogEntry
-from .sqlalchemy_session import (
+from neural_ai.core.db.implementations.model_base import Base
+from neural_ai.core.db.implementations.models import DynamicConfig, LogEntry
+from neural_ai.core.db.implementations.sqlalchemy_session import (
     DatabaseManager,
     close_db,
     create_engine,
