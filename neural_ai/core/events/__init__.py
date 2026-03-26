@@ -7,9 +7,19 @@ Komponensek:
 - interfaces/: Esemény modellek (Pydantic BaseModel-ek) és interfészek
 - implementations/: EventBus implementációk (ZeroMQ)
 - factory.py: EventBus factory a példányosításhoz
+
+DDD Szabály:
+    Csak Interface + Factory + Exceptions + Event Models exportáltak.
+    Az implementációk (EventBus) NEM exportáltak - a Factory hozza létre őket.
 """
 
+from neural_ai.core.events.exceptions import (
+    EventBusError,
+    PublishError,
+    SubscriberError,
+)
 from neural_ai.core.events.factory import EventBusFactory
+from neural_ai.core.events.interfaces import EventBusInterface
 from neural_ai.core.events.interfaces.event_models import (
     EventType,
     MarketDataEvent,
@@ -21,8 +31,14 @@ from neural_ai.core.events.interfaces.event_models import (
 )
 
 __all__ = [
+    # Interface
+    "EventBusInterface",
     # Factory
     "EventBusFactory",
+    # Exceptions
+    "EventBusError",
+    "PublishError",
+    "SubscriberError",
     # Esemény típusok
     "EventType",
     # Esemény modellek

@@ -3,7 +3,11 @@
 Ez a csomag tartalmazza az EventBus-hoz kapcsolódó kivételeket.
 """
 
-from .event_error import EventBusError, PublishError, SubscriberError
+from neural_ai.core.events.exceptions.event_error import (
+    EventBusError,
+    PublishError,
+    SubscriberError,
+)
 
 __all__ = [
     "EventBusError",
