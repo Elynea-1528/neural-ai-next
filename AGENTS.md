@@ -214,6 +214,53 @@ except ValueError as e:
 - **Teszt Tükrözés:** A `tests/` mappa szerkezete bitre pontosan kövesse a projeckt szerkezetét.
 - **Teszt Struktúra:** Arrange-Act-Assert pattern, leíró nevek, minimális mockolás.
 
+#### Teszt Fájl Elnevezési Konvenció
+
+**KRITIKUS:** A pytest collection errorok elkerülése érdekében minden teszt fájlnak **egyedi névvel** kell rendelkeznie a teljes projektben.
+
+**Elnevezési minta:**
+```
+test_<modul>_<almodul>_<komponens>.py
+```
+
+**Példák:**
+```
+neural_ai/core/base/__init__.py
+→ tests/neural_ai/core/base/test_base_init.py
+
+neural_ai/core/base/factory.py
+→ tests/neural_ai/core/base/test_base_factory.py
+
+neural_ai/core/config/__init__.py
+→ tests/neural_ai/core/config/test_config_init.py
+
+neural_ai/core/config/factory.py
+→ tests/neural_ai/core/config/test_config_factory.py
+```
+
+**TILOS:**
+```
+# ❌ HELYTELEN (Duplikált nevek - pytest collection error!)
+tests/neural_ai/core/base/test_init.py
+tests/neural_ai/core/config/test_init.py  # Ugyanaz a név!
+
+# ❌ HELYTELEN (Duplikált nevek - pytest collection error!)
+tests/neural_ai/core/base/test_factory.py
+tests/neural_ai/core/config/test_factory.py  # Ugyanaz a név!
+```
+
+**Pytest Collection Error:**
+Ha több teszt fájl ugyanazzal a névvel létezik különböző mappákban, a pytest az alábbi hibát dobja:
+```
+import file mismatch:
+imported module 'test_init' has this __file__ attribute:
+  /path/to/tests/neural_ai/core/base/test_init.py
+which is not the same as the test file we want to collect:
+  /path/to/tests/neural_ai/core/config/test_init.py
+```
+
+**Megoldás:** Használd a fenti elnevezési mintát, amely a modul hierarchiát is tartalmazza a fájlnévben.
+
 ### 8. Quality Gate (A Kapuőr)
 Commitolás előtt kötelező ellenőrizni:
 - **Ruff:** 0 hiba (Linting)

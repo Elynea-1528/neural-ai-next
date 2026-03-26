@@ -1,27 +1,27 @@
 # 🔍 ARCHITECTURE AUDIT REPORT (DETAILED)
 
-**Generálva:** 2026-03-26 16:00:11
+**Generálva:** 2026-03-26 16:27:58
 **Elemző**: Roo Code (Code-New)
 **Szkennelt fájlok:** 155
 **Modulok:** 12
 
 ## 📊 Executive Summary
 
-- 🔴 **Kritikus problémák:** 408
+- 🔴 **Kritikus problémák:** 393
   - Structure: 5
   - Type: 368
-  - DDD: 26
+  - DDD: 11
   - DI: 4
   - Import: 5
-- 🟡 **Figyelmeztetések:** 40
+- 🟡 **Figyelmeztetések:** 47
   - Structure: 1
-  - Mirror: 39
+  - Mirror: 46
 
 ## 🔴 Kritikus Problémák (Rétegek szerint)
 
 ### Infrastructure Layer
 
-#### DDD Problémák (24 db)
+#### DDD Problémák (11 db)
 
 **[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:180)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
@@ -43,27 +43,27 @@
 - **Probléma:** DDD megsértés: Infrastructure (0) → Input (1)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Input). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/system/factory.py`](neural_ai/core/system/factory.py:23)**
+**[`neural_ai/core/base/implementations/component_bundle.py`](neural_ai/core/base/implementations/component_bundle.py:110)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/base/factory.py`](neural_ai/core/base/factory.py:58)**
+**[`neural_ai/core/base/implementations/component_bundle.py`](neural_ai/core/base/implementations/component_bundle.py:166)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/base/factory.py`](neural_ai/core/base/factory.py:118)**
+**[`neural_ai/core/base/implementations/component_bundle.py`](neural_ai/core/base/implementations/component_bundle.py:180)**
+- **Probléma:** DDD megsértés: Infrastructure (0) → Input (1)
+- **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Input). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
+
+**[`neural_ai/core/base/implementations/component_bundle.py`](neural_ai/core/base/implementations/component_bundle.py:225)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/base/factory.py`](neural_ai/core/base/factory.py:257)**
+**[`neural_ai/core/base/implementations/component_bundle.py`](neural_ai/core/base/implementations/component_bundle.py:265)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/base/factory.py`](neural_ai/core/base/factory.py:332)**
-- **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
-- **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
-
-*...és még 14 hasonló probléma*
+*...és még 1 hasonló probléma*
 
 #### Type Problémák (104 db)
 
@@ -116,16 +116,6 @@
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
 
 ### Input Layer
-
-#### DDD Problémák (2 db)
-
-**[`neural_ai/collectors/jforex/factory.py`](neural_ai/collectors/jforex/factory.py:15)**
-- **Probléma:** DDD megsértés: Input (1) → Persistence (2)
-- **Javaslat:** Alsó réteg (Input) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
-
-**[`neural_ai/collectors/jforex/implementations/bi5_downloader.py`](neural_ai/collectors/jforex/implementations/bi5_downloader.py:23)**
-- **Probléma:** DDD megsértés: Input (1) → Persistence (2)
-- **Javaslat:** Alsó réteg (Input) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
 #### Type Problémák (4 db)
 
@@ -329,20 +319,20 @@
 
 - [`neural_ai/processors/dimensions/d01_price`](neural_ai/processors/dimensions/d01_price:0): Hiányzik az exceptions/ mappa
 
-### Mirror (39 db)
+### Mirror (46 db)
 
 - [`ui/streamlit_app.py`](ui/streamlit_app.py:0): Hiányzó teszt fájl: tests/neural_ai/ui/test_streamlit_app.py
-- [`core/logger/interfaces/factory_interface.py`](core/logger/interfaces/factory_interface.py:0): Hiányzó teszt fájl: tests/neural_ai/core/logger/interfaces/test_factory_interface.py
-- [`core/system/exceptions/health_error.py`](core/system/exceptions/health_error.py:0): Hiányzó teszt fájl: tests/neural_ai/core/system/exceptions/test_health_error.py
-- [`core/utils/exceptions/util_error.py`](core/utils/exceptions/util_error.py:0): Hiányzó teszt fájl: tests/neural_ai/core/utils/exceptions/test_util_error.py
-- [`core/utils/implementations/hardware_info.py`](core/utils/implementations/hardware_info.py:0): Hiányzó teszt fájl: tests/neural_ai/core/utils/implementations/test_hardware_info.py
-- *...és még 34 hasonló figyelmeztetés*
+- [`core/events/factory.py`](core/events/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/core/events/test_factory.py
+- [`core/db/factory.py`](core/db/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/core/db/test_factory.py
+- [`core/config/factory.py`](core/config/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/core/config/test_factory.py
+- [`core/utils/factory.py`](core/utils/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/core/utils/test_factory.py
+- *...és még 41 hasonló figyelmeztetés*
 
 ## 📋 Prioritizált Javítási Terv
 
 ### Fázis 1: Kritikus (1-3 nap)
 
-1. **DDD Réteg Függőségek** (26 db)
+1. **DDD Réteg Függőségek** (11 db)
    - Alsó rétegek felső rétegekre való hivatkozásainak megszüntetése
    - Dependency Injection bevezetése
 
@@ -366,7 +356,7 @@
 
 ### Fázis 3: Közepes (1-2 hét)
 
-1. **Mirror Testing** (39 db)
+1. **Mirror Testing** (46 db)
    - Hiányzó teszt fájlok létrehozása
    - 100% lefedettség elérése Domain rétegben
 
@@ -374,8 +364,8 @@
 
 | Réteg | Fájlok | Kritikus | Figyelmeztetés | Megfelelőség |
 |:------|:-------|:---------|:---------------|:-------------|
-| Infrastructure | 71 | 129 | 0 | 0.0% |
-| Input | 12 | 13 | 0 | 0.0% |
+| Infrastructure | 71 | 116 | 0 | 0.0% |
+| Input | 12 | 11 | 0 | 8.3% |
 | Persistence | 16 | 102 | 0 | 0.0% |
 | Domain | 25 | 6 | 1 | 72.0% |
 | Presentation | 30 | 158 | 0 | 0.0% |

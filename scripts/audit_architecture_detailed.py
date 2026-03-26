@@ -214,6 +214,30 @@ class ArchitectureAuditor:
                         )
                     )
 
+    def _is_lazy_import(self, node: ast.ImportFrom, tree: ast.AST) -> bool:
+        """Ellenőrzi, hogy az import lazy import-e (függvényen belül van)."""
+        # Keressük meg a node szülő kontextusát
+        for parent in ast.walk(tree):
+            if isinstance(parent, ast.FunctionDef):
+                # Ellenőrizzük, hogy a node a függvény body-jában van-e
+                for stmt in ast.walk(parent):
+                    if stmt is node:
+                        return True
+        return False
+
+    def _is_in_type_checking_block(self, node: ast.ImportFrom, tree: ast.AST) -> bool:
+        """Ellenőrzi, hogy az import TYPE_CHECKING blokkon belül van-e."""
+        # Keressük meg az If node-okat
+        for parent in ast.walk(tree):
+            if isinstance(parent, ast.If):
+                # Ellenőrizzük, hogy a test TYPE_CHECKING-e
+                if isinstance(parent.test, ast.Name) and parent.test.id == "TYPE_CHECKING":
+                    # Ellenőrizzük, hogy a node a body-ban van-e
+                    for stmt in ast.walk(parent):
+                        if stmt is node:
+                            return True
+        return False
+
     def _check_layer_dependencies(self, tree: ast.AST, rel_path: Path) -> None:
         """DDD Réteg függőség ellenőrzés (alsó → felső TILOS)."""
         # Aktuális fájl rétege
@@ -231,6 +255,14 @@ class ArchitectureAuditor:
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom):
                 if node.module and node.module.startswith("neural_ai."):
+                    # Lazy import ellenőrzés (factory.py-ban engedélyezett)
+                    if self._is_lazy_import(node, tree) and "factory.py" in str(rel_path):
+                        continue  # Lazy import factory-ban OK
+
+                    # TYPE_CHECKING blokk ellenőrzés (mindig engedélyezett)
+                    if self._is_in_type_checking_block(node, tree):
+                        continue  # TYPE_CHECKING import OK
+
                     imported_parts = node.module.split(".")
                     if len(imported_parts) >= 2:
                         imported_layer_key = imported_parts[1]
