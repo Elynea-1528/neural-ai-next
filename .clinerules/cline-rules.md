@@ -708,11 +708,11 @@ Van még valami kérdésed? ❌ HELYTELEN!
 
 ## 🌳 14. TASK_TREE KEZELÉS (v3.0 - DEEP AUDIT)
 
-A `TASK_TREE.md` a projekt Minőségbiztosítási Dashboardja. Nem kézzel szerkesztjük, hanem a [`scripts/generate_task_tree.py`](scripts/generate_task_tree.py:1) generálja.
+A `TASK_TREE.md` a projekt Minőségbiztosítási Dashboardja. Nem kézzel szerkesztjük, hanem a [`scripts/generate.py`](scripts/generate.py:1) generálja.
 
 ### 14.1 Generált Dashboardok
 
-A [`scripts/generate_task_tree.py`](scripts/generate_task_tree.py:1) az alábbi fájlokat hozza létre, melyeket auditálásra kell használnod:
+A [`scripts/generate.py`](scripts/generate.py:1) az alábbi fájlokat hozza létre, melyeket auditálásra kell használnod:
 
 **Markdown Dashboardok**:
 - [`docs/development/TASK_TREE.md`](docs/development/TASK_TREE.md:1) - Source code modulok (neural_ai/)
@@ -735,7 +735,7 @@ A [`scripts/generate_task_tree.py`](scripts/generate_task_tree.py:1) az alábbi 
 
 ### 14.3 Szigorított Státusz Logika (Script Alapján)
 
-A [`scripts/generate_task_tree.py`](scripts/generate_task_tree.py:1) `StatusCalculator` osztálya az alábbi logika szerint számítja a státuszt:
+A [`scripts/generate.py`](scripts/generate.py:1) `StatusCalculator` osztálya az alábbi logika szerint számítja a státuszt:
 
 **✅ SECURE** (Minden feltétel teljesül):
 - 0 linter hiba (Ruff/Mypy/Pylance)
@@ -776,7 +776,7 @@ A [`scripts/generate_task_tree.py`](scripts/generate_task_tree.py:1) `StatusCalc
 ### 14.5 Generálás
 
 ```bash
-python scripts/generate_task_tree.py
+python scripts/generate.py
 ```
 
 **KÖTELEZŐ** minden új modul implementálás után futtatni, majd commitolni a változásokat.
@@ -834,7 +834,7 @@ def process_data(df: pl.DataFrame, window: int = 10) -> pl.DataFrame:
 
 ### 15.4 Dokumentáció mint Minőségi Feltétel
 
-A [`scripts/generate_task_tree.py`](scripts/generate_task_tree.py:1) csak akkor jelöli a modult **dokumentáltnak**, ha létezik a tükrözött `.md` fájl a [`docs/components/`](docs/components/:1) könyvtárban.
+A [`scripts/generate.py`](scripts/generate.py:1) csak akkor jelöli a modult **dokumentáltnak**, ha létezik a tükrözött `.md` fájl a [`docs/components/`](docs/components/:1) könyvtárban.
 
 **Szabály**: A dokumentáció hiánya automatikusan megakadályozza a ✅ **SECURE** státusz elérését.
 

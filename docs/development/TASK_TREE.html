@@ -296,7 +296,7 @@
         <div class="header-content">
             <h1>⚡ Neural AI Next - Task Tree Dashboard</h1>
             <div class="meta">
-                <strong>Generálva:</strong> 2026-03-25 04:09:14 UTC &nbsp;|&nbsp;
+                <strong>Generálva:</strong> 2026-03-26 08:40:06 UTC &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
                 &nbsp;|&nbsp;
                 <strong>Fájlok:</strong> 296
@@ -310,33 +310,33 @@
                 <div class="stat-header">
                     <div class="stat-icon">✓</div>
                 </div>
-                <div class="stat-value">118</div>
+                <div class="stat-value">133</div>
                 <div class="stat-label">Secure</div>
-                <div class="stat-percent">39.9% a teljes kódbázisból</div>
+                <div class="stat-percent">44.9% a teljes kódbázisból</div>
             </div>
             <div class="stat-card warning">
                 <div class="stat-header">
                     <div class="stat-icon">⚠</div>
                 </div>
-                <div class="stat-value">72</div>
+                <div class="stat-value">71</div>
                 <div class="stat-label">Warning</div>
-                <div class="stat-percent">24.3% javítást igényel</div>
+                <div class="stat-percent">24.0% javítást igényel</div>
             </div>
             <div class="stat-card critical">
                 <div class="stat-header">
                     <div class="stat-icon">✕</div>
                 </div>
-                <div class="stat-value">106</div>
+                <div class="stat-value">92</div>
                 <div class="stat-label">Critical</div>
-                <div class="stat-percent">35.8% azonnali beavatkozás</div>
+                <div class="stat-percent">31.1% azonnali beavatkozás</div>
             </div>
             <div class="stat-card tested">
                 <div class="stat-header">
                     <div class="stat-icon">◉</div>
                 </div>
-                <div class="stat-value">192/296</div>
+                <div class="stat-value">210/296</div>
                 <div class="stat-label">Tesztelt</div>
-                <div class="stat-percent">64.9% teszt lefedettség</div>
+                <div class="stat-percent">70.9% teszt lefedettség</div>
             </div>
         </div>
 
@@ -424,8 +424,8 @@
     
                         <tr>
                             <td class="file-path">core/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -433,13 +433,13 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/base/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -447,7 +447,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -468,7 +468,7 @@
                             <td class="file-path">core/base/exceptions/base_error.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">42</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -508,30 +508,30 @@
     
                         <tr>
                             <td class="file-path">core/base/implementations/component_bundle.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results">0/<span class="test-fail">39</span>/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔴 **Tesztek javítása: 39 failed, 0 error**</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/base/implementations/di_container.py</td>
-                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">4</span>/<span class="test-fail">5</span>/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">25</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 25 hiba javítása</td>
+                            <td>🔴 **Tesztek javítása: 5 failed, 0 error** | 🔎 Pylance: 25 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -606,8 +606,8 @@
     
                         <tr>
                             <td class="file-path">core/config/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -615,13 +615,13 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/config/exceptions/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -629,7 +629,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -662,8 +662,8 @@
     
                         <tr>
                             <td class="file-path">core/config/implementations/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -671,7 +671,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -704,8 +704,8 @@
     
                         <tr>
                             <td class="file-path">core/config/interfaces/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -713,7 +713,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -774,8 +774,8 @@
     
                         <tr>
                             <td class="file-path">core/db/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -783,13 +783,13 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/db/exceptions/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -797,7 +797,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -830,8 +830,8 @@
     
                         <tr>
                             <td class="file-path">core/db/implementations/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -839,7 +839,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -886,8 +886,8 @@
     
                         <tr>
                             <td class="file-path">core/db/interfaces/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -895,13 +895,13 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/events/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -909,13 +909,13 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
                             <td class="file-path">core/events/exceptions/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -923,7 +923,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -956,8 +956,8 @@
     
                         <tr>
                             <td class="file-path">core/events/implementations/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -965,7 +965,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -984,8 +984,8 @@
     
                         <tr>
                             <td class="file-path">core/events/interfaces/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -993,7 +993,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -1026,8 +1026,8 @@
     
                         <tr>
                             <td class="file-path">core/logger/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -1035,7 +1035,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -1152,8 +1152,8 @@
     
                         <tr>
                             <td class="file-path">core/logger/interfaces/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -1161,7 +1161,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -1459,16 +1459,16 @@
     
                         <tr>
                             <td class="file-path">collectors/jforex/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
+                            <td class="test-results"><span class="test-pass">2</span>/0/0/0</td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -1476,7 +1476,7 @@
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
@@ -1490,7 +1490,7 @@
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
@@ -1503,14 +1503,14 @@
                             <td class="file-path">collectors/jforex/factory.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td class="coverage"><span class="cov-low">19%</span> / 0%</td>
+                            <td class="test-results"><span class="test-pass">10</span>/0/0/0</td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 2 hiba javítása | 📊 Coverage növelése: 19% → 100%</td>
+                            <td>🔎 Pylance: 2 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -1531,7 +1531,7 @@
                             <td class="file-path">collectors/jforex/implementations/bi5_downloader.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">43</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -1545,7 +1545,7 @@
                             <td class="file-path">collectors/jforex/implementations/live_feed.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">3</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -1560,7 +1560,7 @@
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
@@ -1574,13 +1574,13 @@
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td class="coverage"><span class="cov-low">75%</span> / 100%</td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 75% → 100%</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
                         </tr>
     
                         <tr>
@@ -1588,13 +1588,13 @@
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td class="coverage"><span class="cov-low">73%</span> / 100%</td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!** | 📊 Coverage növelése: 73% → 100%</td>
+                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
                         </tr>
     
                         <tr>
@@ -1602,7 +1602,7 @@
                             <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td class="coverage"><span class="cov-good">88%</span> / 100%</td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
@@ -1682,8 +1682,8 @@
     
                         <tr>
                             <td class="file-path">data/storage/__init__.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td><span class="test-missing">✕ MISSING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
@@ -1691,7 +1691,7 @@
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Teszt írás KÖTELEZŐ!**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -2779,7 +2779,7 @@
                         <tr>
                             <td class="file-path">tests/neural_ai/collectors/jforex/exceptions/test_exceptions_init.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">5</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -2812,7 +2812,7 @@
                         <tr>
                             <td class="file-path">tests/neural_ai/collectors/jforex/interfaces/test_interfaces_init.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">3</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -2834,7 +2834,7 @@
                         <tr>
                             <td class="file-path">tests/neural_ai/collectors/jforex/test_bi5_downloader.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">43</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">286</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -2845,7 +2845,7 @@
                         <tr>
                             <td class="file-path">tests/neural_ai/collectors/jforex/test_factory.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">10</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -2856,7 +2856,7 @@
                         <tr>
                             <td class="file-path">tests/neural_ai/collectors/jforex/test_jforex_init.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">2</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -2867,7 +2867,7 @@
                         <tr>
                             <td class="file-path">tests/neural_ai/collectors/jforex/test_live_feed.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">25</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -2878,7 +2878,7 @@
                         <tr>
                             <td class="file-path">tests/neural_ai/collectors/jforex/test_live_feed_integration.py</td>
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">8</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">17</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -2889,7 +2889,7 @@
                         <tr>
                             <td class="file-path">tests/neural_ai/core/base/exceptions/test_base_error.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">42</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -2900,7 +2900,7 @@
                         <tr>
                             <td class="file-path">tests/neural_ai/core/base/exceptions/test_exceptions_init.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">18</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -2910,24 +2910,24 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/base/implementations/test_component_bundle.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results">0/<span class="test-fail">39</span>/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔴 **Tesztek javítása: 39 failed, 0 error**</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/base/implementations/test_di_container.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td class="test-results"><span class="test-pass">4</span>/<span class="test-fail">5</span>/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔴 **Tesztek javítása: 5 failed, 0 error**</td>
                         </tr>
     
                         <tr>
@@ -4219,12 +4219,12 @@
                             <td><span class="test-missing">✕ MISSING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>⚠️ Teszt fájl létrehozása</td>
+                            <td>⚠️ Teszt fájl létrehozása | 🔎 Pylance: 1 hiba javítása</td>
                         </tr>
     
                         <tr>

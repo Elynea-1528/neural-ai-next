@@ -301,9 +301,27 @@ class MirrorChecker:
         file_name = relative_parts[-1] if relative_parts else ""
 
         # test_ prefix hozzáadása
-        test_file_name = f"test_{file_name}"
-        base_name = file_name.replace(".py", "")
-        integration_file_name = f"test_{base_name}_integration.py"
+        # __init__.py fájlok speciális kezelése
+        if file_name == "__init__.py" and dir_parts:
+            if len(dir_parts) <= 2:
+                # 1-2 mélység: neural_ai/core/__init__.py -> test_core_init.py
+                # neural_ai/core/base/__init__.py -> test_base_init.py
+                module_name = dir_parts[-1]
+                test_file_name = f"test_{module_name}_init.py"
+                base_name = f"{module_name}_init"
+                integration_file_name = f"test_{module_name}_init_integration.py"
+            else:
+                # 3+ mélység: neural_ai/core/config/exceptions/__init__.py
+                # -> test_config_exceptions_init.py
+                parent_module = dir_parts[-2]
+                submodule = dir_parts[-1]
+                test_file_name = f"test_{parent_module}_{submodule}_init.py"
+                base_name = f"{parent_module}_{submodule}_init"
+                integration_file_name = f"test_{parent_module}_{submodule}_init_integration.py"
+        else:
+            test_file_name = f"test_{file_name}"
+            base_name = file_name.replace(".py", "")
+            integration_file_name = f"test_{base_name}_integration.py"
 
         # 1. Elsődleges hely (Mirror Rule szerint - TELJES TÜKÖR)
         # neural_ai/collectors/jforex/factory.py ->
@@ -1627,9 +1645,12 @@ class TaskTreeGenerator:
             cmd_coverage_run = [
                 str(COVERAGE_BIN),
                 "run",
-                "--source=neural_ai,scripts",
+                "--source=neural_ai,scripts,tests",  # + tests mappa (FIX 3)
                 "--branch",
                 "-m", "pytest", "tests/",
+                "-p", "no:cov",  # Disable pytest-cov plugin (konfliktus elkerülése)
+                "--json-report",  # FIX 2: JSON report generálás
+                "--json-report-file=reports/pytest_report.json",  # FIX 2: Report fájl
                 "-q", "--tb=no", "--continue-on-collection-errors"
             ]
 
@@ -1664,7 +1685,7 @@ class TaskTreeGenerator:
                 print(f"    🔄 Várakozás coverage fájlra... ({attempt+1}/{max_retries})")
                 time.sleep(2)
 
-            # 5. Betöltés és konverzió
+            # 5. Betöltés és konverzió (JAVÍTÁS: Egységes útvonal normalizálás)
             if COVERAGE_FILE.exists():
                 with open(COVERAGE_FILE) as f:
                     cov_json = json.load(f)
@@ -1672,18 +1693,26 @@ class TaskTreeGenerator:
                     self.coverage_data = {}
 
                     # Konvertáljuk az abszolút útvonalakat relatív útvonalakra
+                    # JAVÍTÁS: Ugyanaz a logika, mint a get_dynamic_metrics()-ben
                     for abs_path, data in raw_files.items():
                         if abs_path.startswith(str(PROJECT_ROOT)):
                             rel_path = abs_path[len(str(PROJECT_ROOT)) + 1:]
+                            # Normalizáljuk az útvonalat (Windows kompatibilitás)
+                            rel_path = rel_path.replace("\\", "/")
                             self.coverage_data[rel_path] = data
                         else:
-                            self.coverage_data[abs_path] = data
+                            # Ha nem a PROJECT_ROOT alatt van, normalizáljuk
+                            rel_path = abs_path.replace("\\", "/")
+                            self.coverage_data[rel_path] = data
 
                     print(f"    ✅ Coverage adatok betöltve: {len(self.coverage_data)} fájl")
                     if self.coverage_data:
-                        print(f"    🔍 DEBUG: Első 3 kulcs: {list(self.coverage_data.keys())[:3]}")
+                        print(f"    🔍 DEBUG: Első 5 coverage kulcs:")
+                        for i, key in enumerate(list(self.coverage_data.keys())[:5]):
+                            print(f"       [{i+1}] '{key}'")
             else:
                 print("    ❌ Coverage fájl nem jött létre!")
+                print(f"    🔍 DEBUG: Várt fájl helye: {COVERAGE_FILE}")
                 self.coverage_data = {}
 
         except subprocess.TimeoutExpired:
@@ -1801,28 +1830,85 @@ class TaskTreeGenerator:
             self.pylance_data = []
 
     def _process_pytest_report(self) -> None:
-        """Pytest Report feldolgozása (DISABLED - nincs pytest-json-report plugin)."""
-        # A pytest-json-report plugin nincs telepítve a pyproject.toml-ban
-        # Ezért ezt a funkciót kikapcsoljuk
-        print("  📋 Pytest eredmények feldolgozása... (KIHAGYVA - nincs plugin)")
-        self.pytest_data = {}
-        self.source_warnings = {}
+        """Pytest Report feldolgozása (FIX 2: pytest-json-report plugin)."""
+        print("  📋 Pytest eredmények feldolgozása...")
+        pytest_report_file = REPORT_DIR / "pytest_report.json"
+        
+        if not pytest_report_file.exists():
+            print("    ⚠️ Pytest report fájl nem található")
+            self.pytest_data = {}
+            self.source_warnings = {}
+            return
+        
+        try:
+            with open(pytest_report_file) as f:
+                report = json.load(f)
+            
+            # Teszt eredmények feldolgozása
+            for test in report.get("tests", []):
+                nodeid = test.get("nodeid", "")
+                outcome = test.get("outcome", "")
+                
+                # Fájl útvonal kinyerése (pl. "tests/neural_ai/core/test_file.py::test_func")
+                if "::" in nodeid:
+                    file_path = nodeid.split("::")[0]
+                    
+                    if file_path not in self.pytest_data:
+                        self.pytest_data[file_path] = {
+                            "passed": 0, "failed": 0, "errors": 0, "skipped": 0
+                        }
+                    
+                    if outcome == "passed":
+                        self.pytest_data[file_path]["passed"] += 1
+                    elif outcome == "failed":
+                        self.pytest_data[file_path]["failed"] += 1
+                    elif outcome == "error":
+                        self.pytest_data[file_path]["errors"] += 1
+                    elif outcome == "skipped":
+                        self.pytest_data[file_path]["skipped"] += 1
+            
+            # Source warnings feldolgozása (pytest warnings a forráskódban)
+            for warning in report.get("warnings", []):
+                filename = warning.get("filename", "")
+                if filename and filename.startswith(str(PROJECT_ROOT)):
+                    rel_path = filename[len(str(PROJECT_ROOT)) + 1:]
+                    self.source_warnings[rel_path] = self.source_warnings.get(rel_path, 0) + 1
+            
+            print(f"    ✅ {len(self.pytest_data)} teszt fájl feldolgozva")
+            if self.source_warnings:
+                print(f"    ⚠️ {len(self.source_warnings)} fájl warninggal")
+        except Exception as e:
+            print(f"    ⚠️ Hiba: {e}")
+            self.pytest_data = {}
+            self.source_warnings = {}
 
     def get_dynamic_metrics(self, file_path: Path) -> dict[str, Any]:
         """Visszaadja a dinamikus metrikákat egy fájlhoz."""
-        # Relatív útvonal a PROJECT_ROOT-hoz képest
+        # JAVÍTÁS: Egységes útvonal normalizálás
+        # Mindig relatív útvonalat használunk a PROJECT_ROOT-hoz képest
         if file_path.is_absolute():
-            rel_path = str(file_path.relative_to(PROJECT_ROOT))
+            try:
+                rel_path = str(file_path.relative_to(PROJECT_ROOT))
+            except ValueError:
+                # Ha a fájl nem a PROJECT_ROOT alatt van
+                rel_path = str(file_path)
         else:
+            # Relatív útvonal normalizálása (Path objektum -> string)
             rel_path = str(file_path)
+        
+        # Normalizáljuk az útvonalat (eltávolítjuk a dupla slash-eket, stb.)
+        rel_path = rel_path.replace("\\", "/")  # Windows kompatibilitás
 
         # DEBUG: Első fájlnál kiírjuk a keresett útvonalat
         if not hasattr(self, '_debug_printed'):
-            print(f"🔍 DEBUG get_dynamic_metrics(): Keresett rel_path = '{rel_path}'")
-            print(f"🔍 DEBUG: coverage_data kulcsok száma = {len(self.coverage_data)}")
+            print(f"\n🔍 DEBUG get_dynamic_metrics():")
+            print(f"   Keresett rel_path = '{rel_path}'")
+            print(f"   coverage_data kulcsok száma = {len(self.coverage_data)}")
             if self.coverage_data:
-                print(f"🔍 DEBUG: Első 3 coverage kulcs: {list(self.coverage_data.keys())[:3]}")
-            print(f"🔍 DEBUG: rel_path in coverage_data? {rel_path in self.coverage_data}")
+                print(f"   Első 5 coverage kulcs:")
+                for i, key in enumerate(list(self.coverage_data.keys())[:5]):
+                    print(f"     [{i+1}] '{key}'")
+            print(f"   rel_path in coverage_data? {rel_path in self.coverage_data}")
             self._debug_printed = True
 
         metrics = {
