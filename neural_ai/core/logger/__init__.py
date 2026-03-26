@@ -2,20 +2,24 @@
 
 Ez a modul biztosítja a Neural-AI-Next rendszer naplózási funkcionalitását.
 Központi exportmodulként szolgál, amely összegyűjti és elérhetővé teszi
-a logger komponens összes fontos osztályát és interfészét.
+a logger komponens publikus API-ját (Interface + Factory + Exceptions).
 
 A modul a következő fő komponenseket exportálja:
     - Interfészek: LoggerInterface, LoggerFactoryInterface
-    - Implementációk: ColoredLogger, DefaultLogger, LoggerFactory, RotatingFileLogger
+    - Factory: LoggerFactory
     - Kivételek: LoggerError, LoggerConfigurationError, LoggerInitializationError
+
+DDD Szabály:
+    Az implementációk (ColoredLogger, DefaultLogger, RotatingFileLogger) NEM exportáltak.
+    Ezeket közvetlenül a LoggerFactory hozza létre.
 
 Verziókezelés:
     A modul importálja a projekt verzióinformációit a fő neural_ai csomagból,
     és biztosítja a konfigurációs séma verzióját a kompatibilitás ellenőrzéséhez.
 
 Példa használatra:
-    >>> from neural_ai.core.logger import LoggerFactory, DefaultLogger
-    >>> logger = DefaultLogger()
+    >>> from neural_ai.core.logger import LoggerFactory
+    >>> logger = LoggerFactory.get_logger(__name__)
     >>> logger.info("Alkalmazás indítása...")
     >>> print(f"Logger verzió: {__version__}")
 """
@@ -30,11 +34,6 @@ if TYPE_CHECKING:
         LoggerInitializationError,
     )
     from neural_ai.core.logger.factory import LoggerFactory
-    from neural_ai.core.logger.implementations import (
-        ColoredLogger,
-        DefaultLogger,
-        RotatingFileLogger,
-    )
     from neural_ai.core.logger.interfaces import LoggerFactoryInterface, LoggerInterface
 
 from neural_ai.core.logger.exceptions import (
@@ -43,11 +42,6 @@ from neural_ai.core.logger.exceptions import (
     LoggerInitializationError,
 )
 from neural_ai.core.logger.factory import LoggerFactory
-from neural_ai.core.logger.implementations import (
-    ColoredLogger,
-    DefaultLogger,
-    RotatingFileLogger,
-)
 from neural_ai.core.logger.interfaces import LoggerFactoryInterface, LoggerInterface
 
 # Verzióinformációk dinamikus betöltése
@@ -76,11 +70,8 @@ __all__: Final[list[str]] = [
     # Interfaces
     "LoggerInterface",
     "LoggerFactoryInterface",
-    # Implementations
-    "ColoredLogger",
-    "DefaultLogger",
+    # Factory
     "LoggerFactory",
-    "RotatingFileLogger",
     # Exceptions
     "LoggerError",
     "LoggerConfigurationError",
