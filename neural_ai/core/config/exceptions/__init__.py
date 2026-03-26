@@ -3,7 +3,7 @@
 Ez a modul exportálja az összes konfigurációkezelési kivétel osztályt.
 """
 
-from .config_error import (
+from neural_ai.core.config.exceptions.config_error import (
     ConfigError,
     ConfigKeyError,
     ConfigLoadError,

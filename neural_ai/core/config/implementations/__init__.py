@@ -24,9 +24,11 @@ from importlib import metadata
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .yaml_config_manager import YAMLConfigManager as YAMLConfigManager
+    from neural_ai.core.config.implementations.yaml_config_manager import (
+        YAMLConfigManager as YAMLConfigManager,
+    )
 
-from .yaml_config_manager import YAMLConfigManager
+from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager
 
 # Dinamikus verzióbetöltés a pyproject.toml-ből
 try:

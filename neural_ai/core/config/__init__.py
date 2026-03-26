@@ -7,7 +7,7 @@ A modul a következő komponenseket tartalmazza:
 
 - **Kivételek**: Konfigurációs hibakezelés speciális kivétel osztályokkal
 - **Interfészek**: Konfigurációkezelő és gyártó interfészek
-- **Implementációk**: YAML alapú konfigurációkezelés és gyártó osztály
+- **Factory**: Konfigurációkezelő gyártó osztály
 
 Komponensek:
     ConfigError: Alap konfigurációs kivétel osztály
@@ -17,7 +17,6 @@ Komponensek:
     ConfigTypeError: Típus hibák a konfigurációban
     ConfigValidationError: Validációs hibák
     ConfigManagerFactory: Konfigurációkezelő gyártó
-    YAMLConfigManager: YAML alapú konfigurációkezelő
     ConfigManagerInterface: Konfigurációkezelő interfész
     ConfigManagerFactoryInterface: Gyártó interfész
 
@@ -46,7 +45,6 @@ from neural_ai.core.config.exceptions import (
     ConfigValidationError,
 )
 from neural_ai.core.config.factory import ConfigManagerFactory
-from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.config.interfaces.factory_interface import (
     ConfigManagerFactoryInterface,
@@ -60,7 +58,6 @@ __all__ = [
     "ConfigTypeError",
     "ConfigKeyError",
     "ConfigManagerFactory",
-    "YAMLConfigManager",
     "ConfigManagerInterface",
     "ConfigManagerFactoryInterface",
 ]
