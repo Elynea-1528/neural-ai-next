@@ -76,7 +76,8 @@ class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
         """Konténer inicializálása.
 
         Args:
-            logger: Logger példány. Ha nincs megadva, alapértelmezett logger-t használ.
+            logger: Logger példány (opcionális - bootstrap során még nincs logger).
+                    Ha None, akkor minimális logolás (print) használatos.
         """
         # Singleton védelem: csak egyszer inicializáljuk (SingletonMeta kezeli)
         if hasattr(self, '_initialized') and self._initialized:
@@ -86,15 +87,11 @@ class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
         self._factories: dict[object, Callable[[], object]] = {}
         self._lazy_components: dict[str, LazyComponent[object]] = {}
         self._initialized = True
+        self._logger = logger
 
-        # Logger injektálás (opcionális, backward compatible)
-        if logger is None:
-            from neural_ai.core.logger.factory import LoggerFactory
-            self._logger = LoggerFactory.get_logger(__name__)
-        else:
-            self._logger = logger
-
-        self._logger.info("DI konténer inicializálva")
+        # Minimális logolás ha nincs logger (bootstrap során)
+        if self._logger is not None:
+            self._logger.info("DI konténer inicializálva")
 
     @trace
     def register_instance(self, interface: InterfaceT, instance: InterfaceT) -> None:
@@ -106,7 +103,8 @@ class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
         """
         interface_name = getattr(interface, "__name__", str(interface))
         instance_name = type(instance).__name__
-        self._logger.debug("DI regisztrálva", interface=interface_name, instance=instance_name)
+        if self._logger is not None:
+            self._logger.debug("DI regisztrálva", interface=interface_name, instance=instance_name)
         self._instances[interface] = instance
 
     @trace
@@ -119,9 +117,10 @@ class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
         """
         interface_name = getattr(interface, "__name__", str(interface))
         factory_name = getattr(factory, "__name__", "anonymous")
-        self._logger.debug(
-            "DI factory regisztrálva", interface=interface_name, factory=factory_name
-        )
+        if self._logger is not None:
+            self._logger.debug(
+                "DI factory regisztrálva", interface=interface_name, factory=factory_name
+            )
         self._factories[interface] = factory
 
     @trace
@@ -170,7 +169,8 @@ class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
 
         lazy_component = LazyComponent[T](factory_func)
         self._lazy_components[component_name] = cast(LazyComponent[object], lazy_component)
-        self._logger.info("Lazy komponens regisztrálva", component_name=component_name)
+        if self._logger is not None:
+            self._logger.info("Lazy komponens regisztrálva", component_name=component_name)
 
     @trace
     def get(self, component_name: str) -> object:
@@ -227,7 +227,8 @@ class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
         """
         for name in component_names:
             if name in self._lazy_components:
-                self._logger.info("Komponens előtöltése", component_name=name)
+                if self._logger is not None:
+                    self._logger.info("Komponens előtöltése", component_name=name)
                 self.get(name)
 
     @trace
@@ -290,7 +291,8 @@ class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
         self._enforce_singleton(component_name, instance)
 
         self._instances[component_name] = instance
-        self._logger.info("Komponens regisztrálva", component_name=component_name)
+        if self._logger is not None:
+            self._logger.info("Komponens regisztrálva", component_name=component_name)
 
     @trace
     def get_memory_usage(self) -> dict[str, int | dict[str, int]]:

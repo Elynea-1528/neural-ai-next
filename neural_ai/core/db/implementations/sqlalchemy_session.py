@@ -262,7 +262,7 @@ async def init_db(logger: "LoggerInterface") -> None:
     Args:
         logger: Logger interfész a naplózáshoz.
     """
-    from .models import Base  # Körkörös import elkerülése
+    from neural_ai.core.db.implementations.models import Base  # Körkörös import elkerülése
 
     engine = get_engine()
 
@@ -309,17 +309,22 @@ class DatabaseManager(metaclass=SingletonMeta):
 
     def __init__(
         self,
-        config_manager: ConfigManagerInterface | None = None,
-        logger: "LoggerInterface | None" = None,
+        config_manager: ConfigManagerInterface,
+        logger: "LoggerInterface",
     ):
         """Inicializálja az adatbázis kezelőt.
 
         Args:
-            config_manager: Opcionális konfiguráció kezelő.
-            logger: Opcionális logger interfész.
+            config_manager: Konfiguráció kezelő (KÖTELEZŐ - Dependency Injection).
+            logger: Logger interfész (KÖTELEZŐ - Dependency Injection).
         """
-        self.config_manager = config_manager or ConfigManagerFactory.get_manager("config.yaml")
-        self.logger = logger  # Logger DI
+        if config_manager is None:
+            raise ValueError("config_manager paraméter kötelező (Dependency Injection)")
+        if logger is None:
+            raise ValueError("logger paraméter kötelező (Dependency Injection)")
+
+        self.config_manager = config_manager
+        self.logger = logger
         self._engine: AsyncEngine | None = None
         self._session_maker: async_sessionmaker[AsyncSession] | None = None
 
@@ -349,7 +354,7 @@ class DatabaseManager(metaclass=SingletonMeta):
         )
 
         # Táblák létrehozása
-        from .models import Base
+        from neural_ai.core.db.implementations.models import Base
 
         async with self._engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
@@ -399,7 +404,8 @@ class DatabaseManager(metaclass=SingletonMeta):
         Raises:
             RuntimeError: Ha a kezelő nincs inicializálva.
         """
-        from .models import DynamicConfig  # Körkörös import elkerülése
+        # Körkörös import elkerülése
+        from neural_ai.core.db.implementations.models import DynamicConfig
 
         if self._session_maker is None:
             raise RuntimeError(

@@ -40,24 +40,21 @@ class LazyLoader[T]:
         Args:
             loader_func: A függvény, amely betölti az erőforrást.
                 Ennek a függvénynek vissza kell térnie a betöltött erőforrással.
-            logger: Logger példány. Ha nincs megadva, alapértelmezett logger-t használ.
+            logger: Logger példány (opcionális - bootstrap során még nincs logger).
+                    Ha None, akkor minimális logolás (nincs log).
         """
         self._loader_func = loader_func
         self._loaded: bool = False
         self._value: T | None = None
         self._lock = threading.RLock()
+        self._logger = logger
 
-        # Logger injektálás (opcionális, backward compatible)
-        if logger is None:
-            from neural_ai.core.logger.factory import LoggerFactory
-            self._logger = LoggerFactory.get_logger(__name__)
-        else:
-            self._logger = logger
-
-        self._logger.info(
-            "LazyLoader inicializálva",
-            extra={"loader_func": getattr(loader_func, "__name__", str(loader_func))},
-        )
+        # Minimális logolás ha van logger
+        if self._logger is not None:
+            self._logger.info(
+                "LazyLoader inicializálva",
+                extra={"loader_func": getattr(loader_func, "__name__", str(loader_func))},
+            )
 
     def _load(self) -> T:
         """Betölti az erőforrást, ha még nincs betöltve.

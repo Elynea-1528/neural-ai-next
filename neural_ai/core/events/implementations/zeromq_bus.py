@@ -63,9 +63,13 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
 
         Args:
             config: EventBus konfiguráció (opcionális)
-            logger: Logger interfész (opcionális)
+            logger: Logger interfész (KÖTELEZŐ - Dependency Injection)
         """
+        if logger is None:
+            raise ValueError("Logger paraméter kötelező (Dependency Injection)")
+
         self._config = config or EventBusConfig()
+        self.logger = logger
 
         # Importáljuk itt, hogy ne legyen kötelező függőség a használathoz
         try:
@@ -87,10 +91,6 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         self._publisher: zmq.asyncio.Socket | None = None
         self._subscribers: dict[str, list[EventCallback]] = {}
         self._running = False
-        if logger is not None:
-            self.logger = logger
-        else:
-            self.logger = LoggerFactory.get_logger(self.__class__.__name__)
 
     @trace
     async def start(self) -> None:

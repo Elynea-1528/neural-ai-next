@@ -113,6 +113,7 @@ def bootstrap_core(
         >>> await core.event_bus.start()
     """
     # Importok a függőségi körkörök elkerüléséhez
+    # FIGYELEM: Persistence (data.*) és Input (collectors.*) Layer importok LAZY!
     from neural_ai.core.base.implementations.component_bundle import CoreComponents
     from neural_ai.core.base.implementations.di_container import DIContainer
     from neural_ai.core.config.factory import ConfigManagerFactory
@@ -127,9 +128,6 @@ def bootstrap_core(
     from neural_ai.core.system.interfaces.health_interface import HealthMonitorInterface
     from neural_ai.core.utils.factory import HardwareFactory
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
-    from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
-    from neural_ai.data.storage.factory import StorageFactory
-    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 
     # DI container létrehozása
     container = DIContainer()
@@ -182,6 +180,10 @@ def bootstrap_core(
     logger.debug("-> EventBus regisztrálva")
 
     # 6. Storage inicializálása (Config+Logger+HardwareInfo)
+    # LAZY IMPORT: Persistence Layer (DDD szabály)
+    from neural_ai.data.storage.factory import StorageFactory
+    from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
+
     logger.info("⏳ 7. Storage indítása...")
     storage_conf_dict = cast(dict[str, Any], config.get("storage") or {})
     storage_conf = StorageConfig(**storage_conf_dict)  # Validáció Pydantic modellel
@@ -226,6 +228,9 @@ def bootstrap_core(
     logger.debug("-> Health monitor regisztrálva")
 
     # 8. MarketDataPersister inicializálása
+    # LAZY IMPORT: Persistence Layer (DDD szabály)
+    from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
+
     logger.info("⏳ 9. MarketDataPersister indítása...")
     ingestion_config = cast(IngestionConfig, config.get_section("ingestion") or {})
     market_data_persister = MarketDataPersister(

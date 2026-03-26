@@ -34,7 +34,7 @@ class CoreComponents:
         Args:
             container: Egy függőséginjektáló konténer példány.
                        Ha nincs megadva, új konténert hoz létre.
-            logger: Logger példány. Ha nincs megadva, alapértelmezett logger-t használ.
+            logger: Logger példány (opcionális - próbálja a container-ből kiolvasni).
         """
         # Körkörös import elkerüléséhez
         from neural_ai.core.base.implementations.di_container import DIContainer
@@ -42,17 +42,26 @@ class CoreComponents:
         self._container = container or DIContainer()
         self._factory = CoreComponentFactory(self._container)
 
-        # Logger injektálás (opcionális, backward compatible)
-        if logger is None:
-            from neural_ai.core.logger.factory import LoggerFactory
-            self._logger = LoggerFactory.get_logger(__name__)
-        else:
+        # Logger injektálás: próbáljuk a container-ből, ha nincs megadva
+        self._logger: Optional["LoggerInterface"] = None
+        if logger is not None:
             self._logger = logger
+        else:
+            # Próbáljuk a container-ből kiolvasni
+            try:
+                from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+                resolved_logger = self._container.resolve(LoggerInterface)
+                if resolved_logger is not None and isinstance(resolved_logger, type(resolved_logger)):
+                    self._logger = resolved_logger  # type: ignore[assignment]
+            except Exception:
+                pass
 
-        self._logger.info(
-            "Core komponensek inicializálása befejezve",
-            extra={"container_type": type(self._container).__name__},
-        )
+        # Minimális logolás ha van logger
+        if self._logger is not None:
+            self._logger.info(
+                "Core komponensek inicializálása befejezve",
+                extra={"container_type": type(self._container).__name__},
+            )
 
     @property
     def config(self) -> Optional["ConfigManagerInterface"]:

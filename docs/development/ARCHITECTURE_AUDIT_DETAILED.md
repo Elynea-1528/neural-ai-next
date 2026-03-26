@@ -1,18 +1,18 @@
 # 🔍 ARCHITECTURE AUDIT REPORT (DETAILED)
 
-**Generálva:** 2026-03-26 14:54:28
+**Generálva:** 2026-03-26 15:25:55
 **Elemző**: Roo Code (Code-New)
 **Szkennelt fájlok:** 155
 **Modulok:** 12
 
 ## 📊 Executive Summary
 
-- 🔴 **Kritikus problémák:** 438
-  - Structure: 24
+- 🔴 **Kritikus problémák:** 413
+  - Structure: 8
   - Type: 368
   - DDD: 28
-  - DI: 9
-  - Import: 9
+  - DI: 4
+  - Import: 5
 - 🟡 **Figyelmeztetések:** 40
   - Structure: 1
   - Mirror: 39
@@ -31,23 +31,23 @@
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:130)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:184)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:131)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:185)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:132)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:232)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:247)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:252)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Input (1)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Input). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:248)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:253)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Input (1)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Input). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
@@ -67,11 +67,11 @@
 
 #### Type Problémák (104 db)
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:186)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:188)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:243)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:248)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
@@ -109,93 +109,25 @@
 
 *...és még 94 hasonló probléma*
 
-#### Structure Problémák (19 db)
-
-**[`neural_ai/core/events/implementations/__init__.py`](neural_ai/core/events/implementations/__init__.py:6)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/db/implementations/__init__.py`](neural_ai/core/db/implementations/__init__.py:6)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/db/implementations/__init__.py`](neural_ai/core/db/implementations/__init__.py:7)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/db/implementations/__init__.py`](neural_ai/core/db/implementations/__init__.py:8)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/config/implementations/__init__.py`](neural_ai/core/config/implementations/__init__.py:23)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/config/implementations/__init__.py`](neural_ai/core/config/implementations/__init__.py:24)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/config/implementations/__init__.py`](neural_ai/core/config/implementations/__init__.py:31)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/config/implementations/__init__.py`](neural_ai/core/config/implementations/__init__.py:27)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/utils/implementations/__init__.py`](neural_ai/core/utils/implementations/__init__.py:6)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/logger/implementations/__init__.py`](neural_ai/core/logger/implementations/__init__.py:18)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-*...és még 9 hasonló probléma*
-
-#### DI Problémák (6 db)
-
-**[`neural_ai/core/events/implementations/zeromq_bus.py`](neural_ai/core/events/implementations/zeromq_bus.py:93)**
-- **Probléma:** Service Locator pattern: EventBus.__init__ hívja a Factory.get_logger() metódust
-- **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
-
-**[`neural_ai/core/db/implementations/sqlalchemy_session.py`](neural_ai/core/db/implementations/sqlalchemy_session.py:321)**
-- **Probléma:** Service Locator pattern: DatabaseManager.__init__ hívja a Factory.get_manager() metódust
-- **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
+#### DI Problémák (1 db)
 
 **[`neural_ai/core/logger/implementations/default_logger.py`](neural_ai/core/logger/implementations/default_logger.py:60)**
 - **Probléma:** Service Locator pattern: DefaultLogger.__init__ hívja a Factory.get_logger() metódust
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
 
-**[`neural_ai/core/base/implementations/lazy_loader.py`](neural_ai/core/base/implementations/lazy_loader.py:53)**
-- **Probléma:** Service Locator pattern: LazyLoader.__init__ hívja a Factory.get_logger() metódust
-- **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
+#### Structure Problémák (3 db)
 
-**[`neural_ai/core/base/implementations/di_container.py`](neural_ai/core/base/implementations/di_container.py:93)**
-- **Probléma:** Service Locator pattern: DIContainer.__init__ hívja a Factory.get_logger() metódust
-- **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
+**[`neural_ai/core/base/implementations/__init__.py`](neural_ai/core/base/implementations/__init__.py:8)**
+- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
+- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
 
-**[`neural_ai/core/base/implementations/component_bundle.py`](neural_ai/core/base/implementations/component_bundle.py:48)**
-- **Probléma:** Service Locator pattern: CoreComponents.__init__ hívja a Factory.get_logger() metódust
-- **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
+**[`neural_ai/core/base/implementations/__init__.py`](neural_ai/core/base/implementations/__init__.py:9)**
+- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
+- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
 
-#### Import Problémák (4 db)
-
-**[`neural_ai/core/db/implementations/sqlalchemy_session.py`](neural_ai/core/db/implementations/sqlalchemy_session.py:265)**
-- **Probléma:** Relatív import: .models
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/implementations/sqlalchemy_session.py`](neural_ai/core/db/implementations/sqlalchemy_session.py:352)**
-- **Probléma:** Relatív import: .models
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/implementations/sqlalchemy_session.py`](neural_ai/core/db/implementations/sqlalchemy_session.py:402)**
-- **Probléma:** Relatív import: .models
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/implementations/models.py`](neural_ai/core/db/implementations/models.py:13)**
-- **Probléma:** Relatív import: .model_base
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
+**[`neural_ai/core/base/implementations/__init__.py`](neural_ai/core/base/implementations/__init__.py:10)**
+- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
+- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
 
 ### Input Layer
 
@@ -428,11 +360,11 @@
    - Alsó rétegek felső rétegekre való hivatkozásainak megszüntetése
    - Dependency Injection bevezetése
 
-2. **Dependency Injection** (9 db)
+2. **Dependency Injection** (4 db)
    - Service Locator pattern cseréje konstruktor injektálásra
    - Factory pattern helyes használata
 
-3. **Import Szabályok** (9 db)
+3. **Import Szabályok** (5 db)
    - Relatív importok cseréje abszolút importokra
    - TYPE_CHECKING használata körkörös importoknál
 
@@ -442,7 +374,7 @@
    - Any típus eliminálása
    - TypedDict → Pydantic migráció
 
-2. **Modul Struktúra** (24 db)
+2. **Modul Struktúra** (8 db)
    - Hiányzó interfaces/, implementations/, exceptions/ mappák létrehozása
    - Implementáció exportok megszüntetése
 
@@ -456,7 +388,7 @@
 
 | Réteg | Fájlok | Kritikus | Figyelmeztetés | Megfelelőség |
 |:------|:-------|:---------|:---------------|:-------------|
-| Infrastructure | 71 | 159 | 0 | 0.0% |
+| Infrastructure | 71 | 134 | 0 | 0.0% |
 | Input | 12 | 13 | 0 | 0.0% |
 | Persistence | 16 | 102 | 0 | 0.0% |
 | Domain | 25 | 6 | 1 | 72.0% |

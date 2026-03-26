@@ -10,7 +10,7 @@ from sqlalchemy import Boolean, Index, String, Text
 from sqlalchemy.dialects.sqlite import JSON
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 
-from .model_base import Base
+from neural_ai.core.db.implementations.model_base import Base
 
 if TYPE_CHECKING:
     pass

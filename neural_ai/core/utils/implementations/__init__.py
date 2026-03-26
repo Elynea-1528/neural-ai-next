@@ -1,10 +1,5 @@
 """Util implementációk modulja.
 
-Ez a modul exportálja az összes utility implementációs osztályt.
+Ez a modul tartalmazza az utility komponensek implementációit.
+FIGYELEM: Ez a fájl ÜRES kell legyen! Implementációkat CSAK a factory.py importálhatja.
 """
-
-from neural_ai.core.utils.implementations.hardware_info import HardwareInfo
-
-__all__ = [
-    "HardwareInfo",
-]
