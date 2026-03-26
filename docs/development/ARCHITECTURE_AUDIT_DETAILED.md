@@ -1,18 +1,18 @@
 # 🔍 ARCHITECTURE AUDIT REPORT (DETAILED)
 
-**Generálva:** 2026-03-26 13:34:40
+**Generálva:** 2026-03-26 14:54:28
 **Elemző**: Roo Code (Code-New)
 **Szkennelt fájlok:** 155
 **Modulok:** 12
 
 ## 📊 Executive Summary
 
-- 🔴 **Kritikus problémák:** 451
-  - Structure: 25
+- 🔴 **Kritikus problémák:** 438
+  - Structure: 24
   - Type: 368
   - DDD: 28
   - DI: 9
-  - Import: 21
+  - Import: 9
 - 🟡 **Figyelmeztetések:** 40
   - Structure: 1
   - Mirror: 39
@@ -109,51 +109,7 @@
 
 *...és még 94 hasonló probléma*
 
-#### Import Problémák (16 db)
-
-**[`neural_ai/core/db/__init__.py`](neural_ai/core/db/__init__.py:7)**
-- **Probléma:** Relatív import: .factory
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/__init__.py`](neural_ai/core/db/__init__.py:8)**
-- **Probléma:** Relatív import: .implementations.model_base
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/__init__.py`](neural_ai/core/db/__init__.py:9)**
-- **Probléma:** Relatív import: .implementations.models
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/__init__.py`](neural_ai/core/db/__init__.py:10)**
-- **Probléma:** Relatív import: .implementations.sqlalchemy_session
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/events/exceptions/__init__.py`](neural_ai/core/events/exceptions/__init__.py:6)**
-- **Probléma:** Relatív import: .event_error
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/implementations/__init__.py`](neural_ai/core/db/implementations/__init__.py:6)**
-- **Probléma:** Relatív import: .model_base
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/implementations/__init__.py`](neural_ai/core/db/implementations/__init__.py:7)**
-- **Probléma:** Relatív import: .models
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/implementations/__init__.py`](neural_ai/core/db/implementations/__init__.py:8)**
-- **Probléma:** Relatív import: .sqlalchemy_session
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/implementations/sqlalchemy_session.py`](neural_ai/core/db/implementations/sqlalchemy_session.py:265)**
-- **Probléma:** Relatív import: .models
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/core/db/implementations/sqlalchemy_session.py`](neural_ai/core/db/implementations/sqlalchemy_session.py:352)**
-- **Probléma:** Relatív import: .models
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-*...és még 6 hasonló probléma*
-
-#### Structure Problémák (20 db)
+#### Structure Problémák (19 db)
 
 **[`neural_ai/core/events/implementations/__init__.py`](neural_ai/core/events/implementations/__init__.py:6)**
 - **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
@@ -179,7 +135,7 @@
 - **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
 - **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
 
-**[`neural_ai/core/config/implementations/__init__.py`](neural_ai/core/config/implementations/__init__.py:29)**
+**[`neural_ai/core/config/implementations/__init__.py`](neural_ai/core/config/implementations/__init__.py:31)**
 - **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
 - **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
 
@@ -195,7 +151,7 @@
 - **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
 - **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
 
-*...és még 10 hasonló probléma*
+*...és még 9 hasonló probléma*
 
 #### DI Problémák (6 db)
 
@@ -211,17 +167,35 @@
 - **Probléma:** Service Locator pattern: DefaultLogger.__init__ hívja a Factory.get_logger() metódust
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
 
-**[`neural_ai/core/base/implementations/lazy_loader.py`](neural_ai/core/base/implementations/lazy_loader.py:42)**
+**[`neural_ai/core/base/implementations/lazy_loader.py`](neural_ai/core/base/implementations/lazy_loader.py:53)**
 - **Probléma:** Service Locator pattern: LazyLoader.__init__ hívja a Factory.get_logger() metódust
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
 
-**[`neural_ai/core/base/implementations/di_container.py`](neural_ai/core/base/implementations/di_container.py:79)**
+**[`neural_ai/core/base/implementations/di_container.py`](neural_ai/core/base/implementations/di_container.py:93)**
 - **Probléma:** Service Locator pattern: DIContainer.__init__ hívja a Factory.get_logger() metódust
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
 
-**[`neural_ai/core/base/implementations/component_bundle.py`](neural_ai/core/base/implementations/component_bundle.py:40)**
+**[`neural_ai/core/base/implementations/component_bundle.py`](neural_ai/core/base/implementations/component_bundle.py:48)**
 - **Probléma:** Service Locator pattern: CoreComponents.__init__ hívja a Factory.get_logger() metódust
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
+
+#### Import Problémák (4 db)
+
+**[`neural_ai/core/db/implementations/sqlalchemy_session.py`](neural_ai/core/db/implementations/sqlalchemy_session.py:265)**
+- **Probléma:** Relatív import: .models
+- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
+
+**[`neural_ai/core/db/implementations/sqlalchemy_session.py`](neural_ai/core/db/implementations/sqlalchemy_session.py:352)**
+- **Probléma:** Relatív import: .models
+- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
+
+**[`neural_ai/core/db/implementations/sqlalchemy_session.py`](neural_ai/core/db/implementations/sqlalchemy_session.py:402)**
+- **Probléma:** Relatív import: .models
+- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
+
+**[`neural_ai/core/db/implementations/models.py`](neural_ai/core/db/implementations/models.py:13)**
+- **Probléma:** Relatív import: .model_base
+- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
 
 ### Input Layer
 
@@ -458,7 +432,7 @@
    - Service Locator pattern cseréje konstruktor injektálásra
    - Factory pattern helyes használata
 
-3. **Import Szabályok** (21 db)
+3. **Import Szabályok** (9 db)
    - Relatív importok cseréje abszolút importokra
    - TYPE_CHECKING használata körkörös importoknál
 
@@ -468,7 +442,7 @@
    - Any típus eliminálása
    - TypedDict → Pydantic migráció
 
-2. **Modul Struktúra** (25 db)
+2. **Modul Struktúra** (24 db)
    - Hiányzó interfaces/, implementations/, exceptions/ mappák létrehozása
    - Implementáció exportok megszüntetése
 
@@ -482,7 +456,7 @@
 
 | Réteg | Fájlok | Kritikus | Figyelmeztetés | Megfelelőség |
 |:------|:-------|:---------|:---------------|:-------------|
-| Infrastructure | 71 | 172 | 0 | 0.0% |
+| Infrastructure | 71 | 159 | 0 | 0.0% |
 | Input | 12 | 13 | 0 | 0.0% |
 | Persistence | 16 | 102 | 0 | 0.0% |
 | Domain | 25 | 6 | 1 | 72.0% |
