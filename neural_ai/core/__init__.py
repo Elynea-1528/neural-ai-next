@@ -40,12 +40,8 @@ if TYPE_CHECKING:
     from neural_ai.core.utils.interfaces.hardware_interface import (
         HardwareInterface,
     )
-    from neural_ai.data.ingestion.market_data_persister import (
-        MarketDataPersister,
-    )
-    from neural_ai.data.storage.interfaces.storage_interface import (
-        StorageInterface,
-    )
+    # MarketDataPersister és StorageInterface típusok LAZY importálva vannak
+    # a bootstrap_core() függvényben, itt nem kell TYPE_CHECKING blokkban
 
 
 @trace
@@ -290,6 +286,8 @@ def get_core_components() -> "CoreComponents":
 
 
 # Publikus interfészek exportálása a könnyű hozzáférés érdekében
+# FIGYELEM: Csak Infrastructure Layer típusokat exportálunk!
+# Persistence (MarketDataPersister, StorageInterface) és Input Layer típusok TILOS!
 __all__ = [
     "bootstrap_core",
     "get_core_components",
@@ -301,6 +299,4 @@ __all__ = [
     "LoggerInterface",
     "HealthMonitorInterface",
     "HardwareInterface",
-    "MarketDataPersister",
-    "StorageInterface",
 ]

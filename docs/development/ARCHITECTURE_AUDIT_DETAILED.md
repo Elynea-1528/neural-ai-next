@@ -1,16 +1,16 @@
 # 🔍 ARCHITECTURE AUDIT REPORT (DETAILED)
 
-**Generálva:** 2026-03-26 15:25:55
+**Generálva:** 2026-03-26 16:00:11
 **Elemző**: Roo Code (Code-New)
 **Szkennelt fájlok:** 155
 **Modulok:** 12
 
 ## 📊 Executive Summary
 
-- 🔴 **Kritikus problémák:** 413
-  - Structure: 8
+- 🔴 **Kritikus problémák:** 408
+  - Structure: 5
   - Type: 368
-  - DDD: 28
+  - DDD: 26
   - DI: 4
   - Import: 5
 - 🟡 **Figyelmeztetések:** 40
@@ -21,33 +21,25 @@
 
 ### Infrastructure Layer
 
-#### DDD Problémák (26 db)
+#### DDD Problémák (24 db)
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:43)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:180)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:46)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:181)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:184)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:228)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:185)**
-- **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
-- **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
-
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:232)**
-- **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
-- **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
-
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:252)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:248)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Input (1)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Input). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:253)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:249)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Input (1)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Input). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
@@ -63,15 +55,23 @@
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-*...és még 16 hasonló probléma*
+**[`neural_ai/core/base/factory.py`](neural_ai/core/base/factory.py:257)**
+- **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
+- **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
+
+**[`neural_ai/core/base/factory.py`](neural_ai/core/base/factory.py:332)**
+- **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
+- **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
+
+*...és még 14 hasonló probléma*
 
 #### Type Problémák (104 db)
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:188)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:184)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:248)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:244)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
@@ -114,20 +114,6 @@
 **[`neural_ai/core/logger/implementations/default_logger.py`](neural_ai/core/logger/implementations/default_logger.py:60)**
 - **Probléma:** Service Locator pattern: DefaultLogger.__init__ hívja a Factory.get_logger() metódust
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
-
-#### Structure Problémák (3 db)
-
-**[`neural_ai/core/base/implementations/__init__.py`](neural_ai/core/base/implementations/__init__.py:8)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/base/implementations/__init__.py`](neural_ai/core/base/implementations/__init__.py:9)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/core/base/implementations/__init__.py`](neural_ai/core/base/implementations/__init__.py:10)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
 
 ### Input Layer
 
@@ -346,17 +332,17 @@
 ### Mirror (39 db)
 
 - [`ui/streamlit_app.py`](ui/streamlit_app.py:0): Hiányzó teszt fájl: tests/neural_ai/ui/test_streamlit_app.py
-- [`data/storage/factory.py`](data/storage/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/data/storage/test_factory.py
-- [`data/storage/interfaces/factory_interface.py`](data/storage/interfaces/factory_interface.py:0): Hiányzó teszt fájl: tests/neural_ai/data/storage/interfaces/test_factory_interface.py
-- [`collectors/jforex/interfaces/tick_data.py`](collectors/jforex/interfaces/tick_data.py:0): Hiányzó teszt fájl: tests/neural_ai/collectors/jforex/interfaces/test_tick_data.py
-- [`collectors/jforex/interfaces/live_interface.py`](collectors/jforex/interfaces/live_interface.py:0): Hiányzó teszt fájl: tests/neural_ai/collectors/jforex/interfaces/test_live_interface.py
+- [`core/logger/interfaces/factory_interface.py`](core/logger/interfaces/factory_interface.py:0): Hiányzó teszt fájl: tests/neural_ai/core/logger/interfaces/test_factory_interface.py
+- [`core/system/exceptions/health_error.py`](core/system/exceptions/health_error.py:0): Hiányzó teszt fájl: tests/neural_ai/core/system/exceptions/test_health_error.py
+- [`core/utils/exceptions/util_error.py`](core/utils/exceptions/util_error.py:0): Hiányzó teszt fájl: tests/neural_ai/core/utils/exceptions/test_util_error.py
+- [`core/utils/implementations/hardware_info.py`](core/utils/implementations/hardware_info.py:0): Hiányzó teszt fájl: tests/neural_ai/core/utils/implementations/test_hardware_info.py
 - *...és még 34 hasonló figyelmeztetés*
 
 ## 📋 Prioritizált Javítási Terv
 
 ### Fázis 1: Kritikus (1-3 nap)
 
-1. **DDD Réteg Függőségek** (28 db)
+1. **DDD Réteg Függőségek** (26 db)
    - Alsó rétegek felső rétegekre való hivatkozásainak megszüntetése
    - Dependency Injection bevezetése
 
@@ -374,7 +360,7 @@
    - Any típus eliminálása
    - TypedDict → Pydantic migráció
 
-2. **Modul Struktúra** (8 db)
+2. **Modul Struktúra** (5 db)
    - Hiányzó interfaces/, implementations/, exceptions/ mappák létrehozása
    - Implementáció exportok megszüntetése
 
@@ -388,7 +374,7 @@
 
 | Réteg | Fájlok | Kritikus | Figyelmeztetés | Megfelelőség |
 |:------|:-------|:---------|:---------------|:-------------|
-| Infrastructure | 71 | 134 | 0 | 0.0% |
+| Infrastructure | 71 | 129 | 0 | 0.0% |
 | Input | 12 | 13 | 0 | 0.0% |
 | Persistence | 16 | 102 | 0 | 0.0% |
 | Domain | 25 | 6 | 1 | 72.0% |

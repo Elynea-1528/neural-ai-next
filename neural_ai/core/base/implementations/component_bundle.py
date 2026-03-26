@@ -1,5 +1,7 @@
 """Core komponensek gyűjtemény."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional, TypeVar
 
 from neural_ai.core.base.factory import CoreComponentFactory
@@ -26,8 +28,8 @@ class CoreComponents:
 
     def __init__(
         self,
-        container: Optional["DIContainer"] = None,
-        logger: Optional["LoggerInterface"] = None,
+        container: DIContainer | None = None,
+        logger: LoggerInterface | None = None,
     ):
         """Alap komponensek inicializálása.
 
@@ -43,15 +45,20 @@ class CoreComponents:
         self._factory = CoreComponentFactory(self._container)
 
         # Logger injektálás: próbáljuk a container-ből, ha nincs megadva
-        self._logger: Optional["LoggerInterface"] = None
+        self._logger: LoggerInterface | None = None
         if logger is not None:
             self._logger = logger
         else:
             # Próbáljuk a container-ből kiolvasni
             try:
-                from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+                from neural_ai.core.logger.interfaces.logger_interface import (
+                    LoggerInterface,
+                )
+
                 resolved_logger = self._container.resolve(LoggerInterface)
-                if resolved_logger is not None and isinstance(resolved_logger, type(resolved_logger)):
+                if resolved_logger is not None and isinstance(
+                    resolved_logger, type(resolved_logger)
+                ):
                     self._logger = resolved_logger  # type: ignore[assignment]
             except Exception:
                 pass
@@ -64,7 +71,7 @@ class CoreComponents:
             )
 
     @property
-    def config(self) -> Optional["ConfigManagerInterface"]:
+    def config(self) -> ConfigManagerInterface | None:
         """Konfiguráció kezelő komponens lekérése.
 
         Returns:
@@ -78,7 +85,7 @@ class CoreComponents:
         return cast(Optional["ConfigManagerInterface"], result)
 
     @property
-    def logger(self) -> Optional["LoggerInterface"]:
+    def logger(self) -> LoggerInterface | None:
         """Naplózó komponens lekérése.
 
         Returns:
@@ -92,7 +99,7 @@ class CoreComponents:
         return cast(Optional["LoggerInterface"], result)
 
     @property
-    def storage(self) -> Optional["StorageInterface"]:
+    def storage(self) -> StorageInterface | None:
         """Tároló komponens lekérése.
 
         Returns:
@@ -106,7 +113,7 @@ class CoreComponents:
         return cast(Optional["StorageInterface"], result)
 
     @property
-    def database(self) -> Optional["DatabaseManager"]:
+    def database(self) -> DatabaseManager | None:
         """Adatbázis komponens lekérése.
 
         Returns:
@@ -120,7 +127,7 @@ class CoreComponents:
         return cast(Optional["DatabaseManager"], result)
 
     @property
-    def event_bus(self) -> Optional["EventBusInterface"]:
+    def event_bus(self) -> EventBusInterface | None:
         """Esemény busz komponens lekérése.
 
         Returns:
@@ -134,7 +141,7 @@ class CoreComponents:
         return cast(Optional["EventBusInterface"], result)
 
     @property
-    def hardware(self) -> Optional["HardwareInterface"]:
+    def hardware(self) -> HardwareInterface | None:
         """Hardver információ komponens lekérése.
 
         Returns:
@@ -148,7 +155,7 @@ class CoreComponents:
         return cast(Optional["HardwareInterface"], result)
 
     @property
-    def persister(self) -> Optional["MarketDataPersister"]:
+    def persister(self) -> MarketDataPersister | None:
         """Market data persister komponens lekérése.
 
         Returns:
@@ -162,7 +169,7 @@ class CoreComponents:
         return cast(Optional["MarketDataPersister"], result)
 
     @property
-    def live_feed(self) -> Optional["ILiveFeed"]:
+    def live_feed(self) -> ILiveFeed | None:
         """Live feed komponens lekérése.
 
         Returns:
@@ -176,7 +183,7 @@ class CoreComponents:
         return cast(Optional["ILiveFeed"], result)
 
     @property
-    def health_monitor(self) -> Optional["HealthMonitorInterface"]:
+    def health_monitor(self) -> HealthMonitorInterface | None:
         """Health monitor komponens lekérése.
 
         Returns:
@@ -189,7 +196,7 @@ class CoreComponents:
         result = self._container.resolve(HealthMonitorInterface)
         return cast(Optional["HealthMonitorInterface"], result)
 
-    def set_config(self, config: "ConfigManagerInterface") -> None:
+    def set_config(self, config: ConfigManagerInterface) -> None:
         """Beállítja a konfiguráció komponenst (csak teszteléshez).
 
         Args:
@@ -199,7 +206,7 @@ class CoreComponents:
 
         self._container.register_instance(ConfigManagerInterface, config)
 
-    def set_logger(self, logger: "LoggerInterface") -> None:
+    def set_logger(self, logger: LoggerInterface) -> None:
         """Beállítja a naplózó komponenst (csak teszteléshez).
 
         Args:
@@ -209,7 +216,7 @@ class CoreComponents:
 
         self._container.register_instance(LoggerInterface, logger)
 
-    def set_storage(self, storage: "StorageInterface") -> None:
+    def set_storage(self, storage: StorageInterface) -> None:
         """Beállítja a tároló komponenst (csak teszteléshez).
 
         Args:
@@ -219,7 +226,7 @@ class CoreComponents:
 
         self._container.register_instance(StorageInterface, storage)
 
-    def set_database(self, database: "DatabaseManager") -> None:
+    def set_database(self, database: DatabaseManager) -> None:
         """Beállítja az adatbázis komponenst (csak teszteléshez).
 
         Args:
@@ -229,7 +236,7 @@ class CoreComponents:
 
         self._container.register_instance(DatabaseManager, database)
 
-    def set_event_bus(self, event_bus: "EventBusInterface") -> None:
+    def set_event_bus(self, event_bus: EventBusInterface) -> None:
         """Beállítja az esemény busz komponenst (csak teszteléshez).
 
         Args:
@@ -239,7 +246,7 @@ class CoreComponents:
 
         self._container.register_instance(EventBusInterface, event_bus)
 
-    def set_hardware(self, hardware: "HardwareInterface") -> None:
+    def set_hardware(self, hardware: HardwareInterface) -> None:
         """Beállítja a hardver információ komponenst (csak teszteléshez).
 
         Args:
@@ -249,7 +256,7 @@ class CoreComponents:
 
         self._container.register_instance(HardwareInterface, hardware)
 
-    def set_persister(self, persister: "MarketDataPersister") -> None:
+    def set_persister(self, persister: MarketDataPersister) -> None:
         """Beállítja a market data persister komponenst (csak teszteléshez).
 
         Args:
@@ -259,7 +266,7 @@ class CoreComponents:
 
         self._container.register_instance(MarketDataPersister, persister)
 
-    def set_live_feed(self, live_feed: "ILiveFeed") -> None:
+    def set_live_feed(self, live_feed: ILiveFeed) -> None:
         """Beállítja a live feed komponenst (csak teszteléshez).
 
         Args:
@@ -269,7 +276,7 @@ class CoreComponents:
 
         self._container.register_instance(ILiveFeed, live_feed)
 
-    def set_health_monitor(self, health_monitor: "HealthMonitorInterface") -> None:
+    def set_health_monitor(self, health_monitor: HealthMonitorInterface) -> None:
         """Beállítja a health monitor komponenst (csak teszteléshez).
 
         Args:
