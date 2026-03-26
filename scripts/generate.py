@@ -35,7 +35,7 @@ MYPY_BIN = CONDA_ENV_BIN / "mypy"
 
 # Riport fájlok
 REPORT_DIR = PROJECT_ROOT / "reports"
-COVERAGE_FILE = REPORT_DIR / "coverage.json"
+COVERAGE_FILE = REPORT_DIR / "test_coverage.json"
 RUFF_FILE = REPORT_DIR / "ruff.json"
 MYPY_FILE = REPORT_DIR / "mypy.json"
 
@@ -78,6 +78,12 @@ class CacheManager:
         for file in sorted(Path("neural_ai").rglob("*.py")):
             hasher.update(str(file).encode())
             hasher.update(str(file.stat().st_mtime).encode())
+        
+        # Coverage fájl mtime hozzáadása a hash-hez
+        if COVERAGE_FILE.exists():
+            hasher.update(str(COVERAGE_FILE).encode())
+            hasher.update(str(COVERAGE_FILE.stat().st_mtime).encode())
+        
         return hasher.hexdigest()
 
     def save(self, data: dict[str, Any]) -> None:
@@ -248,7 +254,12 @@ class MirrorChecker:
             doc_path = Path("docs/components") / source_path.with_suffix(".md")
             return doc_path.exists()
 
-        # Egyéb mappák (tests, stb.) - nincs dokumentáció
+        # tests/ mappában
+        if parts[0] == "tests":
+            doc_path = Path("docs/components") / source_path.with_suffix(".md")
+            return doc_path.exists()
+
+        # Egyéb mappák - nincs dokumentáció
         return False
 
     @staticmethod
@@ -1595,6 +1606,8 @@ class TaskTreeGenerator:
         """Pytest-cov futtatása retry mechanizmussal."""
         print("  📊 Coverage + Pytest...")
         print("    🔄 Friss coverage gyűjtés futtatása...")
+        print("    ⏳ FIGYELEM: 1807 teszt futtatása 10-15 percig tarthat!")
+        print("    💡 A script NEM fagyott le, csak a pytest-cov lassú.")
 
         cmd_pytest_cov = [
             str(PYTEST_BIN),
@@ -1606,8 +1619,6 @@ class TaskTreeGenerator:
             "-q",
             "--tb=no",
             "--continue-on-collection-errors",
-            "--json-report",
-            f"--json-report-file={REPORT_DIR}/pytest_report.json",
         ]
 
         try:
@@ -1615,9 +1626,7 @@ class TaskTreeGenerator:
                 cmd_pytest_cov,
                 check=False,
                 env=env,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=600,  # 10 perc
+                timeout=900,  # 15 perc (1807 teszt)
             )
 
             # Retry mechanizmus
@@ -1631,18 +1640,39 @@ class TaskTreeGenerator:
             if COVERAGE_FILE.exists():
                 with open(COVERAGE_FILE) as f:
                     cov_json = json.load(f)
-                    self.coverage_data = cov_json.get("files", {})
+                    # Konvertáljuk az abszolút útvonalakat relatív útvonalakra
+                    raw_files = cov_json.get("files", {})
+                    self.coverage_data = {}
+                    for abs_path, data in raw_files.items():
+                        if abs_path.startswith(str(PROJECT_ROOT)):
+                            rel_path = abs_path[len(str(PROJECT_ROOT)) + 1:]
+                            self.coverage_data[rel_path] = data
+                        else:
+                            self.coverage_data[abs_path] = data
                     print(f"    ✅ Coverage adatok betöltve: {len(self.coverage_data)} fájl")
+                    if self.coverage_data:
+                        print(f"    🔍 DEBUG: Első 3 kulcs: {list(self.coverage_data.keys())[:3]}")
             else:
                 print("    ❌ Coverage fájl nem jött létre!")
                 self.coverage_data = {}
         except subprocess.TimeoutExpired:
-            print("    ⚠️ Pytest/Coverage timeout (600s), folytatás részleges adatokkal...")
+            print(
+                "    ⚠️ Pytest/Coverage timeout (900s), "
+                "folytatás részleges adatokkal..."
+            )
             if COVERAGE_FILE.exists():
                 try:
                     with open(COVERAGE_FILE) as f:
                         cov_json = json.load(f)
-                        self.coverage_data = cov_json.get("files", {})
+                        # Konvertáljuk az abszolút útvonalakat relatív útvonalakra
+                        raw_files = cov_json.get("files", {})
+                        self.coverage_data = {}
+                        for abs_path, data in raw_files.items():
+                            if abs_path.startswith(str(PROJECT_ROOT)):
+                                rel_path = abs_path[len(str(PROJECT_ROOT)) + 1:]
+                                self.coverage_data[rel_path] = data
+                            else:
+                                self.coverage_data[abs_path] = data
                         if self.coverage_data:
                             print(
                                 f"    ✅ Részleges coverage adatok betöltve: "
@@ -1749,65 +1779,30 @@ class TaskTreeGenerator:
             self.pylance_data = []
 
     def _process_pytest_report(self) -> None:
-        """Pytest Report feldolgozása."""
-        print("  📋 Pytest eredmények feldolgozása...")
-        pytest_report_file = REPORT_DIR / "pytest_report.json"
-        if pytest_report_file.exists():
-            try:
-                print(
-                    f"    🔄 JSON betöltése "
-                    f"({pytest_report_file.stat().st_size / 1024 / 1024:.1f} MB)..."
-                )
-                with open(pytest_report_file) as f:
-                    pytest_json = json.load(f)
-                print(f"    ✅ JSON betöltve: {len(pytest_json.get('tests', []))} teszt")
-
-                # Tesztek csoportosítása
-                print("    🔄 Tesztek csoportosítása...")
-                for test in pytest_json.get("tests", []):
-                    nodeid = test.get("nodeid", "")
-                    outcome = test.get("outcome", "")
-
-                    if "::" in nodeid:
-                        test_file = nodeid.split("::")[0]
-
-                        if test_file not in self.pytest_data:
-                            self.pytest_data[test_file] = {
-                                "passed": 0,
-                                "failed": 0,
-                                "errors": 0,
-                                "skipped": 0,
-                            }
-
-                        if outcome == "passed":
-                            self.pytest_data[test_file]["passed"] += 1
-                        elif outcome == "failed":
-                            self.pytest_data[test_file]["failed"] += 1
-                        elif outcome == "error":
-                            self.pytest_data[test_file]["errors"] += 1
-                        elif outcome == "skipped":
-                            self.pytest_data[test_file]["skipped"] += 1
-
-                # Warnings feldolgozása
-                print(
-                    f"    🔄 Warnings feldolgozása "
-                    f"({len(pytest_json.get('warnings', []))} db)..."
-                )
-                for warning in pytest_json.get("warnings", []):
-                    filename = warning.get("filename", "")
-                    if "neural-ai-next" in filename:
-                        rel_path = filename.split("neural-ai-next/")[-1]
-                        if rel_path.startswith("neural_ai/"):
-                            if rel_path not in self.source_warnings:
-                                self.source_warnings[rel_path] = 0
-                            self.source_warnings[rel_path] += 1
-
-            except Exception as e:
-                print(f"    ⚠️ Hiba a pytest report feldolgozásakor: {e}")
+        """Pytest Report feldolgozása (DISABLED - nincs pytest-json-report plugin)."""
+        # A pytest-json-report plugin nincs telepítve a pyproject.toml-ban
+        # Ezért ezt a funkciót kikapcsoljuk
+        print("  📋 Pytest eredmények feldolgozása... (KIHAGYVA - nincs plugin)")
+        self.pytest_data = {}
+        self.source_warnings = {}
 
     def get_dynamic_metrics(self, file_path: Path) -> dict[str, Any]:
         """Visszaadja a dinamikus metrikákat egy fájlhoz."""
-        rel_path = str(file_path)
+        # Relatív útvonal a PROJECT_ROOT-hoz képest
+        if file_path.is_absolute():
+            rel_path = str(file_path.relative_to(PROJECT_ROOT))
+        else:
+            rel_path = str(file_path)
+        
+        # DEBUG: Első fájlnál kiírjuk a keresett útvonalat
+        if not hasattr(self, '_debug_printed'):
+            print(f"🔍 DEBUG get_dynamic_metrics(): Keresett rel_path = '{rel_path}'")
+            print(f"🔍 DEBUG: coverage_data kulcsok száma = {len(self.coverage_data)}")
+            if self.coverage_data:
+                print(f"🔍 DEBUG: Első 3 coverage kulcs: {list(self.coverage_data.keys())[:3]}")
+            print(f"🔍 DEBUG: rel_path in coverage_data? {rel_path in self.coverage_data}")
+            self._debug_printed = True
+        
         metrics = {
             "coverage_stmt": 0.0,
             "coverage_branch": 0.0,
