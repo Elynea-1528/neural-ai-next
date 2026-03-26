@@ -19,7 +19,7 @@ import os
 import pickle
 import subprocess
 import time
-from concurrent.futures import ThreadPoolExecutor, wait
+from concurrent.futures import ThreadPoolExecutor, as_completed, wait
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -78,12 +78,12 @@ class CacheManager:
         for file in sorted(Path("neural_ai").rglob("*.py")):
             hasher.update(str(file).encode())
             hasher.update(str(file.stat().st_mtime).encode())
-        
+
         # Coverage fájl mtime hozzáadása a hash-hez
         if COVERAGE_FILE.exists():
             hasher.update(str(COVERAGE_FILE).encode())
             hasher.update(str(COVERAGE_FILE.stat().st_mtime).encode())
-        
+
         return hasher.hexdigest()
 
     def save(self, data: dict[str, Any]) -> None:
@@ -1560,7 +1560,7 @@ class TaskTreeGenerator:
 
         # Cache ellenőrzés
         if not force_refresh and self.cache_manager.is_valid():
-            print("  ⚡ Cache használata (gyors mód)")
+            print("  ⚡ Cache használata - TELJES KIHAGYÁS (pytest-cov, ruff, mypy, pyright)")
             cached_data = self.cache_manager.load()
             if cached_data:
                 self.coverage_data = cached_data.get("coverage_data", {})
@@ -1569,7 +1569,12 @@ class TaskTreeGenerator:
                 self.pylance_data = cached_data.get("pylance_data", [])
                 self.pytest_data = cached_data.get("pytest_data", {})
                 self.source_warnings = cached_data.get("source_warnings", {})
-                print(f"    ✅ Cache betöltve: {len(self.coverage_data)} fájl coverage adat")
+                print("    ✅ Cache betöltve:")
+                print(f"       - Coverage: {len(self.coverage_data)} fájl")
+                print(f"       - Ruff: {len(self.ruff_data)} hiba")
+                print(f"       - Mypy: {len(self.mypy_data)} hiba")
+                print(f"       - Pylance: {len(self.pylance_data)} hiba")
+                print("    💡 Friss adatokhoz: python scripts/generate.py --force-refresh")
                 return
 
         print("  🔄 Friss adatok gyűjtése...")
@@ -1603,33 +1608,55 @@ class TaskTreeGenerator:
         print("  💾 Cache mentve")
 
     def _run_pytest_cov(self, env: dict[str, str]) -> None:
-        """Pytest-cov futtatása retry mechanizmussal."""
+        """Coverage run futtatása (független a tesztek sikerességétől)."""
         print("  📊 Coverage + Pytest...")
-        print("    🔄 Friss coverage gyűjtés futtatása...")
+        print("    🔄 Coverage run módszer (teljes lefedettség)")
         print("    ⏳ FIGYELEM: 1807 teszt futtatása 10-15 percig tarthat!")
-        print("    💡 A script NEM fagyott le, csak a pytest-cov lassú.")
-
-        cmd_pytest_cov = [
-            str(PYTEST_BIN),
-            "tests/",
-            "--cov=neural_ai",
-            "--cov=scripts",
-            f"--cov-report=json:{COVERAGE_FILE}",
-            "--cov-branch",
-            "-q",
-            "--tb=no",
-            "--continue-on-collection-errors",
-        ]
 
         try:
+            # 1. Cleanup régi coverage fájlok
+            print("    🧹 Régi coverage fájlok törlése...")
             subprocess.run(
-                cmd_pytest_cov,
+                ["rm", "-f", ".coverage", ".coverage.*"],
                 check=False,
-                env=env,
-                timeout=900,  # 15 perc (1807 teszt)
+                cwd=PROJECT_ROOT
             )
 
-            # Retry mechanizmus
+            # 2. Coverage run (minden importált fájlra generál coverage-t)
+            print("    🏃 Coverage run futtatása...")
+            cmd_coverage_run = [
+                str(COVERAGE_BIN),
+                "run",
+                "--source=neural_ai,scripts",
+                "--branch",
+                "-m", "pytest", "tests/",
+                "-q", "--tb=no", "--continue-on-collection-errors"
+            ]
+
+            subprocess.run(
+                cmd_coverage_run,
+                check=False,
+                env=env,
+                timeout=900,
+                cwd=PROJECT_ROOT
+            )
+
+            # 3. JSON report generálás
+            print("    📄 JSON report generálása...")
+            cmd_coverage_json = [
+                str(COVERAGE_BIN),
+                "json",
+                "-o", str(COVERAGE_FILE)
+            ]
+
+            subprocess.run(
+                cmd_coverage_json,
+                check=False,
+                env=env,
+                cwd=PROJECT_ROOT
+            )
+
+            # 4. Retry mechanizmus
             max_retries = 3
             for attempt in range(max_retries):
                 if COVERAGE_FILE.exists():
@@ -1637,47 +1664,42 @@ class TaskTreeGenerator:
                 print(f"    🔄 Várakozás coverage fájlra... ({attempt+1}/{max_retries})")
                 time.sleep(2)
 
+            # 5. Betöltés és konverzió
             if COVERAGE_FILE.exists():
                 with open(COVERAGE_FILE) as f:
                     cov_json = json.load(f)
-                    # Konvertáljuk az abszolút útvonalakat relatív útvonalakra
                     raw_files = cov_json.get("files", {})
                     self.coverage_data = {}
+
+                    # Konvertáljuk az abszolút útvonalakat relatív útvonalakra
                     for abs_path, data in raw_files.items():
                         if abs_path.startswith(str(PROJECT_ROOT)):
                             rel_path = abs_path[len(str(PROJECT_ROOT)) + 1:]
                             self.coverage_data[rel_path] = data
                         else:
                             self.coverage_data[abs_path] = data
+
                     print(f"    ✅ Coverage adatok betöltve: {len(self.coverage_data)} fájl")
                     if self.coverage_data:
                         print(f"    🔍 DEBUG: Első 3 kulcs: {list(self.coverage_data.keys())[:3]}")
             else:
                 print("    ❌ Coverage fájl nem jött létre!")
                 self.coverage_data = {}
+
         except subprocess.TimeoutExpired:
-            print(
-                "    ⚠️ Pytest/Coverage timeout (900s), "
-                "folytatás részleges adatokkal..."
-            )
+            print("    ⚠️ Coverage timeout (900s), folytatás részleges adatokkal...")
             if COVERAGE_FILE.exists():
                 try:
                     with open(COVERAGE_FILE) as f:
                         cov_json = json.load(f)
-                        # Konvertáljuk az abszolút útvonalakat relatív útvonalakra
                         raw_files = cov_json.get("files", {})
                         self.coverage_data = {}
                         for abs_path, data in raw_files.items():
                             if abs_path.startswith(str(PROJECT_ROOT)):
                                 rel_path = abs_path[len(str(PROJECT_ROOT)) + 1:]
                                 self.coverage_data[rel_path] = data
-                            else:
-                                self.coverage_data[abs_path] = data
                         if self.coverage_data:
-                            print(
-                                f"    ✅ Részleges coverage adatok betöltve: "
-                                f"{len(self.coverage_data)} fájl"
-                            )
+                            print(f"    ✅ Részleges coverage: {len(self.coverage_data)} fájl")
                 except Exception as e:
                     print(f"    ⚠️ Részleges coverage betöltési hiba: {e}")
         except Exception as e:
@@ -1793,7 +1815,7 @@ class TaskTreeGenerator:
             rel_path = str(file_path.relative_to(PROJECT_ROOT))
         else:
             rel_path = str(file_path)
-        
+
         # DEBUG: Első fájlnál kiírjuk a keresett útvonalat
         if not hasattr(self, '_debug_printed'):
             print(f"🔍 DEBUG get_dynamic_metrics(): Keresett rel_path = '{rel_path}'")
@@ -1802,7 +1824,7 @@ class TaskTreeGenerator:
                 print(f"🔍 DEBUG: Első 3 coverage kulcs: {list(self.coverage_data.keys())[:3]}")
             print(f"🔍 DEBUG: rel_path in coverage_data? {rel_path in self.coverage_data}")
             self._debug_printed = True
-        
+
         metrics = {
             "coverage_stmt": 0.0,
             "coverage_branch": 0.0,
@@ -2001,12 +2023,29 @@ class TaskTreeGenerator:
         files = self.scan_codebase()
         print(f"✅ {len(files)} Python fájl találva")
 
-        print("\n📊 Fájlok elemzése...")
-        analyses: list[FileAnalysis] = []
-        for i, file_path in enumerate(files, 1):
-            print(f"  [{i}/{len(files)}] {file_path}")
-            analysis = self.analyze_file(file_path)
-            analyses.append(analysis)
+        print("\n📊 Fájlok elemzése (párhuzamos, 8 worker)...")
+
+        # Párhuzamos analízis
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            # Submit all tasks
+            future_to_file = {
+                executor.submit(self.analyze_file, file_path): file_path
+                for file_path in files
+            }
+
+            # Collect results with progress
+            analyses: list[FileAnalysis] = []
+            for i, future in enumerate(as_completed(future_to_file), 1):
+                file_path = future_to_file[future]
+                try:
+                    analysis = future.result()
+                    analyses.append(analysis)
+                    if i % 50 == 0:  # Progress minden 50. fájlnál
+                        print(f"  ✅ {i}/{len(files)} fájl elemezve")
+                except Exception as e:
+                    print(f"  ⚠️ Hiba {file_path} elemzésekor: {e}")
+
+        print(f"✅ {len(analyses)} fájl elemezve")
 
         # 2. Markdown generálás (összes réteg)
         print("\n📝 TASK_TREE.md generálása (összes réteg)...")
