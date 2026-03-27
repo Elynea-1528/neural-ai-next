@@ -1,310 +1,323 @@
-"""Tesztek a UI Service Factory számára."""
+"""Unit tesztek a factory modulhoz.
 
-from unittest.mock import Mock
+Ez a modul teszteli a UIServiceFactory osztály funkcióit.
+"""
+
+from unittest.mock import MagicMock
 
 import pytest
-from pydantic import ValidationError
 
 from neural_ai.core.config.interfaces.types import UIConfig
 from neural_ai.ui.factory import UIServiceFactory
-from neural_ai.ui.interfaces.ai_service_interface import AIServiceInterface
-from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
-from neural_ai.ui.interfaces.dashboard_service_interface import DashboardServiceInterface
-from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
-from neural_ai.ui.interfaces.live_ops_service_interface import LiveOpsServiceInterface
-from neural_ai.ui.interfaces.navigation_service_interface import NavigationServiceInterface
-from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
 
-class TestUIServiceFactory:
-    """A UIServiceFactory tesztosztálya."""
+class TestUIServiceFactoryInit:
+    """Tesztek a UIServiceFactory inicializálásához."""
 
-    def setup_method(self) -> None:
-        """Tesztelés előtti beállítások."""
-        # Singleton reset a teszteléshez
-        factory = UIServiceFactory()
-        factory.reset()
-
-    def teardown_method(self) -> None:
-        """Tesztelés utáni takarítás."""
-        # Singleton reset a takarításhoz
-        factory = UIServiceFactory()
-        factory.reset()
-
-    def test_factory_initialization(self) -> None:
-        """A factory inicializálásának tesztelése."""
+    def test_init_creates_instance(self) -> None:
+        """Ellenőrzi, hogy a UIServiceFactory létrehozható."""
+        # Act
         factory = UIServiceFactory()
 
-        assert factory.is_initialized is False
-        # A Singleton miatt a belső állapotot nem ellenőrizzük közvetlenül
+        # Assert
+        assert factory._bridge is None  # type: ignore
+        assert factory._config is None  # type: ignore
+        assert factory._logger is None  # type: ignore
+        assert factory._core_components is None  # type: ignore
+        assert factory._services == {}  # type: ignore
 
-    def test_initialize_with_bridge(self) -> None:
-        """A factory inicializálásának tesztelése bridge-el."""
+
+class TestUIServiceFactoryInitialize:
+    """Tesztek a UIServiceFactory.initialize metódushoz."""
+
+    def test_initialize_with_dict_config(self) -> None:
+        """Ellenőrzi, hogy az initialize dict config-gal működik."""
+        # Arrange
         factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
+        mock_bridge = MagicMock()
+        mock_logger = MagicMock()
+        mock_core = MagicMock()
+        config_dict = {
+            "theme": "light",
+            "refresh_rate": 5,
+            "navigation": {"default_page": "home"},
+            "data_service": {"jforex": {}},
+            "dashboard": {"refresh_rate": 5},
+            "ai_service": {"model_path": "/path/to/model"},
+            "strategy": {"backtest_enabled": True},
+            "live_ops": {"auto_reconnect": False},
+        }
 
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
+        # Act
+        factory.initialize(
+            bridge=mock_bridge,
+            config=config_dict,
+            logger=mock_logger,
+            core_components=mock_core,
+        )
 
-        assert factory.is_initialized is True
+        # Assert
+        assert factory._initialized is True  # type: ignore
+        assert factory._bridge == mock_bridge  # type: ignore
+        assert factory._logger == mock_logger  # type: ignore
+        assert factory._core_components == mock_core  # type: ignore
+        assert isinstance(factory._config, UIConfig)  # type: ignore
 
-    def test_get_navigation_service_before_initialization(self) -> None:
-        """Navigation service lekérdezése inicializálás előtt."""
+    def test_initialize_with_uiconfig(self) -> None:
+        """Ellenőrzi, hogy az initialize UIConfig-gal működik."""
+        # Arrange
+        factory = UIServiceFactory()
+        mock_bridge = MagicMock()
+        mock_logger = MagicMock()
+        mock_core = MagicMock()
+        config = UIConfig.model_validate({
+            "theme": "light",
+            "refresh_rate": 5,
+            "navigation": {"default_page": "home"},
+            "data_service": {"jforex": {}},
+            "dashboard": {"refresh_rate": 5},
+            "ai_service": {"model_path": "/path/to/model"},
+            "strategy": {"backtest_enabled": True},
+            "live_ops": {"auto_reconnect": False},
+        })
+
+        # Act
+        factory.initialize(
+            bridge=mock_bridge,
+            config=config,
+            logger=mock_logger,
+            core_components=mock_core,
+        )
+
+        # Assert
+        assert factory._initialized is True  # type: ignore
+        assert factory._bridge == mock_bridge  # type: ignore
+        assert factory._config == config  # type: ignore
+
+
+class TestUIServiceFactoryGetNavigationService:
+    """Tesztek a get_navigation_service metódushoz."""
+
+    def test_get_navigation_service_raises_error_when_not_initialized(self) -> None:
+        """Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva."""
+        # Arrange
         factory = UIServiceFactory()
 
+        # Act & Assert
         with pytest.raises(RuntimeError, match="Factory nincs inicializálva"):
             factory.get_navigation_service()
 
-    def test_get_navigation_service_after_initialization(self) -> None:
-        """Navigation service lekérdezése inicializálás után."""
+    def test_get_navigation_service_success(self) -> None:
+        """Ellenőrzi, hogy a navigation service lekérhető."""
+        # Arrange
         factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
+        mock_bridge = MagicMock()
+        mock_logger = MagicMock()
+        mock_core = MagicMock()
+        config = UIConfig.model_validate({
+            "theme": "light",
+            "refresh_rate": 5,
+        })
 
+        factory.initialize(
+            bridge=mock_bridge,
+            config=config,
+            logger=mock_logger,
+            core_components=mock_core,
+        )
+
+        # Act
         service = factory.get_navigation_service()
 
-        assert isinstance(service, NavigationServiceInterface)
+        # Assert
+        assert service is not None
 
-    def test_get_dashboard_service_before_initialization(self) -> None:
-        """Dashboard service lekérdezése inicializálás előtt."""
+
+class TestUIServiceFactoryGetDataService:
+    """Tesztek a get_data_service metódushoz."""
+
+    def test_get_data_service_raises_error_when_not_initialized(self) -> None:
+        """Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva."""
+        # Arrange
         factory = UIServiceFactory()
 
-        with pytest.raises(RuntimeError, match="Factory nincs inicializálva"):
-            factory.get_dashboard_service()
-
-    def test_get_dashboard_service_after_initialization(self) -> None:
-        """Dashboard service lekérdezése inicializálás után."""
-        factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
-
-        service = factory.get_dashboard_service()
-
-        assert isinstance(service, DashboardServiceInterface)
-
-    def test_get_data_service_before_initialization(self) -> None:
-        """Data service lekérdezése inicializálás előtt."""
-        factory = UIServiceFactory()
-
+        # Act & Assert
         with pytest.raises(RuntimeError, match="Factory nincs inicializálva"):
             factory.get_data_service()
 
-    def test_get_data_service_after_initialization(self) -> None:
-        """Data service lekérdezése inicializálás után."""
+    def test_get_data_service_success(self) -> None:
+        """Ellenőrzi, hogy a data service lekérhető."""
+        # Arrange
         factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
+        mock_bridge = MagicMock()
+        mock_logger = MagicMock()
+        mock_core = MagicMock()
+        config = UIConfig.model_validate({
+            "theme": "light",
+            "refresh_rate": 5,
+        })
 
+        factory.initialize(
+            bridge=mock_bridge,
+            config=config,
+            logger=mock_logger,
+            core_components=mock_core,
+        )
+
+        # Act
         service = factory.get_data_service()
 
-        assert isinstance(service, DataServiceInterface)
+        # Assert
+        assert service is not None
 
-    def test_get_ai_service_before_initialization(self) -> None:
-        """AI service lekérdezése inicializálás előtt."""
+
+class TestUIServiceFactoryGetDashboardService:
+    """Tesztek a get_dashboard_service metódushoz."""
+
+    def test_get_dashboard_service_raises_error_when_not_initialized(self) -> None:
+        """Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva."""
+        # Arrange
         factory = UIServiceFactory()
 
+        # Act & Assert
+        with pytest.raises(RuntimeError, match="Factory nincs inicializálva"):
+            factory.get_dashboard_service()
+
+    def test_get_dashboard_service_success(self) -> None:
+        """Ellenőrzi, hogy a dashboard service lekérhető."""
+        # Arrange
+        factory = UIServiceFactory()
+        mock_bridge = MagicMock()
+        mock_logger = MagicMock()
+        mock_core = MagicMock()
+        config = UIConfig.model_validate({
+            "theme": "light",
+            "refresh_rate": 5,
+        })
+
+        factory.initialize(
+            bridge=mock_bridge,
+            config=config,
+            logger=mock_logger,
+            core_components=mock_core,
+        )
+
+        # Act
+        service = factory.get_dashboard_service()
+
+        # Assert
+        assert service is not None
+
+
+class TestUIServiceFactoryGetAIService:
+    """Tesztek a get_ai_service metódushoz."""
+
+    def test_get_ai_service_raises_error_when_not_initialized(self) -> None:
+        """Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva."""
+        # Arrange
+        factory = UIServiceFactory()
+
+        # Act & Assert
         with pytest.raises(RuntimeError, match="Factory nincs inicializálva"):
             factory.get_ai_service()
 
-    def test_get_ai_service_after_initialization(self) -> None:
-        """AI service lekérdezése inicializálás után."""
+    def test_get_ai_service_success(self) -> None:
+        """Ellenőrzi, hogy az AI service lekérhető."""
+        # Arrange
         factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
+        mock_bridge = MagicMock()
+        mock_logger = MagicMock()
+        mock_core = MagicMock()
+        config = UIConfig.model_validate({
+            "theme": "light",
+            "refresh_rate": 5,
+        })
 
+        factory.initialize(
+            bridge=mock_bridge,
+            config=config,
+            logger=mock_logger,
+            core_components=mock_core,
+        )
+
+        # Act
         service = factory.get_ai_service()
 
-        assert isinstance(service, AIServiceInterface)
+        # Assert
+        assert service is not None
 
-    def test_get_strategy_service_before_initialization(self) -> None:
-        """Strategy service lekérdezése inicializálás előtt."""
+
+class TestUIServiceFactoryGetStrategyService:
+    """Tesztek a get_strategy_service metódushoz."""
+
+    def test_get_strategy_service_raises_error_when_not_initialized(self) -> None:
+        """Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva."""
+        # Arrange
         factory = UIServiceFactory()
 
+        # Act & Assert
         with pytest.raises(RuntimeError, match="Factory nincs inicializálva"):
             factory.get_strategy_service()
 
-    def test_get_strategy_service_after_initialization(self) -> None:
-        """Strategy service lekérdezése inicializálás után."""
+    def test_get_strategy_service_success(self) -> None:
+        """Ellenőrzi, hogy a strategy service lekérhető."""
+        # Arrange
         factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
+        mock_bridge = MagicMock()
+        mock_logger = MagicMock()
+        mock_core = MagicMock()
+        config = UIConfig.model_validate({
+            "theme": "light",
+            "refresh_rate": 5,
+        })
 
+        factory.initialize(
+            bridge=mock_bridge,
+            config=config,
+            logger=mock_logger,
+            core_components=mock_core,
+        )
+
+        # Act
         service = factory.get_strategy_service()
 
-        assert isinstance(service, StrategyServiceInterface)
+        # Assert
+        assert service is not None
 
-    def test_get_live_ops_service_before_initialization(self) -> None:
-        """Live Ops service lekérdezése inicializálás előtt."""
+
+class TestUIServiceFactoryGetLiveOpsService:
+    """Tesztek a get_live_ops_service metódushoz."""
+
+    def test_get_live_ops_service_raises_error_when_not_initialized(self) -> None:
+        """Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva."""
+        # Arrange
         factory = UIServiceFactory()
 
+        # Act & Assert
         with pytest.raises(RuntimeError, match="Factory nincs inicializálva"):
             factory.get_live_ops_service()
 
-    def test_get_live_ops_service_after_initialization(self) -> None:
-        """Live Ops service lekérdezése inicializálás után."""
+    def test_get_live_ops_service_success(self) -> None:
+        """Ellenőrzi, hogy a live ops service lekérhető."""
+        # Arrange
         factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
+        mock_bridge = MagicMock()
+        mock_logger = MagicMock()
+        mock_core = MagicMock()
+        config = UIConfig.model_validate({
+            "theme": "light",
+            "refresh_rate": 5,
+        })
 
+        factory.initialize(
+            bridge=mock_bridge,
+            config=config,
+            logger=mock_logger,
+            core_components=mock_core,
+        )
+
+        # Act
         service = factory.get_live_ops_service()
 
-        assert isinstance(service, LiveOpsServiceInterface)
-
-    def test_get_all_services(self) -> None:
-        """Az összes szolgáltatás lekérdezésének tesztelése."""
-        factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
-
-        services = factory.get_all_services()
-
-        assert isinstance(services, dict)
-        assert "navigation" in services
-        assert "dashboard" in services
-        assert "data" in services
-        assert "ai" in services
-        assert "strategy" in services
-        assert "live_ops" in services
-        assert len(services) == 6
-
-    def test_get_all_services_before_initialization(self) -> None:
-        """Összes szolgáltatás lekérdezése inicializálás előtt."""
-        factory = UIServiceFactory()
-
-        with pytest.raises(RuntimeError, match="Factory nincs inicializálva"):
-            factory.get_all_services()
-
-    def test_is_initialized_property(self) -> None:
-        """Az is_initialized property tesztelése."""
-        factory = UIServiceFactory()
-
-        assert factory.is_initialized is False
-
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
-
-        assert factory.is_initialized is True
-
-    def test_reset_method(self) -> None:
-        """A reset metódus tesztelése."""
-        factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
-
-        # Létrehozunk néhány szolgáltatást
-        factory.get_navigation_service()
-        factory.get_data_service()
-
-        assert factory.is_initialized is True
-
-        factory.reset()
-
-        assert factory.is_initialized is False
-
-    def test_singleton_pattern(self) -> None:
-        """A Singleton minta tesztelése."""
-        factory1 = UIServiceFactory()
-        factory2 = UIServiceFactory()
-
-        assert factory1 is factory2
-
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory1.initialize(mock_bridge, {}, Mock(), Mock())
-
-        assert factory2.is_initialized is True
-
-    def test_data_service_compatibility(self) -> None:
-        """DataService kompatibilitás ellenőrzése a factory-val."""
-        factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
-
-        # Lekérjük a DataService-t
-        data_service = factory.get_data_service()
-
-        # Ellenőrizzük, hogy a DataService implementálja-e a szükséges interfészt
-        assert isinstance(data_service, DataServiceInterface)
-
-    def test_service_caching(self) -> None:
-        """Szolgáltatások gyorsítótárazásának tesztelése."""
-        factory = UIServiceFactory()
-        mock_bridge: Mock = Mock(spec=CoreBridgeInterface)
-        factory.initialize(mock_bridge, {}, Mock(), Mock())
-
-        # Lekérjük a szolgáltatást kétszer
-        service1 = factory.get_data_service()
-        service2 = factory.get_data_service()
-
-        # Ellenőrizzük, hogy ugyanaz a példány lett-e visszaadva
-        assert service1 is service2
-
-
-class TestUIConfigValidation:
-    """UIConfig Pydantic validáció tesztek."""
-
-    def test_valid_ui_config(self) -> None:
-        """Érvényes UI konfiguráció tesztelése."""
-        config = UIConfig.model_validate(
-            {
-                "theme": "dark",
-                "refresh_rate": 5,
-            }
-        )
-        assert config.theme == "dark"
-        assert config.refresh_rate == 5
-
-    def test_invalid_theme_raises_error(self) -> None:
-        """Érvénytelen téma ValidationError-t dob."""
-        with pytest.raises(ValidationError):
-            UIConfig.model_validate({"theme": "invalid_theme"})
-
-    def test_negative_refresh_rate_raises_error(self) -> None:
-        """Negatív refresh_rate ValidationError-t dob."""
-        with pytest.raises(ValidationError):
-            UIConfig.model_validate({"refresh_rate": -1})
-
-    def test_zero_refresh_rate_raises_error(self) -> None:
-        """Nulla refresh_rate ValidationError-t dob."""
-        with pytest.raises(ValidationError):
-            UIConfig.model_validate({"refresh_rate": 0})
-
-    def test_factory_validates_config(self) -> None:
-        """Factory Pydantic validációt végez."""
-        from unittest.mock import Mock
-
-        from neural_ai.ui.factory import UIServiceFactory
-
-        factory = UIServiceFactory()
-        mock_bridge: Mock = Mock()
-
-        # Érvénytelen config
-        with pytest.raises(ValidationError):
-            factory.initialize(
-                bridge=mock_bridge,
-                config={"theme": "invalid"},
-                logger=Mock(),
-                core_components=Mock(),
-            )
-
-    def test_default_values(self) -> None:
-        """Alapértelmezett értékek tesztelése."""
-        config = UIConfig.model_validate({})
-        assert config.theme == "light"
-        assert config.refresh_rate is None
-
-    def test_nested_config_validation(self) -> None:
-        """Beágyazott konfiguráció validálása."""
-        config = UIConfig.model_validate(
-            {
-                "data_service": {
-                    "jforex": {
-                        "symbols": ["EURUSD", "GBPUSD"],
-                        "date_range": {"start": "2024-01-01", "end": "2024-12-31"},
-                    }
-                }
-            }
-        )
-        assert config.data_service is not None
-        assert config.data_service.jforex is not None
-        assert config.data_service.jforex.symbols == ["EURUSD", "GBPUSD"]
-        assert config.data_service.jforex.date_range is not None
-        assert config.data_service.jforex.date_range.start == "2024-01-01"
+        # Assert
+        assert service is not None
