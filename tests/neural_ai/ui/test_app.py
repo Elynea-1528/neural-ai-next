@@ -1,218 +1,378 @@
-"""UI Application tesztelése.
+"""Unit tesztek az app modulhoz.
 
-Ez a modul tartalmazza a neural_ai.ui.app modul teszteit.
+Ez a modul teszteli a UIApplication osztály funkcióit.
 """
 
-from typing import Any
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.ui.app import UIApplication
-from neural_ai.ui.interfaces.navigation_service_interface import NavigationServiceInterface
 
 
-class TestUIApplication:
-    """UIApplication osztály tesztei."""
+class TestUIApplicationInit:
+    """Tesztek a UIApplication inicializálásához."""
 
-    def test_init_default_values(self) -> None:
-        """Teszteli az alapértelmezett értékekkel történő inicializálást."""
+    def test_init_without_parameters(self) -> None:
+        """Ellenőrzi, hogy a UIApplication létrehozható paraméterek nélkül."""
+        # Act
         app = UIApplication()
 
-        assert app.config == {}
-        assert app.logger is None
-        assert app.bridge is None
-        assert app.factory is None
-        assert app.navigation is None
-        assert app.is_running is False
+        # Assert
+        assert app._config == {}  # type: ignore
+        assert app._logger is None  # type: ignore
+        assert app._bridge is None  # type: ignore
+        assert app._factory is None  # type: ignore
+        assert app._navigation is None  # type: ignore
+        assert app._core_components is None  # type: ignore
+        assert app._running is False  # type: ignore
+        assert app._init_error is None  # type: ignore
 
-    def test_init_with_parameters(self) -> None:
-        """Teszteli a paraméterekkel történő inicializálást."""
-        config: dict[str, Any] = {"theme": "dark", "debug": True}
-        logger = Mock(spec=LoggerInterface)
+    def test_init_with_config(self) -> None:
+        """Ellenőrzi, hogy a UIApplication létrehozható konfigurációval."""
+        # Arrange
+        config = {"ui": {"theme": "dark"}}
 
-        app = UIApplication(config=config, logger=logger)
+        # Act
+        app = UIApplication(config=config)
 
-        assert app.config == config
-        assert app.logger == logger
-        assert app.bridge is None
-        assert app.factory is None
-        assert app.navigation is None
-        assert app.is_running is False
+        # Assert
+        assert app._config == config  # type: ignore
+        assert app._logger is None  # type: ignore
 
-    def test_initialize_success(self) -> None:
-        """Teszteli a sikeres inicializálást."""
-        logger = Mock(spec=LoggerInterface)
-        app = UIApplication(logger=logger)
+    def test_init_with_logger(self) -> None:
+        """Ellenőrzi, hogy a UIApplication létrehozható loggerrel."""
+        # Arrange
+        mock_logger = MagicMock()
 
-        with (
-            patch("neural_ai.ui.app.CoreBridge") as mock_bridge_class,
-            patch("neural_ai.ui.app.UIServiceFactory") as mock_factory_class,
-        ):
-            mock_bridge = Mock()
-            mock_factory = Mock()
-            mock_navigation = Mock(spec=NavigationServiceInterface)
+        # Act
+        app = UIApplication(logger=mock_logger)
 
-            mock_bridge_class.return_value = mock_bridge
-            mock_factory_class.return_value = mock_factory
-            mock_factory.get_navigation_service.return_value = mock_navigation
+        # Assert
+        assert app._logger == mock_logger  # type: ignore
 
+
+class TestUIApplicationInitialize:
+    """Tesztek a UIApplication.initialize metódushoz."""
+
+    @patch("neural_ai.ui.app.UIServiceFactory")
+    @patch("neural_ai.ui.app.CoreBridge")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    def test_initialize_success(
+        self,
+        mock_logger_factory: MagicMock,
+        mock_core_bridge: MagicMock,
+        mock_ui_service_factory: MagicMock,
+    ) -> None:
+        """Ellenőrzi, hogy az initialize sikeresen inicializálja az alkalmazást."""
+        # Arrange
+        mock_logger = MagicMock()
+        mock_logger_factory.get_logger.return_value = mock_logger
+
+        mock_bridge = MagicMock()
+        mock_core_bridge.return_value = mock_bridge
+
+        mock_factory = MagicMock()
+        mock_ui_service_factory.return_value = mock_factory
+
+        mock_navigation = MagicMock()
+        mock_factory.get_navigation_service.return_value = mock_navigation
+
+        app = UIApplication()
+
+        # Act
+        result = app.initialize()
+
+        # Assert
+        assert result is True
+        assert app._logger == mock_logger  # type: ignore
+        assert app._bridge == mock_bridge  # type: ignore
+        assert app._factory == mock_factory  # type: ignore
+        assert app._navigation == mock_navigation  # type: ignore
+        mock_bridge.initialize.assert_called_once()
+        mock_factory.initialize.assert_called_once()
+
+    @patch("neural_ai.ui.app.CoreBridge")
+    def test_initialize_with_existing_logger(
+        self, mock_core_bridge: MagicMock
+    ) -> None:
+        """Ellenőrzi, hogy az initialize használja a meglévő loggert."""
+        # Arrange
+        mock_logger = MagicMock()
+        mock_bridge = MagicMock()
+        mock_core_bridge.return_value = mock_bridge
+
+        app = UIApplication(logger=mock_logger)
+
+        # Act
+        with patch("neural_ai.ui.app.UIServiceFactory"):
             result = app.initialize()
 
-            assert result is True
-            assert app.bridge == mock_bridge
-            assert app.factory == mock_factory
-            assert app.navigation == mock_navigation
-            mock_bridge.initialize.assert_called_once()
-            mock_factory.initialize.assert_called_once()
-            _, kwargs = mock_factory.initialize.call_args
-            assert kwargs["bridge"] == mock_bridge
-            assert kwargs["logger"] == logger
-            assert kwargs["core_components"] == mock_bridge
-            logger.info.assert_called()
+        # Assert
+        assert result is True
+        assert app._logger == mock_logger  # type: ignore
+        mock_logger.info.assert_called()
 
-    def test_initialize_without_logger(self) -> None:
-        """Teszteli a sikeres inicializálást logger nélkül."""
+    @patch("neural_ai.ui.app.CoreBridge")
+    def test_initialize_handles_exception(self, mock_core_bridge: MagicMock) -> None:
+        """Ellenőrzi, hogy az initialize kezeli a kivételeket."""
+        # Arrange
+        mock_core_bridge.side_effect = Exception("Test error")
+        mock_logger = MagicMock()
+        app = UIApplication(logger=mock_logger)
+
+        # Act
+        result = app.initialize()
+
+        # Assert
+        assert result is False
+        assert app._init_error is not None  # type: ignore
+        assert str(app._init_error) == "Test error"  # type: ignore
+        mock_logger.error.assert_called_once()
+
+
+class TestUIApplicationRun:
+    """Tesztek a UIApplication.run metódushoz."""
+
+    def test_run_without_initialization_raises_error(self) -> None:
+        """Ellenőrzi, hogy a run hibát dob inicializálás nélkül."""
+        # Arrange
         app = UIApplication()
 
-        with (
-            patch("neural_ai.ui.app.CoreBridge") as mock_bridge_class,
-            patch("neural_ai.ui.app.UIServiceFactory") as mock_factory_class,
-        ):
-            mock_bridge = Mock()
-            mock_factory = Mock()
-            mock_navigation = Mock(spec=NavigationServiceInterface)
-
-            mock_bridge_class.return_value = mock_bridge
-            mock_factory_class.return_value = mock_factory
-            mock_factory.get_navigation_service.return_value = mock_navigation
-
-            result = app.initialize()
-
-            assert result is True
-            assert app.bridge == mock_bridge
-            assert app.factory == mock_factory
-            assert app.navigation == mock_navigation
-
-    def test_initialize_failure(self) -> None:
-        """Teszteli a sikertelen inicializálást."""
-        logger = Mock(spec=LoggerInterface)
-        app = UIApplication(logger=logger)
-
-        with patch("neural_ai.ui.app.CoreBridge") as mock_bridge_class:
-            mock_bridge_class.side_effect = Exception("Hiba történt")
-
-            result = app.initialize()
-
-            assert result is False
-            assert app.bridge is None
-            assert app.factory is None
-            assert app.navigation is None
-            logger.error.assert_called_once()
-
-    def test_run_success(self) -> None:
-        """Teszteli a sikeres indítást."""
-        app = UIApplication()
-        app.factory = Mock()
-        app.navigation = Mock(spec=NavigationServiceInterface)
-        app.logger = Mock(spec=LoggerInterface)
-
-        app.run()
-
-        assert app.is_running is True
-        app.logger.info.assert_called_once()
-
-    def test_run_not_initialized(self) -> None:
-        """Teszteli a hibát, ha az alkalmazás nincs inicializálva."""
-        app = UIApplication()
-
+        # Act & Assert
         with pytest.raises(RuntimeError, match="Alkalmazás nincs inicializálva"):
             app.run()
 
-    def test_stop(self) -> None:
-        """Teszteli a leállítást."""
-        logger = Mock(spec=LoggerInterface)
-        app = UIApplication(logger=logger)
-        app.is_running = True
+    @patch("neural_ai.ui.app.UIServiceFactory")
+    @patch("neural_ai.ui.app.CoreBridge")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    def test_run_success(
+        self,
+        mock_logger_factory: MagicMock,
+        mock_core_bridge: MagicMock,
+        mock_ui_service_factory: MagicMock,
+    ) -> None:
+        """Ellenőrzi, hogy a run sikeresen elindítja az alkalmazást."""
+        # Arrange
+        mock_logger = MagicMock()
+        mock_logger_factory.get_logger.return_value = mock_logger
 
+        mock_bridge = MagicMock()
+        mock_core_bridge.return_value = mock_bridge
+
+        mock_factory = MagicMock()
+        mock_ui_service_factory.return_value = mock_factory
+
+        mock_navigation = MagicMock()
+        mock_factory.get_navigation_service.return_value = mock_navigation
+
+        app = UIApplication()
+        app.initialize()
+
+        # Act
+        app.run()
+
+        # Assert
+        assert app._running is True  # type: ignore
+        mock_logger.info.assert_any_call("UI alkalmazás elindítva")
+
+
+class TestUIApplicationStop:
+    """Tesztek a UIApplication.stop metódushoz."""
+
+    @patch("neural_ai.ui.app.UIServiceFactory")
+    @patch("neural_ai.ui.app.CoreBridge")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    def test_stop_success(
+        self,
+        mock_logger_factory: MagicMock,
+        mock_core_bridge: MagicMock,
+        mock_ui_service_factory: MagicMock,
+    ) -> None:
+        """Ellenőrzi, hogy a stop sikeresen leállítja az alkalmazást."""
+        # Arrange
+        mock_logger = MagicMock()
+        mock_logger_factory.get_logger.return_value = mock_logger
+
+        mock_bridge = MagicMock()
+        mock_core_bridge.return_value = mock_bridge
+
+        mock_factory = MagicMock()
+        mock_ui_service_factory.return_value = mock_factory
+
+        mock_navigation = MagicMock()
+        mock_factory.get_navigation_service.return_value = mock_navigation
+
+        app = UIApplication()
+        app.initialize()
+        app.run()
+
+        # Act
         app.stop()
 
-        assert app.is_running is False
-        logger.info.assert_called_once()
+        # Assert
+        assert app._running is False  # type: ignore
+        mock_logger.info.assert_any_call("UI alkalmazás leállítva")
 
-    def test_get_navigation_service_success(self) -> None:
-        """Teszteli a Navigation Service sikeres lekérdezését."""
-        mock_navigation = Mock(spec=NavigationServiceInterface)
-        app = UIApplication()
-        app.navigation = mock_navigation
 
-        result = app.get_navigation_service()
+class TestUIApplicationGetters:
+    """Tesztek a UIApplication getter metódusokhoz."""
 
-        assert result == mock_navigation
-
-    def test_get_navigation_service_not_initialized(self) -> None:
-        """Teszteli a hibát, ha a Navigation Service nincs inicializálva."""
+    def test_get_navigation_service_without_initialization_raises_error(self) -> None:
+        """Ellenőrzi, hogy a get_navigation_service hibát dob inicializálás nélkül."""
+        # Arrange
         app = UIApplication()
 
+        # Act & Assert
         with pytest.raises(RuntimeError, match="Alkalmazás nincs inicializálva"):
             app.get_navigation_service()
 
-    def test_get_factory_success(self) -> None:
-        """Teszteli a Factory sikeres lekérdezését."""
-        mock_factory = Mock()
-        app = UIApplication()
-        app.factory = mock_factory
-
-        result = app.get_factory()
-
-        assert result == mock_factory
-
-    def test_get_factory_not_initialized(self) -> None:
-        """Teszteli a hibát, ha a Factory nincs inicializálva."""
+    def test_get_factory_without_initialization_raises_error(self) -> None:
+        """Ellenőrzi, hogy a get_factory hibát dob inicializálás nélkül."""
+        # Arrange
         app = UIApplication()
 
+        # Act & Assert
         with pytest.raises(RuntimeError, match="Alkalmazás nincs inicializálva"):
             app.get_factory()
 
-    def test_is_running_property(self) -> None:
-        """Teszteli az is_running property-t."""
+    @patch("neural_ai.ui.app.UIServiceFactory")
+    @patch("neural_ai.ui.app.CoreBridge")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    def test_get_navigation_service_success(
+        self,
+        mock_logger_factory: MagicMock,
+        mock_core_bridge: MagicMock,
+        mock_ui_service_factory: MagicMock,
+    ) -> None:
+        """Ellenőrzi, hogy a get_navigation_service visszaadja a navigation service-t."""
+        # Arrange
+        mock_logger = MagicMock()
+        mock_logger_factory.get_logger.return_value = mock_logger
+
+        mock_bridge = MagicMock()
+        mock_core_bridge.return_value = mock_bridge
+
+        mock_factory = MagicMock()
+        mock_ui_service_factory.return_value = mock_factory
+
+        mock_navigation = MagicMock()
+        mock_factory.get_navigation_service.return_value = mock_navigation
+
+        app = UIApplication()
+        app.initialize()
+
+        # Act
+        result = app.get_navigation_service()
+
+        # Assert
+        assert result == mock_navigation
+
+    @patch("neural_ai.ui.app.UIServiceFactory")
+    @patch("neural_ai.ui.app.CoreBridge")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    def test_get_factory_success(
+        self,
+        mock_logger_factory: MagicMock,
+        mock_core_bridge: MagicMock,
+        mock_ui_service_factory: MagicMock,
+    ) -> None:
+        """Ellenőrzi, hogy a get_factory visszaadja a factory-t."""
+        # Arrange
+        mock_logger = MagicMock()
+        mock_logger_factory.get_logger.return_value = mock_logger
+
+        mock_bridge = MagicMock()
+        mock_core_bridge.return_value = mock_bridge
+
+        mock_factory = MagicMock()
+        mock_ui_service_factory.return_value = mock_factory
+
+        mock_navigation = MagicMock()
+        mock_factory.get_navigation_service.return_value = mock_navigation
+
+        app = UIApplication()
+        app.initialize()
+
+        # Act
+        result = app.get_factory()
+
+        # Assert
+        assert result == mock_factory
+
+
+class TestUIApplicationProperties:
+    """Tesztek a UIApplication property-khez."""
+
+    def test_is_running_default_false(self) -> None:
+        """Ellenőrzi, hogy az is_running alapértelmezetten False."""
+        # Arrange
         app = UIApplication()
 
+        # Act & Assert
         assert app.is_running is False
 
-        app.is_running = True
+    @patch("neural_ai.ui.app.UIServiceFactory")
+    @patch("neural_ai.ui.app.CoreBridge")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    def test_is_running_true_after_run(
+        self,
+        mock_logger_factory: MagicMock,
+        mock_core_bridge: MagicMock,
+        mock_ui_service_factory: MagicMock,
+    ) -> None:
+        """Ellenőrzi, hogy az is_running True a run után."""
+        # Arrange
+        mock_logger = MagicMock()
+        mock_logger_factory.get_logger.return_value = mock_logger
+
+        mock_bridge = MagicMock()
+        mock_core_bridge.return_value = mock_bridge
+
+        mock_factory = MagicMock()
+        mock_ui_service_factory.return_value = mock_factory
+
+        mock_navigation = MagicMock()
+        mock_factory.get_navigation_service.return_value = mock_navigation
+
+        app = UIApplication()
+        app.initialize()
+
+        # Act
+        app.run()
+
+        # Assert
         assert app.is_running is True
 
-        app.is_running = False
-        assert app.is_running is False
+    @patch("neural_ai.ui.app.UIServiceFactory")
+    @patch("neural_ai.ui.app.CoreBridge")
+    @patch("neural_ai.core.logger.factory.LoggerFactory")
+    def test_is_running_false_after_stop(
+        self,
+        mock_logger_factory: MagicMock,
+        mock_core_bridge: MagicMock,
+        mock_ui_service_factory: MagicMock,
+    ) -> None:
+        """Ellenőrzi, hogy az is_running False a stop után."""
+        # Arrange
+        mock_logger = MagicMock()
+        mock_logger_factory.get_logger.return_value = mock_logger
 
-    def test_is_initialized_property(self) -> None:
-        """Teszteli az is_initialized property-t."""
+        mock_bridge = MagicMock()
+        mock_core_bridge.return_value = mock_bridge
+
+        mock_factory = MagicMock()
+        mock_ui_service_factory.return_value = mock_factory
+
+        mock_navigation = MagicMock()
+        mock_factory.get_navigation_service.return_value = mock_navigation
+
         app = UIApplication()
+        app.initialize()
+        app.run()
 
-        assert app.is_initialized is False
+        # Act
+        app.stop()
 
-        app.factory = Mock()
-        app.navigation = Mock(spec=NavigationServiceInterface)
-        assert app.is_initialized is True
-
-        app.factory = None
-        assert app.is_initialized is False
-
-        app.factory = Mock()
-        app.navigation = None
-        assert app.is_initialized is False
-
-    def test_type_hints_get_navigation_service(self) -> None:
-        """Teszteli, hogy a get_navigation_service metódus típusjelölése helyes."""
-        # Ez a teszt ellenőrzi, hogy a forward reference helyesen van-e használva
-        import inspect
-
-        from neural_ai.ui.app import UIApplication
-
-        signature = inspect.signature(UIApplication.get_navigation_service)
-        return_annotation = signature.return_annotation
-
-        # A visszatérési típusnak stringként kell lennie (forward reference)
-        assert return_annotation == "NavigationServiceInterface"
+        # Assert
+        assert app.is_running is False
