@@ -19,6 +19,7 @@ from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 if TYPE_CHECKING:
     import pandas as pd
     import polars as pl
+
     from neural_ai.core.events.interfaces.event_bus_interface import (
         EventBusInterface,
     )

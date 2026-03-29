@@ -734,7 +734,8 @@ class TestDynamicConfigManagerCheckForUpdates:
 """Dinamikus konfiguráció kezelő átfogó tesztek a hiányzó sorok lefedésére."""
 
 import asyncio
-import datetime
+
+# datetime already imported at line 3
 from contextlib import suppress
 from unittest.mock import MagicMock, patch
 

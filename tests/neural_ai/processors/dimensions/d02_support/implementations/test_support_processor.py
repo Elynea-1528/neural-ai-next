@@ -108,14 +108,6 @@ def test_d02_processor_invalid_type(mock_deps):
 
 
 
-@pytest.fixture
-def mock_deps():
-    """Create mock dependencies."""
-    config = MagicMock(spec=ConfigManagerInterface)
-    logger = MagicMock(spec=LoggerInterface)
-    return config, logger
-
-
 class TestD02ProcessorMissingConfigBranches:
     """Test hiányzó config paraméterek branch coverage-hez."""
 
@@ -332,14 +324,6 @@ class TestD02ProcessorNearestLevelsEdgeCases:
 """Extended tests for D02 Support Processor - Coverage pótlás."""
 
 
-
-
-@pytest.fixture
-def mock_deps():
-    """Create mock dependencies."""
-    config = MagicMock(spec=ConfigManagerInterface)
-    logger = MagicMock(spec=LoggerInterface)
-    return config, logger
 
 
 @pytest.fixture

@@ -127,11 +127,14 @@ class TestLoggerInitialization:
 
         # Ellenőrizzük, hogy az info metódus meghívható
         try:
-            logger.info("Neural-AI-Next modul inicializálva", extra={"version": neural_ai.__version__})
+            logger.info(
+                "Neural-AI-Next modul inicializálva",
+                extra={"version": neural_ai.__version__},
+            )
             # Ha nem dob hibát, akkor működik
             assert True
         except Exception as e:
-            raise AssertionError(f"Logger.info() hívás sikertelen: {e}")
+            raise AssertionError(f"Logger.info() hívás sikertelen: {e}") from e
 
 
 class TestPublicAPI:

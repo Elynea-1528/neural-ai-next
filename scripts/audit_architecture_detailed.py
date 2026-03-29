@@ -54,6 +54,7 @@ class ArchitectureAuditor:
     }
 
     def __init__(self, project_root: Path):
+        """Initialize the architecture auditor."""
         self.project_root = project_root
         self.neural_ai = project_root / "neural_ai"
         self.tests = project_root / "tests"
