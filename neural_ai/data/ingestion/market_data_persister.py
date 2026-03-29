@@ -11,12 +11,14 @@ Version: 1.0.0
 import asyncio
 from collections import defaultdict
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Union, cast
 
 from neural_ai.core.config.interfaces.types import IngestionConfig
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 
 if TYPE_CHECKING:
+    import pandas as pd
+    import polars as pl
     from neural_ai.core.events.interfaces.event_bus_interface import (
         EventBusInterface,
     )
@@ -340,7 +342,7 @@ class MarketDataPersister:
                 )
                 path = f"/data/tick/{symbol}/{date.strftime('%Y/%m/%d')}/data.parquet"
                 kwargs: dict[str, Any] = {"symbol": symbol, "date": date}
-                self.storage.save_dataframe(df, path, **kwargs)
+                self.storage.save_dataframe(df, path, **kwargs)  # type: ignore[arg-type]
 
             self.logger.info(
                 "Tick adatok elmentve",
@@ -361,7 +363,9 @@ class MarketDataPersister:
             )
             raise
 
-    def _convert_events_to_dataframe(self, events: list[MarketDataEvent]) -> Any:
+    def _convert_events_to_dataframe(
+        self, events: list[MarketDataEvent]
+    ) -> Union["pl.DataFrame", "pd.DataFrame"]:
         """Konvertálja az eventeket DataFrame-é.
 
         Args:
@@ -409,10 +413,10 @@ class MarketDataPersister:
                         "source": [e.source for e in events],
                     }
 
-                    df = pd.DataFrame(pandas_data)
-                    df = df.sort_values("timestamp").reset_index(drop=True)
+                    df_pd = pd.DataFrame(pandas_data)
+                    df_pd = df_pd.sort_values("timestamp").reset_index(drop=True)
 
-                    return df
+                    return df_pd
 
                 except ImportError as err:
                     raise RuntimeError(
@@ -432,10 +436,10 @@ class MarketDataPersister:
                     "source": [e.source for e in events],
                 }
 
-                df = pd.DataFrame(default_pandas_data)
-                df = df.sort_values("timestamp").reset_index(drop=True)
+                df_pd = pd.DataFrame(default_pandas_data)
+                df_pd = df_pd.sort_values("timestamp").reset_index(drop=True)
 
-                return df
+                return df_pd
 
             except ImportError:
                 # Ha pandas nincs, próbáljuk polars-t
