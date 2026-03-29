@@ -41,8 +41,7 @@ def reset_singletons() -> Generator[None, None, None]:
 
 
 def _clear_mock_state() -> None:
-    """Törli az összes mock állapotot, hogy a @patch dekorátorok
-    ne szivárogjon át tesztek között.
+    """Törli az összes mock állapotot, hogy a @patch dekorátorok ne szivárogjon át tesztek között.
 
     Ez megoldja a mock state szennyeződést, ahol egy teszt mock-ja
     befolyásolja a következő teszteket.
@@ -64,8 +63,7 @@ def _clear_mock_state() -> None:
 
 
 def _clear_import_cache() -> None:
-    """Törli a Python import cache-t, hogy a mock-olt vagy elrontott importok
-    ne szivárogjon át tesztek között.
+    """Törli a Python import cache-t, hogy a mock-olt vagy elrontott importok ne szivárogjon át tesztek között.
 
     Ez megoldja a teszt izolációs problémát, ahol egy teszt mock-olja
     a LoggerInterface-t, és az összes utána következő teszt elromlik.
