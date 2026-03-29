@@ -131,7 +131,7 @@ class TestLoggerInitialization:
             # Ha nem dob hibát, akkor működik
             assert True
         except Exception as e:
-            assert False, f"Logger.info() hívás sikertelen: {e}"
+            raise AssertionError(f"Logger.info() hívás sikertelen: {e}")
 
 
 class TestPublicAPI:

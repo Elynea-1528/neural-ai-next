@@ -106,7 +106,6 @@ def test_d02_processor_invalid_type(mock_deps):
 """Additional tests for D02 Support Processor - 100% coverage."""
 
 
-import pytest
 
 
 @pytest.fixture
@@ -333,7 +332,6 @@ class TestD02ProcessorNearestLevelsEdgeCases:
 """Extended tests for D02 Support Processor - Coverage pótlás."""
 
 
-import pytest
 
 
 @pytest.fixture
@@ -559,7 +557,7 @@ class TestD02ProcessorMarketHoursFiltering:
             pl.datetime(2024, 1, 6, 10, 0).alias("timestamp")  # Szombat
         )
 
-        result = processor.process(df_with_weekend)
+        processor.process(df_with_weekend)
 
         # Market hours log hívás ellenőrzése
         assert logger.info.call_count >= 1
@@ -595,7 +593,7 @@ class TestD02ProcessorMarketHoursFiltering:
             }
         )
 
-        result = processor.process(df)
+        processor.process(df)
 
         # Market hours log hívás ellenőrzése
         assert logger.info.call_count >= 1

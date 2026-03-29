@@ -10,7 +10,7 @@ import pytest
 @pytest.fixture
 def sample_tick_df() -> pl.DataFrame:
     """Minta Tick DataFrame teszteléshez.
-    
+
     Returns:
         Polars DataFrame 1000 tick adattal (bid, ask, bid_volume, ask_volume).
     """
@@ -27,7 +27,7 @@ def sample_tick_df() -> pl.DataFrame:
 @pytest.fixture
 def sample_ohlcv_df() -> pl.DataFrame:
     """Minta OHLCV DataFrame teszteléshez.
-    
+
     Returns:
         Polars DataFrame 100 OHLCV gyertyával.
     """
@@ -45,7 +45,7 @@ def sample_ohlcv_df() -> pl.DataFrame:
 @pytest.fixture
 def empty_tick_df() -> pl.DataFrame:
     """Üres Tick DataFrame teszteléshez.
-    
+
     Returns:
         Üres Polars DataFrame a megfelelő sémával.
     """
@@ -61,7 +61,7 @@ def empty_tick_df() -> pl.DataFrame:
 @pytest.fixture
 def mock_logger() -> MagicMock:
     """Mock logger teszteléshez.
-    
+
     Returns:
         MagicMock logger objektum.
     """
@@ -76,10 +76,10 @@ def mock_logger() -> MagicMock:
 @pytest.fixture
 def mock_storage(sample_tick_df: pl.DataFrame) -> MagicMock:
     """Mock storage teszteléshez.
-    
+
     Args:
         sample_tick_df: Minta tick DataFrame fixture.
-    
+
     Returns:
         MagicMock storage objektum read_tick_data metódussal.
     """
@@ -92,7 +92,7 @@ def mock_storage(sample_tick_df: pl.DataFrame) -> MagicMock:
 @pytest.fixture
 def mock_storage_empty() -> MagicMock:
     """Mock storage üres adattal teszteléshez.
-    
+
     Returns:
         MagicMock storage objektum üres DataFrame-mel.
     """
@@ -111,7 +111,7 @@ def mock_storage_empty() -> MagicMock:
 @pytest.fixture
 def mock_storage_no_method() -> MagicMock:
     """Mock storage read_tick_data metódus nélkül.
-    
+
     Returns:
         MagicMock storage objektum read_tick_data nélkül.
     """
@@ -124,7 +124,7 @@ def mock_storage_no_method() -> MagicMock:
 @pytest.fixture
 def mock_config() -> MagicMock:
     """Mock config teszteléshez.
-    
+
     Returns:
         MagicMock config objektum.
     """

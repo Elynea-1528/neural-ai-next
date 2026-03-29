@@ -10,7 +10,7 @@ import pytest
 @pytest.fixture(autouse=True)
 async def reset_db_globals():
     """Reset database global state minden teszt előtt és után.
-    
+
     Ez a fixture biztosítja, hogy a globális _engine és _async_session_maker
     változók tiszták legyenek minden teszt előtt és után, elkerülve a
     test isolation problémákat.
@@ -43,7 +43,7 @@ async def reset_db_globals():
 @pytest.fixture(autouse=True)
 def reset_db_singleton():
     """Reset DatabaseManager singleton minden teszt előtt és után.
-    
+
     Ez a fixture biztosítja, hogy a DatabaseManager Singleton példány
     tiszta legyen minden teszt előtt és után.
     """

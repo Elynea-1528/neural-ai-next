@@ -12,7 +12,7 @@ import pytest
 @pytest.fixture(autouse=True)
 def reset_mock_state() -> Generator[None, None, None]:
     """Automatikusan reseteli az összes mock állapotot minden teszt előtt és után.
-    
+
     Ez megoldja a mock state szennyeződést, ahol a @patch dekorátorok
     állapota átszivárodik tesztek között.
     """
@@ -28,7 +28,7 @@ def reset_mock_state() -> Generator[None, None, None]:
 @pytest.fixture(autouse=True)
 def reset_singletons() -> Generator[None, None, None]:
     """Automatikusan reseteli az összes Singleton példányt minden teszt előtt és után.
-    
+
     Ez a fixture autouse=True-val fut minden tesztnél, biztosítva a tiszta állapotot.
     """
     # Teszt előtt: tisztítás
@@ -43,7 +43,7 @@ def reset_singletons() -> Generator[None, None, None]:
 def _clear_mock_state() -> None:
     """Törli az összes mock állapotot, hogy a @patch dekorátorok
     ne szivárogjon át tesztek között.
-    
+
     Ez megoldja a mock state szennyeződést, ahol egy teszt mock-ja
     befolyásolja a következő teszteket.
     """
@@ -66,7 +66,7 @@ def _clear_mock_state() -> None:
 def _clear_import_cache() -> None:
     """Törli a Python import cache-t, hogy a mock-olt vagy elrontott importok
     ne szivárogjon át tesztek között.
-    
+
     Ez megoldja a teszt izolációs problémát, ahol egy teszt mock-olja
     a LoggerInterface-t, és az összes utána következő teszt elromlik.
     """
@@ -153,7 +153,7 @@ def _clear_all_singletons() -> None:
 @pytest.fixture(autouse=True)
 def reset_di_container() -> Generator[None, None, None]:
     """Automatikusan reseteli a DI Container-t minden teszt előtt és után.
-    
+
     Ez biztosítja, hogy a dependency injection állapot ne szivárogjon át tesztek között.
     """
     # Teszt előtt: tisztítás
@@ -193,7 +193,7 @@ def _clear_di_container() -> None:
 @pytest.fixture
 def clean_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     """Tiszta környezeti változók minden teszthez.
-    
+
     Ez a fixture nem autouse, csak explicit használatra.
     """
     # Környezeti változók tisztítása

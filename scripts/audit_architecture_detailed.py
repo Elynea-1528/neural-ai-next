@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Részletes Architecture Audit Script
+"""Részletes Architecture Audit Script.
 
 Ellenőrzi:
 1. DDD Réteg Hierarchia (alsó → felső TILOS)

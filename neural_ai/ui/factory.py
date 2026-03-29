@@ -100,7 +100,11 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
         # Pydantic property elérés - cast() helyett
-        nav_config = final_config.navigation if final_config else NavigationConfig.model_validate({})
+        nav_config = (
+            final_config.navigation
+            if final_config
+            else NavigationConfig.model_validate({})
+        )
 
         if "navigation" not in self._services:
             from neural_ai.ui.services.navigation_service import NavigationService
@@ -182,7 +186,11 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
         # Pydantic property elérés - cast() helyett
-        data_config = final_config.data_service if final_config else DataServiceConfig.model_validate({})
+        data_config = (
+            final_config.data_service
+            if final_config
+            else DataServiceConfig.model_validate({})
+        )
 
         if "data" not in self._services:
             from neural_ai.ui.services.data_service import DataService
@@ -226,7 +234,11 @@ class UIServiceFactory(metaclass=SingletonMeta):
         if "ai" not in self._services:
             from neural_ai.ui.services.ai_service import AIService
 
-            self._services["ai"] = AIService(final_logger, ai_config.model_dump() if ai_config else {}, final_components)
+            self._services["ai"] = AIService(
+                final_logger,
+                ai_config.model_dump() if ai_config else {},
+                final_components,
+            )
 
         from neural_ai.ui.interfaces.ai_service_interface import AIServiceInterface
 
@@ -260,13 +272,19 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
         # Pydantic property elérés - cast() helyett
-        strategy_config = final_config.strategy if final_config else StrategyConfig.model_validate({})
+        strategy_config = (
+            final_config.strategy
+            if final_config
+            else StrategyConfig.model_validate({})
+        )
 
         if "strategy" not in self._services:
             from neural_ai.ui.services.strategy_service import StrategyService
 
             self._services["strategy"] = StrategyService(
-                final_logger, strategy_config.model_dump() if strategy_config else {}, final_components
+                final_logger,
+                strategy_config.model_dump() if strategy_config else {},
+                final_components,
             )
 
         from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
@@ -301,13 +319,19 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
         # Pydantic property elérés - cast() helyett
-        live_ops_config = final_config.live_ops if final_config else LiveOpsConfig.model_validate({})
+        live_ops_config = (
+            final_config.live_ops
+            if final_config
+            else LiveOpsConfig.model_validate({})
+        )
 
         if "live_ops" not in self._services:
             from neural_ai.ui.services.live_ops_service import LiveOpsService
 
             self._services["live_ops"] = LiveOpsService(
-                final_logger, live_ops_config.model_dump() if live_ops_config else {}, final_components
+                final_logger,
+                live_ops_config.model_dump() if live_ops_config else {},
+                final_components,
             )
 
         from neural_ai.ui.interfaces.live_ops_service_interface import LiveOpsServiceInterface
