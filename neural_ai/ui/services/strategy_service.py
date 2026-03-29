@@ -282,7 +282,7 @@ class StrategyService(StrategyServiceInterface):
         end_date: datetime = datetime.strptime(f"{date} 23:59:59", "%Y-%m-%d %H:%M:%S")
 
         # Resample metódus hívása az OHLCV adatok lekéréséhez (async)
-        candles: pl.DataFrame = await resampler.resample(
+        candles: pl.DataFrame = await resampler.resample(  # type: ignore[assignment]
             symbol=symbol, start=start_date, end=end_date, timeframe=timeframe, return_type="polars"
         )
 
