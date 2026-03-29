@@ -288,7 +288,7 @@ class StrategyService(StrategyServiceInterface):
 
         return candles
 
-    async def run_sma_backtest(
+    async def run_sma_backtest(  # type: ignore[override]
         self,
         symbol: str,
         date: str,
@@ -317,11 +317,11 @@ class StrategyService(StrategyServiceInterface):
         """
         # 1. Adatbetöltés
         if df is None:
-            df = await self.get_candles(symbol, date, timeframe)
+            df = await self.get_candles(symbol, date, timeframe)  # type: ignore[assignment]
 
         if (
             df is None
-            or (hasattr(df, "is_empty") and df.is_empty())
+            or (hasattr(df, "is_empty") and df.is_empty())  # type: ignore[operator]
             or (hasattr(df, "empty") and df.empty)
         ):
             return {
@@ -342,7 +342,7 @@ class StrategyService(StrategyServiceInterface):
             # DataFrame konvertálása Pandas-ra VectorBT-hez (ha szükséges)
             df_pd: pd.DataFrame
             if hasattr(df, "to_pandas"):
-                df_pd = df.to_pandas()
+                df_pd = df.to_pandas()  # type: ignore[operator]
             else:
                 df_pd = df
 
@@ -530,6 +530,6 @@ class StrategyService(StrategyServiceInterface):
         processor = create_dimension_processor(dimension_id=2, config=config, logger=logger)
 
         # 4. D2 processzálás futtatása
-        df_d2 = processor.process(df, timeframe=timeframe)
+        df_d2 = processor.process(df, timeframe=timeframe)  # type: ignore[call-arg]
 
         return df_d2
