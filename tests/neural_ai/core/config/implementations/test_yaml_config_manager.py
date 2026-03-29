@@ -829,9 +829,6 @@ class TestYAMLConfigManager:
 
         assert "nested" in ctx.errors
         assert "Dictionary típusú érték szükséges" in ctx.errors["nested"]
-"""YAMLConfigManager típus validálás tesztek."""
-
-import pytest
 
 
 class TestConfigManagerTypeValidation:

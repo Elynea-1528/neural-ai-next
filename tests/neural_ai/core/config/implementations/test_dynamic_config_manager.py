@@ -1,8 +1,10 @@
 """Tesztek a DynamicConfigManager osztályhoz."""
 
+import asyncio
+from contextlib import suppress
 from datetime import UTC, datetime
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -731,19 +733,6 @@ class TestDynamicConfigManagerCheckForUpdates:
         await config_manager._check_for_updates()
 
         mock_logger.error.assert_called()
-"""Dinamikus konfiguráció kezelő átfogó tesztek a hiányzó sorok lefedésére."""
-
-import asyncio
-
-# datetime already imported at line 3
-from contextlib import suppress
-from unittest.mock import MagicMock, patch
-
-import pytest
-
-from neural_ai.core.config.implementations.dynamic_config_manager import DynamicConfigManager
-
-
 class TestDynamicConfigManagerComprehensive:
     """Dinamikus konfiguráció kezelő hiányzó sorok lefedésére szolgáló tesztek."""
 
