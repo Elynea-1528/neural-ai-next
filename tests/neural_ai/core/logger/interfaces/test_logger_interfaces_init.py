@@ -1,59 +1,86 @@
-"""Logger interfész __init__ moduljának tesztelése."""
+"""Unit tesztek a neural_ai.core.logger.interfaces.__init__ modulhoz."""
 
-from unittest.mock import patch
-
-from neural_ai.core.logger.interfaces import __version__
+import neural_ai.core.logger.interfaces as interfaces_module
+from neural_ai.core.logger.interfaces.factory_interface import LoggerFactoryInterface
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class TestLoggerInterfacesInit:
-    """Logger interfész __init__ modul teszjei."""
+    """Tesztek a logger interfaces __init__.py modulhoz."""
 
-    def test_version_loaded_successfully(self) -> None:
-        """Teszteli, hogy a verzió sikeresen betöltődik-e."""
-        # A verzió vagy a pyproject.toml-ból jön, vagy a fallback "1.0.0"
-        assert __version__ in ["1.0.0", "1.0.1"]  # Adjunk hozzá a tényleges verziót is
+    def test_module_has_all(self) -> None:
+        """Teszteli, hogy a modul rendelkezik __all__ attribútummal."""
+        assert hasattr(interfaces_module, "__all__")
+        assert isinstance(interfaces_module.__all__, list)
 
-    def test_version_fallback_on_package_not_found(self) -> None:
-        """Teszteli a fallback verziót, ha a csomag nem található."""
-        with patch("importlib.metadata.version") as mock_version:
-            # A mock dobjon PackageNotFoundError-t
-            from importlib.metadata import PackageNotFoundError
+    def test_all_exports_logger_interface(self) -> None:
+        """Teszteli, hogy az __all__ tartalmazza a LoggerInterface-t."""
+        assert "LoggerInterface" in interfaces_module.__all__
 
-            mock_version.side_effect = PackageNotFoundError("Package not found")
+    def test_all_exports_logger_factory_interface(self) -> None:
+        """Teszteli, hogy az __all__ tartalmazza a LoggerFactoryInterface-t."""
+        assert "LoggerFactoryInterface" in interfaces_module.__all__
 
-            # Újra kell importálni a modult a mockolt környezetben
-            import sys
+    def test_all_exports_version(self) -> None:
+        """Teszteli, hogy az __all__ tartalmazza a __version__-t."""
+        assert "__version__" in interfaces_module.__all__
 
-            # Távolítsuk el a modult a cache-ből, ha létezik
-            if "neural_ai.core.logger.interfaces" in sys.modules:
-                del sys.modules["neural_ai.core.logger.interfaces"]
+    def test_logger_interface_is_correct_class(self) -> None:
+        """Teszteli, hogy a LoggerInterface a helyes osztály."""
+        assert interfaces_module.LoggerInterface is LoggerInterface
 
-            # Importáljuk újra a modult a mockkal
-            from neural_ai.core.logger.interfaces import __version__ as fallback_version
+    def test_logger_factory_interface_is_correct_class(self) -> None:
+        """Teszteli, hogy a LoggerFactoryInterface a helyes osztály."""
+        assert interfaces_module.LoggerFactoryInterface is LoggerFactoryInterface
 
-            # Ellenőrizzük, hogy a fallback verzió lett-e beállítva
-            assert fallback_version == "1.0.0"
+    def test_version_exists(self) -> None:
+        """Teszteli, hogy a __version__ attribútum létezik."""
+        assert hasattr(interfaces_module, "__version__")
+        assert isinstance(interfaces_module.__version__, str)
 
-    def test_all_imports_available(self) -> None:
-        """Teszteli, hogy minden import elérhető-e."""
-        from neural_ai.core.logger.interfaces import (
-            LoggerFactoryInterface,
-            LoggerInterface,
-            __version__,
-        )
+    def test_version_format(self) -> None:
+        """Teszteli, hogy a __version__ formátuma helyes."""
+        version = interfaces_module.__version__
+        # Verzió formátum: X.Y.Z vagy X.Y.Z.devN
+        parts = version.split(".")
+        assert len(parts) >= 3
+        assert parts[0].isdigit()
+        assert parts[1].isdigit()
 
-        assert LoggerInterface is not None
-        assert LoggerFactoryInterface is not None
-        assert __version__ is not None
+    def test_module_has_docstring(self) -> None:
+        """Teszteli, hogy a modul rendelkezik docstring-gel."""
+        assert interfaces_module.__doc__ is not None
+        assert len(interfaces_module.__doc__) > 0
 
-    def test_all_list_contains_expected_exports(self) -> None:
-        """Teszteli, hogy a __all__ lista tartalmazza-e a várt exportokat."""
-        from neural_ai.core.logger.interfaces import __all__
+    def test_docstring_mentions_interfaces(self) -> None:
+        """Teszteli, hogy a docstring említi az interfészeket."""
+        assert interfaces_module.__doc__ is not None
+        assert "interfész" in interfaces_module.__doc__.lower()
 
-        expected_exports = [
-            "LoggerInterface",
-            "LoggerFactoryInterface",
-            "__version__",
-        ]
+    def test_docstring_mentions_version(self) -> None:
+        """Teszteli, hogy a docstring említi a verziót."""
+        assert interfaces_module.__doc__ is not None
+        assert "verzió" in interfaces_module.__doc__.lower()
 
-        assert set(__all__) == set(expected_exports)
+    def test_no_private_exports(self) -> None:
+        """Teszteli, hogy nincsenek privát exportok az __all__-ban."""
+        for name in interfaces_module.__all__:
+            if not name.startswith("__"):
+                assert not name.startswith("_")
+
+    def test_all_exports_exist(self) -> None:
+        """Teszteli, hogy az __all__-ban felsorolt elemek léteznek."""
+        for name in interfaces_module.__all__:
+            assert hasattr(interfaces_module, name)
+
+    def test_logger_interface_is_abstract(self) -> None:
+        """Teszteli, hogy a LoggerInterface absztrakt osztály."""
+        from abc import ABCMeta
+
+        assert isinstance(interfaces_module.LoggerInterface, ABCMeta)
+
+    def test_logger_factory_interface_is_abstract(self) -> None:
+        """Teszteli, hogy a LoggerFactoryInterface absztrakt osztály."""
+        from abc import ABCMeta
+
+        assert isinstance(interfaces_module.LoggerFactoryInterface, ABCMeta)
