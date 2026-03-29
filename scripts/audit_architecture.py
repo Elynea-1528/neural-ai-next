@@ -309,9 +309,15 @@ class ArchitectureAuditor:
                 "export": "Export",
             }
 
-            report += f"| {category_names[category]} | {cat_critical} | {cat_warning} | {cat_total} |\n"
+            report += (
+                f"| {category_names[category]} | {cat_critical} | "
+                f"{cat_warning} | {cat_total} |\n"
+            )
 
-        report += f"| **Összesen** | **{len(critical_issues)}** | **{len(warning_issues)}** | **{len(self.issues)}** |\n"
+        report += (
+            f"| **Összesen** | **{len(critical_issues)}** | "
+            f"**{len(warning_issues)}** | **{len(self.issues)}** |\n"
+        )
 
         return report
 

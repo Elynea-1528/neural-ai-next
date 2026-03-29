@@ -275,8 +275,17 @@ class ArchitectureAuditor:
                                         category="DDD",
                                         file=str(rel_path),
                                         line=node.lineno,
-                                        message=f"DDD megsértés: {current_layer_name} ({current_level}) → {imported_layer_name} ({imported_level})",
-                                        suggestion=f"Alsó réteg ({current_layer_name}) NEM hivatkozhat felső rétegre ({imported_layer_name}). Fordítsd meg a függőséget vagy használj Dependency Injection-t.",
+                                        message=(
+                                            f"DDD megsértés: {current_layer_name} "
+                                            f"({current_level}) → {imported_layer_name} "
+                                            f"({imported_level})"
+                                        ),
+                                        suggestion=(
+                                            f"Alsó réteg ({current_layer_name}) NEM "
+                                            f"hivatkozhat felső rétegre ({imported_layer_name}). "
+                                            f"Fordítsd meg a függőséget vagy használj "
+                                            f"Dependency Injection-t."
+                                        ),
                                     )
                                 )
 
@@ -306,8 +315,14 @@ class ArchitectureAuditor:
                                         category="DI",
                                         file=str(rel_path),
                                         line=stmt.lineno,
-                                        message=f"Service Locator pattern: {node.name}.__init__ hívja a Factory.{stmt.func.attr}() metódust",
-                                        suggestion="Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek",
+                                        message=(
+                                            f"Service Locator pattern: {node.name}.__init__ "
+                                            f"hívja a Factory.{stmt.func.attr}() metódust"
+                                        ),
+                                        suggestion=(
+                                            "Használj konstruktor injektálást: adj át "
+                                            "logger/config paramétereket az __init__-nek"
+                                        ),
                                     )
                                 )
 
