@@ -267,7 +267,7 @@ class StrategyLabPage(PageInterface):
             # Logolás strukturált módon
             logger = self._bridge.get_component("logger")
             if logger:
-                logger.error(
+                logger.error(  # type: ignore[attr-defined]
                     "Backtest eredmény renderelés hiba",
                     extra={"error": str(e), "page": "StrategyLab"},
                 )
@@ -300,7 +300,7 @@ class StrategyLabPage(PageInterface):
     def _render_candlestick_chart(self, signals: dict[str, list[int]] | None = None) -> None:
         """Interaktív Plotly candlestick chart megjelenítése jelekkel."""
         try:
-            import plotly.graph_objects as go
+            import plotly.graph_objects as go  # type: ignore[import-untyped]
 
             if self._candles is None or self._candles.is_empty():
                 return
@@ -566,7 +566,7 @@ class StrategyLabPage(PageInterface):
             # Logolás strukturált módon
             logger = self._bridge.get_component("logger")
             if logger:
-                logger.error(
+                logger.error(  # type: ignore[attr-defined]
                     "Chart renderelés hiba", extra={"error": str(e), "page": "StrategyLab"}
                 )
 
@@ -628,7 +628,7 @@ class StrategyLabPage(PageInterface):
             # Logolás strukturált módon
             logger = self._bridge.get_component("logger")
             if logger:
-                logger.error(
+                logger.error(  # type: ignore[attr-defined]
                     "Data table renderelés hiba", extra={"error": str(e), "page": "StrategyLab"}
                 )
 
@@ -641,9 +641,9 @@ class StrategyLabPage(PageInterface):
         try:
             config = self._bridge.get_component("config")
             if config is not None:
-                symbols = config.get("symbols", default=[])
+                symbols = config.get("symbols", default=[])  # type: ignore[attr-defined]
                 if symbols:
-                    return symbols
+                    return symbols  # type: ignore[no-any-return]
         except Exception:
             pass
 
@@ -679,7 +679,7 @@ class StrategyLabPage(PageInterface):
                         config = self._bridge.get_component("config")
                         if config is not None:
                             # ConfigManager.get() *keys: str paramétereket vár, nem dict objektumot
-                            d2_config = config.get("processors", "d02")
+                            d2_config = config.get("processors", "d02")  # type: ignore[attr-defined]
                             if d2_config is None:
                                 d2_config = {}
                                 st.warning("⚠️ D2 Config nem található, üres config használata")
@@ -692,8 +692,8 @@ class StrategyLabPage(PageInterface):
                                 d2_config = {}
 
                         # DataFrame ellenőrzés
-                        st.info(f"📊 Candles DataFrame: {result.height} sor, {result.width} oszlop")
-                        st.info(f"📋 Oszlopok: {result.columns}")
+                        st.info(f"📊 Candles DataFrame: {result.height} sor, {result.width} oszlop")  # type: ignore[union-attr]
+                        st.info(f"📋 Oszlopok: {result.columns}")  # type: ignore[union-attr]
 
                         d2_result = asyncio.run(
                             strategy_service.analyze_market_structure(
@@ -707,7 +707,7 @@ class StrategyLabPage(PageInterface):
                         # Logolás a háttérrendszerbe is
                         logger = self._bridge.get_component("logger")
                         if logger:
-                            logger.error(
+                            logger.error(  # type: ignore[attr-defined]
                                 "D2 elemzés kritikus hiba",
                                 extra={"error": str(e), "page": "StrategyLab", "symbol": symbol},
                             )
@@ -782,7 +782,7 @@ class StrategyLabPage(PageInterface):
             StrategyServiceInterface: A Strategy Service vagy None
         """
         try:
-            return self._bridge.get_component("strategy_service")
+            return self._bridge.get_component("strategy_service")  # type: ignore[return-value]
         except Exception:
             return None
 

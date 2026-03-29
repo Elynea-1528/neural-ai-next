@@ -96,7 +96,7 @@ class DataHubPage(PageInterface):
         # Szimbólum szűrés
         symbol_filter = st.selectbox(
             "Szimbólum szűrése",
-            options=[None] + symbols,
+            options=[None] + symbols,  # type: ignore[arg-type]
             format_func=lambda x: "Összes" if x is None else x,
         )
 

@@ -123,7 +123,7 @@ class LaunchpadPage(PageInterface):
         - **Utolsó frissítés**: 2026-01-04 19:35
         """)
 
-    def on_navigate_to(self, params: dict[str, str] | None = None) -> None:
+    def on_navigate_to(self, params: dict[str, str] | None = None) -> None:  # type: ignore[override]
         """Akció, amikor az oldalra navigálnak.
 
         Args:
