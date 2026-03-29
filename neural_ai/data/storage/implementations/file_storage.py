@@ -6,7 +6,7 @@ A modulban található:
 
 import os
 import pickle
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -107,7 +107,7 @@ class FileStorage(StorageInterface):
         else:
             from neural_ai.data.storage.backends.pandas_backend import PandasBackend
 
-            self.backend: StorageBackend = PandasBackend(
+            self.backend = PandasBackend(
                 logger=self.logger, name="pandas", supported_formats=["parquet"]
             )
             # Log a backend kiválasztáshoz
@@ -215,22 +215,23 @@ class FileStorage(StorageInterface):
         self,
         df: "pd.DataFrame",
         path: str,
-        fmt: str | None = None,
-        **kwargs: Any,
+        **kwargs: Mapping[str, Any],
     ) -> None:
         """Menti a DataFrame objektumot Parquet formátumban.
 
         Args:
             df: A mentendő DataFrame
             path: A mentés útvonala (.parquet kiterjesztéssel)
-            fmt: A mentés formátuma (csak 'parquet' támogatott)
-            **kwargs: További formátum-specifikus paraméterek
+            **kwargs: További formátum-specifikus paraméterek (fmt: formátum)
 
         Raises:
             StorageFormatError: Ha a formátum nem parquet
             StorageIOError: Ha a mentés sikertelen
         """
         full_path = self._get_full_path(path)
+
+        # fmt paraméter kiolvasása kwargs-ból
+        fmt: str | None = cast(str | None, kwargs.get("fmt"))
 
         # Csak Parquet támogatott
         if fmt is not None and fmt != "parquet":
@@ -259,7 +260,7 @@ class FileStorage(StorageInterface):
         try:
             full_path.parent.mkdir(parents=True, exist_ok=True)
             # Backend-en keresztül mentjük
-            self.backend.write(df, str(full_path), **kwargs)
+            self.backend.write(df, str(full_path), **dict(kwargs))
             self.logger.info(f"DataFrame sikeresen mentve: {full_path}")
         except Exception as e:
             self.logger.error(f"Hiba a DataFrame mentése során: {full_path}")
@@ -268,15 +269,13 @@ class FileStorage(StorageInterface):
     def load_dataframe(
         self,
         path: str,
-        fmt: str | None = None,
-        **kwargs: Any,
+        **kwargs: Mapping[str, Any],
     ) -> "pd.DataFrame":
         """Betölti a DataFrame objektumot Parquet formátumból.
 
         Args:
             path: A betöltendő fájl útvonala (.parquet kiterjesztéssel)
-            fmt: A fájl formátuma (csak 'parquet' támogatott)
-            **kwargs: További formátum-specifikus paraméterek
+            **kwargs: További formátum-specifikus paraméterek (fmt: formátum)
 
         Returns:
             pd.DataFrame: A betöltött DataFrame
@@ -289,6 +288,9 @@ class FileStorage(StorageInterface):
         full_path = self._get_full_path(path)
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
+
+        # fmt paraméter kiolvasása kwargs-ból
+        fmt: str | None = cast(str | None, kwargs.get("fmt"))
 
         # Csak Parquet támogatott
         if fmt is not None and fmt != "parquet":
@@ -307,7 +309,7 @@ class FileStorage(StorageInterface):
 
         try:
             # Backend-en keresztül töltjük be
-            result = self.backend.read(str(full_path), **kwargs)
+            result = self.backend.read(str(full_path), **cast(dict[str, Any], kwargs))
             self.logger.info(f"DataFrame sikeresen betöltve: {full_path}")
             return cast("pd.DataFrame", result)
         except Exception as e:
@@ -316,18 +318,16 @@ class FileStorage(StorageInterface):
 
     def save_object(
         self,
-        obj: Any,
+        obj: object,
         path: str,
-        fmt: str | None = None,
-        **kwargs: Any,
+        **kwargs: Mapping[str, Any],
     ) -> None:
         """Menti a Python objektumot pickle formátumban.
 
         Args:
             obj: A mentendő objektum
             path: A mentés útvonala (.pkl kiterjesztéssel)
-            fmt: A mentés formátuma (csak 'pkl' támogatott)
-            **kwargs: További formátum-specifikus paraméterek
+            **kwargs: További formátum-specifikus paraméterek (fmt: formátum)
 
         Raises:
             StorageFormatError: Ha a formátum nem pkl
@@ -335,6 +335,9 @@ class FileStorage(StorageInterface):
             StorageIOError: Ha a mentés sikertelen
         """
         full_path = self._get_full_path(path)
+
+        # fmt paraméter kiolvasása kwargs-ból
+        fmt: str | None = cast(str | None, kwargs.get("fmt"))
 
         # Csak pickle támogatott
         if fmt is not None and fmt != "pkl":
@@ -366,7 +369,7 @@ class FileStorage(StorageInterface):
             full_path.parent.mkdir(parents=True, exist_ok=True)
 
             with open(full_path, "wb") as f:
-                pickle.dump(obj, f, **kwargs)
+                pickle.dump(obj, f, **cast(dict[str, Any], kwargs))
             self.logger.info(f"Objektum sikeresen mentve: {full_path}")
         except (TypeError, ValueError) as e:
             raise StorageSerializationError(f"Az objektum nem szerializálható: {str(e)}") from e
@@ -376,15 +379,13 @@ class FileStorage(StorageInterface):
     def load_object(
         self,
         path: str,
-        fmt: str | None = None,
-        **kwargs: Any,
-    ) -> Any:
+        **kwargs: Mapping[str, Any],
+    ) -> object:
         """Betölti a Python objektumot pickle formátumból.
 
         Args:
             path: A betöltendő fájl útvonala (.pkl kiterjesztéssel)
-            fmt: A fájl formátuma (csak 'pkl' támogatott)
-            **kwargs: További formátum-specifikus paraméterek
+            **kwargs: További formátum-specifikus paraméterek (fmt: formátum)
 
         Returns:
             Any: A betöltött objektum
@@ -398,6 +399,9 @@ class FileStorage(StorageInterface):
         full_path = self._get_full_path(path)
         if not full_path.exists():
             raise StorageNotFoundError(f"Fájl nem található: {full_path}")
+
+        # fmt paraméter kiolvasása kwargs-ból
+        fmt: str | None = cast(str | None, kwargs.get("fmt"))
 
         # Csak pickle támogatott
         if fmt is not None and fmt != "pkl":
@@ -416,7 +420,7 @@ class FileStorage(StorageInterface):
 
         try:
             with open(full_path, "rb") as f:
-                result = pickle.load(f, **kwargs)
+                result = pickle.load(f, **cast(dict[str, Any], kwargs))
             self.logger.info(f"Objektum sikeresen betöltve: {full_path}")
             return result
         except (TypeError, ValueError, pickle.UnpicklingError, EOFError) as e:

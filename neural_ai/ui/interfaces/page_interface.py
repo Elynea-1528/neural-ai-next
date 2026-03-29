@@ -3,7 +3,7 @@
 Ez az interfész definiálja az oldal komponensek szerződését.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
@@ -16,7 +16,7 @@ class PageInterface(Protocol):
     Ez az interfész definiálja az oldalak által implementálandó metódusokat.
     """
 
-    def __init__(self, bridge: "CoreBridgeInterface", **kwargs: Any) -> None:
+    def __init__(self, bridge: "CoreBridgeInterface", **kwargs: object) -> None:
         """Oldal inicializálása.
 
         Args:
@@ -25,7 +25,7 @@ class PageInterface(Protocol):
         """
         ...
 
-    def render(self) -> Any:
+    def render(self) -> object:
         """Az oldal tartalmának renderelése.
 
         Returns:
@@ -33,7 +33,7 @@ class PageInterface(Protocol):
         """
         ...
 
-    def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+    def on_navigate_to(self, params: dict[str, object] | None = None) -> None:
         """Akció, amikor az oldalra navigálnak.
 
         Args:

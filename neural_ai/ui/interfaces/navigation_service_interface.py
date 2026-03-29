@@ -5,7 +5,7 @@ amely az oldalak közötti navigációt kezeli.
 """
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from neural_ai.ui.interfaces.page_interface import PageInterface
@@ -18,7 +18,7 @@ class NavigationServiceInterface(Protocol):
     Ez az interfész definiálja a navigációs logikát kezelő metódusokat.
     """
 
-    def navigate_to(self, page_name: str, params: dict[str, Any] | None = None) -> None:
+    def navigate_to(self, page_name: str, params: dict[str, object] | None = None) -> None:
         """Navigálás egy adott oldalra.
 
         Args:
@@ -56,7 +56,7 @@ class NavigationServiceInterface(Protocol):
         """
         ...
 
-    def subscribe(self, callback: Callable[[str, dict[str, Any]], None]) -> None:
+    def subscribe(self, callback: Callable[[str, dict[str, object]], None]) -> None:
         """Feliratkozás navigációs eseményekre.
 
         Args:

@@ -47,14 +47,17 @@ class TimeAlignmentService(ITimeAlignmentService):
             return df  # Tick adaton nincs rács és nincs gap-fill
 
         # Biztosítjuk, hogy a timestamp oszlop datetime típusú legyen (epoch-ból)
+        from datetime import datetime
+        from typing import cast
+
         df_datetime = df.with_columns(pl.from_epoch(pl.col("timestamp").cast(pl.Int64)))
 
         # Létrehozza az összes szükséges időpontot (pl. minden perc M1-nél)
         full_range = pl.DataFrame(
             {
                 "timestamp": pl.datetime_range(
-                    df_datetime["timestamp"].min(),
-                    df_datetime["timestamp"].max(),
+                    cast(datetime, df_datetime["timestamp"].min()),
+                    cast(datetime, df_datetime["timestamp"].max()),
                     interval=timeframe,
                     eager=True,
                 )

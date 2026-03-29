@@ -387,15 +387,15 @@ class StrategyService(StrategyServiceInterface):
                     df_pd.index = pd.to_datetime(df_pd.index)
 
             # 2. VBT Logika - SMA indikátorok számolása short_name paraméterekkel
-            fast_ma = vbt.MA.run(df_pd["close"], fast_period, short_name="fast")  # type: ignore
-            slow_ma = vbt.MA.run(df_pd["close"], slow_period, short_name="slow")  # type: ignore
+            fast_ma = vbt.MA.run(df_pd["close"], fast_period, short_name="fast")
+            slow_ma = vbt.MA.run(df_pd["close"], slow_period, short_name="slow")
 
             # 3. Jelek generálása
             entries = fast_ma.ma_crossed_above(slow_ma)
             exits = fast_ma.ma_crossed_below(slow_ma)
 
             # 4. Portfólió futtatása freq paraméterrel az időköz egyértelműségért
-            pf = vbt.Portfolio.from_signals(  # type: ignore
+            pf = vbt.Portfolio.from_signals(
                 df_pd["close"],
                 entries,
                 exits,

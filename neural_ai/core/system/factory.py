@@ -8,7 +8,7 @@ A factory támogatja a következő komponenseket:
 - health_monitor: Rendszer egészségügyi monitorozás
 """
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from neural_ai.core.system.interfaces.health_interface import (
     HealthCheckInterface,
@@ -48,7 +48,7 @@ class SystemComponentFactory:
         eventbus: "EventBusInterface | None" = None,
         storage: "StorageInterface | None" = None,
         hardware: "HardwareInterface | None" = None,
-        **kwargs: Any,
+        **kwargs: object,
     ) -> HealthMonitorInterface:
         """HealthMonitor példány létrehozása vagy visszaadása.
 
@@ -103,7 +103,7 @@ class SystemComponentFactory:
         component_name: str,
         logger: "LoggerInterface | None" = None,
         health_check_type: str = "default",
-        **kwargs: Any,
+        **kwargs: object,
     ) -> HealthCheckInterface:
         """HealthCheck példány létrehozása.
 

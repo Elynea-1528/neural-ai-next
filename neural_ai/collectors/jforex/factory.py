@@ -1,6 +1,6 @@
 """JForex Collector Factory."""
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from pydantic import ValidationError
 
@@ -46,15 +46,17 @@ class JForexFactory:
 
         # Get JForex configuration
         jforex_config_raw = config.get("jforex")
-        raw_data: dict[str, Any] = (
-            cast(dict[str, Any], jforex_config_raw) if isinstance(jforex_config_raw, dict) else {}
+        raw_data: dict[str, object] = (
+            cast(dict[str, object], jforex_config_raw)
+            if isinstance(jforex_config_raw, dict)
+            else {}
         )
 
         try:
             jforex_config = JForexConfig.model_validate(raw_data)
         except ValidationError as e:
             logger.error("jforex_config_validation_error", error=str(e))
-            jforex_config = JForexConfig()
+            jforex_config = JForexConfig.model_validate({})
 
         # Create HTTP client with timeout
         timeout_value = 30
@@ -115,15 +117,15 @@ class JForexFactory:
 
         # Get JForex live configuration
         live_config_raw = config.get("jforex_live")
-        raw_data: dict[str, Any] = (
-            cast(dict[str, Any], live_config_raw) if isinstance(live_config_raw, dict) else {}
+        raw_data: dict[str, object] = (
+            cast(dict[str, object], live_config_raw) if isinstance(live_config_raw, dict) else {}
         )
 
         try:
             live_config = JForexLiveConfig.model_validate(raw_data)
         except ValidationError as e:
             logger.error("jforex_live_config_validation_error", error=str(e))
-            live_config = JForexLiveConfig()
+            live_config = JForexLiveConfig.model_validate({})
 
         # Check if live feed is enabled
         enabled = live_config.enabled or False

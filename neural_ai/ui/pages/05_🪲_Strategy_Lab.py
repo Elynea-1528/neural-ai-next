@@ -5,7 +5,7 @@ interaktív módon vizsgálhatják a gyertyadiagramokat és stratégiákat.
 """
 
 from datetime import date
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pandas as pd
 import polars as pl
@@ -26,7 +26,7 @@ class StrategyLabPage(PageInterface):
     a stratégiák tesztelését.
     """
 
-    def __init__(self, bridge: "CoreBridgeInterface", **kwargs: Any) -> None:
+    def __init__(self, bridge: "CoreBridgeInterface", **kwargs: object) -> None:
         """A Strategy Lab oldal inicializálása.
 
         Args:
@@ -756,7 +756,7 @@ class StrategyLabPage(PageInterface):
             try:
                 strategy_service = self._get_strategy_service()
                 if strategy_service is not None and hasattr(strategy_service, "run_sma_backtest"):
-                    result: dict[str, Any] = asyncio.run(
+                    result: dict[str, object] = asyncio.run(
                         strategy_service.run_sma_backtest(
                             symbol,
                             date,
@@ -786,7 +786,7 @@ class StrategyLabPage(PageInterface):
         except Exception:
             return None
 
-    def on_navigate_to(self, params: "dict[str, Any] | None" = None) -> None:
+    def on_navigate_to(self, params: "dict[str, object] | None" = None) -> None:
         """Navigálás az oldalra.
 
         Args:

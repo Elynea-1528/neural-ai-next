@@ -1,7 +1,7 @@
 """Processing Factory - Feldolgozási komponensek factory függvényei."""
 
 import importlib
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pydantic import ValidationError
 
@@ -33,7 +33,7 @@ def create_time_alignment_service(
     """
     module = importlib.import_module("neural_ai.processors.implementations.time_alignment_service")
     cls = module.TimeAlignmentService
-    return cls(logger)
+    return cast(ITimeAlignmentService, cls(logger))
 
 
 def create_dimension_processor(
@@ -62,8 +62,10 @@ def create_dimension_processor(
         logger.error("Érvénytelen processzor konfiguráció", extra={"error": str(e)})
         raise
 
+    from typing import cast
+
     name = DIMENSIONS_CONFIG[dimension_id]
     module_name = f"neural_ai.processors.dimensions.d{dimension_id:02d}_{name}.factory"
     module = importlib.import_module(module_name)
     factory_class = getattr(module, FACTORY_CLASSES[dimension_id])
-    return factory_class.create(config, logger)
+    return cast(IDimensionProcessor, factory_class.create(config, logger))

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Részletes Architecture Audit Script
+"""Részletes Architecture Audit Script
 
 Ellenőrzi:
 1. DDD Réteg Hierarchia (alsó → felső TILOS)
@@ -12,11 +11,9 @@ Ellenőrzi:
 """
 
 import ast
-import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 
 @dataclass

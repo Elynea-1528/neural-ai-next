@@ -10,8 +10,8 @@ Version: 1.0.0
 
 from datetime import datetime
 from enum import Enum
-from typing import Any
 
+# Any import removed - using object instead
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
@@ -162,7 +162,7 @@ class SystemLogEvent(BaseModel):
     level: str = Field(..., description="A log szintje")
     component: str = Field(..., description="A komponens neve")
     message: str = Field(..., description="A log üzenet")
-    extra_data: dict[str, Any] | None = Field(None, description="További adatok")
+    extra_data: dict[str, object] | None = Field(None, description="További adatok")
 
     @field_validator("level")
     @classmethod

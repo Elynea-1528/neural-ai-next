@@ -3,7 +3,7 @@
 Ez a modul implementálja a fejlesztői központ oldalt.
 """
 
-from typing import Any
+# Any import removed - using object instead
 
 import streamlit as st
 
@@ -14,7 +14,7 @@ from neural_ai.ui.interfaces.page_interface import PageInterface
 class DevCenterPage(PageInterface):
     """Dev Center oldal."""
 
-    def __init__(self, bridge: CoreBridgeInterface, **kwargs: Any) -> None:
+    def __init__(self, bridge: CoreBridgeInterface, **kwargs: object) -> None:
         """A Dev Center oldal inicializálása.
 
         Args:
@@ -30,7 +30,7 @@ class DevCenterPage(PageInterface):
         st.title(self._title)
         st.markdown("Fejlesztői eszközök és konfigurációk.")
 
-    def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+    def on_navigate_to(self, params: dict[str, object] | None = None) -> None:
         """Navigálás az oldalra.
 
         Args:

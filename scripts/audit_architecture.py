@@ -11,9 +11,9 @@ Output: docs/development/ARCHITECTURE_AUDIT.md
 """
 
 import ast
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass
 from typing import Literal
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent

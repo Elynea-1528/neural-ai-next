@@ -5,7 +5,7 @@ az oldalak közötti navigációt kezeli.
 """
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from neural_ai.ui.interfaces.navigation_service_interface import NavigationServiceInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
@@ -21,7 +21,7 @@ class NavigationService(NavigationServiceInterface):
     és nyilvántartja a navigációs előzményeket.
     """
 
-    def __init__(self, logger: Any, config: dict[str, Any], core_components: Any) -> None:
+    def __init__(self, logger: object, config: dict[str, object], core_components: object) -> None:
         """A Navigation Service inicializálása.
 
         Args:
@@ -35,9 +35,9 @@ class NavigationService(NavigationServiceInterface):
         self._pages: dict[str, PageInterface] = {}
         self._history: list[str] = []
         self._current_page: str | None = None
-        self._subscribers: list[Callable[[str, dict[str, Any]], None]] = []
+        self._subscribers: list[Callable[[str, dict[str, object]], None]] = []
 
-    def navigate_to(self, page_name: str, params: dict[str, Any] | None = None) -> None:
+    def navigate_to(self, page_name: str, params: dict[str, object] | None = None) -> None:
         """Navigálás egy adott oldalra.
 
         Args:
@@ -112,7 +112,7 @@ class NavigationService(NavigationServiceInterface):
             self._current_page = page_name
             self._history.append(page_name)
 
-    def subscribe(self, callback: Callable[[str, dict[str, Any]], None]) -> None:
+    def subscribe(self, callback: Callable[[str, dict[str, object]], None]) -> None:
         """Feliratkozás navigációs eseményekre.
 
         Args:
@@ -120,7 +120,7 @@ class NavigationService(NavigationServiceInterface):
         """
         self._subscribers.append(callback)
 
-    def _notify_subscribers(self, page_name: str, params: dict[str, Any]) -> None:
+    def _notify_subscribers(self, page_name: str, params: dict[str, object]) -> None:
         """Értesítés küldése a feliratkozóknak.
 
         Args:

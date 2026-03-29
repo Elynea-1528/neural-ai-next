@@ -4,7 +4,7 @@ Ez az interfész definiálja a backend rendszerrel való kommunikációt
 biztosító osztályok szerződését.
 """
 
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     pass
@@ -34,7 +34,7 @@ class CoreBridgeInterface(Protocol):
         """
         ...
 
-    def get_component(self, component_type: str) -> Any | None:
+    def get_component(self, component_type: str) -> object | None:
         """Komponens lekérése a backend rendszerből.
 
         Args:
@@ -45,7 +45,7 @@ class CoreBridgeInterface(Protocol):
         """
         ...
 
-    def send_command(self, command: str, params: dict[str, Any]) -> dict[str, Any]:
+    def send_command(self, command: str, params: dict[str, object]) -> dict[str, object]:
         """Parancs küldése a backend rendszernek.
 
         Args:
@@ -57,7 +57,7 @@ class CoreBridgeInterface(Protocol):
         """
         ...
 
-    def get_system_info(self) -> dict[str, Any]:
+    def get_system_info(self) -> dict[str, object]:
         """Rendszerinformáció lekérése a backendről.
 
         Returns:

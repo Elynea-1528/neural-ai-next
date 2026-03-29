@@ -5,7 +5,7 @@ Data Hub, AI Lab, Strategy Lab, Live Ops), amelyek a felhasználói
 felület különböző szekcióit reprezentálják.
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from neural_ai.ui.core_bridge import CoreBridge
 
@@ -52,7 +52,9 @@ def create_launchpad_page(
     else:
         raise ImportError("Could not import LaunchpadPage module")
 
-    return LaunchpadPage(bridge, logger)
+    from neural_ai.ui.interfaces.page_interface import PageInterface
+
+    return cast(PageInterface, LaunchpadPage(bridge, logger))
 
 
 __all__ = ["create_launchpad_page"]

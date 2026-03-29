@@ -1,6 +1,6 @@
 """AI Lab Page - Mesterséges intelligencia labor."""
 
-from typing import Any
+# Any import removed - using object instead
 
 import streamlit as st
 
@@ -11,7 +11,7 @@ from neural_ai.ui.interfaces.page_interface import PageInterface
 class AILabPage(PageInterface):
     """AI Lab oldal."""
 
-    def __init__(self, bridge: CoreBridgeInterface, **kwargs: Any) -> None:
+    def __init__(self, bridge: CoreBridgeInterface, **kwargs: object) -> None:
         """A AI Lab oldal inicializálása.
 
         Args:
@@ -27,7 +27,7 @@ class AILabPage(PageInterface):
         st.title(self._title)
         st.markdown("AI modellek kezelése és futtatása.")
 
-    def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+    def on_navigate_to(self, params: dict[str, object] | None = None) -> None:
         """Navigálás az oldalra.
 
         Args:

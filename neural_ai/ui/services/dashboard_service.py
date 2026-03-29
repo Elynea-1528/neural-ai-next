@@ -6,7 +6,7 @@ a fő irányítópult adatait és állapotát kezeli.
 
 import asyncio
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from neural_ai.core.system.interfaces.health_interface import (
     ComponentStatus,
@@ -47,12 +47,12 @@ class DashboardService(DashboardServiceInterface):
         """
         # Gyorsítótár ellenőrzése
         if "overview" in self._cached_data:
-            return self._cached_data["overview"]
+            return cast(dict[str, Any], self._cached_data["overview"])
 
         # Lekérdezzük a rendszerinformációt a core_components-en keresztül
-        system_info = self._core_components.get_system_info()
+        system_info: dict[str, Any] = cast(dict[str, Any], self._core_components.get_system_info())
 
-        overview = {
+        overview: dict[str, Any] = {
             "system_info": system_info,
             "last_update": "2026-01-04T19:13:00Z",
             "components": {

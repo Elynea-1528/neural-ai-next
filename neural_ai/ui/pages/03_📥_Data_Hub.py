@@ -2,7 +2,7 @@
 
 import asyncio
 from datetime import UTC, datetime, time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import streamlit as st
 
@@ -20,7 +20,7 @@ class DataHubPage(PageInterface):
     a DataService segítségével, amely a UIServiceFactory-n keresztül érhető el.
     """
 
-    def __init__(self, bridge: "CoreBridgeInterface", **kwargs: Any) -> None:
+    def __init__(self, bridge: "CoreBridgeInterface", **kwargs: object) -> None:
         """A Data Hub oldal inicializálása.
 
         Args:
@@ -284,7 +284,7 @@ class DataHubPage(PageInterface):
                         return
 
                     # Adatok betöltése
-                    data_chunks: list[dict[str, Any]] = []
+                    data_chunks: list[dict[str, object]] = []
                     for chunk in self._data_service.load_data(source, chunk_size=1000):
                         data_chunks.extend(chunk)
 
@@ -308,7 +308,7 @@ class DataHubPage(PageInterface):
             except Exception as e:
                 st.error(f"Hiba történt az exportálás során: {str(e)}")
 
-    def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+    def on_navigate_to(self, params: dict[str, object] | None = None) -> None:
         """Az oldalra navigáláskor meghívott metódus.
 
         Args:

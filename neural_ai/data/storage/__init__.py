@@ -21,7 +21,8 @@ if TYPE_CHECKING:
 
 from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
 from neural_ai.data.storage.factory import StorageFactory
-from neural_ai.data.storage.implementations import FileStorage, ParquetStorageService
+
+# Implementációkat NE importálj közvetlenül! Használd a factory-t.
 
 # Dinamikus verzióbetöltés a pyproject.toml-ból
 try:

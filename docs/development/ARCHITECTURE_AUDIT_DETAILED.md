@@ -1,21 +1,20 @@
 # 🔍 ARCHITECTURE AUDIT REPORT (DETAILED)
 
-**Generálva:** 2026-03-26 16:27:58
+**Generálva:** 2026-03-28 01:14:40
 **Elemző**: Roo Code (Code-New)
 **Szkennelt fájlok:** 155
 **Modulok:** 12
 
 ## 📊 Executive Summary
 
-- 🔴 **Kritikus problémák:** 393
-  - Structure: 5
-  - Type: 368
+- 🔴 **Kritikus problémák:** 337
+  - Structure: 1
+  - Type: 321
   - DDD: 11
   - DI: 4
-  - Import: 5
-- 🟡 **Figyelmeztetések:** 47
+- 🟡 **Figyelmeztetések:** 35
   - Structure: 1
-  - Mirror: 46
+  - Mirror: 34
 
 ## 🔴 Kritikus Problémák (Rétegek szerint)
 
@@ -65,7 +64,7 @@
 
 *...és még 1 hasonló probléma*
 
-#### Type Problémák (104 db)
+#### Type Problémák (94 db)
 
 **[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:184)**
 - **Probléma:** Any típus használat (TILOS)
@@ -83,89 +82,37 @@
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/utils/decorators.py`](neural_ai/core/utils/decorators.py:20)**
+**[`neural_ai/core/logger/factory.py`](neural_ai/core/logger/factory.py:76)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/utils/decorators.py`](neural_ai/core/utils/decorators.py:29)**
+**[`neural_ai/core/logger/factory.py`](neural_ai/core/logger/factory.py:122)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/utils/decorators.py`](neural_ai/core/utils/decorators.py:86)**
+**[`neural_ai/core/base/factory.py`](neural_ai/core/base/factory.py:146)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/utils/decorators.py`](neural_ai/core/utils/decorators.py:40)**
+**[`neural_ai/core/base/factory.py`](neural_ai/core/base/factory.py:155)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/utils/decorators.py`](neural_ai/core/utils/decorators.py:86)**
+**[`neural_ai/core/base/factory.py`](neural_ai/core/base/factory.py:160)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/utils/decorators.py`](neural_ai/core/utils/decorators.py:86)**
+**[`neural_ai/core/base/factory.py`](neural_ai/core/base/factory.py:165)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-*...és még 94 hasonló probléma*
+*...és még 84 hasonló probléma*
 
 #### DI Problémák (1 db)
 
 **[`neural_ai/core/logger/implementations/default_logger.py`](neural_ai/core/logger/implementations/default_logger.py:60)**
 - **Probléma:** Service Locator pattern: DefaultLogger.__init__ hívja a Factory.get_logger() metódust
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
-
-### Input Layer
-
-#### Type Problémák (4 db)
-
-**[`neural_ai/collectors/jforex/factory.py`](neural_ai/collectors/jforex/factory.py:49)**
-- **Probléma:** Any típus használat (TILOS)
-- **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
-
-**[`neural_ai/collectors/jforex/factory.py`](neural_ai/collectors/jforex/factory.py:118)**
-- **Probléma:** Any típus használat (TILOS)
-- **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
-
-**[`neural_ai/collectors/jforex/factory.py`](neural_ai/collectors/jforex/factory.py:50)**
-- **Probléma:** Any típus használat (TILOS)
-- **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
-
-**[`neural_ai/collectors/jforex/factory.py`](neural_ai/collectors/jforex/factory.py:119)**
-- **Probléma:** Any típus használat (TILOS)
-- **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
-
-#### Import Problémák (5 db)
-
-**[`neural_ai/collectors/jforex/interfaces/__init__.py`](neural_ai/collectors/jforex/interfaces/__init__.py:6)**
-- **Probléma:** Relatív import: .downloader_interface
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/collectors/jforex/interfaces/__init__.py`](neural_ai/collectors/jforex/interfaces/__init__.py:7)**
-- **Probléma:** Relatív import: .live_interface
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/collectors/jforex/interfaces/__init__.py`](neural_ai/collectors/jforex/interfaces/__init__.py:8)**
-- **Probléma:** Relatív import: .tick_data
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/collectors/jforex/implementations/__init__.py`](neural_ai/collectors/jforex/implementations/__init__.py:3)**
-- **Probléma:** Relatív import: .bi5_downloader
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-**[`neural_ai/collectors/jforex/implementations/__init__.py`](neural_ai/collectors/jforex/implementations/__init__.py:4)**
-- **Probléma:** Relatív import: .live_feed
-- **Javaslat:** Használj abszolút importot: from neural_ai.X.Y import Z
-
-#### Structure Problémák (2 db)
-
-**[`neural_ai/collectors/jforex/implementations/__init__.py`](neural_ai/collectors/jforex/implementations/__init__.py:3)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/collectors/jforex/implementations/__init__.py`](neural_ai/collectors/jforex/implementations/__init__.py:4)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
 
 ### Persistence Layer
 
@@ -227,16 +174,6 @@
 - **Probléma:** Service Locator pattern: FileStorage.__init__ hívja a Factory.get_hardware_interface() metódust
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
 
-#### Structure Problémák (2 db)
-
-**[`neural_ai/data/storage/implementations/__init__.py`](neural_ai/data/storage/implementations/__init__.py:3)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
-**[`neural_ai/data/storage/implementations/__init__.py`](neural_ai/data/storage/implementations/__init__.py:4)**
-- **Probléma:** implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS
-- **Javaslat:** Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.
-
 ### Domain Layer
 
 #### Structure Problémák (1 db)
@@ -269,7 +206,7 @@
 
 ### Presentation Layer
 
-#### Type Problémák (158 db)
+#### Type Problémák (125 db)
 
 **[`neural_ai/ui/factory.py`](neural_ai/ui/factory.py:45)**
 - **Probléma:** Any típus használat (TILOS)
@@ -311,7 +248,7 @@
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-*...és még 148 hasonló probléma*
+*...és még 115 hasonló probléma*
 
 ## 🟡 Figyelmeztetések
 
@@ -319,14 +256,14 @@
 
 - [`neural_ai/processors/dimensions/d01_price`](neural_ai/processors/dimensions/d01_price:0): Hiányzik az exceptions/ mappa
 
-### Mirror (46 db)
+### Mirror (34 db)
 
-- [`ui/streamlit_app.py`](ui/streamlit_app.py:0): Hiányzó teszt fájl: tests/neural_ai/ui/test_streamlit_app.py
-- [`core/events/factory.py`](core/events/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/core/events/test_factory.py
-- [`core/db/factory.py`](core/db/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/core/db/test_factory.py
-- [`core/config/factory.py`](core/config/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/core/config/test_factory.py
-- [`core/utils/factory.py`](core/utils/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/core/utils/test_factory.py
-- *...és még 41 hasonló figyelmeztetés*
+- [`data/storage/factory.py`](data/storage/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/data/storage/test_factory.py
+- [`data/storage/interfaces/factory_interface.py`](data/storage/interfaces/factory_interface.py:0): Hiányzó teszt fájl: tests/neural_ai/data/storage/interfaces/test_factory_interface.py
+- [`collectors/jforex/interfaces/tick_data.py`](collectors/jforex/interfaces/tick_data.py:0): Hiányzó teszt fájl: tests/neural_ai/collectors/jforex/interfaces/test_tick_data.py
+- [`collectors/jforex/interfaces/live_interface.py`](collectors/jforex/interfaces/live_interface.py:0): Hiányzó teszt fájl: tests/neural_ai/collectors/jforex/interfaces/test_live_interface.py
+- [`collectors/jforex/interfaces/downloader_interface.py`](collectors/jforex/interfaces/downloader_interface.py:0): Hiányzó teszt fájl: tests/neural_ai/collectors/jforex/interfaces/test_downloader_interface.py
+- *...és még 29 hasonló figyelmeztetés*
 
 ## 📋 Prioritizált Javítási Terv
 
@@ -340,23 +277,19 @@
    - Service Locator pattern cseréje konstruktor injektálásra
    - Factory pattern helyes használata
 
-3. **Import Szabályok** (5 db)
-   - Relatív importok cseréje abszolút importokra
-   - TYPE_CHECKING használata körkörös importoknál
-
 ### Fázis 2: Magas (3-7 nap)
 
-1. **Type Safety** (368 db)
+1. **Type Safety** (321 db)
    - Any típus eliminálása
    - TypedDict → Pydantic migráció
 
-2. **Modul Struktúra** (5 db)
+2. **Modul Struktúra** (1 db)
    - Hiányzó interfaces/, implementations/, exceptions/ mappák létrehozása
    - Implementáció exportok megszüntetése
 
 ### Fázis 3: Közepes (1-2 hét)
 
-1. **Mirror Testing** (46 db)
+1. **Mirror Testing** (34 db)
    - Hiányzó teszt fájlok létrehozása
    - 100% lefedettség elérése Domain rétegben
 
@@ -364,11 +297,11 @@
 
 | Réteg | Fájlok | Kritikus | Figyelmeztetés | Megfelelőség |
 |:------|:-------|:---------|:---------------|:-------------|
-| Infrastructure | 71 | 116 | 0 | 0.0% |
-| Input | 12 | 11 | 0 | 8.3% |
-| Persistence | 16 | 102 | 0 | 0.0% |
+| Infrastructure | 71 | 106 | 0 | 0.0% |
+| Input | 12 | 0 | 0 | 100.0% |
+| Persistence | 16 | 100 | 0 | 0.0% |
 | Domain | 25 | 6 | 1 | 72.0% |
-| Presentation | 30 | 158 | 0 | 0.0% |
+| Presentation | 30 | 125 | 0 | 0.0% |
 
 ---
 

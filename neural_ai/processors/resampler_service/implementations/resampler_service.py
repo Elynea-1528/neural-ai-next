@@ -141,6 +141,8 @@ class ResamplerService(ResamplerInterface):
                     end=str(end),
                     original_error=AttributeError("Storage does not support read_tick_data method"),
                 )
+            from typing import cast
+
             tick_data = await read_method(symbol, start, end)
 
             # Ellenőrizzük, hogy kaptunk-e adatot
@@ -153,7 +155,7 @@ class ResamplerService(ResamplerInterface):
                 )
                 return pl.DataFrame()
 
-            return tick_data
+            return cast(pl.DataFrame, tick_data)
         except Exception as e:
             raise DataLoadError(
                 symbol=symbol, start=str(start), end=str(end), original_error=e

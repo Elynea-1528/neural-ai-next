@@ -36,7 +36,7 @@ class DataService(DataServiceInterface):
             core_components: A core komponensek
         """
         self._logger = logger
-        self._config = config or DataServiceConfig()
+        self._config = config or DataServiceConfig.model_validate({})
         self._core_components = core_components
         self._data_sources: dict[str, dict[str, str]] = {
             "tick_data": {
@@ -325,20 +325,17 @@ class DataService(DataServiceInterface):
         if not isinstance(downloader, IJForexDownloader):
             raise RuntimeError("A komponens nem implementálja az IJForexDownloader interfészt")
 
-        downloader = cast(IJForexDownloader, downloader)
-
         try:
             # Storage komponens lekérése a mentéshez
             storage = self._core_components.get_component("parquet_storage")
             if storage is None:
                 raise RuntimeError("A ParquetStorage komponens nem érhető el a mentéshez")
 
-            # Típus ellenőrzés (futási időben)
-            from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
+            # Típus ellenőrzés (futási időben) - ParquetStorageService specifikus
+            from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
 
-            if not isinstance(storage, StorageInterface):
-                raise RuntimeError("A storage komponens nem implementálja a StorageInterface-t")
-            storage = cast(StorageInterface, storage)
+            if not isinstance(storage, ParquetStorageService):
+                raise RuntimeError("A storage komponens nem ParquetStorageService típusú")
 
             # Dátumok iterálása és adatok letöltése
             current_date = start
@@ -575,8 +572,6 @@ class DataService(DataServiceInterface):
         if not isinstance(storage, StorageInterface):
             raise RuntimeError("A komponens nem implementálja a StorageInterface-t")
 
-        storage = cast(StorageInterface, storage)
-
         try:
             data_records: list[dict[str, Any]] = []
 
@@ -680,8 +675,6 @@ class DataService(DataServiceInterface):
 
         if not isinstance(storage, StorageInterface):
             raise RuntimeError("A komponens nem implementálja a StorageInterface-t")
-
-        storage = cast(StorageInterface, storage)
 
         try:
             # Ha a storage-nak van BASE_PATH attribútuma

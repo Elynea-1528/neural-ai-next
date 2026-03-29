@@ -281,6 +281,11 @@ class MirrorChecker:
             test_file_name = f"test_{parts[0]}"
             return Path("tests") / test_file_name
 
+        # SPECIÁLIS: neural_ai/__init__.py kezelése
+        if len(parts) == 2 and parts[0] == "neural_ai" and parts[1] == "__init__.py":
+            # neural_ai/__init__.py -> tests/neural_ai/test_neural_ai_init.py
+            return Path("tests") / "neural_ai" / "test_neural_ai_init.py"
+
         # Ha scripts/ vagy docs/ mappában van
         if parts[0] in ["scripts", "docs"]:
             # scripts/generate.py -> tests/scripts/test_generate.py
@@ -303,13 +308,29 @@ class MirrorChecker:
         # test_ prefix hozzáadása
         # __init__.py fájlok speciális kezelése
         if file_name == "__init__.py" and dir_parts:
-            # Minden __init__.py teszt fájl neve egyszerűen test_init.py
-            # neural_ai/core/__init__.py -> test_init.py
-            # neural_ai/core/base/__init__.py -> test_init.py
-            # neural_ai/core/base/exceptions/__init__.py -> test_init.py
-            test_file_name = "test_init.py"
-            base_name = "init"
-            integration_file_name = "test_init_integration.py"
+            # ÚJ LOGIKA: test_<modul>_init.py (egyedi nevek pytest collection error elkerülésére)
+            # neural_ai/core/__init__.py -> test_core_init.py
+            # neural_ai/core/base/__init__.py -> test_base_init.py
+            # neural_ai/core/config/__init__.py -> test_config_init.py
+            # neural_ai/core/base/exceptions/__init__.py -> test_base_exceptions_init.py
+            module_name = dir_parts[
+                -1
+            ]  # Utolsó mappa neve (pl. "core", "base", "config", "exceptions")
+
+            # Ha az utolsó mappa neve "exceptions", "interfaces", vagy "implementations",
+            # akkor használjuk a szülő mappa nevét is
+            if (
+                module_name in ["exceptions", "interfaces", "implementations"]
+                and len(dir_parts) >= 2
+            ):
+                parent_name = dir_parts[-2]  # Szülő mappa neve (pl. "base", "config", "jforex")
+                test_file_name = f"test_{parent_name}_{module_name}_init.py"
+                base_name = f"{parent_name}_{module_name}_init"
+                integration_file_name = f"test_{parent_name}_{module_name}_init_integration.py"
+            else:
+                test_file_name = f"test_{module_name}_init.py"
+                base_name = f"{module_name}_init"
+                integration_file_name = f"test_{module_name}_init_integration.py"
         else:
             test_file_name = f"test_{file_name}"
             base_name = file_name.replace(".py", "")
@@ -318,9 +339,7 @@ class MirrorChecker:
         # 1. Elsődleges hely (Mirror Rule szerint - TELJES TÜKÖR)
         # neural_ai/collectors/jforex/factory.py ->
         # tests/neural_ai/collectors/jforex/test_factory.py
-        test_path = (
-            Path("tests") / Path("neural_ai") / Path(*dir_parts) / test_file_name
-        )
+        test_path = Path("tests") / Path("neural_ai") / Path(*dir_parts) / test_file_name
 
         if test_path.exists():
             return test_path
@@ -642,14 +661,11 @@ class MarkdownGenerator(GeneratorBase):
 
                 # Lint/Mypy/Pylance
                 lint_mypy_pylance = (
-                    f"{file.lint_errors} / {file.type_errors} / "
-                    f"{file.pylance_errors}"
+                    f"{file.lint_errors} / {file.type_errors} / {file.pylance_errors}"
                 )
 
                 # Source Warnings
-                src_warn = (
-                    str(file.source_warnings) if file.source_warnings > 0 else "-"
-                )
+                src_warn = str(file.source_warnings) if file.source_warnings > 0 else "-"
 
                 # Dokumentálva
                 doc_status = "✅" if file.has_documentation else "❌"
@@ -1402,7 +1418,7 @@ class HTMLGenerator(GeneratorBase):
                     cov_class = "cov-good" if file.coverage_stmt >= 80 else "cov-low"
                     coverage = (
                         f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / '
-                        f'{file.coverage_branch:.0f}%'
+                        f"{file.coverage_branch:.0f}%"
                     )
                 else:
                     coverage = '<span style="opacity: 0.4;">N/A</span>'
@@ -1447,7 +1463,7 @@ class HTMLGenerator(GeneratorBase):
                     cov_class = "cov-good" if file.coverage_stmt >= 80 else "cov-low"
                     coverage = (
                         f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / '
-                        f'{file.coverage_branch:.0f}%'
+                        f"{file.coverage_branch:.0f}%"
                     )
                 else:
                     coverage = '<span style="opacity: 0.4;">N/A</span>'
@@ -1485,7 +1501,7 @@ class HTMLGenerator(GeneratorBase):
                     cov_class = "cov-good" if file.coverage_stmt >= 80 else "cov-low"
                     coverage = (
                         f'<span class="{cov_class}">{file.coverage_stmt:.0f}%</span> / '
-                        f'{file.coverage_branch:.0f}%'
+                        f"{file.coverage_branch:.0f}%"
                     )
                 else:
                     coverage = '<span style="opacity: 0.4;">N/A</span>'
@@ -1626,55 +1642,48 @@ class TaskTreeGenerator:
         try:
             # 1. Cleanup régi coverage fájlok
             print("    🧹 Régi coverage fájlok törlése...")
-            subprocess.run(
-                ["rm", "-f", ".coverage", ".coverage.*"],
-                check=False,
-                cwd=PROJECT_ROOT
-            )
+            subprocess.run(["rm", "-f", ".coverage", ".coverage.*"], check=False, cwd=PROJECT_ROOT)
 
             # 2. Coverage run (minden importált fájlra generál coverage-t)
             print("    🏃 Coverage run futtatása...")
             cmd_coverage_run = [
                 str(COVERAGE_BIN),
                 "run",
-                "--source=neural_ai,scripts,tests",  # + tests mappa (FIX 3)
+                "--source=.",  # JAVÍTÁS: Teljes projekt követése
                 "--branch",
-                "-m", "pytest", "tests/",
-                "-p", "no:cov",  # Disable pytest-cov plugin (konfliktus elkerülése)
+                "-m",
+                "pytest",
+                "tests/",
+                "-p",
+                "no:cov",  # Disable pytest-cov plugin (konfliktus elkerülése)
                 "--json-report",  # FIX 2: JSON report generálás
                 "--json-report-file=reports/pytest_report.json",  # FIX 2: Report fájl
-                "-q", "--tb=no", "--continue-on-collection-errors"
+                "-q",
+                "--tb=no",
+                "--continue-on-collection-errors",
             ]
 
-            subprocess.run(
-                cmd_coverage_run,
-                check=False,
-                env=env,
-                timeout=900,
-                cwd=PROJECT_ROOT
-            )
+            subprocess.run(cmd_coverage_run, check=False, env=env, timeout=900, cwd=PROJECT_ROOT)
+
+            # Ellenőrizzük a .coverage fájlt
+            coverage_db = PROJECT_ROOT / ".coverage"
+            if coverage_db.exists():
+                print(f"    ✅ .coverage fájl létrejött: {coverage_db}")
+            else:
+                print("    ❌ .coverage fájl NEM jött létre!")
 
             # 3. JSON report generálás
             print("    📄 JSON report generálása...")
-            cmd_coverage_json = [
-                str(COVERAGE_BIN),
-                "json",
-                "-o", str(COVERAGE_FILE)
-            ]
+            cmd_coverage_json = [str(COVERAGE_BIN), "json", "-o", str(COVERAGE_FILE)]
 
-            subprocess.run(
-                cmd_coverage_json,
-                check=False,
-                env=env,
-                cwd=PROJECT_ROOT
-            )
+            subprocess.run(cmd_coverage_json, check=False, env=env, cwd=PROJECT_ROOT)
 
             # 4. Retry mechanizmus
             max_retries = 3
             for attempt in range(max_retries):
                 if COVERAGE_FILE.exists():
                     break
-                print(f"    🔄 Várakozás coverage fájlra... ({attempt+1}/{max_retries})")
+                print(f"    🔄 Várakozás coverage fájlra... ({attempt + 1}/{max_retries})")
                 time.sleep(2)
 
             # 5. Betöltés és konverzió (JAVÍTÁS: Egységes útvonal normalizálás)
@@ -1688,7 +1697,7 @@ class TaskTreeGenerator:
                     # JAVÍTÁS: Ugyanaz a logika, mint a get_dynamic_metrics()-ben
                     for abs_path, data in raw_files.items():
                         if abs_path.startswith(str(PROJECT_ROOT)):
-                            rel_path = abs_path[len(str(PROJECT_ROOT)) + 1:]
+                            rel_path = abs_path[len(str(PROJECT_ROOT)) + 1 :]
                             # Normalizáljuk az útvonalat (Windows kompatibilitás)
                             rel_path = rel_path.replace("\\", "/")
                             self.coverage_data[rel_path] = data
@@ -1699,9 +1708,9 @@ class TaskTreeGenerator:
 
                     print(f"    ✅ Coverage adatok betöltve: {len(self.coverage_data)} fájl")
                     if self.coverage_data:
-                        print(f"    🔍 DEBUG: Első 5 coverage kulcs:")
+                        print("    🔍 DEBUG: Első 5 coverage kulcs:")
                         for i, key in enumerate(list(self.coverage_data.keys())[:5]):
-                            print(f"       [{i+1}] '{key}'")
+                            print(f"       [{i + 1}] '{key}'")
             else:
                 print("    ❌ Coverage fájl nem jött létre!")
                 print(f"    🔍 DEBUG: Várt fájl helye: {COVERAGE_FILE}")
@@ -1717,7 +1726,7 @@ class TaskTreeGenerator:
                         self.coverage_data = {}
                         for abs_path, data in raw_files.items():
                             if abs_path.startswith(str(PROJECT_ROOT)):
-                                rel_path = abs_path[len(str(PROJECT_ROOT)) + 1:]
+                                rel_path = abs_path[len(str(PROJECT_ROOT)) + 1 :]
                                 self.coverage_data[rel_path] = data
                         if self.coverage_data:
                             print(f"    ✅ Részleges coverage: {len(self.coverage_data)} fájl")
@@ -1781,7 +1790,12 @@ class TaskTreeGenerator:
         try:
             cmd = ["pyright", "neural_ai", "tests", "scripts", "--outputjson"]
             result = subprocess.run(
-                cmd, capture_output=True, text=True, check=False, env=env, timeout=120  # 2 perc
+                cmd,
+                capture_output=True,
+                text=True,
+                check=False,
+                env=env,
+                timeout=120,  # 2 perc
             )
 
             if result.stdout.strip():
@@ -1794,7 +1808,7 @@ class TaskTreeGenerator:
 
                     if severity in ["error", "warning"]:
                         if file_path.startswith(str(PROJECT_ROOT)):
-                            file_path = file_path[len(str(PROJECT_ROOT)) + 1:]
+                            file_path = file_path[len(str(PROJECT_ROOT)) + 1 :]
 
                         error_entry: dict[str, Any] = {
                             "file": file_path,
@@ -1825,31 +1839,34 @@ class TaskTreeGenerator:
         """Pytest Report feldolgozása (FIX 2: pytest-json-report plugin)."""
         print("  📋 Pytest eredmények feldolgozása...")
         pytest_report_file = REPORT_DIR / "pytest_report.json"
-        
+
         if not pytest_report_file.exists():
             print("    ⚠️ Pytest report fájl nem található")
             self.pytest_data = {}
             self.source_warnings = {}
             return
-        
+
         try:
             with open(pytest_report_file) as f:
                 report = json.load(f)
-            
+
             # Teszt eredmények feldolgozása
             for test in report.get("tests", []):
                 nodeid = test.get("nodeid", "")
                 outcome = test.get("outcome", "")
-                
+
                 # Fájl útvonal kinyerése (pl. "tests/neural_ai/core/test_file.py::test_func")
                 if "::" in nodeid:
                     file_path = nodeid.split("::")[0]
-                    
+
                     if file_path not in self.pytest_data:
                         self.pytest_data[file_path] = {
-                            "passed": 0, "failed": 0, "errors": 0, "skipped": 0
+                            "passed": 0,
+                            "failed": 0,
+                            "errors": 0,
+                            "skipped": 0,
                         }
-                    
+
                     if outcome == "passed":
                         self.pytest_data[file_path]["passed"] += 1
                     elif outcome == "failed":
@@ -1858,14 +1875,14 @@ class TaskTreeGenerator:
                         self.pytest_data[file_path]["errors"] += 1
                     elif outcome == "skipped":
                         self.pytest_data[file_path]["skipped"] += 1
-            
+
             # Source warnings feldolgozása (pytest warnings a forráskódban)
             for warning in report.get("warnings", []):
                 filename = warning.get("filename", "")
                 if filename and filename.startswith(str(PROJECT_ROOT)):
-                    rel_path = filename[len(str(PROJECT_ROOT)) + 1:]
+                    rel_path = filename[len(str(PROJECT_ROOT)) + 1 :]
                     self.source_warnings[rel_path] = self.source_warnings.get(rel_path, 0) + 1
-            
+
             print(f"    ✅ {len(self.pytest_data)} teszt fájl feldolgozva")
             if self.source_warnings:
                 print(f"    ⚠️ {len(self.source_warnings)} fájl warninggal")
@@ -1887,19 +1904,19 @@ class TaskTreeGenerator:
         else:
             # Relatív útvonal normalizálása (Path objektum -> string)
             rel_path = str(file_path)
-        
+
         # Normalizáljuk az útvonalat (eltávolítjuk a dupla slash-eket, stb.)
         rel_path = rel_path.replace("\\", "/")  # Windows kompatibilitás
 
         # DEBUG: Első fájlnál kiírjuk a keresett útvonalat
-        if not hasattr(self, '_debug_printed'):
-            print(f"\n🔍 DEBUG get_dynamic_metrics():")
+        if not hasattr(self, "_debug_printed"):
+            print("\n🔍 DEBUG get_dynamic_metrics():")
             print(f"   Keresett rel_path = '{rel_path}'")
             print(f"   coverage_data kulcsok száma = {len(self.coverage_data)}")
             if self.coverage_data:
-                print(f"   Első 5 coverage kulcs:")
+                print("   Első 5 coverage kulcs:")
                 for i, key in enumerate(list(self.coverage_data.keys())[:5]):
-                    print(f"     [{i+1}] '{key}'")
+                    print(f"     [{i + 1}] '{key}'")
             print(f"   rel_path in coverage_data? {rel_path in self.coverage_data}")
             self._debug_printed = True
 
@@ -1930,9 +1947,7 @@ class TaskTreeGenerator:
                 metrics["coverage_branch"] = 100.0 if metrics["coverage_stmt"] > 0 else 0.0
 
         # Ruff
-        metrics["lint_errors"] = sum(
-            1 for err in self.ruff_data if err.get("filename") == rel_path
-        )
+        metrics["lint_errors"] = sum(1 for err in self.ruff_data if err.get("filename") == rel_path)
 
         # Mypy
         metrics["type_errors"] = sum(
@@ -2027,9 +2042,7 @@ class TaskTreeGenerator:
         if not analyzer.parse():
             # Parse hiba esetén alapértelmezett értékek
             config_status: Literal["✅ OK", "🔴 TYPED_DICT", "⚪ N/A"] = "⚪ N/A"
-            logger_status: Literal[
-                "✅ OK", "⚠️ UNUSED", "🔴 MISSING", "⚪ N/A"
-            ] = "⚪ N/A"
+            logger_status: Literal["✅ OK", "⚠️ UNUSED", "🔴 MISSING", "⚪ N/A"] = "⚪ N/A"
         else:
             config_status = analyzer.check_config_type()
             logger_status = analyzer.check_logger_injection()
@@ -2092,10 +2105,14 @@ class TaskTreeGenerator:
             has_documentation=has_documentation,
         )
 
-    def generate(self) -> None:
-        """Generálja a TASK_TREE.md és TASK_TREE.html fájlokat."""
+    def generate(self, force_refresh: bool = False) -> None:
+        """Generálja a TASK_TREE.md és TASK_TREE.html fájlokat.
+
+        Args:
+            force_refresh: Ha True, cache kihagyása és friss adatok gyűjtése
+        """
         # 1. Dinamikus eszközök futtatása
-        self.run_dynamic_tools()
+        self.run_dynamic_tools(force_refresh=force_refresh)
 
         print("\n🔍 Kódbázis szkennelése...")
         files = self.scan_codebase()
@@ -2107,8 +2124,7 @@ class TaskTreeGenerator:
         with ThreadPoolExecutor(max_workers=8) as executor:
             # Submit all tasks
             future_to_file = {
-                executor.submit(self.analyze_file, file_path): file_path
-                for file_path in files
+                executor.submit(self.analyze_file, file_path): file_path for file_path in files
             }
 
             # Collect results with progress
@@ -2156,5 +2172,15 @@ class TaskTreeGenerator:
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="TASK_TREE generátor")
+    parser.add_argument(
+        "--force-refresh",
+        action="store_true",
+        help="Cache kihagyása, friss adatok gyűjtése (pytest-cov, ruff, mypy, pyright)",
+    )
+    args = parser.parse_args()
+
     generator = TaskTreeGenerator()
-    generator.generate()
+    generator.generate(force_refresh=args.force_refresh)

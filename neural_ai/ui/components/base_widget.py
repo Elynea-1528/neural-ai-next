@@ -4,7 +4,7 @@ Ez a modul implementálja az alap widget osztályt, amelyet
 az összes UI komponens örököl.
 """
 
-from typing import Any
+# Any import removed - using object instead
 
 
 class BaseWidget:
@@ -13,7 +13,7 @@ class BaseWidget:
     Ez az osztály az összes UI komponens alapját képezi.
     """
 
-    def __init__(self, config: dict[str, Any] | None = None) -> None:
+    def __init__(self, config: dict[str, object] | None = None) -> None:
         """A widget inicializálása.
 
         Args:

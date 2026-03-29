@@ -4,7 +4,7 @@ Ez a modul implementálja a backend rendszerrel való kommunikációt biztosít�
 CoreBridge osztályt, amely a core komponensek elérését teszi lehetővé a UI számára.
 """
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 
@@ -211,7 +211,7 @@ class CoreBridge(metaclass=SingletonMeta):
 
         return self._strategy_service
 
-    def send_command(self, command: str, params: dict[str, Any]) -> dict[str, Any]:
+    def send_command(self, command: str, params: dict[str, object]) -> dict[str, object]:
         """Parancs küldése a backend rendszernek.
 
         Args:
@@ -231,7 +231,7 @@ class CoreBridge(metaclass=SingletonMeta):
 
         # Jelenleg csak egy mock választ adunk vissza
         # A jövőben itt lehetne a core komponenseken keresztül parancsokat végrehajtani
-        response: dict[str, Any] = {
+        response: dict[str, object] = {
             "command": command,
             "params": params,
             "status": "success",
@@ -243,7 +243,7 @@ class CoreBridge(metaclass=SingletonMeta):
 
         return response
 
-    def get_system_info(self) -> dict[str, Any]:
+    def get_system_info(self) -> dict[str, object]:
         """Rendszerinformáció lekérése a backendről.
 
         Returns:
@@ -258,7 +258,7 @@ class CoreBridge(metaclass=SingletonMeta):
             self._core.logger.info("Rendszerinformáció lekérdezése")
 
         # Valós rendszerinformáció gyűjtése a core komponensekből
-        system_info: dict[str, Any] = {
+        system_info: dict[str, object] = {
             "version": "6.0.0",
             "status": "running" if self._connected else "disconnected",
             "uptime": 3600,

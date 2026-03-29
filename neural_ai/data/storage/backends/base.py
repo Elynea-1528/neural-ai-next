@@ -65,7 +65,7 @@ class StorageBackend(ABC):
         self.is_async: bool = is_async
 
     @abstractmethod
-    def write(self, data: Any, path: str, **kwargs: dict[str, Any]) -> None:
+    def write(self, data: Any, path: str, **kwargs: Any) -> None:
         """DataFrame adatok írása a megadott elérési útra.
 
         Args:
@@ -84,7 +84,7 @@ class StorageBackend(ABC):
         pass
 
     @abstractmethod
-    def read(self, path: str, **kwargs: dict[str, Any]) -> Any:
+    def read(self, path: str, **kwargs: Any) -> Any:
         """DataFrame adatok olvasása a megadott elérési útról.
 
         Args:

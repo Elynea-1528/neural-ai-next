@@ -2,9 +2,10 @@
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
+    import pandas as pd
     import polars as pl
 
 
@@ -19,7 +20,7 @@ class ResamplerInterface(ABC):
         end: datetime,
         timeframe: str = "1m",
         return_type: str = "polars",
-    ) -> "pl.DataFrame":
+    ) -> Union["pl.DataFrame", "pd.DataFrame"]:
         """Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
 
         Args:

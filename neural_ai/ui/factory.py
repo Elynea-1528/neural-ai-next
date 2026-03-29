@@ -6,7 +6,7 @@ Dependency Injection minta szerint.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.config.interfaces.types import (
@@ -100,16 +100,18 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
         # Pydantic property elérés - cast() helyett
-        nav_config = final_config.navigation if final_config else NavigationConfig()
+        nav_config = final_config.navigation if final_config else NavigationConfig.model_validate({})
 
         if "navigation" not in self._services:
             from neural_ai.ui.services.navigation_service import NavigationService
 
             self._services["navigation"] = NavigationService(
-                final_logger, nav_config, final_components
+                final_logger, nav_config.model_dump() if nav_config else {}, final_components
             )
 
-        return self._services["navigation"]
+        from neural_ai.ui.interfaces.navigation_service_interface import NavigationServiceInterface
+
+        return cast(NavigationServiceInterface, self._services["navigation"])
 
     def get_dashboard_service(
         self,
@@ -139,16 +141,18 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
         # Pydantic property elérés - cast() helyett
-        dash_config = final_config.dashboard if final_config else DashboardConfig()
+        dash_config = final_config.dashboard if final_config else DashboardConfig.model_validate({})
 
         if "dashboard" not in self._services:
             from neural_ai.ui.services.dashboard_service import DashboardService
 
             self._services["dashboard"] = DashboardService(
-                final_logger, dash_config, final_components
+                final_logger, dash_config.model_dump() if dash_config else {}, final_components
             )
 
-        return self._services["dashboard"]
+        from neural_ai.ui.interfaces.dashboard_service_interface import DashboardServiceInterface
+
+        return cast(DashboardServiceInterface, self._services["dashboard"])
 
     def get_data_service(
         self,
@@ -178,14 +182,16 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
         # Pydantic property elérés - cast() helyett
-        data_config = final_config.data_service if final_config else DataServiceConfig()
+        data_config = final_config.data_service if final_config else DataServiceConfig.model_validate({})
 
         if "data" not in self._services:
             from neural_ai.ui.services.data_service import DataService
 
             self._services["data"] = DataService(final_logger, data_config, final_components)
 
-        return self._services["data"]
+        from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
+
+        return cast(DataServiceInterface, self._services["data"])
 
     def get_ai_service(
         self,
@@ -215,14 +221,16 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
         # Pydantic property elérés - cast() helyett
-        ai_config = final_config.ai_service if final_config else AIServiceConfig()
+        ai_config = final_config.ai_service if final_config else AIServiceConfig.model_validate({})
 
         if "ai" not in self._services:
             from neural_ai.ui.services.ai_service import AIService
 
-            self._services["ai"] = AIService(final_logger, ai_config, final_components)
+            self._services["ai"] = AIService(final_logger, ai_config.model_dump() if ai_config else {}, final_components)
 
-        return self._services["ai"]
+        from neural_ai.ui.interfaces.ai_service_interface import AIServiceInterface
+
+        return cast(AIServiceInterface, self._services["ai"])
 
     def get_strategy_service(
         self,
@@ -252,16 +260,18 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
         # Pydantic property elérés - cast() helyett
-        strategy_config = final_config.strategy if final_config else StrategyConfig()
+        strategy_config = final_config.strategy if final_config else StrategyConfig.model_validate({})
 
         if "strategy" not in self._services:
             from neural_ai.ui.services.strategy_service import StrategyService
 
             self._services["strategy"] = StrategyService(
-                final_logger, strategy_config, final_components
+                final_logger, strategy_config.model_dump() if strategy_config else {}, final_components
             )
 
-        return self._services["strategy"]
+        from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
+
+        return cast(StrategyServiceInterface, self._services["strategy"])
 
     def get_live_ops_service(
         self,
@@ -291,16 +301,18 @@ class UIServiceFactory(metaclass=SingletonMeta):
             raise RuntimeError("Factory nincs inicializálva megfelelő függőségekkel")
 
         # Pydantic property elérés - cast() helyett
-        live_ops_config = final_config.live_ops if final_config else LiveOpsConfig()
+        live_ops_config = final_config.live_ops if final_config else LiveOpsConfig.model_validate({})
 
         if "live_ops" not in self._services:
             from neural_ai.ui.services.live_ops_service import LiveOpsService
 
             self._services["live_ops"] = LiveOpsService(
-                final_logger, live_ops_config, final_components
+                final_logger, live_ops_config.model_dump() if live_ops_config else {}, final_components
             )
 
-        return self._services["live_ops"]
+        from neural_ai.ui.interfaces.live_ops_service_interface import LiveOpsServiceInterface
+
+        return cast(LiveOpsServiceInterface, self._services["live_ops"])
 
     def get_all_services(
         self,

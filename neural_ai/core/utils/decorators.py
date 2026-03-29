@@ -9,24 +9,27 @@ import time
 import uuid
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, TypeVar, cast
+from typing import TYPE_CHECKING, ParamSpec, TypeVar, cast
+
+if TYPE_CHECKING:
+    from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 # Típusváltozók a generikus típusokhoz
-F = TypeVar("F", bound=Callable[..., Any])
+P = ParamSpec("P")
 R = TypeVar("R")
 
 
 # Logger inicializálása - késleltetett import elkerülése érdekében
-def _get_trace_logger() -> Any:
+def _get_trace_logger() -> "LoggerInterface":
     from neural_ai.core.logger.factory import LoggerFactory
 
     return LoggerFactory.get_logger("neural_ai.trace")
 
 
-_trace_logger = None
+_trace_logger: "LoggerInterface | None" = None
 
 
-def _ensure_trace_logger() -> Any:
+def _ensure_trace_logger() -> "LoggerInterface":
     global _trace_logger
     if _trace_logger is None:
         _trace_logger = _get_trace_logger()
@@ -37,7 +40,7 @@ def _ensure_trace_logger() -> Any:
 _SAFE_TYPES = (str, int, float, bool, type(None))
 
 
-def _serialize_arg(arg: Any) -> str:
+def _serialize_arg(arg: object) -> str:
     """Egy argumentum biztonságos szöveges reprezentációját adja vissza.
 
     Csak biztonságos típusokat (str, int, float, bool, None) konvertál
@@ -55,7 +58,7 @@ def _serialize_arg(arg: Any) -> str:
     return "UNSAFE_ARG"
 
 
-def trace[**P, R](func: Callable[P, R]) -> Callable[P, R]:
+def trace(func: Callable[P, R]) -> Callable[P, R]:  # noqa: UP047
     """Dekorátor a funkcióhívások nyomon követéséhez és logolásához.
 
     A dekorátor minden függvényhíváskor logolja a következő információkat:
@@ -83,7 +86,7 @@ def trace[**P, R](func: Callable[P, R]) -> Callable[P, R]:
     """
 
     @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         """A dekorált függvényt becsomagoló wrapper függvény.
 
         Args:

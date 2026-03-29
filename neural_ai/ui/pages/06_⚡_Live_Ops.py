@@ -1,6 +1,6 @@
 """Live Ops Page - Valós idejű műveletek."""
 
-from typing import Any
+# Any import removed - using object instead
 
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
@@ -9,7 +9,7 @@ from neural_ai.ui.interfaces.page_interface import PageInterface
 class LiveOpsPage(PageInterface):
     """Live Ops oldal."""
 
-    def __init__(self, bridge: CoreBridgeInterface, **kwargs: Any) -> None:
+    def __init__(self, bridge: CoreBridgeInterface, **kwargs: object) -> None:
         """A Live Ops oldal inicializálása.
 
         Args:
@@ -23,7 +23,7 @@ class LiveOpsPage(PageInterface):
     def render(self) -> None:
         """A Live Ops oldal megjelenítése."""
 
-    def on_navigate_to(self, params: dict[str, Any] | None = None) -> None:
+    def on_navigate_to(self, params: dict[str, object] | None = None) -> None:
         """Navigálás az oldalra.
 
         Args:

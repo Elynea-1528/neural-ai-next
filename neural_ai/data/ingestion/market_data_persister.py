@@ -61,8 +61,8 @@ class MarketDataPersister:
         self.storage = storage
         self.logger = logger
         self.config = config
-        self.buffer_size_limit = config.get("buffer_size_limit", 10_000)
-        self.flush_interval_minutes = config.get("flush_interval_minutes", 60)
+        self.buffer_size_limit = config.buffer_size_limit or 10_000
+        self.flush_interval_minutes = config.flush_interval_minutes or 60
 
         # Buffer szimbólumonként csoportosítva
         self.buffer: dict[str, list[MarketDataEvent]] = defaultdict(list)

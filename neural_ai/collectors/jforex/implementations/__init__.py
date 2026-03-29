@@ -1,9 +1,5 @@
-"""JForex Collector implementations."""
+"""JForex implementációk (REJTETT - Ne importálj innen!).
 
-from .bi5_downloader import Bi5Downloader
-from .live_feed import JForexLiveFeed
-
-__all__ = [
-    "Bi5Downloader",
-    "JForexLiveFeed",
-]
+Ez a fájl szándékosan üres.
+Csak a factory.py importálhatja az implementációkat.
+"""
