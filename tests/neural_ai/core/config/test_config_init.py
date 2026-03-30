@@ -78,7 +78,7 @@ class TestConfigModuleExports:
 class TestConfigFactoryIntegration:
     """Integrációs tesztek a config factory használatához."""
 
-    def test_factory_creates_yaml_manager(self, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    def test_factory_creates_yaml_manager(self, tmp_path) -> None:
         """Ellenőrzi, hogy a factory létrehoz egy YAML config manager példányt."""
         # Given
         from neural_ai.core.config import ConfigManagerFactory

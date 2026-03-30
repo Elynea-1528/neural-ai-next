@@ -2,99 +2,44 @@
 
 **Tesztelt modul:** [`neural_ai/core/logger/implementations/rotating_file_logger.py`](../../neural_ai/core/logger/implementations/rotating_file_logger.py)
 
-Rotating file logger implementáció tesztei.
+Unit tesztek a neural_ai.core.logger.implementations.rotating_file_logger modulhoz.
 
-## Teszt Osztály: `TestRotatingFileLogger`
+Ez a teszt ellenőrzi a RotatingFileLogger osztály alapvető funkcionalitását:
+1. Inicializálás
+2. Fájlba írás
+3. Méret alapú rotáció
+4. Idő alapú rotáció
+5. LoggerInterface implementáció
 
-RotatingFileLogger osztály tesztei.
+## Teszt Függvények
 
-### ✓ `test_init_basic()`
+### ✓ `test_rotating_file_logger_initialization()`
 
-Alap logger inicializálás tesztelése.
+Teszt: A RotatingFileLogger inicializálható.
 
-### ✓ `test_init_without_file_raises_error()`
+### ✓ `test_rotating_file_logger_default_level()`
 
-Logger inicializálás fájl nélkül hibát dob.
+Teszt: A RotatingFileLogger alapértelmezett log szintje INFO.
 
-### ✓ `test_init_with_empty_file_raises_error()`
+### ✓ `test_rotating_file_logger_custom_level()`
 
-Logger inicializálás üres fájlnévvel hibát dob. Ez a teszt lefedi a 60. sort, ahol a ValueError-t dobjuk.
+Teszt: A RotatingFileLogger egyedi log szinttel inicializálható.
 
-### ✓ `test_init_with_custom_level()`
+### ✓ `test_rotating_file_logger_writes_to_file()`
 
-Logger inicializálás egyéni szinttel.
+Teszt: A RotatingFileLogger fájlba ír.
 
-### ✓ `test_init_creates_directory()`
+### ✓ `test_rotating_file_logger_size_rotation()`
 
-Logger létrehozza a könyvtárat, ha az nem létezik.
+Teszt: A RotatingFileLogger méret alapú rotációt végez.
 
-### ✓ `test_debug_logging()`
+### ✓ `test_rotating_file_logger_time_rotation()`
 
-Debug üzenet logolásának tesztelése.
+Teszt: A RotatingFileLogger idő alapú rotációval inicializálható.
 
-### ✓ `test_debug_logging_without_kwargs()`
+### ✓ `test_rotating_file_logger_multiple_messages()`
 
-Debug üzenet logolásának tesztelése kwargs nélkül. Ez a teszt lefedi a 106. sort.
-
-### ✓ `test_info_logging()`
-
-Info üzenet logolásának tesztelése.
-
-### ✓ `test_info_logging_without_kwargs()`
-
-Info üzenet logolásának tesztelése kwargs nélkül. Ez a teszt lefedi a 118. sort.
-
-### ✓ `test_warning_logging()`
-
-Warning üzenet logolásának tesztelése.
-
-### ✓ `test_warning_logging_without_kwargs()`
-
-Warning üzenet logolásának tesztelése kwargs nélkül. Ez a teszt lefedi a 130. sort.
-
-### ✓ `test_error_logging()`
-
-Error üzenet logolásának tesztelése.
-
-### ✓ `test_error_logging_without_kwargs()`
-
-Error üzenet logolásának tesztelése kwargs nélkül. Ez a teszt lefedi a 142. sort.
-
-### ✓ `test_critical_logging()`
-
-Critical üzenet logolásának tesztelése.
-
-### ✓ `test_critical_logging_without_kwargs()`
-
-Critical üzenet logolásának tesztelése kwargs nélkül. Ez a teszt lefedi a 154. sort.
-
-### ✓ `test_set_level()`
-
-Log szint módosításának tesztelése.
-
-### ✓ `test_logger_name()`
-
-Logger nevének ellenőrzése.
-
-### ✓ `test_invalid_rotation_type_raises_error()`
-
-Érvénytelen rotáció típus hibát dob.
-
-### ✓ `test_time_based_rotation()`
-
-Időalapú rotáció tesztelése. Ez a teszt lefedi a 75. sort, ahol a TimedRotatingFileHandler-t hozzuk létre.
-
-### ✓ `test_clean_old_logs()`
-
-Régi log fájlok törlésének tesztelése.
-
-### ✓ `test_existing_handlers_removed()`
-
-Teszteli, hogy a meglévő handlerek eltávolításra kerülnek. Ez a teszt lefedi a 56. sort, ahol a meglévő handlerek eltávolítása történik.
-
-### ✓ `test_di_dependencies_none()`
-
-DI függőségek None értékkel történő elfogadásának tesztelése.
+Teszt: A RotatingFileLogger több üzenetet tud logolni.
 
 ---
 

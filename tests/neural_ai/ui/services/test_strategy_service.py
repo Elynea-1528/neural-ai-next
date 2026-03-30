@@ -21,12 +21,12 @@ class TestStrategyService:
 
         service = StrategyService(logger=logger, config=config, core_components=core_components)
 
-        assert service._logger is logger  # type: ignore
-        assert service._config == config  # type: ignore
-        assert service._core_components is core_components  # type: ignore
-        assert len(service._strategies) == 2  # type: ignore
-        assert "moving_avg_cross" in service._strategies  # type: ignore
-        assert "rsi_strategy" in service._strategies  # type: ignore
+        assert service._logger is logger
+        assert service._config == config
+        assert service._core_components is core_components
+        assert len(service._strategies) == 2
+        assert "moving_avg_cross" in service._strategies
+        assert "rsi_strategy" in service._strategies
 
     def test_get_strategies(self) -> None:
         """Teszt: Stratégiák lekérdezése."""
@@ -49,11 +49,11 @@ class TestStrategyService:
         strategy_id = service.create_strategy(name="Test Strategy", config=config, code=code)
 
         assert strategy_id == "strategy_3"
-        assert strategy_id in service._strategies  # type: ignore
-        assert service._strategies[strategy_id]["name"] == "Test Strategy"  # type: ignore
-        assert service._strategies[strategy_id]["config"] == config  # type: ignore
-        assert service._strategies[strategy_id]["code"] == code  # type: ignore
-        assert service._strategies[strategy_id]["status"] == "active"  # type: ignore
+        assert strategy_id in service._strategies
+        assert service._strategies[strategy_id]["name"] == "Test Strategy"
+        assert service._strategies[strategy_id]["config"] == config
+        assert service._strategies[strategy_id]["code"] == code
+        assert service._strategies[strategy_id]["status"] == "active"
 
     def test_update_strategy_config(self) -> None:
         """Teszt: Stratégia konfigurációjának módosítása."""
@@ -66,8 +66,8 @@ class TestStrategyService:
         result = service.update_strategy(strategy_id=strategy_id, config=new_config)
 
         assert result is True
-        assert service._strategies[strategy_id]["config"] == new_config  # type: ignore
-        assert "updated_at" in service._strategies[strategy_id]  # type: ignore
+        assert service._strategies[strategy_id]["config"] == new_config
+        assert "updated_at" in service._strategies[strategy_id]
 
     def test_update_strategy_code(self) -> None:
         """Teszt: Stratégia kódjának módosítása."""
@@ -78,7 +78,7 @@ class TestStrategyService:
         result = service.update_strategy(strategy_id=strategy_id, code=new_code)
 
         assert result is True
-        assert service._strategies[strategy_id]["code"] == new_code  # type: ignore
+        assert service._strategies[strategy_id]["code"] == new_code
 
     def test_update_strategy_unknown(self) -> None:
         """Teszt: Ismeretlen stratégia módosítása hibát dob."""
@@ -95,7 +95,7 @@ class TestStrategyService:
         result = service.delete_strategy(strategy_id=strategy_id)
 
         assert result is True
-        assert strategy_id not in service._strategies  # type: ignore
+        assert strategy_id not in service._strategies
 
     def test_delete_strategy_unknown(self) -> None:
         """Teszt: Ismeretlen stratégia törlése hibát dob."""
@@ -216,7 +216,7 @@ class TestStrategyService:
         mock_processed_df = MagicMock()
         mock_processor.process.return_value = mock_processed_df
 
-        service._core_components.get_component = MagicMock(  # type: ignore
+        service._core_components.get_component = MagicMock(
             side_effect=lambda x: mock_config if x == "config" else mock_logger
         )
 
@@ -244,7 +244,7 @@ class TestStrategyService:
         mock_processed_df = MagicMock()
         mock_processor.process.return_value = mock_processed_df
 
-        service._core_components.get_component = MagicMock(  # type: ignore
+        service._core_components.get_component = MagicMock(
             side_effect=lambda x: mock_config if x == "config" else mock_logger
         )
 
@@ -281,7 +281,7 @@ class TestStrategyService:
         mock_df.is_empty.return_value = False
         mock_df.empty = False
 
-        service._core_components.get_component = MagicMock(return_value=None)  # type: ignore
+        service._core_components.get_component = MagicMock(return_value=None)
 
         with pytest.raises(RuntimeError, match="Config vagy Logger komponens nem elérhető"):
             await service.analyze_market_structure(

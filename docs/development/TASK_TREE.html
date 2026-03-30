@@ -296,7 +296,7 @@
         <div class="header-content">
             <h1>⚡ Neural AI Next - Task Tree Dashboard</h1>
             <div class="meta">
-                <strong>Generálva:</strong> 2026-03-30 18:29:00 UTC &nbsp;|&nbsp;
+                <strong>Generálva:</strong> 2026-03-30 19:04:40 UTC &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
                 &nbsp;|&nbsp;
                 <strong>Fájlok:</strong> 367
@@ -310,17 +310,17 @@
                 <div class="stat-header">
                     <div class="stat-icon">✓</div>
                 </div>
-                <div class="stat-value">282</div>
+                <div class="stat-value">252</div>
                 <div class="stat-label">Secure</div>
-                <div class="stat-percent">76.8% a teljes kódbázisból</div>
+                <div class="stat-percent">68.7% a teljes kódbázisból</div>
             </div>
             <div class="stat-card warning">
                 <div class="stat-header">
                     <div class="stat-icon">⚠</div>
                 </div>
-                <div class="stat-value">82</div>
+                <div class="stat-value">112</div>
                 <div class="stat-label">Warning</div>
-                <div class="stat-percent">22.3% javítást igényel</div>
+                <div class="stat-percent">30.5% javítást igényel</div>
             </div>
             <div class="stat-card critical">
                 <div class="stat-header">
@@ -522,16 +522,16 @@
     
                         <tr>
                             <td class="file-path">core/base/implementations/di_container.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">18</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 18 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -1808,16 +1808,16 @@
     
                         <tr>
                             <td class="file-path">data/storage/implementations/parquet_storage.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>✓ OK</td>
                             <td>✓ OK</td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 1 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -2726,10 +2726,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">11</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">11</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 11 hiba javítása</td>
+                            <td>🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 11 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -2891,10 +2891,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">286</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">286</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 286 hiba javítása</td>
+                            <td>🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 286 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -2935,10 +2935,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">17</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span class="test-fail">17</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 17 hiba javítása</td>
+                            <td>🔬 Mypy: 2 type hiba javítása | 🔎 Pylance: 17 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3020,24 +3020,24 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/base/implementations/test_singleton.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 1 type hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/base/interfaces/test_base_interfaces_init.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">4</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 4 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3053,13 +3053,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/base/interfaces/test_container_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">12</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 12 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3067,10 +3067,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">52</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">10</span> / <span class="test-fail">52</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 52 hiba javítása</td>
+                            <td>🔬 Mypy: 10 type hiba javítása | 🔎 Pylance: 52 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3133,10 +3133,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">63</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">4</span> / <span class="test-fail">63</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 63 hiba javítása</td>
+                            <td>🔬 Mypy: 4 type hiba javítása | 🔎 Pylance: 63 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3144,32 +3144,32 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">15</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">23</span> / <span class="test-fail">15</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 15 hiba javítása</td>
+                            <td>🔬 Mypy: 23 type hiba javítása | 🔎 Pylance: 15 hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/config/interfaces/test_async_config_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">3</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 3 type hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/config/interfaces/test_config_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">3</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 3 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3188,32 +3188,32 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">11</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">4</span> / <span class="test-fail">11</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 11 hiba javítása</td>
+                            <td>🔬 Mypy: 4 type hiba javítása | 🔎 Pylance: 11 hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/config/interfaces/test_types.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">36</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 36 type hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/config/test_config_factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 1 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3221,10 +3221,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">3</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">3</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 3 hiba javítása</td>
+                            <td>🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 3 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3284,13 +3284,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/db/implementations/test_model_base.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 5 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3298,10 +3298,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">13</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">13</span> / <span class="test-fail">13</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 13 hiba javítása</td>
+                            <td>🔬 Mypy: 13 type hiba javítása | 🔎 Pylance: 13 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3331,10 +3331,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">7</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">7</span> / <span class="test-fail">7</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 7 hiba javítása</td>
+                            <td>🔬 Mypy: 7 type hiba javítása | 🔎 Pylance: 7 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3386,21 +3386,21 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">50</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">50</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 50 hiba javítása</td>
+                            <td>🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 50 hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/events/interfaces/test_event_bus_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 2 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3408,10 +3408,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">8</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">14</span> / <span class="test-fail">8</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 8 hiba javítása</td>
+                            <td>🔬 Mypy: 14 type hiba javítása | 🔎 Pylance: 8 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3548,13 +3548,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/logger/interfaces/test_logger_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">16</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 16 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3570,13 +3570,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/logger/test_logger_factory.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 2 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3628,10 +3628,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">16</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">7</span> / <span class="test-fail">16</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 16 hiba javítása</td>
+                            <td>🔬 Mypy: 7 type hiba javítása | 🔎 Pylance: 16 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3672,10 +3672,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">36</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span> / <span class="test-fail">36</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 36 hiba javítása</td>
+                            <td>🔬 Mypy: 5 type hiba javítása | 🔎 Pylance: 36 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3790,13 +3790,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/data/ingestion/test_market_data_persister.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">32</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 32 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3815,10 +3815,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">22</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">11</span> / <span class="test-fail">22</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 22 hiba javítása</td>
+                            <td>🔬 Mypy: 11 type hiba javítása | 🔎 Pylance: 22 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3826,10 +3826,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">13</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span> / <span class="test-fail">13</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 13 hiba javítása</td>
+                            <td>🔬 Mypy: 5 type hiba javítása | 🔎 Pylance: 13 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3859,21 +3859,21 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">34</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span> / <span class="test-fail">34</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 34 hiba javítása</td>
+                            <td>🔬 Mypy: 5 type hiba javítása | 🔎 Pylance: 34 hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/data/storage/implementations/test_parquet_storage.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">40</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 40 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -3925,10 +3925,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">8</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">7</span> / <span class="test-fail">8</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 8 hiba javítása</td>
+                            <td>🔬 Mypy: 7 type hiba javítása | 🔎 Pylance: 8 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4002,10 +4002,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>📝 Dokumentáció írása | 🔎 Pylance: 1 hiba javítása</td>
+                            <td>📝 Dokumentáció írása</td>
                         </tr>
     
                         <tr>
@@ -4057,10 +4057,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">218</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">5</span> / <span class="test-fail">218</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 218 hiba javítása</td>
+                            <td>🔬 Mypy: 5 type hiba javítása | 🔎 Pylance: 218 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4101,10 +4101,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>📝 Dokumentáció írása | 🔎 Pylance: 2 hiba javítása</td>
+                            <td>📝 Dokumentáció írása</td>
                         </tr>
     
                         <tr>
@@ -4131,13 +4131,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/processors/implementations/test_time_alignment_service.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">16</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 16 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4222,10 +4222,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-missing">✕</span></td>
-                            <td>📝 Dokumentáció írása | 🔎 Pylance: 1 hiba javítása</td>
+                            <td>📝 Dokumentáció írása</td>
                         </tr>
     
                         <tr>
@@ -4285,13 +4285,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/components/test_base_widget.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">9</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 9 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4406,57 +4406,57 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/pages/test_ai_lab_page.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 6 type hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/pages/test_data_hub_page.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">22</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 22 type hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/pages/test_dev_center_page.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 6 type hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/pages/test_launchpad_page.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">21</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 21 type hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/pages/test_live_ops_page.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">6</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 6 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4472,13 +4472,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/pages/test_strategy_lab_page.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">43</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 43 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4486,10 +4486,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">10</span> / <span class="test-fail">1</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 1 hiba javítása</td>
+                            <td>🔬 Mypy: 10 type hiba javítása | 🔎 Pylance: 1 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4497,32 +4497,32 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">8</span> / <span class="test-fail">1</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 1 hiba javítása</td>
+                            <td>🔬 Mypy: 8 type hiba javítása | 🔎 Pylance: 1 hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/services/test_data_service.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">9</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 9 type hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/services/test_live_ops_service.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">28</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 28 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4530,10 +4530,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">20</span> / <span class="test-fail">1</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 1 hiba javítása</td>
+                            <td>🔬 Mypy: 20 type hiba javítása | 🔎 Pylance: 1 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4549,35 +4549,35 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/services/test_strategy_service.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">18</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 18 type hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/test_app.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">20</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 20 type hiba javítása</td>
                         </tr>
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/test_core_bridge.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">10</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 10 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4596,10 +4596,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">11</span> / <span class="test-fail">2</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 2 hiba javítása</td>
+                            <td>🔬 Mypy: 11 type hiba javítása | 🔎 Pylance: 2 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4703,13 +4703,13 @@
     
                         <tr>
                             <td class="file-path">tests/scripts/test_download_history.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 1 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4894,12 +4894,12 @@
                             <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">61</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">3</span> / <span class="test-fail">61</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 61 hiba javítása</td>
+                            <td>🔬 Mypy: 3 type hiba javítása | 🔎 Pylance: 61 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4960,16 +4960,16 @@
     
                         <tr>
                             <td class="file-path">scripts/deploy_jforex.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td>🔬 Mypy: 2 type hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -4978,12 +4978,12 @@
                             <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">10</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">10</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 10 hiba javítása</td>
+                            <td>🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 10 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -5076,12 +5076,12 @@
                             <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">25</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">25</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 25 hiba javítása</td>
+                            <td>🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 25 hiba javítása</td>
                         </tr>
     
                         <tr>
@@ -5104,12 +5104,12 @@
                             <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">11</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span class="test-fail">11</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔎 Pylance: 11 hiba javítása</td>
+                            <td>🔬 Mypy: 2 type hiba javítása | 🔎 Pylance: 11 hiba javítása</td>
                         </tr>
     
                     </tbody>

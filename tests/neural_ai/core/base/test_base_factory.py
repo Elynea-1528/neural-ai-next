@@ -287,7 +287,7 @@ class TestCoreComponentFactory:
     ) -> None:
         """Teszteli a komponensek létrehozását config fájllal, de logger section nélkül."""
         mock_config = MagicMock()
-        mock_config.get.side_effect = lambda k: ({"base_path": "/tmp"} if k == "storage" else {})  # type: ignore[arg-type,return-value]
+        mock_config.get.side_effect = lambda k: ({"base_path": "/tmp"} if k == "storage" else {})
         mock_get_manager.return_value = mock_config
 
         with patch("neural_ai.data.storage.implementations.file_storage.FileStorage"):
@@ -544,7 +544,7 @@ class TestCoreComponentFactory:
         with patch.object(container, "resolve", return_value=mock_config):
             # Csak a DIContainer._verify_interface_implementation metódusában
             # mockoljuk az isinstance-t
-            def isinstance_mock(obj: Any, class_or_tuple: Any) -> bool:  # type: ignore[no-untyped-def,arg-type]
+            def isinstance_mock(obj: Any, class_or_tuple: Any) -> bool:
                 if class_or_tuple in [ConfigManagerInterface, StorageInterface]:
                     return True
                 return isinstance(obj, class_or_tuple)
@@ -563,7 +563,7 @@ class TestCoreComponentFactory:
                     with patch("neural_ai.core.base.factory.time.sleep"):
                         # Mockoljuk a _process_config metódust, hogy a
                         # config.get() eredményét adja vissza
-                        with patch.object(factory, "_process_config", side_effect=lambda x: x):  # type: ignore[attr-defined,arg-type]
+                        with patch.object(factory, "_process_config", side_effect=lambda x: x):
                             # Első hozzáféréskor töltse be
                             expensive_config1 = factory._expensive_config
                             expensive_config2 = factory._expensive_config
@@ -603,7 +603,7 @@ class TestCoreComponentFactory:
         with patch.object(container, "resolve", return_value=mock_config):
             # Csak a DIContainer._verify_interface_implementation metódusában
             # mockoljuk az isinstance-t
-            def isinstance_mock(obj: Any, class_or_tuple: Any) -> bool: # type: ignore
+            def isinstance_mock(obj: Any, class_or_tuple: Any) -> bool:
                 if class_or_tuple in [ConfigManagerInterface, StorageInterface]:
                     return True
                 return isinstance(obj, class_or_tuple)

@@ -4,6 +4,10 @@
 
 Unit tesztek a neural_ai.core.config __init__ modulhoz.
 
+# pyright: reportUnknownVariableType=false
+# pyright: reportUnknownMemberType=false, reportUnknownArgumentType=false
+# Pytest tmp_path fixture és mock type inference hibák.
+
 Ez a modul teszteli a config modul publikus API-ját és exportált interfészeit.
 
 ## Teszt Osztály: `TestConfigModuleExports`

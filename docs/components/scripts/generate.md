@@ -25,7 +25,7 @@ import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import as_completed
-# ... és még 9 import
+# ... és még 10 import
 ```
 
 ## Konstansok

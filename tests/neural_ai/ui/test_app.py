@@ -19,14 +19,14 @@ class TestUIApplicationInit:
         app = UIApplication()
 
         # Assert
-        assert app._config == {}  # type: ignore
-        assert app._logger is None  # type: ignore
-        assert app._bridge is None  # type: ignore
-        assert app._factory is None  # type: ignore
-        assert app._navigation is None  # type: ignore
-        assert app._core_components is None  # type: ignore
-        assert app._running is False  # type: ignore
-        assert app._init_error is None  # type: ignore
+        assert app._config == {}
+        assert app._logger is None
+        assert app._bridge is None
+        assert app._factory is None
+        assert app._navigation is None
+        assert app._core_components is None
+        assert app._running is False
+        assert app._init_error is None
 
     def test_init_with_config(self) -> None:
         """Ellenőrzi, hogy a UIApplication létrehozható konfigurációval."""
@@ -37,8 +37,8 @@ class TestUIApplicationInit:
         app = UIApplication(config=config)
 
         # Assert
-        assert app._config == config  # type: ignore
-        assert app._logger is None  # type: ignore
+        assert app._config == config
+        assert app._logger is None
 
     def test_init_with_logger(self) -> None:
         """Ellenőrzi, hogy a UIApplication létrehozható loggerrel."""
@@ -49,7 +49,7 @@ class TestUIApplicationInit:
         app = UIApplication(logger=mock_logger)
 
         # Assert
-        assert app._logger == mock_logger  # type: ignore
+        assert app._logger == mock_logger
 
 
 class TestUIApplicationInitialize:
@@ -85,10 +85,10 @@ class TestUIApplicationInitialize:
 
         # Assert
         assert result is True
-        assert app._logger == mock_logger  # type: ignore
-        assert app._bridge == mock_bridge  # type: ignore
-        assert app._factory == mock_factory  # type: ignore
-        assert app._navigation == mock_navigation  # type: ignore
+        assert app._logger == mock_logger
+        assert app._bridge == mock_bridge
+        assert app._factory == mock_factory
+        assert app._navigation == mock_navigation
         mock_bridge.initialize.assert_called_once()
         mock_factory.initialize.assert_called_once()
 
@@ -110,7 +110,7 @@ class TestUIApplicationInitialize:
 
         # Assert
         assert result is True
-        assert app._logger == mock_logger  # type: ignore
+        assert app._logger == mock_logger
         mock_logger.info.assert_called()
 
     @patch("neural_ai.ui.app.CoreBridge")
@@ -126,8 +126,8 @@ class TestUIApplicationInitialize:
 
         # Assert
         assert result is False
-        assert app._init_error is not None  # type: ignore
-        assert str(app._init_error) == "Test error"  # type: ignore
+        assert app._init_error is not None
+        assert str(app._init_error) == "Test error"
         mock_logger.error.assert_called_once()
 
 
@@ -173,7 +173,7 @@ class TestUIApplicationRun:
         app.run()
 
         # Assert
-        assert app._running is True  # type: ignore
+        assert app._running is True
         mock_logger.info.assert_any_call("UI alkalmazás elindítva")
 
 
@@ -211,7 +211,7 @@ class TestUIApplicationStop:
         app.stop()
 
         # Assert
-        assert app._running is False  # type: ignore
+        assert app._running is False
         mock_logger.info.assert_any_call("UI alkalmazás leállítva")
 
 

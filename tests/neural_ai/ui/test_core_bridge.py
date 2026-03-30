@@ -19,9 +19,9 @@ class TestCoreBridgeInit:
         bridge = CoreBridge()
 
         # Assert
-        assert bridge._core is None  # type: ignore
-        assert bridge._connected is False  # type: ignore
-        assert bridge._strategy_service is None  # type: ignore
+        assert bridge._core is None
+        assert bridge._connected is False
+        assert bridge._strategy_service is None
 
     def test_get_instance_returns_self(self) -> None:
         """Ellenőrzi, hogy a get_instance visszaadja a példányt."""
@@ -52,8 +52,8 @@ class TestCoreBridgeInitialize:
         bridge.initialize()
 
         # Assert
-        assert bridge._connected is True  # type: ignore
-        assert bridge._core == mock_core  # type: ignore
+        assert bridge._connected is True
+        assert bridge._core == mock_core
         mock_bootstrap.assert_called_once()
         mock_core.logger.info.assert_called()
 
@@ -193,9 +193,9 @@ class TestCoreBridgeSendCommand:
         result = bridge.send_command("test_command", {"param1": "value1"})
 
         # Assert
-        assert result["command"] == "test_command"  # type: ignore
-        assert result["params"] == {"param1": "value1"}  # type: ignore
-        assert result["status"] == "success"  # type: ignore
+        assert result["command"] == "test_command"
+        assert result["params"] == {"param1": "value1"}
+        assert result["status"] == "success"
         mock_core.logger.info.assert_called()
 
 
@@ -231,8 +231,8 @@ class TestCoreBridgeGetSystemInfo:
         result = bridge.get_system_info()
 
         # Assert
-        assert result["version"] == "6.0.0"  # type: ignore
-        assert result["status"] == "running"  # type: ignore
+        assert result["version"] == "6.0.0"
+        assert result["status"] == "running"
         assert "components" in result
         assert "resources" in result
         mock_core.logger.info.assert_called()

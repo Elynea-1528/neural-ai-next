@@ -1,6 +1,6 @@
-# 🧪 Teszt: tests/neural_ai/core/utils/exceptions/test_util_errors.py
+# 🧪 Teszt: tests/neural_ai/core/utils/exceptions/test_util_error.py
 
-**Tesztelt modul:** [`neural_ai/core/utils/exceptions/util_errors.py`](../../neural_ai/core/utils/exceptions/util_errors.py)
+**Tesztelt modul:** [`neural_ai/core/utils/exceptions/util_error.py`](../../neural_ai/core/utils/exceptions/util_error.py)
 
 Tesztek az util kivételekhez.
 
@@ -69,6 +69,6 @@ Teszteli a közvetlen importot a modulból.
 
 ---
 
-**Teszt fájl:** [`tests/neural_ai/core/utils/exceptions/test_util_errors.py`](../../tests/neural_ai/core/utils/exceptions/test_util_errors.py)
+**Teszt fájl:** [`tests/neural_ai/core/utils/exceptions/test_util_error.py`](../../tests/neural_ai/core/utils/exceptions/test_util_error.py)
 
-**Tesztelt modul:** [`neural_ai/core/utils/exceptions/util_errors.py`](../../neural_ai/core/utils/exceptions/util_errors.py)
+**Tesztelt modul:** [`neural_ai/core/utils/exceptions/util_error.py`](../../neural_ai/core/utils/exceptions/util_error.py)

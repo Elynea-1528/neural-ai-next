@@ -4,6 +4,9 @@
 
 Tesztek a ZeroMQBus implementációhoz.
 
+# pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false, reportPrivateUsage=false
+# ZeroMQ async fixture és protected member access hibák.
+
 Ez a modul tartalmazza a ZeroMQBus tesztjeit, ZMQ mocking-gal.
 
 Author: Neural AI Next Team

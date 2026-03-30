@@ -2,47 +2,47 @@
 
 **Tesztelt modul:** [`neural_ai/core/logger/implementations/default_logger.py`](../../neural_ai/core/logger/implementations/default_logger.py)
 
-Default logger implementáció tesztei.
+Unit tesztek a neural_ai.core.logger.implementations.default_logger modulhoz.
 
-## Teszt Osztály: `TestDefaultLogger`
+Ez a teszt ellenőrzi a DefaultLogger osztály alapvető funkcionalitását:
+1. Inicializálás
+2. Log szintek (debug, info, warning, error, critical)
+3. Structlog integráció
+4. LoggerInterface implementáció
 
-DefaultLogger osztály tesztei.
+## Teszt Függvények
 
-### ✓ `test_init_basic()`
+### ✓ `test_default_logger_initialization()`
 
-Alap logger inicializálás tesztelése.
+Teszt: A DefaultLogger inicializálható.
 
-### ✓ `test_init_with_custom_level()`
+### ✓ `test_default_logger_default_level()`
 
-Logger inicializálás egyéni szinttel.
+Teszt: A DefaultLogger alapértelmezett log szintje INFO.
 
-### ✓ `test_debug_logging()`
+### ✓ `test_default_logger_custom_level()`
 
-Debug üzenet logolásának tesztelése.
+Teszt: A DefaultLogger egyedi log szinttel inicializálható.
 
-### ✓ `test_info_logging()`
+### ✓ `test_default_logger_info_message()`
 
-Info üzenet logolásának tesztelése.
+Teszt: A DefaultLogger info üzenetet tud logolni.
 
-### ✓ `test_warning_logging()`
+### ✓ `test_default_logger_warning_message()`
 
-Warning üzenet logolásának tesztelése.
+Teszt: A DefaultLogger warning üzenetet tud logolni.
 
-### ✓ `test_error_logging()`
+### ✓ `test_default_logger_error_message()`
 
-Error üzenet logolásának tesztelése.
+Teszt: A DefaultLogger error üzenetet tud logolni.
 
-### ✓ `test_critical_logging()`
+### ✓ `test_default_logger_debug_message()`
 
-Critical üzenet logolásának tesztelése.
+Teszt: A DefaultLogger debug üzenetet tud logolni DEBUG szinten.
 
-### ✓ `test_set_level()`
+### ✓ `test_default_logger_critical_message()`
 
-Log szint módosításának tesztelése.
-
-### ✓ `test_di_dependencies_none()`
-
-DI függőségek None értékkel történő elfogadásának tesztelése.
+Teszt: A DefaultLogger critical üzenetet tud logolni.
 
 ---
 

@@ -23,9 +23,9 @@ class TestDataService:
 
         service = DataService(logger=logger, config=config, core_components=core_components)
 
-        assert service._logger is logger  # type: ignore
-        assert service._config is config  # type: ignore
-        assert service._core_components is core_components  # type: ignore
+        assert service._logger is logger
+        assert service._config is config
+        assert service._core_components is core_components
 
     def test_initialization_without_config(self) -> None:
         """Teszteli a DataService inicializálását konfiguráció nélkül."""
@@ -34,9 +34,9 @@ class TestDataService:
 
         service = DataService(logger=logger, config=None, core_components=core_components)
 
-        assert service._logger is logger  # type: ignore
-        assert service._config is not None  # type: ignore  # DataService creates default config
-        assert service._core_components is core_components  # type: ignore
+        assert service._logger is logger
+        assert service._config is not None
+        assert service._core_components is core_components
 
     def test_core_components_property(self) -> None:
         """Teszteli a core_components property-t."""
@@ -153,7 +153,7 @@ class TestDataService:
         )
 
         # Mock core_components.get_component
-        service._core_components.get_component = MagicMock(return_value=mock_storage)  # type: ignore
+        service._core_components.get_component = MagicMock(return_value=mock_storage)
 
         result = service.list_available_data(symbol="EURUSD")
 
@@ -173,7 +173,7 @@ class TestDataService:
         )
 
         # Mock core_components.get_component
-        service._core_components.get_component = MagicMock(return_value=mock_storage)  # type: ignore
+        service._core_components.get_component = MagicMock(return_value=mock_storage)
 
         result = service.list_available_data()
 
@@ -191,7 +191,7 @@ class TestDataService:
         mock_storage.BASE_PATH = Path("/data/tick")
 
         # Mock core_components.get_component
-        service._core_components.get_component = MagicMock(return_value=mock_storage)  # type: ignore
+        service._core_components.get_component = MagicMock(return_value=mock_storage)
 
         path = service.get_storage_path()
 

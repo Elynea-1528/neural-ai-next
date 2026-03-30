@@ -4,6 +4,9 @@
 
 Unit tesztek az ai_service modulhoz.
 
+# pyright: reportUnknownArgumentType=false
+# Mock config dict type inference hibák.
+
 Ez a modul teszteli az AIService osztály funkcióit.
 
 ## Teszt Osztály: `TestAIServiceInit`

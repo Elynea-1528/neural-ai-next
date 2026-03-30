@@ -95,7 +95,7 @@ class TestSaveTicksDirect:
 
     def test_save_ticks_direct_function_exists(self) -> None:
         """Teszteli a _save_ticks_direct függvény létezését."""
-        from scripts.download_history import _save_ticks_direct  # type: ignore[import]
+        from scripts.download_history import _save_ticks_direct
 
         assert callable(_save_ticks_direct)
 

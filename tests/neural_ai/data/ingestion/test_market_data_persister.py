@@ -51,7 +51,7 @@ class TestMarketDataPersisterInit:
         assert persister.event_bus == mock_event_bus
         assert persister.storage == mock_storage
         assert persister.logger == mock_logger
-        assert persister.buffer_size_limit == 10_000  # type: ignore
+        assert persister.buffer_size_limit == 10_000
         assert persister.running is False
         assert len(persister.buffer) == 0
 
@@ -68,7 +68,7 @@ class TestMarketDataPersisterInit:
             event_bus=mock_event_bus, storage=mock_storage, logger=mock_logger, config=mock_config
         )
 
-        assert persister.buffer_size_limit == 5_000  # type: ignore
+        assert persister.buffer_size_limit == 5_000
 
 
 class TestMarketDataPersisterStartStop:
@@ -270,7 +270,7 @@ class TestMarketDataPersisterOnMarketData:
         persister.running = True
 
         # Mockoljuk a flush metódust
-        persister._flush_all_buffers = AsyncMock()  # type: ignore[reportPrivateUsage]
+        persister._flush_all_buffers = AsyncMock()
 
         events = [
             MarketDataEvent(
@@ -289,7 +289,7 @@ class TestMarketDataPersisterOnMarketData:
         await persister.on_market_data(events)
 
         # Ellenőrizzük, hogy meghívódott-e a flush
-        persister._flush_all_buffers.assert_called_once()  # type: ignore[reportPrivateUsage]
+        persister._flush_all_buffers.assert_called_once()
 
 
 class TestMarketDataPersisterPeriodicFlush:
@@ -317,10 +317,10 @@ class TestMarketDataPersisterPeriodicFlush:
         ) - timedelta(hours=1)
 
         # Mockoljuk a flush metódust
-        persister._flush_all_buffers = AsyncMock()  # type: ignore[reportPrivateUsage]
+        persister._flush_all_buffers = AsyncMock()
 
         # Futtassuk a taskot egy rövid ideig
-        task = asyncio.create_task(persister._periodic_flush_task())  # type: ignore[reportPrivateUsage]
+        task = asyncio.create_task(persister._periodic_flush_task())
         # Adjunk időt a tasknak, hogy ellenőrizze az órát
         await asyncio.sleep(0.2)
         persister.running = False
@@ -330,7 +330,7 @@ class TestMarketDataPersisterPeriodicFlush:
 
         # Ellenőrizzük, hogy meghívódott-e a flush
         # A tasknak volt ideje legalább egyszer lefutni
-        persister._flush_all_buffers.assert_called()  # type: ignore[reportPrivateUsage]
+        persister._flush_all_buffers.assert_called()
 
     @pytest.mark.skip(reason="Időzítésen alapuló teszt, nem megbízható")
     @pytest.mark.asyncio
@@ -349,10 +349,10 @@ class TestMarketDataPersisterPeriodicFlush:
         persister.running = True
 
         # Mockoljuk a flush metódust, hogy dobjon kivételt
-        persister._flush_all_buffers = AsyncMock(side_effect=Exception("Test error"))  # type: ignore[reportPrivateUsage]
+        persister._flush_all_buffers = AsyncMock(side_effect=Exception("Test error"))
 
         # Futtassuk a taskot egy rövid ideig
-        task = asyncio.create_task(persister._periodic_flush_task())  # type: ignore[reportPrivateUsage]
+        task = asyncio.create_task(persister._periodic_flush_task())
         await asyncio.sleep(0.1)
         persister.running = False
         task.cancel()
@@ -396,11 +396,11 @@ class TestMarketDataPersisterFlush:
         persister.buffer["EURUSD"].append(event)
 
         # Mockoljuk a symbol flush metódust
-        persister._flush_symbol_buffer = AsyncMock()  # type: ignore[reportPrivateUsage]
+        persister._flush_symbol_buffer = AsyncMock()
 
-        await persister._flush_all_buffers()  # type: ignore[reportPrivateUsage]
+        await persister._flush_all_buffers()
 
-        persister._flush_symbol_buffer.assert_called_once()  # type: ignore[reportPrivateUsage]
+        persister._flush_symbol_buffer.assert_called_once()
         assert len(persister.buffer) == 0
 
     @pytest.mark.asyncio
@@ -417,7 +417,7 @@ class TestMarketDataPersisterFlush:
             config=default_config,
         )
 
-        await persister._flush_all_buffers()  # type: ignore[reportPrivateUsage]
+        await persister._flush_all_buffers()
 
         mock_logger.info.assert_called_with("Nincs mit kiüríteni, a buffer üres")
 
@@ -449,11 +449,11 @@ class TestMarketDataPersisterFlush:
         ]
 
         # Mockoljuk a save metódust
-        persister._save_events_to_storage = AsyncMock()  # type: ignore[reportPrivateUsage]
+        persister._save_events_to_storage = AsyncMock()
 
-        await persister._flush_symbol_buffer("EURUSD", events)  # type: ignore[reportPrivateUsage]
+        await persister._flush_symbol_buffer("EURUSD", events)
 
-        persister._save_events_to_storage.assert_called_once()  # type: ignore[reportPrivateUsage]
+        persister._save_events_to_storage.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_flush_symbol_buffer_empty(self) -> None:
@@ -469,7 +469,7 @@ class TestMarketDataPersisterFlush:
             config=default_config,
         )
 
-        await persister._flush_symbol_buffer("EURUSD", [])  # type: ignore[reportPrivateUsage]
+        await persister._flush_symbol_buffer("EURUSD", [])
 
         # Nem történik semmi, nincs hiba
 
@@ -502,9 +502,9 @@ class TestMarketDataPersisterFlush:
         persister.buffer["EURUSD"].append(event)
 
         # Mockoljuk a save metódust, hogy dobjon kivételt
-        persister._save_events_to_storage = AsyncMock(side_effect=Exception("Test error"))  # type: ignore[reportPrivateUsage]
+        persister._save_events_to_storage = AsyncMock(side_effect=Exception("Test error"))
 
-        await persister._flush_all_buffers()  # type: ignore[reportPrivateUsage]
+        await persister._flush_all_buffers()
 
         # Ellenőrizzük, hogy logolódott-e a hiba
         # Mivel aszinkron a hívás, várjunk egy kicsit
@@ -552,7 +552,7 @@ class TestMarketDataPersisterSave:
             # Mockoljuk, hogy a storage-nak van store_tick_data metódusa
             mock_storage.store_tick_data = AsyncMock()
 
-            await persister._save_events_to_storage("EURUSD", events, date)  # type: ignore[reportPrivateUsage]
+            await persister._save_events_to_storage("EURUSD", events, date)
 
             # Ellenőrizzük, hogy meghívódott-e a store_tick_data
             mock_storage.store_tick_data.assert_called_once()
@@ -594,7 +594,7 @@ class TestMarketDataPersisterSave:
             # Mockoljuk, hogy a storage-nak van save_dataframe metódusa
             mock_storage.save_dataframe = AsyncMock()
 
-            await persister._save_events_to_storage("EURUSD", events, date)  # type: ignore[reportPrivateUsage]
+            await persister._save_events_to_storage("EURUSD", events, date)
 
             # Ellenőrizzük, hogy meghívódott-e a save_dataframe
             mock_storage.save_dataframe.assert_called_once()
@@ -615,7 +615,7 @@ class TestMarketDataPersisterSave:
 
         date = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
 
-        await persister._save_events_to_storage("EURUSD", [], date)  # type: ignore[reportPrivateUsage]
+        await persister._save_events_to_storage("EURUSD", [], date)
 
         # Nem történik semmi
 
@@ -654,7 +654,7 @@ class TestMarketDataPersisterSave:
         date = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
 
         # A kód nem dob kivételt, hanem logolja a hibát
-        await persister._save_events_to_storage("EURUSD", events, date)  # type: ignore[reportPrivateUsage]
+        await persister._save_events_to_storage("EURUSD", events, date)
 
         # Ellenőrizzük, hogy meghívódott-e a save_dataframe
         mock_storage.save_dataframe.assert_called_once()
@@ -699,7 +699,7 @@ class TestMarketDataPersisterConvertToDataFrame:
             ),
         ]
 
-        df = persister._convert_events_to_dataframe(events)  # type: ignore[reportPrivateUsage]
+        df = persister._convert_events_to_dataframe(events)
 
         assert df is not None
         assert len(df) == 2
@@ -732,7 +732,7 @@ class TestMarketDataPersisterConvertToDataFrame:
 
         # Mockoljuk, hogy pandas nincs telepítve
         with patch.dict("sys.modules", {"pandas": None}):
-            df = persister._convert_events_to_dataframe(events)  # type: ignore[reportPrivateUsage]
+            df = persister._convert_events_to_dataframe(events)
 
             assert df is not None
 
@@ -765,7 +765,7 @@ class TestMarketDataPersisterConvertToDataFrame:
         # Mockoljuk, hogy egyik library sincs telepítve
         with patch.dict("sys.modules", {"pandas": None, "polars": None}):
             with pytest.raises(RuntimeError, match="Sem pandas, sem polars nincs telepítve"):
-                persister._convert_events_to_dataframe(events)  # type: ignore[reportPrivateUsage]
+                persister._convert_events_to_dataframe(events)
 
 
 class TestMarketDataPersisterIntegration:

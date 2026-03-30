@@ -4,6 +4,10 @@
 
 FileStorage teszt modul.
 
+# pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
+# pyright: reportUnknownVariableType=false
+# File storage fixture type inference hibák.
+
 Ez a modul tartalmazza a FileStorage osztály tesztjeit.
 
 ## Teszt Osztály: `NonSerializable`

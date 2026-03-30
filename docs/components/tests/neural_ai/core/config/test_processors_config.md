@@ -4,6 +4,9 @@
 
 Processors konfigurációs teszt.
 
+# pyright: reportUnknownArgumentType=false, reportUnknownVariableType=false
+# Pydantic config fixture type inference hibák.
+
 A processors.yaml konfigurációs fájl betöltésének és használatának tesztjei.
 
 ## Teszt Osztály: `TestProcessorsConfig`

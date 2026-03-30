@@ -4,6 +4,9 @@
 
 Pandas Backend Teszt Modul.
 
+# pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
+# Pandas DataFrame fixture type hibák.
+
 Ez a modul tartalmazza a PandasBackend osztály tesztjeit.
 
 ## Teszt Osztály: `TestPandasDataFrame`

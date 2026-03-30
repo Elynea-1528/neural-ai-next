@@ -23,11 +23,11 @@ class TestUIServiceFactoryInit:
         factory = UIServiceFactory()
 
         # Assert
-        assert factory._bridge is None  # type: ignore
-        assert factory._config is None  # type: ignore
+        assert factory._bridge is None
+        assert factory._config is None
         assert factory._logger is None  # type: ignore
-        assert factory._core_components is None  # type: ignore
-        assert factory._services == {}  # type: ignore
+        assert factory._core_components is None
+        assert factory._services == {}
 
 
 class TestUIServiceFactoryInitialize:
@@ -60,11 +60,11 @@ class TestUIServiceFactoryInitialize:
         )
 
         # Assert
-        assert factory._initialized is True  # type: ignore
-        assert factory._bridge == mock_bridge  # type: ignore
+        assert factory._initialized is True
+        assert factory._bridge == mock_bridge
         assert factory._logger == mock_logger  # type: ignore
-        assert factory._core_components == mock_core  # type: ignore
-        assert isinstance(factory._config, UIConfig)  # type: ignore
+        assert factory._core_components == mock_core
+        assert isinstance(factory._config, UIConfig)
 
     def test_initialize_with_uiconfig(self) -> None:
         """Ellenőrzi, hogy az initialize UIConfig-gal működik."""
@@ -93,9 +93,9 @@ class TestUIServiceFactoryInitialize:
         )
 
         # Assert
-        assert factory._initialized is True  # type: ignore
-        assert factory._bridge == mock_bridge  # type: ignore
-        assert factory._config == config  # type: ignore
+        assert factory._initialized is True
+        assert factory._bridge == mock_bridge
+        assert factory._config == config
 
 
 class TestUIServiceFactoryGetNavigationService:

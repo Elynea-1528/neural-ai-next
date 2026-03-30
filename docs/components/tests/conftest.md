@@ -4,6 +4,9 @@
 
 Pytest configuration and fixtures for test isolation.
 
+# pyright: reportPrivateUsage=false, reportUnknownMemberType=false
+# Pytest fixture és mock private member access hibák.
+
 Ez a fájl biztosítja a Singleton és DI Container állapot tisztítását
 minden teszt között, megoldva a test isolation problémát.
 

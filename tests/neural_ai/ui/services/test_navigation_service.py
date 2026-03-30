@@ -32,13 +32,13 @@ class TestNavigationServiceInit:
         )
 
         # Assert
-        assert service._logger == mock_logger  # type: ignore
-        assert service._config == mock_config  # type: ignore
-        assert service._core_components == mock_core  # type: ignore
-        assert service._pages == {}  # type: ignore
-        assert service._history == []  # type: ignore
-        assert service._current_page is None  # type: ignore
-        assert service._subscribers == []  # type: ignore
+        assert service._logger == mock_logger
+        assert service._config == mock_config
+        assert service._core_components == mock_core
+        assert service._pages == {}
+        assert service._history == []
+        assert service._current_page is None
+        assert service._subscribers == []
 
 
 class TestNavigationServiceRegisterPage:
@@ -58,8 +58,8 @@ class TestNavigationServiceRegisterPage:
         service.register_page("home", mock_page)
 
         # Assert
-        assert "home" in service._pages  # type: ignore
-        assert service._pages["home"] == mock_page  # type: ignore
+        assert "home" in service._pages
+        assert service._pages["home"] == mock_page
 
     def test_register_first_page_sets_current(self) -> None:
         """Ellenőrzi, hogy az első oldal automatikusan aktuális lesz."""
@@ -75,8 +75,8 @@ class TestNavigationServiceRegisterPage:
         service.register_page("home", mock_page)
 
         # Assert
-        assert service._current_page == "home"  # type: ignore
-        assert service._history == ["home"]  # type: ignore
+        assert service._current_page == "home"
+        assert service._history == ["home"]
 
 
 class TestNavigationServiceNavigateTo:
@@ -150,8 +150,8 @@ class TestNavigationServiceNavigateTo:
         service.navigate_to("page2")
 
         # Assert
-        assert service._history == ["page1", "page2"]  # type: ignore
-        assert service._current_page == "page2"  # type: ignore
+        assert service._history == ["page1", "page2"]
+        assert service._current_page == "page2"
 
     def test_navigate_to_notifies_subscribers(self) -> None:
         """Ellenőrzi, hogy a navigáció értesíti a feliratkozókat."""
@@ -194,8 +194,8 @@ class TestNavigationServiceGoBack:
         service.go_back()
 
         # Assert
-        assert service._current_page == "page1"  # type: ignore
-        assert service._history == ["page1"]  # type: ignore
+        assert service._current_page == "page1"
+        assert service._history == ["page1"]
 
     def test_go_back_navigates_to_previous_page(self) -> None:
         """Ellenőrzi, hogy a go_back visszanavigál az előző oldalra."""
@@ -215,8 +215,8 @@ class TestNavigationServiceGoBack:
         service.go_back()
 
         # Assert
-        assert service._current_page == "page1"  # type: ignore
-        assert service._history == ["page1"]  # type: ignore
+        assert service._current_page == "page1"
+        assert service._history == ["page1"]
         mock_page1.on_navigate_to.assert_called()
 
     def test_go_back_notifies_subscribers(self) -> None:
@@ -301,7 +301,7 @@ class TestNavigationServiceGetPageHistory:
 
         # Assert
         assert history == ["page1", "page2"]
-        assert history is not service._history  # type: ignore
+        assert history is not service._history
 
 
 class TestNavigationServiceSubscribe:
@@ -321,7 +321,7 @@ class TestNavigationServiceSubscribe:
         service.subscribe(mock_callback)
 
         # Assert
-        assert mock_callback in service._subscribers  # type: ignore
+        assert mock_callback in service._subscribers
 
     def test_subscribe_callback_handles_exception(self) -> None:
         """Ellenőrzi, hogy a callback kivétel esetén sem állítja le a rendszert."""

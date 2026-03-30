@@ -16,7 +16,7 @@ if spec and spec.loader:
     # Regisztráljuk a modult a sys.modules-ban, hogy a patch működjön
     sys.modules["live_ops_module"] = live_ops_module
     spec.loader.exec_module(live_ops_module)
-    LiveOpsPage = live_ops_module.LiveOpsPage  # type: ignore
+    LiveOpsPage = live_ops_module.LiveOpsPage
 
 
 class TestLiveOpsPage:
@@ -26,16 +26,16 @@ class TestLiveOpsPage:
         """Teszteli a LiveOpsPage inicializálását."""
         mock_bridge = MagicMock()
         page = LiveOpsPage(mock_bridge)
-        assert page._bridge is mock_bridge  # type: ignore
-        assert page._loaded is False  # type: ignore
-        assert page._title == "⚡ Live Ops"  # type: ignore
+        assert page._bridge is mock_bridge
+        assert page._loaded is False
+        assert page._title == "⚡ Live Ops"
 
     def test_initialization_with_kwargs(self) -> None:
         """Teszteli a LiveOpsPage inicializálását kwargs-szal."""
         mock_bridge = MagicMock()
         page = LiveOpsPage(mock_bridge, custom_param="value")
-        assert page._bridge is mock_bridge  # type: ignore
-        assert page._loaded is False  # type: ignore
+        assert page._bridge is mock_bridge
+        assert page._loaded is False
 
     def test_title_property(self) -> None:
         """Teszteli a title property-t."""

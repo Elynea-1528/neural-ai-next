@@ -422,10 +422,10 @@ class TestEventBusInterface:
 
         # Szinkron metódusok tesztelése
         bus = ConcreteTestBus()
-        bus.subscribe("test", lambda e: None)  # type: ignore
+        bus.subscribe("test", lambda e: None)
         assert bus.subscribed
 
-        bus.unsubscribe("test", lambda e: None)  # type: ignore
+        bus.unsubscribe("test", lambda e: None)
         assert bus.unsubscribed
 
     def test_interface_cannot_be_instantiated_directly(self) -> None:

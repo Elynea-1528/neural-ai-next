@@ -4,6 +4,9 @@
 
 Pytest fixtures a neural_ai.core.db tesztek számára.
 
+# pyright: reportUnknownArgumentType=false, reportUnknownVariableType=false
+# Async fixture type inference hibák.
+
 Ez a modul tartalmazza a közös fixture-öket és setup/teardown logikát
 az adatbázis tesztek számára.
 

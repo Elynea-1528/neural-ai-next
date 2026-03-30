@@ -4,6 +4,9 @@
 
 Tesztek az EventModel-ekhez.
 
+# pyright: reportUnknownArgumentType=false
+# Pydantic model fixture type hibák.
+
 Ez a modul tartalmazza az összes eseménymodell tesztjeit,
 beleértve a validációt és a szerializációt.
 

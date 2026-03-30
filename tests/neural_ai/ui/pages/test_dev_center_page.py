@@ -16,7 +16,7 @@ if spec and spec.loader:
     # Regisztráljuk a modult a sys.modules-ban, hogy a patch működjön
     sys.modules["dev_center_module"] = dev_center_module
     spec.loader.exec_module(dev_center_module)
-    DevCenterPage = dev_center_module.DevCenterPage  # type: ignore
+    DevCenterPage = dev_center_module.DevCenterPage
 
 
 class TestDevCenterPage:
@@ -26,16 +26,16 @@ class TestDevCenterPage:
         """Teszteli a DevCenterPage inicializálását."""
         mock_bridge = MagicMock()
         page = DevCenterPage(mock_bridge)
-        assert page._bridge is mock_bridge  # type: ignore
-        assert page._loaded is False  # type: ignore
-        assert page._title == "🛠️ Dev Center"  # type: ignore
+        assert page._bridge is mock_bridge
+        assert page._loaded is False
+        assert page._title == "🛠️ Dev Center"
 
     def test_initialization_with_kwargs(self) -> None:
         """Teszteli a DevCenterPage inicializálását kwargs-szal."""
         mock_bridge = MagicMock()
         page = DevCenterPage(mock_bridge, custom_param="value")
-        assert page._bridge is mock_bridge  # type: ignore
-        assert page._loaded is False  # type: ignore
+        assert page._bridge is mock_bridge
+        assert page._loaded is False
 
     def test_title_property(self) -> None:
         """Teszteli a title property-t."""

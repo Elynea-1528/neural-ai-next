@@ -209,7 +209,7 @@ class TestConfigManagerInterface:
         # az összes absztrakt metódust
         with pytest.raises(TypeError):
 
-            class _IncompleteConfigManager(ConfigManagerInterface):  # type: ignore
+            class _IncompleteConfigManager(ConfigManagerInterface):
                 pass
 
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError

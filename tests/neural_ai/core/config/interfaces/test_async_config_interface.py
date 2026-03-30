@@ -308,7 +308,7 @@ class TestAsyncConfigManagerInterface:
         # az összes absztrakt metódust
         with pytest.raises(TypeError):
 
-            class _IncompleteAsyncConfigManager(AsyncConfigManagerInterface):  # type: ignore
+            class _IncompleteAsyncConfigManager(AsyncConfigManagerInterface):
                 pass
 
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError

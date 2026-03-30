@@ -51,20 +51,20 @@ class TestBase:
 
     def test_id_column_properties(self) -> None:
         """Teszteli az id oszlop tulajdonságait."""
-        id_column = DummyModel.__table__.columns["id"]  # type: ignore
+        id_column = DummyModel.__table__.columns["id"]
         assert id_column.primary_key
         assert id_column.autoincrement
         assert not id_column.nullable
 
     def test_created_at_column_properties(self) -> None:
         """Teszteli a created_at oszlop tulajdonságait."""
-        created_at_column = DummyModel.__table__.columns["created_at"]  # type: ignore
+        created_at_column = DummyModel.__table__.columns["created_at"]
         assert not created_at_column.nullable
         assert created_at_column.type.__class__.__name__ == "DateTime"
 
     def test_updated_at_column_properties(self) -> None:
         """Teszteli az updated_at oszlop tulajdonságait."""
-        updated_at_column = DummyModel.__table__.columns["updated_at"]  # type: ignore
+        updated_at_column = DummyModel.__table__.columns["updated_at"]
         assert not updated_at_column.nullable
         assert updated_at_column.type.__class__.__name__ == "DateTime"
         assert updated_at_column.onupdate is not None

@@ -2,59 +2,51 @@
 
 **Tesztelt modul:** [`neural_ai/core/logger/implementations/colored_logger.py`](../../neural_ai/core/logger/implementations/colored_logger.py)
 
-Colored logger implementáció tesztei.
+Unit tesztek a neural_ai.core.logger.implementations.colored_logger modulhoz.
 
-## Teszt Osztály: `TestColoredLogger`
+Ez a teszt ellenőrzi a ColoredLogger osztály alapvető funkcionalitását:
+1. Inicializálás
+2. Log szintek (debug, info, warning, error, critical)
+3. Színes formázás
+4. LoggerInterface implementáció
 
-ColoredLogger osztály tesztei.
+## Teszt Függvények
 
-### ✓ `test_init_basic()`
+### ✓ `test_colored_logger_initialization()`
 
-Alap logger inicializálás tesztelése.
+Teszt: A ColoredLogger inicializálható.
 
-### ✓ `test_init_with_custom_level()`
+### ✓ `test_colored_logger_default_level()`
 
-Logger inicializálás egyéni szinttel.
+Teszt: A ColoredLogger alapértelmezett log szintje INFO.
 
-### ✓ `test_debug_logging()`
+### ✓ `test_colored_logger_custom_level()`
 
-Debug üzenet logolásának tesztelése.
+Teszt: A ColoredLogger egyedi log szinttel inicializálható.
 
-### ✓ `test_info_logging()`
+### ✓ `test_colored_logger_info_message()`
 
-Info üzenet logolásának tesztelése.
+Teszt: A ColoredLogger info üzenetet tud logolni.
 
-### ✓ `test_warning_logging()`
+### ✓ `test_colored_logger_warning_message()`
 
-Warning üzenet logolásának tesztelése.
+Teszt: A ColoredLogger warning üzenetet tud logolni.
 
-### ✓ `test_error_logging()`
+### ✓ `test_colored_logger_error_message()`
 
-Error üzenet logolásának tesztelése.
+Teszt: A ColoredLogger error üzenetet tud logolni.
 
-### ✓ `test_critical_logging()`
+### ✓ `test_colored_logger_debug_message()`
 
-Critical üzenet logolásának tesztelése.
+Teszt: A ColoredLogger debug üzenetet tud logolni DEBUG szinten.
 
-### ✓ `test_set_level()`
+### ✓ `test_colored_logger_critical_message()`
 
-Log szint módosításának tesztelése.
+Teszt: A ColoredLogger critical üzenetet tud logolni.
 
-### ✓ `test_logger_name()`
+### ✓ `test_colored_logger_with_extra_fields()`
 
-Logger nevének ellenőrzése.
-
-### ✓ `test_colored_formatter_present()`
-
-Színes formázó jelenlétének ellenőrzése.
-
-### ✓ `test_existing_handlers_removed()`
-
-Teszteli, hogy a meglévő handlerek eltávolításra kerülnek. Ez a teszt lefedi a 54-55. sorokat, ahol a meglévő handlerek eltávolítása történik, hogy ne legyenek duplikált üzenetek.
-
-### ✓ `test_di_dependencies_none()`
-
-DI függőségek None értékkel történő elfogadásának tesztelése.
+Teszt: A ColoredLogger extra mezőkkel tud logolni.
 
 ---
 

@@ -112,7 +112,7 @@ def _clear_all_singletons() -> None:
     try:
         from neural_ai.core.base.implementations.singleton import SingletonMeta
         if hasattr(SingletonMeta, '_instances'):
-            SingletonMeta._instances.clear()  # type: ignore
+            SingletonMeta._instances.clear()
     except (ImportError, AttributeError):
         pass
 

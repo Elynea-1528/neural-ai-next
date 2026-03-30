@@ -222,7 +222,7 @@ class TestConfigManagerFactoryInterface:
         # az összes absztrakt metódust
         with pytest.raises(TypeError):
 
-            class _IncompleteConfigFactory(ConfigManagerFactoryInterface):  # type: ignore
+            class _IncompleteConfigFactory(ConfigManagerFactoryInterface):
                 pass
 
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError

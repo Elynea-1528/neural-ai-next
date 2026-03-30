@@ -4,6 +4,9 @@
 
 Tesztek a neural_ai.core.db.factory modulhoz.
 
+# pyright: reportCallIssue=false, reportOptionalMemberAccess=false
+# Factory method signature és optional type hibák.
+
 Ez a modul tartalmazza a DatabaseFactory osztály és annak metódusainak tesztjeit.
 
 ## Teszt Osztály: `TestDatabaseFactory`
