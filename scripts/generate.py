@@ -181,6 +181,19 @@ class ASTAnalyzer:
         if not self.tree:
             return "⚪ N/A"
 
+        # Kizárjuk a "self-service" modulokat (amelyek maguk szolgáltatják a funkciót)
+        file_path_str = str(self.file_path)
+        excluded_patterns = [
+            "logger/implementations/",  # Logger implementációk
+            "config/implementations/",  # Config implementációk
+            "events/implementations/",  # EventBus implementációk
+            "db/implementations/",      # Database implementációk
+            "base/implementations/di_container.py",  # DI Container
+        ]
+        
+        if any(pattern in file_path_str for pattern in excluded_patterns):
+            return "⚪ N/A"  # Ezek a modulok nem igényelnek logger DI-t
+
         logger_injected = False
         logger_used = False
 
