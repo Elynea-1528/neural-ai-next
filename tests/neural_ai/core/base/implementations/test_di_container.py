@@ -1,5 +1,7 @@
 """Dependency injection konténer tesztjei."""
 
+from unittest.mock import Mock
+
 import pytest
 
 from neural_ai.core.base.exceptions import ComponentNotFoundError
@@ -69,6 +71,30 @@ class TestDIContainer:
         container = DIContainer()
         assert len(container.get_memory_usage()) >= 0
 
+    def test_initialization_with_logger(self) -> None:
+        """Teszteli a konténer inicializálását loggerrel."""
+        mock_logger = Mock()
+        container = DIContainer(logger=mock_logger)
+
+        # Ellenőrizzük, hogy a logger.info hívódott (sor 94)
+        mock_logger.info.assert_called_once_with("DI konténer inicializálva")
+        assert len(container.get_memory_usage()) >= 0
+
+    def test_initialization_singleton_early_return(self) -> None:
+        """Teszteli a singleton védelem early return-jét (sor 84)."""
+        mock_logger = Mock()
+
+        # Első inicializálás
+        container = DIContainer(logger=mock_logger)
+        mock_logger.info.assert_called_once()
+
+        # Második inicializálás ugyanazzal a példánnyal - early return (sor 84)
+        mock_logger.reset_mock()
+        container.__init__(logger=mock_logger)  # type: ignore
+
+        # A logger.info NEM hívódik újra, mert early return történt
+        mock_logger.info.assert_not_called()
+
     def test_register_instance(self) -> None:
         """Teszteli az instance regisztrálását."""
         container = DIContainer()
@@ -78,6 +104,22 @@ class TestDIContainer:
 
         result = container.resolve(str)
         assert result is instance  # type: ignore[comparison-overlap]
+
+    def test_register_instance_with_logger(self) -> None:
+        """Teszteli az instance regisztrálását loggerrel (sor 107)."""
+        mock_logger = Mock()
+        container = DIContainer(logger=mock_logger)
+        mock_logger.reset_mock()
+
+        instance = MockComponent("instance")
+        container.register_instance(str, instance)
+
+        # Ellenőrizzük, hogy a logger.debug hívódott (sor 107)
+        mock_logger.debug.assert_called_once_with(
+            "DI regisztrálva",
+            interface="str",
+            instance="MockComponent"
+        )
 
     def test_register_factory(self) -> None:
         """Teszteli a factory regisztrálását."""
@@ -90,6 +132,24 @@ class TestDIContainer:
 
         resolved = container.resolve(str)
         assert isinstance(resolved, MockComponent)
+
+    def test_register_factory_with_logger(self) -> None:
+        """Teszteli a factory regisztrálását loggerrel (sor 121)."""
+        mock_logger = Mock()
+        container = DIContainer(logger=mock_logger)
+        mock_logger.reset_mock()
+
+        def factory() -> MockComponent:
+            return MockComponent("factory")
+
+        container.register_factory(str, factory)  # type: ignore[arg-type]
+
+        # Ellenőrizzük, hogy a logger.debug hívódott (sor 121)
+        mock_logger.debug.assert_called_once_with(
+            "DI factory regisztrálva",
+            interface="str",
+            factory="factory"
+        )
 
     def test_resolve_instance(self) -> None:
         """Teszteli az instance feloldását."""
@@ -136,6 +196,23 @@ class TestDIContainer:
         status = container.get_lazy_components()
         assert "lazy_comp" in status
         assert status["lazy_comp"] is False
+
+    def test_register_lazy_with_logger(self) -> None:
+        """Teszteli a lusta komponens regisztrálását loggerrel (sor 173)."""
+        mock_logger = Mock()
+        container = DIContainer(logger=mock_logger)
+        mock_logger.reset_mock()
+
+        def factory() -> MockComponent:
+            return MockComponent("lazy")
+
+        container.register_lazy("lazy_comp", factory)
+
+        # Ellenőrizzük, hogy a logger.info hívódott (sor 173)
+        mock_logger.info.assert_called_once_with(
+            "Lazy komponens regisztrálva",
+            component_name="lazy_comp"
+        )
 
     def test_register_lazy_invalid_name(self) -> None:
         """Teszteli az érvénytelen névvel való regisztrálást."""
@@ -220,6 +297,25 @@ class TestDIContainer:
 
         assert container.get("preload_comp").value == "preload" # type: ignore
 
+    def test_preload_components_with_logger(self) -> None:
+        """Teszteli a komponensek előtöltését loggerrel (sor 231)."""
+        mock_logger = Mock()
+        container = DIContainer(logger=mock_logger)
+        mock_logger.reset_mock()
+
+        def factory() -> MockComponent:
+            return MockComponent("preload")
+
+        container.register_lazy("preload_comp", factory)
+
+        container.preload_components(["preload_comp"])
+
+        # Ellenőrizzük, hogy a logger.info hívódott (sor 231)
+        mock_logger.info.assert_called_with(
+            "Komponens előtöltése",
+            component_name="preload_comp"
+        )
+
     def test_preload_components_not_found(self) -> None:
         """Teszteli a komponensek előtöltését nem létező komponenssel."""
         container = DIContainer()
@@ -252,6 +348,21 @@ class TestDIContainer:
 
         result = container.get("register_comp")
         assert result is instance
+
+    def test_register_method_with_logger(self) -> None:
+        """Teszteli a register metódust loggerrel (sor 295)."""
+        mock_logger = Mock()
+        container = DIContainer(logger=mock_logger)
+        mock_logger.reset_mock()
+
+        instance = MockComponent("register")
+        container.register("register_comp", instance)
+
+        # Ellenőrizzük, hogy a logger.info hívódott (sor 295)
+        mock_logger.info.assert_called_once_with(
+            "Komponens regisztrálva",
+            component_name="register_comp"
+        )
 
     def test_register_invalid_name(self) -> None:
         """Teszteli az érvénytelen névvel való regisztrálást."""
