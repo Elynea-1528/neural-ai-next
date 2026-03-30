@@ -97,6 +97,7 @@ def _clear_import_cache() -> None:
         'neural_ai.core.config.implementations.yaml_config_manager',
         'neural_ai.core.config.implementations.dynamic_config_manager',
         'neural_ai.core.config.implementations',  # Szülő modul is!
+        'neural_ai.core.db.implementations.sqlalchemy_session',  # DatabaseManager globális állapot
     ]
 
     for module_name in modules_to_clear:
@@ -145,7 +146,19 @@ def _clear_all_singletons() -> None:
     except (ImportError, AttributeError):
         pass
 
-    # 4. CoreComponentFactory
+    # 4. ConfigManagerFactory (KRITIKUS: _manager_types cache)
+    try:
+        from neural_ai.core.config.factory import ConfigManagerFactory
+        if hasattr(ConfigManagerFactory, '_manager_types'):
+            ConfigManagerFactory._manager_types.clear()  # pyright: ignore[reportPrivateUsage]
+        if hasattr(ConfigManagerFactory, '_async_manager_types'):
+            ConfigManagerFactory._async_manager_types.clear()  # pyright: ignore[reportPrivateUsage]
+        if hasattr(ConfigManagerFactory, '_logger'):
+            ConfigManagerFactory._logger = None  # pyright: ignore[reportPrivateUsage]
+    except (ImportError, AttributeError):
+        pass
+
+    # 5. CoreComponentFactory
     try:
         from neural_ai.core.base.factory import CoreComponentFactory
         for attr in ['_instance', '_instances']:
@@ -154,7 +167,7 @@ def _clear_all_singletons() -> None:
     except (ImportError, AttributeError):
         pass
 
-    # 4. CoreBridge
+    # 6. CoreBridge
     try:
         from neural_ai.ui.core_bridge import CoreBridge
         for attr in ['_instance', '_instances']:
@@ -163,7 +176,7 @@ def _clear_all_singletons() -> None:
     except (ImportError, AttributeError):
         pass
 
-    # 5. DatabaseManager
+    # 7. DatabaseManager
     try:
         from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
         for attr in ['_instance', '_instances', '_engine', '_session_maker']:
@@ -172,7 +185,7 @@ def _clear_all_singletons() -> None:
     except (ImportError, AttributeError):
         pass
 
-    # 6. Force garbage collection
+    # 8. Force garbage collection
     gc.collect()
 
 
