@@ -94,6 +94,9 @@ def _clear_import_cache() -> None:
         'neural_ai.data.storage.interfaces.storage_interface',
         'neural_ai.core.base.factory',
         'neural_ai.core.logger.factory',
+        'neural_ai.core.config.implementations.yaml_config_manager',
+        'neural_ai.core.config.implementations.dynamic_config_manager',
+        'neural_ai.core.config.implementations',  # Szülő modul is!
     ]
 
     for module_name in modules_to_clear:
@@ -107,6 +110,14 @@ def _clear_all_singletons() -> None:
 
     # 0. Import cache tisztítása (KRITIKUS: teszt izolációhoz)
     _clear_import_cache()
+
+    # 0.5. neural_ai.core globális _core_components_instance változó resetelése
+    try:
+        import neural_ai.core
+        if hasattr(neural_ai.core, '_core_components_instance'):
+            neural_ai.core._core_components_instance = None  # pyright: ignore[reportPrivateUsage]
+    except (ImportError, AttributeError):
+        pass
 
     # 1. SingletonMeta instances
     try:
