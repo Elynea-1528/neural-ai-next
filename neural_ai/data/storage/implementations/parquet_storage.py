@@ -10,6 +10,8 @@ backend-et (PolarsBackend AVX2 támogatással, vagy PandasBackend kompatibilitá
 Szerző: Neural AI Next csapat
 Verzió: 2.0.0
 """
+# pyright: reportUnknownVariableType=false, reportInvalidTypeForm=false, reportUnknownMemberType=false
+# DataFrame type alias TYPE_CHECKING blokkban van, cast() string annotation hibák
 
 import asyncio
 import hashlib
