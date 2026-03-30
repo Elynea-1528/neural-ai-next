@@ -219,9 +219,9 @@ class TestCoreComponentFactoryInterface:
         assert not mock_components.validate()
 
         # Teszt: Mock objektumok hozzáadása után
-        mock_components._config = Mock()
-        mock_components._logger = Mock()
-        mock_components._storage = Mock()
+        mock_components._config = Mock()  # pyright: ignore[reportPrivateUsage]
+        mock_components._logger = Mock()  # pyright: ignore[reportPrivateUsage]
+        mock_components._storage = Mock()  # pyright: ignore[reportPrivateUsage]
 
         assert mock_components.has_config()
         assert mock_components.has_logger()

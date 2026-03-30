@@ -103,7 +103,7 @@ class DataHubPage(PageInterface):
         if st.button("Adatok frissítése", type="primary"):
             try:
                 with st.spinner("Adatok betöltése..."):
-                    if self._data_service is None:
+                    if self._data_service is None:  # pyright: ignore[reportUnnecessaryComparison]
                         st.error("Adatszolgáltatás nem érhető el")
                         return
 
@@ -113,7 +113,7 @@ class DataHubPage(PageInterface):
                     if data_df.empty:
                         st.warning("Nincsenek elérhető adatok a kiválasztott szűrővel.")
                     else:
-                        st.dataframe(data_df, width="stretch")
+                        st.dataframe(data_df, width="stretch")  # pyright: ignore[reportUnknownMemberType]
 
                         # Összesítő információk
                         col1, col2, col3 = st.columns(3)
@@ -208,7 +208,7 @@ class DataHubPage(PageInterface):
                     spinner_text = "Adatok letöltése folyamatban..."
 
                 with st.spinner(spinner_text):
-                    if self._data_service is None:
+                    if self._data_service is None:  # pyright: ignore[reportUnnecessaryComparison]
                         st.error("Adatszolgáltatás nem érhető el")
                         return
 

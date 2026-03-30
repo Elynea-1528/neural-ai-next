@@ -79,9 +79,9 @@ class JForexLiveFeed(ILiveFeed):
         except (KeyError, ValueError, AttributeError):
             live_config = {}
 
-        self._host: str = cast(str, live_config.get("host", "127.0.0.1"))
-        self._tick_port: int = cast(int, live_config.get("tick_port", 5555))
-        self._command_port: int = cast(int, live_config.get("command_port", 5556))
+        self._host: str = cast(str, live_config.get("host", "127.0.0.1"))  # pyright: ignore[reportUnknownMemberType]
+        self._tick_port: int = cast(int, live_config.get("tick_port", 5555))  # pyright: ignore[reportUnknownMemberType]
+        self._command_port: int = cast(int, live_config.get("command_port", 5556))  # pyright: ignore[reportUnknownMemberType]
 
     async def start(self) -> None:
         """Indítja a live adatfolyam fogadását.
