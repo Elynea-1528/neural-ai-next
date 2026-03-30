@@ -140,8 +140,9 @@ class YAMLConfigManager(ConfigManagerInterface):
             TypeError: Ha bármelyik kulcs nem string típusú
         """
         # Típus validálás - védelem a helytelen használat ellen
+        # A *keys: str annotáció miatt a key mindig str, de runtime ellenőrzés marad
         for i, key in enumerate(keys):
-            if not isinstance(key, str):
+            if not isinstance(key, str):  # pyright: ignore[reportUnnecessaryIsInstance]
                 error_msg = (
                     f"ConfigManager.get() csak string kulcsokat fogad el. "
                     f"Hibás kulcs index {i}: {type(key).__name__} = {key!r}\n"
@@ -192,8 +193,10 @@ class YAMLConfigManager(ConfigManagerInterface):
                 f"System konfiguráció érvénytelen: {e}", field_path="system", invalid_value=raw_data
             ) from e
         except KeyError:
-            # Ha nincs system szekció, üres dict-tel hívjuk (Pydantic optional mezők)
-            return SystemConfig(**{})
+            # Ha nincs system szekció, explicit None paraméterekkel (Pydantic optional mezők)
+            return SystemConfig(
+                app_name=None, version=None, environment=None, debug=None, paths=None
+            )
 
     def get_storage_config(self) -> StorageConfig:
         """Tárolási konfiguráció lekérése validálással.
@@ -216,9 +219,11 @@ class YAMLConfigManager(ConfigManagerInterface):
                 invalid_value=raw_data,
             ) from e
         except KeyError:
-            # Ha nincs storage szekció, üres dict-tel hívjuk
+            # Ha nincs storage szekció, explicit None paraméterekkel
             # (Pydantic defaults: type="parquet", compression="snappy")
-            return StorageConfig(**{})
+            return StorageConfig(
+                type=None, base_path=None, compression=None, engine=None, partitioning=None
+            )
 
     def get_processors_config(self) -> ProcessorsConfig:
         """Processzorok konfiguráció lekérése validálással.
@@ -241,8 +246,8 @@ class YAMLConfigManager(ConfigManagerInterface):
                 invalid_value=raw_data,
             ) from e
         except KeyError:
-            # Ha nincs processors szekció, üres dict-tel hívjuk (Pydantic optional mezők)
-            return ProcessorsConfig(**{})
+            # Ha nincs processors szekció, explicit None paraméterrel (Pydantic optional mezők)
+            return ProcessorsConfig(processors=None)
 
     def get_logging_config(self) -> LoggingConfig:
         """Naplózási konfiguráció lekérése validálással.
@@ -265,9 +270,9 @@ class YAMLConfigManager(ConfigManagerInterface):
                 invalid_value=raw_data,
             ) from e
         except KeyError:
-            # Ha nincs logging szekció, üres dict-tel hívjuk
+            # Ha nincs logging szekció, explicit None paraméterekkel
             # (Pydantic default: default_level="INFO")
-            return LoggingConfig(**{})
+            return LoggingConfig(default_level=None, handlers=None, loggers=None)
 
     def get_database_config(self) -> DatabaseConfig:
         """Adatbázis konfiguráció lekérése validálással.
@@ -290,8 +295,12 @@ class YAMLConfigManager(ConfigManagerInterface):
                 invalid_value=raw_data,
             ) from e
         except KeyError:
-            # Ha nincs database szekció, üres dict-tel hívjuk (Pydantic optional mezők)
-            return DatabaseConfig(**{})
+            # Ha nincs database szekció, ConfigValidationError-t dobunk (connection kötelező)
+            raise ConfigValidationError(
+                "Database konfiguráció hiányzik (connection kötelező mező)",
+                field_path="database",
+                invalid_value=None,
+            ) from None
 
     def get_events_config(self) -> EventsConfig:
         """Esemény rendszer konfiguráció lekérése validálással.
@@ -312,8 +321,8 @@ class YAMLConfigManager(ConfigManagerInterface):
                 f"Events konfiguráció érvénytelen: {e}", field_path="events", invalid_value=raw_data
             ) from e
         except KeyError:
-            # Ha nincs events szekció, üres dict-tel hívjuk (Pydantic optional mezők)
-            return EventsConfig(**{})
+            # Ha nincs events szekció, explicit None paraméterekkel (Pydantic optional mezők)
+            return EventsConfig(type=None, connection=None, socket_timeout=None)
 
     def get_collectors_config(self) -> CollectorsConfig:
         """Gyűjtők konfiguráció lekérése validálással.
@@ -336,8 +345,8 @@ class YAMLConfigManager(ConfigManagerInterface):
                 invalid_value=raw_data,
             ) from e
         except KeyError:
-            # Ha nincs collectors szekció, üres dict-tel hívjuk (Pydantic optional mezők)
-            return CollectorsConfig(**{})
+            # Ha nincs collectors szekció, explicit None paraméterekkel (Pydantic optional mezők)
+            return CollectorsConfig(jforex=None, jforex_live=None)
 
     def get_validated_config(self, key: str, schema: type[T]) -> T:
         """Konfiguráció betöltés Pydantic validációval.
