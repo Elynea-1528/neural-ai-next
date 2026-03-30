@@ -213,7 +213,7 @@ class TestConfigManagerInterface:
                 pass
 
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError
-            _IncompleteConfigManager()
+            _IncompleteConfigManager()  # pyright: ignore[reportAbstractUsage]
 
     def test_implementation_preserves_type_hints(self) -> None:
         """Teszteli, hogy az implementáció megőrzi a típusjelzéseket."""

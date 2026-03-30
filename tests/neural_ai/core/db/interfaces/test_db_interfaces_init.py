@@ -60,6 +60,6 @@ class TestInterfacesInit:
     def test_import_does_not_fail(self) -> None:
         """Egyszerűen csak teszteli, hogy a modul importálása során nem keletkezik hiba."""
         # Ez a teszt csak annyit ellenőriz, hogy a modul betöltődik-e hiba nélkül
-        import neural_ai.core.db.interfaces  # noqa: F401
+        import neural_ai.core.db.interfaces  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
         assert True  # Ha az import sikeres, a teszt átmegy

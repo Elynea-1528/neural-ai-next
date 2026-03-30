@@ -312,7 +312,7 @@ class TestAsyncConfigManagerInterface:
                 pass
 
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError
-            _IncompleteAsyncConfigManager()
+            _IncompleteAsyncConfigManager()  # pyright: ignore[reportAbstractUsage]
 
     def test_interface_docstrings_present(self) -> None:
         """Teszteli, hogy az interfész metódusainak van docstringje."""
