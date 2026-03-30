@@ -1,13 +1,13 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-03-30 14:05:12 UTC
+**Generálva:** 2026-03-30 14:10:39 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 326
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 183 (56.1%)
-- 🟡 **WARNING:** 88 (27.0%)
+- ✅ **SECURE:** 184 (56.4%)
+- 🟡 **WARNING:** 87 (26.7%)
 - 🔴 **VULNERABLE:** 55 (16.9%)
 
 ---
@@ -172,7 +172,7 @@
 | `ui/components/__init__.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `ui/components/base_widget.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `ui/core_bridge.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `ui/factory.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 0 / 15 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔎 Pylance: 15 hiba javítása |
+| `ui/factory.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `ui/interfaces/__init__.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `ui/interfaces/ai_service_interface.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `ui/interfaces/core_bridge_interface.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |

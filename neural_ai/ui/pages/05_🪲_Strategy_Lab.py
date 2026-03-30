@@ -3,6 +3,8 @@
 Ez a modul implementálja a Strategy Lab oldalt, ahol a felhasználók
 interaktív módon vizsgálhatják a gyertyadiagramokat és stratégiákat.
 """
+# pyright: reportUnknownMemberType=false, reportArgumentType=false, reportUnknownArgumentType=false
+# Streamlit és Plotly type stubs hiányosságai miatt
 
 from datetime import date
 from typing import TYPE_CHECKING
@@ -684,10 +686,10 @@ class StrategyLabPage(PageInterface):
                                 d2_config = {}
                                 st.warning("⚠️ D2 Config nem található, üres config használata")
                             elif isinstance(d2_config, dict):
-                                st.info(f"✓ D2 Config betöltve: {list(d2_config.keys())}")
+                                st.info(f"✓ D2 Config betöltve: {list(d2_config.keys())}")  # pyright: ignore[reportArgumentType]
                             else:
                                 st.error(
-                                    f"❌ D2 Config helytelen típus: {type(d2_config).__name__}"
+                                    f"❌ D2 Config helytelen típus: {type(d2_config).__name__}"  # pyright: ignore[reportArgumentType]
                                 )
                                 d2_config = {}
 
