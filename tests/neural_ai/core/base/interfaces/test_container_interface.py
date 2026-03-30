@@ -182,7 +182,7 @@ class TestDIContainerInterface:
 
         container.register_factory(str, factory_func)
 
-        assert container._factories[str] is factory_func
+        assert container._factories[str] is factory_func  # pyright: ignore[reportPrivateUsage]
 
     def test_mock_implementation_resolve(self) -> None:
         """Teszteli a resolve metódust mock implementációval (51. sor)."""
@@ -271,8 +271,8 @@ class TestDIContainerInterface:
 
         container.register_lazy("test_component", factory_func)
 
-        assert "test_component" in container._lazy_components
-        assert container._lazy_components["test_component"] is factory_func
+        assert "test_component" in container._lazy_components  # pyright: ignore[reportPrivateUsage]
+        assert container._lazy_components["test_component"] is factory_func  # pyright: ignore[reportPrivateUsage]
 
     def test_mock_implementation_get(self) -> None:
         """Teszteli a get metódust mock implementációval (79. sor)."""
@@ -361,9 +361,9 @@ class TestDIContainerInterface:
 
         container.clear()
 
-        assert len(container._instances) == 0
-        assert len(container._factories) == 0
-        assert len(container._lazy_components) == 0
+        assert len(container._instances) == 0  # pyright: ignore[reportPrivateUsage]
+        assert len(container._factories) == 0  # pyright: ignore[reportPrivateUsage]
+        assert len(container._lazy_components) == 0  # pyright: ignore[reportPrivateUsage]
 
 
 class TestLazyComponentInterface:
