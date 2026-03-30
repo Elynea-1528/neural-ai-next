@@ -133,7 +133,9 @@ class StorageFactory(StorageFactoryInterface):
         # Config validáció Pydantic-kal
         raw_config = config.get("storage")
         try:
-            storage_conf = StorageConfig(**(raw_config if isinstance(raw_config, dict) else {}))
+            storage_conf = StorageConfig(  # pyright: ignore[reportUnknownArgumentType]
+                **(raw_config if isinstance(raw_config, dict) else {})
+            )
             logger.debug(
                 "Storage config validation completed", storage_config=storage_conf.model_dump()
             )

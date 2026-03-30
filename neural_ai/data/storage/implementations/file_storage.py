@@ -60,8 +60,8 @@ class FileStorage(StorageInterface):
         self.event_bus = event_bus
 
         # Pydantic validáció
-        raw_config = config.get("storage") if config else {}
-        self.storage_config = StorageConfig(**(raw_config or {}))
+        raw_config = config.get("storage") if config else {}  # pyright: ignore[reportUnknownVariableType]
+        self.storage_config = StorageConfig(**(raw_config or {}))  # pyright: ignore[reportUnknownArgumentType]
 
         # Base path inicializáció (abszolút útvonallal)
         if base_path:
