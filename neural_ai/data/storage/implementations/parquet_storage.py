@@ -902,7 +902,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             "ParquetStorageService save_dataframe adapter nincs implementálva"
         )
 
-    def load_dataframe(self, path: str, **kwargs: Any) -> DataFrame:  # pyright: ignore[reportReturnType]
+    def load_dataframe(self, path: str, **kwargs: Any) -> "DataFrame":  # pyright: ignore[reportReturnType]
         """DataFrame betöltése a megadott útvonalról.
 
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
