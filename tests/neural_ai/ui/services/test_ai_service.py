@@ -21,7 +21,7 @@ class TestAIServiceInit:
         mock_core = MagicMock()
 
         # Act
-        service = AIService(
+        service = AIService(  # pyright: ignore[reportUnknownArgumentType]
             logger=mock_logger,
             config=mock_config,
             core_components=mock_core,

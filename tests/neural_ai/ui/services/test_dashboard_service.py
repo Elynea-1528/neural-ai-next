@@ -26,7 +26,7 @@ class TestDashboardServiceInit:
         mock_core = MagicMock()
 
         # Act
-        service = DashboardService(
+        service = DashboardService(  # pyright: ignore[reportUnknownArgumentType]
             logger=mock_logger,
             config=mock_config,
             core_components=mock_core,

@@ -24,7 +24,7 @@ class TestAIServiceInterface:
         mock_service.get_available_models.return_value = models
         result = mock_service.get_available_models()
         assert isinstance(result, list)
-        assert len(result) == 2
+        assert len(result) == 2  # pyright: ignore[reportUnknownArgumentType]
         mock_service.get_available_models.assert_called_once()
 
     def test_load_model_signature(self) -> None:

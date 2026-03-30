@@ -22,7 +22,7 @@ class TestNavigationServiceInit:
         mock_core = MagicMock()
 
         # Act
-        service = NavigationService(
+        service = NavigationService(  # pyright: ignore[reportUnknownArgumentType]
             logger=mock_logger,
             config=mock_config,
             core_components=mock_core,
