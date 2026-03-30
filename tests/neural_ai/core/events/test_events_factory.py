@@ -218,6 +218,29 @@ class TestEventBusFactoryCreateFromConfig:
         assert isinstance(result, EventBusInterface)
 
 
+class TestEventBusFactoryGetEventBus:
+    """EventBusFactory get_event_bus statikus metódus tesztek."""
+
+    @patch("neural_ai.core.events.implementations.zeromq_bus.EventBus")
+    def test_get_event_bus_creates_with_logger(self, mock_event_bus_class: MagicMock) -> None:
+        """Teszteli a get_event_bus statikus metódust."""
+        mock_event_bus = MagicMock()
+        mock_event_bus_class.return_value = mock_event_bus
+        mock_logger = MagicMock()
+
+        result = EventBusFactory.get_event_bus(mock_logger)
+
+        mock_event_bus_class.assert_called_once_with(logger=mock_logger)
+        assert result == mock_event_bus
+
+    def test_get_event_bus_returns_interface(self) -> None:
+        """Teszteli, hogy a get_event_bus EventBusInterface-t ad vissza."""
+        mock_logger = MagicMock()
+        result = EventBusFactory.get_event_bus(mock_logger)
+
+        assert isinstance(result, EventBusInterface)
+
+
 class TestEventBusFactoryStaticMethods:
     """EventBusFactory példány metódusok tesztek."""
 
