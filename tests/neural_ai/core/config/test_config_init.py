@@ -51,14 +51,6 @@ class TestConfigModuleExports:
         assert ConfigManagerInterface is not None
         assert ConfigManagerFactoryInterface is not None
 
-    def test_config_module_imports_yaml_manager(self) -> None:
-        """Ellenőrzi, hogy a config modul exportálja a YAML managert."""
-        # When
-        from neural_ai.core.config import YAMLConfigManager
-
-        # Then
-        assert YAMLConfigManager is not None
-
     def test_config_module_all_exports(self) -> None:
         """Ellenőrzi, hogy a __all__ lista tartalmazza az összes exportált elemet."""
         # When
@@ -73,7 +65,6 @@ class TestConfigModuleExports:
             "ConfigTypeError",
             "ConfigKeyError",
             "ConfigManagerFactory",
-            "YAMLConfigManager",
             "ConfigManagerInterface",
             "ConfigManagerFactoryInterface",
         ]

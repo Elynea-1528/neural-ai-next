@@ -153,6 +153,29 @@ class TestBootstrapCore:
         with pytest.raises(ImportError):
             bootstrap_core()
 
+    @patch("neural_ai.core.base.implementations.di_container.DIContainer")
+    @patch("neural_ai.core.config.factory.ConfigManagerFactory")
+    def test_bootstrap_core_config_load_error(
+        self,
+        mock_config_factory: MagicMock,
+        mock_di_container: MagicMock,
+    ) -> None:
+        """Teszteli a bootstrap_core függvényt config betöltési hiba esetén.
+        
+        Ez a teszt lefedi a 138-141 sorokat (ConfigLoadError exception handling).
+        """
+        from neural_ai.core.config.exceptions import ConfigLoadError
+        
+        # Mock beállítások
+        mock_di_container.return_value = self.mock_container
+        mock_config = MagicMock()
+        mock_config.load_directory.side_effect = ValueError("Invalid YAML")
+        mock_config_factory.create_manager.return_value = mock_config
+
+        # Bootstrap hívás - várjuk a ConfigLoadError-t
+        with pytest.raises(ConfigLoadError, match="Failed to load configuration"):
+            bootstrap_core()
+
     def test_bootstrap_core_returns_core_components(self) -> None:
         """Teszteli, hogy a bootstrap_core CoreComponents példánnyal tér vissza."""
         with patch("neural_ai.core.base.implementations.di_container.DIContainer") as mock_di:

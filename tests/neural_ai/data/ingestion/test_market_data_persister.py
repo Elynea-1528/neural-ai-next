@@ -7,7 +7,6 @@ amelyek ellenőrzik a market data eventek bufferezését és mentését.
 import asyncio
 from contextlib import suppress
 from datetime import UTC, datetime, timedelta
-from typing import cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -17,8 +16,8 @@ from neural_ai.core.config.interfaces.types import IngestionConfig
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
 
-default_config: IngestionConfig = cast(
-    IngestionConfig, {"buffer_size_limit": 10_000, "flush_interval_minutes": 60}
+default_config: IngestionConfig = IngestionConfig(
+    buffer_size_limit=10_000, flush_interval_minutes=60
 )
 
 
@@ -41,8 +40,8 @@ class TestMarketDataPersisterInit:
         mock_event_bus: MagicMock = MagicMock()
         mock_storage: MagicMock = MagicMock()
         mock_logger: MagicMock = MagicMock()
-        mock_config: IngestionConfig = cast(
-            IngestionConfig, {"buffer_size_limit": 10_000, "flush_interval_minutes": 60}
+        mock_config: IngestionConfig = IngestionConfig(
+            buffer_size_limit=10_000, flush_interval_minutes=60
         )
 
         persister = MarketDataPersister(
@@ -61,8 +60,8 @@ class TestMarketDataPersisterInit:
         mock_event_bus: MagicMock = MagicMock()
         mock_storage: MagicMock = MagicMock()
         mock_logger: MagicMock = MagicMock()
-        mock_config: IngestionConfig = cast(
-            IngestionConfig, {"buffer_size_limit": 5_000, "flush_interval_minutes": 60}
+        mock_config: IngestionConfig = IngestionConfig(
+            buffer_size_limit=5_000, flush_interval_minutes=60
         )
 
         persister = MarketDataPersister(
@@ -82,8 +81,8 @@ class TestMarketDataPersisterStartStop:
         mock_event_bus.run_forever = AsyncMock()
         mock_storage: MagicMock = MagicMock()
         mock_logger: MagicMock = MagicMock()
-        mock_config: IngestionConfig = cast(
-            IngestionConfig, {"buffer_size_limit": 10_000, "flush_interval_minutes": 60}
+        mock_config: IngestionConfig = IngestionConfig(
+            buffer_size_limit=10_000, flush_interval_minutes=60
         )
 
         persister = MarketDataPersister(
@@ -184,7 +183,7 @@ class TestMarketDataPersisterOnMarketData:
             event_bus=mock_event_bus,
             storage=mock_storage,
             logger=mock_logger,
-            config=cast(IngestionConfig, {"buffer_size_limit": 5, "flush_interval_minutes": 60}),
+            config=IngestionConfig(buffer_size_limit=5, flush_interval_minutes=60),
         )
         persister.running = True
 
@@ -266,7 +265,7 @@ class TestMarketDataPersisterOnMarketData:
             event_bus=mock_event_bus,
             storage=mock_storage,
             logger=MagicMock(),
-            config=cast(IngestionConfig, {"buffer_size_limit": 3, "flush_interval_minutes": 60}),
+            config=IngestionConfig(buffer_size_limit=3, flush_interval_minutes=60),
         )
         persister.running = True
 
@@ -784,7 +783,7 @@ class TestMarketDataPersisterIntegration:
             event_bus=mock_event_bus,
             storage=mock_storage,
             logger=mock_logger,
-            config=cast(IngestionConfig, {"buffer_size_limit": 2, "flush_interval_minutes": 60}),
+            config=IngestionConfig(buffer_size_limit=2, flush_interval_minutes=60),
         )
 
         # Indítás

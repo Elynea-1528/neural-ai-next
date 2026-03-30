@@ -19,6 +19,18 @@ from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 
 
+@pytest.fixture
+def mock_logger() -> MagicMock:
+    """Mock logger fixture minden teszthez (DI pattern)."""
+    logger = MagicMock()
+    logger.debug = MagicMock()
+    logger.info = MagicMock()
+    logger.warning = MagicMock()
+    logger.error = MagicMock()
+    logger.critical = MagicMock()
+    return logger
+
+
 @pytest.fixture(autouse=True)
 def reset_singleton():
     """Singleton reset minden teszt előtt és után."""
@@ -71,11 +83,11 @@ def mock_zmq_context():
 class TestEventBusInitialization:
     """EventBus inicializálás tesztek."""
 
-    def test_default_initialization(self, mock_zmq_context: tuple[MagicMock, MagicMock]) -> None:
+    def test_default_initialization(self, mock_zmq_context: tuple[MagicMock, MagicMock], mock_logger: MagicMock) -> None:
         """Teszteli az alapértelmezett inicializálást."""
         mock_context, mock_socket = mock_zmq_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
 
         assert bus.config.pub_port == 5555
         assert bus.config.sub_port == 5556
@@ -88,28 +100,28 @@ class TestEventBusInitialization:
         mock_context, mock_socket = mock_zmq_context
 
         config = EventBusConfig(pub_port=6666, sub_port=6667, use_inproc=True)
-        bus = EventBus(config)
+        bus = EventBus(config, logger=mock_logger)
 
         assert bus.config.pub_port == 6666
         assert bus.config.sub_port == 6667
         assert bus.config.use_inproc is True
 
-    def test_external_zmq_context(self, mock_zmq_context: tuple[MagicMock, MagicMock]) -> None:
+    def test_external_zmq_context(self, mock_zmq_context: tuple[MagicMock, MagicMock], mock_logger: MagicMock) -> None:
         """Teszteli a külső ZMQ kontextus használatát."""
         mock_context, mock_socket = mock_zmq_context
 
         external_context: MagicMock = MagicMock()
         config = EventBusConfig(zmq_context=external_context)
-        bus = EventBus(config)
+        bus = EventBus(config, logger=mock_logger)
 
         assert bus._own_context is False
         assert bus._context is external_context
 
-    def test_zmq_import_error(self, mock_zmq_context: tuple[MagicMock, MagicMock]) -> None:
+    def test_zmq_import_error(self, mock_zmq_context: tuple[MagicMock, MagicMock], mock_logger: MagicMock) -> None:
         """Teszteli a ZMQ import hibát."""
         with patch.dict("sys.modules", {"zmq": None, "zmq.asyncio": None}):
             with pytest.raises(ImportError, match="ZeroMQ nincs telepítve"):
-                EventBus()
+                EventBus(logger=mock_logger)
 
 
 class TestEventBusStartStop:
@@ -117,7 +129,7 @@ class TestEventBusStartStop:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_start_success(self, mock_context_class: MagicMock) -> None:
+    async def test_start_success(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a sikeres indítást."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -126,7 +138,7 @@ class TestEventBusStartStop:
         mock_context.socket.return_value = mock_socket
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         assert bus._running is True
@@ -135,7 +147,7 @@ class TestEventBusStartStop:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_start_with_inproc(self, mock_context_class: MagicMock) -> None:
+    async def test_start_with_inproc(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az indítást inproc transporttal."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -145,7 +157,7 @@ class TestEventBusStartStop:
         mock_context_class.return_value = mock_context
 
         config = EventBusConfig(use_inproc=True)
-        bus = EventBus(config)
+        bus = EventBus(config, logger=mock_logger)
         await bus.start()
 
         assert bus._running is True
@@ -153,7 +165,7 @@ class TestEventBusStartStop:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_start_twice(self, mock_context_class: MagicMock) -> None:
+    async def test_start_twice(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a többszöri indítást."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -162,7 +174,7 @@ class TestEventBusStartStop:
         mock_context.socket.return_value = mock_socket
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
         await bus.start()  # Másodszor is meghívjuk
 
@@ -171,7 +183,7 @@ class TestEventBusStartStop:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_stop_success(self, mock_context_class: MagicMock) -> None:
+    async def test_stop_success(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a sikeres leállítást."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -180,7 +192,7 @@ class TestEventBusStartStop:
         mock_context.socket.return_value = mock_socket
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
         await bus.stop()
 
@@ -189,19 +201,19 @@ class TestEventBusStartStop:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_stop_without_start(self, mock_context_class: MagicMock) -> None:
+    async def test_stop_without_start(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a leállítást indítás nélkül."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.stop()  # Nem dob hibát
 
         assert bus._running is False
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_stop_twice(self, mock_context_class: MagicMock) -> None:
+    async def test_stop_twice(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a többszöri leállítást."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -210,7 +222,7 @@ class TestEventBusStartStop:
         mock_context.socket.return_value = mock_socket
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
         await bus.stop()
         await bus.stop()  # Másodszor is meghívjuk
@@ -223,7 +235,7 @@ class TestEventBusPublish:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_publish_success(self, mock_context_class: MagicMock) -> None:
+    async def test_publish_success(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a sikeres esemény közzétételt."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -232,7 +244,7 @@ class TestEventBusPublish:
         mock_context.socket.return_value = mock_socket
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         event = MarketDataEvent(
@@ -255,12 +267,12 @@ class TestEventBusPublish:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_publish_not_started(self, mock_context_class: MagicMock) -> None:
+    async def test_publish_not_started(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a közzétételt indítás nélkül."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         event = MarketDataEvent(
             symbol="EURUSD",
             timestamp=datetime.now(UTC),
@@ -277,12 +289,12 @@ class TestEventBusPublish:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_publish_no_publisher(self, mock_context_class: MagicMock) -> None:
+    async def test_publish_no_publisher(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a közzétételt publisher socket nélkül."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         bus._running = True
         event = MarketDataEvent(
             symbol="EURUSD",
@@ -300,7 +312,7 @@ class TestEventBusPublish:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_publish_batch_events(self, mock_context_class: MagicMock) -> None:
+    async def test_publish_batch_events(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a batch (lista) események közzétételét."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -309,7 +321,7 @@ class TestEventBusPublish:
         mock_context.socket.return_value = mock_socket
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         # Hozzunk létre több eseményt egy listában
@@ -356,12 +368,12 @@ class TestEventBusSubscribeUnsubscribe:
     """EventBus feliratkozás és leiratkozás tesztek."""
 
     @patch("zmq.asyncio.Context")
-    def test_subscribe_new_event_type(self, mock_context_class: MagicMock) -> None:
+    def test_subscribe_new_event_type(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az új eseménytípusra való feliratkozást."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback: MagicMock = MagicMock()
 
         bus.subscribe("market_data", callback)
@@ -370,12 +382,12 @@ class TestEventBusSubscribeUnsubscribe:
         assert callback in bus._subscribers["market_data"]
 
     @patch("zmq.asyncio.Context")
-    def test_subscribe_multiple_callbacks(self, mock_context_class: MagicMock) -> None:
+    def test_subscribe_multiple_callbacks(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli több callback feliratkozását ugyanarra az eseménytípusra."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback1: MagicMock = MagicMock()
         callback2: MagicMock = MagicMock()
 
@@ -387,12 +399,12 @@ class TestEventBusSubscribeUnsubscribe:
         assert callback2 in bus._subscribers["market_data"]
 
     @patch("zmq.asyncio.Context")
-    def test_unsubscribe_existing(self, mock_context_class: MagicMock) -> None:
+    def test_unsubscribe_existing(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a létező feliratkozás lemondását."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback: MagicMock = MagicMock()
 
         bus.subscribe("market_data", callback)
@@ -402,24 +414,24 @@ class TestEventBusSubscribeUnsubscribe:
         assert callback not in bus._subscribers["market_data"]
 
     @patch("zmq.asyncio.Context")
-    def test_unsubscribe_non_existing(self, mock_context_class: MagicMock) -> None:
+    def test_unsubscribe_non_existing(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a nem létező feliratkozás lemondását."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback: MagicMock = MagicMock()
 
         # Nem dob hibát
         bus.unsubscribe("market_data", callback)
 
     @patch("zmq.asyncio.Context")
-    def test_unsubscribe_non_existing_event_type(self, mock_context_class: MagicMock) -> None:
+    def test_unsubscribe_non_existing_event_type(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a nem létező eseménytípus lemondását."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback: MagicMock = MagicMock()
 
         # Nem dob hibát
@@ -431,7 +443,7 @@ class TestEventBusContextManager:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_async_context_manager(self, mock_context_class: MagicMock) -> None:
+    async def test_async_context_manager(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az aszinkron context managert."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -440,7 +452,7 @@ class TestEventBusContextManager:
         mock_context.socket.return_value = mock_socket
         mock_context_class.return_value = mock_context
 
-        async with EventBus() as bus:
+        async with EventBus(logger=mock_logger) as bus:
             assert bus._running is True
 
         assert bus._running is False
@@ -450,12 +462,12 @@ class TestEventBusDeserialization:
     """EventBus deszerializáció tesztek."""
 
     @patch("zmq.asyncio.Context")
-    def test_deserialize_market_data(self, mock_context_class: MagicMock) -> None:
+    def test_deserialize_market_data(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a MarketDataEvent deszerializációját."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         event_data: dict[str, Any] = {
             "symbol": "EURUSD",
             "timestamp": datetime.now(UTC).isoformat(),
@@ -473,12 +485,12 @@ class TestEventBusDeserialization:
         assert result.bid == 1.0850
 
     @patch("zmq.asyncio.Context")
-    def test_deserialize_unknown_event_type(self, mock_context_class: MagicMock) -> None:
+    def test_deserialize_unknown_event_type(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az ismeretlen eseménytípus deszerializációját."""
         mock_context = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         event_data = {"key": "value"}
 
         result = bus._deserialize_event("unknown_type", event_data)
@@ -486,12 +498,12 @@ class TestEventBusDeserialization:
         assert result is None
 
     @patch("zmq.asyncio.Context")
-    def test_deserialize_invalid_data(self, mock_context_class: MagicMock) -> None:
+    def test_deserialize_invalid_data(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az érvénytelen adat deszerializációját."""
         mock_context = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         event_data = {"invalid": "data"}
 
         result = bus._deserialize_event("market_data", event_data)
@@ -504,12 +516,12 @@ class TestEventBusDispatch:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_dispatch_event_success(self, mock_context_class: MagicMock) -> None:
+    async def test_dispatch_event_success(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a sikeres esemény továbbítást."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback: AsyncMock = AsyncMock()
         bus.subscribe("market_data", callback)
 
@@ -532,12 +544,12 @@ class TestEventBusDispatch:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_dispatch_event_no_subscribers(self, mock_context_class: MagicMock) -> None:
+    async def test_dispatch_event_no_subscribers(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az esemény továbbítást feliratkozók nélkül."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
 
         event_data: dict[str, Any] = {
             "symbol": "EURUSD",
@@ -553,12 +565,12 @@ class TestEventBusDispatch:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_dispatch_event_callback_error(self, mock_context_class: MagicMock) -> None:
+    async def test_dispatch_event_callback_error(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a callback hibát."""
         mock_context = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback = AsyncMock(side_effect=Exception("Callback hiba"))
         bus.subscribe("market_data", callback)
 
@@ -581,12 +593,12 @@ class TestEventBusDeserializationAdditional:
     """További deszerializáció tesztek a hiányzó sorok lefedésére."""
 
     @patch("zmq.asyncio.Context")
-    def test_deserialize_trade_event(self, mock_context_class: MagicMock) -> None:
+    def test_deserialize_trade_event(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a TradeEvent deszerializációját."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         event_data: dict[str, Any] = {
             "symbol": "EURUSD",
             "timestamp": datetime.now(UTC).isoformat(),
@@ -605,12 +617,12 @@ class TestEventBusDeserializationAdditional:
         assert result.order_id == "ord_12345"
 
     @patch("zmq.asyncio.Context")
-    def test_deserialize_signal_event(self, mock_context_class: MagicMock) -> None:
+    def test_deserialize_signal_event(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a SignalEvent deszerializációját."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         event_data: dict[str, Any] = {
             "symbol": "EURUSD",
             "timestamp": datetime.now(UTC).isoformat(),
@@ -628,12 +640,12 @@ class TestEventBusDeserializationAdditional:
         assert result.strategy_id == "strat_001"
 
     @patch("zmq.asyncio.Context")
-    def test_deserialize_system_log_event(self, mock_context_class: MagicMock) -> None:
+    def test_deserialize_system_log_event(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a SystemLogEvent deszerializációját."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         event_data: dict[str, Any] = {
             "timestamp": datetime.now(UTC).isoformat(),
             "level": "INFO",
@@ -650,12 +662,12 @@ class TestEventBusDeserializationAdditional:
         assert result.level == "INFO"
 
     @patch("zmq.asyncio.Context")
-    def test_deserialize_order_event(self, mock_context_class: MagicMock) -> None:
+    def test_deserialize_order_event(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a OrderEvent deszerializációját."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         event_data: dict[str, Any] = {
             "order_id": "ord_001",
             "timestamp": datetime.now(UTC).isoformat(),
@@ -676,12 +688,12 @@ class TestEventBusDeserializationAdditional:
         assert result.order_id == "ord_001"
 
     @patch("zmq.asyncio.Context")
-    def test_deserialize_position_event(self, mock_context_class: MagicMock) -> None:
+    def test_deserialize_position_event(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a PositionEvent deszerializációját."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         event_data: dict[str, Any] = {
             "position_id": "pos_001",
             "timestamp": datetime.now(UTC).isoformat(),
@@ -708,13 +720,13 @@ class TestEventBusDispatchExceptionHandling:
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
     async def test_dispatch_event_deserialization_error(
-        self, mock_context_class: MagicMock
+        self, mock_context_class: MagicMock, mock_logger: MagicMock
     ) -> None:
         """Teszteli a deserializálási hiba kezelését."""
         mock_context = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback = AsyncMock()
         bus.subscribe("market_data", callback)
 
@@ -730,13 +742,13 @@ class TestEventBusDispatchExceptionHandling:
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
     async def test_dispatch_event_deserialization_returns_none(
-        self, mock_context_class: MagicMock
+        self, mock_context_class: MagicMock, mock_logger: MagicMock
     ) -> None:
         """Teszteli a None visszatérési érték kezelését."""
         mock_context = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback = AsyncMock()
         bus.subscribe("unknown_type", callback)
 
@@ -751,13 +763,13 @@ class TestEventBusDispatchExceptionHandling:
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
     async def test_dispatch_event_outer_exception_handling(
-        self, mock_context_class: MagicMock
+        self, mock_context_class: MagicMock, mock_logger: MagicMock
     ) -> None:
         """Teszteli a külső try-except blokk kivételkezelését (219-220. sorok)."""
         mock_context = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback = AsyncMock()
         bus.subscribe("market_data", callback)
 
@@ -782,7 +794,7 @@ class TestEventBusRunForever:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_run_forever_success(self, mock_context_class: MagicMock) -> None:
+    async def test_run_forever_success(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a run_forever sikeres futását."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -808,7 +820,7 @@ class TestEventBusRunForever:
 
         mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         # Futtassuk a run_forever-t
@@ -823,7 +835,7 @@ class TestEventBusRunForever:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_run_forever_timeout_handling(self, mock_context_class: MagicMock) -> None:
+    async def test_run_forever_timeout_handling(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a timeout kezelését a run_forever-ben."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -845,7 +857,7 @@ class TestEventBusRunForever:
 
         mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         # Futtassuk a run_forever-t
@@ -858,19 +870,19 @@ class TestEventBusRunForever:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_run_forever_not_started(self, mock_context_class: MagicMock) -> None:
+    async def test_run_forever_not_started(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a run_forever hívását indítás nélkül."""
         mock_context: MagicMock = MagicMock()
         mock_context_class.return_value = mock_context
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
 
         with pytest.raises(EventBusError, match="EventBus nincs elindítva"):
             await bus.run_forever()
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_run_forever_message_processing(self, mock_context_class: MagicMock) -> None:
+    async def test_run_forever_message_processing(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az üzenet feldolgozást a run_forever-ben."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -896,7 +908,7 @@ class TestEventBusRunForever:
 
         mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         callback: AsyncMock = AsyncMock()
         bus.subscribe("trade", callback)
         await bus.start()
@@ -911,7 +923,7 @@ class TestEventBusRunForever:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_run_forever_invalid_message_format(self, mock_context_class: MagicMock) -> None:
+    async def test_run_forever_invalid_message_format(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az érvénytelen üzenet formátum kezelését."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -934,7 +946,7 @@ class TestEventBusRunForever:
 
         mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         # Futtassuk a run_forever-t
@@ -947,7 +959,7 @@ class TestEventBusRunForever:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_run_forever_json_decode_error(self, mock_context_class: MagicMock) -> None:
+    async def test_run_forever_json_decode_error(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a JSON decode hiba kezelését."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -973,7 +985,7 @@ class TestEventBusRunForever:
 
         mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         # Futtassuk a run_forever-t
@@ -987,7 +999,7 @@ class TestEventBusRunForever:
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
     async def test_run_forever_general_exception_handling(
-        self, mock_context_class: MagicMock
+        self, mock_context_class: MagicMock, mock_logger: MagicMock
     ) -> None:
         """Teszteli az általános kivétel kezelését a run_forever-ben."""
         mock_context: MagicMock = MagicMock()
@@ -1011,7 +1023,7 @@ class TestEventBusRunForever:
 
         mock_socket.recv_multipart.side_effect = recv_multipart_side_effect
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         # Futtassuk a run_forever-t
@@ -1024,7 +1036,7 @@ class TestEventBusRunForever:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_run_forever_with_inproc(self, mock_context_class: MagicMock) -> None:
+    async def test_run_forever_with_inproc(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a run_forever-t inproc transporttal (284. sor lefedése)."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -1041,7 +1053,7 @@ class TestEventBusRunForever:
 
         # Inproc konfigurációval hozzuk létre az EventBus-t
         config = EventBusConfig(use_inproc=True)
-        bus = EventBus(config)
+        bus = EventBus(config, logger=mock_logger)
         await bus.start()
 
         # Futtassuk a run_forever-t
@@ -1058,7 +1070,7 @@ class TestEventBusErrorHandling:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_publish_error_zmq_exception(self, mock_context_class: MagicMock) -> None:
+    async def test_publish_error_zmq_exception(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a publish során fellépő ZMQError kezelését."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -1072,7 +1084,7 @@ class TestEventBusErrorHandling:
 
         mock_socket.send_multipart.side_effect = zmq.ZMQError(99, "Connection lost")
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         event = MarketDataEvent(
@@ -1095,7 +1107,7 @@ class TestEventBusErrorHandling:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_publish_error_general_exception(self, mock_context_class: MagicMock) -> None:
+    async def test_publish_error_general_exception(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a publish során fellépő általános kivétel kezelését."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -1107,7 +1119,7 @@ class TestEventBusErrorHandling:
         # Mockold a send_multipart-ot, hogy általános kivételt dobjon
         mock_socket.send_multipart.side_effect = RuntimeError("Unexpected error")
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         event = MarketDataEvent(
@@ -1129,7 +1141,7 @@ class TestEventBusErrorHandling:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_publish_error_with_callback(self, mock_context_class: MagicMock) -> None:
+    async def test_publish_error_with_callback(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a publish hibakezelését callbackkel együtt."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -1142,7 +1154,7 @@ class TestEventBusErrorHandling:
 
         mock_socket.send_multipart.side_effect = zmq.ZMQError(99, "Connection lost")
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         # Adjunk hozzá egy callback-et, hogy teszteljük a teljes hibakezelési láncot
@@ -1169,7 +1181,7 @@ class TestEventBusErrorHandling:
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
     async def test_subscribe_error_setsockopt_exception(
-        self, mock_context_class: MagicMock
+        self, mock_context_class: MagicMock, mock_logger: MagicMock
     ) -> None:
         """Teszteli a subscribe során fellépő setsockopt hiba kezelését."""
         mock_context: MagicMock = MagicMock()
@@ -1187,7 +1199,7 @@ class TestEventBusErrorHandling:
         # Mockold a recv_multipart-et, hogy azonnal CancelledError-t dobjon
         mock_socket.recv_multipart.side_effect = asyncio.CancelledError()
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         # A hiba ellenére a run_forever-nek stabilan kell futnia
@@ -1205,7 +1217,7 @@ class TestEventBusErrorHandling:
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
     async def test_subscribe_error_setsockopt_general_exception(
-        self, mock_context_class: MagicMock
+        self, mock_context_class: MagicMock, mock_logger: MagicMock
     ) -> None:
         """Teszteli a subscribe során fellépő általános setsockopt hiba kezelését."""
         mock_context: MagicMock = MagicMock()
@@ -1222,7 +1234,7 @@ class TestEventBusErrorHandling:
         # Mockold a recv_multipart-et, hogy azonnal CancelledError-t dobjon
         mock_socket.recv_multipart.side_effect = asyncio.CancelledError()
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         # A hiba ellenére a run_forever-nek stabilan kell futnia
@@ -1237,7 +1249,7 @@ class TestEventBusErrorHandling:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_start_error_socket_bind_failure(self, mock_context_class: MagicMock) -> None:
+    async def test_start_error_socket_bind_failure(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a socket bind hiba kezelését az indításkor."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()  # Ne AsyncMock, mert a bind szinkron
@@ -1249,7 +1261,7 @@ class TestEventBusErrorHandling:
 
         mock_socket.bind.side_effect = zmq.ZMQError(99, "Address already in use")
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
 
         # A bind hiba ellenére a rendszernek kezelnie kell a kivételt
         # és EventBusError-t kell dobnia
@@ -1258,7 +1270,7 @@ class TestEventBusErrorHandling:
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
-    async def test_stop_error_socket_close_failure(self, mock_context_class: MagicMock) -> None:
+    async def test_stop_error_socket_close_failure(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli a socket close hiba kezelését a leállításkor."""
         mock_context: MagicMock = MagicMock()
         mock_socket: MagicMock = MagicMock()
@@ -1272,7 +1284,7 @@ class TestEventBusErrorHandling:
 
         mock_socket.close.side_effect = zmq.ZMQError(99, "Socket already closed")
 
-        bus = EventBus()
+        bus = EventBus(logger=mock_logger)
         await bus.start()
 
         # A close hiba ellenére a leállításnak folytatódnia kell

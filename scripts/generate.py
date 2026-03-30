@@ -831,6 +831,7 @@ class HTMLGenerator(GeneratorBase):
             "warning": 0,
             "critical": 0,
             "tested": 0,
+            "source_files": 0,  # ÚJ: Forrás fájlok száma (nem teszt fájlok)
         }
 
         for analysis in self.analyses:
@@ -841,8 +842,12 @@ class HTMLGenerator(GeneratorBase):
             elif analysis.overall_status == "🔴 VULNERABLE":
                 stats["critical"] += 1
 
-            if analysis.test_file_exists:
-                stats["tested"] += 1
+            # ÚJ: Csak a forrás fájlokat számoljuk (nem teszt fájlok)
+            is_test_file = analysis.relative_path.startswith("tests/")
+            if not is_test_file:
+                stats["source_files"] += 1
+                if analysis.test_file_exists:
+                    stats["tested"] += 1
 
         return stats
 
@@ -854,7 +859,7 @@ class HTMLGenerator(GeneratorBase):
         secure_pct = (stats["secure"] / stats["total"] * 100) if stats["total"] > 0 else 0
         warning_pct = (stats["warning"] / stats["total"] * 100) if stats["total"] > 0 else 0
         critical_pct = (stats["critical"] / stats["total"] * 100) if stats["total"] > 0 else 0
-        tested_pct = (stats["tested"] / stats["total"] * 100) if stats["total"] > 0 else 0
+        tested_pct = (stats["tested"] / stats["source_files"] * 100) if stats["source_files"] > 0 else 0
 
         page_title = "Neural AI Next - Task Tree Dashboard"
         header_title = "⚡ Neural AI Next - Task Tree Dashboard"
@@ -1195,8 +1200,8 @@ class HTMLGenerator(GeneratorBase):
                 <div class="stat-header">
                     <div class="stat-icon">◉</div>
                 </div>
-                <div class="stat-value">{stats["tested"]}/{stats["total"]}</div>
-                <div class="stat-label">Tesztelt</div>
+                <div class="stat-value">{stats["tested"]}/{stats["source_files"]}</div>
+                <div class="stat-label">Tesztelt Forrás Fájlok</div>
                 <div class="stat-percent">{tested_pct:.1f}% teszt lefedettség</div>
             </div>
         </div>
@@ -1576,27 +1581,45 @@ class TaskTreeGenerator:
         self.source_warnings: dict[str, int] = {}
         self.cache_manager = CacheManager()
 
-    def run_dynamic_tools(self, force_refresh: bool = False) -> None:
-        """Futtatja a dinamikus ellenőrző eszközöket."""
+    def run_dynamic_tools(self, force_refresh: bool = False, no_test: bool = False) -> None:
+        """Futtatja a dinamikus ellenőrző eszközöket.
+        
+        Args:
+            force_refresh: Ha True, cache kihagyása és friss adatok gyűjtése
+            no_test: Ha True, pytest és coverage kihagyása (csak statikus ellenőrzések)
+        """
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
         env["PYTHONPATH"] = str(PROJECT_ROOT)
 
         print("\n🚀 Dinamikus eszközök futtatása...")
+        
+        if no_test:
+            print("  ⚡ --no-test mód: Pytest és Coverage kihagyva")
+            print("  ✅ Futtatva: Ruff, Mypy, Pyright, Teszt pár ellenőrzés, Dokumentáció ellenőrzés")
 
         # Cache ellenőrzés
         if not force_refresh and self.cache_manager.is_valid():
             print("  ⚡ Cache használata - TELJES KIHAGYÁS (pytest-cov, ruff, mypy, pyright)")
             cached_data = self.cache_manager.load()
             if cached_data:
-                self.coverage_data = cached_data.get("coverage_data", {})
+                # Ha --no-test, akkor pytest/coverage adatokat nem töltjük be
+                if not no_test:
+                    self.coverage_data = cached_data.get("coverage_data", {})
+                    self.pytest_data = cached_data.get("pytest_data", {})
+                    self.source_warnings = cached_data.get("source_warnings", {})
+                else:
+                    self.coverage_data = {}
+                    self.pytest_data = {}
+                    self.source_warnings = {}
+                
                 self.ruff_data = cached_data.get("ruff_data", [])
                 self.mypy_data = cached_data.get("mypy_data", [])
                 self.pylance_data = cached_data.get("pylance_data", [])
-                self.pytest_data = cached_data.get("pytest_data", {})
-                self.source_warnings = cached_data.get("source_warnings", {})
+                
                 print("    ✅ Cache betöltve:")
-                print(f"       - Coverage: {len(self.coverage_data)} fájl")
+                if not no_test:
+                    print(f"       - Coverage: {len(self.coverage_data)} fájl")
                 print(f"       - Ruff: {len(self.ruff_data)} hiba")
                 print(f"       - Mypy: {len(self.mypy_data)} hiba")
                 print(f"       - Pylance: {len(self.pylance_data)} hiba")
@@ -1605,8 +1628,15 @@ class TaskTreeGenerator:
 
         print("  🔄 Friss adatok gyűjtése...")
 
-        # 1. Coverage + Pytest (LASSÚ - külön futtatjuk)
-        self._run_pytest_cov(env)
+        # 1. Coverage + Pytest (LASSÚ - csak ha nem --no-test)
+        if not no_test:
+            self._run_pytest_cov(env)
+        else:
+            # Üres adatok inicializálása
+            self.coverage_data = {}
+            self.pytest_data = {}
+            self.source_warnings = {}
+            print("  ⏭️  Pytest és Coverage kihagyva (--no-test)")
 
         # 2. Párhuzamos futtatás: Ruff + Mypy + Pyright
         print("  ⚡ Párhuzamos QA eszközök futtatása...")
@@ -1618,8 +1648,12 @@ class TaskTreeGenerator:
             ]
             wait(futures)
 
-        # 3. Pytest Report feldolgozása
-        self._process_pytest_report()
+        # 3. Pytest Report feldolgozása (csak ha nem --no-test)
+        if not no_test:
+            self._process_pytest_report()
+        else:
+            self.pytest_data = {}
+            self.source_warnings = {}
 
         # 4. Cache mentése
         cache_data = {
@@ -2105,14 +2139,15 @@ class TaskTreeGenerator:
             has_documentation=has_documentation,
         )
 
-    def generate(self, force_refresh: bool = False) -> None:
+    def generate(self, force_refresh: bool = False, no_test: bool = False) -> None:
         """Generálja a TASK_TREE.md és TASK_TREE.html fájlokat.
 
         Args:
             force_refresh: Ha True, cache kihagyása és friss adatok gyűjtése
+            no_test: Ha True, pytest és coverage kihagyása (csak statikus ellenőrzések)
         """
         # 1. Dinamikus eszközök futtatása
-        self.run_dynamic_tools(force_refresh=force_refresh)
+        self.run_dynamic_tools(force_refresh=force_refresh, no_test=no_test)
 
         print("\n🔍 Kódbázis szkennelése...")
         files = self.scan_codebase()
@@ -2180,7 +2215,12 @@ if __name__ == "__main__":
         action="store_true",
         help="Cache kihagyása, friss adatok gyűjtése (pytest-cov, ruff, mypy, pyright)",
     )
+    parser.add_argument(
+        "--no-test",
+        action="store_true",
+        help="Pytest és coverage kihagyása (csak statikus ellenőrzések: ruff, mypy, pyright, teszt pár, dokumentáció)",
+    )
     args = parser.parse_args()
 
     generator = TaskTreeGenerator()
-    generator.generate(force_refresh=args.force_refresh)
+    generator.generate(force_refresh=args.force_refresh, no_test=args.no_test)

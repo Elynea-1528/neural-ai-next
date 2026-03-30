@@ -970,7 +970,7 @@ class TestDynamicConfigManagerComprehensive:
 
         manager = DynamicConfigManager(session=mock_session, logger=mock_logger)
         # Beállítjuk, hogy legyen last_update, így a _check_for_updates a változásokat ellenőrzi
-        manager._last_update = datetime.datetime(2020, 1, 1, tzinfo=datetime.UTC)
+        manager._last_update = datetime(2020, 1, 1, tzinfo=UTC)
 
         # Ellenőrizzük a változásokat, a kivételt elkapjuk
         try:
