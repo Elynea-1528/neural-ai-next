@@ -17,7 +17,7 @@ from sqlalchemy.dialects.sqlite import JSON
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.orm import mapped_column
-from model_base import Base
+from neural_ai.core.db.implementations.model_base import Base
 ```
 
 ## Osztály: `DynamicConfig(Base)`

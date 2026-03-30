@@ -5,12 +5,6 @@ Base Widget - Alap widget osztály.
 Ez a modul implementálja az alap widget osztályt, amelyet
 az összes UI komponens örököl.
 
-## Importok
-
-```python
-from typing import Any
-```
-
 ## Osztály: `BaseWidget`
 
 Base Widget - Alap widget osztály.
@@ -22,7 +16,7 @@ Ez az osztály az összes UI komponens alapját képezi.
 #### `__init__()`
 
 ```python
-def __init__(self, config: dict[str, Any] | None = None) -> None
+def __init__(self, config: dict[str, object] | None = None) -> None
 ```
 
 A widget inicializálása.
@@ -30,7 +24,7 @@ A widget inicializálása.
 **Paraméterek:**
 
 - **`self`**
-- **`config`** (`dict[str, Any] | None`) = `None`: A widget konfigurációja
+- **`config`** (`dict[str, object] | None`) = `None`: A widget konfigurációja
 
 **Visszatérési érték:**
 

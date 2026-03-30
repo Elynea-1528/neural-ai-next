@@ -13,7 +13,6 @@ A factory támogatja a következő komponenseket:
 
 ```python
 from typing import TYPE_CHECKING
-from typing import Any
 from neural_ai.core.system.interfaces.health_interface import HealthCheckInterface
 from neural_ai.core.system.interfaces.health_interface import HealthMonitorInterface
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
@@ -22,7 +21,8 @@ from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 from neural_ai.core.system.implementations.health_monitor import HealthMonitor
-# ... és még 2 import
+from neural_ai.core.system.implementations.health_monitor import DefaultHealthCheck
+# ... és még 1 import
 ```
 
 ## Osztály: `SystemComponentFactory`

@@ -9,7 +9,6 @@ CoreBridge osztályt, amely a core komponensek elérését teszi lehetővé a UI
 
 ```python
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Optional
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
@@ -18,7 +17,8 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
-# ... és még 6 import
+from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
+# ... és még 5 import
 ```
 
 ## Osztály: `CoreBridge`
@@ -172,7 +172,7 @@ Strategy Service komponens lekérése.
 #### `send_command()`
 
 ```python
-def send_command(self, command: str, params: dict[str, Any]) -> dict[str, Any]
+def send_command(self, command: str, params: dict[str, object]) -> dict[str, object]
 ```
 
 Parancs küldése a backend rendszernek.
@@ -181,17 +181,17 @@ Parancs küldése a backend rendszernek.
 
 - **`self`**
 - **`command`** (`str`): A végrehajtandó parancs
-- **`params`** (`dict[str, Any]`): A parancshoz tartozó paraméterek
+- **`params`** (`dict[str, object]`): A parancshoz tartozó paraméterek
 
 **Visszatérési érték:**
 
-- Típus: `dict[str, Any]`
+- Típus: `dict[str, object]`
 - Dict[str, Any]: A parancs válasza
 
 #### `get_system_info()`
 
 ```python
-def get_system_info(self) -> dict[str, Any]
+def get_system_info(self) -> dict[str, object]
 ```
 
 Rendszerinformáció lekérése a backendről.
@@ -202,7 +202,7 @@ Rendszerinformáció lekérése a backendről.
 
 **Visszatérési érték:**
 
-- Típus: `dict[str, Any]`
+- Típus: `dict[str, object]`
 - Dict[str, Any]: A rendszer aktuális állapotinformációi
 
 #### `is_connected()`

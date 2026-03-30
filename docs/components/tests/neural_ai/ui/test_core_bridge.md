@@ -2,95 +2,113 @@
 
 **Tesztelt modul:** [`neural_ai/ui/core_bridge.py`](../../neural_ai/ui/core_bridge.py)
 
-Core Bridge tesztesetek - teljes lefedettség biztosítása.
+Unit tesztek a core_bridge modulhoz.
 
-## Teszt Osztály: `TestCoreBridge`
+Ez a modul teszteli a CoreBridge osztály funkcióit.
 
-CoreBridge osztály tesztelése.
+## Teszt Osztály: `TestCoreBridgeInit`
 
-### ✓ `test_singleton_pattern()`
+Tesztek a CoreBridge inicializálásához.
 
-Singleton minta tesztelése.
+### ✓ `test_init_creates_instance()`
 
-### ✓ `test_initialization()`
+Ellenőrzi, hogy a CoreBridge létrehozható.
 
-Inicializálás tesztelése.
+### ✓ `test_get_instance_returns_self()`
 
-### ✓ `test_initialization_strategy_service()`
+Ellenőrzi, hogy a get_instance visszaadja a példányt.
 
-Strategy Service inicializálás tesztelése.
+## Teszt Osztály: `TestCoreBridgeInitialize`
 
-### ✓ `test_initialization_strategy_service_error()`
+Tesztek a CoreBridge.initialize metódushoz.
 
-Strategy Service inicializálási hiba tesztelése.
+### ✓ `test_initialize_success()`
 
-### ✓ `test_get_component_not_initialized()`
+Ellenőrzi, hogy az initialize sikeresen inicializálja a bridge-t.
 
-Komponens lekérés inicializálatlan bridge esetén.
+### ✓ `test_initialize_calls_strategy_service_init()`
+
+Ellenőrzi, hogy az initialize meghívja a strategy service inicializálást.
+
+## Teszt Osztály: `TestCoreBridgeGetComponent`
+
+Tesztek a CoreBridge.get_component metódushoz.
+
+### ✓ `test_get_component_raises_error_when_not_initialized()`
+
+Ellenőrzi, hogy a get_component hibát dob inicializálás nélkül.
 
 ### ✓ `test_get_component_parquet_storage()`
 
-Parquet storage komponens lekérés tesztelése.
-
-### ✓ `test_get_component_parquet_storage_none()`
-
-Parquet storage None esetén.
-
-### ✓ `test_get_component_bi5_downloader()`
-
-BI5 downloader komponens létrehozás tesztelése.
-
-### ✓ `test_get_component_bi5_downloader_missing_deps()`
-
-BI5 downloader hiányzó függőségekkel.
-
-### ✓ `test_get_component_strategy_service()`
-
-Strategy Service komponens lekérés tesztelése.
-
-### ✓ `test_get_component_strategy_service_none()`
-
-Strategy Service None esetén.
+Ellenőrzi, hogy a get_component visszaadja a parquet storage-t.
 
 ### ✓ `test_get_component_config()`
 
-Config komponens lekérés tesztelése.
-
-### ✓ `test_get_component_config_none()`
-
-Config None esetén.
-
-### ✓ `test_get_component_unknown()`
-
-Ismeretlen komponens típus tesztelése.
+Ellenőrzi, hogy a get_component visszaadja a config-ot.
 
 ### ✓ `test_get_component_logger()`
 
-Logger komponens lekérés tesztelése.
+Ellenőrzi, hogy a get_component visszaadja a logger-t.
 
-### ✓ `test_send_command_connected()`
+### ✓ `test_get_component_unknown_type()`
 
-Parancs küldés csatlakoztatott bridge esetén.
+Ellenőrzi, hogy a get_component None-t ad vissza ismeretlen típusra.
 
-### ✓ `test_send_command_not_connected()`
+## Teszt Osztály: `TestCoreBridgeSendCommand`
 
-Parancs küldés nem csatlakoztatott bridge esetén.
+Tesztek a CoreBridge.send_command metódushoz.
 
-### ✓ `test_get_system_info_connected()`
+### ✓ `test_send_command_returns_error_when_not_connected()`
 
-Rendszerinformáció lekérés csatlakoztatott bridge esetén.
+Ellenőrzi, hogy a send_command hibát ad vissza kapcsolat nélkül.
 
-### ✓ `test_get_system_info_not_connected()`
+### ✓ `test_send_command_success()`
 
-Rendszerinformáció lekérés nem csatlakoztatott bridge esetén.
+Ellenőrzi, hogy a send_command sikeresen küld parancsot.
 
-### ✓ `test_core_property()`
+## Teszt Osztály: `TestCoreBridgeGetSystemInfo`
 
-Core property tesztelése.
+Tesztek a CoreBridge.get_system_info metódushoz.
 
-### ✓ `test_is_connected_property()`
+### ✓ `test_get_system_info_returns_error_when_not_connected()`
 
-is_connected property tesztelése.
+Ellenőrzi, hogy a get_system_info hibát ad vissza kapcsolat nélkül.
+
+### ✓ `test_get_system_info_success()`
+
+Ellenőrzi, hogy a get_system_info visszaadja a rendszerinformációt.
+
+## Teszt Osztály: `TestCoreBridgeProperties`
+
+Tesztek a CoreBridge property-khez.
+
+### ✓ `test_is_connected_default_false()`
+
+Ellenőrzi, hogy az is_connected alapértelmezetten False.
+
+### ✓ `test_is_connected_true_after_initialize()`
+
+Ellenőrzi, hogy az is_connected True az initialize után.
+
+### ✓ `test_core_property_default_none()`
+
+Ellenőrzi, hogy a core property alapértelmezetten None.
+
+### ✓ `test_core_property_setter()`
+
+Ellenőrzi, hogy a core property setter működik.
+
+### ✓ `test_connected_property_setter()`
+
+Ellenőrzi, hogy a connected property setter működik.
+
+### ✓ `test_strategy_service_property_default_none()`
+
+Ellenőrzi, hogy a strategy_service property alapértelmezetten None.
+
+### ✓ `test_strategy_service_property_setter()`
+
+Ellenőrzi, hogy a strategy_service property setter működik.
 
 ---
 

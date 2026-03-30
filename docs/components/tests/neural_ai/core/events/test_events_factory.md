@@ -65,6 +65,18 @@ Teszteli az EventBus létrehozást részleges konfigurációval.
 
 Teszteli, hogy a create_from_config EventBusInterface-t ad vissza.
 
+## Teszt Osztály: `TestEventBusFactoryGetEventBus`
+
+EventBusFactory get_event_bus statikus metódus tesztek.
+
+### ✓ `test_get_event_bus_creates_with_logger()`
+
+Teszteli a get_event_bus statikus metódust.
+
+### ✓ `test_get_event_bus_returns_interface()`
+
+Teszteli, hogy a get_event_bus EventBusInterface-t ad vissza.
+
 ## Teszt Osztály: `TestEventBusFactoryStaticMethods`
 
 EventBusFactory példány metódusok tesztek.

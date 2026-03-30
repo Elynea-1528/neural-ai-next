@@ -5,17 +5,17 @@ Core komponensek gyűjtemény.
 ## Importok
 
 ```python
+from __future__ import annotations
 from typing import TYPE_CHECKING
 from typing import Optional
 from typing import TypeVar
 from neural_ai.core.base.factory import CoreComponentFactory
-from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
 from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
 from neural_ai.core.base.implementations.di_container import DIContainer
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
-# ... és még 34 import
+# ... és még 35 import
 ```
 
 ## Konstansok
@@ -33,7 +33,7 @@ Alap komponensek lusta betöltéssel.
 #### `__init__()`
 
 ```python
-def __init__(self, container: Optional['DIContainer'] = None)
+def __init__(self, container: DIContainer | None = None, logger: LoggerInterface | None = None)
 ```
 
 Alap komponensek inicializálása.
@@ -41,12 +41,13 @@ Alap komponensek inicializálása.
 **Paraméterek:**
 
 - **`self`**
-- **`container`** (`Optional['DIContainer']`) = `None`: Egy függőséginjektáló konténer példány. Ha nincs megadva, új konténert hoz létre.
+- **`container`** (`DIContainer | None`) = `None`: Egy függőséginjektáló konténer példány. Ha nincs megadva, új konténert hoz létre.
+- **`logger`** (`LoggerInterface | None`) = `None`: Logger példány (opcionális - próbálja a container-ből kiolvasni).
 
 #### `config()`
 
 ```python
-def config(self) -> Optional['ConfigManagerInterface']
+def config(self) -> ConfigManagerInterface | None
 ```
 
 Konfiguráció kezelő komponens lekérése.
@@ -57,13 +58,13 @@ Konfiguráció kezelő komponens lekérése.
 
 **Visszatérési érték:**
 
-- Típus: `Optional['ConfigManagerInterface']`
+- Típus: `ConfigManagerInterface | None`
 - A konfiguráció kezelő példánya, vagy None ha nincs regisztrálva.
 
 #### `logger()`
 
 ```python
-def logger(self) -> Optional['LoggerInterface']
+def logger(self) -> LoggerInterface | None
 ```
 
 Naplózó komponens lekérése.
@@ -74,13 +75,13 @@ Naplózó komponens lekérése.
 
 **Visszatérési érték:**
 
-- Típus: `Optional['LoggerInterface']`
+- Típus: `LoggerInterface | None`
 - A naplózó példánya, vagy None ha nincs regisztrálva.
 
 #### `storage()`
 
 ```python
-def storage(self) -> Optional['StorageInterface']
+def storage(self) -> StorageInterface | None
 ```
 
 Tároló komponens lekérése.
@@ -91,13 +92,13 @@ Tároló komponens lekérése.
 
 **Visszatérési érték:**
 
-- Típus: `Optional['StorageInterface']`
+- Típus: `StorageInterface | None`
 - A tároló példánya, vagy None ha nincs regisztrálva.
 
 #### `database()`
 
 ```python
-def database(self) -> Optional['DatabaseManager']
+def database(self) -> DatabaseManager | None
 ```
 
 Adatbázis komponens lekérése.
@@ -108,13 +109,13 @@ Adatbázis komponens lekérése.
 
 **Visszatérési érték:**
 
-- Típus: `Optional['DatabaseManager']`
+- Típus: `DatabaseManager | None`
 - Az adatbázis példánya, vagy None ha nincs regisztrálva.
 
 #### `event_bus()`
 
 ```python
-def event_bus(self) -> Optional['EventBusInterface']
+def event_bus(self) -> EventBusInterface | None
 ```
 
 Esemény busz komponens lekérése.
@@ -125,13 +126,13 @@ Esemény busz komponens lekérése.
 
 **Visszatérési érték:**
 
-- Típus: `Optional['EventBusInterface']`
+- Típus: `EventBusInterface | None`
 - Az esemény busz példánya, vagy None ha nincs regisztrálva.
 
 #### `hardware()`
 
 ```python
-def hardware(self) -> Optional['HardwareInterface']
+def hardware(self) -> HardwareInterface | None
 ```
 
 Hardver információ komponens lekérése.
@@ -142,13 +143,13 @@ Hardver információ komponens lekérése.
 
 **Visszatérési érték:**
 
-- Típus: `Optional['HardwareInterface']`
+- Típus: `HardwareInterface | None`
 - A hardver információ példánya, vagy None ha nincs regisztrálva.
 
 #### `persister()`
 
 ```python
-def persister(self) -> Optional['MarketDataPersister']
+def persister(self) -> MarketDataPersister | None
 ```
 
 Market data persister komponens lekérése.
@@ -159,13 +160,13 @@ Market data persister komponens lekérése.
 
 **Visszatérési érték:**
 
-- Típus: `Optional['MarketDataPersister']`
+- Típus: `MarketDataPersister | None`
 - A market data persister példánya, vagy None ha nincs regisztrálva.
 
 #### `live_feed()`
 
 ```python
-def live_feed(self) -> Optional['ILiveFeed']
+def live_feed(self) -> ILiveFeed | None
 ```
 
 Live feed komponens lekérése.
@@ -176,13 +177,13 @@ Live feed komponens lekérése.
 
 **Visszatérési érték:**
 
-- Típus: `Optional['ILiveFeed']`
+- Típus: `ILiveFeed | None`
 - A live feed példánya, vagy None ha nincs regisztrálva.
 
 #### `health_monitor()`
 
 ```python
-def health_monitor(self) -> Optional['HealthMonitorInterface']
+def health_monitor(self) -> HealthMonitorInterface | None
 ```
 
 Health monitor komponens lekérése.
@@ -193,13 +194,13 @@ Health monitor komponens lekérése.
 
 **Visszatérési érték:**
 
-- Típus: `Optional['HealthMonitorInterface']`
+- Típus: `HealthMonitorInterface | None`
 - A health monitor példánya, vagy None ha nincs regisztrálva.
 
 #### `set_config()`
 
 ```python
-def set_config(self, config: 'ConfigManagerInterface') -> None
+def set_config(self, config: ConfigManagerInterface) -> None
 ```
 
 Beállítja a konfiguráció komponenst (csak teszteléshez).
@@ -207,7 +208,7 @@ Beállítja a konfiguráció komponenst (csak teszteléshez).
 **Paraméterek:**
 
 - **`self`**
-- **`config`** (`'ConfigManagerInterface'`): A konfiguráció kezelő implementáció példánya.
+- **`config`** (`ConfigManagerInterface`): A konfiguráció kezelő implementáció példánya.
 
 **Visszatérési érték:**
 
@@ -216,7 +217,7 @@ Beállítja a konfiguráció komponenst (csak teszteléshez).
 #### `set_logger()`
 
 ```python
-def set_logger(self, logger: 'LoggerInterface') -> None
+def set_logger(self, logger: LoggerInterface) -> None
 ```
 
 Beállítja a naplózó komponenst (csak teszteléshez).
@@ -224,7 +225,7 @@ Beállítja a naplózó komponenst (csak teszteléshez).
 **Paraméterek:**
 
 - **`self`**
-- **`logger`** (`'LoggerInterface'`): A naplózó implementáció példánya.
+- **`logger`** (`LoggerInterface`): A naplózó implementáció példánya.
 
 **Visszatérési érték:**
 
@@ -233,7 +234,7 @@ Beállítja a naplózó komponenst (csak teszteléshez).
 #### `set_storage()`
 
 ```python
-def set_storage(self, storage: 'StorageInterface') -> None
+def set_storage(self, storage: StorageInterface) -> None
 ```
 
 Beállítja a tároló komponenst (csak teszteléshez).
@@ -241,7 +242,7 @@ Beállítja a tároló komponenst (csak teszteléshez).
 **Paraméterek:**
 
 - **`self`**
-- **`storage`** (`'StorageInterface'`): A tároló implementáció példánya.
+- **`storage`** (`StorageInterface`): A tároló implementáció példánya.
 
 **Visszatérési érték:**
 
@@ -250,7 +251,7 @@ Beállítja a tároló komponenst (csak teszteléshez).
 #### `set_database()`
 
 ```python
-def set_database(self, database: 'DatabaseManager') -> None
+def set_database(self, database: DatabaseManager) -> None
 ```
 
 Beállítja az adatbázis komponenst (csak teszteléshez).
@@ -258,7 +259,7 @@ Beállítja az adatbázis komponenst (csak teszteléshez).
 **Paraméterek:**
 
 - **`self`**
-- **`database`** (`'DatabaseManager'`): Az adatbázis implementáció példánya.
+- **`database`** (`DatabaseManager`): Az adatbázis implementáció példánya.
 
 **Visszatérési érték:**
 
@@ -267,7 +268,7 @@ Beállítja az adatbázis komponenst (csak teszteléshez).
 #### `set_event_bus()`
 
 ```python
-def set_event_bus(self, event_bus: 'EventBusInterface') -> None
+def set_event_bus(self, event_bus: EventBusInterface) -> None
 ```
 
 Beállítja az esemény busz komponenst (csak teszteléshez).
@@ -275,7 +276,7 @@ Beállítja az esemény busz komponenst (csak teszteléshez).
 **Paraméterek:**
 
 - **`self`**
-- **`event_bus`** (`'EventBusInterface'`): Az esemény busz implementáció példánya.
+- **`event_bus`** (`EventBusInterface`): Az esemény busz implementáció példánya.
 
 **Visszatérési érték:**
 
@@ -284,7 +285,7 @@ Beállítja az esemény busz komponenst (csak teszteléshez).
 #### `set_hardware()`
 
 ```python
-def set_hardware(self, hardware: 'HardwareInterface') -> None
+def set_hardware(self, hardware: HardwareInterface) -> None
 ```
 
 Beállítja a hardver információ komponenst (csak teszteléshez).
@@ -292,7 +293,7 @@ Beállítja a hardver információ komponenst (csak teszteléshez).
 **Paraméterek:**
 
 - **`self`**
-- **`hardware`** (`'HardwareInterface'`): A hardver információ implementáció példánya.
+- **`hardware`** (`HardwareInterface`): A hardver információ implementáció példánya.
 
 **Visszatérési érték:**
 
@@ -301,7 +302,7 @@ Beállítja a hardver információ komponenst (csak teszteléshez).
 #### `set_persister()`
 
 ```python
-def set_persister(self, persister: 'MarketDataPersister') -> None
+def set_persister(self, persister: MarketDataPersister) -> None
 ```
 
 Beállítja a market data persister komponenst (csak teszteléshez).
@@ -309,7 +310,7 @@ Beállítja a market data persister komponenst (csak teszteléshez).
 **Paraméterek:**
 
 - **`self`**
-- **`persister`** (`'MarketDataPersister'`): A market data persister implementáció példánya.
+- **`persister`** (`MarketDataPersister`): A market data persister implementáció példánya.
 
 **Visszatérési érték:**
 
@@ -318,7 +319,7 @@ Beállítja a market data persister komponenst (csak teszteléshez).
 #### `set_live_feed()`
 
 ```python
-def set_live_feed(self, live_feed: 'ILiveFeed') -> None
+def set_live_feed(self, live_feed: ILiveFeed) -> None
 ```
 
 Beállítja a live feed komponenst (csak teszteléshez).
@@ -326,7 +327,7 @@ Beállítja a live feed komponenst (csak teszteléshez).
 **Paraméterek:**
 
 - **`self`**
-- **`live_feed`** (`'ILiveFeed'`): A live feed implementáció példánya.
+- **`live_feed`** (`ILiveFeed`): A live feed implementáció példánya.
 
 **Visszatérési érték:**
 
@@ -335,7 +336,7 @@ Beállítja a live feed komponenst (csak teszteléshez).
 #### `set_health_monitor()`
 
 ```python
-def set_health_monitor(self, health_monitor: 'HealthMonitorInterface') -> None
+def set_health_monitor(self, health_monitor: HealthMonitorInterface) -> None
 ```
 
 Beállítja a health monitor komponenst (csak teszteléshez).
@@ -343,7 +344,7 @@ Beállítja a health monitor komponenst (csak teszteléshez).
 **Paraméterek:**
 
 - **`self`**
-- **`health_monitor`** (`'HealthMonitorInterface'`): A health monitor implementáció példánya.
+- **`health_monitor`** (`HealthMonitorInterface`): A health monitor implementáció példánya.
 
 **Visszatérési érték:**
 

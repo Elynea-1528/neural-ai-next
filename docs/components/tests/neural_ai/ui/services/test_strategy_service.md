@@ -2,110 +2,87 @@
 
 **Tesztelt modul:** [`neural_ai/ui/services/strategy_service.py`](../../neural_ai/ui/services/strategy_service.py)
 
-Strategy Service tesztek.
-
-Ez a modul tartalmazza a StrategyService osztály tesztjeit,
-beleértve az új get_candles metódust.
+Unit tesztek a StrategyService osztályhoz.
 
 ## Teszt Osztály: `TestStrategyService`
 
-Strategy Service tesztek.
+Tesztek a StrategyService osztályhoz.
 
-### ✓ `test_init()`
+### ✓ `test_initialization()`
 
-StrategyService inicializáció tesztelése.
+Teszt: StrategyService inicializálása.
 
 ### ✓ `test_get_strategies()`
 
-Stratégiák lekérdezésének tesztelése.
+Teszt: Stratégiák lekérdezése.
 
 ### ✓ `test_create_strategy()`
 
-Új stratégia létrehozásának tesztelése.
+Teszt: Új stratégia létrehozása.
 
-### ✓ `test_update_strategy()`
+### ✓ `test_update_strategy_config()`
 
-Stratégia módosításának tesztelése.
+Teszt: Stratégia konfigurációjának módosítása.
 
-### ✓ `test_update_strategy_not_found()`
+### ✓ `test_update_strategy_code()`
 
-Ismeretlen stratégia módosításának tesztelése.
+Teszt: Stratégia kódjának módosítása.
 
-### ✓ `test_delete_strategy()`
+### ✓ `test_update_strategy_unknown()`
 
-Stratégia törlésének tesztelése.
+Teszt: Ismeretlen stratégia módosítása hibát dob.
 
-### ✓ `test_delete_strategy_not_found()`
+### ✓ `test_delete_strategy_success()`
 
-Ismeretlen stratégia törlésének tesztelése.
+Teszt: Stratégia sikeres törlése.
+
+### ✓ `test_delete_strategy_unknown()`
+
+Teszt: Ismeretlen stratégia törlése hibát dob.
 
 ### ✓ `test_backtest_strategy()`
 
-Backtest indításának tesztelése.
-
-### ✓ `test_backtest_strategy_not_found()`
-
-Ismeretlen stratégia backtestelésének tesztelése.
+Teszt: Stratégia backtestelése.
 
 ### ✓ `test_get_backtest_status()`
 
-Backtest állapot lekérdezésének tesztelése.
+Teszt: Backtest állapotának lekérdezése.
 
-### ✓ `test_get_backtest_status_not_found()`
+### ✓ `test_get_backtest_status_unknown()`
 
-Ismeretlen backtest állapot lekérdezésének tesztelése.
+Teszt: Ismeretlen backtest állapotának lekérdezése hibát dob.
 
 ### ✓ `test_optimize_strategy()`
 
-Optimalizálás indításának tesztelése.
+Teszt: Stratégia optimalizálása.
 
-### ✓ `test_optimize_strategy_not_found()`
+### ✓ `test_optimize_strategy_unknown()`
 
-Ismeretlen stratégia optimalizálásának tesztelése.
+Teszt: Ismeretlen stratégia optimalizálása hibát dob.
 
-### ✓ `test_get_candles()`
+### ✓ `test_get_candles_success()`
 
-OHLCV gyertyák lekérdezésének tesztelése.
+Teszt: Gyertyák lekérdezése sikeresen.
 
-### ✓ `test_get_candles_date_format()`
+### ✓ `test_get_candles_error()`
 
-Dátum formátum konverzió tesztelése.
-
-### ✓ `test_get_candles_different_timeframes()`
-
-Különböző időkeretek tesztelése.
-
-### ✓ `test_run_sma_backtest_success_with_trades()`
-
-SMA backtest sikerességének tesztelése trades adatokkal.
-
-### ✓ `test_run_sma_backtest_no_trades()`
-
-SMA backtest tesztelése trades nélkül.
-
-### ✓ `test_run_sma_backtest_missing_pnl_column()`
-
-SMA backtest tesztelése hiányzó PnL oszloppal.
+Teszt: Gyertyák lekérdezése hiba esetén hibát dob.
 
 ### ✓ `test_analyze_market_structure_with_df()`
 
-Piaci struktúra elemzés tesztelése meglévő DataFrame-mel.
+Teszt: Piaci struktúra elemzése megadott DataFrame-mel.
 
 ### ✓ `test_analyze_market_structure_without_df()`
 
-Piaci struktúra elemzés tesztelése DataFrame betöltéssel.
+Teszt: Piaci struktúra elemzése DataFrame nélkül (betöltéssel).
 
-### ✓ `test_analyze_market_structure_no_data()`
+### ✓ `test_analyze_market_structure_empty_df()`
 
-Piaci struktúra elemzés tesztelése adatok hiányában.
+Teszt: Piaci struktúra elemzése üres DataFrame-mel hibát dob.
 
-### ✓ `test_analyze_market_structure_empty_data()`
+### ✓ `test_analyze_market_structure_no_config()`
 
-Piaci struktúra elemzés tesztelése üres adatokkal.
-
-### ✓ `test_analyze_market_structure_missing_components()`
-
-Piaci struktúra elemzés tesztelése hiányzó komponensekkel.
+Teszt: Piaci struktúra elemzése config nélkül hibát dob.
 
 ---
 

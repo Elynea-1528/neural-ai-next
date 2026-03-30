@@ -6,7 +6,6 @@ JForex Collector Factory.
 
 ```python
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import cast
 from pydantic import ValidationError
 from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
@@ -15,7 +14,8 @@ from neural_ai.core.config.interfaces.types import JForexConfig
 from neural_ai.core.config.interfaces.types import JForexLiveConfig
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
-# ... és még 5 import
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+# ... és még 4 import
 ```
 
 ## Osztály: `JForexFactory`

@@ -22,10 +22,6 @@ Ellenőrzi, hogy a config modul exportálja a factory osztályt.
 
 Ellenőrzi, hogy a config modul exportálja az interfészeket.
 
-### ✓ `test_config_module_imports_yaml_manager()`
-
-Ellenőrzi, hogy a config modul exportálja a YAML managert.
-
 ### ✓ `test_config_module_all_exports()`
 
 Ellenőrzi, hogy a __all__ lista tartalmazza az összes exportált elemet.

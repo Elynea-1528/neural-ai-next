@@ -7,12 +7,12 @@ Ez a modul exportálja az összes konfigurációkezelési kivétel osztályt.
 ## Importok
 
 ```python
-from config_error import ConfigError
-from config_error import ConfigKeyError
-from config_error import ConfigLoadError
-from config_error import ConfigSaveError
-from config_error import ConfigTypeError
-from config_error import ConfigValidationError
+from neural_ai.core.config.exceptions.config_error import ConfigError
+from neural_ai.core.config.exceptions.config_error import ConfigKeyError
+from neural_ai.core.config.exceptions.config_error import ConfigLoadError
+from neural_ai.core.config.exceptions.config_error import ConfigSaveError
+from neural_ai.core.config.exceptions.config_error import ConfigTypeError
+from neural_ai.core.config.exceptions.config_error import ConfigValidationError
 ```
 
 ## Konstansok

@@ -7,9 +7,9 @@ Ez a csomag tartalmazza az EventBus-hoz kapcsolódó kivételeket.
 ## Importok
 
 ```python
-from event_error import EventBusError
-from event_error import PublishError
-from event_error import SubscriberError
+from neural_ai.core.events.exceptions.event_error import EventBusError
+from neural_ai.core.events.exceptions.event_error import PublishError
+from neural_ai.core.events.exceptions.event_error import SubscriberError
 ```
 
 ## Konstansok

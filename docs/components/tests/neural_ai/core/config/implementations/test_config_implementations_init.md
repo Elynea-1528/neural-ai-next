@@ -2,27 +2,38 @@
 
 **Tesztelt modul:** [`neural_ai/core/config/implementations/config_implementations_init.py`](../../neural_ai/core/config/implementations/config_implementations_init.py)
 
-Config implementációk __init__ moduljának tesztelése.
+Tesztek a neural_ai.core.config.implementations.__init__.py modulhoz.
+
+Ez a tesztmodul ellenőrzi a config implementations modul inicializálását.
+FIGYELEM: Az implementations/__init__.py szándékosan ÜRES (Factory Pattern).
 
 ## Teszt Osztály: `TestConfigImplementationsInit`
 
-Config implementációk __init__ modul tesztjei.
+Tesztek a config implementations __init__ modulhoz.
 
-### ✓ `test_version_and_constants_loaded()`
+### ✓ `test_module_import()`
 
-Teszteli, hogy a verzió és konstansok betöltődtek-e.
+Teszteli, hogy a modul importálható.
 
-### ✓ `test_version_fallback_on_package_not_found()`
+### ✓ `test_module_docstring_exists()`
 
-Teszteli a fallback verziót, ha a csomag nem található.
+Teszteli, hogy a modul docstring létezik.
 
-### ✓ `test_all_imports_available()`
+### ✓ `test_module_is_empty()`
 
-Teszteli, hogy minden import elérhető-e.
+Teszteli, hogy a modul üres (Factory Pattern szerint).
 
-### ✓ `test_all_list_contains_expected_exports()`
+### ✓ `test_module_file_attribute()`
 
-Teszteli, hogy a __all__ lista tartalmazza-e a várt exportokat.
+Teszteli, hogy a modul __file__ attribútuma helyes.
+
+### ✓ `test_module_name_attribute()`
+
+Teszteli, hogy a modul __name__ attribútuma helyes.
+
+### ✓ `test_module_package_attribute()`
+
+Teszteli, hogy a modul __package__ attribútuma helyes.
 
 ---
 

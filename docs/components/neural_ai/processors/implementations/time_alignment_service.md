@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 import polars
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.processors.interfaces.time_alignment_interface import ITimeAlignmentService
+from datetime import datetime
+from typing import cast
 ```
 
 ## Osztály: `TimeAlignmentService(ITimeAlignmentService)`

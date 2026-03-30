@@ -5,7 +5,6 @@ Live Ops Page - Valós idejű műveletek.
 ## Importok
 
 ```python
-from typing import Any
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
 from neural_ai.ui.core_bridge import CoreBridge
@@ -63,7 +62,7 @@ A Live Ops oldal megjelenítése.
 #### `on_navigate_to()`
 
 ```python
-def on_navigate_to(self, params: dict[str, Any] | None = None) -> None
+def on_navigate_to(self, params: dict[str, object] | None = None) -> None
 ```
 
 Navigálás az oldalra.
@@ -71,7 +70,7 @@ Navigálás az oldalra.
 **Paraméterek:**
 
 - **`self`**
-- **`params`** (`dict[str, Any] | None`) = `None`: Opcionális navigációs paraméterek
+- **`params`** (`dict[str, object] | None`) = `None`: Opcionális navigációs paraméterek
 
 **Visszatérési érték:**
 

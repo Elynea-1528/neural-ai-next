@@ -21,7 +21,7 @@ from neural_ai.data.storage.implementations.file_storage import FileStorage
 from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
 from neural_ai.data.storage.interfaces.factory_interface import StorageFactoryInterface
 from neural_ai.data.storage.interfaces.storage_interface import StorageInterface
-# ... és még 4 import
+# ... és még 2 import
 ```
 
 ## Konstansok

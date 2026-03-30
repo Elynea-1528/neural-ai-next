@@ -10,7 +10,6 @@ az oldalak közötti navigációt kezeli.
 ```python
 from collections.abc import Callable
 from typing import TYPE_CHECKING
-from typing import Any
 from neural_ai.ui.interfaces.navigation_service_interface import NavigationServiceInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
 ```
@@ -27,7 +26,7 @@ Ez az osztály implementálja a navigációs logikát kezelő metódusokat,
 #### `__init__()`
 
 ```python
-def __init__(self, logger: Any, config: dict[str, Any], core_components: Any) -> None
+def __init__(self, logger: object, config: dict[str, object], core_components: object) -> None
 ```
 
 A Navigation Service inicializálása.
@@ -35,9 +34,9 @@ A Navigation Service inicializálása.
 **Paraméterek:**
 
 - **`self`**
-- **`logger`** (`Any`): A logger példány
-- **`config`** (`dict[str, Any]`): A szolgáltatás konfiguráció
-- **`core_components`** (`Any`): A core komponensek
+- **`logger`** (`object`): A logger példány
+- **`config`** (`dict[str, object]`): A szolgáltatás konfiguráció
+- **`core_components`** (`object`): A core komponensek
 
 **Visszatérési érték:**
 
@@ -46,7 +45,7 @@ A Navigation Service inicializálása.
 #### `navigate_to()`
 
 ```python
-def navigate_to(self, page_name: str, params: dict[str, Any] | None = None) -> None
+def navigate_to(self, page_name: str, params: dict[str, object] | None = None) -> None
 ```
 
 Navigálás egy adott oldalra.
@@ -55,7 +54,7 @@ Navigálás egy adott oldalra.
 
 - **`self`**
 - **`page_name`** (`str`): A céloldal neve
-- **`params`** (`dict[str, Any] | None`) = `None`: Navigációs paraméterek
+- **`params`** (`dict[str, object] | None`) = `None`: Navigációs paraméterek
 
 **Visszatérési érték:**
 
@@ -132,7 +131,7 @@ Oldal regisztrálása a navigációs rendszerben.
 #### `subscribe()`
 
 ```python
-def subscribe(self, callback: Callable[[str, dict[str, Any]], None]) -> None
+def subscribe(self, callback: Callable[[str, dict[str, object]], None]) -> None
 ```
 
 Feliratkozás navigációs eseményekre.
@@ -140,7 +139,7 @@ Feliratkozás navigációs eseményekre.
 **Paraméterek:**
 
 - **`self`**
-- **`callback`** (`Callable[[str, dict[str, Any]], None]`): A hívandó callback függvény
+- **`callback`** (`Callable[[str, dict[str, object]], None]`): A hívandó callback függvény
 
 **Visszatérési érték:**
 
@@ -149,7 +148,7 @@ Feliratkozás navigációs eseményekre.
 #### `_notify_subscribers()`
 
 ```python
-def _notify_subscribers(self, page_name: str, params: dict[str, Any]) -> None
+def _notify_subscribers(self, page_name: str, params: dict[str, object]) -> None
 ```
 
 Értesítés küldése a feliratkozóknak.
@@ -158,7 +157,7 @@ def _notify_subscribers(self, page_name: str, params: dict[str, Any]) -> None
 
 - **`self`**
 - **`page_name`** (`str`): Az oldal neve
-- **`params`** (`dict[str, Any]`): A navigációs paraméterek
+- **`params`** (`dict[str, object]`): A navigációs paraméterek
 
 **Visszatérési érték:**
 

@@ -9,6 +9,8 @@ from abc import ABC
 from abc import abstractmethod
 from datetime import datetime
 from typing import TYPE_CHECKING
+from typing import Union
+import pandas
 import polars
 ```
 
@@ -21,7 +23,7 @@ ResamplerService interfész, amely definiálja a tick adatok OHLCV gyertyákká 
 #### `resample()`
 
 ```python
-async def resample(self, symbol: str, start: datetime, end: datetime, timeframe: str = '1m', return_type: str = 'polars') -> 'pl.DataFrame'
+async def resample(self, symbol: str, start: datetime, end: datetime, timeframe: str = '1m', return_type: str = 'polars') -> Union['pl.DataFrame', 'pd.DataFrame']
 ```
 
 Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
@@ -37,7 +39,7 @@ Tick adatok átalakítása OHLCV gyertyákká a megadott időkeretben.
 
 **Visszatérési érték:**
 
-- Típus: `'pl.DataFrame'`
+- Típus: `Union['pl.DataFrame', 'pd.DataFrame']`
 - pl.DataFrame: OHLCV gyertyákat tartalmazó Polars DataFrame
 
 **Kivételek:**

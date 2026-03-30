@@ -18,11 +18,11 @@ from datetime import UTC
 from datetime import datetime
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import Union
 from typing import cast
 from neural_ai.core.config.interfaces.types import IngestionConfig
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent
-from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
-# ... és még 11 import
+# ... és még 14 import
 ```
 
 ## Osztály: `MarketDataPersister`
@@ -186,7 +186,7 @@ Elmenti az eventeket a tárolóba.
 #### `_convert_events_to_dataframe()`
 
 ```python
-def _convert_events_to_dataframe(self, events: list[MarketDataEvent]) -> Any
+def _convert_events_to_dataframe(self, events: list[MarketDataEvent]) -> Union['pl.DataFrame', 'pd.DataFrame']
 ```
 
 Konvertálja az eventeket DataFrame-é.
@@ -198,7 +198,7 @@ Konvertálja az eventeket DataFrame-é.
 
 **Visszatérési érték:**
 
-- Típus: `Any`
+- Típus: `Union['pl.DataFrame', 'pd.DataFrame']`
 - A konvertált DataFrame
 
 ---

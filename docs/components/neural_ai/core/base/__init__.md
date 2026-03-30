@@ -8,19 +8,17 @@ dependency injection megvalósításához szükséges infrastruktúrát.
 ## Importok
 
 ```python
-from typing import TYPE_CHECKING
 from neural_ai.core.base.factory import CoreComponentFactory
-from neural_ai.core.base.implementations.component_bundle import CoreComponents
-from neural_ai.core.base.implementations.di_container import DIContainer
-from neural_ai.core.base.factory import CoreComponentFactory
-from neural_ai.core.base.implementations.component_bundle import CoreComponents
-from neural_ai.core.base.implementations.di_container import DIContainer
+from neural_ai.core.base.interfaces import CoreComponentFactoryInterface
+from neural_ai.core.base.interfaces import CoreComponentsInterface
+from neural_ai.core.base.interfaces import DIContainerInterface
+from neural_ai.core.base.interfaces import LazyComponentInterface
 ```
 
 ## Konstansok
 
 - **`__all__`**
-: `['DIContainer', 'CoreComponents', 'CoreComponentFactory']`
+: `['CoreComponentFactory', 'CoreComponentFactoryInterface', 'CoreComponentsInterface', 'DIContainerInterface', 'LazyComponentInterface']`
 
 
 ---

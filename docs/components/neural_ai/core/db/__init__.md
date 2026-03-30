@@ -5,26 +5,28 @@ Adatbázis modul a Neural AI Next rendszerhez.
 Ez a modul biztosítja az adatbázis kapcsolat kezelést, modelleket és session
 factory-t az aszinkron adatbázis műveletekhez.
 
+DDD Szabály:
+    Csak Factory + Exceptions exportáltak.
+    Az implementációk (Base, models, DatabaseManager, session függvények) NEM exportáltak.
+    Ezeket közvetlenül a DatabaseFactory vagy az implementations modulból kell importálni.
+
+Megjegyzés:
+    A modul jelenleg nem rendelkezik interfészekkel (interfaces/ üres).
+    Ez egy későbbi fázisban kerül kialakításra (DatabaseInterface, SessionInterface).
+
 ## Importok
 
 ```python
-from factory import DatabaseFactory
-from implementations.model_base import Base
-from implementations.models import DynamicConfig
-from implementations.models import LogEntry
-from implementations.sqlalchemy_session import DatabaseManager
-from implementations.sqlalchemy_session import close_db
-from implementations.sqlalchemy_session import create_engine
-from implementations.sqlalchemy_session import get_async_session_maker
-from implementations.sqlalchemy_session import get_database_url
-from implementations.sqlalchemy_session import get_db_session
-# ... és még 3 import
+from neural_ai.core.db.exceptions import DatabaseError
+from neural_ai.core.db.exceptions import DBConnectionError
+from neural_ai.core.db.exceptions import TransactionError
+from neural_ai.core.db.factory import DatabaseFactory
 ```
 
 ## Konstansok
 
 - **`__all__`**
-: `['Base', 'DynamicConfig', 'LogEntry', 'get_db_session', 'get_db_session_direct', 'get_engine', 'get_async_session_maker', 'init_db', 'close_db', 'DatabaseManager', 'DatabaseFactory', 'get_database_url', 'create_engine']`
+: `['DatabaseFactory', 'DatabaseError', 'DBConnectionError', 'TransactionError']`
 
 
 ---

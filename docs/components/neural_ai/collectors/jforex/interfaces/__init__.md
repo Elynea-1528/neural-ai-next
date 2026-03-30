@@ -7,9 +7,9 @@ Ez a csomag tartalmazza a JForex adatgyűjtő komponensek interfészeit.
 ## Importok
 
 ```python
-from downloader_interface import IJForexDownloader
-from live_interface import ILiveFeed
-from tick_data import TickData
+from neural_ai.collectors.jforex.interfaces.downloader_interface import IJForexDownloader
+from neural_ai.collectors.jforex.interfaces.live_interface import ILiveFeed
+from neural_ai.collectors.jforex.interfaces.tick_data import TickData
 ```
 
 ## Konstansok

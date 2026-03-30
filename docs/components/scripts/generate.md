@@ -24,8 +24,8 @@ import pickle
 import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import wait
-# ... és még 7 import
+from concurrent.futures import as_completed
+# ... és még 9 import
 ```
 
 ## Konstansok
@@ -59,7 +59,7 @@ from concurrent.futures import wait
 
 
 - **`COVERAGE_FILE`**
-: `REPORT_DIR / 'coverage.json'`
+: `REPORT_DIR / 'test_coverage.json'`
 
 
 - **`RUFF_FILE`**
@@ -76,6 +76,14 @@ from concurrent.futures import wait
 
 - **`OUTPUT_HTML`**
 : `PROJECT_ROOT / 'docs' / 'development' / 'TASK_TREE.html'`
+
+
+- **`parser`**
+: `argparse.ArgumentParser(description='TASK_TREE generátor')`
+
+
+- **`args`**
+: `parser.parse_args()`
 
 
 - **`generator`**
@@ -531,7 +539,7 @@ Inicializálja a generátort.
 #### `run_dynamic_tools()`
 
 ```python
-def run_dynamic_tools(self, force_refresh: bool = False) -> None
+def run_dynamic_tools(self, force_refresh: bool = False, no_test: bool = False) -> None
 ```
 
 Futtatja a dinamikus ellenőrző eszközöket.
@@ -539,7 +547,8 @@ Futtatja a dinamikus ellenőrző eszközöket.
 **Paraméterek:**
 
 - **`self`**
-- **`force_refresh`** (`bool`) = `False`
+- **`force_refresh`** (`bool`) = `False`: Ha True, cache kihagyása és friss adatok gyűjtése
+- **`no_test`** (`bool`) = `False`: Ha True, pytest és coverage kihagyása (csak statikus ellenőrzések)
 
 **Visszatérési érték:**
 
@@ -551,7 +560,7 @@ Futtatja a dinamikus ellenőrző eszközöket.
 def _run_pytest_cov(self, env: dict[str, str]) -> None
 ```
 
-Pytest-cov futtatása retry mechanizmussal.
+Coverage run futtatása (független a tesztek sikerességétől).
 
 **Paraméterek:**
 
@@ -619,7 +628,7 @@ Pylance/Pyright type checker futtatása.
 def _process_pytest_report(self) -> None
 ```
 
-Pytest Report feldolgozása.
+Pytest Report feldolgozása (FIX 2: pytest-json-report plugin).
 
 **Paraméterek:**
 
@@ -682,7 +691,7 @@ Elemez egy fájlt.
 #### `generate()`
 
 ```python
-def generate(self) -> None
+def generate(self, force_refresh: bool = False, no_test: bool = False) -> None
 ```
 
 Generálja a TASK_TREE.md és TASK_TREE.html fájlokat.
@@ -690,6 +699,8 @@ Generálja a TASK_TREE.md és TASK_TREE.html fájlokat.
 **Paraméterek:**
 
 - **`self`**
+- **`force_refresh`** (`bool`) = `False`: Ha True, cache kihagyása és friss adatok gyűjtése
+- **`no_test`** (`bool`) = `False`: Ha True, pytest és coverage kihagyása (csak statikus ellenőrzések)
 
 **Visszatérési érték:**
 

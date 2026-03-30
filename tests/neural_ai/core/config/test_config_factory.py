@@ -3,6 +3,8 @@
 Ez a modul tartalmazza a konfigurációs factory teszteit,
 ellenőrzi a megfelelő példányosítást és a hibakezelést.
 """
+# pyright: reportArgumentType=false
+# Factory create_manager *args/**kwargs type signature hibák
 
 from pathlib import Path
 from unittest.mock import MagicMock

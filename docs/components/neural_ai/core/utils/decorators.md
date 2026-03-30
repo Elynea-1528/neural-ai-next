@@ -13,24 +13,22 @@ import time
 import uuid
 from collections.abc import Callable
 from functools import wraps
-from typing import Any
+from typing import TYPE_CHECKING
+from typing import ParamSpec
 from typing import TypeVar
 from typing import cast
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.core.logger.factory import LoggerFactory
 ```
 
 ## Konstansok
 
-- **`F`**
-: `TypeVar('F', bound=Callable[..., Any])`
+- **`P`**
+: `ParamSpec('P')`
 
 
 - **`R`**
 : `TypeVar('R')`
-
-
-- **`_trace_logger`**
-: `None`
 
 
 - **`_trace_logger`**
@@ -64,34 +62,34 @@ from neural_ai.core.logger.factory import LoggerFactory
 ### `_get_trace_logger()`
 
 ```python
-def _get_trace_logger() -> Any
+def _get_trace_logger() -> 'LoggerInterface'
 ```
 
 **Visszatérési érték:**
 
-- Típus: `Any`
+- Típus: `'LoggerInterface'`
 
 ### `_ensure_trace_logger()`
 
 ```python
-def _ensure_trace_logger() -> Any
+def _ensure_trace_logger() -> 'LoggerInterface'
 ```
 
 **Visszatérési érték:**
 
-- Típus: `Any`
+- Típus: `'LoggerInterface'`
 
 ### `_serialize_arg()`
 
 ```python
-def _serialize_arg(arg: Any) -> str
+def _serialize_arg(arg: object) -> str
 ```
 
 Egy argumentum biztonságos szöveges reprezentációját adja vissza. Csak biztonságos típusokat (str, int, float, bool, None) konvertál közvetlenül, minden egyéb típus esetén "UNSAFE_ARG" értéket ad vissza.
 
 **Paraméterek:**
 
-- **`arg`** (`Any`): A konvertálandó argumentum.
+- **`arg`** (`object`): A konvertálandó argumentum.
 
 **Visszatérési érték:**
 
@@ -130,14 +128,14 @@ Dekorátor a funkcióhívások nyomon követéséhez és logolásához. A dekor�
 ### `wrapper()`
 
 ```python
-def wrapper() -> Any
+def wrapper() -> R
 ```
 
 A dekorált függvényt becsomagoló wrapper függvény.
 
 **Visszatérési érték:**
 
-- Típus: `Any`
+- Típus: `R`
 - A dekorált függvény visszatérési értéke.
 
 ---

@@ -8,14 +8,14 @@ Dependency injection konténer implementáció.
 import sys
 import threading
 from collections.abc import Callable
+from typing import TYPE_CHECKING
 from typing import TypeVar
 from typing import cast
 from neural_ai.core.base.exceptions import ComponentNotFoundError
 from neural_ai.core.base.exceptions import SingletonViolationError
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.base.interfaces import DIContainerInterface
-from neural_ai.core.base.interfaces import LazyComponentInterface
-# ... és még 2 import
+# ... és még 3 import
 ```
 
 ## Konstansok
@@ -102,7 +102,7 @@ az alkalmazásban egyetlen konténer példány létezzen.
 #### `__init__()`
 
 ```python
-def __init__(self) -> None
+def __init__(self, logger: 'LoggerInterface | None' = None) -> None
 ```
 
 Konténer inicializálása.
@@ -110,6 +110,7 @@ Konténer inicializálása.
 **Paraméterek:**
 
 - **`self`**
+- **`logger`** (`'LoggerInterface | None'`) = `None`: Logger példány (opcionális - bootstrap során még nincs logger). Ha None, akkor minimális logolás (print) használatos.
 
 **Visszatérési érték:**
 

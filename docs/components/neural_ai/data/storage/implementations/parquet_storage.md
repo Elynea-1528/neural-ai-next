@@ -28,6 +28,12 @@ from pydantic import BaseModel
 # ... és még 38 import
 ```
 
+## Konstansok
+
+- **`DataFrame`**
+: `pd.DataFrame | pl.DataFrame`
+
+
 ## Osztály: `ParquetWriteConfig(BaseModel)`
 
 Parquet írás opciók konfigurációja.
@@ -355,7 +361,7 @@ Tárolási statisztikák lekérdezése.
 #### `save_dataframe()`
 
 ```python
-def save_dataframe(self, df: 'pd.DataFrame', path: str) -> None
+def save_dataframe(self, df: DataFrame, path: str) -> None
 ```
 
 DataFrame mentése a megadott útvonalra. Ez egy adapter metódus a StorageInterface kompatibilitás érdekében. A ParquetStorageService saját store_tick_data metódusát használja.
@@ -363,7 +369,7 @@ DataFrame mentése a megadott útvonalra. Ez egy adapter metódus a StorageInter
 **Paraméterek:**
 
 - **`self`**
-- **`df`** (`'pd.DataFrame'`)
+- **`df`** (`DataFrame`)
 - **`path`** (`str`)
 
 **Visszatérési érték:**
@@ -373,7 +379,7 @@ DataFrame mentése a megadott útvonalra. Ez egy adapter metódus a StorageInter
 #### `load_dataframe()`
 
 ```python
-def load_dataframe(self, path: str) -> 'pd.DataFrame'
+def load_dataframe(self, path: str) -> DataFrame
 ```
 
 DataFrame betöltése a megadott útvonalról. Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
@@ -385,7 +391,7 @@ DataFrame betöltése a megadott útvonalról. Ez egy adapter metódus a Storage
 
 **Visszatérési érték:**
 
-- Típus: `'pd.DataFrame'`
+- Típus: `DataFrame`
 
 #### `save_object()`
 

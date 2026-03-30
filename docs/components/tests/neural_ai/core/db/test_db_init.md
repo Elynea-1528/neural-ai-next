@@ -2,46 +2,101 @@
 
 **Tesztelt modul:** [`neural_ai/core/db/db_init.py`](../../neural_ai/core/db/db_init.py)
 
-Tesztek a neural_ai.core.db.__init__ modulhoz.
+Tesztek a neural_ai.core.db.__init__.py modulhoz.
 
-Ez a modul teszteli, hogy a __init__.py fájlban exportált osztályok és függvények
-helyesen importálhatók-e.
+Ez a tesztmodul ellenőrzi a db modul inicializálását és exportált elemeit.
 
 ## Teszt Osztály: `TestDbInit`
 
-Teszt osztály a neural_ai.core.db.__init__ modulhoz.
+Tesztek a db __init__ modulhoz.
 
-### ✓ `test_base_import()`
+### ✓ `test_module_import()`
 
-Teszteli, hogy a Base osztály importálható-e.
+Teszteli, hogy a modul importálható.
 
-### ✓ `test_models_import()`
+### ✓ `test_module_docstring_exists()`
 
-Teszteli, hogy a model osztályok importálhatók-e.
+Teszteli, hogy a modul docstring létezik.
 
-### ✓ `test_session_functions_import()`
+### ✓ `test_database_factory_exported()`
 
-Teszteli, hogy a session függvények importálhatók-e.
+Teszteli, hogy a DatabaseFactory exportálva van.
 
-### ✓ `test_classes_import()`
+### ✓ `test_database_error_exported()`
 
-Teszteli, hogy az osztályok importálhatók-e.
+Teszteli, hogy a DatabaseError exportálva van.
 
-### ✓ `test_helper_functions_import()`
+### ✓ `test_db_connection_error_exported()`
 
-Teszteli, hogy a segédfüggvények importálhatók-e.
+Teszteli, hogy a DBConnectionError exportálva van.
 
-### ✓ `test_all_imports_are_callable()`
+### ✓ `test_transaction_error_exported()`
 
-Teszteli, hogy az importált függvények hívhatók-e.
+Teszteli, hogy a TransactionError exportálva van.
 
-### ✓ `test_all_imports_are_not_none()`
+### ✓ `test_all_exports()`
 
-Teszteli, hogy az összes importált objektum nem None.
+Teszteli, hogy az __all__ lista tartalmazza az összes exportált elemet.
 
-### ✓ `test_model_base_relationship()`
+### ✓ `test_factory_in_all()`
 
-Teszteli, hogy a modellek a Base osztályból származnak-e.
+Teszteli, hogy a DatabaseFactory az __all__ listában van.
+
+### ✓ `test_exceptions_in_all()`
+
+Teszteli, hogy az összes exception az __all__ listában van.
+
+### ✓ `test_no_implementation_exports()`
+
+Teszteli, hogy az implementációk NEM exportáltak (DDD szabály).
+
+### ✓ `test_module_file_attribute()`
+
+Teszteli, hogy a modul __file__ attribútuma helyes.
+
+### ✓ `test_module_name_attribute()`
+
+Teszteli, hogy a modul __name__ attribútuma helyes.
+
+### ✓ `test_module_package_attribute()`
+
+Teszteli, hogy a modul __package__ attribútuma helyes.
+
+## Teszt Osztály: `TestDbFactoryImport`
+
+Tesztek a DatabaseFactory importálására.
+
+### ✓ `test_factory_has_create_manager()`
+
+Teszteli, hogy a DatabaseFactory rendelkezik create_manager metódussal.
+
+### ✓ `test_factory_is_class()`
+
+Teszteli, hogy a DatabaseFactory osztály.
+
+## Teszt Osztály: `TestDbExceptionsImport`
+
+Tesztek az exception osztályok importálására.
+
+### ✓ `test_database_error_inheritance()`
+
+Teszteli, hogy a DatabaseError Exception leszármazott.
+
+### ✓ `test_db_connection_error_inheritance()`
+
+Teszteli, hogy a DBConnectionError DatabaseError leszármazott.
+
+### ✓ `test_transaction_error_inheritance()`
+
+Teszteli, hogy a TransactionError DatabaseError leszármazott.
+
+### ✓ `test_exceptions_can_be_raised()`
+
+Teszteli, hogy az exception osztályok dobhatók.
+
+### ✓ `test_exceptions_have_message()`
+
+Teszteli, hogy az exception osztályok üzenettel rendelkeznek.
 
 ---
 

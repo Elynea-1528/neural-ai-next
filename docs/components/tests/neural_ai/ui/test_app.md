@@ -2,73 +2,97 @@
 
 **Tesztelt modul:** [`neural_ai/ui/app.py`](../../neural_ai/ui/app.py)
 
-UI Application tesztelése.
+Unit tesztek az app modulhoz.
 
-Ez a modul tartalmazza a neural_ai.ui.app modul teszteit.
+Ez a modul teszteli a UIApplication osztály funkcióit.
 
-## Teszt Osztály: `TestUIApplication`
+## Teszt Osztály: `TestUIApplicationInit`
 
-UIApplication osztály tesztei.
+Tesztek a UIApplication inicializálásához.
 
-### ✓ `test_init_default_values()`
+### ✓ `test_init_without_parameters()`
 
-Teszteli az alapértelmezett értékekkel történő inicializálást.
+Ellenőrzi, hogy a UIApplication létrehozható paraméterek nélkül.
 
-### ✓ `test_init_with_parameters()`
+### ✓ `test_init_with_config()`
 
-Teszteli a paraméterekkel történő inicializálást.
+Ellenőrzi, hogy a UIApplication létrehozható konfigurációval.
+
+### ✓ `test_init_with_logger()`
+
+Ellenőrzi, hogy a UIApplication létrehozható loggerrel.
+
+## Teszt Osztály: `TestUIApplicationInitialize`
+
+Tesztek a UIApplication.initialize metódushoz.
 
 ### ✓ `test_initialize_success()`
 
-Teszteli a sikeres inicializálást.
+Ellenőrzi, hogy az initialize sikeresen inicializálja az alkalmazást.
 
-### ✓ `test_initialize_without_logger()`
+### ✓ `test_initialize_with_existing_logger()`
 
-Teszteli a sikeres inicializálást logger nélkül.
+Ellenőrzi, hogy az initialize használja a meglévő loggert.
 
-### ✓ `test_initialize_failure()`
+### ✓ `test_initialize_handles_exception()`
 
-Teszteli a sikertelen inicializálást.
+Ellenőrzi, hogy az initialize kezeli a kivételeket.
+
+## Teszt Osztály: `TestUIApplicationRun`
+
+Tesztek a UIApplication.run metódushoz.
+
+### ✓ `test_run_without_initialization_raises_error()`
+
+Ellenőrzi, hogy a run hibát dob inicializálás nélkül.
 
 ### ✓ `test_run_success()`
 
-Teszteli a sikeres indítást.
+Ellenőrzi, hogy a run sikeresen elindítja az alkalmazást.
 
-### ✓ `test_run_not_initialized()`
+## Teszt Osztály: `TestUIApplicationStop`
 
-Teszteli a hibát, ha az alkalmazás nincs inicializálva.
+Tesztek a UIApplication.stop metódushoz.
 
-### ✓ `test_stop()`
+### ✓ `test_stop_success()`
 
-Teszteli a leállítást.
+Ellenőrzi, hogy a stop sikeresen leállítja az alkalmazást.
+
+## Teszt Osztály: `TestUIApplicationGetters`
+
+Tesztek a UIApplication getter metódusokhoz.
+
+### ✓ `test_get_navigation_service_without_initialization_raises_error()`
+
+Ellenőrzi, hogy a get_navigation_service hibát dob inicializálás nélkül.
+
+### ✓ `test_get_factory_without_initialization_raises_error()`
+
+Ellenőrzi, hogy a get_factory hibát dob inicializálás nélkül.
 
 ### ✓ `test_get_navigation_service_success()`
 
-Teszteli a Navigation Service sikeres lekérdezését.
-
-### ✓ `test_get_navigation_service_not_initialized()`
-
-Teszteli a hibát, ha a Navigation Service nincs inicializálva.
+Ellenőrzi, hogy a get_navigation_service visszaadja a navigation service-t.
 
 ### ✓ `test_get_factory_success()`
 
-Teszteli a Factory sikeres lekérdezését.
+Ellenőrzi, hogy a get_factory visszaadja a factory-t.
 
-### ✓ `test_get_factory_not_initialized()`
+## Teszt Osztály: `TestUIApplicationProperties`
 
-Teszteli a hibát, ha a Factory nincs inicializálva.
+Tesztek a UIApplication property-khez.
 
-### ✓ `test_is_running_property()`
+### ✓ `test_is_running_default_false()`
 
-Teszteli az is_running property-t.
+Ellenőrzi, hogy az is_running alapértelmezetten False.
 
-### ✓ `test_is_initialized_property()`
+### ✓ `test_is_running_true_after_run()`
 
-Teszteli az is_initialized property-t.
+Ellenőrzi, hogy az is_running True a run után.
 
-### ✓ `test_type_hints_get_navigation_service()`
+### ✓ `test_is_running_false_after_stop()`
 
-Teszteli, hogy a get_navigation_service metódus típusjelölése helyes.
+Ellenőrzi, hogy az is_running False a stop után.
 
 ---
 

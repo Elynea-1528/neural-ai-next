@@ -18,6 +18,10 @@ Teszteli az adatbázis URL lekérdezést megadott konfiggal.
 
 Teszteli az adatbázis URL lekérdezést env fallbackkel.
 
+### ✓ `test_get_database_url_with_non_dict_config()`
+
+Teszteli az adatbázis URL lekérdezést nem dict config esetén (line 57).
+
 ### ✓ `test_get_database_url_without_config()`
 
 Teszteli az adatbázis URL lekérdezést konfig nélkül (line 47).
@@ -40,7 +44,15 @@ Teszteli az engine létrehozást echo módban.
 
 ### ✓ `test_create_engine_postgresql()`
 
-Teszteli az engine létrehozást PostgreSQL URL-lel (line 88).
+Teszteli az engine létrehozást PostgreSQL URL-lel (line 114).
+
+### ✓ `test_create_engine_postgresql_with_pool_config()`
+
+Teszteli az engine létrehozást custom pool config-gal (line 115-116).
+
+### ✓ `test_create_engine_postgresql_with_none_pool_values()`
+
+Teszteli az engine létrehozást None pool értékekkel (line 115-116).
 
 ## Teszt Osztály: `TestGetEngine`
 
@@ -54,6 +66,14 @@ Teszteli, hogy az engine létrejön az első hívásnál.
 
 Teszteli, hogy az engine cache-elődik.
 
+### ✓ `test_get_engine_echo_fallback_exception()`
+
+Teszteli az echo fallback exception handling-et (line 151-157).
+
+### ✓ `test_get_engine_with_pool_config()`
+
+Teszteli a get_engine pool config olvasását (line 159-167).
+
 ## Teszt Osztály: `TestGetAsyncSessionMaker`
 
 Session maker lekérdezés tesztjei.
@@ -66,9 +86,21 @@ Teszteli, hogy a session maker csak egyszer jön létre.
 
 DatabaseManager osztály tesztjei.
 
+### ✓ `test_database_manager_initialization_without_config()`
+
+Teszteli a DatabaseManager inicializálását config_manager nélkül (line 321-322).
+
+### ✓ `test_database_manager_initialization_without_logger()`
+
+Teszteli a DatabaseManager inicializálását logger nélkül (line 323-324).
+
 ### ✓ `test_database_manager_initialization()`
 
 Teszteli a DatabaseManager inicializálását.
+
+### ✓ `test_database_manager_initialize_with_pool_config()`
+
+Teszteli a DatabaseManager initialize pool config olvasását (line 340-347).
 
 ### ✓ `test_database_manager_initialize()`
 
@@ -94,6 +126,10 @@ Teszteli, hogy a DatabaseManager Singleton mintát követ.
 
 Teszteli a DatabaseManager get_session exception rollback-ját (lines 295-297).
 
+### ✓ `test_database_manager_get_session_finally_block()`
+
+Teszteli a DatabaseManager get_session finally blokkját (line 393-394).
+
 ### ✓ `test_database_manager_get_active_configs()`
 
 Teszteli a DatabaseManager get_active_configs metódusát (lines 312-325).
@@ -101,6 +137,14 @@ Teszteli a DatabaseManager get_active_configs metódusát (lines 312-325).
 ### ✓ `test_database_manager_get_active_configs_not_initialized()`
 
 Teszteli, hogy get_active_configs hibát dob, ha nincs inicializálva (line 315).
+
+### ✓ `test_database_manager_get_active_configs_empty_result()`
+
+Teszteli a get_active_configs üres eredménnyel.
+
+### ✓ `test_database_manager_close_when_engine_is_none()`
+
+Teszteli a DatabaseManager close metódusát amikor _engine None (line 427).
 
 ## Teszt Osztály: `TestContextManagers`
 
@@ -117,6 +161,10 @@ Teszteli a get_db_session_direct függvényt.
 ### ✓ `test_get_db_session_exception_rollback()`
 
 Teszteli a get_db_session exception rollback-ját (lines 169-171).
+
+### ✓ `test_get_db_session_finally_block()`
+
+Teszteli a get_db_session finally blokkját (line 227-228).
 
 ## Teszt Osztály: `TestDatabaseInitialization`
 

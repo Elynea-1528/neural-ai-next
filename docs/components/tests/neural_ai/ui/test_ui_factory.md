@@ -2,127 +2,101 @@
 
 **Tesztelt modul:** [`neural_ai/ui/ui_factory.py`](../../neural_ai/ui/ui_factory.py)
 
-Tesztek a UI Service Factory számára.
+Unit tesztek a factory modulhoz.
 
-## Teszt Osztály: `TestUIServiceFactory`
+Ez a modul teszteli a UIServiceFactory osztály funkcióit.
 
-A UIServiceFactory tesztosztálya.
+## Teszt Osztály: `TestUIServiceFactoryInit`
 
-### ✓ `test_factory_initialization()`
+Tesztek a UIServiceFactory inicializálásához.
 
-A factory inicializálásának tesztelése.
+### ✓ `test_init_creates_instance()`
 
-### ✓ `test_initialize_with_bridge()`
+Ellenőrzi, hogy a UIServiceFactory létrehozható.
 
-A factory inicializálásának tesztelése bridge-el.
+## Teszt Osztály: `TestUIServiceFactoryInitialize`
 
-### ✓ `test_get_navigation_service_before_initialization()`
+Tesztek a UIServiceFactory.initialize metódushoz.
 
-Navigation service lekérdezése inicializálás előtt.
+### ✓ `test_initialize_with_dict_config()`
 
-### ✓ `test_get_navigation_service_after_initialization()`
+Ellenőrzi, hogy az initialize dict config-gal működik.
 
-Navigation service lekérdezése inicializálás után.
+### ✓ `test_initialize_with_uiconfig()`
 
-### ✓ `test_get_dashboard_service_before_initialization()`
+Ellenőrzi, hogy az initialize UIConfig-gal működik.
 
-Dashboard service lekérdezése inicializálás előtt.
+## Teszt Osztály: `TestUIServiceFactoryGetNavigationService`
 
-### ✓ `test_get_dashboard_service_after_initialization()`
+Tesztek a get_navigation_service metódushoz.
 
-Dashboard service lekérdezése inicializálás után.
+### ✓ `test_get_navigation_service_raises_error_when_not_initialized()`
 
-### ✓ `test_get_data_service_before_initialization()`
+Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva.
 
-Data service lekérdezése inicializálás előtt.
+### ✓ `test_get_navigation_service_success()`
 
-### ✓ `test_get_data_service_after_initialization()`
+Ellenőrzi, hogy a navigation service lekérhető.
 
-Data service lekérdezése inicializálás után.
+## Teszt Osztály: `TestUIServiceFactoryGetDataService`
 
-### ✓ `test_get_ai_service_before_initialization()`
+Tesztek a get_data_service metódushoz.
 
-AI service lekérdezése inicializálás előtt.
+### ✓ `test_get_data_service_raises_error_when_not_initialized()`
 
-### ✓ `test_get_ai_service_after_initialization()`
+Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva.
 
-AI service lekérdezése inicializálás után.
+### ✓ `test_get_data_service_success()`
 
-### ✓ `test_get_strategy_service_before_initialization()`
+Ellenőrzi, hogy a data service lekérhető.
 
-Strategy service lekérdezése inicializálás előtt.
+## Teszt Osztály: `TestUIServiceFactoryGetDashboardService`
 
-### ✓ `test_get_strategy_service_after_initialization()`
+Tesztek a get_dashboard_service metódushoz.
 
-Strategy service lekérdezése inicializálás után.
+### ✓ `test_get_dashboard_service_raises_error_when_not_initialized()`
 
-### ✓ `test_get_live_ops_service_before_initialization()`
+Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva.
 
-Live Ops service lekérdezése inicializálás előtt.
+### ✓ `test_get_dashboard_service_success()`
 
-### ✓ `test_get_live_ops_service_after_initialization()`
+Ellenőrzi, hogy a dashboard service lekérhető.
 
-Live Ops service lekérdezése inicializálás után.
+## Teszt Osztály: `TestUIServiceFactoryGetAIService`
 
-### ✓ `test_get_all_services()`
+Tesztek a get_ai_service metódushoz.
 
-Az összes szolgáltatás lekérdezésének tesztelése.
+### ✓ `test_get_ai_service_raises_error_when_not_initialized()`
 
-### ✓ `test_get_all_services_before_initialization()`
+Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva.
 
-Összes szolgáltatás lekérdezése inicializálás előtt.
+### ✓ `test_get_ai_service_success()`
 
-### ✓ `test_is_initialized_property()`
+Ellenőrzi, hogy az AI service lekérhető.
 
-Az is_initialized property tesztelése.
+## Teszt Osztály: `TestUIServiceFactoryGetStrategyService`
 
-### ✓ `test_reset_method()`
+Tesztek a get_strategy_service metódushoz.
 
-A reset metódus tesztelése.
+### ✓ `test_get_strategy_service_raises_error_when_not_initialized()`
 
-### ✓ `test_singleton_pattern()`
+Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva.
 
-A Singleton minta tesztelése.
+### ✓ `test_get_strategy_service_success()`
 
-### ✓ `test_data_service_compatibility()`
+Ellenőrzi, hogy a strategy service lekérhető.
 
-DataService kompatibilitás ellenőrzése a factory-val.
+## Teszt Osztály: `TestUIServiceFactoryGetLiveOpsService`
 
-### ✓ `test_service_caching()`
+Tesztek a get_live_ops_service metódushoz.
 
-Szolgáltatások gyorsítótárazásának tesztelése.
+### ✓ `test_get_live_ops_service_raises_error_when_not_initialized()`
 
-## Teszt Osztály: `TestUIConfigValidation`
+Ellenőrzi, hogy hiba dobódik, ha nincs inicializálva.
 
-UIConfig Pydantic validáció tesztek.
+### ✓ `test_get_live_ops_service_success()`
 
-### ✓ `test_valid_ui_config()`
-
-Érvényes UI konfiguráció tesztelése.
-
-### ✓ `test_invalid_theme_raises_error()`
-
-Érvénytelen téma ValidationError-t dob.
-
-### ✓ `test_negative_refresh_rate_raises_error()`
-
-Negatív refresh_rate ValidationError-t dob.
-
-### ✓ `test_zero_refresh_rate_raises_error()`
-
-Nulla refresh_rate ValidationError-t dob.
-
-### ✓ `test_factory_validates_config()`
-
-Factory Pydantic validációt végez.
-
-### ✓ `test_default_values()`
-
-Alapértelmezett értékek tesztelése.
-
-### ✓ `test_nested_config_validation()`
-
-Beágyazott konfiguráció validálása.
+Ellenőrzi, hogy a live ops service lekérhető.
 
 ---
 

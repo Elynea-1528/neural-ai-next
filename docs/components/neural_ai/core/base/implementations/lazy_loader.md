@@ -11,10 +11,11 @@ Ez jelentősen javítja az alkalmazás indítási idejét és a memóriahasznál
 ```python
 import threading
 from collections.abc import Callable
+from typing import TYPE_CHECKING
 from typing import TypeVar
 from typing import cast
-from neural_ai.core.logger.factory import LoggerFactory
 from neural_ai.core.utils.decorators import trace
+from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 ```
 
 ## Konstansok
@@ -51,7 +52,7 @@ használható.
 #### `__init__()`
 
 ```python
-def __init__(self, loader_func: Callable[[], T]) -> None
+def __init__(self, loader_func: Callable[[], T], logger: 'LoggerInterface | None' = None) -> None
 ```
 
 Inicializálja a lustatöltőt.
@@ -60,6 +61,7 @@ Inicializálja a lustatöltőt.
 
 - **`self`**
 - **`loader_func`** (`Callable[[], T]`): A függvény, amely betölti az erőforrást. Ennek a függvénynek vissza kell térnie a betöltött erőforrással.
+- **`logger`** (`'LoggerInterface | None'`) = `None`: Logger példány (opcionális - bootstrap során még nincs logger). Ha None, akkor minimális logolás (nincs log).
 
 **Visszatérési érték:**
 

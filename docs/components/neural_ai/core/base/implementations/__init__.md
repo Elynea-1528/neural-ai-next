@@ -1,31 +1,18 @@
 # neural_ai/core/base/implementations/__init__.py
 
-Base komponensek implementációi.
+Implementációk a base modulhoz.
 
-Ez a modul tartalmazza a Neural AI Next base komponens rendszerének
-összes implementációját, beleértve a DI konténert, lusta betöltést,
-singleton mintát és komponens gyűjteményeket.
+Ez a csomag tartalmazza a base modul különböző implementációit.
+FIGYELEM: Ez a fájl ÜRES kell legyen! Implementációkat CSAK a factory.py importálhatja.
 
-## Importok
+A DDD Architecture Standards szerint az implementations/ mappa __init__.py fájlja
+NEM exportálhat semmit. Minden importot közvetlenül a konkrét fájlokból kell végezni:
 
-```python
-from neural_ai.core.base.implementations.di_container import DIContainer
-from neural_ai.core.base.implementations.di_container import LazyComponent
-from neural_ai.core.base.implementations.lazy_loader import LazyLoader
-from neural_ai.core.base.implementations.lazy_loader import lazy_property
-from neural_ai.core.base.implementations.singleton import SingletonMeta
-from neural_ai.core.logger.factory import LoggerFactory
-```
+Helyes:
+    from neural_ai.core.base.implementations.di_container import DIContainer
 
-## Konstansok
-
-- **`__all__`**
-: `['DIContainer', 'LazyComponent', 'LazyLoader', 'lazy_property', 'SingletonMeta']`
-
-
-- **`_logger`**
-: `LoggerFactory.get_logger('neural_ai.core.base.implementations')`
-
+Helytelen:
+    from neural_ai.core.base.implementations import DIContainer
 
 ---
 

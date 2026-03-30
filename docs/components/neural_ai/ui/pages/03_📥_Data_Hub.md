@@ -10,12 +10,12 @@ from datetime import UTC
 from datetime import datetime
 from datetime import time
 from typing import TYPE_CHECKING
-from typing import Any
 import streamlit
 from neural_ai.ui.interfaces.page_interface import PageInterface
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
-# ... és még 2 import
+from neural_ai.ui.factory import UIServiceFactory
+# ... és még 1 import
 ```
 
 ## Konstansok
@@ -121,7 +121,7 @@ Adatok exportálásának megjelenítése.
 #### `on_navigate_to()`
 
 ```python
-def on_navigate_to(self, params: dict[str, Any] | None = None) -> None
+def on_navigate_to(self, params: dict[str, object] | None = None) -> None
 ```
 
 Az oldalra navigáláskor meghívott metódus.
@@ -129,7 +129,7 @@ Az oldalra navigáláskor meghívott metódus.
 **Paraméterek:**
 
 - **`self`**
-- **`params`** (`dict[str, Any] | None`) = `None`: Opcionális navigációs paraméterek
+- **`params`** (`dict[str, object] | None`) = `None`: Opcionális navigációs paraméterek
 
 **Visszatérési érték:**
 

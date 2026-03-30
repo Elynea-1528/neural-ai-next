@@ -147,7 +147,7 @@ Attributes:
 #### `__init__()`
 
 ```python
-def __init__(self, config_manager: ConfigManagerInterface | None = None, logger: 'LoggerInterface | None' = None)
+def __init__(self, config_manager: ConfigManagerInterface, logger: 'LoggerInterface')
 ```
 
 Inicializálja az adatbázis kezelőt.
@@ -155,8 +155,8 @@ Inicializálja az adatbázis kezelőt.
 **Paraméterek:**
 
 - **`self`**
-- **`config_manager`** (`ConfigManagerInterface | None`) = `None`: Opcionális konfiguráció kezelő.
-- **`logger`** (`'LoggerInterface | None'`) = `None`: Opcionális logger interfész.
+- **`config_manager`** (`ConfigManagerInterface`): Konfiguráció kezelő (KÖTELEZŐ - Dependency Injection).
+- **`logger`** (`'LoggerInterface'`): Logger interfész (KÖTELEZŐ - Dependency Injection).
 
 #### `initialize()`
 

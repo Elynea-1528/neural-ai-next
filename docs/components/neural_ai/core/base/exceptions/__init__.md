@@ -8,16 +8,16 @@ amelyeket a rendszer különböző komponensei használnak.
 ## Importok
 
 ```python
-from base_error import ComponentNotFoundError
-from base_error import ConfigurationError
-from base_error import ConnectionError
-from base_error import DependencyError
-from base_error import InsufficientDiskSpaceError
-from base_error import NetworkException
-from base_error import NeuralAIException
-from base_error import PermissionDeniedError
-from base_error import SingletonViolationError
-from base_error import StorageException
+from neural_ai.core.base.exceptions.base_error import ComponentNotFoundError
+from neural_ai.core.base.exceptions.base_error import ConfigurationError
+from neural_ai.core.base.exceptions.base_error import ConnectionError
+from neural_ai.core.base.exceptions.base_error import DependencyError
+from neural_ai.core.base.exceptions.base_error import InsufficientDiskSpaceError
+from neural_ai.core.base.exceptions.base_error import NetworkException
+from neural_ai.core.base.exceptions.base_error import NeuralAIException
+from neural_ai.core.base.exceptions.base_error import PermissionDeniedError
+from neural_ai.core.base.exceptions.base_error import SingletonViolationError
+from neural_ai.core.base.exceptions.base_error import StorageException
 # ... és még 4 import
 ```
 

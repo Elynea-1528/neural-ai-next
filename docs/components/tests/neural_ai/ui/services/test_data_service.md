@@ -2,117 +2,79 @@
 
 **Tesztelt modul:** [`neural_ai/ui/services/data_service.py`](../../neural_ai/ui/services/data_service.py)
 
-Data Service tesztelése.
-
-Ez a modul a DataService osztály tesztjeit tartalmazza.
+Unit tesztek a DataService osztályhoz.
 
 ## Teszt Osztály: `TestDataService`
 
-DataService osztály tesztjei.
+Tesztek a DataService osztályhoz.
 
-### ✓ `test_init()`
+### ✓ `test_initialization_with_config()`
 
-Teszteli a DataService inicializálását.
+Teszteli a DataService inicializálását konfigurációval.
 
-### ✓ `test_load_data()`
+### ✓ `test_initialization_without_config()`
 
-Teszteli az adatok betöltését.
+Teszteli a DataService inicializálását konfiguráció nélkül.
 
-### ✓ `test_load_data_invalid_source()`
+### ✓ `test_core_components_property()`
 
-Teszteli a hibakezelést érvénytelen adatforrás esetén.
+Teszteli a core_components property-t.
+
+### ✓ `test_data_sources_property()`
+
+Teszteli a data_sources property-t.
+
+### ✓ `test_load_data_with_chunking()`
+
+Teszteli az adatok betöltését chunking-gal.
 
 ### ✓ `test_get_data_sources()`
 
 Teszteli az adatforrások lekérdezését.
 
-### ✓ `test_get_data_info()`
+### ✓ `test_get_data_info_success()`
 
 Teszteli az adatforrás információk lekérdezését.
 
 ### ✓ `test_get_data_info_invalid_source()`
 
-Teszteli a hibakezelést érvénytelen adatforrás esetén.
+Teszteli az adatforrás információk lekérdezését érvénytelen forrással.
 
-### ✓ `test_apply_filters()`
+### ✓ `test_apply_filters_with_filters()`
 
 Teszteli a szűrők alkalmazását.
 
-### ✓ `test_apply_filters_range()`
+### ✓ `test_apply_filters_without_filters()`
 
-Teszteli a tartomány szűrést.
+Teszteli a szűrők alkalmazását szűrők nélkül.
 
 ### ✓ `test_export_data()`
 
 Teszteli az adatok exportálását.
 
-### ✓ `test_export_data_invalid_format()`
+### ✓ `test_get_default_date_range()`
 
-Teszteli a hibakezelést érvénytelen formátum esetén.
-
-### ✓ `test_export_data_empty()`
-
-Teszteli az üres adatok exportálását.
-
-### ✓ `test_list_available_data()`
-
-Teszteli az elérhető adatok listázását (csak tick_data).
+Teszteli az alapértelmezett dátumtartomány lekérdezését.
 
 ### ✓ `test_list_available_data_with_symbol()`
 
-Teszteli az elérhető adatok listázását egyedi szimbólummal.
+Teszteli az elérhető adatok listázását szimbólum szűréssel.
 
-### ✓ `test_list_available_data_no_files()`
+### ✓ `test_list_available_data_without_symbol()`
 
-Teszteli az elérhető adatok listázását, ha nincs fájl.
+Teszteli az elérhető adatok listázását szimbólum szűrés nélkül.
 
 ### ✓ `test_get_storage_path()`
 
 Teszteli a tárolási útvonal lekérdezését.
 
-### ✓ `test_get_storage_path_default()`
+### ✓ `test_get_configured_symbols()`
 
-Teszteli az alapértelmezett tárolási útvonal lekérdezését.
+Teszteli a konfigurált szimbólumok lekérdezését.
 
-### ✓ `test_get_configured_symbols_with_valid_config()`
+### ✓ `test_get_configured_symbols_no_config()`
 
-Teszteli a konfigurált szimbólumok lekérdezését érvényes konfiggal.
-
-### ✓ `test_get_configured_symbols_with_empty_config()`
-
-Teszteli a konfigurált szimbólumok lekérdezését üres konfiggal.
-
-### ✓ `test_get_configured_symbols_with_none_config()`
-
-Teszteli a konfigurált szimbólumok lekérdezését None konfiggal.
-
-### ✓ `test_get_configured_symbols_with_invalid_config_type()`
-
-Teszteli a konfigurált szimbólumok lekérdezését érvénytelen típusú konfiggal.
-
-### ✓ `test_get_configured_symbols_with_no_config()`
-
-Teszteli a konfigurált szimbólumok lekérdezését, ha nincs konfig.
-
-### ✓ `test_get_configured_symbols_with_exception()`
-
-Teszteli a konfigurált szimbólumok lekérdezését kivétel esetén.
-
-### ✓ `test_generate_mock_data()`
-
-Teszteli a mock adatok generálását.
-
-### ✓ `test_generate_mock_data_with_filters()`
-
-Teszteli a mock adatok generálását szűrőkkel.
-
-### ✓ `test_download_history_with_existing_data_skip()`
-
-Teszteli a download_history metódust, amikor az adat már létezik és skip-eli.
-
-### ✓ `test_download_history_with_new_data_download()`
-
-Teszteli a download_history metódust, amikor új adat letöltésre kerül.
+Teszteli a szimbólumok lekérdezését konfiguráció nélkül.
 
 ---
 

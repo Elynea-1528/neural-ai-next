@@ -10,11 +10,13 @@ felület különböző szekcióit reprezentálják.
 
 ```python
 from typing import TYPE_CHECKING
+from typing import cast
 from neural_ai.ui.core_bridge import CoreBridge
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
 import importlib.util
+from neural_ai.ui.interfaces.page_interface import PageInterface
 ```
 
 ## Konstansok

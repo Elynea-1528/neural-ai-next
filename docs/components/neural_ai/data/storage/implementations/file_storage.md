@@ -10,6 +10,7 @@ A modulban található:
 ```python
 import os
 import pickle
+from collections.abc import Mapping
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
@@ -17,8 +18,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 from typing import cast
 from neural_ai.core.config.interfaces.types import StorageConfig
-from neural_ai.data.storage.exceptions import StorageFormatError
-# ... és még 14 import
+# ... és még 15 import
 ```
 
 ## Osztály: `FileStorage(StorageInterface)`
@@ -169,7 +169,7 @@ Teljes útvonal előállítása.
 #### `save_dataframe()`
 
 ```python
-def save_dataframe(self, df: 'pd.DataFrame', path: str, fmt: str | None = None) -> None
+def save_dataframe(self, df: 'pd.DataFrame', path: str) -> None
 ```
 
 Menti a DataFrame objektumot Parquet formátumban.
@@ -178,8 +178,7 @@ Menti a DataFrame objektumot Parquet formátumban.
 
 - **`self`**
 - **`df`** (`'pd.DataFrame'`): A mentendő DataFrame
-- **`path`** (`str`): A mentés útvonala (.parquet kiterjesztéssel)
-- **`fmt`** (`str | None`) = `None`: A mentés formátuma (csak 'parquet' támogatott) **kwargs: További formátum-specifikus paraméterek
+- **`path`** (`str`): A mentés útvonala (.parquet kiterjesztéssel) **kwargs: További formátum-specifikus paraméterek (fmt: formátum)
 
 **Visszatérési érték:**
 
@@ -193,7 +192,7 @@ Menti a DataFrame objektumot Parquet formátumban.
 #### `load_dataframe()`
 
 ```python
-def load_dataframe(self, path: str, fmt: str | None = None) -> 'pd.DataFrame'
+def load_dataframe(self, path: str) -> 'pd.DataFrame'
 ```
 
 Betölti a DataFrame objektumot Parquet formátumból.
@@ -201,8 +200,7 @@ Betölti a DataFrame objektumot Parquet formátumból.
 **Paraméterek:**
 
 - **`self`**
-- **`path`** (`str`): A betöltendő fájl útvonala (.parquet kiterjesztéssel)
-- **`fmt`** (`str | None`) = `None`: A fájl formátuma (csak 'parquet' támogatott) **kwargs: További formátum-specifikus paraméterek
+- **`path`** (`str`): A betöltendő fájl útvonala (.parquet kiterjesztéssel) **kwargs: További formátum-specifikus paraméterek (fmt: formátum)
 
 **Visszatérési érték:**
 
@@ -218,7 +216,7 @@ Betölti a DataFrame objektumot Parquet formátumból.
 #### `save_object()`
 
 ```python
-def save_object(self, obj: Any, path: str, fmt: str | None = None) -> None
+def save_object(self, obj: object, path: str) -> None
 ```
 
 Menti a Python objektumot pickle formátumban.
@@ -226,9 +224,8 @@ Menti a Python objektumot pickle formátumban.
 **Paraméterek:**
 
 - **`self`**
-- **`obj`** (`Any`): A mentendő objektum
-- **`path`** (`str`): A mentés útvonala (.pkl kiterjesztéssel)
-- **`fmt`** (`str | None`) = `None`: A mentés formátuma (csak 'pkl' támogatott) **kwargs: További formátum-specifikus paraméterek
+- **`obj`** (`object`): A mentendő objektum
+- **`path`** (`str`): A mentés útvonala (.pkl kiterjesztéssel) **kwargs: További formátum-specifikus paraméterek (fmt: formátum)
 
 **Visszatérési érték:**
 
@@ -243,7 +240,7 @@ Menti a Python objektumot pickle formátumban.
 #### `load_object()`
 
 ```python
-def load_object(self, path: str, fmt: str | None = None) -> Any
+def load_object(self, path: str) -> object
 ```
 
 Betölti a Python objektumot pickle formátumból.
@@ -251,12 +248,11 @@ Betölti a Python objektumot pickle formátumból.
 **Paraméterek:**
 
 - **`self`**
-- **`path`** (`str`): A betöltendő fájl útvonala (.pkl kiterjesztéssel)
-- **`fmt`** (`str | None`) = `None`: A fájl formátuma (csak 'pkl' támogatott) **kwargs: További formátum-specifikus paraméterek
+- **`path`** (`str`): A betöltendő fájl útvonala (.pkl kiterjesztéssel) **kwargs: További formátum-specifikus paraméterek (fmt: formátum)
 
 **Visszatérési érték:**
 
-- Típus: `Any`
+- Típus: `object`
 - Any: A betöltött objektum
 
 **Kivételek:**

@@ -12,6 +12,7 @@ import asyncio
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 from neural_ai.core.system.interfaces.health_interface import ComponentStatus
 from neural_ai.core.system.interfaces.health_interface import SystemHealth
 from neural_ai.ui.interfaces.dashboard_service_interface import DashboardServiceInterface

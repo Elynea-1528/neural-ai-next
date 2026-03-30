@@ -11,14 +11,14 @@ Dependency Injection minta szerint.
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from typing import Any
+from typing import cast
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.config.interfaces.types import AIServiceConfig
 from neural_ai.core.config.interfaces.types import DashboardConfig
 from neural_ai.core.config.interfaces.types import DataServiceConfig
 from neural_ai.core.config.interfaces.types import LiveOpsConfig
 from neural_ai.core.config.interfaces.types import NavigationConfig
-from neural_ai.core.config.interfaces.types import StrategyConfig
-# ... és még 15 import
+# ... és még 16 import
 ```
 
 ## Osztály: `UIServiceFactory`
@@ -78,7 +78,7 @@ Navigation Service példány lekérdezése.
 
 - **`self`**
 - **`config`** (`UIConfig | None`) = `None`: A UI factory konfiguráció (opcionális, fallback: self._config)
-- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self._logger)
+- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self.logger)
 - **`core_components`** (`Any | None`) = `None`: A core komponensek (opcionális, fallback: self._core_components)
 
 **Visszatérési érték:**
@@ -98,7 +98,7 @@ Dashboard Service példány lekérdezése.
 
 - **`self`**
 - **`config`** (`UIConfig | None`) = `None`: A UI factory konfiguráció (opcionális, fallback: self._config)
-- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self._logger)
+- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self.logger)
 - **`core_components`** (`Any | None`) = `None`: A core komponensek (opcionális, fallback: self._core_components)
 
 **Visszatérési érték:**
@@ -118,7 +118,7 @@ Data Service példány lekérdezése.
 
 - **`self`**
 - **`config`** (`UIConfig | None`) = `None`: A UI factory konfiguráció (opcionális, fallback: self._config)
-- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self._logger)
+- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self.logger)
 - **`core_components`** (`Any | None`) = `None`: A core komponensek (opcionális, fallback: self._core_components)
 
 **Visszatérési érték:**
@@ -138,7 +138,7 @@ AI Service példány lekérdezése.
 
 - **`self`**
 - **`config`** (`UIConfig | None`) = `None`: A UI factory konfiguráció (opcionális, fallback: self._config)
-- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self._logger)
+- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self.logger)
 - **`core_components`** (`Any | None`) = `None`: A core komponensek (opcionális, fallback: self._core_components)
 
 **Visszatérési érték:**
@@ -158,7 +158,7 @@ Strategy Service példány lekérdezése.
 
 - **`self`**
 - **`config`** (`UIConfig | None`) = `None`: A UI factory konfiguráció (opcionális, fallback: self._config)
-- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self._logger)
+- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self.logger)
 - **`core_components`** (`Any | None`) = `None`: A core komponensek (opcionális, fallback: self._core_components)
 
 **Visszatérési érték:**
@@ -178,7 +178,7 @@ Live Ops Service példány lekérdezése.
 
 - **`self`**
 - **`config`** (`UIConfig | None`) = `None`: A UI factory konfiguráció (opcionális, fallback: self._config)
-- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self._logger)
+- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self.logger)
 - **`core_components`** (`Any | None`) = `None`: A core komponensek (opcionális, fallback: self._core_components)
 
 **Visszatérési érték:**
@@ -198,7 +198,7 @@ Az összes szolgáltatás lekérdezése.
 
 - **`self`**
 - **`config`** (`UIConfig | None`) = `None`: A UI factory konfiguráció (opcionális, fallback: self._config)
-- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self._logger)
+- **`logger`** (`Any | None`) = `None`: A logger példány (opcionális, fallback: self.logger)
 - **`core_components`** (`Any | None`) = `None`: A core komponensek (opcionális, fallback: self._core_components)
 
 **Visszatérési érték:**

@@ -81,7 +81,7 @@ Inicializálja az EventBus-t.
 
 - **`self`**
 - **`config`** (`EventBusConfig | None`) = `None`: EventBus konfiguráció (opcionális)
-- **`logger`** (`'LoggerInterface | None'`) = `None`: Logger interfész (opcionális)
+- **`logger`** (`'LoggerInterface | None'`) = `None`: Logger interfész (KÖTELEZŐ - Dependency Injection)
 
 **Visszatérési érték:**
 

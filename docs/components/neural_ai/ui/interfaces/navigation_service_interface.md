@@ -10,7 +10,6 @@ amely az oldalak közötti navigációt kezeli.
 ```python
 from collections.abc import Callable
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Optional
 from typing import Protocol
 from typing import runtime_checkable
@@ -28,7 +27,7 @@ Ez az interfész definiálja a navigációs logikát kezelő metódusokat.
 #### `navigate_to()`
 
 ```python
-def navigate_to(self, page_name: str, params: dict[str, Any] | None = None) -> None
+def navigate_to(self, page_name: str, params: dict[str, object] | None = None) -> None
 ```
 
 Navigálás egy adott oldalra.
@@ -37,7 +36,7 @@ Navigálás egy adott oldalra.
 
 - **`self`**
 - **`page_name`** (`str`): A céloldal neve
-- **`params`** (`dict[str, Any] | None`) = `None`: Navigációs paraméterek
+- **`params`** (`dict[str, object] | None`) = `None`: Navigációs paraméterek
 
 **Visszatérési érték:**
 
@@ -114,7 +113,7 @@ Oldal regisztrálása a navigációs rendszerben.
 #### `subscribe()`
 
 ```python
-def subscribe(self, callback: Callable[[str, dict[str, Any]], None]) -> None
+def subscribe(self, callback: Callable[[str, dict[str, object]], None]) -> None
 ```
 
 Feliratkozás navigációs eseményekre.
@@ -122,7 +121,7 @@ Feliratkozás navigációs eseményekre.
 **Paraméterek:**
 
 - **`self`**
-- **`callback`** (`Callable[[str, dict[str, Any]], None]`): A hívandó callback függvény
+- **`callback`** (`Callable[[str, dict[str, object]], None]`): A hívandó callback függvény
 
 **Visszatérési érték:**
 

@@ -5,7 +5,6 @@ AI Lab Page - Mesterséges intelligencia labor.
 ## Importok
 
 ```python
-from typing import Any
 import streamlit
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 from neural_ai.ui.interfaces.page_interface import PageInterface
@@ -64,7 +63,7 @@ A AI Lab oldal megjelenítése.
 #### `on_navigate_to()`
 
 ```python
-def on_navigate_to(self, params: dict[str, Any] | None = None) -> None
+def on_navigate_to(self, params: dict[str, object] | None = None) -> None
 ```
 
 Navigálás az oldalra.
@@ -72,7 +71,7 @@ Navigálás az oldalra.
 **Paraméterek:**
 
 - **`self`**
-- **`params`** (`dict[str, Any] | None`) = `None`: Opcionális navigációs paraméterek
+- **`params`** (`dict[str, object] | None`) = `None`: Opcionális navigációs paraméterek
 
 **Visszatérési érték:**
 

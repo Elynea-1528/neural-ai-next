@@ -24,7 +24,7 @@ from neural_ai.core.config.interfaces.types import StorageConfig
 from neural_ai.core.utils.decorators import trace
 from neural_ai.core.base.implementations.component_bundle import CoreComponents
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-# ... és még 28 import
+# ... és még 26 import
 ```
 
 ## Konstansok
@@ -93,8 +93,20 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 : `SystemComponentFactory.create_health_monitor(name='core', logger=logger)`
 
 
+- **`ingestion_dict`**
+: `config.get_section('ingestion') or {}`
+
+
+- **`valid_fields`**
+: `{'buffer_size_limit', 'flush_interval_minutes'}`
+
+
+- **`filtered_dict`**
+: `{k: v for k, v in ingestion_dict.items() if k in valid_fields}`
+
+
 - **`ingestion_config`**
-: `cast(IngestionConfig, config.get_section('ingestion') or {})`
+: `IngestionConfig(**filtered_dict) if filtered_dict else IngestionConfig(buffer_size_limit=None, flush_interval_minutes=None)`
 
 
 - **`market_data_persister`**
@@ -118,7 +130,7 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 
 
 - **`__all__`**
-: `['bootstrap_core', 'get_core_components', 'get_version', 'get_schema_version', 'ConfigManagerInterface', 'DatabaseManager', 'EventBusInterface', 'LoggerInterface', 'HealthMonitorInterface', 'HardwareInterface', 'MarketDataPersister', 'StorageInterface']`
+: `['bootstrap_core', 'get_core_components', 'get_version', 'get_schema_version', 'ConfigManagerInterface', 'DatabaseManager', 'EventBusInterface', 'LoggerInterface', 'HealthMonitorInterface', 'HardwareInterface']`
 
 
 ### `get_version()`

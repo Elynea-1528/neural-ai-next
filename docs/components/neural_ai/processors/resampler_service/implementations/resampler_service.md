@@ -15,7 +15,7 @@ from neural_ai.processors.resampler_service.exceptions.resampler_error import In
 from neural_ai.processors.resampler_service.exceptions.resampler_error import ResamplingError
 from neural_ai.processors.resampler_service.interfaces.resampler_interface import ResamplerInterface
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
-# ... és még 1 import
+# ... és még 2 import
 ```
 
 ## Osztály: `ResamplerService(ResamplerInterface)`

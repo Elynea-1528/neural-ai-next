@@ -7,12 +7,14 @@ Processing Factory - Feldolgozási komponensek factory függvényei.
 ```python
 import importlib
 from typing import TYPE_CHECKING
+from typing import cast
 from pydantic import ValidationError
 from neural_ai.core.config.interfaces.types import ProcessorsConfig
 from neural_ai.processors.interfaces.dimension_processor_interface import IDimensionProcessor
 from neural_ai.processors.interfaces.time_alignment_interface import ITimeAlignmentService
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
+from typing import cast
 ```
 
 ## Konstansok

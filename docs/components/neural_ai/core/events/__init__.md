@@ -10,23 +10,30 @@ Komponensek:
 - implementations/: EventBus implementációk (ZeroMQ)
 - factory.py: EventBus factory a példányosításhoz
 
+DDD Szabály:
+    Csak Interface + Factory + Exceptions + Event Models exportáltak.
+    Az implementációk (EventBus) NEM exportáltak - a Factory hozza létre őket.
+
 ## Importok
 
 ```python
+from neural_ai.core.events.exceptions import EventBusError
+from neural_ai.core.events.exceptions import PublishError
+from neural_ai.core.events.exceptions import SubscriberError
 from neural_ai.core.events.factory import EventBusFactory
+from neural_ai.core.events.interfaces import EventBusInterface
 from neural_ai.core.events.interfaces.event_models import EventType
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 from neural_ai.core.events.interfaces.event_models import OrderEvent
 from neural_ai.core.events.interfaces.event_models import PositionEvent
 from neural_ai.core.events.interfaces.event_models import SignalEvent
-from neural_ai.core.events.interfaces.event_models import SystemLogEvent
-from neural_ai.core.events.interfaces.event_models import TradeEvent
+# ... és még 2 import
 ```
 
 ## Konstansok
 
 - **`__all__`**
-: `['EventBusFactory', 'EventType', 'MarketDataEvent', 'TradeEvent', 'SignalEvent', 'SystemLogEvent', 'OrderEvent', 'PositionEvent']`
+: `['EventBusInterface', 'EventBusFactory', 'EventBusError', 'PublishError', 'SubscriberError', 'EventType', 'MarketDataEvent', 'TradeEvent', 'SignalEvent', 'SystemLogEvent', 'OrderEvent', 'PositionEvent']`
 
 
 ---

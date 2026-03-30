@@ -10,7 +10,6 @@ interaktív módon vizsgálhatják a gyertyadiagramokat és stratégiákat.
 ```python
 from datetime import date
 from typing import TYPE_CHECKING
-from typing import Any
 import pandas
 import polars
 import streamlit
@@ -18,7 +17,8 @@ from neural_ai.ui.interfaces.page_interface import PageInterface
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
 from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 import plotly.graph_objects
-# ... és még 4 import
+import asyncio
+# ... és még 3 import
 ```
 
 ## Konstansok
@@ -252,7 +252,7 @@ Strategy Service példány lekérése.
 #### `on_navigate_to()`
 
 ```python
-def on_navigate_to(self, params: 'dict[str, Any] | None' = None) -> None
+def on_navigate_to(self, params: 'dict[str, object] | None' = None) -> None
 ```
 
 Navigálás az oldalra.
@@ -260,7 +260,7 @@ Navigálás az oldalra.
 **Paraméterek:**
 
 - **`self`**
-- **`params`** (`'dict[str, Any] | None'`) = `None`: Opcionális navigációs paraméterek
+- **`params`** (`'dict[str, object] | None'`) = `None`: Opcionális navigációs paraméterek
 
 **Visszatérési érték:**
 

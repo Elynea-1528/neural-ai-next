@@ -50,6 +50,10 @@ Teszteli a bootstrap_core függvényt egyéni konfigurációval.
 
 Teszteli a bootstrap_core függvényt import hiba esetén.
 
+### ✓ `test_bootstrap_core_config_load_error()`
+
+Teszteli a bootstrap_core függvényt config betöltési hiba esetén. Ez a teszt lefedi a 138-141 sorokat (ConfigLoadError exception handling).
+
 ### ✓ `test_bootstrap_core_returns_core_components()`
 
 Teszteli, hogy a bootstrap_core CoreComponents példánnyal tér vissza.
@@ -105,6 +109,22 @@ Teljes bootstrap folyamat valós YAML config fájlokkal. Ez a teszt end-to-end e
 ### ✓ `test_bootstrap_with_invalid_database_config_raises_error()`
 
 Érvénytelen database.yaml ConfigValidationError-t dob.
+
+## Teszt Osztály: `TestBootstrapCoreStorageError`
+
+Tesztek a bootstrap_core storage hibakezelésére.
+
+### ✓ `test_bootstrap_core_storage_init_failure()`
+
+Teszteli a bootstrap_core függvényt storage inicializálási hiba esetén. Ez a teszt lefedi a 144-147 sorokat (storage exception handling).
+
+## Teszt Osztály: `TestBootstrapCoreJForexLiveFeed`
+
+Tesztek a bootstrap_core JForex Live Feed inicializálására.
+
+### ✓ `test_bootstrap_core_jforex_live_feed_enabled()`
+
+Teszteli a bootstrap_core függvényt JForex Live Feed engedélyezve esetén. Ez a teszt lefedi a 200-202 sorokat (JForex live feed init).
 
 ---
 

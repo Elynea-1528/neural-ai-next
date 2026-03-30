@@ -11,33 +11,29 @@ definiált exportokat és funkcionalitásokat.
 
 Base modul __init__.py tesztjei.
 
-### ✓ `test_dicontainer_import()`
+### ✓ `test_interface_imports()`
 
-Teszteli, hogy a DIContainer importálható-e.
+Teszteli, hogy az interfészek importálhatók-e.
 
-### ✓ `test_core_components_import()`
+### ✓ `test_factory_import()`
 
-Teszteli, hogy a CoreComponents importálható-e.
-
-### ✓ `test_core_component_factory_import()`
-
-Teszteli, hogy a CoreComponentFactory importálható-e.
+Teszteli, hogy a Factory importálható-e.
 
 ### ✓ `test_all_exports_available()`
 
 Teszteli, hogy minden exportált osztály elérhető-e.
 
-### ✓ `test_type_checking_imports()`
+### ✓ `test_implementations_not_exported()`
 
-Teszteli, hogy a TYPE_CHECKING blokkban lévő importok nem okoznak hibát.
+Teszteli, hogy az implementációk NEM exportáltak a modul gyökeréből (DDD szabály).
 
 ### ✓ `test_dicontainer_instantiation()`
 
-Teszteli, hogy a DIContainer példányosítható-e.
+Teszteli, hogy a DIContainer példányosítható-e (implementations-ből).
 
 ### ✓ `test_core_components_instantiation()`
 
-Teszteli, hogy a CoreComponents példányosítható-e.
+Teszteli, hogy a CoreComponents példányosítható-e (implementations-ből).
 
 ### ✓ `test_core_component_factory_instantiation()`
 

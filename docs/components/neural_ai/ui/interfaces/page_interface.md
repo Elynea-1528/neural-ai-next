@@ -8,7 +8,6 @@ Ez az interfész definiálja az oldal komponensek szerződését.
 
 ```python
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Protocol
 from typing import runtime_checkable
 from neural_ai.ui.interfaces.core_bridge_interface import CoreBridgeInterface
@@ -42,7 +41,7 @@ Oldal inicializálása.
 #### `render()`
 
 ```python
-def render(self) -> Any
+def render(self) -> object
 ```
 
 Az oldal tartalmának renderelése.
@@ -53,13 +52,13 @@ Az oldal tartalmának renderelése.
 
 **Visszatérési érték:**
 
-- Típus: `Any`
+- Típus: `object`
 - Any: A renderelt tartalom
 
 #### `on_navigate_to()`
 
 ```python
-def on_navigate_to(self, params: dict[str, Any] | None = None) -> None
+def on_navigate_to(self, params: dict[str, object] | None = None) -> None
 ```
 
 Akció, amikor az oldalra navigálnak.
@@ -67,7 +66,7 @@ Akció, amikor az oldalra navigálnak.
 **Paraméterek:**
 
 - **`self`**
-- **`params`** (`dict[str, Any] | None`) = `None`: Navigációs paraméterek
+- **`params`** (`dict[str, object] | None`) = `None`: Navigációs paraméterek
 
 **Visszatérési érték:**
 

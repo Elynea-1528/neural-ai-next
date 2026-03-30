@@ -32,13 +32,29 @@ DIContainer tesztjei.
 
 Teszteli a konténer inicializálását.
 
+### ✓ `test_initialization_with_logger()`
+
+Teszteli a konténer inicializálását loggerrel.
+
+### ✓ `test_initialization_singleton_early_return()`
+
+Teszteli a singleton védelem early return-jét (sor 84).
+
 ### ✓ `test_register_instance()`
 
 Teszteli az instance regisztrálását.
 
+### ✓ `test_register_instance_with_logger()`
+
+Teszteli az instance regisztrálását loggerrel (sor 107).
+
 ### ✓ `test_register_factory()`
 
 Teszteli a factory regisztrálását.
+
+### ✓ `test_register_factory_with_logger()`
+
+Teszteli a factory regisztrálását loggerrel (sor 121).
 
 ### ✓ `test_resolve_instance()`
 
@@ -55,6 +71,10 @@ Teszteli a nem létező komponens feloldását.
 ### ✓ `test_register_lazy()`
 
 Teszteli a lusta komponens regisztrálását.
+
+### ✓ `test_register_lazy_with_logger()`
+
+Teszteli a lusta komponens regisztrálását loggerrel (sor 173).
 
 ### ✓ `test_register_lazy_invalid_name()`
 
@@ -84,6 +104,10 @@ Teszteli a lusta komponensek státuszának lekérését.
 
 Teszteli a komponensek előtöltését.
 
+### ✓ `test_preload_components_with_logger()`
+
+Teszteli a komponensek előtöltését loggerrel (sor 231).
+
 ### ✓ `test_preload_components_not_found()`
 
 Teszteli a komponensek előtöltését nem létező komponenssel.
@@ -95,6 +119,10 @@ Teszteli a konténer ürítését.
 ### ✓ `test_register_method()`
 
 Teszteli a register metódust.
+
+### ✓ `test_register_method_with_logger()`
+
+Teszteli a register metódust loggerrel (sor 295).
 
 ### ✓ `test_register_invalid_name()`
 

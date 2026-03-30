@@ -9,7 +9,6 @@ biztosító osztályok szerződését.
 
 ```python
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Protocol
 from typing import runtime_checkable
 ```
@@ -59,7 +58,7 @@ A bridge inicializálása a backend core komponensekkel. Ez a metódus elindítj
 #### `get_component()`
 
 ```python
-def get_component(self, component_type: str) -> Any | None
+def get_component(self, component_type: str) -> object | None
 ```
 
 Komponens lekérése a backend rendszerből.
@@ -71,13 +70,13 @@ Komponens lekérése a backend rendszerből.
 
 **Visszatérési érték:**
 
-- Típus: `Any | None`
+- Típus: `object | None`
 - Optional[Any]: A lekérdezett komponens vagy None
 
 #### `send_command()`
 
 ```python
-def send_command(self, command: str, params: dict[str, Any]) -> dict[str, Any]
+def send_command(self, command: str, params: dict[str, object]) -> dict[str, object]
 ```
 
 Parancs küldése a backend rendszernek.
@@ -86,17 +85,17 @@ Parancs küldése a backend rendszernek.
 
 - **`self`**
 - **`command`** (`str`): A végrehajtandó parancs
-- **`params`** (`dict[str, Any]`): A parancshoz tartozó paraméterek
+- **`params`** (`dict[str, object]`): A parancshoz tartozó paraméterek
 
 **Visszatérési érték:**
 
-- Típus: `dict[str, Any]`
+- Típus: `dict[str, object]`
 - Dict[str, Any]: A parancs válasza
 
 #### `get_system_info()`
 
 ```python
-def get_system_info(self) -> dict[str, Any]
+def get_system_info(self) -> dict[str, object]
 ```
 
 Rendszerinformáció lekérése a backendről.
@@ -107,7 +106,7 @@ Rendszerinformáció lekérése a backendről.
 
 **Visszatérési érték:**
 
-- Típus: `dict[str, Any]`
+- Típus: `dict[str, object]`
 - Dict[str, Any]: A rendszer aktuális állapotinformációi
 
 #### `is_connected()`
