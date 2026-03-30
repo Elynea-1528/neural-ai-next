@@ -1,4 +1,6 @@
 """YAMLConfigManager tesztek."""
+# pyright: reportUnknownArgumentType=false, reportUnknownVariableType=false
+# Pytest tmp_path fixture type inference hibák
 
 import tempfile
 from pathlib import Path

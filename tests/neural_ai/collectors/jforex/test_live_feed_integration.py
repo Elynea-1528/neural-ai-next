@@ -1,4 +1,6 @@
 """JForex Live Feed Integration Tests.
+# pyright: reportArgumentType=false, reportPrivateUsage=false
+# Async test fixture és protected member access hibák
 
 Ez a modul tartalmazza a JForexLiveFeed integrációs tesztjeit.
 A tesztek a valós JForexLiveFeed logikát használják, de a ZMQ socketet mock-olják.

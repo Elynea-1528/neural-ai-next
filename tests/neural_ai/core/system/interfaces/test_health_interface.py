@@ -1,4 +1,6 @@
 """Health interfész tesztek.
+# pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
+# Mock interface type inference hibák
 
 Ez a modul a `health_interface.py` interfészek tesztjeit tartalmazza.
 """

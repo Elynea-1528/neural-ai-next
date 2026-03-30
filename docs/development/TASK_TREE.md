@@ -1,13 +1,13 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-03-30 14:47:07 UTC
+**Generálva:** 2026-03-30 14:48:57 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 326
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 236 (72.4%)
-- 🟡 **WARNING:** 35 (10.7%)
+- ✅ **SECURE:** 238 (73.0%)
+- 🟡 **WARNING:** 33 (10.1%)
 - 🔴 **VULNERABLE:** 55 (16.9%)
 
 ---
@@ -312,7 +312,7 @@
 | `tests/neural_ai/processors/dimensions/d02_support/interfaces/test_d02_interfaces_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d02_support/test_d02_support_factory.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d02_support/test_d02_support_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/processors/implementations/test_time_alignment_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 2 | - | ✅ | 🔎 Pylance: 2 hiba javítása |
+| `tests/neural_ai/processors/implementations/test_time_alignment_service.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/resampler_service/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/resampler_service/test_resampler_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 13 | - | ✅ | 🔎 Pylance: 13 hiba javítása |
 | `tests/neural_ai/processors/test_processors_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 14 | - | ✅ | 🔎 Pylance: 14 hiba javítása |
@@ -341,7 +341,7 @@
 | `tests/neural_ai/ui/services/test_live_ops_service.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/services/test_navigation_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 1 | - | ✅ | 🔎 Pylance: 1 hiba javítása |
 | `tests/neural_ai/ui/services/test_services_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/ui/services/test_strategy_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 2 | - | ✅ | 🔎 Pylance: 2 hiba javítása |
+| `tests/neural_ai/ui/services/test_strategy_service.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/test_app.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/test_core_bridge.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/test_streamlit_app.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |

@@ -1,4 +1,6 @@
 """Tesztek a neural_ai.core.db.implementations.models modulhoz.
+# pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
+# SQLAlchemy model fixture type hibák
 
 Ez a modul tartalmazza a DynamicConfig és LogEntry modellek tesztjeit,
 100% kódfedettségi célkitűzéssel.
