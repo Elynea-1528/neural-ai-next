@@ -190,7 +190,7 @@ class ASTAnalyzer:
             "db/implementations/",      # Database implementációk
             "base/implementations/di_container.py",  # DI Container
         ]
-        
+
         if any(pattern in file_path_str for pattern in excluded_patterns):
             return "⚪ N/A"  # Ezek a modulok nem igényelnek logger DI-t
 
@@ -298,6 +298,11 @@ class MirrorChecker:
         if len(parts) == 2 and parts[0] == "neural_ai" and parts[1] == "__init__.py":
             # neural_ai/__init__.py -> tests/neural_ai/test_neural_ai_init.py
             return Path("tests") / "neural_ai" / "test_neural_ai_init.py"
+
+        # SPECIÁLIS: scripts/__init__.py kezelése
+        if len(parts) == 2 and parts[0] == "scripts" and parts[1] == "__init__.py":
+            # scripts/__init__.py -> tests/scripts/test_scripts_init.py
+            return Path("tests") / "scripts" / "test_scripts_init.py"
 
         # Ha scripts/ vagy docs/ mappában van
         if parts[0] in ["scripts", "docs"]:

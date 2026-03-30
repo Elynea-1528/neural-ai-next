@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-03-30 19:15:39 UTC
+**Generálva:** 2026-03-30 19:20:20 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 367
 
@@ -400,14 +400,14 @@
 
 | Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-----|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
-| `scripts/__init__.py` | ✅ SECURE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
+| `scripts/__init__.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `scripts/audit_architecture.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `scripts/audit_architecture_detailed.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 11 / 60 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔬 Mypy: 11 type hiba javítása | 🔎 Pylance: 60 hiba javítása |
+| `scripts/audit_architecture_detailed.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 16 / 60 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔬 Mypy: 16 type hiba javítása | 🔎 Pylance: 60 hiba javítása |
 | `scripts/audit_data.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `scripts/bootstrap_integration_test.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `scripts/bootstrap_test.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `scripts/data_reset.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `scripts/deploy_jforex.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 2 / 7 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔬 Mypy: 2 type hiba javítása | 🔎 Pylance: 7 hiba javítása |
+| `scripts/deploy_jforex.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 6 / 5 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔬 Mypy: 6 type hiba javítása | 🔎 Pylance: 5 hiba javítása |
 | `scripts/download_history.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `scripts/force_kill.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `scripts/generate.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 0 / 1 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔎 Pylance: 1 hiba javítása |
@@ -415,6 +415,6 @@
 | `scripts/install.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `scripts/migrate_structure.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `scripts/smart_pack.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `scripts/test_d2_standalone.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 1 / 25 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 25 hiba javítása |
+| `scripts/test_d2_standalone.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 0 / 23 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔎 Pylance: 23 hiba javítása |
 | `scripts/test_tick_pipeline.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `scripts/validation_end_to_end.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 0 / 11 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔎 Pylance: 11 hiba javítása |
