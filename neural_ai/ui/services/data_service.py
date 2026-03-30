@@ -628,15 +628,15 @@ class DataService(DataServiceInterface):
         try:
             # ParquetStorageService specifikus metódus használata, ha elérhető
             if hasattr(storage, "get_storage_stats"):
-                stats_method = storage.get_storage_stats
+                stats_method = storage.get_storage_stats  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType, reportAttributeAccessIssue]
                 # Ha async metódus
-                if asyncio.iscoroutinefunction(stats_method):
-                    result = await stats_method(symbol)
+                if asyncio.iscoroutinefunction(stats_method):  # pyright: ignore[reportDeprecated, reportUnknownArgumentType]
+                    result = await stats_method(symbol)  # pyright: ignore[reportUnknownVariableType]
                     return cast(dict[str, Any], result)
                 else:
                     # Ha szinkron metódus, futtatás executorban
                     loop = asyncio.get_event_loop()
-                    result = await loop.run_in_executor(None, stats_method, symbol)
+                    result = await loop.run_in_executor(None, stats_method, symbol)  # pyright: ignore[reportUnknownVariableType, reportUnknownArgumentType]
                     return cast(dict[str, Any], result)
             else:
                 # Alap statisztikák, ha a metódus nem elérhető
@@ -679,7 +679,7 @@ class DataService(DataServiceInterface):
         try:
             # Ha a storage-nak van BASE_PATH attribútuma
             if hasattr(storage, "BASE_PATH"):
-                base_path = storage.BASE_PATH
+                base_path = storage.BASE_PATH  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType, reportAttributeAccessIssue]
                 if isinstance(base_path, (str, Path)):
                     return Path(base_path)
 
