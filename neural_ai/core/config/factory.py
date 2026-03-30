@@ -108,11 +108,7 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         if not extension:
             raise ValueError("Az extension nem lehet üres")
 
-        # Type checking is handled by static analysis, runtime checks are redundant for internal use
-        # but kept for robustness if called dynamically
-        if not isinstance(manager_class, type):
-            raise TypeError("A manager_class-nak egy osztálynak kell lennie")
-
+        # Type checking is handled by static analysis
         if not extension.startswith("."):
             extension = f".{extension}"
 
@@ -137,9 +133,6 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
             raise ValueError("A manager_type nem lehet üres")
 
         # Type checking is handled by static analysis
-        if not isinstance(manager_class, type):
-            raise TypeError("A manager_class-nak egy osztálynak kell lennie")
-
         cls._async_manager_types[manager_type] = manager_class
 
     @classmethod
