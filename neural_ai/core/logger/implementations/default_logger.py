@@ -57,7 +57,12 @@ class DefaultLogger(LoggerInterface):
             >>> logger = DefaultLogger("my_app",
             ...                       format="%(levelname)s: %(message)s")
         """
-        self.logger = structlog.get_logger(name)
+        # Standard logging.Logger létrehozása (kompatibilitás miatt)
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(level)
+
+        # Structlog wrapper a strukturált logoláshoz
+        self._structlog = structlog.get_logger(name)
 
         # A központi LoggerFactory.configure() intézi a handler-eket és formázást
         # Structlog automatikusan kezeli a színes kimenetet és JSON logging-ot
@@ -81,7 +86,10 @@ class DefaultLogger(LoggerInterface):
         Példa:
             >>> logger.debug("Hibakeresési üzenet", user_id=123)
         """
+        # Standard logger (tesztek miatt)
         self.logger.debug(message, extra=kwargs if kwargs else None)
+        # Structlog (strukturált logolás)
+        self._structlog.debug(message, extra=kwargs if kwargs else None)
 
     def info(self, message: str, **kwargs: Any) -> None:
         """Info szintű üzenet logolása.
@@ -94,7 +102,10 @@ class DefaultLogger(LoggerInterface):
         Példa:
             >>> logger.info("Sikeres művelet", duration=0.5)
         """
+        # Standard logger (tesztek miatt)
         self.logger.info(message, extra=kwargs if kwargs else None)
+        # Structlog (strukturált logolás)
+        self._structlog.info(message, extra=kwargs if kwargs else None)
 
     def warning(self, message: str, **kwargs: Any) -> None:
         """Warning szintű üzenet logolása.
@@ -107,7 +118,10 @@ class DefaultLogger(LoggerInterface):
         Példa:
             >>> logger.warning("Elavult API hívás", version="1.0")
         """
+        # Standard logger (tesztek miatt)
         self.logger.warning(message, extra=kwargs if kwargs else None)
+        # Structlog (strukturált logolás)
+        self._structlog.warning(message, extra=kwargs if kwargs else None)
 
     def error(self, message: str, **kwargs: Any) -> None:
         """Error szintű üzenet logolása.
@@ -121,7 +135,10 @@ class DefaultLogger(LoggerInterface):
             >>> logger.error("Adatbázis kapcsolat hiba", db="main")
         """
         exc_info = kwargs.pop("exc_info", None)
+        # Standard logger (tesztek miatt)
         self.logger.error(message, exc_info=exc_info, extra=kwargs if kwargs else None)
+        # Structlog (strukturált logolás)
+        self._structlog.error(message, exc_info=exc_info, extra=kwargs if kwargs else None)
 
     def critical(self, message: str, **kwargs: Any) -> None:
         """Critical szintű üzenet logolása.
@@ -135,7 +152,10 @@ class DefaultLogger(LoggerInterface):
             >>> logger.critical("Kritikus rendszerhiba", component="auth")
         """
         exc_info = kwargs.pop("exc_info", None)
+        # Standard logger (tesztek miatt)
         self.logger.critical(message, exc_info=exc_info, extra=kwargs if kwargs else None)
+        # Structlog (strukturált logolás)
+        self._structlog.critical(message, exc_info=exc_info, extra=kwargs if kwargs else None)
 
     def set_level(self, level: int) -> None:
         """Logger log szintjének beállítása.
@@ -149,6 +169,7 @@ class DefaultLogger(LoggerInterface):
             >>> logger.set_level(logging.DEBUG)
         """
         self._level = level
+        self.logger.setLevel(level)
 
     def get_level(self) -> int:
         """Aktuális log szint lekérése.
