@@ -188,7 +188,7 @@ def _validate_d1_processor(
     try:
         # Mock config manager létrehozása
         config_manager = YAMLConfigManager()
-        config_manager._config = config
+        config_manager._config = config  # pyright: ignore[reportPrivateUsage]
         processor = D01PriceProcessor(config_manager, logger)
 
         result = processor.process(resample_data, "tick")
