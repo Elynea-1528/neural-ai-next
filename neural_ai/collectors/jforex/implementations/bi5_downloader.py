@@ -484,7 +484,7 @@ class Bi5Downloader(IJForexDownloader):
                     record = decompressed[offset : offset + record_size]
 
                     if record_size == 20:
-                        timestamp_delta, ask_int, bid_int, ask_vol, bid_vol = struct.unpack(
+                        timestamp_delta, ask_int, bid_int, _ask_vol, _bid_vol = struct.unpack(
                             unpack_format, record
                         )
                     else:  # 12-byte format

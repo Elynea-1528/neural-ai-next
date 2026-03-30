@@ -44,7 +44,7 @@ class LiveOpsService(LiveOpsServiceInterface):
         positions = []
         for position_id, position in self._positions.items():
             if position["status"] == "active":
-                positions.append(
+                positions.append(  # pyright: ignore[reportUnknownMemberType]
                     {
                         "id": position_id,
                         "symbol": position["symbol"],
@@ -56,7 +56,7 @@ class LiveOpsService(LiveOpsServiceInterface):
                         "status": position["status"],
                     }
                 )
-        return positions
+        return positions  # pyright: ignore[reportUnknownVariableType]
 
     def get_account_status(self) -> dict[str, Any]:
         """Fiók állapotának lekérdezése.

@@ -61,7 +61,7 @@ class AIService(AIServiceInterface):
         """
         models = []
         for model_id, info in self._models.items():
-            models.append(
+            models.append(  # pyright: ignore[reportUnknownMemberType]
                 {
                     "id": model_id,
                     "name": info["name"],
@@ -70,7 +70,7 @@ class AIService(AIServiceInterface):
                     "status": info["status"],
                 }
             )
-        return models
+        return models  # pyright: ignore[reportUnknownVariableType]
 
     def load_model(self, model_id: str, config: dict[str, Any] | None = None) -> bool:
         """AI modell betöltése.
