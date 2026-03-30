@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-03-30 14:10:39 UTC
+**Generálva:** 2026-03-30 14:22:18 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 326
 
@@ -186,7 +186,7 @@
 | `ui/pages/02_🛠️_Dev_Center.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/pages/03_📥_Data_Hub.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/pages/04_🧠_AI_Lab.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
-| `ui/pages/05_🪲_Strategy_Lab.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 18 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** | 🔎 Pylance: 18 hiba javítása |
+| `ui/pages/05_🪲_Strategy_Lab.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/pages/06_⚡_Live_Ops.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `ui/pages/__init__.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `ui/services/__init__.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |

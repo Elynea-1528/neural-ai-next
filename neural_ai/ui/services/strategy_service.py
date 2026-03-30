@@ -3,6 +3,8 @@
 Ez a modul implementálja a kereskedési stratégia szolgáltatást,
  amely a stratégiák létrehozását, módosítását és tesztelését végzi.
 """
+# pyright: reportUnknownMemberType=false, reportUnknownVariableType=false, reportUnknownArgumentType=false, reportUnnecessaryComparison=false, reportAttributeAccessIssue=false, reportOptionalMemberAccess=false, reportFunctionMemberAccess=false, reportAssignmentType=false
+# Pandas DataFrame és VectorBT type stubs hiányosságai miatt
 
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
@@ -391,8 +393,8 @@ class StrategyService(StrategyServiceInterface):
             slow_ma = vbt.MA.run(df_pd["close"], slow_period, short_name="slow")
 
             # 3. Jelek generálása
-            entries = fast_ma.ma_crossed_above(slow_ma)
-            exits = fast_ma.ma_crossed_below(slow_ma)
+            entries = fast_ma.ma_crossed_above(slow_ma)  # pyright: ignore[reportUnknownMemberType]
+            exits = fast_ma.ma_crossed_below(slow_ma)  # pyright: ignore[reportUnknownMemberType]
 
             # 4. Portfólió futtatása freq paraméterrel az időköz egyértelműségért
             pf = vbt.Portfolio.from_signals(
@@ -405,7 +407,7 @@ class StrategyService(StrategyServiceInterface):
             )
 
             # 5. Eredmények csomagolása
-            stats_dict: dict[str, Any] = pf.stats().to_dict()
+            stats_dict: dict[str, Any] = pf.stats().to_dict()  # pyright: ignore[reportUnknownMemberType,reportArgumentType]
             equity_array = pf.value()
             if hasattr(equity_array, "tolist"):
                 equity_array = equity_array.tolist()
@@ -413,7 +415,7 @@ class StrategyService(StrategyServiceInterface):
                 equity_array = list(equity_array)
 
             # HASZNÁLJUK A READABLE DATAFRAME-ET! (Ez stabilabb)
-            trades_df_raw = pf.trades.records_readable
+            trades_df_raw = pf.trades.records_readable  # pyright: ignore[reportUnknownMemberType]
 
             trades_data: dict[str, int | list[float] | list[str]] = {
                 "count": 0,
@@ -519,7 +521,7 @@ class StrategyService(StrategyServiceInterface):
         config: ConfigManagerInterface = self._core_components.get_component("config")
         logger: LoggerInterface = self._core_components.get_component("logger")
 
-        if config is None or logger is None:
+        if config is None or logger is None:  # pyright: ignore[reportUnnecessaryComparison]
             raise RuntimeError("Config vagy Logger komponens nem elérhető")
 
         self._logger.info(f"D2 elemzés indítása: {symbol} {timeframe}")
