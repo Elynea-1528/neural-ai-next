@@ -1,4 +1,6 @@
 """Unit tesztek a navigation_service modulhoz.
+# pyright: reportUnknownArgumentType=false
+# Mock config dict type inference hibák
 
 Ez a modul teszteli a NavigationService osztály funkcióit.
 """
