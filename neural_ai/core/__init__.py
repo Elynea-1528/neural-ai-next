@@ -228,7 +228,15 @@ def bootstrap_core(
     from neural_ai.data.ingestion.market_data_persister import MarketDataPersister
 
     logger.info("⏳ 9. MarketDataPersister indítása...")
-    ingestion_config = cast(IngestionConfig, config.get_section("ingestion") or {})
+    ingestion_dict = config.get_section("ingestion") or {}
+    # Szűrjük ki az IngestionConfig által nem támogatott mezőket
+    valid_fields = {"buffer_size_limit", "flush_interval_minutes"}
+    filtered_dict = {k: v for k, v in ingestion_dict.items() if k in valid_fields}
+    ingestion_config = (
+        IngestionConfig(**filtered_dict)
+        if filtered_dict
+        else IngestionConfig(buffer_size_limit=None, flush_interval_minutes=None)
+    )
     market_data_persister = MarketDataPersister(
         event_bus=event_bus,
         storage=storage,
