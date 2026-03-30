@@ -4,8 +4,9 @@ Ez a fájl CSAK funkcionális teszteket tartalmaz (mock nélkül).
 A mock-olt tesztek a test_base_factory.py fájlban vannak.
 """
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from neural_ai.core.base.factory import CoreComponentFactory
 from neural_ai.core.base.implementations.di_container import DIContainer
@@ -25,7 +26,7 @@ class TestCoreComponentFactoryFunctional:
     @pytest.mark.skip(reason="Mock leakage from previous tests - pytest architectural limitation")
     def test_create_components_without_paths(self) -> None:
         """Teszteli a komponensek létrehozását elérési utak nélkül (funkcionális teszt).
-        
+
         SKIP: Ez a teszt mock leakage miatt bukik a teljes test suite futtatásakor.
         A funkció már tesztelve van a test_create_components_with_all_paths tesztben.
         """

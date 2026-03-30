@@ -355,8 +355,8 @@ class ArchitectureAuditor:
                                     category="Type",
                                     file=str(rel_path),
                                     line=node.lineno,
-                                    message=f"TypedDict használat config-nál: {node.name} (ELAVULT)",
-                                    suggestion="Használj Pydantic BaseModel-t: class XConfig(BaseModel): ...",
+                                    message=f"TypedDict használat config-nál: {node.name} (ELAVULT)",  # noqa: E501
+                                    suggestion="Használj Pydantic BaseModel-t: class XConfig(BaseModel): ...",  # noqa: E501
                                 )
                             )
 
@@ -373,8 +373,8 @@ class ArchitectureAuditor:
                             category="Structure",
                             file=str(rel_path),
                             line=node.lineno,
-                            message="implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS",
-                            suggestion="Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.",
+                            message="implementations/__init__.py NEM lehet üres! Implementáció exportálás TILOS",  # noqa: E501
+                            suggestion="Töröld az összes importot ebből a fájlból. Csak a factory.py importálhatja az implementációkat.",  # noqa: E501
                         )
                     )
 
@@ -531,7 +531,7 @@ class ArchitectureAuditor:
             struct_critical = [i for i in critical if i.category == "Structure"]
             if struct_critical:
                 f.write(f"2. **Modul Struktúra** ({len(struct_critical)} db)\n")
-                f.write("   - Hiányzó interfaces/, implementations/, exceptions/ mappák létrehozása\n")
+                f.write("   - Hiányzó interfaces/, implementations/, exceptions/ mappák létrehozása\n")  # noqa: E501
                 f.write("   - Implementáció exportok megszüntetése\n\n")
 
             f.write("### Fázis 3: Közepes (1-2 hét)\n\n")
@@ -549,12 +549,12 @@ class ArchitectureAuditor:
             f.write("|:------|:-------|:---------|:---------------|:-------------|\n")
 
             for layer in ["Infrastructure", "Input", "Persistence", "Domain", "Presentation"]:
-                layer_files = len([f for f in self.neural_ai.rglob("*.py") if self._get_layer_from_path(str(f.relative_to(self.project_root))) == layer])
-                layer_critical = len([i for i in by_layer.get(layer, []) if i.severity == "CRITICAL"])
-                layer_warnings = len([i for i in by_layer.get(layer, []) if i.severity == "WARNING"])
+                layer_files = len([f for f in self.neural_ai.rglob("*.py") if self._get_layer_from_path(str(f.relative_to(self.project_root))) == layer])  # noqa: E501
+                layer_critical = len([i for i in by_layer.get(layer, []) if i.severity == "CRITICAL"])  # noqa: E501
+                layer_warnings = len([i for i in by_layer.get(layer, []) if i.severity == "WARNING"])  # noqa: E501
                 total_issues = layer_critical + layer_warnings
                 compliance = max(0, 100 - (total_issues / max(layer_files, 1) * 100))
-                f.write(f"| {layer} | {layer_files} | {layer_critical} | {layer_warnings} | {compliance:.1f}% |\n")
+                f.write(f"| {layer} | {layer_files} | {layer_critical} | {layer_warnings} | {compliance:.1f}% |\n")  # noqa: E501
 
             f.write("\n")
             f.write("---\n\n")

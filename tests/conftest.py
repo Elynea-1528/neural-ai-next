@@ -1,14 +1,23 @@
 """Pytest configuration and fixtures for test isolation.
+
 # pyright: reportPrivateUsage=false, reportUnknownMemberType=false
-# Pytest fixture és mock private member access hibák
+# Pytest fixture és mock private member access hibák.
 
 Ez a fájl biztosítja a Singleton és DI Container állapot tisztítását
 minden teszt között, megoldva a test isolation problémát.
 """
 
+import sys
 from collections.abc import Generator
+from pathlib import Path
 
 import pytest
+
+# Projekt gyökér hozzáadása a sys.path-hoz (pytest discovery fázisához)
+# Ez biztosítja, hogy a 'scripts' és más top-level modulok elérhetők legyenek
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 
 @pytest.fixture(autouse=True)
@@ -17,6 +26,7 @@ def reset_mock_state() -> Generator[None, None, None]:
 
     Ez megoldja a mock state szennyeződést, ahol a @patch dekorátorok
     állapota átszivárodik tesztek között.
+
     """
     # Teszt előtt: mock tisztítás
     _clear_mock_state()
@@ -32,6 +42,7 @@ def reset_singletons() -> Generator[None, None, None]:
     """Automatikusan reseteli az összes Singleton példányt minden teszt előtt és után.
 
     Ez a fixture autouse=True-val fut minden tesztnél, biztosítva a tiszta állapotot.
+
     """
     # Teszt előtt: tisztítás
     _clear_all_singletons()
@@ -47,6 +58,7 @@ def _clear_mock_state() -> None:
 
     Ez megoldja a mock state szennyeződést, ahol egy teszt mock-ja
     befolyásolja a következő teszteket.
+
     """
     from unittest.mock import _patch, patch
 
@@ -65,10 +77,13 @@ def _clear_mock_state() -> None:
 
 
 def _clear_import_cache() -> None:
-    """Törli a Python import cache-t, hogy a mock-olt vagy elrontott importok ne szivárogjon át tesztek között.
+    """Törli a Python import cache-t.
+
+    A mock-olt vagy elrontott importok ne szivárogjon át tesztek között.
 
     Ez megoldja a teszt izolációs problémát, ahol egy teszt mock-olja
     a LoggerInterface-t, és az összes utána következő teszt elromlik.
+
     """
     import sys
 
@@ -155,6 +170,7 @@ def reset_di_container() -> Generator[None, None, None]:
     """Automatikusan reseteli a DI Container-t minden teszt előtt és után.
 
     Ez biztosítja, hogy a dependency injection állapot ne szivárogjon át tesztek között.
+
     """
     # Teszt előtt: tisztítás
     _clear_di_container()
@@ -195,6 +211,7 @@ def clean_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     """Tiszta környezeti változók minden teszthez.
 
     Ez a fixture nem autouse, csak explicit használatra.
+
     """
     # Környezeti változók tisztítása
     env_vars_to_clear = [

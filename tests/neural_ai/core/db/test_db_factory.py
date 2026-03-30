@@ -1,6 +1,7 @@
 """Tesztek a neural_ai.core.db.factory modulhoz.
+
 # pyright: reportCallIssue=false, reportOptionalMemberAccess=false
-# Factory method signature és optional type hibák
+# Factory method signature és optional type hibák.
 
 Ez a modul tartalmazza a DatabaseFactory osztály és annak metódusainak tesztjeit.
 """
@@ -211,6 +212,7 @@ class TestDatabaseConfigPydanticValidation:
 
     Ezek a tesztek ellenőrzik a DatabaseConfig Pydantic model működését,
     beleértve a URL formátum validációt és a pool size ellenőrzést.
+
     """
 
     def test_database_config_valid_sqlite_url(self) -> None:
@@ -314,7 +316,8 @@ class TestDatabaseConfigPydanticValidation:
         # Temporary YAML fájl létrehozása
         # Fontos: a fájlnév 'database.yaml' legyen, mert a get_database_config()
         # a 'database' szekciót keresi, amit a load_directory() a fájlnévből képez.
-        # type: "sqlite" mezőt kivettük, mert a Pydantic modellben nincs benne és forbid extra
+
+        # A "type: sqlite" mezőt kivettük, mert a Pydantic modellben nincs benne és forbid extra
         yaml_content = """connection:
   url: "sqlite+aiosqlite:///test_real.db"
 pool:

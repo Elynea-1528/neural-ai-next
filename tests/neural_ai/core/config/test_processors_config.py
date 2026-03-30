@@ -1,6 +1,7 @@
 """Processors konfigurációs teszt.
+
 # pyright: reportUnknownArgumentType=false, reportUnknownVariableType=false
-# Pydantic config fixture type inference hibák
+# Pydantic config fixture type inference hibák.
 
 A processors.yaml konfigurációs fájl betöltésének és használatának tesztjei.
 """
@@ -85,7 +86,7 @@ class TestProcessorsConfig:
         assert "tick" in timeframe_configs
         assert "1m" in timeframe_configs
 
-    def test_timeframe_configs_z_score_window_type(self, config_manager: "ConfigManagerInterface") -> None:
+    def test_timeframe_configs_z_score_window_type(self, config_manager: "ConfigManagerInterface") -> None:  # noqa: E501
         """Teszteli, hogy a timeframe-specifikus z_score_window értékek helyes típusúak."""
         tick_window = config_manager.get(
             "d01", "timeframe_configs", "tick", "z_score_window"
@@ -97,7 +98,7 @@ class TestProcessorsConfig:
         assert isinstance(tick_window, int)
         assert isinstance(m1_window, int)
 
-    def test_config_section_accessible_via_get_section(self, config_manager: "ConfigManagerInterface") -> None:
+    def test_config_section_accessible_via_get_section(self, config_manager: "ConfigManagerInterface") -> None:  # noqa: E501
         """Teszteli a konfigurációs szekció lekérését get_section metódussal."""
         d01_section = config_manager.get_section("d01")
         assert "required_timeframes" in d01_section

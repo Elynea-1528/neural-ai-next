@@ -1,6 +1,7 @@
 """Polars Backend Teszt Modul.
+
 # pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
-# Polars DataFrame fixture type hibák
+# Polars DataFrame fixture type hibák.
 
 Ez a modul tartalmazza a PolarsBackend osztály tesztjeit.
 """

@@ -1,6 +1,7 @@
 """Pytest fixtures a neural_ai.core.db tesztek számára.
+
 # pyright: reportUnknownArgumentType=false, reportUnknownVariableType=false
-# Async fixture type inference hibák
+# Async fixture type inference hibák.
 
 Ez a modul tartalmazza a közös fixture-öket és setup/teardown logikát
 az adatbázis tesztek számára.
@@ -16,6 +17,7 @@ async def reset_db_globals():
     Ez a fixture biztosítja, hogy a globális _engine és _async_session_maker
     változók tiszták legyenek minden teszt előtt és után, elkerülve a
     test isolation problémákat.
+
     """
     import neural_ai.core.db.implementations.sqlalchemy_session as db_module
 
@@ -48,6 +50,7 @@ def reset_db_singleton():
 
     Ez a fixture biztosítja, hogy a DatabaseManager Singleton példány
     tiszta legyen minden teszt előtt és után.
+
     """
     from neural_ai.core.base.implementations.singleton import SingletonMeta
     from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager

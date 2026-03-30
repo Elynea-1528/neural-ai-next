@@ -49,7 +49,7 @@ class TestConfigImplementationsInit:
         # Assert
         assert neural_ai.core.config.implementations.__file__ is not None
         assert "__init__.py" in neural_ai.core.config.implementations.__file__
-        assert "neural_ai/core/config/implementations" in neural_ai.core.config.implementations.__file__
+        assert "neural_ai/core/config/implementations" in neural_ai.core.config.implementations.__file__  # noqa: E501
 
     def test_module_name_attribute(self) -> None:
         """Teszteli, hogy a modul __name__ attribútuma helyes."""
@@ -57,7 +57,7 @@ class TestConfigImplementationsInit:
         import neural_ai.core.config.implementations
 
         # Assert
-        assert neural_ai.core.config.implementations.__name__ == "neural_ai.core.config.implementations"
+        assert neural_ai.core.config.implementations.__name__ == "neural_ai.core.config.implementations"  # noqa: E501
 
     def test_module_package_attribute(self) -> None:
         """Teszteli, hogy a modul __package__ attribútuma helyes."""
@@ -65,4 +65,4 @@ class TestConfigImplementationsInit:
         import neural_ai.core.config.implementations
 
         # Assert
-        assert neural_ai.core.config.implementations.__package__ == "neural_ai.core.config.implementations"
+        assert neural_ai.core.config.implementations.__package__ == "neural_ai.core.config.implementations"  # noqa: E501

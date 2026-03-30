@@ -1,6 +1,7 @@
 """ConfigManagerFactoryInterface tesztelése.
+
 # pyright: reportUnknownVariableType=false, reportArgumentType=false, reportPrivateUsage=false
-# Mock dict és protected member access hibák
+# Mock dict és protected member access hibák.
 
 Ez a modul tartalmazza a ConfigManagerFactoryInterface interfész teszteit,
 amelyek ellenőrzik a konfigurációkezelő factory interfész metódusainak

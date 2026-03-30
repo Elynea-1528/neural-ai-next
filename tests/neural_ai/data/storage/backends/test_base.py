@@ -183,7 +183,7 @@ class TestStorageBackend:
         class MockBackend(StorageBackend):
             """Mock backend implementáció."""
 
-            def __init__(self, logger: Mock | None = None, name: str = "test", supported_formats: list[str] | None = None) -> None:
+            def __init__(self, logger: Mock | None = None, name: str = "test", supported_formats: list[str] | None = None) -> None:  # noqa: E501
                 super().__init__(logger or Mock(), name, supported_formats or ["parquet"])
                 self.write_called = False
                 self.read_called = False

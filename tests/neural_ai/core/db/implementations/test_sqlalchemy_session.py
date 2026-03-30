@@ -1,6 +1,7 @@
 """Tesztek a neural_ai.core.db.implementations.sqlalchemy_session modulhoz.
+
 # pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
-# SQLAlchemy async session fixture type hibák
+# SQLAlchemy async session fixture type hibák.
 
 Ez a modul tartalmazza az adatbázis session kezelő függvények és osztályok tesztjeit.
 """

@@ -1,6 +1,7 @@
 """Tesztek a neural_ai.core.__init__.py modulhoz.
+
 # pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
-# Module import fixture type inference hibák
+# Module import fixture type inference hibák.
 
 Ez a tesztmodul ellenőrzi a core bootstrap funkcionalitását, beleértve:
 - Verzió lekérdezést
@@ -163,11 +164,12 @@ class TestBootstrapCore:
         mock_di_container: MagicMock,
     ) -> None:
         """Teszteli a bootstrap_core függvényt config betöltési hiba esetén.
-        
+
         Ez a teszt lefedi a 138-141 sorokat (ConfigLoadError exception handling).
+
         """
         from neural_ai.core.config.exceptions import ConfigLoadError
-        
+
         # Mock beállítások
         mock_di_container.return_value = self.mock_container
         mock_config = MagicMock()
@@ -231,6 +233,7 @@ class TestBootstrapCore:
         """Teszteli a bootstrap_core függvényt JForex Live Feed engedélyezés esetén.
 
         Ez a teszt lefedi a 202. sort, ahol a JForex Live Feed opcionálisan inicializálódik.
+
         """
         # Mock beállítások
         mock_di_container.return_value = self.mock_container
@@ -270,21 +273,21 @@ class TestBootstrapCore:
                 # és aztán LoggingConfig(**logging_config_dict)-et hív.
                 # A hibaüzenet szerint:
                 # name
-                #   Extra inputs are not permitted [type=extra_forbidden, input_value='test_logger', input_type=str]
+                #   Extra inputs are not permitted [type=extra_forbidden, input_value='test_logger', input_type=str]  # noqa: E501
                 # level
-                #   Extra inputs are not permitted [type=extra_forbidden, input_value='INFO', input_type=str]
+                #   Extra inputs are not permitted [type=extra_forbidden, input_value='INFO', input_type=str]  # noqa: E501
 
                 # Ez azt jelenti, hogy a LoggingConfig modellben a 'extra="forbid"' beállítás miatt
                 # a 'name' és 'level' mezők nem engedélyezettek, VAGY a LoggingConfig modell
                 # nem tartalmazza ezeket a mezőket.
 
-                # De a neural_ai/core/base/factory.py-ban láttuk, hogy a LoggerConfig tartalmazza a 'name' és 'level' mezőket.
-                # Lehet, hogy a bootstrap_core NEM a neural_ai.core.base.factory.LoggerConfig-ot használja,
+                # De a neural_ai/core/base/factory.py-ban láttuk, hogy a LoggerConfig tartalmazza a 'name' és 'level' mezőket.  # noqa: E501
+                # Lehet, hogy a bootstrap_core NEM a neural_ai.core.base.factory.LoggerConfig-ot használja,  # noqa: E501
                 # hanem a neural_ai.core.config.interfaces.types.LoggingConfig-ot?
                 # Igen: from neural_ai.core.config.interfaces.types import LoggingConfig
 
-                # És a types.LoggingConfig valószínűleg nem tartalmazza ezeket a mezőket, vagy más a neve.
-                # Próbáljuk meg üres dict-tel, és reméljük, hogy a 'name' nem kötelező a types.LoggingConfig-ban.
+                # És a types.LoggingConfig valószínűleg nem tartalmazza ezeket a mezőket, vagy más a neve.  # noqa: E501
+                # Próbáljuk meg üres dict-tel, és reméljük, hogy a 'name' nem kötelező a types.LoggingConfig-ban.  # noqa: E501
                 return {}
             return {}
 
@@ -299,10 +302,10 @@ class TestBootstrapCore:
 
         # Assertions
         assert core is not None
-        # A create_live_feed hívás paramétereit is ellenőrizni kellene, de itt csak azt nézzük, hogy meghívták-e
-        # A hibaüzenet szerint: Expected 'create_live_feed' to have been called once. Called 0 times.
+        # A create_live_feed hívás paramétereit is ellenőrizni kellene, de itt csak azt nézzük, hogy meghívták-e  # noqa: E501
+        # A hibaüzenet szerint: Expected 'create_live_feed' to have been called once. Called 0 times.  # noqa: E501
         # Ez azt jelenti, hogy a bootstrap_core nem hívta meg a create_live_feed-et.
-        # Miért? Mert a live_conf.enabled False lehetett, vagy a config nem adta vissza a megfelelő értéket.
+        # Miért? Mert a live_conf.enabled False lehetett, vagy a config nem adta vissza a megfelelő értéket.  # noqa: E501
 
         # A bootstrap_core-ban:
         # live_conf_dict = cast(dict[str, Any], config.get("collectors", "jforex_live") or {})
@@ -480,6 +483,7 @@ class TestBootstrapCoreRealConfig:
         """Teljes bootstrap folyamat valós YAML config fájlokkal.
 
         Ez a teszt end-to-end ellenőrzi a config → parse → bootstrap láncot.
+
         NEM mockol semmit (kivéve hardver/külső rendszerek ha muszáj),
         valós fájlokból tölt be konfigurációt.
         """
@@ -669,6 +673,7 @@ class TestBootstrapCoreStorageError:
         """Teszteli a bootstrap_core függvényt storage inicializálási hiba esetén.
 
         Ez a teszt lefedi a 144-147 sorokat (storage exception handling).
+
         """
         # Mock beállítások
         mock_container = MagicMock()
@@ -738,6 +743,7 @@ class TestBootstrapCoreJForexLiveFeed:
         """Teszteli a bootstrap_core függvényt JForex Live Feed engedélyezve esetén.
 
         Ez a teszt lefedi a 200-202 sorokat (JForex live feed init).
+
         """
         # Mock beállítások
         mock_container = MagicMock()

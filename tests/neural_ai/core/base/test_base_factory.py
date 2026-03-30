@@ -473,7 +473,7 @@ class TestCoreComponentFactory:
             _ = factory.logger
 
     def test_get_config_manager_with_registered_config(self) -> None:
-        """Teszteli a _get_config_manager metódust regisztrált config managerrel (funkcionális teszt)."""
+        """Teszteli a _get_config_manager metódust regisztrált config managerrel (funkcionális teszt)."""  # noqa: E501
         from pathlib import Path
 
         from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface

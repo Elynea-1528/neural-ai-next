@@ -1,6 +1,7 @@
 """Unit tesztek a dashboard_service modulhoz.
+
 # pyright: reportUnknownArgumentType=false
-# Mock config dict type inference hibák
+# Mock config dict type inference hibák.
 
 Ez a modul teszteli a DashboardService osztály funkcióit.
 """
