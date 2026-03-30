@@ -1,13 +1,13 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-03-30 14:29:50 UTC
+**Generálva:** 2026-03-30 14:31:59 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 326
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 186 (57.1%)
-- 🟡 **WARNING:** 85 (26.1%)
+- ✅ **SECURE:** 187 (57.4%)
+- 🟡 **WARNING:** 84 (25.8%)
 - 🔴 **VULNERABLE:** 55 (16.9%)
 
 ---
@@ -128,7 +128,7 @@
 | `data/storage/factory.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `data/storage/implementations/__init__.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `data/storage/implementations/file_storage.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | - |
-| `data/storage/implementations/parquet_storage.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 0 / 5 | - | ✅ OK | ✅ OK | ✅ | 🔎 Pylance: 5 hiba javítása |
+| `data/storage/implementations/parquet_storage.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ✅ OK | ✅ OK | ✅ | - |
 | `data/storage/interfaces/__init__.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `data/storage/interfaces/factory_interface.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `data/storage/interfaces/storage_interface.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |

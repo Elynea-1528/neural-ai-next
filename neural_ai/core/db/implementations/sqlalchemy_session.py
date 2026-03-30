@@ -3,6 +3,8 @@
 Ez a modul biztosítja az AsyncSession factory-t és a kapcsolódó segédfunkciókat
 az adatbázis műveletek aszinkron kezeléséhez.
 """
+# pyright: reportUnknownArgumentType=false, reportUnknownVariableType=false
+# SQLAlchemy és Pydantic config.get() type stub hiányosságai miatt
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
