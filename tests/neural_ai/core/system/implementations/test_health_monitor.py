@@ -50,7 +50,7 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
     def test_initial_state(self) -> None:
         """Teszteli a kezdeti állapotot."""
         self.assertEqual(self.monitor.get_registered_components(), [])
-        self.assertIsNone(self.monitor._logger)
+        self.assertIsNone(self.monitor._logger)  # pyright: ignore[reportPrivateUsage]
 
     def test_register_component(self) -> None:
         """Teszteli a komponens regisztrációt."""

@@ -39,7 +39,7 @@ class TestLoggerInterface:
         class MockLogger(LoggerInterface):
             """Mock logger implementáció a teszteléshez."""
 
-            def __init__(
+            def __init__(  # pyright: ignore[reportArgumentType]
                 self, name: str, config: Any | None = None, **kwargs: Mapping[str, AnyStr]
             ) -> None:
                 super().__init__(name, config, **kwargs)
