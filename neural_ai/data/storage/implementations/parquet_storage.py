@@ -892,7 +892,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
     # --- StorageInterface Implementáció ---
 
-    def save_dataframe(self, df: DataFrame, path: str, **kwargs: Any) -> None:  # pyright: ignore[reportReturnType]
+    def save_dataframe(self, df: "DataFrame", path: str, **kwargs: Any) -> None:  # pyright: ignore[reportReturnType]
         """DataFrame mentése a megadott útvonalra.
 
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
