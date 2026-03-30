@@ -4,6 +4,8 @@ Ez a modul felelős a tárolási implementációk példányosításáért a fact
 minta segítségével. Alapértelmezetten a FileStorage implementációt támogatja,
 de további tárolási típusok is regisztrálhatók dinamikusan.
 """
+# pyright: reportUnknownArgumentType=false
+# Pydantic config.get() visszatérési érték type stub hiányosságai miatt
 
 from pathlib import Path
 from typing import TYPE_CHECKING

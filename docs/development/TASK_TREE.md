@@ -1,13 +1,13 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-03-30 14:22:18 UTC
+**Generálva:** 2026-03-30 14:25:58 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 326
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 184 (56.4%)
-- 🟡 **WARNING:** 87 (26.7%)
+- ✅ **SECURE:** 185 (56.7%)
+- 🟡 **WARNING:** 86 (26.4%)
 - 🔴 **VULNERABLE:** 55 (16.9%)
 
 ---
@@ -195,7 +195,7 @@
 | `ui/services/data_service.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | - |
 | `ui/services/live_ops_service.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | - |
 | `ui/services/navigation_service.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | - |
-| `ui/services/strategy_service.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 0 / 67 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔎 Pylance: 67 hiba javítása |
+| `ui/services/strategy_service.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | - |
 | `ui/streamlit_app.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 
 ## 6. Tests Layer (`tests/`)
