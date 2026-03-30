@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-03-30 13:55:52 UTC
+**Generálva:** 2026-03-30 14:00:09 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 326
 
@@ -55,7 +55,7 @@
 | `core/db/implementations/__init__.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Teszt írás KÖTELEZŐ!** |
 | `core/db/implementations/model_base.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/db/implementations/models.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/db/implementations/sqlalchemy_session.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 0 / 12 | - | ⚪ N/A | ✅ OK | ✅ | 🔎 Pylance: 12 hiba javítása |
+| `core/db/implementations/sqlalchemy_session.py` | 🟡 WARNING | ✅ FOUND | - | N/A | 0 / 0 / 8 | - | ⚪ N/A | ✅ OK | ✅ | 🔎 Pylance: 8 hiba javítása |
 | `core/db/interfaces/__init__.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/events/__init__.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/events/exceptions/__init__.py` | ✅ SECURE | ✅ FOUND | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |

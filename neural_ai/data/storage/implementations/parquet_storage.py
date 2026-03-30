@@ -36,6 +36,9 @@ if TYPE_CHECKING:
     from neural_ai.core.utils.interfaces.hardware_interface import HardwareInterface
     from neural_ai.data.storage.backends.base import StorageBackend
 
+    # Type alias a DataFrame típusokhoz
+    DataFrame = pd.DataFrame | pl.DataFrame
+
 
 class ParquetWriteConfig(BaseModel):
     """Parquet írás opciók konfigurációja."""
@@ -718,13 +721,13 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
         try:
             # Összes fájl beolvasása és összefűzése
-            dfs = []
+            dfs: list[DataFrame] = []
             for file_path in parquet_files:
                 df = self.backend.read(str(file_path))
-                dfs.append(df)
+                dfs.append(df)  # pyright: ignore[reportUnknownMemberType]
 
             # Összefűzés
-            combined_df = self._concat_dataframes(dfs)
+            combined_df = self._concat_dataframes(dfs)  # pyright: ignore[reportArgumentType]
 
             # Deduplikáció és rendezés
             combined_df = self._deduplicate_data(combined_df)
@@ -786,13 +789,13 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
 
         try:
             # Összes fájl beolvasása és összefűzése
-            dfs = []
+            dfs: list[DataFrame] = []
             for file_path in parquet_files:
                 df = self.backend.read(str(file_path))
-                dfs.append(df)
+                dfs.append(df)  # pyright: ignore[reportUnknownMemberType]
 
             # Összefűzés
-            combined_df = self._concat_dataframes(dfs)
+            combined_df = self._concat_dataframes(dfs)  # pyright: ignore[reportArgumentType]
 
             # Alapvető ellenőrzések
             assert len(combined_df) > 0, "Empty dataframe"
@@ -850,7 +853,11 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             >>> stats = await service.get_storage_stats('EURUSD')
             >>> print(f"Összes fájlok: {stats['total_files']}")
         """
-        stats = {"total_files": 0, "total_size_gb": 0.0, "symbols": {}}
+        stats: dict[str, int | float | dict[str, dict[str, int | float]]] = {
+            "total_files": 0,
+            "total_size_gb": 0.0,
+            "symbols": {},
+        }
 
         base_path = self.base_path
         if symbol:
@@ -879,11 +886,11 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
                 symbol_stats["size_gb"] = symbol_stats["size_gb"] / (1024**3)
                 stats["symbols"][symbol_name] = symbol_stats  # type: ignore[index]
 
-        return stats
+        return stats  # pyright: ignore[reportReturnType]
 
     # --- StorageInterface Implementáció ---
 
-    def save_dataframe(self, df: "pd.DataFrame", path: str, **kwargs: Any) -> None:
+    def save_dataframe(self, df: DataFrame, path: str, **kwargs: Any) -> None:  # pyright: ignore[reportReturnType]
         """DataFrame mentése a megadott útvonalra.
 
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
@@ -893,7 +900,7 @@ class ParquetStorageService(StorageInterface, metaclass=SingletonMeta):
             "ParquetStorageService save_dataframe adapter nincs implementálva"
         )
 
-    def load_dataframe(self, path: str, **kwargs: Any) -> "pd.DataFrame":
+    def load_dataframe(self, path: str, **kwargs: Any) -> DataFrame:  # pyright: ignore[reportReturnType]
         """DataFrame betöltése a megadott útvonalról.
 
         Ez egy adapter metódus a StorageInterface kompatibilitás érdekében.
