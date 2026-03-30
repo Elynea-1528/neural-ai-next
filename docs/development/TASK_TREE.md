@@ -1,13 +1,13 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-03-30 14:33:30 UTC
+**Generálva:** 2026-03-30 14:40:42 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 326
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 188 (57.7%)
-- 🟡 **WARNING:** 83 (25.5%)
+- ✅ **SECURE:** 235 (72.1%)
+- 🟡 **WARNING:** 36 (11.0%)
 - 🔴 **VULNERABLE:** 55 (16.9%)
 
 ---
@@ -208,29 +208,29 @@
 | `tests/neural_ai/collectors/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/collectors/jforex/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/collectors/jforex/exceptions/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/collectors/jforex/exceptions/test_jforex_exceptions_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/collectors/jforex/exceptions/test_jforex_exceptions_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/collectors/jforex/implementations/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/collectors/jforex/implementations/test_jforex_implementations_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/collectors/jforex/implementations/test_jforex_implementations_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/collectors/jforex/interfaces/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/collectors/jforex/interfaces/test_jforex_interfaces_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/collectors/jforex/interfaces/test_jforex_interfaces_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/collectors/jforex/mocks/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/collectors/jforex/test_bi5_downloader.py` | 🟡 WARNING | - | N/A | 0 / 0 / 286 | - | ✅ | 🔎 Pylance: 286 hiba javítása |
-| `tests/neural_ai/collectors/jforex/test_jforex_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/collectors/jforex/test_jforex_factory.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/collectors/jforex/test_jforex_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/collectors/jforex/test_live_feed.py` | 🟡 WARNING | - | N/A | 0 / 0 / 25 | - | ✅ | 🔎 Pylance: 25 hiba javítása |
 | `tests/neural_ai/collectors/jforex/test_live_feed_integration.py` | 🟡 WARNING | - | N/A | 0 / 0 / 17 | - | ✅ | 🔎 Pylance: 17 hiba javítása |
-| `tests/neural_ai/collectors/test_collectors_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/collectors/test_collectors_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/base/exceptions/test_base_error.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/base/exceptions/test_base_exceptions_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/base/exceptions/test_base_exceptions_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/base/implementations/test_component_bundle.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/base/implementations/test_di_container.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/base/implementations/test_lazy_loader.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/base/implementations/test_singleton.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/base/interfaces/test_base_interfaces_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/base/interfaces/test_base_interfaces_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/base/interfaces/test_component_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/base/interfaces/test_container_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/base/test_base_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 52 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 52 hiba javítása |
-| `tests/neural_ai/core/base/test_base_factory_functional.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/base/test_base_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 52 | - | ✅ | 🔎 Pylance: 52 hiba javítása |
+| `tests/neural_ai/core/base/test_base_factory_functional.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/base/test_base_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/config/exceptions/test_config_error.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/config/exceptions/test_config_exceptions_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
@@ -242,7 +242,7 @@
 | `tests/neural_ai/core/config/interfaces/test_config_interfaces_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/config/interfaces/test_factory_interface.py` | 🟡 WARNING | - | N/A | 0 / 0 / 11 | - | ✅ | 🔎 Pylance: 11 hiba javítása |
 | `tests/neural_ai/core/config/interfaces/test_types.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/config/test_config_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 1 | - | ✅ | 🔎 Pylance: 1 hiba javítása |
+| `tests/neural_ai/core/config/test_config_factory.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/config/test_config_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 3 | - | ✅ | 🔎 Pylance: 3 hiba javítása |
 | `tests/neural_ai/core/config/test_processors_config.py` | 🟡 WARNING | - | N/A | 0 / 0 / 33 | - | ✅ | 🔎 Pylance: 33 hiba javítása |
 | `tests/neural_ai/core/db/conftest.py` | 🟡 WARNING | - | N/A | 0 / 0 / 13 | - | ✅ | 🔎 Pylance: 13 hiba javítása |
@@ -263,25 +263,25 @@
 | `tests/neural_ai/core/events/test_events_factory.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/events/test_events_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/exceptions/test_logger_error.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/logger/exceptions/test_logger_exceptions_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/logger/exceptions/test_logger_exceptions_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/formatters/test_logger_formatters.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/implementations/test_colored_logger.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/implementations/test_default_logger.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/logger/implementations/test_logger_implementations_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/logger/implementations/test_logger_implementations_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/implementations/test_rotating_file_logger.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/interfaces/test_logger_factory_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/interfaces/test_logger_interface.py` | 🟡 WARNING | - | N/A | 0 / 0 / 1 | - | ✅ | 🔎 Pylance: 1 hiba javítása |
 | `tests/neural_ai/core/logger/interfaces/test_logger_interfaces_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/test_logger_factory.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/system/exceptions/test_system_exceptions_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/system/exceptions/test_system_exceptions_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/system/implementations/test_health_monitor.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/system/interfaces/test_health_interface.py` | 🟡 WARNING | - | N/A | 0 / 0 / 16 | - | ✅ | 🔎 Pylance: 16 hiba javítása |
-| `tests/neural_ai/core/system/interfaces/test_system_interfaces_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/system/interfaces/test_system_interfaces_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/system/test_system_factory.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/system/test_system_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/system/test_system_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/test_core_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 36 | - | ✅ | 🔎 Pylance: 36 hiba javítása |
 | `tests/neural_ai/core/utils/exceptions/test_util_errors.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/utils/implementations/test_utils_implementations_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/core/utils/implementations/test_utils_implementations_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/utils/interfaces/test_hardware_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/utils/test_decorators.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/utils/test_hardware_info.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
@@ -290,63 +290,63 @@
 | `tests/neural_ai/data/storage/backends/test_base.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/storage/backends/test_pandas_backend.py` | 🟡 WARNING | - | N/A | 0 / 0 / 22 | - | ✅ | 🔎 Pylance: 22 hiba javítása |
 | `tests/neural_ai/data/storage/backends/test_polars_backend.py` | 🟡 WARNING | - | N/A | 0 / 0 / 13 | - | ✅ | 🔎 Pylance: 13 hiba javítása |
-| `tests/neural_ai/data/storage/backends/test_storage_backends_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/data/storage/exceptions/test_storage_exceptions_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/data/storage/backends/test_storage_backends_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/data/storage/exceptions/test_storage_exceptions_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/storage/implementations/test_file_storage.py` | 🟡 WARNING | - | N/A | 0 / 0 / 34 | - | ✅ | 🔎 Pylance: 34 hiba javítása |
 | `tests/neural_ai/data/storage/implementations/test_parquet_storage.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/data/storage/implementations/test_storage_implementations_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/data/storage/implementations/test_storage_implementations_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/storage/interfaces/test_storage_factory_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/storage/interfaces/test_storage_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/data/storage/interfaces/test_storage_interfaces_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/data/storage/interfaces/test_storage_interfaces_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/storage/test_storage_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 8 | - | ✅ | 🔎 Pylance: 8 hiba javítása |
 | `tests/neural_ai/data/storage/test_storage_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/conftest.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/processors/dimensions/d01_price/test_d01_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/dimensions/d01_price/test_d01_price_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/dimensions/d01_price/test_processor.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/dimensions/d02_support/exceptions/test_exceptions_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/dimensions/d02_support/exceptions/test_support_error.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/dimensions/d02_support/implementations/test_implementations_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py` | 🟡 WARNING | - | N/A | 0 / 0 / 218 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 218 hiba javítása |
-| `tests/neural_ai/processors/dimensions/d02_support/interfaces/test_d02_interfaces_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/dimensions/d02_support/test_d02_support_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/dimensions/d02_support/test_d02_support_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/processors/implementations/test_time_alignment_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 2 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 2 hiba javítása |
+| `tests/neural_ai/processors/dimensions/d01_price/test_d01_factory.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/processors/dimensions/d01_price/test_d01_price_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/processors/dimensions/d01_price/test_processor.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/processors/dimensions/d02_support/exceptions/test_exceptions_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/processors/dimensions/d02_support/exceptions/test_support_error.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/processors/dimensions/d02_support/implementations/test_implementations_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py` | 🟡 WARNING | - | N/A | 0 / 0 / 218 | - | ✅ | 🔎 Pylance: 218 hiba javítása |
+| `tests/neural_ai/processors/dimensions/d02_support/interfaces/test_d02_interfaces_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/processors/dimensions/d02_support/test_d02_support_factory.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/processors/dimensions/d02_support/test_d02_support_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/processors/implementations/test_time_alignment_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 2 | - | ✅ | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/processors/resampler_service/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/resampler_service/test_resampler_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 13 | - | ✅ | 🔎 Pylance: 13 hiba javítása |
-| `tests/neural_ai/processors/test_processors_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 14 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 14 hiba javítása |
-| `tests/neural_ai/test_neural_ai_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/components/test_base_widget.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/components/test_components_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/interfaces/test_ai_service_interface.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/interfaces/test_core_bridge_interface.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/interfaces/test_dashboard_service_interface.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/processors/test_processors_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 14 | - | ✅ | 🔎 Pylance: 14 hiba javítása |
+| `tests/neural_ai/test_neural_ai_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/components/test_base_widget.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/components/test_components_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/interfaces/test_ai_service_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/interfaces/test_core_bridge_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/interfaces/test_dashboard_service_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/interfaces/test_data_service_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/ui/interfaces/test_live_ops_service_interface.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/interfaces/test_navigation_service_interface.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/interfaces/test_page_interface.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/interfaces/test_strategy_service_interface.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/interfaces/test_ui_interfaces_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/pages/test_ai_lab_page.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/ui/interfaces/test_live_ops_service_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/interfaces/test_navigation_service_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/interfaces/test_page_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/interfaces/test_strategy_service_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/interfaces/test_ui_interfaces_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/pages/test_ai_lab_page.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/pages/test_data_hub_page.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/ui/pages/test_dev_center_page.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/ui/pages/test_dev_center_page.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/pages/test_launchpad_page.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/ui/pages/test_live_ops_page.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/pages/test_pages_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/ui/pages/test_live_ops_page.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/pages/test_pages_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/pages/test_strategy_lab_page.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/ui/services/test_ai_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 1 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 1 hiba javítása |
+| `tests/neural_ai/ui/services/test_ai_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 1 | - | ✅ | 🔎 Pylance: 1 hiba javítása |
 | `tests/neural_ai/ui/services/test_dashboard_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 1 | - | ✅ | 🔎 Pylance: 1 hiba javítása |
 | `tests/neural_ai/ui/services/test_data_service.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/ui/services/test_live_ops_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
-| `tests/neural_ai/ui/services/test_navigation_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 1 | - | ❌ | 📝 Dokumentáció írása | 🔎 Pylance: 1 hiba javítása |
-| `tests/neural_ai/ui/services/test_services_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/ui/services/test_live_ops_service.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/ui/services/test_navigation_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 1 | - | ✅ | 🔎 Pylance: 1 hiba javítása |
+| `tests/neural_ai/ui/services/test_services_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/services/test_strategy_service.py` | 🟡 WARNING | - | N/A | 0 / 0 / 2 | - | ✅ | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/ui/test_app.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/test_core_bridge.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/ui/test_streamlit_app.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/ui/test_streamlit_app.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/test_ui_factory.py` | 🟡 WARNING | - | N/A | 0 / 0 / 2 | - | ✅ | 🔎 Pylance: 2 hiba javítása |
-| `tests/neural_ai/ui/test_ui_init.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
+| `tests/neural_ai/ui/test_ui_init.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/scripts/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/scripts/test_data_reset.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/scripts/test_download_history.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
@@ -360,8 +360,8 @@
 | Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Config | Logger | Dokumentálva | Teendők |
 |:-----|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
 | `scripts/__init__.py` | ✅ SECURE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `scripts/audit_architecture.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ❌ | ⚠️ Teszt fájl létrehozása | 📝 Dokumentáció írása |
-| `scripts/audit_architecture_detailed.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 61 | - | ⚪ N/A | ⚪ N/A | ❌ | ⚠️ Teszt fájl létrehozása | 📝 Dokumentáció írása | 🔎 Pylance: 61 hiba javítása |
+| `scripts/audit_architecture.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | ⚠️ Teszt fájl létrehozása |
+| `scripts/audit_architecture_detailed.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 61 | - | ⚪ N/A | ⚪ N/A | ✅ | ⚠️ Teszt fájl létrehozása | 🔎 Pylance: 61 hiba javítása |
 | `scripts/audit_data.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | ⚠️ Teszt fájl létrehozása |
 | `scripts/bootstrap_integration_test.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | ⚠️ Teszt fájl létrehozása |
 | `scripts/bootstrap_test.py` | 🔴 VULNERABLE | ❌ MISSING | - | N/A | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | ⚠️ Teszt fájl létrehozása |

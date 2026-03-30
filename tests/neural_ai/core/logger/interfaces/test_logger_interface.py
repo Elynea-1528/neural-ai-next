@@ -1,4 +1,6 @@
 """Logger interfész tesztek."""
+# pyright: reportArgumentType=false
+# Mock logger **kwargs type signature hibák
 
 from collections.abc import Mapping
 from typing import Any, AnyStr
