@@ -108,7 +108,11 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         if not extension:
             raise ValueError("Az extension nem lehet üres")
 
-        # Type checking is handled by static analysis
+        if not isinstance(manager_class, type):  # pyright: ignore[reportUnnecessaryIsInstance]
+            raise TypeError(
+                f"A manager_class típusnak kell lennie, nem {type(manager_class).__name__}"
+            )
+
         if not extension.startswith("."):
             extension = f".{extension}"
 
@@ -132,7 +136,11 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         if not manager_type:
             raise ValueError("A manager_type nem lehet üres")
 
-        # Type checking is handled by static analysis
+        if not isinstance(manager_class, type):  # pyright: ignore[reportUnnecessaryIsInstance]
+            raise TypeError(
+                f"A manager_class típusnak kell lennie, nem {type(manager_class).__name__}"
+            )
+
         cls._async_manager_types[manager_type] = manager_class
 
     @classmethod
