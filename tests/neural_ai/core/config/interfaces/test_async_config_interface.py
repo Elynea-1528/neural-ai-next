@@ -38,7 +38,7 @@ class DummyAsyncConfigManager(AsyncConfigManagerInterface):
 
     async def get_section(self, section: str) -> dict[str, Any]:
         """Teljes konfigurációs szekció lekérése."""
-        return self._config.get(section, {})
+        return self._config.get(section, {})  # type: ignore[no-any-return]
 
     async def set(self, *keys: str, value: Any) -> None:
         """Érték beállítása a konfigurációban."""
@@ -312,7 +312,7 @@ class TestAsyncConfigManagerInterface:
                 pass
 
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError
-            _IncompleteAsyncConfigManager()  # pyright: ignore[reportAbstractUsage]
+            _IncompleteAsyncConfigManager()  # type: ignore[abstract]  # pyright: ignore[reportAbstractUsage]
 
     def test_interface_docstrings_present(self) -> None:
         """Teszteli, hogy az interfész metódusainak van docstringje."""

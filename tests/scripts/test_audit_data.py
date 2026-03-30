@@ -57,7 +57,7 @@ class TestAuditDataIntegration:
             sys.path.insert(0, str(project_root))
 
         # Act & Assert
-        from scripts import audit_data  # noqa: F401
+        from scripts import audit_data  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
     def test_audit_data_has_parse_bi5_function(self, project_root: Path) -> None:
         """Teszt: Az audit_data modul tartalmazza a parse_bi5_file függvényt.
@@ -104,7 +104,7 @@ class TestAuditDataIntegration:
         Assert: A script nem dob hibát az importáláskor
         """
         # Arrange
-        project_root / "scripts" / "audit_data.py"
+        project_root / "scripts" / "audit_data.py"  # pyright: ignore[reportUnusedExpression]
         python_executable = sys.executable
 
         # Act

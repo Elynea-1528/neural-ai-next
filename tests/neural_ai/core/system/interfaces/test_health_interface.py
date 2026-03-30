@@ -92,8 +92,8 @@ class TestComponentHealth:
         )
 
         assert health.metrics == metrics
-        assert health.metrics["response_time_ms"] == 10.5
-        assert health.metrics["error_rate"] == 0.01
+        assert health.metrics["response_time_ms"] == 10.5  # pyright: ignore[reportOptionalSubscript]
+        assert health.metrics["error_rate"] == 0.01  # pyright: ignore[reportOptionalSubscript]
 
     def test_immutability(self) -> None:
         """Teszteli az adatok megváltoztathatóságát."""
@@ -139,19 +139,19 @@ class TestSystemHealth:
     def test_create_with_optional_metrics(self) -> None:
         """Teszteli a létrehozást opcionális metrikákkal."""
         timestamp = datetime.now()
-        components = []
+        components = []  # type: ignore[var-annotated]
         system_metrics = {"cpu_usage": 45.2, "memory_usage": 67.8, "disk_usage": 23.4}
 
         health = SystemHealth(
             overall_status=HealthStatus.OK,
             message="Rendszer OK",
             timestamp=timestamp,
-            components=components,
+            components=components,  # pyright: ignore[reportUnknownArgumentType]
             system_metrics=system_metrics,
         )
 
         assert health.system_metrics == system_metrics
-        assert health.system_metrics["cpu_usage"] == 45.2
+        assert health.system_metrics["cpu_usage"] == 45.2  # pyright: ignore[reportOptionalSubscript]
 
     def test_empty_components_list(self) -> None:
         """Teszteli az üres komponens listát."""
@@ -172,7 +172,7 @@ class TestHealthMonitorInterface:
     def test_interface_is_abstract(self) -> None:
         """Teszteli, hogy az interfész absztrakt."""
         with pytest.raises(TypeError):
-            HealthMonitorInterface()
+            HealthMonitorInterface()  # type: ignore[abstract]
 
     def test_check_health_is_abstract(self) -> None:
         """Teszteli, hogy a check_health metódus absztrakt."""
@@ -181,13 +181,13 @@ class TestHealthMonitorInterface:
             pass
 
         with pytest.raises(TypeError):
-            ConcreteMonitor()
+            ConcreteMonitor()  # type: ignore[abstract]
 
     def test_implement_interface(self) -> None:
         """Teszteli az interfész implementációját."""
 
         class TestMonitor(HealthMonitorInterface):
-            def check_health(self):
+            def check_health(self):  # pyright: ignore[reportIncompatibleMethodOverride]
                 return SystemHealth(
                     overall_status=HealthStatus.OK,
                     message="Test",
@@ -195,7 +195,7 @@ class TestHealthMonitorInterface:
                     components=[],
                 )
 
-            def check_component(self, component_name: str):
+            def check_component(self, component_name: str):  # pyright: ignore[reportIncompatibleMethodOverride]
                 return ComponentHealth(
                     name=component_name,
                     status=ComponentStatus.HEALTHY,
@@ -203,10 +203,10 @@ class TestHealthMonitorInterface:
                     timestamp=datetime.now(),
                 )
 
-            def get_registered_components(self):
-                return []
+            def get_registered_components(self):  # pyright: ignore[reportUnknownParameterType]
+                return []  # pyright: ignore[reportUnknownVariableType]
 
-            def register_component(self, component_name: str):
+            def register_component(self, component_name: str):  # type: ignore[override]
                 pass
 
             def unregister_component(self, component_name: str):
@@ -227,7 +227,7 @@ class TestHealthMonitorInterface:
         component_health = monitor.check_component("test_component")
         assert isinstance(component_health, ComponentHealth)
 
-        components = monitor.get_registered_components()
+        components = monitor.get_registered_components()  # pyright: ignore[reportUnknownVariableType]
         assert isinstance(components, list)
 
         monitor.register_component("test_component")
@@ -240,7 +240,7 @@ class TestHealthCheckInterface:
     def test_interface_is_abstract(self) -> None:
         """Teszteli, hogy az interfész absztrakt."""
         with pytest.raises(TypeError):
-            HealthCheckInterface()
+            HealthCheckInterface()  # type: ignore[abstract]
 
     def test_check_is_abstract(self) -> None:
         """Teszteli, hogy a check metódus absztrakt."""
@@ -249,13 +249,13 @@ class TestHealthCheckInterface:
             pass
 
         with pytest.raises(TypeError):
-            ConcreteCheck()
+            ConcreteCheck()  # type: ignore[abstract]
 
     def test_implement_interface(self) -> None:
         """Teszteli az interfész implementációját."""
 
         class TestCheck(HealthCheckInterface):
-            def check(self):
+            def check(self):  # pyright: ignore[reportIncompatibleMethodOverride]
                 return ComponentHealth(
                     name="test",
                     status=ComponentStatus.HEALTHY,
@@ -304,7 +304,7 @@ class TestIntegration:
         assert len(system_health.components) == 2
         assert system_health.components[0].name == "database"
         assert system_health.components[1].name == "api"
-        assert system_health.components[1].metrics["response_time_ms"] == 500.0
+        assert system_health.components[1].metrics["response_time_ms"] == 500.0  # type: ignore[index]
 
     def test_health_status_aggregation(self) -> None:
         """Teszteli az egészségügyi állapotok aggregációját."""

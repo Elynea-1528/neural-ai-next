@@ -20,7 +20,7 @@ class TestAIServiceInit:
         """Ellenőrzi, hogy az AIService létrehozható."""
         # Arrange
         mock_logger = MagicMock()
-        mock_config = {}
+        mock_config: dict[str, str] = {}
         mock_core = MagicMock()
 
         # Act
@@ -31,12 +31,12 @@ class TestAIServiceInit:
         )
 
         # Assert
-        assert service._logger == mock_logger
-        assert service._config == mock_config
-        assert service._core_components == mock_core
-        assert len(service._models) == 3
-        assert service._loaded_models == {}
-        assert service._training_jobs == {}
+        assert service._logger == mock_logger  # pyright: ignore[reportPrivateUsage]
+        assert service._config == mock_config  # pyright: ignore[reportPrivateUsage]
+        assert service._core_components == mock_core  # pyright: ignore[reportPrivateUsage]
+        assert len(service._models) == 3  # pyright: ignore[reportPrivateUsage]
+        assert service._loaded_models == {}  # pyright: ignore[reportPrivateUsage]
+        assert service._training_jobs == {}  # pyright: ignore[reportPrivateUsage]
 
 
 class TestAIServiceGetAvailableModels:
@@ -107,7 +107,7 @@ class TestAIServiceLoadModel:
 
         # Assert
         assert result is True
-        assert "hierarchical_v1" in service._loaded_models
+        assert "hierarchical_v1" in service._loaded_models  # pyright: ignore[reportPrivateUsage]
 
     def test_load_model_with_config(self) -> None:
         """Ellenőrzi, hogy a modell betöltése konfigurációval működik."""
@@ -124,7 +124,7 @@ class TestAIServiceLoadModel:
 
         # Assert
         assert result is True
-        assert service._loaded_models["hierarchical_v1"]["config"] == model_config
+        assert service._loaded_models["hierarchical_v1"]["config"] == model_config  # pyright: ignore[reportPrivateUsage]
 
 
 class TestAIServiceRunInference:
@@ -256,7 +256,7 @@ class TestAIServiceTrainModel:
         # Assert
         assert "training_id" in result
         training_id = result["training_id"]
-        assert service._training_jobs[training_id]["config"] == training_config
+        assert service._training_jobs[training_id]["config"] == training_config  # pyright: ignore[reportPrivateUsage]
 
 
 class TestAIServiceGetTrainingStatus:

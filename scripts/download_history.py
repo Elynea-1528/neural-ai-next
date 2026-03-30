@@ -120,7 +120,7 @@ async def download_historical_data(symbol: str, start_date: datetime, end_date: 
 
         while current_hour <= end_hour:
             # SMART RESUME: Ellenőrizzük, hogy van-e Master parquet fájl az óra mappában
-            base_path = storage.BASE_PATH  # Ez a Configból jön (pl. data/tick)
+            base_path = storage.base_path
             hour_dir = (
                 base_path
                 / symbol.upper()

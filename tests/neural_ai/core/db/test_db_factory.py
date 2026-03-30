@@ -219,7 +219,7 @@ class TestDatabaseConfigPydanticValidation:
         """Érvényes SQLite URL validálása."""
         from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
 
-        config = DatabaseConfig(
+        config = DatabaseConfig(  # type: ignore[call-arg]
             connection=DatabaseConnectionConfig(url="sqlite+aiosqlite:///test.db")
         )
         assert config.connection.url == "sqlite+aiosqlite:///test.db"
@@ -229,30 +229,30 @@ class TestDatabaseConfigPydanticValidation:
         """Érvényes PostgreSQL URL validálása."""
         from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
 
-        config = DatabaseConfig(
+        config = DatabaseConfig(  # type: ignore[call-arg]
             connection=DatabaseConnectionConfig(
                 url="postgresql+asyncpg://user:pass@localhost:5432/testdb"
             )
         )
-        assert config.connection.url.startswith("postgresql+asyncpg://")
+        assert config.connection.url.startswith("postgresql+asyncpg://")  # type: ignore[union-attr]
 
     def test_database_config_valid_mysql_url(self) -> None:
         """Érvényes MySQL URL validálása."""
         from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
 
-        config = DatabaseConfig(
+        config = DatabaseConfig(  # type: ignore[call-arg]
             connection=DatabaseConnectionConfig(
                 url="mysql+aiomysql://user:pass@localhost:3306/testdb"
             )
         )
-        assert config.connection.url.startswith("mysql+aiomysql://")
+        assert config.connection.url.startswith("mysql+aiomysql://")  # type: ignore[union-attr]
 
     def test_database_config_invalid_url_raises_error(self) -> None:
         """Érvénytelen URL formátum hibát dob."""
         from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
 
         with pytest.raises(ValidationError, match="Érvénytelen adatbázis URL"):
-            DatabaseConfig(
+            DatabaseConfig(  # type: ignore[call-arg]
                 connection=DatabaseConnectionConfig(
                     url="mysql://invalid"  # Nem async driver!
                 )
@@ -303,7 +303,7 @@ class TestDatabaseConfigPydanticValidation:
         """Pool konfig opcionális - None is érvényes."""
         from neural_ai.core.config.interfaces.types import DatabaseConfig, DatabaseConnectionConfig
 
-        config = DatabaseConfig(
+        config = DatabaseConfig(  # type: ignore[call-arg]
             connection=DatabaseConnectionConfig(url="sqlite+aiosqlite:///test.db")
             # pool nincs megadva
         )

@@ -25,8 +25,8 @@ class TestResamplerServiceInitialization:
         resampler = ResamplerService(storage=mock_storage, logger=mock_logger)
 
         # Assert
-        assert resampler._storage == mock_storage
-        assert resampler._logger == mock_logger
+        assert resampler._storage == mock_storage  # pyright: ignore[reportPrivateUsage]
+        assert resampler._logger == mock_logger  # pyright: ignore[reportPrivateUsage]
 
 
 class TestResamplerServiceValidateTimeframe:
@@ -44,7 +44,7 @@ class TestResamplerServiceValidateTimeframe:
         resampler = ResamplerService(storage=mock_storage, logger=mock_logger)
 
         # Act & Assert (nem dob hibát)
-        resampler._validate_timeframe(timeframe)
+        resampler._validate_timeframe(timeframe)  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.parametrize(
         "timeframe",
@@ -59,7 +59,7 @@ class TestResamplerServiceValidateTimeframe:
 
         # Act & Assert
         with pytest.raises(InvalidTimeframeError):
-            resampler._validate_timeframe(timeframe)
+            resampler._validate_timeframe(timeframe)  # pyright: ignore[reportPrivateUsage]
 
 
 class TestResamplerServiceLoadTickData:
@@ -77,7 +77,7 @@ class TestResamplerServiceLoadTickData:
         end = datetime(2024, 1, 2)
 
         # Act
-        result = await resampler._load_tick_data(symbol, start, end)
+        result = await resampler._load_tick_data(symbol, start, end)  # pyright: ignore[reportPrivateUsage]
 
         # Assert
         assert isinstance(result, pl.DataFrame)
@@ -96,7 +96,7 @@ class TestResamplerServiceLoadTickData:
         end = datetime(2024, 1, 2)
 
         # Act
-        result = await resampler._load_tick_data(symbol, start, end)
+        result = await resampler._load_tick_data(symbol, start, end)  # pyright: ignore[reportPrivateUsage]
 
         # Assert
         assert isinstance(result, pl.DataFrame)
@@ -116,7 +116,7 @@ class TestResamplerServiceLoadTickData:
 
         # Act & Assert
         with pytest.raises(DataLoadError):
-            await resampler._load_tick_data(symbol, start, end)
+            await resampler._load_tick_data(symbol, start, end)  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     async def test_load_tick_data_storage_exception(
@@ -132,7 +132,7 @@ class TestResamplerServiceLoadTickData:
 
         # Act & Assert
         with pytest.raises(DataLoadError):
-            await resampler._load_tick_data(symbol, start, end)
+            await resampler._load_tick_data(symbol, start, end)  # pyright: ignore[reportPrivateUsage]
 
 
 class TestResamplerServiceConvertToOHLCV:
@@ -146,7 +146,7 @@ class TestResamplerServiceConvertToOHLCV:
         resampler = ResamplerService(storage=mock_storage, logger=mock_logger)
 
         # Act
-        result = resampler._convert_to_ohlcv(empty_tick_df, "1m")
+        result = resampler._convert_to_ohlcv(empty_tick_df, "1m")  # pyright: ignore[reportPrivateUsage]
 
         # Assert
         assert isinstance(result, pl.DataFrame)
@@ -182,7 +182,7 @@ class TestResamplerServiceConvertToOHLCV:
 
         # Act & Assert
         with pytest.raises(ValueError, match="Missing required columns"):
-            resampler._convert_to_ohlcv(invalid_df, "1m")
+            resampler._convert_to_ohlcv(invalid_df, "1m")  # pyright: ignore[reportPrivateUsage]
 
     def test_convert_to_ohlcv_tick_timeframe(
         self, mock_storage: MagicMock, mock_logger: MagicMock, sample_tick_df: pl.DataFrame
@@ -192,7 +192,7 @@ class TestResamplerServiceConvertToOHLCV:
         resampler = ResamplerService(storage=mock_storage, logger=mock_logger)
 
         # Act
-        result = resampler._convert_to_ohlcv(sample_tick_df, "tick")
+        result = resampler._convert_to_ohlcv(sample_tick_df, "tick")  # pyright: ignore[reportPrivateUsage]
 
         # Assert
         assert isinstance(result, pl.DataFrame)
@@ -225,7 +225,7 @@ class TestResamplerServiceConvertToOHLCV:
         resampler = ResamplerService(storage=mock_storage, logger=mock_logger)
 
         # Act
-        result = resampler._convert_to_ohlcv(sample_tick_df, timeframe)
+        result = resampler._convert_to_ohlcv(sample_tick_df, timeframe)  # pyright: ignore[reportPrivateUsage]
 
         # Assert
         assert isinstance(result, pl.DataFrame)
@@ -247,7 +247,7 @@ class TestResamplerServiceConvertToOHLCV:
         resampler = ResamplerService(storage=mock_storage, logger=mock_logger)
 
         # Act
-        result = resampler._convert_to_ohlcv(sample_tick_df, "1m")
+        result = resampler._convert_to_ohlcv(sample_tick_df, "1m")  # pyright: ignore[reportPrivateUsage]
 
         # Assert
         assert len(result) > 0

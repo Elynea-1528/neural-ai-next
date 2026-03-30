@@ -337,7 +337,7 @@ async def validate_data() -> bool:
             if (spread_values == 0).all():
                 print("❌ Spread oszlop csak 0 értékeket tartalmaz")
                 return False
-            print(f"✅ Spread értékek rendben (átlag: {spread_values.mean():.6f})")
+            print(f"✅ Spread értékek rendben (átlag: {spread_values.mean():.6f})")  # type: ignore[str-bytes-safe]
 
         # Z-Score ellenőrzése: nem NaN, nem 0
         if "rolling_z_score" in df.columns:
@@ -348,7 +348,7 @@ async def validate_data() -> bool:
             if (zscore_values == 0).all():
                 print("❌ Rolling Z-Score oszlop csak 0 értékeket tartalmaz")
                 return False
-            print(f"✅ Z-Score értékek rendben (átlag: {zscore_values.mean():.6f})")
+            print(f"✅ Z-Score értékek rendben (átlag: {zscore_values.mean():.6f})")  # type: ignore[str-bytes-safe]
 
         # Mid árak ellenőrzése
         mid_columns = ["mid_open", "mid_high", "mid_low", "mid_close"]

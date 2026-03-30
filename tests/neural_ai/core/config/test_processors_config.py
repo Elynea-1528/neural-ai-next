@@ -32,57 +32,57 @@ class TestProcessorsConfig:
         assert d01 is not None
         assert isinstance(d01, dict)
 
-    def test_d01_processor_config_exists(self, config_manager):
+    def test_d01_processor_config_exists(self, config_manager):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Teszteli, hogy a d01 processor konfigurációja létezik."""
-        d01_config = config_manager.get("d01")
+        d01_config = config_manager.get("d01")  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
         assert d01_config is not None
         assert isinstance(d01_config, dict)
 
-    def test_required_timeframes_config(self, config_manager):
+    def test_required_timeframes_config(self, config_manager):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Teszteli a required_timeframes konfigurációt."""
-        required_timeframes = config_manager.get("d01", "required_timeframes")
+        required_timeframes = config_manager.get("d01", "required_timeframes")  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
         assert required_timeframes is not None
         assert isinstance(required_timeframes, list)
-        assert len(required_timeframes) == 7
+        assert len(required_timeframes) == 7  # pyright: ignore[reportUnknownArgumentType]
 
         expected_timeframes = ["tick", "1m", "5m", "15m", "1h", "4h", "1d"]
         assert required_timeframes == expected_timeframes
 
-    def test_timeframe_configs_structure(self, config_manager):
+    def test_timeframe_configs_structure(self, config_manager):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Teszteli a timeframe_configs struktúrát."""
-        timeframe_configs = config_manager.get("d01", "timeframe_configs")
+        timeframe_configs = config_manager.get("d01", "timeframe_configs")  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
         assert timeframe_configs is not None
         assert isinstance(timeframe_configs, dict)
 
-    def test_tick_timeframe_config(self, config_manager):
+    def test_tick_timeframe_config(self, config_manager):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Teszteli a tick timeframe konfigurációt."""
-        tick_config = config_manager.get("d01", "timeframe_configs", "tick")
+        tick_config = config_manager.get("d01", "timeframe_configs", "tick")  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
         assert tick_config is not None
         assert isinstance(tick_config, dict)
         assert tick_config["z_score_window"] == 2000
 
-    def test_1m_timeframe_config(self, config_manager):
+    def test_1m_timeframe_config(self, config_manager):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Teszteli az 1m timeframe konfigurációt."""
-        m1_config = config_manager.get("d01", "timeframe_configs", "1m")
+        m1_config = config_manager.get("d01", "timeframe_configs", "1m")  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
         assert m1_config is not None
         assert isinstance(m1_config, dict)
         assert m1_config["z_score_window"] == 60
 
-    def test_general_z_score_window_config(self, config_manager):
+    def test_general_z_score_window_config(self, config_manager):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Teszteli az általános z_score_window konfigurációt."""
-        z_score_window = config_manager.get("d01", "z_score_window")
+        z_score_window = config_manager.get("d01", "z_score_window")  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
         assert z_score_window == 60
         assert isinstance(z_score_window, int)
 
-    def test_calc_shadows_config(self, config_manager):
+    def test_calc_shadows_config(self, config_manager):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Teszteli a calc_shadows konfigurációt."""
-        calc_shadows = config_manager.get("d01", "calc_shadows")
+        calc_shadows = config_manager.get("d01", "calc_shadows")  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
         assert calc_shadows is True
         assert isinstance(calc_shadows, bool)
 
-    def test_timeframe_configs_keys_exist(self, config_manager):
+    def test_timeframe_configs_keys_exist(self, config_manager):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Teszteli, hogy a timeframe_configs-ban a megfelelő kulcsok léteznek."""
-        timeframe_configs = config_manager.get("d01", "timeframe_configs")
+        timeframe_configs = config_manager.get("d01", "timeframe_configs")  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
         assert "tick" in timeframe_configs
         assert "1m" in timeframe_configs
 

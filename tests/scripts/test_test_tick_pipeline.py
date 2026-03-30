@@ -40,7 +40,7 @@ class TestValidateTickPipeline:
                 }
             )
 
-            async def mock_resample(*args, **kwargs):
+            async def mock_resample(*args, **kwargs):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
                 return mock_resample_df
 
             mock_resampler.resample.side_effect = mock_resample
@@ -58,7 +58,7 @@ class TestValidateTickPipeline:
                 }
             )
 
-            async def mock_process(*args, **kwargs):
+            async def mock_process(*args, **kwargs):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
                 return mock_d1_df
 
             mock_processor.process.side_effect = mock_process

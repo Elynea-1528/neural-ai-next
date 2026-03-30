@@ -44,8 +44,8 @@ def mock_logger() -> Any:
 def reset_singleton() -> Generator[None, None, None]:
     """Singleton reset minden teszt előtt (izolációhoz)."""
     yield
-    if DatabaseManager._instances:
-        DatabaseManager._instances.clear()
+    if DatabaseManager._instances:  # pyright: ignore[reportPrivateUsage]
+        DatabaseManager._instances.clear()  # pyright: ignore[reportPrivateUsage]
 
 
 class TestDatabaseURL:
@@ -64,7 +64,7 @@ class TestDatabaseURL:
     def test_get_database_url_fallback_to_env(self) -> None:
         """Teszteli az adatbázis URL lekérdezést env fallbackkel."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
-        mock_config.get.side_effect = lambda key: (
+        mock_config.get.side_effect = lambda key: (  # pyright: ignore[reportUnknownLambdaType]
             None if key == "database" else "sqlite+aiosqlite:///fallback.db"
         )
 
@@ -76,7 +76,7 @@ class TestDatabaseURL:
         """Teszteli az adatbázis URL lekérdezést nem dict config esetén (line 57)."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         # db_config_raw nem dict, hanem string
-        mock_config.get.side_effect = lambda key: (
+        mock_config.get.side_effect = lambda key: (  # pyright: ignore[reportUnknownLambdaType]
             "invalid_string" if key == "database" else "sqlite+aiosqlite:///fallback.db"
         )
 
@@ -392,7 +392,7 @@ class TestDatabaseManager:
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         manager = DatabaseManager(mock_config, logger=mock_logger)
         # Explicit None-ra állítjuk a _session_maker-t
-        manager._session_maker = None
+        manager._session_maker = None  # pyright: ignore[reportPrivateUsage]
 
         # Nincs inicializálva, ezért DBConnectionError-t kell dobnia
         with pytest.raises(DBConnectionError):
@@ -440,9 +440,9 @@ class TestDatabaseManager:
 
         # Mock-oljuk a session maker-t, hogy ellenőrizzük a rollback-et
         mock_session = AsyncMock(spec=AsyncSession)
-        manager._session_maker = MagicMock()
-        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
-        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)
+        manager._session_maker = MagicMock()  # pyright: ignore[reportPrivateUsage]
+        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)  # pyright: ignore[reportPrivateUsage]
+        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)  # pyright: ignore[reportPrivateUsage]
 
         # Szimuláljuk a kivételt
         mock_session.commit = AsyncMock(side_effect=Exception("Test exception"))
@@ -471,9 +471,9 @@ class TestDatabaseManager:
         mock_session.commit = AsyncMock()
         mock_session.close = AsyncMock()
 
-        manager._session_maker = MagicMock()
-        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
-        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)
+        manager._session_maker = MagicMock()  # pyright: ignore[reportPrivateUsage]
+        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)  # pyright: ignore[reportPrivateUsage]
+        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)  # pyright: ignore[reportPrivateUsage]
 
         # Normál működés - finally blokk lefut
         async with manager.get_session() as session:
@@ -492,12 +492,12 @@ class TestDatabaseManager:
 
         manager = DatabaseManager(mock_config, logger=mock_logger)  # type: ignore
         # Ne inicializáljuk, hanem mock-oljuk a _session_maker-t
-        manager._session_maker = MagicMock()
+        manager._session_maker = MagicMock()  # pyright: ignore[reportPrivateUsage]
 
         # Mock session
         mock_session = AsyncMock(spec=AsyncSession)
-        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
-        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)
+        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)  # pyright: ignore[reportPrivateUsage]
+        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)  # pyright: ignore[reportPrivateUsage]
 
         # Mock result
         mock_config1 = MagicMock()
@@ -525,7 +525,7 @@ class TestDatabaseManager:
         manager = DatabaseManager(mock_config, logger=mock_logger)  # type: ignore
         # Mivel Singleton, a _session_maker már inicializálva van
         # Hozzunk létre egy új példányt, és állítsuk None-ra a _session_maker-t
-        manager._session_maker = None
+        manager._session_maker = None  # pyright: ignore[reportPrivateUsage]
 
         # Nincs inicializálva, ezért RuntimeError-t kell dobnia
         with pytest.raises(RuntimeError):
@@ -540,12 +540,12 @@ class TestDatabaseManager:
         mock_config.get.return_value = "sqlite+aiosqlite:///:memory:"
 
         manager = DatabaseManager(mock_config, logger=mock_logger)  # type: ignore
-        manager._session_maker = MagicMock()
+        manager._session_maker = MagicMock()  # pyright: ignore[reportPrivateUsage]
 
         # Mock session
         mock_session = AsyncMock(spec=AsyncSession)
-        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
-        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)
+        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)  # pyright: ignore[reportPrivateUsage]
+        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)  # pyright: ignore[reportPrivateUsage]
 
         # Üres result
         mock_result = MagicMock()
@@ -562,7 +562,7 @@ class TestDatabaseManager:
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         manager = DatabaseManager(mock_config, logger=mock_logger)
         # _engine már None
-        manager._engine = None
+        manager._engine = None  # pyright: ignore[reportPrivateUsage]
 
         await manager.close()
 
@@ -710,8 +710,8 @@ class TestDatabaseInitialization:
             # Ellenőrizzük, hogy a globális változók None-ra lettek-e állítva
             from neural_ai.core.db.implementations import sqlalchemy_session
 
-            assert sqlalchemy_session._engine is None
-            assert sqlalchemy_session._async_session_maker is None
+            assert sqlalchemy_session._engine is None  # pyright: ignore[reportPrivateUsage]
+            assert sqlalchemy_session._async_session_maker is None  # pyright: ignore[reportPrivateUsage]
 
 
 class TestGetActiveConfigs:
@@ -727,12 +727,12 @@ class TestGetActiveConfigs:
 
         manager = DatabaseManager(mock_config, logger=mock_logger)  # type: ignore
         # Mock-oljuk a _session_maker-t
-        manager._session_maker = MagicMock()
+        manager._session_maker = MagicMock()  # pyright: ignore[reportPrivateUsage]
 
         # Mock session
         mock_session = AsyncMock(spec=AsyncSession)
-        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
-        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)
+        manager._session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)  # pyright: ignore[reportPrivateUsage]
+        manager._session_maker.return_value.__aexit__ = AsyncMock(return_value=None)  # pyright: ignore[reportPrivateUsage]
 
         # Mock result
         mock_config1 = MagicMock()

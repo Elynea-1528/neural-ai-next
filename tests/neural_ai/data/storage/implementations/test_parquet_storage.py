@@ -44,9 +44,9 @@ def clear_singletons():
     """Singleton példányok törlése minden teszt előtt."""
     from neural_ai.core.base.implementations.singleton import SingletonMeta
 
-    SingletonMeta._instances.clear()
+    SingletonMeta._instances.clear()  # pyright: ignore[reportPrivateUsage]
     yield
-    SingletonMeta._instances.clear()
+    SingletonMeta._instances.clear()  # pyright: ignore[reportPrivateUsage]
 
 
 @pytest.fixture
@@ -142,7 +142,7 @@ class TestParquetStorageService:
     def test_get_path_with_unique_id(self, storage_service: ParquetStorageService):
         """Teszteli az elérési út generálást egyedi azonosítóval."""
         date = datetime(2023, 12, 23)
-        path = storage_service._get_path("EURUSD", date, unique_id="abc123")
+        path = storage_service._get_path("EURUSD", date, unique_id="abc123")  # pyright: ignore[reportPrivateUsage]
 
         expected = (
             storage_service.base_path
@@ -166,7 +166,7 @@ class TestParquetStorageService:
         ) as mock_datetime:
             mock_datetime.now.return_value = mock_now
 
-            path = storage_service._get_path("EURUSD", date)
+            path = storage_service._get_path("EURUSD", date)  # pyright: ignore[reportPrivateUsage]
 
             assert "tick_20231223_123045_123456.parquet" in str(path)
 
@@ -183,7 +183,7 @@ class TestParquetStorageService:
         mock_df.__len__ = MagicMock(return_value=100)
 
         # Mock backend
-        storage_service.backend.write = MagicMock()
+        storage_service.backend.write = MagicMock()  # type: ignore[method-assign]
 
         # Mock path.stat to avoid FileNotFoundError
         with patch("pathlib.Path.stat") as mock_stat:
@@ -249,11 +249,11 @@ class TestParquetStorageService:
         mock_df.columns = ["timestamp", "bid", "ask"]
         mock_df.__len__ = MagicMock(return_value=50)
 
-        storage_service.backend.read = MagicMock(return_value=mock_df)
-        storage_service._concat_dataframes = MagicMock(return_value=mock_df)
-        storage_service._deduplicate_data = MagicMock(return_value=mock_df)
-        storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
-        storage_service._filter_by_timestamp = MagicMock(return_value=mock_df)
+        storage_service.backend.read = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._concat_dataframes = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._deduplicate_data = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._filter_by_timestamp = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
 
         with (
             patch("neural_ai.data.storage.implementations.parquet_storage.pl") as mock_pl,
@@ -319,10 +319,10 @@ class TestParquetStorageService:
         mock_df: MagicMock = MagicMock()
         mock_df.select.return_value.write_csv.return_value = "timestamp,bid,ask\n2023-12-23,1.1,1.2"
 
-        storage_service.backend.read = MagicMock(return_value=mock_df)
-        storage_service._concat_dataframes = MagicMock(return_value=mock_df)
-        storage_service._deduplicate_data = MagicMock(return_value=mock_df)
-        storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
+        storage_service.backend.read = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._concat_dataframes = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._deduplicate_data = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
 
         with (
             patch.object(storage_service, "engine", "polars"),
@@ -358,10 +358,10 @@ class TestParquetStorageService:
         mock_df.columns = ["timestamp", "bid", "ask", "volume", "source"]
         mock_df.__len__ = MagicMock(return_value=50)
 
-        storage_service.backend.read = MagicMock(return_value=mock_df)
-        storage_service._concat_dataframes = MagicMock(return_value=mock_df)
-        storage_service._deduplicate_data = MagicMock(return_value=mock_df)
-        storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)
+        storage_service.backend.read = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._concat_dataframes = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._deduplicate_data = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._sort_by_timestamp = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
 
         with (
             patch.object(storage_service, "engine", "pandas"),
@@ -406,8 +406,8 @@ class TestParquetStorageService:
         mock_df: MagicMock = MagicMock()
         mock_df.columns = ["bid", "ask"]
 
-        storage_service.backend.read = MagicMock(return_value=mock_df)
-        storage_service._concat_dataframes = MagicMock(return_value=mock_df)
+        storage_service.backend.read = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
+        storage_service._concat_dataframes = MagicMock(return_value=mock_df)  # type: ignore[method-assign]
 
         result = await storage_service.verify_data_integrity("EURUSD", date)
 
@@ -447,7 +447,7 @@ class TestParquetStorageService:
         # Patching polars.concat directly as it is imported inside the method
         with patch("polars.concat", return_value=mock_concat_result) as mock_concat:
             with patch.object(storage_service, "engine", "polars"):
-                result = storage_service._concat_dataframes([mock_df1, mock_df2])
+                result = storage_service._concat_dataframes([mock_df1, mock_df2])  # pyright: ignore[reportPrivateUsage]
 
                 assert result == mock_concat_result
                 mock_concat.assert_called_once_with([mock_df1, mock_df2])
@@ -461,7 +461,7 @@ class TestParquetStorageService:
         # Patching pandas.concat directly as it is imported inside the method
         with patch("pandas.concat", return_value=mock_concat_result) as mock_concat:
             with patch.object(storage_service, "engine", "fastparquet"):
-                result = storage_service._concat_dataframes([mock_df1, mock_df2])
+                result = storage_service._concat_dataframes([mock_df1, mock_df2])  # pyright: ignore[reportPrivateUsage]
 
                 assert result == mock_concat_result
                 mock_concat.assert_called_once_with([mock_df1, mock_df2], ignore_index=True)
@@ -474,7 +474,7 @@ class TestParquetStorageService:
             mock_df.select.return_value.unique.return_value = mock_df
 
             with patch.object(storage_service, "engine", "polars"):
-                result = storage_service._deduplicate_data(mock_df)
+                result = storage_service._deduplicate_data(mock_df)  # pyright: ignore[reportPrivateUsage]
 
                 assert result == mock_df
 
@@ -498,7 +498,7 @@ class TestParquetStorageService:
             # if we trigger to_pandas path.
             # However, we still need pandas to be importable.
 
-            result = storage_service._deduplicate_data(mock_data)
+            result = storage_service._deduplicate_data(mock_data)  # pyright: ignore[reportPrivateUsage]
             assert result == mock_dedup_result
 
     def test_sort_by_timestamp_polars(self, storage_service: ParquetStorageService):
@@ -509,7 +509,7 @@ class TestParquetStorageService:
             mock_df.sort.return_value = mock_sorted
 
             with patch.object(storage_service, "engine", "polars"):
-                result = storage_service._sort_by_timestamp(mock_df)
+                result = storage_service._sort_by_timestamp(mock_df)  # pyright: ignore[reportPrivateUsage]
 
                 assert result == mock_sorted
                 mock_df.sort.assert_called_once_with("timestamp")
@@ -522,7 +522,7 @@ class TestParquetStorageService:
             mock_df.sort_values.return_value.reset_index.return_value = mock_sorted
 
             with patch.object(storage_service, "engine", "fastparquet"):
-                result = storage_service._sort_by_timestamp(mock_df)
+                result = storage_service._sort_by_timestamp(mock_df)  # pyright: ignore[reportPrivateUsage]
 
                 assert result == mock_sorted
 
@@ -532,7 +532,7 @@ class TestParquetStorageService:
         start_date = datetime(2023, 12, 1)
         end_date = datetime(2023, 12, 31)
 
-        result = storage_service._filter_by_timestamp(mock_df, start_date, end_date)
+        result = storage_service._filter_by_timestamp(mock_df, start_date, end_date)  # pyright: ignore[reportPrivateUsage]
 
         # A jelenlegi implementáció változatlanul visszaadja a DataFrame-et
         assert result == mock_df
@@ -542,10 +542,10 @@ class TestParquetStorageService:
         mock_path: MagicMock = MagicMock()
         mock_result: MagicMock = MagicMock()
 
-        storage_service.backend.read = MagicMock(return_value=mock_result)
+        storage_service.backend.read = MagicMock(return_value=mock_result)  # type: ignore[method-assign]
 
         async def run_test():
-            result = await storage_service._read_parquet_async(mock_path)
+            result = await storage_service._read_parquet_async(mock_path)  # pyright: ignore[reportPrivateUsage]
             assert result == mock_result
 
         asyncio.run(run_test())

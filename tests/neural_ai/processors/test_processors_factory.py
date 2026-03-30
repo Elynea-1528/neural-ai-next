@@ -22,7 +22,7 @@ def test_create_dimension_processor_happy_path():
     # Valid config setup for ProcessorsConfig
     # The factory calls ProcessorsConfig(processors=config.get("processors") or {})
     mock_config.get.side_effect = (
-        lambda section, key=None: {"d02": {"min_candles": 5, "level_merge": 0.0005}}
+        lambda section, key=None: {"d02": {"min_candles": 5, "level_merge": 0.0005}}  # pyright: ignore[reportUnknownLambdaType]
         if section == "processors"
         else {}
     )
@@ -32,12 +32,12 @@ def test_create_dimension_processor_happy_path():
 
     # However, BaseDimensionProcessor.__init__ also calls config.get("processors", "d02")
     # So our side_effect needs to handle that too.
-    def config_get_side_effect(section, key=None):
+    def config_get_side_effect(section, key=None):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         if section == "processors":
             if key == "d02":
                 return {"min_candles": 5, "level_merge": 0.0005}
             return {"d02": {"min_candles": 5, "level_merge": 0.0005}}
-        return {}
+        return {}  # pyright: ignore[reportUnknownVariableType]
 
     mock_config.get.side_effect = config_get_side_effect
 
@@ -54,10 +54,10 @@ def test_create_dimension_processor_validation_error():
     mock_logger = MagicMock(spec=LoggerInterface)
 
     # Invalid config: min_candles is negative (must be >= 1)
-    def config_get_side_effect(section, key=None):
+    def config_get_side_effect(section, key=None):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         if section == "processors":
             return {"d02": {"min_candles": -5}}
-        return {}
+        return {}  # pyright: ignore[reportUnknownVariableType]
 
     mock_config.get.side_effect = config_get_side_effect
 

@@ -178,7 +178,7 @@ def deploy_files(bridge_path: Path, jforex_path: Path) -> bool:
         return False
 
 
-def print_summary(jforex_path: Path):
+def print_summary(jforex_path: Path) -> None:
     """Kiírja a telepítés utáni összefoglalót.
 
     Args:
@@ -206,7 +206,7 @@ def print_summary(jforex_path: Path):
     print("=" * 60 + "\n")
 
 
-def main():
+def main() -> None:
     """Fő végrehajtási függvény."""
     print("\n" + "=" * 60)
     print("🧠 NEURAL AI - JFOREX BRIDGE AUTO-DEPLOY")
@@ -222,38 +222,38 @@ def main():
         bridge_path = Path(__file__).parent.parent / "external" / "jforex-bridge"
         if not bridge_path.exists():
             print(f"❌ Bridge mappa nem található: {bridge_path}")
-            return 1
+            sys.exit(1)
 
         print(f"✅ Bridge mappa megtalálva: {bridge_path}")
 
         # 3. Gradle build futtatása
         if not run_gradle_build(bridge_path):
             print("❌ A telepítés megszakadt a build hiba miatt!")
-            return 1
+            sys.exit(1)
 
         # 4. Fájlok telepítése
         if not deploy_files(bridge_path, jforex_path):
             print("❌ A telepítés megszakadt a fájlok másolása során!")
-            return 1
+            sys.exit(1)
 
         # 5. Összefoglaló kiírása
         print_summary(jforex_path)
 
-        return 0
+        sys.exit(0)
 
     except FileNotFoundError as e:
         print(f"\n❌ Hiba: {e}")
-        return 1
+        sys.exit(1)
     except KeyboardInterrupt:
         print("\n\n⚠️  Telepítés megszakítva a felhasználó által!")
-        return 1
+        sys.exit(1)
     except Exception as e:
         print(f"\n❌ Váratlan hiba: {e}")
         import traceback
 
         traceback.print_exc()
-        return 1
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -105,9 +105,9 @@ class TestLoggerFactoryRealConfig:
         assert warning_record is not None
         # Az 'extra' mezők a record attribútumaiként jelennek meg
         assert hasattr(warning_record, "component")
-        assert warning_record.component == "LoggerFactory"
+        assert warning_record.component == "LoggerFactory"  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
         assert hasattr(warning_record, "issue")
-        assert warning_record.issue == "missing_handlers_section"
+        assert warning_record.issue == "missing_handlers_section"  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
 
 
 class TestLoggerFactoryCoverage:

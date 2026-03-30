@@ -27,7 +27,7 @@ class DummyConfigManager(ConfigManagerInterface):
 
     def get_section(self, section: str) -> dict[str, Any]:
         """Teljes konfigurációs szekció lekérése."""
-        return self._config.get(section, {})
+        return self._config.get(section, {})  # type: ignore[no-any-return]
 
     def set(self, *keys: str, value: Any) -> None:
         """Érték beállítása a konfigurációban."""
@@ -213,7 +213,7 @@ class TestConfigManagerInterface:
                 pass
 
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError
-            _IncompleteConfigManager()  # pyright: ignore[reportAbstractUsage]
+            _IncompleteConfigManager()  # type: ignore[abstract]  # pyright: ignore[reportAbstractUsage]
 
     def test_implementation_preserves_type_hints(self) -> None:
         """Teszteli, hogy az implementáció megőrzi a típusjelzéseket."""

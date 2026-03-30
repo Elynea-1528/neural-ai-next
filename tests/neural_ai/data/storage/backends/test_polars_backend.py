@@ -63,12 +63,12 @@ class TestPolarsBackend:
     """PolarsBackend osztály tesztjei."""
 
     @pytest.fixture
-    def logger(self, mocker):
+    def logger(self, mocker):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Visszaad egy mock logger-t."""
-        return mocker.MagicMock()
+        return mocker.MagicMock()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
     @pytest.fixture
-    def backend(self, logger) -> PolarsBackend:
+    def backend(self, logger) -> PolarsBackend:  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Visszaad egy PolarsBackend példányt."""
         return PolarsBackend(logger)
 
@@ -81,10 +81,10 @@ class TestPolarsBackend:
         )
 
     @pytest.fixture
-    def temp_dir(self) -> Path:
+    def temp_dir(self) -> Path:  # type: ignore[misc]
         """Visszaad egy ideiglenes könyvtárat."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
+            yield Path(tmpdir)  # pyright: ignore[reportReturnType]
 
     def test_init(self, backend: PolarsBackend) -> None:
         """Teszteli a PolarsBackend inicializálását."""
@@ -109,7 +109,7 @@ class TestPolarsBackend:
     ) -> None:
         """Teszteli a write műveletet tömörítéssel."""
         path = temp_dir / "test_compressed.parquet"
-        backend.write(sample_dataframe, str(path), compression="gzip")
+        backend.write(sample_dataframe, str(path), compression="gzip")  # type: ignore[arg-type]
 
         assert path.exists()
 
@@ -144,7 +144,7 @@ class TestPolarsBackend:
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
 
-        result = backend.read(str(path), columns=["id", "name"])
+        result = backend.read(str(path), columns=["id", "name"])  # type: ignore[arg-type]
         assert len(result.columns) == 2
         assert "age" not in result.columns
 
@@ -204,7 +204,7 @@ class TestPolarsBackend:
         pl = backend.polars_wrapper.pl
         new_data = pl.DataFrame({"id": [4], "name": ["David"], "age": [28]})
 
-        backend.append(new_data, str(path), **{"schema_validation": True})
+        backend.append(new_data, str(path), **{"schema_validation": True})  # type: ignore[arg-type]
         result = backend.read(str(path))
         assert len(result) == 4
 
@@ -226,7 +226,7 @@ class TestPolarsBackend:
         )
 
         with pytest.raises(ValueError, match="sémája nem kompatibilis"):
-            backend.append(new_data, str(path), **{"schema_validation": True})
+            backend.append(new_data, str(path), **{"schema_validation": True})  # type: ignore[arg-type]
 
     def test_append_invalid_data(self, backend: PolarsBackend, temp_dir: Path) -> None:
         """Teszteli a hozzáfűzést érvénytelen adatokkal."""

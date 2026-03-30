@@ -156,8 +156,8 @@ class TestDynamicConfig:
             session.commit()
 
             retrieved = session.get(DynamicConfig, config.id)
-            assert retrieved.value == value
-            assert retrieved.value_type == value_type
+            assert retrieved.value == value  # type: ignore[union-attr]
+            assert retrieved.value_type == value_type  # type: ignore[union-attr]
 
     def test_dynamic_config_json_serialization(self, session: Session) -> None:
         """DynamicConfig JSON értékének szerializálásának tesztelése."""
@@ -177,9 +177,9 @@ class TestDynamicConfig:
         session.commit()
 
         retrieved = session.get(DynamicConfig, config.id)
-        assert retrieved.value == complex_value
+        assert retrieved.value == complex_value  # type: ignore[union-attr]
         # Ellenőrizzük, hogy a JSON mező helyesen tárolja a komplex struktúrát
-        assert retrieved.value["nested"]["level1"][2]["level2"] == "deep"
+        assert retrieved.value["nested"]["level1"][2]["level2"] == "deep"  # type: ignore[union-attr, index]
 
 
 class TestLogEntry:
@@ -309,7 +309,7 @@ class TestLogEntry:
             session.commit()
 
             retrieved = session.get(LogEntry, log_entry.id)
-            assert retrieved.level == level
+            assert retrieved.level == level  # type: ignore[union-attr]
 
     def test_log_entry_extra_data_types(self, session: Session) -> None:
         """LogEntry extra_data különböző típusainak tesztelése."""
@@ -331,7 +331,7 @@ class TestLogEntry:
             session.commit()
 
             retrieved = session.get(LogEntry, log_entry.id)
-            assert retrieved.extra_data == extra_data
+            assert retrieved.extra_data == extra_data  # type: ignore[union-attr]
 
     def test_log_entry_long_message(self, session: Session) -> None:
         """LogEntry hosszú üzenetének tesztelése."""
@@ -345,9 +345,9 @@ class TestLogEntry:
         session.commit()
 
         retrieved = session.get(LogEntry, log_entry.id)
-        assert retrieved.message == long_message
+        assert retrieved.message == long_message  # type: ignore[union-attr]
         # A repr metódus levághatja, de az eredeti üzenet teljes marad
-        assert len(retrieved.message) == 1000
+        assert len(retrieved.message) == 1000  # type: ignore[union-attr]
 
     def test_log_entry_exception_data(self, session: Session) -> None:
         """LogEntry kivétel adatokkal való tesztelése."""
@@ -363,9 +363,9 @@ class TestLogEntry:
         session.commit()
 
         retrieved = session.get(LogEntry, log_entry.id)
-        assert retrieved.exception_type == "RuntimeError"
-        assert retrieved.exception_message == "Something went wrong"
-        assert "File 'test.py'" in retrieved.traceback
+        assert retrieved.exception_type == "RuntimeError"  # type: ignore[union-attr]
+        assert retrieved.exception_message == "Something went wrong"  # type: ignore[union-attr]
+        assert "File 'test.py'" in retrieved.traceback  # type: ignore[operator, union-attr]
 
 
 class TestModelRelationships:

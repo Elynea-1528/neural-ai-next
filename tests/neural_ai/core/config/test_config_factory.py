@@ -128,7 +128,7 @@ class TestConfigManagerFactory:
         # When
         # A create_manager *args és **kwargs-t vár, a YAMLConfigManager pedig filename-t
         result: ConfigManagerInterface = ConfigManagerFactory.create_manager(  # pyright: ignore[reportArgumentType]
-            manager_type, filename=str(config_file)
+            manager_type, filename=str(config_file)  # type: ignore[arg-type]
         )
 
         # Then

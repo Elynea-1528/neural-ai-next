@@ -12,7 +12,7 @@ def test_processors_interfaces_init_imports() -> None:
     Assert: Nincs ImportError
     """
     # Act & Assert
-    import neural_ai.processors.interfaces  # noqa: F401
+    import neural_ai.processors.interfaces  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
 
 def test_processors_interfaces_init_is_package() -> None:

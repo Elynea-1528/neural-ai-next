@@ -19,9 +19,9 @@ class TestCoreBridgeInit:
         bridge = CoreBridge()
 
         # Assert
-        assert bridge._core is None
-        assert bridge._connected is False
-        assert bridge._strategy_service is None
+        assert bridge._core is None  # pyright: ignore[reportPrivateUsage]
+        assert bridge._connected is False  # pyright: ignore[reportPrivateUsage]
+        assert bridge._strategy_service is None  # pyright: ignore[reportPrivateUsage]
 
     def test_get_instance_returns_self(self) -> None:
         """Ellenőrzi, hogy a get_instance visszaadja a példányt."""
@@ -52,8 +52,8 @@ class TestCoreBridgeInitialize:
         bridge.initialize()
 
         # Assert
-        assert bridge._connected is True
-        assert bridge._core == mock_core
+        assert bridge._connected is True  # pyright: ignore[reportPrivateUsage]
+        assert bridge._core == mock_core  # pyright: ignore[reportPrivateUsage]
         mock_bootstrap.assert_called_once()
         mock_core.logger.info.assert_called()
 

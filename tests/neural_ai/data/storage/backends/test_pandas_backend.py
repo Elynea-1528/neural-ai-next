@@ -27,7 +27,7 @@ class TestPandasDataFrame:
     def test_import_pandas(self) -> None:
         """Teszteli a lazy import funkcionalitást."""
         wrapper = PandasDataFrame()
-        pd, fp = wrapper._import_pandas()
+        pd, fp = wrapper._import_pandas()  # pyright: ignore[reportPrivateUsage]
         assert pd is not None
         assert fp is not None
         assert wrapper.pandas is not None
@@ -50,12 +50,12 @@ class TestPandasBackend:
     """PandasBackend osztály tesztjei."""
 
     @pytest.fixture
-    def logger(self, mocker):
+    def logger(self, mocker):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Visszaad egy mock logger-t."""
-        return mocker.MagicMock()
+        return mocker.MagicMock()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
     @pytest.fixture
-    def backend(self, logger) -> PandasBackend:
+    def backend(self, logger) -> PandasBackend:  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Visszaad egy PandasBackend példányt."""
         return PandasBackend(logger)
 
@@ -68,10 +68,10 @@ class TestPandasBackend:
         )
 
     @pytest.fixture
-    def temp_dir(self) -> Path:
+    def temp_dir(self) -> Path:  # type: ignore[misc]
         """Visszaad egy ideiglenes könyvtárat."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
+            yield Path(tmpdir)  # pyright: ignore[reportReturnType]
 
     def test_init(self, backend: PandasBackend) -> None:
         """Teszteli a PandasBackend inicializálását."""
@@ -83,7 +83,7 @@ class TestPandasBackend:
     def test_ensure_initialized(self, backend: PandasBackend) -> None:
         """Teszteli a _ensure_initialized metódust."""
         assert backend.is_initialized is False
-        backend._ensure_initialized()
+        backend._ensure_initialized()  # pyright: ignore[reportPrivateUsage]
         assert backend.is_initialized is True
 
     def test_write_basic(
@@ -94,7 +94,7 @@ class TestPandasBackend:
         backend.write(sample_dataframe, str(path))
 
         assert path.exists()
-        backend._ensure_initialized()
+        backend._ensure_initialized()  # pyright: ignore[reportPrivateUsage]
         assert backend.pandas_wrapper.fp.ParquetFile(str(path)) is not None
 
     def test_write_with_compression(
@@ -102,7 +102,7 @@ class TestPandasBackend:
     ) -> None:
         """Teszteli a write műveletet tömörítéssel."""
         path = temp_dir / "test_compressed.parquet"
-        backend.write(sample_dataframe, str(path), compression="gzip")
+        backend.write(sample_dataframe, str(path), compression="gzip")  # type: ignore[arg-type]
 
         assert path.exists()
 
@@ -135,7 +135,7 @@ class TestPandasBackend:
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
 
-        result = backend.read(str(path), columns=["id", "name"])
+        result = backend.read(str(path), columns=["id", "name"])  # type: ignore[arg-type]
         assert len(result.columns) == 2
         assert "age" not in result.columns
 
@@ -152,7 +152,7 @@ class TestPandasBackend:
         path = temp_dir / "test.parquet"
         backend.write(sample_dataframe, str(path))
 
-        result = backend.read(str(path), chunk_size=2)
+        result = backend.read(str(path), chunk_size=2)  # type: ignore[arg-type]
         assert len(result) == 3
 
     def test_append_to_new_file(
@@ -192,7 +192,7 @@ class TestPandasBackend:
         pd = backend.pandas_wrapper.pd
         new_data = pd.DataFrame({"id": [4], "name": ["David"], "age": [28]})
 
-        backend.append(new_data, str(path), schema_validation=True)
+        backend.append(new_data, str(path), schema_validation=True)  # type: ignore[arg-type]
         result = backend.read(str(path))
         assert len(result) == 4
 
@@ -214,7 +214,7 @@ class TestPandasBackend:
         )
 
         with pytest.raises(ValueError, match="sémája nem kompatibilis"):
-            backend.append(new_data, str(path), schema_validation=True)
+            backend.append(new_data, str(path), schema_validation=True)  # type: ignore[arg-type]
 
     def test_append_invalid_data(self, backend: PandasBackend, temp_dir: Path) -> None:
         """Teszteli a hozzáfűzést érvénytelen adatokkal."""
@@ -267,7 +267,7 @@ class TestPandasBackend:
     ) -> None:
         """Teszteli a particionált írást."""
         path = temp_dir / "partitioned.parquet"
-        backend.write(sample_dataframe, str(path), partition_by=["age"])
+        backend.write(sample_dataframe, str(path), partition_by=["age"])  # type: ignore[arg-type]
 
         # A particionált írás létrehoz egy könyvtárat
         assert path.exists() or path.parent.exists()
@@ -277,7 +277,7 @@ class TestPandasBackend:
     ) -> None:
         """Teszteli az írást index mentéssel."""
         path = temp_dir / "test_index.parquet"
-        backend.write(sample_dataframe, str(path), index=True)
+        backend.write(sample_dataframe, str(path), index=True)  # type: ignore[arg-type]
 
         assert path.exists()
 
@@ -290,7 +290,7 @@ class TestPandasBackend:
 
         # Szűrők a fastparquet formátumban
         filters = [("age", "=", 25)]
-        result = backend.read(str(path), filters=filters)
+        result = backend.read(str(path), filters=filters)  # type: ignore[arg-type]
         assert len(result) >= 0  # Legalább 0 sor, attól függ a szűrés
 
     def test_validate_schema_valid(self, backend: PandasBackend, sample_dataframe: Any) -> None:
@@ -323,4 +323,4 @@ class TestPandasBackend:
     def test_validate_schema_exception(self, backend: PandasBackend) -> None:
         """Teszteli a _validate_schema metódust kivétel esetén."""
         # Olyan objektumok, amelyeknek nincs columns attribútuma
-        assert backend.validate_schema("invalid", "invalid") is False
+        assert backend.validate_schema("invalid", "invalid") is False  # type: ignore[arg-type, arg-type]

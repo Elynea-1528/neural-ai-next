@@ -20,46 +20,46 @@ class MockLogger(LoggerInterface):
         self, name: str, config: Any | None = None, **kwargs: Mapping[str, AnyStr]
     ) -> None:
         """Inicializálás."""
-        super().__init__(name, config, **kwargs)
+        super().__init__(name, config, **kwargs)  # type: ignore[safe-super, arg-type]
         self.name = name
         self.config = config
-        self.kwargs = kwargs
+        self.kwargs = kwargs  # type: ignore[var-annotated]
         self.level = 20
         self.messages: list[dict[str, Any]] = []
 
-    def debug(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+    def debug(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:  # type: ignore[override]
         """Debug üzenet logolása."""
-        super().debug(message, **kwargs)
+        super().debug(message, **kwargs)  # type: ignore[safe-super]
         self.messages.append({"level": "debug", "message": message, **kwargs})
 
-    def info(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+    def info(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:  # type: ignore[override]
         """Info üzenet logolása."""
-        super().info(message, **kwargs)
+        super().info(message, **kwargs)  # type: ignore[safe-super]
         self.messages.append({"level": "info", "message": message, **kwargs})
 
-    def warning(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+    def warning(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:  # type: ignore[override]
         """Warning üzenet logolása."""
-        super().warning(message, **kwargs)
+        super().warning(message, **kwargs)  # type: ignore[safe-super]
         self.messages.append({"level": "warning", "message": message, **kwargs})
 
-    def error(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+    def error(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:  # type: ignore[override]
         """Error üzenet logolása."""
-        super().error(message, **kwargs)
+        super().error(message, **kwargs)  # type: ignore[safe-super]
         self.messages.append({"level": "error", "message": message, **kwargs})
 
-    def critical(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
+    def critical(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:  # type: ignore[override]
         """Critical üzenet logolása."""
-        super().critical(message, **kwargs)
+        super().critical(message, **kwargs)  # type: ignore[safe-super]
         self.messages.append({"level": "critical", "message": message, **kwargs})
 
     def set_level(self, level: int) -> None:
         """Log szint beállítása."""
-        super().set_level(level)
+        super().set_level(level)  # type: ignore[safe-super]
         self.level = level
 
     def get_level(self) -> int:
         """Log szint lekérdezése."""
-        super().get_level()
+        super().get_level()  # type: ignore[safe-super]
         return self.level
 
 

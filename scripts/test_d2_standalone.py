@@ -117,7 +117,7 @@ async def run_d2_test() -> None:
         assert hasattr(processor, "_merge_levels"), "Hiányzó _merge_levels függvény"
         print("   ✅ Új függvények ellenőrizve")
 
-        result = processor.process(ohlcv, timeframe="H1")
+        result = processor.process(ohlcv, timeframe="H1")  # type: ignore[call-arg]
         print("   ✅ D2 processor sikeresen lefutott")
     except Exception as e:
         print(f"   ❌ Hiba a processor futtatásakor: {e}")

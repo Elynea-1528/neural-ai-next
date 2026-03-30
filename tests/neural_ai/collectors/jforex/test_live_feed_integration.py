@@ -70,7 +70,7 @@ class TestJForexLiveFeedIntegration:
             "volume": 1000,
         }
 
-        await live_feed._process_tick_data(tick_data)
+        await live_feed._process_tick_data(tick_data)  # pyright: ignore[reportPrivateUsage, reportArgumentType]
 
         # Ellenőrizzük, hogy az esemény publikálva lett
         mock_event_bus.publish.assert_called_once()
@@ -101,13 +101,13 @@ class TestJForexLiveFeedIntegration:
                 return invalid_json
 
             mock_socket.recv_string = mock_recv
-            live_feed._running = True
+            live_feed._running = True  # pyright: ignore[reportPrivateUsage]
 
             # Egy iterációt futtatunk
-            task = asyncio.create_task(live_feed._listen_loop())
+            task = asyncio.create_task(live_feed._listen_loop())  # pyright: ignore[reportPrivateUsage]
             await asyncio.sleep(0.1)
 
-            live_feed._running = False
+            live_feed._running = False  # pyright: ignore[reportPrivateUsage]
             task.cancel()
             try:
                 await task
@@ -124,7 +124,7 @@ class TestJForexLiveFeedIntegration:
         """Teszteli, hogy hiányzó kötelező mezők esetén error log történik."""
         incomplete_data = {"timestamp": 1735729200000, "bid": 1.10000}
 
-        await live_feed._process_tick_data(incomplete_data)
+        await live_feed._process_tick_data(incomplete_data)  # type: ignore[arg-type]
 
         # Ellenőrizzük, hogy error log lett írva
         mock_logger.error.assert_called()
@@ -143,7 +143,7 @@ class TestJForexLiveFeedIntegration:
             "ask": 1.10010,
         }
 
-        await live_feed._process_tick_data(bad_data)
+        await live_feed._process_tick_data(bad_data)  # pyright: ignore[reportPrivateUsage, reportArgumentType]
 
         # Ellenőrizzük, hogy error log lett írva (Pydantic validáció hiba)
         mock_logger.error.assert_called()
@@ -173,7 +173,7 @@ class TestJForexLiveFeedIntegration:
         ]
 
         for tick in ticks:
-            await live_feed._process_tick_data(tick)
+            await live_feed._process_tick_data(tick)  # pyright: ignore[reportPrivateUsage, reportArgumentType]
 
         # Ellenőrizzük, hogy mindkét esemény publikálva lett
         assert mock_event_bus.publish.call_count == 2
@@ -248,16 +248,16 @@ class TestJForexLiveFeedIntegration:
         with patch.object(live_feed, "_socket") as mock_socket:
 
             async def mock_recv():
-                raise zmq.ZMQError("Socket error")
+                raise zmq.ZMQError("Socket error")  # type: ignore[arg-type]
 
             mock_socket.recv_string = mock_recv
-            live_feed._running = True
+            live_feed._running = True  # pyright: ignore[reportPrivateUsage]
 
             # Egy iterációt futtatunk
-            task = asyncio.create_task(live_feed._listen_loop())
+            task = asyncio.create_task(live_feed._listen_loop())  # pyright: ignore[reportPrivateUsage]
             await asyncio.sleep(0.1)
 
-            live_feed._running = False
+            live_feed._running = False  # pyright: ignore[reportPrivateUsage]
             task.cancel()
             try:
                 await task
@@ -280,7 +280,7 @@ class TestJForexLiveFeedIntegration:
             "volume": 1000,
         }
 
-        await live_feed._process_tick_data(tick_data)
+        await live_feed._process_tick_data(tick_data)  # pyright: ignore[reportPrivateUsage, reportArgumentType]
 
         # Ellenőrizzük, hogy a topic 'market_data'
         mock_event_bus.publish.assert_called_once()

@@ -56,7 +56,7 @@ class TestD2StandaloneIntegration:
             sys.path.insert(0, str(project_root))
 
         # Act & Assert
-        from scripts import test_d2_standalone  # noqa: F401
+        from scripts import test_d2_standalone  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
     def test_d2_standalone_execution_dry_run(self, project_root: Path) -> None:
         """Teszt: A test_d2_standalone.py script futtatható (dry run).
@@ -66,7 +66,7 @@ class TestD2StandaloneIntegration:
         Assert: A script nem dob hibát az importáláskor
         """
         # Arrange
-        project_root / "scripts" / "test_d2_standalone.py"
+        project_root / "scripts" / "test_d2_standalone.py"  # pyright: ignore[reportUnusedExpression]
         python_executable = sys.executable
 
         # Act

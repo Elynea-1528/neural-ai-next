@@ -13,7 +13,7 @@ def test_resampler_service_init_imports() -> None:
     Assert: Nincs ImportError
     """
     # Act & Assert
-    import neural_ai.processors.resampler_service  # noqa: F401
+    import neural_ai.processors.resampler_service  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
 
 def test_resampler_service_init_exports_interface() -> None:

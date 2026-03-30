@@ -78,16 +78,16 @@ class TestConfigModuleExports:
 class TestConfigFactoryIntegration:
     """Integrációs tesztek a config factory használatához."""
 
-    def test_factory_creates_yaml_manager(self, tmp_path) -> None:
+    def test_factory_creates_yaml_manager(self, tmp_path) -> None:  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Ellenőrzi, hogy a factory létrehoz egy YAML config manager példányt."""
         # Given
         from neural_ai.core.config import ConfigManagerFactory
 
-        config_file = tmp_path / "test_config.yaml"
-        config_file.write_text("test_key: test_value", encoding="utf-8")
+        config_file = tmp_path / "test_config.yaml"  # pyright: ignore[reportUnknownVariableType]
+        config_file.write_text("test_key: test_value", encoding="utf-8")  # pyright: ignore[reportUnknownMemberType]
 
         # When
-        config = ConfigManagerFactory.get_manager(str(config_file))
+        config = ConfigManagerFactory.get_manager(str(config_file))  # pyright: ignore[reportUnknownArgumentType]
 
         # Then
         assert config is not None

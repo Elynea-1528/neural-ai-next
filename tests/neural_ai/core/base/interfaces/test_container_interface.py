@@ -107,29 +107,29 @@ class TestDIContainerInterface:
 
             def register_instance(self, interface: Any, instance: Any) -> None:
                 # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
-                super().register_instance(interface, instance)
+                super().register_instance(interface, instance)  # type: ignore[safe-super]
                 self._instances[interface] = instance
 
             def register_factory(self, interface: Any, factory: Any) -> None:
-                super().register_factory(interface, factory)
+                super().register_factory(interface, factory)  # type: ignore[safe-super]
                 self._factories[interface] = factory
 
             def resolve(self, interface: Any) -> Any | None:
-                super().resolve(interface)
+                super().resolve(interface)  # type: ignore[safe-super]
                 return self._instances.get(interface)
 
             def register_lazy(self, component_name: str, factory_func: Any) -> None:
-                super().register_lazy(component_name, factory_func)
+                super().register_lazy(component_name, factory_func)  # type: ignore[safe-super]
                 self._lazy_components[component_name] = factory_func
 
             def get(self, component_name: str) -> object:
-                super().get(component_name)
+                super().get(component_name)  # type: ignore[safe-super]
                 if component_name not in self._lazy_components:
                     raise ValueError(f"Component {component_name} not found")
                 return self._lazy_components[component_name]()
 
             def clear(self) -> None:
-                super().clear()
+                super().clear()  # type: ignore[safe-super]
                 self._instances.clear()
                 self._factories.clear()
                 self._lazy_components.clear()
@@ -156,7 +156,7 @@ class TestDIContainerInterface:
 
             def register_factory(self, interface: Any, factory: Any) -> None:
                 # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
-                super().register_factory(interface, factory)
+                super().register_factory(interface, factory)  # type: ignore[safe-super]
                 self._factories[interface] = factory
 
             def resolve(self, interface: Any) -> Any | None:
@@ -203,7 +203,7 @@ class TestDIContainerInterface:
 
             def resolve(self, interface: Any) -> Any | None:
                 # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
-                super().resolve(interface)
+                super().resolve(interface)  # type: ignore[safe-super]
                 return self._instances.get(interface)
 
             def register_lazy(self, component_name: str, factory_func: Any) -> None:
@@ -251,7 +251,7 @@ class TestDIContainerInterface:
 
             def register_lazy(self, component_name: str, factory_func: Any) -> None:
                 # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
-                super().register_lazy(component_name, factory_func)
+                super().register_lazy(component_name, factory_func)  # type: ignore[safe-super]
                 self._lazy_components[component_name] = factory_func
 
             def get(self, component_name: str) -> object:
@@ -299,7 +299,7 @@ class TestDIContainerInterface:
 
             def get(self, component_name: str) -> object:
                 # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
-                super().get(component_name)
+                super().get(component_name)  # type: ignore[safe-super]
                 if component_name not in self._lazy_components:
                     raise ValueError(f"Component {component_name} not found")
                 return self._lazy_components[component_name]()
@@ -349,7 +349,7 @@ class TestDIContainerInterface:
 
             def clear(self) -> None:
                 # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
-                super().clear()
+                super().clear()  # type: ignore[safe-super]
                 self._instances.clear()
                 self._factories.clear()
                 self._lazy_components.clear()
@@ -451,7 +451,7 @@ class TestLazyComponentInterface:
 
             def get(self) -> object:
                 # Hívjuk meg a szülőosztály metódusát, hogy a pass utasítás lefusson
-                super().get()
+                super().get()  # type: ignore[safe-super]
                 if not self._loaded:
                     self._value = "loaded_value"
                     self._loaded = True

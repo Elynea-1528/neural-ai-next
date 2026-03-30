@@ -56,7 +56,7 @@ class TestDeployJForexIntegration:
             sys.path.insert(0, str(project_root))
 
         # Act & Assert
-        from scripts import deploy_jforex  # noqa: F401
+        from scripts import deploy_jforex  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
     def test_deploy_jforex_execution_dry_run(self, project_root: Path) -> None:
         """Teszt: A deploy_jforex.py script futtatható (dry run).
@@ -66,7 +66,7 @@ class TestDeployJForexIntegration:
         Assert: A script nem dob hibát az importáláskor
         """
         # Arrange
-        project_root / "scripts" / "deploy_jforex.py"
+        project_root / "scripts" / "deploy_jforex.py"  # pyright: ignore[reportUnusedExpression]
         python_executable = sys.executable
 
         # Act

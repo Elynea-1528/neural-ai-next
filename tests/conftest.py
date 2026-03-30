@@ -60,7 +60,7 @@ def _clear_mock_state() -> None:
     befolyásolja a következő teszteket.
 
     """
-    from unittest.mock import _patch, patch
+    from unittest.mock import _patch, patch  # pyright: ignore[reportPrivateUsage]
 
     # 1. Stopoljuk az összes aktív patch-et
     try:
@@ -71,7 +71,7 @@ def _clear_mock_state() -> None:
     # 2. Töröljük a _patch._active_patches listát
     try:
         if hasattr(_patch, '_active_patches'):
-            _patch._active_patches.clear()
+            _patch._active_patches.clear()  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
     except Exception:
         pass
 
@@ -112,7 +112,7 @@ def _clear_all_singletons() -> None:
     try:
         from neural_ai.core.base.implementations.singleton import SingletonMeta
         if hasattr(SingletonMeta, '_instances'):
-            SingletonMeta._instances.clear()
+            SingletonMeta._instances.clear()  # pyright: ignore[reportPrivateUsage]
     except (ImportError, AttributeError):
         pass
 
@@ -130,7 +130,7 @@ def _clear_all_singletons() -> None:
     try:
         from neural_ai.core.logger.factory import LoggerFactory
         if hasattr(LoggerFactory, '_instances'):
-            LoggerFactory._instances.clear()
+            LoggerFactory._instances.clear()  # pyright: ignore[reportPrivateUsage]
     except (ImportError, AttributeError):
         pass
 
@@ -188,17 +188,17 @@ def _clear_di_container() -> None:
 
         # Singleton példány törlése
         if hasattr(DIContainer, '_instance'):
-            DIContainer._instance = None
+            DIContainer._instance = None  # pyright: ignore[reportPrivateUsage]
         if hasattr(DIContainer, '_instances'):
-            DIContainer._instances.clear()
+            DIContainer._instances.clear()  # pyright: ignore[reportPrivateUsage]
 
         # Ha van aktív példány, annak állapotát is töröljük
         try:
             container = DIContainer()
             if hasattr(container, '_services'):
-                container._services.clear()
+                container._services.clear()  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
             if hasattr(container, '_factories'):
-                container._factories.clear()
+                container._factories.clear()  # pyright: ignore[reportPrivateUsage]
         except Exception:
             pass
 

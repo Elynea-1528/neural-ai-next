@@ -72,7 +72,7 @@ class TestJForexLiveFeed:
 
             # Ellenőrizzük, hogy futási állapot beállításra került
             assert live_feed.is_running() is True
-            assert live_feed._listen_task is not None
+            assert live_feed._listen_task is not None  # pyright: ignore[reportPrivateUsage]
 
             # Naplózás ellenőrzése
             mock_logger.info.assert_called()
@@ -82,7 +82,7 @@ class TestJForexLiveFeed:
         self, live_feed: JForexLiveFeed, mock_logger: MagicMock
     ) -> None:
         """Teszteli, hogy a start metódus figyelmeztet, ha már fut a feed."""
-        live_feed._running = True
+        live_feed._running = True  # pyright: ignore[reportPrivateUsage]
 
         await live_feed.start()
 
@@ -101,9 +101,9 @@ class TestJForexLiveFeed:
 
         # Ellenőrizzük, hogy leállt
         assert live_feed.is_running() is False
-        assert live_feed._listen_task is None
-        assert live_feed._socket is None
-        assert live_feed._context is None
+        assert live_feed._listen_task is None  # pyright: ignore[reportPrivateUsage]
+        assert live_feed._socket is None  # pyright: ignore[reportPrivateUsage]
+        assert live_feed._context is None  # pyright: ignore[reportPrivateUsage]
 
         # Naplózás ellenőrzése
         mock_logger.info.assert_called()
@@ -113,7 +113,7 @@ class TestJForexLiveFeed:
         self, live_feed: JForexLiveFeed, mock_logger: MagicMock
     ) -> None:
         """Teszteli, hogy a stop metódus nem csinál semmit, ha nem fut a feed."""
-        live_feed._running = False
+        live_feed._running = False  # pyright: ignore[reportPrivateUsage]
 
         await live_feed.stop()
 
@@ -134,7 +134,7 @@ class TestJForexLiveFeed:
             "volume": 1000,
         }
 
-        await live_feed._process_tick_data(tick_data)
+        await live_feed._process_tick_data(tick_data)  # pyright: ignore[reportPrivateUsage, reportArgumentType]
 
         # Ellenőrizzük, hogy az esemény publikálva lett
         mock_event_bus.publish.assert_called_once()
@@ -164,7 +164,7 @@ class TestJForexLiveFeed:
             "ask": 1.10010,
         }
 
-        await live_feed._process_tick_data(invalid_data)
+        await live_feed._process_tick_data(invalid_data)  # pyright: ignore[reportPrivateUsage, reportArgumentType]
 
         # Ellenőrizzük, hogy hiba lett naplózva
         mock_logger.error.assert_called_once()
@@ -201,8 +201,8 @@ class TestJForexLiveFeed:
             mock_socket.recv_string = mock_recv
 
             # Indítjuk a listen loopot
-            live_feed._running = True
-            task = asyncio.create_task(live_feed._listen_loop())
+            live_feed._running = True  # pyright: ignore[reportPrivateUsage]
+            task = asyncio.create_task(live_feed._listen_loop())  # pyright: ignore[reportPrivateUsage]
 
             # Várunk, hogy a loop feldolgozza az üzenetet, de max 1 másodpercig
             try:
@@ -210,7 +210,7 @@ class TestJForexLiveFeed:
             except (TimeoutError, asyncio.CancelledError):
                 pass
             finally:
-                live_feed._running = False
+                live_feed._running = False  # pyright: ignore[reportPrivateUsage]
                 if not task.done():
                     task.cancel()
 
@@ -223,11 +223,11 @@ class TestJForexLiveFeed:
         assert live_feed.is_running() is False
 
         # Futási állapot beállítása
-        live_feed._running = True
+        live_feed._running = True  # pyright: ignore[reportPrivateUsage]
         assert live_feed.is_running() is True
 
         # Visszaállítás
-        live_feed._running = False
+        live_feed._running = False  # pyright: ignore[reportPrivateUsage]
         assert live_feed.is_running() is False
 
     @pytest.fixture
@@ -260,7 +260,7 @@ class TestJForexLiveFeed:
         """Mock config létrehozása config adatokkal."""
         config = MagicMock()
 
-        def mock_get(section, key=None, **kwargs):
+        def mock_get(section, key=None, **kwargs):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
             if section == "collectors" and key == "jforex_live":
                 return {
                     "host": "127.0.0.1",
@@ -308,15 +308,15 @@ class TestJForexLiveFeed:
     ) -> None:
         """Teszteli, hogy listen loop kezeli, ha socket None."""
         # Socket None-ra állítása
-        live_feed._socket = None
-        live_feed._running = True
+        live_feed._socket = None  # pyright: ignore[reportPrivateUsage]
+        live_feed._running = True  # pyright: ignore[reportPrivateUsage]
 
         # Rövid időre futtatjuk a loop-ot
-        task = asyncio.create_task(live_feed._listen_loop())
+        task = asyncio.create_task(live_feed._listen_loop())  # pyright: ignore[reportPrivateUsage]
         await asyncio.sleep(0.2)  # Várunk egy kicsit, hogy lefusson a sleep
 
         # Leállítjuk
-        live_feed._running = False
+        live_feed._running = False  # pyright: ignore[reportPrivateUsage]
         task.cancel()
         try:
             await task

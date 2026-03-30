@@ -19,12 +19,12 @@ class TestLiveOpsService:
 
         service = LiveOpsService(logger=logger, config=config, core_components=core_components)
 
-        assert service._logger is logger
-        assert service._config == config
-        assert service._core_components is core_components
-        assert service._positions == {}
-        assert service._orders == {}
-        assert service._market_subscribers == {}
+        assert service._logger is logger  # pyright: ignore[reportPrivateUsage]
+        assert service._config == config  # pyright: ignore[reportPrivateUsage]
+        assert service._core_components is core_components  # pyright: ignore[reportPrivateUsage]
+        assert service._positions == {}  # pyright: ignore[reportPrivateUsage]
+        assert service._orders == {}  # pyright: ignore[reportPrivateUsage]
+        assert service._market_subscribers == {}  # pyright: ignore[reportPrivateUsage]
 
     def test_get_active_positions_empty(self) -> None:
         """Teszt: Aktív pozíciók lekérdezése üres állapotban."""
@@ -37,7 +37,7 @@ class TestLiveOpsService:
     def test_get_active_positions_with_active(self) -> None:
         """Teszt: Aktív pozíciók lekérdezése aktív pozíciókkal."""
         service = LiveOpsService(logger=MagicMock(), config={}, core_components=MagicMock())
-        service._positions = {
+        service._positions = {  # pyright: ignore[reportPrivateUsage]
             "pos1": {
                 "symbol": "EURUSD",
                 "type": "BUY",
@@ -93,11 +93,11 @@ class TestLiveOpsService:
         order_id = service.place_order(symbol="EURUSD", order_type="BUY", volume=1.0)
 
         assert order_id == "order_1"
-        assert order_id in service._orders
-        assert service._orders[order_id]["symbol"] == "EURUSD"
-        assert service._orders[order_id]["type"] == "BUY"
-        assert service._orders[order_id]["volume"] == 1.0
-        assert service._orders[order_id]["status"] == "pending"
+        assert order_id in service._orders  # pyright: ignore[reportPrivateUsage]
+        assert service._orders[order_id]["symbol"] == "EURUSD"  # pyright: ignore[reportPrivateUsage]
+        assert service._orders[order_id]["type"] == "BUY"  # pyright: ignore[reportPrivateUsage]
+        assert service._orders[order_id]["volume"] == 1.0  # pyright: ignore[reportPrivateUsage]
+        assert service._orders[order_id]["status"] == "pending"  # pyright: ignore[reportPrivateUsage]
 
     def test_place_order_with_sl_tp(self) -> None:
         """Teszt: Rendelés leadása SL/TP szintekkel."""
@@ -113,9 +113,9 @@ class TestLiveOpsService:
         )
 
         assert order_id == "order_1"
-        assert service._orders[order_id]["price"] == 1.0850
-        assert service._orders[order_id]["stop_loss"] == 1.0800
-        assert service._orders[order_id]["take_profit"] == 1.0900
+        assert service._orders[order_id]["price"] == 1.0850  # pyright: ignore[reportPrivateUsage]
+        assert service._orders[order_id]["stop_loss"] == 1.0800  # pyright: ignore[reportPrivateUsage]
+        assert service._orders[order_id]["take_profit"] == 1.0900  # pyright: ignore[reportPrivateUsage]
 
     def test_modify_order_success(self) -> None:
         """Teszt: Rendelés sikeres módosítása."""
@@ -125,9 +125,9 @@ class TestLiveOpsService:
         result = service.modify_order(order_id=order_id, price=1.0860, stop_loss=1.0810)
 
         assert result is True
-        assert service._orders[order_id]["price"] == 1.0860
-        assert service._orders[order_id]["stop_loss"] == 1.0810
-        assert "modified_at" in service._orders[order_id]
+        assert service._orders[order_id]["price"] == 1.0860  # pyright: ignore[reportPrivateUsage]
+        assert service._orders[order_id]["stop_loss"] == 1.0810  # pyright: ignore[reportPrivateUsage]
+        assert "modified_at" in service._orders[order_id]  # pyright: ignore[reportPrivateUsage]
 
     def test_modify_order_unknown(self) -> None:
         """Teszt: Ismeretlen rendelés módosítása hibát dob."""
@@ -144,8 +144,8 @@ class TestLiveOpsService:
         result = service.cancel_order(order_id=order_id)
 
         assert result is True
-        assert service._orders[order_id]["status"] == "cancelled"
-        assert "cancelled_at" in service._orders[order_id]
+        assert service._orders[order_id]["status"] == "cancelled"  # pyright: ignore[reportPrivateUsage]
+        assert "cancelled_at" in service._orders[order_id]  # pyright: ignore[reportPrivateUsage]
 
     def test_cancel_order_unknown(self) -> None:
         """Teszt: Ismeretlen rendelés visszavonása hibát dob."""
@@ -157,7 +157,7 @@ class TestLiveOpsService:
     def test_close_position_success(self) -> None:
         """Teszt: Pozíció sikeres lezárása."""
         service = LiveOpsService(logger=MagicMock(), config={}, core_components=MagicMock())
-        service._positions = {
+        service._positions = {  # pyright: ignore[reportPrivateUsage]
             "pos1": {
                 "symbol": "EURUSD",
                 "type": "BUY",
@@ -170,8 +170,8 @@ class TestLiveOpsService:
         result = service.close_position(position_id="pos1")
 
         assert result is True
-        assert service._positions["pos1"]["status"] == "closed"
-        assert "closed_at" in service._positions["pos1"]
+        assert service._positions["pos1"]["status"] == "closed"  # pyright: ignore[reportPrivateUsage]
+        assert "closed_at" in service._positions["pos1"]  # pyright: ignore[reportPrivateUsage]
 
     def test_close_position_unknown(self) -> None:
         """Teszt: Ismeretlen pozíció lezárása hibát dob."""
@@ -202,8 +202,8 @@ class TestLiveOpsService:
 
         service.subscribe_to_market_updates(symbol="EURUSD", callback=callback)
 
-        assert "EURUSD" in service._market_subscribers
-        assert callback in service._market_subscribers["EURUSD"]
+        assert "EURUSD" in service._market_subscribers  # pyright: ignore[reportPrivateUsage]
+        assert callback in service._market_subscribers["EURUSD"]  # pyright: ignore[reportPrivateUsage]
 
     def test_subscribe_to_market_updates_multiple(self) -> None:
         """Teszt: Több callback feliratkozása ugyanarra a szimbólumra."""
@@ -214,9 +214,9 @@ class TestLiveOpsService:
         service.subscribe_to_market_updates(symbol="EURUSD", callback=callback1)
         service.subscribe_to_market_updates(symbol="EURUSD", callback=callback2)
 
-        assert len(service._market_subscribers["EURUSD"]) == 2
-        assert callback1 in service._market_subscribers["EURUSD"]
-        assert callback2 in service._market_subscribers["EURUSD"]
+        assert len(service._market_subscribers["EURUSD"]) == 2  # pyright: ignore[reportPrivateUsage]
+        assert callback1 in service._market_subscribers["EURUSD"]  # pyright: ignore[reportPrivateUsage]
+        assert callback2 in service._market_subscribers["EURUSD"]  # pyright: ignore[reportPrivateUsage]
 
     def test_get_performance_summary(self) -> None:
         """Teszt: Teljesítmény összegzés lekérdezése."""

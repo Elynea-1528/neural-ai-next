@@ -21,24 +21,24 @@ class TestNavigationServiceInit:
         """Ellenőrzi, hogy a NavigationService létrehozható."""
         # Arrange
         mock_logger = MagicMock()
-        mock_config = {}
+        mock_config: dict[str, str] = {}
         mock_core = MagicMock()
 
         # Act
         service = NavigationService(  # pyright: ignore[reportUnknownArgumentType]
             logger=mock_logger,
-            config=mock_config,
+            config=mock_config,  # type: ignore[arg-type]
             core_components=mock_core,
         )
 
         # Assert
-        assert service._logger == mock_logger
-        assert service._config == mock_config
-        assert service._core_components == mock_core
-        assert service._pages == {}
-        assert service._history == []
-        assert service._current_page is None
-        assert service._subscribers == []
+        assert service._logger == mock_logger  # pyright: ignore[reportPrivateUsage]
+        assert service._config == mock_config  # pyright: ignore[reportPrivateUsage]
+        assert service._core_components == mock_core  # pyright: ignore[reportPrivateUsage]
+        assert service._pages == {}  # pyright: ignore[reportPrivateUsage]
+        assert service._history == []  # pyright: ignore[reportPrivateUsage]
+        assert service._current_page is None  # pyright: ignore[reportPrivateUsage]
+        assert service._subscribers == []  # pyright: ignore[reportPrivateUsage]
 
 
 class TestNavigationServiceRegisterPage:
@@ -58,8 +58,8 @@ class TestNavigationServiceRegisterPage:
         service.register_page("home", mock_page)
 
         # Assert
-        assert "home" in service._pages
-        assert service._pages["home"] == mock_page
+        assert "home" in service._pages  # pyright: ignore[reportPrivateUsage]
+        assert service._pages["home"] == mock_page  # pyright: ignore[reportPrivateUsage]
 
     def test_register_first_page_sets_current(self) -> None:
         """Ellenőrzi, hogy az első oldal automatikusan aktuális lesz."""
@@ -75,8 +75,8 @@ class TestNavigationServiceRegisterPage:
         service.register_page("home", mock_page)
 
         # Assert
-        assert service._current_page == "home"
-        assert service._history == ["home"]
+        assert service._current_page == "home"  # pyright: ignore[reportPrivateUsage]
+        assert service._history == ["home"]  # pyright: ignore[reportPrivateUsage]
 
 
 class TestNavigationServiceNavigateTo:
@@ -150,8 +150,8 @@ class TestNavigationServiceNavigateTo:
         service.navigate_to("page2")
 
         # Assert
-        assert service._history == ["page1", "page2"]
-        assert service._current_page == "page2"
+        assert service._history == ["page1", "page2"]  # pyright: ignore[reportPrivateUsage]
+        assert service._current_page == "page2"  # pyright: ignore[reportPrivateUsage]
 
     def test_navigate_to_notifies_subscribers(self) -> None:
         """Ellenőrzi, hogy a navigáció értesíti a feliratkozókat."""
@@ -194,8 +194,8 @@ class TestNavigationServiceGoBack:
         service.go_back()
 
         # Assert
-        assert service._current_page == "page1"
-        assert service._history == ["page1"]
+        assert service._current_page == "page1"  # pyright: ignore[reportPrivateUsage]
+        assert service._history == ["page1"]  # pyright: ignore[reportPrivateUsage]
 
     def test_go_back_navigates_to_previous_page(self) -> None:
         """Ellenőrzi, hogy a go_back visszanavigál az előző oldalra."""
@@ -215,8 +215,8 @@ class TestNavigationServiceGoBack:
         service.go_back()
 
         # Assert
-        assert service._current_page == "page1"
-        assert service._history == ["page1"]
+        assert service._current_page == "page1"  # pyright: ignore[reportPrivateUsage]
+        assert service._history == ["page1"]  # pyright: ignore[reportPrivateUsage]
         mock_page1.on_navigate_to.assert_called()
 
     def test_go_back_notifies_subscribers(self) -> None:
@@ -301,7 +301,7 @@ class TestNavigationServiceGetPageHistory:
 
         # Assert
         assert history == ["page1", "page2"]
-        assert history is not service._history
+        assert history is not service._history  # pyright: ignore[reportPrivateUsage]
 
 
 class TestNavigationServiceSubscribe:
@@ -321,7 +321,7 @@ class TestNavigationServiceSubscribe:
         service.subscribe(mock_callback)
 
         # Assert
-        assert mock_callback in service._subscribers
+        assert mock_callback in service._subscribers  # pyright: ignore[reportPrivateUsage]
 
     def test_subscribe_callback_handles_exception(self) -> None:
         """Ellenőrzi, hogy a callback kivétel esetén sem állítja le a rendszert."""

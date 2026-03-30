@@ -25,7 +25,7 @@ class TestDashboardServiceInit:
         """Ellenőrzi, hogy a DashboardService létrehozható."""
         # Arrange
         mock_logger = MagicMock()
-        mock_config = {}
+        mock_config: dict[str, str] = {}
         mock_core = MagicMock()
 
         # Act
@@ -36,11 +36,11 @@ class TestDashboardServiceInit:
         )
 
         # Assert
-        assert service._logger == mock_logger
-        assert service._config == mock_config
-        assert service._core_components == mock_core
-        assert service._cached_data == {}
-        assert service._subscribers == []
+        assert service._logger == mock_logger  # pyright: ignore[reportPrivateUsage]
+        assert service._config == mock_config  # pyright: ignore[reportPrivateUsage]
+        assert service._core_components == mock_core  # pyright: ignore[reportPrivateUsage]
+        assert service._cached_data == {}  # pyright: ignore[reportPrivateUsage]
+        assert service._subscribers == []  # pyright: ignore[reportPrivateUsage]
 
 
 class TestDashboardServiceGetSystemOverview:
@@ -307,7 +307,7 @@ class TestDashboardServiceRefreshData:
         service.refresh_data()
 
         # Assert
-        assert service._cached_data == {}
+        assert service._cached_data == {}  # pyright: ignore[reportPrivateUsage]
 
     def test_refresh_data_notifies_subscribers(self) -> None:
         """Ellenőrzi, hogy a refresh_data értesíti a feliratkozókat."""
@@ -347,7 +347,7 @@ class TestDashboardServiceSubscribeToUpdates:
         service.subscribe_to_updates(mock_callback)
 
         # Assert
-        assert mock_callback in service._subscribers
+        assert mock_callback in service._subscribers  # pyright: ignore[reportPrivateUsage]
 
     def test_subscribe_callback_handles_exception(self) -> None:
         """Ellenőrzi, hogy a callback kivétel esetén sem állítja le a rendszert."""

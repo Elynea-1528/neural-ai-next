@@ -21,12 +21,12 @@ class TestStrategyService:
 
         service = StrategyService(logger=logger, config=config, core_components=core_components)
 
-        assert service._logger is logger
-        assert service._config == config
-        assert service._core_components is core_components
-        assert len(service._strategies) == 2
-        assert "moving_avg_cross" in service._strategies
-        assert "rsi_strategy" in service._strategies
+        assert service._logger is logger  # pyright: ignore[reportPrivateUsage]
+        assert service._config == config  # pyright: ignore[reportPrivateUsage]
+        assert service._core_components is core_components  # pyright: ignore[reportPrivateUsage]
+        assert len(service._strategies) == 2  # pyright: ignore[reportPrivateUsage]
+        assert "moving_avg_cross" in service._strategies  # pyright: ignore[reportPrivateUsage]
+        assert "rsi_strategy" in service._strategies  # pyright: ignore[reportPrivateUsage]
 
     def test_get_strategies(self) -> None:
         """Teszt: Stratégiák lekérdezése."""
@@ -49,11 +49,11 @@ class TestStrategyService:
         strategy_id = service.create_strategy(name="Test Strategy", config=config, code=code)
 
         assert strategy_id == "strategy_3"
-        assert strategy_id in service._strategies
-        assert service._strategies[strategy_id]["name"] == "Test Strategy"
-        assert service._strategies[strategy_id]["config"] == config
-        assert service._strategies[strategy_id]["code"] == code
-        assert service._strategies[strategy_id]["status"] == "active"
+        assert strategy_id in service._strategies  # pyright: ignore[reportPrivateUsage]
+        assert service._strategies[strategy_id]["name"] == "Test Strategy"  # pyright: ignore[reportPrivateUsage]
+        assert service._strategies[strategy_id]["config"] == config  # pyright: ignore[reportPrivateUsage]
+        assert service._strategies[strategy_id]["code"] == code  # pyright: ignore[reportPrivateUsage]
+        assert service._strategies[strategy_id]["status"] == "active"  # pyright: ignore[reportPrivateUsage]
 
     def test_update_strategy_config(self) -> None:
         """Teszt: Stratégia konfigurációjának módosítása."""
@@ -66,8 +66,8 @@ class TestStrategyService:
         result = service.update_strategy(strategy_id=strategy_id, config=new_config)
 
         assert result is True
-        assert service._strategies[strategy_id]["config"] == new_config
-        assert "updated_at" in service._strategies[strategy_id]
+        assert service._strategies[strategy_id]["config"] == new_config  # pyright: ignore[reportPrivateUsage]
+        assert "updated_at" in service._strategies[strategy_id]  # pyright: ignore[reportPrivateUsage]
 
     def test_update_strategy_code(self) -> None:
         """Teszt: Stratégia kódjának módosítása."""
@@ -78,7 +78,7 @@ class TestStrategyService:
         result = service.update_strategy(strategy_id=strategy_id, code=new_code)
 
         assert result is True
-        assert service._strategies[strategy_id]["code"] == new_code
+        assert service._strategies[strategy_id]["code"] == new_code  # pyright: ignore[reportPrivateUsage]
 
     def test_update_strategy_unknown(self) -> None:
         """Teszt: Ismeretlen stratégia módosítása hibát dob."""
@@ -95,7 +95,7 @@ class TestStrategyService:
         result = service.delete_strategy(strategy_id=strategy_id)
 
         assert result is True
-        assert strategy_id not in service._strategies
+        assert strategy_id not in service._strategies  # pyright: ignore[reportPrivateUsage]
 
     def test_delete_strategy_unknown(self) -> None:
         """Teszt: Ismeretlen stratégia törlése hibát dob."""
@@ -216,7 +216,7 @@ class TestStrategyService:
         mock_processed_df = MagicMock()
         mock_processor.process.return_value = mock_processed_df
 
-        service._core_components.get_component = MagicMock(
+        service._core_components.get_component = MagicMock(  # pyright: ignore[reportPrivateUsage]
             side_effect=lambda x: mock_config if x == "config" else mock_logger
         )
 
@@ -244,7 +244,7 @@ class TestStrategyService:
         mock_processed_df = MagicMock()
         mock_processor.process.return_value = mock_processed_df
 
-        service._core_components.get_component = MagicMock(
+        service._core_components.get_component = MagicMock(  # pyright: ignore[reportPrivateUsage]
             side_effect=lambda x: mock_config if x == "config" else mock_logger
         )
 
@@ -281,7 +281,7 @@ class TestStrategyService:
         mock_df.is_empty.return_value = False
         mock_df.empty = False
 
-        service._core_components.get_component = MagicMock(return_value=None)
+        service._core_components.get_component = MagicMock(return_value=None)  # pyright: ignore[reportPrivateUsage]
 
         with pytest.raises(RuntimeError, match="Config vagy Logger komponens nem elérhető"):
             await service.analyze_market_structure(

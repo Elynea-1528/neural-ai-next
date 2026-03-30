@@ -36,7 +36,7 @@ class DummyConfigManager(ConfigManagerInterface):
         """Teljes konfigurációs szekció lekérése."""
         result = self._config.get(section, {})
         if isinstance(result, dict):
-            return result
+            return result  # pyright: ignore[reportUnknownVariableType]
         return {}
 
     def set(self, *keys: str, value: object) -> None:
@@ -95,7 +95,7 @@ class DummyConfigFactory(ConfigManagerFactoryInterface):
     ) -> "ConfigManagerInterface":
         """Konfiguráció kezelő létrehozása típus alapján."""
         if manager_type in cls._managers:
-            return cls._managers[manager_type](*args, **kwargs)
+            return cls._managers[manager_type](*args, **kwargs)  # type: ignore[arg-type, arg-type]
         raise KeyError(f"Manager type {manager_type} not found")
 
 
@@ -172,14 +172,14 @@ class TestConfigManagerFactoryInterface:
     def test_register_manager_method(self) -> None:
         """Teszteli a register_manager metódust."""
         DummyConfigFactory.register_manager(".test", DummyConfigManager)
-        assert ".test" in DummyConfigFactory._managers
-        assert DummyConfigFactory._managers[".test"] == DummyConfigManager
+        assert ".test" in DummyConfigFactory._managers  # pyright: ignore[reportPrivateUsage]
+        assert DummyConfigFactory._managers[".test"] == DummyConfigManager  # pyright: ignore[reportPrivateUsage]
 
     def test_get_manager_method(self) -> None:
         """Teszteli a get_manager metódust."""
         manager = DummyConfigFactory.get_manager("test.yaml")
         assert isinstance(manager, DummyConfigManager)
-        assert manager._filename == "test.yaml"
+        assert manager._filename == "test.yaml"  # pyright: ignore[reportPrivateUsage]
 
     def test_get_manager_with_type(self) -> None:
         """Teszteli a get_manager metódust explicit típussal."""
@@ -202,14 +202,14 @@ class TestConfigManagerFactoryInterface:
         DummyConfigFactory.register_manager("dummy", DummyConfigManager)
         manager = DummyConfigFactory.create_manager("dummy", filename="test.yaml")
         assert isinstance(manager, DummyConfigManager)
-        assert manager._filename == "test.yaml"
+        assert manager._filename == "test.yaml"  # pyright: ignore[reportPrivateUsage]
 
     def test_create_manager_with_kwargs(self) -> None:
         """Teszteli a create_manager metódust csak kulcsszavas argumentumokkal."""
         DummyConfigFactory.register_manager("dummy", DummyConfigManager)
         manager = DummyConfigFactory.create_manager("dummy", filename="test.yaml")
         assert isinstance(manager, DummyConfigManager)
-        assert manager._filename == "test.yaml"
+        assert manager._filename == "test.yaml"  # pyright: ignore[reportPrivateUsage]
 
     def test_create_manager_with_invalid_type(self) -> None:
         """Teszteli a create_manager metódust érvénytelen típussal."""
@@ -226,7 +226,7 @@ class TestConfigManagerFactoryInterface:
                 pass
 
             # Próbáljuk létrehozni a példányt, hogy kiváltódjon a TypeError
-            _IncompleteConfigFactory()
+            _IncompleteConfigFactory()  # type: ignore[abstract]
 
     def test_interface_docstrings_present(self) -> None:
         """Teszteli, hogy az interfész metódusainak van docstringje."""
@@ -259,17 +259,17 @@ class TestConfigManagerFactoryInterface:
     def test_register_manager_raises_not_implemented_error(self) -> None:
         """Teszteli, hogy a register_manager alapértelmezésben NotImplementedError-t dob."""
         with pytest.raises(NotImplementedError):
-            ConfigManagerFactoryInterface.register_manager(".test", DummyConfigManager)
+            ConfigManagerFactoryInterface.register_manager(".test", DummyConfigManager)  # pyright: ignore[reportAbstractUsage]
 
     def test_get_manager_raises_not_implemented_error(self) -> None:
         """Teszteli, hogy a get_manager alapértelmezésben NotImplementedError-t dob."""
         with pytest.raises(NotImplementedError):
-            ConfigManagerFactoryInterface.get_manager("test.yaml")
+            ConfigManagerFactoryInterface.get_manager("test.yaml")  # pyright: ignore[reportAbstractUsage]
 
     def test_create_manager_raises_not_implemented_error(self) -> None:
         """Teszteli, hogy a create_manager alapértelmezésben NotImplementedError-t dob."""
         with pytest.raises(NotImplementedError):
-            ConfigManagerFactoryInterface.create_manager("test")
+            ConfigManagerFactoryInterface.create_manager("test")  # pyright: ignore[reportAbstractUsage]
 
     def test_factory_returns_config_manager_interface(self) -> None:
         """Teszteli, hogy a factory ConfigManagerInterface-t ad vissza."""

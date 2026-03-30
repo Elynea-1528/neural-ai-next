@@ -98,8 +98,8 @@ class TestMigrateStructure:
         mock_tick_dir.iterdir.return_value = []
         mock_tick_dir.rmdir.return_value = None
 
-        mock_symbol_dir.__truediv__.side_effect = lambda path: {"tick": mock_tick_dir}.get(
-            path, MagicMock()
+        mock_symbol_dir.__truediv__.side_effect = lambda path: {"tick": mock_tick_dir}.get(  # pyright: ignore[reportUnknownLambdaType]
+            path, MagicMock()  # pyright: ignore[reportUnknownArgumentType]
         )
 
         with (
@@ -143,10 +143,10 @@ class TestMigrateStructure:
         mock_target_dir = MagicMock()
         mock_target_dir.exists.return_value = False
 
-        mock_symbol_dir.__truediv__.side_effect = lambda path: {
+        mock_symbol_dir.__truediv__.side_effect = lambda path: {  # pyright: ignore[reportUnknownLambdaType]
             "tick": mock_tick_dir,
             "2023": mock_target_dir,
-        }.get(path, MagicMock())
+        }.get(path, MagicMock())  # pyright: ignore[reportUnknownArgumentType]
 
         with (
             patch("pathlib.Path.exists", return_value=True),
@@ -250,10 +250,10 @@ class TestMigrateStructure:
         mock_target_dir = MagicMock()
         mock_target_dir.exists.return_value = True
 
-        mock_symbol_dir.__truediv__.side_effect = lambda path: {
+        mock_symbol_dir.__truediv__.side_effect = lambda path: {  # pyright: ignore[reportUnknownLambdaType]
             "tick": mock_tick_dir,
             "2023": mock_target_dir,
-        }.get(path, MagicMock())
+        }.get(path, MagicMock())  # pyright: ignore[reportUnknownArgumentType]
 
         with (
             patch("pathlib.Path.exists", return_value=True),
@@ -295,10 +295,10 @@ class TestMigrateStructure:
         mock_target_dir = MagicMock()
         mock_target_dir.exists.return_value = False
 
-        mock_symbol_dir.__truediv__.side_effect = lambda path: {
+        mock_symbol_dir.__truediv__.side_effect = lambda path: {  # pyright: ignore[reportUnknownLambdaType]
             "tick": mock_tick_dir,
             "2023": mock_target_dir,
-        }.get(path, MagicMock())
+        }.get(path, MagicMock())  # pyright: ignore[reportUnknownArgumentType]
 
         with (
             patch("pathlib.Path.exists", return_value=True),
@@ -338,10 +338,10 @@ class TestMigrateStructure:
         mock_target_dir = MagicMock()
         mock_target_dir.exists.return_value = False
 
-        mock_symbol_dir.__truediv__.side_effect = lambda path: {
+        mock_symbol_dir.__truediv__.side_effect = lambda path: {  # pyright: ignore[reportUnknownLambdaType]
             "tick": mock_tick_dir,
             "2023": mock_target_dir,
-        }.get(path, MagicMock())
+        }.get(path, MagicMock())  # pyright: ignore[reportUnknownArgumentType]
 
         with (
             patch("pathlib.Path.exists", return_value=True),

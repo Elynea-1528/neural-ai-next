@@ -57,7 +57,7 @@ class TestAuditArchitectureIntegration:
             sys.path.insert(0, str(project_root))
 
         # Act & Assert
-        from scripts import audit_architecture  # noqa: F401
+        from scripts import audit_architecture  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
     def test_audit_architecture_has_main_class(self, project_root: Path) -> None:
         """Teszt: Az audit_architecture modul tartalmazza az ArchitectureAuditor osztályt.
@@ -139,7 +139,7 @@ class TestAuditArchitectureIntegration:
         Assert: A script nem dob hibát az importáláskor
         """
         # Arrange
-        project_root / "scripts" / "audit_architecture.py"
+        project_root / "scripts" / "audit_architecture.py"  # pyright: ignore[reportUnusedExpression]
         python_executable = sys.executable
 
         # Act

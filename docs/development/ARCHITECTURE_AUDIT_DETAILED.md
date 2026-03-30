@@ -1,20 +1,20 @@
 # 🔍 ARCHITECTURE AUDIT REPORT (DETAILED)
 
-**Generálva:** 2026-03-28 01:14:40
+**Generálva:** 2026-03-30 21:23:50
 **Elemző**: Roo Code (Code-New)
 **Szkennelt fájlok:** 155
 **Modulok:** 12
 
 ## 📊 Executive Summary
 
-- 🔴 **Kritikus problémák:** 337
+- 🔴 **Kritikus problémák:** 340
   - Structure: 1
-  - Type: 321
+  - Type: 324
   - DDD: 11
   - DI: 4
-- 🟡 **Figyelmeztetések:** 35
+- 🟡 **Figyelmeztetések:** 33
   - Structure: 1
-  - Mirror: 34
+  - Mirror: 32
 
 ## 🔴 Kritikus Problémák (Rétegek szerint)
 
@@ -34,11 +34,11 @@
 - **Probléma:** DDD megsértés: Infrastructure (0) → Persistence (2)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Persistence). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:248)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:256)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Input (1)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Input). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:249)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:257)**
 - **Probléma:** DDD megsértés: Infrastructure (0) → Input (1)
 - **Javaslat:** Alsó réteg (Infrastructure) NEM hivatkozhat felső rétegre (Input). Fordítsd meg a függőséget vagy használj Dependency Injection-t.
 
@@ -70,15 +70,15 @@
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:244)**
+**[`neural_ai/core/__init__.py`](neural_ai/core/__init__.py:252)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/config/factory.py`](neural_ai/core/config/factory.py:213)**
+**[`neural_ai/core/config/factory.py`](neural_ai/core/config/factory.py:206)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/core/config/factory.py`](neural_ai/core/config/factory.py:290)**
+**[`neural_ai/core/config/factory.py`](neural_ai/core/config/factory.py:283)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
@@ -118,27 +118,23 @@
 
 #### Type Problémák (97 db)
 
-**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:364)**
+**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:345)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:342)**
+**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:432)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:427)**
+**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:387)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:382)**
+**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:409)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:404)**
-- **Probléma:** Any típus használat (TILOS)
-- **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
-
-**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:445)**
+**[`neural_ai/data/ingestion/market_data_persister.py`](neural_ai/data/ingestion/market_data_persister.py:450)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
@@ -158,15 +154,19 @@
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
+**[`neural_ai/data/storage/interfaces/storage_interface.py`](neural_ai/data/storage/interfaces/storage_interface.py:74)**
+- **Probléma:** Any típus használat (TILOS)
+- **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
+
 *...és még 87 hasonló probléma*
 
 #### DI Problémák (3 db)
 
-**[`neural_ai/data/storage/implementations/parquet_storage.py`](neural_ai/data/storage/implementations/parquet_storage.py:116)**
+**[`neural_ai/data/storage/implementations/parquet_storage.py`](neural_ai/data/storage/implementations/parquet_storage.py:121)**
 - **Probléma:** Service Locator pattern: ParquetStorageService.__init__ hívja a Factory.get_section() metódust
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
 
-**[`neural_ai/data/storage/implementations/parquet_storage.py`](neural_ai/data/storage/implementations/parquet_storage.py:135)**
+**[`neural_ai/data/storage/implementations/parquet_storage.py`](neural_ai/data/storage/implementations/parquet_storage.py:140)**
 - **Probléma:** Service Locator pattern: ParquetStorageService.__init__ hívja a Factory.get_hardware_interface() metódust
 - **Javaslat:** Használj konstruktor injektálást: adj át logger/config paramétereket az __init__-nek
 
@@ -182,7 +182,7 @@
 - **Probléma:** Factory.py létezik, de hiányzik az interfaces/ mappa
 - **Javaslat:** Hozz létre interfaces/ mappát ABC osztályokkal
 
-#### Type Problémák (5 db)
+#### Type Problémák (4 db)
 
 **[`neural_ai/processors/dimensions/base.py`](neural_ai/processors/dimensions/base.py:34)**
 - **Probléma:** Any típus használat (TILOS)
@@ -200,13 +200,9 @@
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/processors/dimensions/d02_support/implementations/support_processor.py`](neural_ai/processors/dimensions/d02_support/implementations/support_processor.py:31)**
-- **Probléma:** Any típus használat (TILOS)
-- **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
-
 ### Presentation Layer
 
-#### Type Problémák (125 db)
+#### Type Problémák (129 db)
 
 **[`neural_ai/ui/factory.py`](neural_ai/ui/factory.py:45)**
 - **Probléma:** Any típus használat (TILOS)
@@ -220,7 +216,7 @@
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/ui/factory.py`](neural_ai/ui/factory.py:310)**
+**[`neural_ai/ui/factory.py`](neural_ai/ui/factory.py:334)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
@@ -236,19 +232,19 @@
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/ui/factory.py`](neural_ai/ui/factory.py:117)**
+**[`neural_ai/ui/factory.py`](neural_ai/ui/factory.py:121)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/ui/factory.py`](neural_ai/ui/factory.py:118)**
+**[`neural_ai/ui/factory.py`](neural_ai/ui/factory.py:122)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-**[`neural_ai/ui/factory.py`](neural_ai/ui/factory.py:156)**
+**[`neural_ai/ui/factory.py`](neural_ai/ui/factory.py:160)**
 - **Probléma:** Any típus használat (TILOS)
 - **Javaslat:** Használj konkrét típust vagy Union[X, Y] típust
 
-*...és még 115 hasonló probléma*
+*...és még 119 hasonló probléma*
 
 ## 🟡 Figyelmeztetések
 
@@ -256,14 +252,14 @@
 
 - [`neural_ai/processors/dimensions/d01_price`](neural_ai/processors/dimensions/d01_price:0): Hiányzik az exceptions/ mappa
 
-### Mirror (34 db)
+### Mirror (32 db)
 
+- [`processors/factory.py`](processors/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/processors/test_factory.py
+- [`ui/factory.py`](ui/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/ui/test_factory.py
 - [`data/storage/factory.py`](data/storage/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/data/storage/test_factory.py
 - [`data/storage/interfaces/factory_interface.py`](data/storage/interfaces/factory_interface.py:0): Hiányzó teszt fájl: tests/neural_ai/data/storage/interfaces/test_factory_interface.py
-- [`collectors/jforex/interfaces/tick_data.py`](collectors/jforex/interfaces/tick_data.py:0): Hiányzó teszt fájl: tests/neural_ai/collectors/jforex/interfaces/test_tick_data.py
-- [`collectors/jforex/interfaces/live_interface.py`](collectors/jforex/interfaces/live_interface.py:0): Hiányzó teszt fájl: tests/neural_ai/collectors/jforex/interfaces/test_live_interface.py
-- [`collectors/jforex/interfaces/downloader_interface.py`](collectors/jforex/interfaces/downloader_interface.py:0): Hiányzó teszt fájl: tests/neural_ai/collectors/jforex/interfaces/test_downloader_interface.py
-- *...és még 29 hasonló figyelmeztetés*
+- [`collectors/jforex/factory.py`](collectors/jforex/factory.py:0): Hiányzó teszt fájl: tests/neural_ai/collectors/jforex/test_factory.py
+- *...és még 27 hasonló figyelmeztetés*
 
 ## 📋 Prioritizált Javítási Terv
 
@@ -279,7 +275,7 @@
 
 ### Fázis 2: Magas (3-7 nap)
 
-1. **Type Safety** (321 db)
+1. **Type Safety** (324 db)
    - Any típus eliminálása
    - TypedDict → Pydantic migráció
 
@@ -289,7 +285,7 @@
 
 ### Fázis 3: Közepes (1-2 hét)
 
-1. **Mirror Testing** (34 db)
+1. **Mirror Testing** (32 db)
    - Hiányzó teszt fájlok létrehozása
    - 100% lefedettség elérése Domain rétegben
 
@@ -300,8 +296,8 @@
 | Infrastructure | 71 | 106 | 0 | 0.0% |
 | Input | 12 | 0 | 0 | 100.0% |
 | Persistence | 16 | 100 | 0 | 0.0% |
-| Domain | 25 | 6 | 1 | 72.0% |
-| Presentation | 30 | 125 | 0 | 0.0% |
+| Domain | 25 | 5 | 1 | 76.0% |
+| Presentation | 30 | 129 | 0 | 0.0% |
 
 ---
 

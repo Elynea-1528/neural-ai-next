@@ -23,8 +23,8 @@ class TestUIServiceFactoryInit:
         factory = UIServiceFactory()
 
         # Assert
-        assert factory._bridge is None
-        assert factory._config is None
+        assert factory._bridge is None  # pyright: ignore[reportPrivateUsage]
+        assert factory._config is None  # pyright: ignore[reportPrivateUsage]
         assert factory._logger is None  # type: ignore
         assert factory._core_components is None
         assert factory._services == {}
@@ -40,7 +40,7 @@ class TestUIServiceFactoryInitialize:
         mock_bridge = MagicMock()
         mock_logger = MagicMock()
         mock_core = MagicMock()
-        config_dict = {
+        config_dict = {  # pyright: ignore[reportUnknownVariableType]
             "theme": "light",
             "refresh_rate": 5,
             "navigation": {"default_page": "home"},
@@ -54,17 +54,17 @@ class TestUIServiceFactoryInitialize:
         # Act
         factory.initialize(
             bridge=mock_bridge,
-            config=config_dict,
+            config=config_dict,  # pyright: ignore[reportUnknownArgumentType]
             logger=mock_logger,
             core_components=mock_core,
         )
 
         # Assert
-        assert factory._initialized is True
-        assert factory._bridge == mock_bridge
+        assert factory._initialized is True  # pyright: ignore[reportPrivateUsage]
+        assert factory._bridge == mock_bridge  # pyright: ignore[reportPrivateUsage]
         assert factory._logger == mock_logger  # type: ignore
-        assert factory._core_components == mock_core
-        assert isinstance(factory._config, UIConfig)
+        assert factory._core_components == mock_core  # pyright: ignore[reportPrivateUsage]
+        assert isinstance(factory._config, UIConfig)  # pyright: ignore[reportPrivateUsage]
 
     def test_initialize_with_uiconfig(self) -> None:
         """Ellenőrzi, hogy az initialize UIConfig-gal működik."""
@@ -93,9 +93,9 @@ class TestUIServiceFactoryInitialize:
         )
 
         # Assert
-        assert factory._initialized is True
-        assert factory._bridge == mock_bridge
-        assert factory._config == config
+        assert factory._initialized is True  # pyright: ignore[reportPrivateUsage]
+        assert factory._bridge == mock_bridge  # pyright: ignore[reportPrivateUsage]
+        assert factory._config == config  # pyright: ignore[reportPrivateUsage]
 
 
 class TestUIServiceFactoryGetNavigationService:

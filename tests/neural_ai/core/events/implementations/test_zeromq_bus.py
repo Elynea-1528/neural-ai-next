@@ -42,7 +42,7 @@ def reset_singleton():
 
     # Teljes reset ELŐTTE
     if hasattr(SingletonMeta, '_instances'):
-        SingletonMeta._instances.clear()
+        SingletonMeta._instances.clear()  # pyright: ignore[reportPrivateUsage]
 
     # EventBus specifikus cleanup
     if hasattr(EventBus, '_instance'):
@@ -52,7 +52,7 @@ def reset_singleton():
 
     # Cleanup UTÁNA is
     if hasattr(SingletonMeta, '_instances'):
-        SingletonMeta._instances.clear()
+        SingletonMeta._instances.clear()  # pyright: ignore[reportPrivateUsage]
 
     # EventBus specifikus cleanup
     if hasattr(EventBus, '_instance'):
@@ -88,7 +88,7 @@ class TestEventBusInitialization:
 
     def test_default_initialization(self, mock_zmq_context: tuple[MagicMock, MagicMock], mock_logger: MagicMock) -> None:  # noqa: E501
         """Teszteli az alapértelmezett inicializálást."""
-        mock_context, mock_socket = mock_zmq_context
+        mock_context, mock_socket = mock_zmq_context  # pyright: ignore[reportUnusedVariable]
 
         bus = EventBus(logger=mock_logger)
 
@@ -100,10 +100,10 @@ class TestEventBusInitialization:
         self, mock_zmq_context: tuple[MagicMock, MagicMock]
     ) -> None:
         """Teszteli az egyéni konfigurációval történő inicializálást."""
-        mock_context, mock_socket = mock_zmq_context
+        mock_context, mock_socket = mock_zmq_context  # pyright: ignore[reportUnusedVariable]
 
         config = EventBusConfig(pub_port=6666, sub_port=6667, use_inproc=True)
-        bus = EventBus(config, logger=mock_logger)
+        bus = EventBus(config, logger=mock_logger)  # type: ignore[arg-type]
 
         assert bus.config.pub_port == 6666
         assert bus.config.sub_port == 6667
@@ -111,14 +111,14 @@ class TestEventBusInitialization:
 
     def test_external_zmq_context(self, mock_zmq_context: tuple[MagicMock, MagicMock], mock_logger: MagicMock) -> None:  # noqa: E501
         """Teszteli a külső ZMQ kontextus használatát."""
-        mock_context, mock_socket = mock_zmq_context
+        mock_context, mock_socket = mock_zmq_context  # pyright: ignore[reportUnusedVariable]
 
         external_context: MagicMock = MagicMock()
         config = EventBusConfig(zmq_context=external_context)
         bus = EventBus(config, logger=mock_logger)
 
-        assert bus._own_context is False
-        assert bus._context is external_context
+        assert bus._own_context is False  # pyright: ignore[reportPrivateUsage]
+        assert bus._context is external_context  # pyright: ignore[reportPrivateUsage]
 
     def test_zmq_import_error(self, mock_zmq_context: tuple[MagicMock, MagicMock], mock_logger: MagicMock) -> None:  # noqa: E501
         """Teszteli a ZMQ import hibát."""
@@ -144,7 +144,7 @@ class TestEventBusStartStop:
         bus = EventBus(logger=mock_logger)
         await bus.start()
 
-        assert bus._running is True
+        assert bus._running is True  # pyright: ignore[reportPrivateUsage]
         mock_context.socket.assert_called_once()
         mock_socket.bind.assert_called_once_with("tcp://*:5555")
 
@@ -163,7 +163,7 @@ class TestEventBusStartStop:
         bus = EventBus(config, logger=mock_logger)
         await bus.start()
 
-        assert bus._running is True
+        assert bus._running is True  # pyright: ignore[reportPrivateUsage]
         mock_socket.bind.assert_called_once_with("inproc://eventbus_pub")
 
     @pytest.mark.asyncio
@@ -199,7 +199,7 @@ class TestEventBusStartStop:
         await bus.start()
         await bus.stop()
 
-        assert bus._running is False
+        assert bus._running is False  # pyright: ignore[reportPrivateUsage]
         mock_socket.close.assert_called_once()
 
     @pytest.mark.asyncio
@@ -212,7 +212,7 @@ class TestEventBusStartStop:
         bus = EventBus(logger=mock_logger)
         await bus.stop()  # Nem dob hibát
 
-        assert bus._running is False
+        assert bus._running is False  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
@@ -230,7 +230,7 @@ class TestEventBusStartStop:
         await bus.stop()
         await bus.stop()  # Másodszor is meghívjuk
 
-        assert bus._running is False
+        assert bus._running is False  # pyright: ignore[reportPrivateUsage]
 
 
 class TestEventBusPublish:
@@ -298,7 +298,7 @@ class TestEventBusPublish:
         mock_context_class.return_value = mock_context
 
         bus = EventBus(logger=mock_logger)
-        bus._running = True
+        bus._running = True  # pyright: ignore[reportPrivateUsage]
         event = MarketDataEvent(
             symbol="EURUSD",
             timestamp=datetime.now(UTC),
@@ -381,8 +381,8 @@ class TestEventBusSubscribeUnsubscribe:
 
         bus.subscribe("market_data", callback)
 
-        assert "market_data" in bus._subscribers
-        assert callback in bus._subscribers["market_data"]
+        assert "market_data" in bus._subscribers  # pyright: ignore[reportPrivateUsage]
+        assert callback in bus._subscribers["market_data"]  # pyright: ignore[reportPrivateUsage]
 
     @patch("zmq.asyncio.Context")
     def test_subscribe_multiple_callbacks(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:  # noqa: E501
@@ -397,9 +397,9 @@ class TestEventBusSubscribeUnsubscribe:
         bus.subscribe("market_data", callback1)
         bus.subscribe("market_data", callback2)
 
-        assert len(bus._subscribers["market_data"]) == 2
-        assert callback1 in bus._subscribers["market_data"]
-        assert callback2 in bus._subscribers["market_data"]
+        assert len(bus._subscribers["market_data"]) == 2  # pyright: ignore[reportPrivateUsage]
+        assert callback1 in bus._subscribers["market_data"]  # pyright: ignore[reportPrivateUsage]
+        assert callback2 in bus._subscribers["market_data"]  # pyright: ignore[reportPrivateUsage]
 
     @patch("zmq.asyncio.Context")
     def test_unsubscribe_existing(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:  # noqa: E501
@@ -413,8 +413,8 @@ class TestEventBusSubscribeUnsubscribe:
         bus.subscribe("market_data", callback)
         bus.unsubscribe("market_data", callback)
 
-        assert "market_data" in bus._subscribers
-        assert callback not in bus._subscribers["market_data"]
+        assert "market_data" in bus._subscribers  # pyright: ignore[reportPrivateUsage]
+        assert callback not in bus._subscribers["market_data"]  # pyright: ignore[reportPrivateUsage]
 
     @patch("zmq.asyncio.Context")
     def test_unsubscribe_non_existing(self, mock_context_class: MagicMock, mock_logger: MagicMock) -> None:  # noqa: E501
@@ -456,9 +456,9 @@ class TestEventBusContextManager:
         mock_context_class.return_value = mock_context
 
         async with EventBus(logger=mock_logger) as bus:
-            assert bus._running is True
+            assert bus._running is True  # pyright: ignore[reportPrivateUsage]
 
-        assert bus._running is False
+        assert bus._running is False  # pyright: ignore[reportPrivateUsage]
 
 
 class TestEventBusDeserialization:
@@ -480,7 +480,7 @@ class TestEventBusDeserialization:
             "volume": 100000,
         }
 
-        result = bus._deserialize_event("market_data", event_data)
+        result = bus._deserialize_event("market_data", event_data)  # pyright: ignore[reportPrivateUsage]
 
         assert result is not None
         assert isinstance(result, MarketDataEvent)
@@ -496,7 +496,7 @@ class TestEventBusDeserialization:
         bus = EventBus(logger=mock_logger)
         event_data = {"key": "value"}
 
-        result = bus._deserialize_event("unknown_type", event_data)
+        result = bus._deserialize_event("unknown_type", event_data)  # pyright: ignore[reportPrivateUsage]
 
         assert result is None
 
@@ -509,7 +509,7 @@ class TestEventBusDeserialization:
         bus = EventBus(logger=mock_logger)
         event_data = {"invalid": "data"}
 
-        result = bus._deserialize_event("market_data", event_data)
+        result = bus._deserialize_event("market_data", event_data)  # pyright: ignore[reportPrivateUsage]
 
         assert result is None
 
@@ -537,7 +537,7 @@ class TestEventBusDispatch:
             "volume": 100000,
         }
 
-        await bus._dispatch_event("market_data", event_data)
+        await bus._dispatch_event("market_data", event_data)  # pyright: ignore[reportPrivateUsage]
 
         callback.assert_awaited_once()
         assert callback.await_args is not None
@@ -564,7 +564,7 @@ class TestEventBusDispatch:
         }
 
         # Nem dob hibát
-        await bus._dispatch_event("market_data", event_data)
+        await bus._dispatch_event("market_data", event_data)  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     @patch("zmq.asyncio.Context")
@@ -587,7 +587,7 @@ class TestEventBusDispatch:
         }
 
         # Nem dob hibát, csak logol
-        await bus._dispatch_event("market_data", event_data)
+        await bus._dispatch_event("market_data", event_data)  # pyright: ignore[reportPrivateUsage]
 
         callback.assert_awaited_once()
 
@@ -611,7 +611,7 @@ class TestEventBusDeserializationAdditional:
             "order_id": "ord_12345",
         }
 
-        result = bus._deserialize_event("trade", event_data)
+        result = bus._deserialize_event("trade", event_data)  # pyright: ignore[reportPrivateUsage]
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import TradeEvent
@@ -634,7 +634,7 @@ class TestEventBusDeserializationAdditional:
             "strategy_id": "strat_001",
         }
 
-        result = bus._deserialize_event("signal", event_data)
+        result = bus._deserialize_event("signal", event_data)  # pyright: ignore[reportPrivateUsage]
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import SignalEvent
@@ -656,7 +656,7 @@ class TestEventBusDeserializationAdditional:
             "message": "System started",
         }
 
-        result = bus._deserialize_event("system_log", event_data)
+        result = bus._deserialize_event("system_log", event_data)  # pyright: ignore[reportPrivateUsage]
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import SystemLogEvent
@@ -682,7 +682,7 @@ class TestEventBusDeserializationAdditional:
             "status": "PENDING",
         }
 
-        result = bus._deserialize_event("order", event_data)
+        result = bus._deserialize_event("order", event_data)  # pyright: ignore[reportPrivateUsage]
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import OrderEvent
@@ -708,7 +708,7 @@ class TestEventBusDeserializationAdditional:
             "status": "OPEN",
         }
 
-        result = bus._deserialize_event("position", event_data)
+        result = bus._deserialize_event("position", event_data)  # pyright: ignore[reportPrivateUsage]
 
         assert result is not None
         from neural_ai.core.events.interfaces.event_models import PositionEvent
@@ -737,7 +737,7 @@ class TestEventBusDispatchExceptionHandling:
         event_data: dict[str, Any] = {"invalid": "data", "missing_required": True}
 
         # Nem dob hibát, csak logol
-        await bus._dispatch_event("market_data", event_data)
+        await bus._dispatch_event("market_data", event_data)  # pyright: ignore[reportPrivateUsage]
 
         # A callback nem hívódik meg, mert a deserializálás sikertelen
         callback.assert_not_awaited()
@@ -758,7 +758,7 @@ class TestEventBusDispatchExceptionHandling:
         event_data = {"key": "value"}
 
         # Nem dob hibát, a deserializálás None-t ad vissza
-        await bus._dispatch_event("unknown_type", event_data)
+        await bus._dispatch_event("unknown_type", event_data)  # pyright: ignore[reportPrivateUsage]
 
         # A callback nem hívódik meg
         callback.assert_not_awaited()
@@ -786,7 +786,7 @@ class TestEventBusDispatchExceptionHandling:
             bus, "_deserialize_event", side_effect=Exception("Deszerializálási hiba")
         ):
             # Nem dob hibát, csak logol (219-220. sorok)
-            await bus._dispatch_event("market_data", event_data)
+            await bus._dispatch_event("market_data", event_data)  # pyright: ignore[reportPrivateUsage]
 
         # A callback nem hívódik meg, mert a deszerializálás hibát dobott
         callback.assert_not_awaited()
@@ -827,7 +827,7 @@ class TestEventBusRunForever:
         await bus.start()
 
         # Futtassuk a run_forever-t
-        bus._running = True
+        bus._running = True  # pyright: ignore[reportPrivateUsage]
         with pytest.raises(asyncio.CancelledError):
             await bus.run_forever()
 
@@ -864,7 +864,7 @@ class TestEventBusRunForever:
         await bus.start()
 
         # Futtassuk a run_forever-t
-        bus._running = True
+        bus._running = True  # pyright: ignore[reportPrivateUsage]
         with pytest.raises(asyncio.CancelledError):
             await bus.run_forever()
 
@@ -917,7 +917,7 @@ class TestEventBusRunForever:
         await bus.start()
 
         # Futtassuk a run_forever-t
-        bus._running = True
+        bus._running = True  # pyright: ignore[reportPrivateUsage]
         with pytest.raises(asyncio.CancelledError):
             await bus.run_forever()
 
@@ -953,7 +953,7 @@ class TestEventBusRunForever:
         await bus.start()
 
         # Futtassuk a run_forever-t
-        bus._running = True
+        bus._running = True  # pyright: ignore[reportPrivateUsage]
         with pytest.raises(asyncio.CancelledError):
             await bus.run_forever()
 
@@ -992,7 +992,7 @@ class TestEventBusRunForever:
         await bus.start()
 
         # Futtassuk a run_forever-t
-        bus._running = True
+        bus._running = True  # pyright: ignore[reportPrivateUsage]
         with pytest.raises(asyncio.CancelledError):
             await bus.run_forever()
 
@@ -1030,7 +1030,7 @@ class TestEventBusRunForever:
         await bus.start()
 
         # Futtassuk a run_forever-t
-        bus._running = True
+        bus._running = True  # pyright: ignore[reportPrivateUsage]
         with pytest.raises(asyncio.CancelledError):
             await bus.run_forever()
 
@@ -1060,7 +1060,7 @@ class TestEventBusRunForever:
         await bus.start()
 
         # Futtassuk a run_forever-t
-        bus._running = True
+        bus._running = True  # pyright: ignore[reportPrivateUsage]
         with pytest.raises(asyncio.CancelledError):
             await bus.run_forever()
 
@@ -1206,7 +1206,7 @@ class TestEventBusErrorHandling:
         await bus.start()
 
         # A hiba ellenére a run_forever-nek stabilan kell futnia
-        bus._running = True
+        bus._running = True  # pyright: ignore[reportPrivateUsage]
 
         # Most már elvárjuk a ZMQError-t a feliratkozási hiba miatt
         import zmq
@@ -1241,7 +1241,7 @@ class TestEventBusErrorHandling:
         await bus.start()
 
         # A hiba ellenére a run_forever-nek stabilan kell futnia
-        bus._running = True
+        bus._running = True  # pyright: ignore[reportPrivateUsage]
 
         # Most már elvárjuk a RuntimeError-t (vagy ZMQError-t) a feliratkozási hiba miatt
         with pytest.raises(RuntimeError):
@@ -1297,5 +1297,5 @@ class TestEventBusErrorHandling:
             # A mockolt hiba miatt ez várható, de a teszt lényege, hogy a stop() lefutott
             pass
 
-        assert bus._running is False
+        assert bus._running is False  # pyright: ignore[reportPrivateUsage]
         mock_socket.close.assert_called_once()

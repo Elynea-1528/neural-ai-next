@@ -56,7 +56,9 @@ class TestBootstrapIntegrationTestIntegration:
             sys.path.insert(0, str(project_root))
 
         # Act & Assert
-        from scripts import bootstrap_integration_test  # noqa: F401
+        from scripts import (
+            bootstrap_integration_test,  # noqa: F401  # pyright: ignore[reportUnusedImport]
+        )
 
     def test_bootstrap_integration_test_has_main_function(self, project_root: Path) -> None:
         """Teszt: A bootstrap_integration_test modul tartalmazza a main függvényt.
@@ -81,7 +83,7 @@ class TestBootstrapIntegrationTestIntegration:
         Assert: A script nem dob hibát az importáláskor
         """
         # Arrange
-        project_root / "scripts" / "bootstrap_integration_test.py"
+        project_root / "scripts" / "bootstrap_integration_test.py"  # pyright: ignore[reportUnusedExpression]
         python_executable = sys.executable
 
         # Act

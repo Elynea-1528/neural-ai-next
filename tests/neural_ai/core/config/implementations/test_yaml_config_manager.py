@@ -47,10 +47,10 @@ class TestYAMLConfigManager:
     """YAMLConfigManager osztály tesztjei."""
 
     @pytest.fixture
-    def temp_dir(self) -> Path:
+    def temp_dir(self) -> Path:  # type: ignore[misc]
         """Ideiglenes könyvtár létrehozása a tesztekhez."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
+            yield Path(tmpdir)  # pyright: ignore[reportReturnType]
 
     @pytest.fixture
     def sample_config(self) -> dict[str, Any]:
@@ -71,45 +71,45 @@ class TestYAMLConfigManager:
     def test_initialization_without_filename(self) -> None:
         """Teszteli a YAMLConfigManager inicializálását fájlnév nélkül."""
         manager = YAMLConfigManager()
-        assert manager._filename is None
-        assert manager._config == {}
+        assert manager._filename is None  # pyright: ignore[reportPrivateUsage]
+        assert manager._config == {}  # pyright: ignore[reportPrivateUsage]
 
     def test_initialization_with_filename(self, config_file: Path) -> None:
         """Teszteli a YAMLConfigManager inicializálását fájlnévvel."""
         manager = YAMLConfigManager(filename=str(config_file))
-        assert manager._filename == str(config_file)
-        assert "database" in manager._config
+        assert manager._filename == str(config_file)  # pyright: ignore[reportPrivateUsage]
+        assert "database" in manager._config  # pyright: ignore[reportPrivateUsage]
         assert manager.get("database", "host") == "localhost"
 
     def test_get_current_schema_version(self) -> None:
         """Teszteli a jelenlegi séma verzió lekérdezését."""
         manager = YAMLConfigManager()
-        assert manager._get_current_schema_version() == "1.0"
+        assert manager._get_current_schema_version() == "1.0"  # pyright: ignore[reportPrivateUsage]
 
     def test_check_schema_compatibility(self) -> None:
         """Teszteli a séma kompatibilitás ellenőrzését."""
         manager = YAMLConfigManager()
-        assert manager._check_schema_compatibility("1.0") is True
-        assert manager._check_schema_compatibility("2.0") is False
+        assert manager._check_schema_compatibility("1.0") is True  # pyright: ignore[reportPrivateUsage]
+        assert manager._check_schema_compatibility("2.0") is False  # pyright: ignore[reportPrivateUsage]
 
     def test_ensure_dict_with_dict(self) -> None:
         """Teszteli a _ensure_dict metódust dictionary értékkel."""
         manager = YAMLConfigManager()
         data = {"key": "value"}
-        result = manager._ensure_dict(data)
+        result = manager._ensure_dict(data)  # pyright: ignore[reportPrivateUsage]
         assert result == data
 
     def test_ensure_dict_with_none(self) -> None:
         """Teszteli a _ensure_dict metódust None értékkel."""
         manager = YAMLConfigManager()
-        result = manager._ensure_dict(None)
+        result = manager._ensure_dict(None)  # pyright: ignore[reportPrivateUsage]
         assert result == {}
 
     def test_ensure_dict_with_invalid_type(self) -> None:
         """Teszteli a _ensure_dict metódust érvénytelen típussal."""
         manager = YAMLConfigManager()
         with pytest.raises(ConfigLoadError, match="YAML tartalom dictionary"):
-            manager._ensure_dict("invalid")
+            manager._ensure_dict("invalid")  # pyright: ignore[reportPrivateUsage]
 
     def test_get_existing_value(self, config_file: Path) -> None:
         """Teszteli az érték lekérdezését létező kulccsal."""
@@ -205,7 +205,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.load(str(config_file))
 
-        assert manager._filename == str(config_file)
+        assert manager._filename == str(config_file)  # pyright: ignore[reportPrivateUsage]
         assert manager.get("database", "host") == "localhost"
 
     def test_load_nonexistent_file(self, temp_dir: Path) -> None:
@@ -655,7 +655,7 @@ class TestYAMLConfigManager:
         manager = YAMLConfigManager()
         manager.set("key", value="value")
 
-        schema = {
+        schema = {  # type: ignore[var-annotated]
             "key": {}  # Nincs type mező
         }
 
@@ -807,7 +807,7 @@ class TestYAMLConfigManager:
             schema={"schema": {"nested": {"type": "str"}}},
         )
 
-        manager._validate_dict(ctx)
+        manager._validate_dict(ctx)  # pyright: ignore[reportPrivateUsage]
 
         assert "key" in ctx.errors
         assert "Dictionary típusú érték szükséges a validáláshoz" in ctx.errors["key"]
@@ -827,7 +827,7 @@ class TestYAMLConfigManager:
             schema={"type": "dict", "schema": {"inner": {"type": "str"}}},
         )
 
-        manager._validate_nested(ctx)
+        manager._validate_nested(ctx)  # pyright: ignore[reportPrivateUsage]
 
         assert "nested" in ctx.errors
         assert "Dictionary típusú érték szükséges" in ctx.errors["nested"]
@@ -839,7 +839,7 @@ class TestConfigManagerTypeValidation:
     def test_get_with_valid_string_keys(self):
         """Teszteljük, hogy string kulcsokkal működik."""
         config = YAMLConfigManager()
-        config._config = {"processors": {"d02": {"swing_window": 5}}}
+        config._config = {"processors": {"d02": {"swing_window": 5}}}  # pyright: ignore[reportPrivateUsage]
 
         result = config.get("processors", "d02")
         assert result == {"swing_window": 5}
@@ -847,7 +847,7 @@ class TestConfigManagerTypeValidation:
     def test_get_with_single_key(self):
         """Teszteljük, hogy egyetlen kulccsal is működik."""
         config = YAMLConfigManager()
-        config._config = {"system": {"debug": True}}
+        config._config = {"system": {"debug": True}}  # pyright: ignore[reportPrivateUsage]
 
         result = config.get("system")
         assert result == {"debug": True}
@@ -855,7 +855,7 @@ class TestConfigManagerTypeValidation:
     def test_get_with_nested_keys(self):
         """Teszteljük, hogy többszintű nested kulcsokkal működik."""
         config = YAMLConfigManager()
-        config._config = {"processors": {"d02": {"swing_window": 5, "min_candles": 10}}}
+        config._config = {"processors": {"d02": {"swing_window": 5, "min_candles": 10}}}  # pyright: ignore[reportPrivateUsage]
 
         result = config.get("processors", "d02", "swing_window")
         # FIGYELEM: A jelenlegi implementáció nem támogatja a 3+ szintű kulcsokat
@@ -866,10 +866,10 @@ class TestConfigManagerTypeValidation:
     def test_get_with_invalid_dict_key_raises_type_error(self):
         """Teszteljük, hogy dict kulcs TypeError-t dob."""
         config = YAMLConfigManager()
-        config._config = {"processors": {"d02": {"swing_window": 5}}}
+        config._config = {"processors": {"d02": {"swing_window": 5}}}  # pyright: ignore[reportPrivateUsage]
 
         with pytest.raises(TypeError) as exc_info:
-            config.get("processors", {})
+            config.get("processors", {})  # type: ignore[arg-type]
 
         assert "csak string kulcsokat fogad el" in str(exc_info.value)
         assert "Helytelen:" in str(exc_info.value)
@@ -878,10 +878,10 @@ class TestConfigManagerTypeValidation:
     def test_get_with_invalid_int_key_raises_type_error(self):
         """Teszteljük, hogy int kulcs TypeError-t dob."""
         config = YAMLConfigManager()
-        config._config = {"processors": {"d02": {"swing_window": 5}}}
+        config._config = {"processors": {"d02": {"swing_window": 5}}}  # pyright: ignore[reportPrivateUsage]
 
         with pytest.raises(TypeError) as exc_info:
-            config.get("processors", 123)
+            config.get("processors", 123)  # type: ignore[arg-type]
 
         assert "csak string kulcsokat fogad el" in str(exc_info.value)
         assert "int" in str(exc_info.value)
@@ -889,10 +889,10 @@ class TestConfigManagerTypeValidation:
     def test_get_with_invalid_none_key_raises_type_error(self):
         """Teszteljük, hogy None kulcs TypeError-t dob."""
         config = YAMLConfigManager()
-        config._config = {"processors": {"d02": {"swing_window": 5}}}
+        config._config = {"processors": {"d02": {"swing_window": 5}}}  # pyright: ignore[reportPrivateUsage]
 
         with pytest.raises(TypeError) as exc_info:
-            config.get("processors", None)
+            config.get("processors", None)  # type: ignore[arg-type]
 
         assert "csak string kulcsokat fogad el" in str(exc_info.value)
         assert "NoneType" in str(exc_info.value)
@@ -900,10 +900,10 @@ class TestConfigManagerTypeValidation:
     def test_get_with_invalid_list_key_raises_type_error(self):
         """Teszteljük, hogy list kulcs TypeError-t dob."""
         config = YAMLConfigManager()
-        config._config = {"processors": {"d02": {"swing_window": 5}}}
+        config._config = {"processors": {"d02": {"swing_window": 5}}}  # pyright: ignore[reportPrivateUsage]
 
         with pytest.raises(TypeError) as exc_info:
-            config.get("processors", ["d02"])
+            config.get("processors", ["d02"])  # type: ignore[arg-type]
 
         assert "csak string kulcsokat fogad el" in str(exc_info.value)
         assert "list" in str(exc_info.value)
@@ -911,7 +911,7 @@ class TestConfigManagerTypeValidation:
     def test_get_with_default_value(self):
         """Teszteljük, hogy a default paraméter működik."""
         config = YAMLConfigManager()
-        config._config = {"processors": {}}
+        config._config = {"processors": {}}  # pyright: ignore[reportPrivateUsage]
 
         result = config.get("processors", "d02", default={"swing_window": 5})
         assert result == {"swing_window": 5}
@@ -919,7 +919,7 @@ class TestConfigManagerTypeValidation:
     def test_get_nonexistent_key_returns_none(self):
         """Teszteljük, hogy nem létező kulcs None-t ad vissza."""
         config = YAMLConfigManager()
-        config._config = {"processors": {}}
+        config._config = {"processors": {}}  # pyright: ignore[reportPrivateUsage]
 
         result = config.get("processors", "d99")
         assert result is None
@@ -927,10 +927,10 @@ class TestConfigManagerTypeValidation:
     def test_get_error_message_contains_helpful_info(self):
         """Teszteljük, hogy a hibaüzenet tartalmaz hasznos információkat."""
         config = YAMLConfigManager()
-        config._config = {"processors": {"d02": {}}}
+        config._config = {"processors": {"d02": {}}}  # pyright: ignore[reportPrivateUsage]
 
         with pytest.raises(TypeError) as exc_info:
-            config.get("processors", {}, "test")
+            config.get("processors", {}, "test")  # type: ignore[arg-type]
 
         error_message = str(exc_info.value)
         assert "index 1" in error_message  # A második kulcs hibás (0-indexelés)
@@ -940,7 +940,7 @@ class TestConfigManagerTypeValidation:
     def test_multiple_valid_string_keys(self):
         """Teszteljük, hogy több string kulccsal is működik."""
         config = YAMLConfigManager()
-        config._config = {"level1": {"level2": {"level3": "value"}}}
+        config._config = {"level1": {"level2": {"level3": "value"}}}  # pyright: ignore[reportPrivateUsage]
 
         # Sajnos a jelenlegi implementáció csak 2 szintű nested kulcsokat támogat jól
         result = config.get("level1", "level2")

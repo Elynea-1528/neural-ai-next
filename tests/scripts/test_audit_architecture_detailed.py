@@ -56,7 +56,9 @@ class TestAuditArchitectureDetailedIntegration:
             sys.path.insert(0, str(project_root))
 
         # Act & Assert
-        from scripts import audit_architecture_detailed  # noqa: F401
+        from scripts import (
+            audit_architecture_detailed,  # noqa: F401  # pyright: ignore[reportUnusedImport]
+        )
 
     def test_audit_architecture_detailed_execution_dry_run(self, project_root: Path) -> None:
         """Teszt: Az audit_architecture_detailed.py script futtatható (dry run).
@@ -66,7 +68,7 @@ class TestAuditArchitectureDetailedIntegration:
         Assert: A script nem dob hibát az importáláskor
         """
         # Arrange
-        project_root / "scripts" / "audit_architecture_detailed.py"
+        project_root / "scripts" / "audit_architecture_detailed.py"  # pyright: ignore[reportUnusedExpression]
         python_executable = sys.executable
 
         # Act

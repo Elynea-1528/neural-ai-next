@@ -22,26 +22,26 @@ async def reset_db_globals():
     import neural_ai.core.db.implementations.sqlalchemy_session as db_module
 
     # Reset ELŐTTE
-    if db_module._engine is not None:
+    if db_module._engine is not None:  # pyright: ignore[reportPrivateUsage]
         try:
-            await db_module._engine.dispose()
+            await db_module._engine.dispose()  # pyright: ignore[reportPrivateUsage]
         except Exception:
             pass
 
-    db_module._engine = None
-    db_module._async_session_maker = None
+    db_module._engine = None  # pyright: ignore[reportPrivateUsage]
+    db_module._async_session_maker = None  # pyright: ignore[reportPrivateUsage]
 
     yield
 
     # Cleanup UTÁNA
-    if db_module._engine is not None:
+    if db_module._engine is not None:  # pyright: ignore[reportPrivateUsage]
         try:
-            await db_module._engine.dispose()
+            await db_module._engine.dispose()  # pyright: ignore[reportGeneralTypeIssues, reportPrivateUsage]
         except Exception:
             pass
 
-    db_module._engine = None
-    db_module._async_session_maker = None
+    db_module._engine = None  # pyright: ignore[reportPrivateUsage]
+    db_module._async_session_maker = None  # pyright: ignore[reportPrivateUsage]
 
 
 @pytest.fixture(autouse=True)
@@ -57,12 +57,12 @@ def reset_db_singleton():
 
     # Clear ELŐTTE
     if hasattr(SingletonMeta, '_instances'):
-        if DatabaseManager in SingletonMeta._instances:
-            del SingletonMeta._instances[DatabaseManager]
+        if DatabaseManager in SingletonMeta._instances:  # pyright: ignore[reportPrivateUsage]
+            del SingletonMeta._instances[DatabaseManager]  # pyright: ignore[reportPrivateUsage]
 
     yield
 
     # Cleanup UTÁNA
     if hasattr(SingletonMeta, '_instances'):
-        if DatabaseManager in SingletonMeta._instances:
-            del SingletonMeta._instances[DatabaseManager]
+        if DatabaseManager in SingletonMeta._instances:  # pyright: ignore[reportPrivateUsage]
+            del SingletonMeta._instances[DatabaseManager]  # pyright: ignore[reportPrivateUsage]

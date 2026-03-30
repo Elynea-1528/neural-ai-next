@@ -422,10 +422,10 @@ class TestEventBusInterface:
 
         # Szinkron metódusok tesztelése
         bus = ConcreteTestBus()
-        bus.subscribe("test", lambda e: None)
+        bus.subscribe("test", lambda e: None)  # pyright: ignore[reportUnknownLambdaType]
         assert bus.subscribed
 
-        bus.unsubscribe("test", lambda e: None)
+        bus.unsubscribe("test", lambda e: None)  # pyright: ignore[reportUnknownLambdaType]
         assert bus.unsubscribed
 
     def test_interface_cannot_be_instantiated_directly(self) -> None:

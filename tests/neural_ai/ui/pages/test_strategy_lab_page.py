@@ -46,7 +46,7 @@ class TestStrategyLabPage:
         return MagicMock(spec=CoreBridgeInterface)
 
     @pytest.fixture
-    def strategy_lab_page(self, mock_bridge: MagicMock) -> StrategyLabPage:
+    def strategy_lab_page(self, mock_bridge: MagicMock) -> StrategyLabPage:  # type: ignore[valid-type]
         """StrategyLabPage példány létrehozása teszteléshez.
 
         Args:
@@ -55,7 +55,7 @@ class TestStrategyLabPage:
         Returns:
             StrategyLabPage: A tesztelendő oldal példány.
         """
-        return StrategyLabPage(bridge=mock_bridge)
+        return StrategyLabPage(bridge=mock_bridge)  # type: ignore[no-any-return]
 
     def test_init(self, mock_bridge: MagicMock) -> None:
         """Teszteli az osztály inicializálását.
@@ -82,23 +82,23 @@ class TestStrategyLabPage:
         assert page._loaded is False
         assert page._title == "🪲 Strategy Lab"
 
-    def test_title_property(self, strategy_lab_page: StrategyLabPage) -> None:
+    def test_title_property(self, strategy_lab_page: StrategyLabPage) -> None:  # type: ignore[valid-type]
         """Teszteli a title property-t.
 
         Args:
             strategy_lab_page: A tesztelendő oldal példány.
         """
-        assert strategy_lab_page.title == "🪲 Strategy Lab"
+        assert strategy_lab_page.title == "🪲 Strategy Lab"  # type: ignore[attr-defined]
 
-    def test_is_loaded_property_initial(self, strategy_lab_page: StrategyLabPage) -> None:
+    def test_is_loaded_property_initial(self, strategy_lab_page: StrategyLabPage) -> None:  # type: ignore[valid-type]
         """Teszteli az is_loaded property kezdeti állapotát.
 
         Args:
             strategy_lab_page: A tesztelendő oldal példány.
         """
-        assert strategy_lab_page.is_loaded is False
+        assert strategy_lab_page.is_loaded is False  # type: ignore[attr-defined]
 
-    def test_on_navigate_to_resets_state(self, strategy_lab_page: StrategyLabPage) -> None:
+    def test_on_navigate_to_resets_state(self, strategy_lab_page: StrategyLabPage) -> None:  # type: ignore[valid-type]
         """Teszteli, hogy a navigálás visszaállítja az állapotot (session_state-kel).
 
         Args:
@@ -108,16 +108,16 @@ class TestStrategyLabPage:
         strategy_lab_module.st.session_state.candles = MagicMock()
         strategy_lab_module.st.session_state.backtest_result = MagicMock()
 
-        strategy_lab_page._loaded = True
-        strategy_lab_page._candles = MagicMock()
+        strategy_lab_page._loaded = True  # type: ignore[attr-defined]
+        strategy_lab_page._candles = MagicMock()  # type: ignore[attr-defined]
 
-        strategy_lab_page.on_navigate_to()
+        strategy_lab_page.on_navigate_to()  # type: ignore[attr-defined]
 
-        assert strategy_lab_page._loaded is False
+        assert strategy_lab_page._loaded is False  # type: ignore[attr-defined]
         # A session state candles értéke most None kell legyen
         assert strategy_lab_module.st.session_state.candles is None
 
-    def test_on_navigate_to_with_params(self, strategy_lab_page: StrategyLabPage) -> None:
+    def test_on_navigate_to_with_params(self, strategy_lab_page: StrategyLabPage) -> None:  # type: ignore[valid-type]
         """Teszteli a navigációt paraméterekkel.
 
         Args:
@@ -128,13 +128,13 @@ class TestStrategyLabPage:
         strategy_lab_module.st.session_state.backtest_result = MagicMock()
 
         params: dict[str, str] | None = {"key": "value"}
-        strategy_lab_page.on_navigate_to(params)
+        strategy_lab_page.on_navigate_to(params)  # type: ignore[attr-defined]
 
-        assert strategy_lab_page._loaded is False
+        assert strategy_lab_page._loaded is False  # type: ignore[attr-defined]
         # A session state candles értéke most None kell legyen
         assert strategy_lab_module.st.session_state.candles is None
 
-    def test_on_navigate_from(self, strategy_lab_page: StrategyLabPage) -> None:
+    def test_on_navigate_from(self, strategy_lab_page: StrategyLabPage) -> None:  # type: ignore[valid-type]
         """Teszteli az oldal elhagyásakor történő akciót.
 
         Args:
@@ -142,7 +142,7 @@ class TestStrategyLabPage:
         """
         # Ez a teszt főleg arra szolgál, hogy lefusson a metódus
         # anélkül, hogy hibát dobna
-        strategy_lab_page.on_navigate_from()
+        strategy_lab_page.on_navigate_from()  # type: ignore[attr-defined]
 
     def test_get_symbols_from_config(self, mock_bridge: MagicMock) -> None:
         """Teszteli a szimbólumok lekérését a konfigurációból.
@@ -204,29 +204,29 @@ class TestStrategyLabPage:
         # Alapértelmezett szimbólumokat kell visszaadni
         assert symbols == ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"]
 
-    def test_get_strategy_service_success(self, strategy_lab_page: StrategyLabPage) -> None:
+    def test_get_strategy_service_success(self, strategy_lab_page: StrategyLabPage) -> None:  # type: ignore[valid-type]
         """Teszteli a Strategy Service sikeres lekérését.
 
         Args:
             strategy_lab_page: A tesztelendő oldal példány.
         """
         mock_service = MagicMock(spec=StrategyServiceInterface)
-        strategy_lab_page._bridge.get_component.return_value = mock_service
+        strategy_lab_page._bridge.get_component.return_value = mock_service  # type: ignore[attr-defined]
 
-        service = strategy_lab_page._get_strategy_service()
+        service = strategy_lab_page._get_strategy_service()  # type: ignore[attr-defined]
 
         assert service == mock_service
-        strategy_lab_page._bridge.get_component.assert_called_once_with("strategy_service")
+        strategy_lab_page._bridge.get_component.assert_called_once_with("strategy_service")  # type: ignore[attr-defined]
 
-    def test_get_strategy_service_exception(self, strategy_lab_page: StrategyLabPage) -> None:
+    def test_get_strategy_service_exception(self, strategy_lab_page: StrategyLabPage) -> None:  # type: ignore[valid-type]
         """Teszteli a Strategy Service lekérését, ha hibát dob.
 
         Args:
             strategy_lab_page: A tesztelendő oldal példány.
         """
-        strategy_lab_page._bridge.get_component.side_effect = Exception("Service error")
+        strategy_lab_page._bridge.get_component.side_effect = Exception("Service error")  # type: ignore[attr-defined]
 
-        service = strategy_lab_page._get_strategy_service()
+        service = strategy_lab_page._get_strategy_service()  # type: ignore[attr-defined]
 
         assert service is None
 
@@ -248,7 +248,7 @@ class TestStrategyLabPage:
         mock_sidebar: MagicMock,
         mock_markdown: MagicMock,
         mock_title: MagicMock,
-        strategy_lab_page: StrategyLabPage,
+        strategy_lab_page: StrategyLabPage,  # type: ignore[valid-type]
     ) -> None:
         """Teszteli az oldalsáv renderelését.
 
@@ -270,7 +270,7 @@ class TestStrategyLabPage:
         mock_button.return_value = False
 
         try:
-            strategy_lab_page.render()
+            strategy_lab_page.render()  # type: ignore[attr-defined]
         except Exception:
             pass
 
@@ -295,7 +295,7 @@ class TestStrategyLabPage:
         mock_sidebar: MagicMock,
         mock_markdown: MagicMock,
         mock_title: MagicMock,
-        strategy_lab_page: StrategyLabPage,
+        strategy_lab_page: StrategyLabPage,  # type: ignore[valid-type]
     ) -> None:
         """Teszteli a renderelést adatok nélkül.
 
@@ -316,12 +316,12 @@ class TestStrategyLabPage:
         mock_date_input.return_value = date.today()
         mock_button.return_value = False
 
-        strategy_lab_page.render()
+        strategy_lab_page.render()  # type: ignore[attr-defined]
 
         mock_title.assert_called_once_with("🪲 Strategy Lab")
         mock_info.assert_called_once()
 
-    def test_render_without_errors(self, strategy_lab_page: StrategyLabPage) -> None:
+    def test_render_without_errors(self, strategy_lab_page: StrategyLabPage) -> None:  # type: ignore[valid-type]
         """Teszteli, hogy a render metódus hiba nélkül lefut.
 
         Args:
@@ -341,7 +341,7 @@ class TestStrategyLabPage:
                 mock_sidebar.__exit__.return_value = None
                 mock_button.return_value = False
 
-                strategy_lab_page.render()
+                strategy_lab_page.render()  # type: ignore[attr-defined]
 
         except Exception as e:
             pytest.fail(f"A render metódus hibát dobott: {e}")
@@ -363,7 +363,7 @@ class TestStrategyLabPageSessionState:
         return MagicMock(spec=CoreBridgeInterface)
 
     @pytest.fixture
-    def strategy_lab_page(self, mock_bridge: MagicMock) -> StrategyLabPage:
+    def strategy_lab_page(self, mock_bridge: MagicMock) -> StrategyLabPage:  # type: ignore[valid-type]
         """StrategyLabPage példány létrehozása teszteléshez.
 
         Args:
@@ -372,7 +372,7 @@ class TestStrategyLabPageSessionState:
         Returns:
             StrategyLabPage: A tesztelendő oldal példány.
         """
-        return StrategyLabPage(bridge=mock_bridge)
+        return StrategyLabPage(bridge=mock_bridge)  # type: ignore[no-any-return]
 
     def test_init_session_state_candles_initialization(self, mock_bridge: MagicMock) -> None:
         """Teszteli, hogy az __init__ metódus inicializálja a session state candles-t.
@@ -490,7 +490,7 @@ class TestStrategyLabPageSessionState:
         assert strategy_lab_module.st.session_state.price_type == "Bid"
 
     def test_render_data_table_with_price_type_bid(
-        self, strategy_lab_page: StrategyLabPage
+        self, strategy_lab_page: StrategyLabPage  # type: ignore[valid-type]
     ) -> None:
         """Teszteli a _render_data_table metódust Bid price type-pal.
 
@@ -518,12 +518,12 @@ class TestStrategyLabPageSessionState:
         mock_pl_df.to_pandas.return_value = mock_df_pd
         mock_pl_df.columns = list(mock_df_pd.columns)
 
-        strategy_lab_page._candles = mock_pl_df
+        strategy_lab_page._candles = mock_pl_df  # type: ignore[attr-defined]
         strategy_lab_module.st.session_state.price_type = "Bid"
 
         with patch.object(strategy_lab_module.st, "dataframe") as mock_dataframe:
             with patch.object(strategy_lab_module.st, "error") as mock_error:
-                strategy_lab_page._render_data_table()
+                strategy_lab_page._render_data_table()  # type: ignore[attr-defined]
 
                 if mock_error.called:
                     pytest.fail(f"st.error hívódott meg: {mock_error.call_args[0][0]}")
@@ -546,7 +546,7 @@ class TestStrategyLabPageSessionState:
                 assert list(call_args.columns) == expected_cols
 
     def test_render_data_table_with_price_type_mid(
-        self, strategy_lab_page: StrategyLabPage
+        self, strategy_lab_page: StrategyLabPage  # type: ignore[valid-type]
     ) -> None:
         """Teszteli a _render_data_table metódust Mid price type-pal.
 
@@ -573,12 +573,12 @@ class TestStrategyLabPageSessionState:
         mock_pl_df.to_pandas.return_value = mock_df_pd
         mock_pl_df.columns = list(mock_df_pd.columns)
 
-        strategy_lab_page._candles = mock_pl_df
+        strategy_lab_page._candles = mock_pl_df  # type: ignore[attr-defined]
         strategy_lab_module.st.session_state.price_type = "Mid"
 
         with patch.object(strategy_lab_module.st, "dataframe") as mock_dataframe:
             with patch.object(strategy_lab_module.st, "error") as mock_error:
-                strategy_lab_page._render_data_table()
+                strategy_lab_page._render_data_table()  # type: ignore[attr-defined]
 
                 if mock_error.called:
                     pytest.fail(f"st.error hívódott meg: {mock_error.call_args[0][0]}")
@@ -607,7 +607,7 @@ class TestStrategyLabPageSessionState:
         mock_candlestick: MagicMock,
         mock_figure: MagicMock,
         mock_plotly_chart: MagicMock,
-        strategy_lab_page: StrategyLabPage,
+        strategy_lab_page: StrategyLabPage,  # type: ignore[valid-type]
     ) -> None:
         """Teszteli a candlestick chart renderelését Bid price type-pal.
 
@@ -634,7 +634,7 @@ class TestStrategyLabPageSessionState:
         mock_pl_df.is_empty.return_value = False
         mock_pl_df.to_pandas.return_value = mock_df_pd
 
-        strategy_lab_page._candles = mock_pl_df
+        strategy_lab_page._candles = mock_pl_df  # type: ignore[attr-defined]
         strategy_lab_module.st.session_state.price_type = "Bid"
         strategy_lab_module.st.session_state.show_body_swings = False
         strategy_lab_module.st.session_state.show_wick_swings = False
@@ -658,7 +658,7 @@ class TestStrategyLabPageSessionState:
             prepared_df["date"] = prepared_df["timestamp"]
             mock_prepare.return_value = prepared_df
 
-            strategy_lab_page._render_candlestick_chart()
+            strategy_lab_page._render_candlestick_chart()  # type: ignore[attr-defined]
 
         # Ellenőrizzük, hogy a Figure létrejött
         assert mock_figure.called, "go.Figure nem hívódott meg"
@@ -672,7 +672,7 @@ class TestStrategyLabPageSessionState:
         mock_candlestick: MagicMock,
         mock_figure: MagicMock,
         mock_plotly_chart: MagicMock,
-        strategy_lab_page: StrategyLabPage,
+        strategy_lab_page: StrategyLabPage,  # type: ignore[valid-type]
     ) -> None:
         """Teszteli a candlestick chart renderelését Mid price type-pal.
 
@@ -699,7 +699,7 @@ class TestStrategyLabPageSessionState:
         mock_pl_df.is_empty.return_value = False
         mock_pl_df.to_pandas.return_value = mock_df_pd
 
-        strategy_lab_page._candles = mock_pl_df
+        strategy_lab_page._candles = mock_pl_df  # type: ignore[attr-defined]
         strategy_lab_module.st.session_state.price_type = "Mid"
         strategy_lab_module.st.session_state.show_body_swings = False
         strategy_lab_module.st.session_state.show_wick_swings = False
@@ -723,7 +723,7 @@ class TestStrategyLabPageSessionState:
             prepared_df["date"] = prepared_df["timestamp"]
             mock_prepare.return_value = prepared_df
 
-            strategy_lab_page._render_candlestick_chart()
+            strategy_lab_page._render_candlestick_chart()  # type: ignore[attr-defined]
 
         # Ellenőrizzük, hogy a Figure létrejött
         assert mock_figure.called, "go.Figure nem hívódott meg"

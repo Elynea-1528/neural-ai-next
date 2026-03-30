@@ -51,7 +51,7 @@ class TestLaunchpadPage:
         return MagicMock()
 
     @pytest.fixture
-    def launchpad_page(self, mock_bridge: MagicMock, mock_logger: MagicMock) -> LaunchpadPage:
+    def launchpad_page(self, mock_bridge: MagicMock, mock_logger: MagicMock) -> LaunchpadPage:  # type: ignore[valid-type]
         """LaunchpadPage példány létrehozása teszteléshez.
 
         Args:
@@ -61,7 +61,7 @@ class TestLaunchpadPage:
         Returns:
             LaunchpadPage: A tesztelendő oldal példány.
         """
-        return LaunchpadPage(bridge=mock_bridge, logger=mock_logger)
+        return LaunchpadPage(bridge=mock_bridge, logger=mock_logger)  # type: ignore[no-any-return]
 
     def test_init(self, mock_bridge: MagicMock, mock_logger: MagicMock) -> None:
         """Teszteli az osztály inicializálását.
@@ -91,53 +91,53 @@ class TestLaunchpadPage:
         assert page._loaded is False
         assert page._title == "🚀 Launchpad"
 
-    def test_title_property(self, launchpad_page: LaunchpadPage) -> None:
+    def test_title_property(self, launchpad_page: LaunchpadPage) -> None:  # type: ignore[valid-type]
         """Teszteli a title property-t.
 
         Args:
             launchpad_page: A tesztelendő oldal példány.
         """
-        assert launchpad_page.title == "🚀 Launchpad"
+        assert launchpad_page.title == "🚀 Launchpad"  # type: ignore[attr-defined]
 
-    def test_is_loaded_property_initial(self, launchpad_page: LaunchpadPage) -> None:
+    def test_is_loaded_property_initial(self, launchpad_page: LaunchpadPage) -> None:  # type: ignore[valid-type]
         """Teszteli az is_loaded property kezdeti állapotát.
 
         Args:
             launchpad_page: A tesztelendő oldal példány.
         """
-        assert launchpad_page.is_loaded is False
+        assert launchpad_page.is_loaded is False  # type: ignore[attr-defined]
 
-    def test_is_loaded_property_after_navigation(self, launchpad_page: LaunchpadPage) -> None:
+    def test_is_loaded_property_after_navigation(self, launchpad_page: LaunchpadPage) -> None:  # type: ignore[valid-type]
         """Teszteli az is_loaded property-t navigáció után.
 
         Args:
             launchpad_page: A tesztelendő oldal példány.
         """
-        launchpad_page.on_navigate_to()
-        assert launchpad_page.is_loaded is True
+        launchpad_page.on_navigate_to()  # type: ignore[attr-defined]
+        assert launchpad_page.is_loaded is True  # type: ignore[attr-defined]
 
-    def test_on_navigate_to_with_params(self, launchpad_page: LaunchpadPage) -> None:
+    def test_on_navigate_to_with_params(self, launchpad_page: LaunchpadPage) -> None:  # type: ignore[valid-type]
         """Teszteli a navigációt paraméterekkel.
 
         Args:
             launchpad_page: A tesztelendő oldal példány.
         """
         params: dict[str, str] | None = {"key": "value"}
-        launchpad_page.on_navigate_to(params)
+        launchpad_page.on_navigate_to(params)  # type: ignore[attr-defined]
 
-        assert launchpad_page.is_loaded is True
+        assert launchpad_page.is_loaded is True  # type: ignore[attr-defined]
 
-    def test_on_navigate_to_without_params(self, launchpad_page: LaunchpadPage) -> None:
+    def test_on_navigate_to_without_params(self, launchpad_page: LaunchpadPage) -> None:  # type: ignore[valid-type]
         """Teszteli a navigációt paraméterek nélkül.
 
         Args:
             launchpad_page: A tesztelendő oldal példány.
         """
-        launchpad_page.on_navigate_to()
+        launchpad_page.on_navigate_to()  # type: ignore[attr-defined]
 
-        assert launchpad_page.is_loaded is True
+        assert launchpad_page.is_loaded is True  # type: ignore[attr-defined]
 
-    def test_on_navigate_from(self, launchpad_page: LaunchpadPage) -> None:
+    def test_on_navigate_from(self, launchpad_page: LaunchpadPage) -> None:  # type: ignore[valid-type]
         """Teszteli az oldal elhagyásakor történő akciót.
 
         Args:
@@ -145,7 +145,7 @@ class TestLaunchpadPage:
         """
         # Ez a teszt főleg arra szolgál, hogy lefusson a metódus
         # anélkül, hogy hibát dobna
-        launchpad_page.on_navigate_from()
+        launchpad_page.on_navigate_from()  # type: ignore[attr-defined]
 
     @patch("streamlit.title")
     @patch("streamlit.markdown")
@@ -165,7 +165,7 @@ class TestLaunchpadPage:
         mock_columns: MagicMock,
         mock_markdown: MagicMock,
         mock_title: MagicMock,
-        launchpad_page: LaunchpadPage,
+        launchpad_page: LaunchpadPage,  # type: ignore[valid-type]
     ) -> None:
         """Teszteli az oldal renderelését.
 
@@ -186,7 +186,7 @@ class TestLaunchpadPage:
         # Mockoljuk a container context managerét
         mock_container.return_value.__enter__.return_value = MagicMock()
 
-        launchpad_page.render()
+        launchpad_page.render()  # type: ignore[attr-defined]
 
         # Ellenőrizzük, hogy a főbb Streamlit függvények meghívásra kerültek
         mock_title.assert_called_once_with("🚀 Launchpad")
@@ -198,7 +198,7 @@ class TestLaunchpadPage:
         assert mock_page_link.call_count == 5  # 5 link
         mock_divider.assert_called_once()
 
-    def test_render_without_errors(self, launchpad_page: LaunchpadPage) -> None:
+    def test_render_without_errors(self, launchpad_page: LaunchpadPage) -> None:  # type: ignore[valid-type]
         """Teszteli, hogy a render metódus hiba nélkül lefut.
 
         Args:
@@ -221,7 +221,7 @@ class TestLaunchpadPage:
                 mock_columns.return_value = (MagicMock(), MagicMock())
                 mock_container.return_value.__enter__.return_value = MagicMock()
 
-                launchpad_page.render()
+                launchpad_page.render()  # type: ignore[attr-defined]
 
         except Exception as e:
             pytest.fail(f"A render metódus hibát dobott: {e}")

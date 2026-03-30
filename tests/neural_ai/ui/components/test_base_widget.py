@@ -10,23 +10,23 @@ class TestBaseWidget:
         """Teszteli a BaseWidget inicializálását konfiguráció nélkül."""
         widget = BaseWidget()
 
-        assert widget._config == {}
-        assert widget._visible is True
+        assert widget._config == {}  # pyright: ignore[reportPrivateUsage]
+        assert widget._visible is True  # pyright: ignore[reportPrivateUsage]
 
     def test_initialization_with_config(self) -> None:
         """Teszteli a BaseWidget inicializálását konfigurációval."""
         config: dict[str, object] = {"key": "value", "number": 42}
         widget = BaseWidget(config=config)
 
-        assert widget._config == config
-        assert widget._visible is True
+        assert widget._config == config  # pyright: ignore[reportPrivateUsage]
+        assert widget._visible is True  # pyright: ignore[reportPrivateUsage]
 
     def test_initialization_with_none_config(self) -> None:
         """Teszteli a BaseWidget inicializálását None konfigurációval."""
         widget = BaseWidget(config=None)
 
-        assert widget._config == {}
-        assert widget._visible is True
+        assert widget._config == {}  # pyright: ignore[reportPrivateUsage]
+        assert widget._visible is True  # pyright: ignore[reportPrivateUsage]
 
     def test_render_returns_string(self) -> None:
         """Teszteli, hogy a render metódus string-et ad vissza."""
@@ -40,11 +40,11 @@ class TestBaseWidget:
     def test_show_sets_visible_to_true(self) -> None:
         """Teszteli, hogy a show metódus láthatóvá teszi a widget-et."""
         widget = BaseWidget()
-        widget._visible = False
+        widget._visible = False  # pyright: ignore[reportPrivateUsage]
 
         widget.show()
 
-        assert widget._visible is True
+        assert widget._visible is True  # pyright: ignore[reportPrivateUsage]
 
     def test_hide_sets_visible_to_false(self) -> None:
         """Teszteli, hogy a hide metódus elrejti a widget-et."""
@@ -52,7 +52,7 @@ class TestBaseWidget:
 
         widget.hide()
 
-        assert widget._visible is False
+        assert widget._visible is False  # pyright: ignore[reportPrivateUsage]
 
     def test_is_visible_property_returns_true_initially(self) -> None:
         """Teszteli, hogy az is_visible property kezdetben True-t ad vissza."""

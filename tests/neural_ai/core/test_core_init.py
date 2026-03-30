@@ -245,10 +245,10 @@ class TestBootstrapCore:
         mock_system_factory.create_health_monitor.return_value = self.mock_health_monitor
 
         # JForex konfiguráció beállítása
-        def get_side_effect(*args, **kwargs):
-            key = args[0] if args else None
+        def get_side_effect(*args, **kwargs):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
+            key = args[0] if args else None  # pyright: ignore[reportUnknownVariableType]
             # Ha több argumentum van (nested get), akkor a második a kulcs
-            if len(args) > 1 and args[0] == "collectors" and args[1] == "jforex_live":
+            if len(args) > 1 and args[0] == "collectors" and args[1] == "jforex_live":  # pyright: ignore[reportUnknownArgumentType]
                 return {"enabled": True}
 
             if key == "live":
@@ -258,13 +258,13 @@ class TestBootstrapCore:
             elif key == "collectors":
                 # Ha csak a collectors-t kérik
                 return None
-            return kwargs.get("default")
+            return kwargs.get("default")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
         self.mock_config.get.side_effect = get_side_effect
 
         # A get_section("ingestion") hívásnál ne legyen extra mező
         # A get_section("logging") hívásnál se legyen extra mező
-        def get_section_side_effect(key):
+        def get_section_side_effect(key):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
             if key == "ingestion":
                 return {"enabled": True}
             if key == "logging":
@@ -288,8 +288,8 @@ class TestBootstrapCore:
 
                 # És a types.LoggingConfig valószínűleg nem tartalmazza ezeket a mezőket, vagy más a neve.  # noqa: E501
                 # Próbáljuk meg üres dict-tel, és reméljük, hogy a 'name' nem kötelező a types.LoggingConfig-ban.  # noqa: E501
-                return {}
-            return {}
+                return {}  # pyright: ignore[reportUnknownVariableType]
+            return {}  # pyright: ignore[reportUnknownVariableType]
 
         self.mock_config.get_section.side_effect = get_section_side_effect
 
@@ -355,14 +355,14 @@ class TestBootstrapCore:
         mock_system_factory.create_health_monitor.return_value = self.mock_health_monitor
 
         # JForex konfiguráció beállítása (disabled)
-        def get_side_effect(key, default=None):
+        def get_side_effect(key, default=None):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
             if key == "live":
                 return {"enabled": False}
             elif key == "storage":
                 return {"type": "parquet", "base_path": "data/storage"}
             elif key == "collectors":
                 return None
-            return default
+            return default  # pyright: ignore[reportUnknownVariableType]
 
         self.mock_config.get.side_effect = get_side_effect
 
@@ -383,7 +383,7 @@ class TestGetCoreComponents:
         # Reset global variables
         import neural_ai.core as core_module
 
-        core_module._core_components_instance = None
+        core_module._core_components_instance = None  # pyright: ignore[reportPrivateUsage]
 
         mock_components = MagicMock()
         mock_bootstrap.return_value = mock_components
@@ -402,7 +402,7 @@ class TestGetCoreComponents:
         mock_components = MagicMock()
         # A globális változó neve _CORE_COMPONENTS_INSTANCE vagy _core_components_instance
         # Ellenőrizzük a __init__.py-t, ott _core_components_instance lett
-        core_module._core_components_instance = mock_components
+        core_module._core_components_instance = mock_components  # pyright: ignore[reportPrivateUsage]
 
         result = get_core_components()
 
@@ -415,7 +415,7 @@ class TestGetCoreComponents:
         # Reset global variables
         import neural_ai.core as core_module
 
-        core_module._core_components_instance = None
+        core_module._core_components_instance = None  # pyright: ignore[reportPrivateUsage]
 
         # CoreComponents konstruktora csak container-t vár
         mock_container = MagicMock()
@@ -466,7 +466,7 @@ class TestIntegration:
             # Reset global variables
             import neural_ai.core as core_module
 
-            core_module._core_components_instance = None
+            core_module._core_components_instance = None  # pyright: ignore[reportPrivateUsage]
 
             c1 = get_core_components()
             c2 = get_core_components()
@@ -634,7 +634,7 @@ connection:
         # Itt most feltételezzük, hogy a get_engine() hívásakor derül ki a hiba.
         try:
             # Ez triggereli a config betöltést és validációt
-            _ = components.database.get_engine()
+            _ = components.database.get_engine()  # type: ignore[union-attr, union-attr]
         except (ConfigValidationError, DBConnectionError, ValueError):
             # Ha itt dob hibát, az is jó
             pass
@@ -683,10 +683,10 @@ class TestBootstrapCoreStorageError:
         mock_hardware_factory.get_hardware_info.return_value = mock_hardware
 
         mock_config = MagicMock()
-        mock_config.get.side_effect = lambda key, *args: {
+        mock_config.get.side_effect = lambda key, *args: {  # pyright: ignore[reportUnknownLambdaType]
             "logging": {"level": "INFO", "format": "json"},
             "storage": {"type": "parquet", "base_path": "/tmp/test"},
-        }.get(key, {})
+        }.get(key, {})  # pyright: ignore[reportUnknownArgumentType]
         mock_config_factory.create_manager.return_value = mock_config
 
         mock_logger = MagicMock()
@@ -753,7 +753,7 @@ class TestBootstrapCoreJForexLiveFeed:
         mock_hardware_factory.get_hardware_info.return_value = mock_hardware
 
         mock_config = MagicMock()
-        def mock_get(key: str, subkey: str | None = None) -> dict:
+        def mock_get(key: str, subkey: str | None = None) -> dict:  # pyright: ignore[reportUnknownParameterType, reportMissingTypeArgument]
             data = {
                 "logging": {"level": "INFO", "format": "json"},
                 "storage": {"type": "parquet", "base_path": "/tmp/test"},
@@ -767,16 +767,16 @@ class TestBootstrapCoreJForexLiveFeed:
                 },
             }
             if subkey:
-                return data.get(key, {}).get(subkey, {})
-            return data.get(key, {})
+                return data.get(key, {}).get(subkey, {})  # type: ignore[no-any-return, attr-defined]
+            return data.get(key, {})  # type: ignore[return-value]
 
         mock_config.get.side_effect = mock_get
-        mock_config.get_section.side_effect = lambda key: {
+        mock_config.get_section.side_effect = lambda key: {  # pyright: ignore[reportUnknownLambdaType]
             "ingestion": {
                 "buffer_size": 1000,
                 "flush_interval": 60,
             }
-        }.get(key, {})
+        }.get(key, {})  # pyright: ignore[reportUnknownArgumentType]
         mock_config_factory.create_manager.return_value = mock_config
 
         mock_logger = MagicMock()

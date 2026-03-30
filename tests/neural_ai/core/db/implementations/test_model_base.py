@@ -115,8 +115,8 @@ class TestBase:
         result = dummy_model.to_dict()
 
         # Ellenőrizzük, hogy ISO formátumú string-e
-        datetime.fromisoformat(result["created_at"])  # pyright: ignore[reportArgumentType]
-        datetime.fromisoformat(result["updated_at"])  # pyright: ignore[reportArgumentType]
+        datetime.fromisoformat(str(result["created_at"]))  # pyright: ignore[reportArgumentType]
+        datetime.fromisoformat(str(result["updated_at"]))  # pyright: ignore[reportArgumentType]
 
     def test_repr_method(self, session: Session) -> None:
         """Teszteli a __repr__ metódust."""

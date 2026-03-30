@@ -37,7 +37,7 @@ class TestSingletonMeta:
         obj_a = ClassA("A")
         obj_b = ClassB("B")
 
-        assert obj_a is not obj_b
+        assert obj_a is not obj_b  # type: ignore[comparison-overlap]
         assert obj_a.value == "A"
         assert obj_b.value == "B"
 

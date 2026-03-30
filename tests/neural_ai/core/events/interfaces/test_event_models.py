@@ -31,7 +31,7 @@ class TestEventType:
 
     def test_event_type_values(self) -> None:
         """Teszteli az EventType értékeit."""
-        assert EventType.MARKET_DATA == "market_data"
+        assert EventType.MARKET_DATA == "market_data"  # type: ignore[comparison-overlap]
         assert EventType.TRADE == "trade"
         assert EventType.SIGNAL == "signal"
         assert EventType.SYSTEM_LOG == "system_log"
@@ -44,7 +44,7 @@ class TestMarketDataEvent:
 
     def test_valid_market_data_event(self) -> None:
         """Teszteli az érvényes MarketDataEvent létrehozását."""
-        event = MarketDataEvent(
+        event = MarketDataEvent(  # type: ignore[call-arg, call-arg]
             symbol="EURUSD",
             timestamp=datetime.now(UTC),
             bid=1.0850,
@@ -60,7 +60,7 @@ class TestMarketDataEvent:
 
     def test_market_data_event_without_volume(self) -> None:
         """Teszteli a MarketDataEvent létrehozását volume nélkül."""
-        event = MarketDataEvent(
+        event = MarketDataEvent(  # type: ignore[call-arg, call-arg]
             symbol="EURUSD",
             timestamp=datetime.now(UTC),
             bid=1.0850,
@@ -73,7 +73,7 @@ class TestMarketDataEvent:
     def test_market_data_event_invalid_source(self) -> None:
         """Teszteli az érvénytelen forrást."""
         with pytest.raises(ValidationError) as exc_info:
-            MarketDataEvent(
+            MarketDataEvent(  # type: ignore[call-arg, call-arg]
                 symbol="EURUSD",
                 timestamp=datetime.now(UTC),
                 bid=1.0850,
@@ -86,7 +86,7 @@ class TestMarketDataEvent:
     def test_market_data_event_invalid_bid(self) -> None:
         """Teszteli az érvénytelen bid értéket."""
         with pytest.raises(ValidationError):
-            MarketDataEvent(
+            MarketDataEvent(  # type: ignore[call-arg, call-arg]
                 symbol="EURUSD",
                 timestamp=datetime.now(UTC),
                 bid=-1.0,
@@ -98,7 +98,7 @@ class TestMarketDataEvent:
     def test_market_data_event_invalid_ask(self) -> None:
         """Teszteli az érvénytelen ask értéket."""
         with pytest.raises(ValidationError):
-            MarketDataEvent(
+            MarketDataEvent(  # type: ignore[call-arg, call-arg]
                 symbol="EURUSD",
                 timestamp=datetime.now(UTC),
                 bid=1.0850,
@@ -131,7 +131,7 @@ class TestTradeEvent:
 
     def test_trade_event_without_strategy_id(self) -> None:
         """Teszteli a TradeEvent létrehozását strategy_id nélkül."""
-        event = TradeEvent(
+        event = TradeEvent(  # type: ignore[call-arg]
             symbol="EURUSD",
             timestamp=datetime.now(UTC),
             direction="SELL",
@@ -144,7 +144,7 @@ class TestTradeEvent:
     def test_trade_event_invalid_direction(self) -> None:
         """Teszteli az érvénytelen irányt."""
         with pytest.raises(ValidationError) as exc_info:
-            TradeEvent(
+            TradeEvent(  # type: ignore[call-arg]
                 symbol="EURUSD",
                 timestamp=datetime.now(UTC),
                 direction="INVALID",
@@ -157,7 +157,7 @@ class TestTradeEvent:
     def test_trade_event_invalid_price(self) -> None:
         """Teszteli az érvénytelen árat."""
         with pytest.raises(ValidationError):
-            TradeEvent(
+            TradeEvent(  # type: ignore[call-arg]
                 symbol="EURUSD",
                 timestamp=datetime.now(UTC),
                 direction="BUY",

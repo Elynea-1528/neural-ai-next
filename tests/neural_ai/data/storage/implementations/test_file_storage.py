@@ -35,10 +35,10 @@ class TestFileStorage:
     """FileStorage osztály tesztjei."""
 
     @pytest.fixture
-    def temp_dir(self) -> Path:
+    def temp_dir(self) -> Path:  # type: ignore[misc]
         """Ideiglenes könyvtár létrehozása a tesztekhez."""
         tmpdir = tempfile.mkdtemp()
-        yield Path(tmpdir)
+        yield Path(tmpdir)  # pyright: ignore[reportReturnType]
         shutil.rmtree(tmpdir)
 
     @pytest.fixture
@@ -66,12 +66,12 @@ class TestFileStorage:
     def test_init_default_path(self, mock_logger: MagicMock) -> None:
         """Teszteli az alapértelmezett útvonal beállítását."""
         storage = FileStorage(logger=mock_logger)
-        assert storage._base_path == Path.cwd()
+        assert storage._base_path == Path.cwd()  # pyright: ignore[reportPrivateUsage]
 
     def test_init_custom_path(self, temp_dir: Path, mock_logger: MagicMock) -> None:
         """Teszteli az egyéni útvonal beállítását."""
         storage = FileStorage(logger=mock_logger, base_path=str(temp_dir))
-        assert storage._base_path == temp_dir
+        assert storage._base_path == temp_dir  # pyright: ignore[reportPrivateUsage]
 
     def test_init_with_logger(self, temp_dir: Path) -> None:
         """Teszteli a logger beállítását."""
@@ -82,13 +82,13 @@ class TestFileStorage:
     def test_get_full_path_absolute(self, storage: FileStorage) -> None:
         """Teszteli az abszolút útvonal kezelését."""
         abs_path = Path("/absolute/path/file.txt")
-        result = storage._get_full_path(abs_path)
+        result = storage._get_full_path(abs_path)  # pyright: ignore[reportPrivateUsage]
         assert result == abs_path
 
     def test_get_full_path_relative(self, storage: FileStorage, temp_dir: Path) -> None:
         """Teszteli a relatív útvonal kezelését."""
         rel_path = "relative/file.txt"
-        result = storage._get_full_path(rel_path)
+        result = storage._get_full_path(rel_path)  # pyright: ignore[reportPrivateUsage]
         assert result == temp_dir / rel_path
 
     def test_exists_true(self, storage: FileStorage, temp_dir: Path) -> None:
@@ -120,7 +120,7 @@ class TestFileStorage:
     ) -> None:
         """Teszteli a DataFrame mentését érvénytelen formátumban."""
         with pytest.raises(StorageFormatError, match="Csak Parquet formátum támogatott"):
-            storage.save_dataframe(sample_dataframe, "test.txt", fmt="txt")
+            storage.save_dataframe(sample_dataframe, "test.txt", fmt="txt")  # type: ignore[arg-type]
 
     def test_load_dataframe_not_found(self, storage: FileStorage) -> None:
         """Teszteli a DataFrame betöltését nem létező fájlból."""
@@ -154,7 +154,7 @@ class TestFileStorage:
 
     def test_get_metadata_file(self, storage: FileStorage) -> None:
         """Teszteli a fájl metaadatok lekérdezését."""
-        test_file = storage._get_full_path("meta_test.txt")
+        test_file = storage._get_full_path("meta_test.txt")  # pyright: ignore[reportPrivateUsage]
         test_file.write_text("test content")
 
         metadata = storage.get_metadata("meta_test.txt")
@@ -172,7 +172,7 @@ class TestFileStorage:
 
     def test_delete_file(self, storage: FileStorage) -> None:
         """Teszteli a fájl törlését."""
-        test_file = storage._get_full_path("delete_test.txt")
+        test_file = storage._get_full_path("delete_test.txt")  # pyright: ignore[reportPrivateUsage]
         test_file.write_text("test")
 
         assert storage.exists("delete_test.txt")
@@ -187,9 +187,9 @@ class TestFileStorage:
     def test_list_dir(self, storage: FileStorage) -> None:
         """Teszteli a könyvtár listázását."""
         # Hozzunk létre néhány tesztfájlt
-        (storage._get_full_path("dir1") / "file1.txt").parent.mkdir(parents=True, exist_ok=True)
-        storage._get_full_path("dir1/file1.txt").write_text("test1")
-        storage._get_full_path("dir1/file2.txt").write_text("test2")
+        (storage._get_full_path("dir1") / "file1.txt").parent.mkdir(parents=True, exist_ok=True)  # pyright: ignore[reportPrivateUsage]
+        storage._get_full_path("dir1/file1.txt").write_text("test1")  # pyright: ignore[reportPrivateUsage]
+        storage._get_full_path("dir1/file2.txt").write_text("test2")  # pyright: ignore[reportPrivateUsage]
 
         files = storage.list_dir("dir1")
         assert len(files) == 2
@@ -200,9 +200,9 @@ class TestFileStorage:
     def test_list_dir_with_pattern(self, storage: FileStorage) -> None:
         """Teszteli a könyvtár listázását mintával."""
         # Hozzunk létre néhány tesztfájlt
-        (storage._get_full_path("dir2") / "file1.txt").parent.mkdir(parents=True, exist_ok=True)
-        storage._get_full_path("dir2/file1.txt").write_text("test1")
-        storage._get_full_path("dir2/file2.csv").write_text("test2")
+        (storage._get_full_path("dir2") / "file1.txt").parent.mkdir(parents=True, exist_ok=True)  # pyright: ignore[reportPrivateUsage]
+        storage._get_full_path("dir2/file1.txt").write_text("test1")  # pyright: ignore[reportPrivateUsage]
+        storage._get_full_path("dir2/file2.csv").write_text("test2")  # pyright: ignore[reportPrivateUsage]
 
         txt_files = storage.list_dir("dir2", pattern="*.txt")
         assert len(txt_files) == 1
@@ -221,13 +221,13 @@ class TestFileStorage:
 
         # Ez nem szabad, hogy hibát dobjon, csak írási jogosultság ellenőrzésénél
         try:
-            storage._check_permissions(test_file, check_write=False)
+            storage._check_permissions(test_file, check_write=False)  # pyright: ignore[reportPrivateUsage]
         except Exception:
             pytest.fail("Unexpected PermissionDeniedError")
 
     def test_get_storage_info(self, storage: FileStorage) -> None:
         """Teszteli a tároló információk lekérdezését."""
-        info = storage.get_storage_info(storage._base_path)
+        info = storage.get_storage_info(storage._base_path)  # pyright: ignore[reportPrivateUsage]
 
         assert "total_space_gb" in info
         assert "used_space_gb" in info
@@ -240,7 +240,7 @@ class TestFileStorage:
     ) -> None:
         """Teszteli a DataFrame mentését **kwargs paraméterekkel."""
         # Parquet mentés tömörítéssel
-        storage.save_dataframe(sample_dataframe, "test_compression.parquet", compression="gzip")
+        storage.save_dataframe(sample_dataframe, "test_compression.parquet", compression="gzip")  # type: ignore[arg-type]
 
         # Betöltjük és ellenőrizzük
         loaded = storage.load_dataframe("test_compression.parquet")
@@ -255,7 +255,7 @@ class TestFileStorage:
         storage.save_dataframe(sample_dataframe, "test_kwargs.parquet")
 
         # Betöltjük egyéni paraméterekkel (pl. csak bizonyos oszlopok)
-        loaded = storage.load_dataframe("test_kwargs.parquet", columns=["id", "name"])
+        loaded = storage.load_dataframe("test_kwargs.parquet", columns=["id", "name"])  # type: ignore[arg-type]
         assert len(loaded.columns) == 2
         assert "age" not in loaded.columns
 
@@ -266,10 +266,10 @@ class TestFileStorage:
         # Pickle mentés egyéni protokollal
         import pickle
 
-        storage.save_object(sample_object, "test_protocol.pkl", protocol=pickle.HIGHEST_PROTOCOL)
+        storage.save_object(sample_object, "test_protocol.pkl", protocol=pickle.HIGHEST_PROTOCOL)  # type: ignore[arg-type]
 
         # Ellenőrizzük, hogy a fájl létrejött
-        test_file = storage._get_full_path("test_protocol.pkl")
+        test_file = storage._get_full_path("test_protocol.pkl")  # pyright: ignore[reportPrivateUsage]
         assert test_file.exists()
 
     def test_load_object_with_kwargs(
@@ -287,14 +287,14 @@ class TestFileStorage:
         """Teszteli a lemezterület ellenőrzését elegendő terület esetén."""
         test_file = temp_dir / "disk_test.txt"
         # Ez nem szabad, hogy hibát dobjon
-        storage._check_disk_space(test_file, 1024)
+        storage._check_disk_space(test_file, 1024)  # pyright: ignore[reportPrivateUsage]
 
     def test_check_disk_space_insufficient(self, storage: FileStorage, temp_dir: Path) -> None:
         """Teszteli a lemezterület ellenőrzését elégtelen terület esetén."""
         test_file = temp_dir / "disk_test.txt"
         # Nagyon nagy méretet kérünk (1 TB), hogy biztosan ne férjen rá
         with pytest.raises(StorageIOError):
-            storage._check_disk_space(test_file, 1024 * 1024 * 1024 * 1024)
+            storage._check_disk_space(test_file, 1024 * 1024 * 1024 * 1024)  # pyright: ignore[reportPrivateUsage]
 
     def test_check_disk_space_os_error(
         self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
@@ -311,7 +311,7 @@ class TestFileStorage:
         monkeypatch.setattr(os_module, "statvfs", mock_statvfs)
 
         with pytest.raises(StorageIOError, match="Nem sikerült ellenőrizni a lemezterületet"):
-            storage._check_disk_space(test_file, 1024)
+            storage._check_disk_space(test_file, 1024)  # pyright: ignore[reportPrivateUsage]
 
     def test_check_permissions_write_denied(self, storage: FileStorage, temp_dir: Path) -> None:
         """Teszteli a jogosultság ellenőrzését írási jog nélkül."""
@@ -323,7 +323,7 @@ class TestFileStorage:
         test_dir.chmod(0o444)
 
         with pytest.raises(StorageIOError, match="Nincs írási jogosultság"):
-            storage._check_permissions(test_file, check_write=True)
+            storage._check_permissions(test_file, check_write=True)  # pyright: ignore[reportPrivateUsage]
 
         # Visszaállítjuk az eredeti jogosultságot
         test_dir.chmod(0o755)
@@ -335,7 +335,7 @@ class TestFileStorage:
         test_file.chmod(0o000)  # Semmilyen jogosultság
 
         with pytest.raises(StorageIOError, match="Nincs olvasási jogosultság"):
-            storage._check_permissions(test_file, check_write=False)
+            storage._check_permissions(test_file, check_write=False)  # pyright: ignore[reportPrivateUsage]
 
         # Visszaállítjuk az eredeti jogosultságot
         test_file.chmod(0o644)
@@ -347,7 +347,7 @@ class TestFileStorage:
         test_file = temp_dir / "nonexistent_dir" / "test.txt"
 
         with pytest.raises(StorageIOError, match="A szülő könyvtár nem létezik"):
-            storage._check_permissions(test_file, check_write=True)
+            storage._check_permissions(test_file, check_write=True)  # pyright: ignore[reportPrivateUsage]
 
     def test_get_storage_info_os_error(
         self, storage: FileStorage, temp_dir: Path, monkeypatch: pytest.MonkeyPatch
@@ -369,7 +369,7 @@ class TestFileStorage:
 
     def test_atomic_write_bytes(self, storage: FileStorage) -> None:
         """Teszteli az atomi írást bytes tartalommal (bináris mód)."""
-        test_file = storage._get_full_path("atomic_bytes.bin")
+        test_file = storage._get_full_path("atomic_bytes.bin")  # pyright: ignore[reportPrivateUsage]
         content = b"binary content"
 
         # Bináris tartalmat közvetlenül írunk a temp fájlba
@@ -433,7 +433,7 @@ class TestFileStorage:
 
     def test_load_dataframe_format_detection_failure(self, storage: FileStorage) -> None:
         """Teszteli a DataFrame betöltését formátum meghatározási hiba esetén."""
-        test_file = storage._get_full_path("test_no_extension")
+        test_file = storage._get_full_path("test_no_extension")  # pyright: ignore[reportPrivateUsage]
         test_file.write_text("dummy")
 
         with pytest.raises(StorageFormatError, match="Nem sikerült meghatározni"):
@@ -508,7 +508,7 @@ class TestFileStorage:
 
     def test_load_object_format_detection_failure(self, storage: FileStorage) -> None:
         """Teszteli az objektum betöltését formátum meghatározási hiba esetén."""
-        test_file = storage._get_full_path("test_no_extension")
+        test_file = storage._get_full_path("test_no_extension")  # pyright: ignore[reportPrivateUsage]
         test_file.write_text("dummy")
 
         with pytest.raises(StorageFormatError, match="Nem sikerült meghatározni"):
@@ -516,7 +516,7 @@ class TestFileStorage:
 
     def test_load_object_deserialization_error(self, storage: FileStorage) -> None:
         """Teszteli az objektum betöltését deszerializációs hiba esetén."""
-        test_file = storage._get_full_path("invalid.pkl")
+        test_file = storage._get_full_path("invalid.pkl")  # pyright: ignore[reportPrivateUsage]
         test_file.write_bytes(b"invalid pickle data")
 
         with pytest.raises(StorageSerializationError, match="nem deszerializálható"):
@@ -555,7 +555,7 @@ class TestFileStorage:
 
     def test_delete_directory(self, storage: FileStorage) -> None:
         """Teszteli a könyvtár törlését."""
-        test_dir = storage._get_full_path("delete_dir")
+        test_dir = storage._get_full_path("delete_dir")  # pyright: ignore[reportPrivateUsage]
         test_dir.mkdir(parents=True)
 
         assert storage.exists("delete_dir")
@@ -579,7 +579,7 @@ class TestFileStorage:
 
     def test_list_dir_not_directory(self, storage: FileStorage) -> None:
         """Teszteli a könyvtár listázását, ha az útvonal nem könyvtár."""
-        test_file = storage._get_full_path("not_a_dir.txt")
+        test_file = storage._get_full_path("not_a_dir.txt")  # pyright: ignore[reportPrivateUsage]
         test_file.write_text("test")
 
         with pytest.raises(StorageIOError, match="nem könyvtár"):
@@ -589,7 +589,7 @@ class TestFileStorage:
         self, storage: FileStorage, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Teszteli a könyvtár listázását glob hiba esetén."""
-        test_dir = storage._get_full_path("glob_error_dir")
+        test_dir = storage._get_full_path("glob_error_dir")  # pyright: ignore[reportPrivateUsage]
         test_dir.mkdir(parents=True)
 
         def mock_glob(*args: Any, **kwargs: Any) -> None:

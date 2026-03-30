@@ -56,7 +56,7 @@ class TestForceKillIntegration:
             sys.path.insert(0, str(project_root))
 
         # Act & Assert
-        from scripts import force_kill  # noqa: F401
+        from scripts import force_kill  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
     def test_force_kill_execution_dry_run(self, project_root: Path) -> None:
         """Teszt: A force_kill.py script futtatható (dry run).
@@ -66,7 +66,7 @@ class TestForceKillIntegration:
         Assert: A script nem dob hibát az importáláskor
         """
         # Arrange
-        project_root / "scripts" / "force_kill.py"
+        project_root / "scripts" / "force_kill.py"  # pyright: ignore[reportUnusedExpression]
         python_executable = sys.executable
 
         # Act

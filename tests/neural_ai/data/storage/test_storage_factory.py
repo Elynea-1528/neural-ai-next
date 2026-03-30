@@ -22,7 +22,7 @@ class TestStorageFactory:
         """Teszt metódus előtti beállítás - Singleton cache törlése."""
         from neural_ai.core.base.implementations.singleton import SingletonMeta
 
-        SingletonMeta._instances.clear()
+        SingletonMeta._instances.clear()  # pyright: ignore[reportPrivateUsage]
 
     def test_register_storage(self) -> None:
         """Teszteli a storage típus regisztrálását."""
@@ -38,7 +38,7 @@ class TestStorageFactory:
             def save_dataframe(self, df: object, path: str, **kwargs: object) -> None:
                 pass
 
-            def load_dataframe(self, path: str, **kwargs: object) -> object:
+            def load_dataframe(self, path: str, **kwargs: object) -> object:  # type: ignore[override]
                 return {}
 
             def delete(self, path: str) -> None:
@@ -47,7 +47,7 @@ class TestStorageFactory:
             def exists(self, path: str) -> bool:
                 return True
 
-            def list_dir(self, path: str) -> list[str]:
+            def list_dir(self, path: str) -> list[str]:  # type: ignore[override]
                 return []
 
             def get_metadata(self, path: str) -> dict[str, object]:
@@ -71,7 +71,7 @@ class TestStorageFactory:
 
         # A regisztráció során nem történik ellenőrzés, ezért ez sikeres lesz
         # (a Python dinamikus természete miatt)
-        StorageFactory.register_storage("invalid", InvalidClass)
+        StorageFactory.register_storage("invalid", InvalidClass)  # type: ignore[arg-type]
         assert "invalid" in StorageFactory.get_registered_types()
 
     def test_get_storage_file_type(self, tmp_path: Path) -> None:
@@ -146,7 +146,7 @@ class TestStorageFactory:
             def save_dataframe(self, df: object, path: str, **kwargs: object) -> None:
                 pass
 
-            def load_dataframe(self, path: str, **kwargs: object) -> object:
+            def load_dataframe(self, path: str, **kwargs: object) -> object:  # type: ignore[override]
                 return {}
 
             def delete(self, path: str) -> None:
@@ -155,7 +155,7 @@ class TestStorageFactory:
             def exists(self, path: str) -> bool:
                 return True
 
-            def list_dir(self, path: str) -> list[str]:
+            def list_dir(self, path: str) -> list[str]:  # type: ignore[override]
                 return []
 
             def get_metadata(self, path: str) -> dict[str, object]:
@@ -186,7 +186,7 @@ class TestStorageFactory:
             def save_dataframe(self, df: object, path: str, **kwargs: object) -> None:
                 pass
 
-            def load_dataframe(self, path: str, **kwargs: object) -> object:
+            def load_dataframe(self, path: str, **kwargs: object) -> object:  # type: ignore[override]
                 return {}
 
             def delete(self, path: str) -> None:
@@ -195,7 +195,7 @@ class TestStorageFactory:
             def exists(self, path: str) -> bool:
                 return True
 
-            def list_dir(self, path: str) -> list[str]:
+            def list_dir(self, path: str) -> list[str]:  # type: ignore[override]
                 return []
 
             def get_metadata(self, path: str) -> dict[str, object]:

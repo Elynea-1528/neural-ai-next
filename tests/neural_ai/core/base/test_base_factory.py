@@ -27,13 +27,13 @@ class TestCoreComponentFactory:
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
         class DummyLogger(LoggerInterface):
-            def __init__(self, name: str, **kwargs): pass
-            def debug(self, message: str, **kwargs): pass
-            def info(self, message: str, **kwargs): pass
-            def warning(self, message: str, **kwargs): pass
-            def error(self, message: str, **kwargs): pass
-            def critical(self, message: str, **kwargs): pass
-            def log(self, level: str, message: str, **kwargs): pass
+            def __init__(self, name: str, **kwargs): pass  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
+            def debug(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def info(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def warning(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def error(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def critical(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def log(self, level: str, message: str, **kwargs): pass  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
             def set_level(self, level: int) -> None: pass
             def get_level(self) -> int: return 20
 
@@ -55,12 +55,12 @@ class TestCoreComponentFactory:
 
         class DummyLogger(LoggerInterface):
             def __init__(self, name: str): pass
-            def debug(self, message: str, **kwargs): pass
-            def info(self, message: str, **kwargs): pass
-            def warning(self, message: str, **kwargs): pass
-            def error(self, message: str, **kwargs): pass
-            def critical(self, message: str, **kwargs): pass
-            def log(self, level: str, message: str, **kwargs): pass
+            def debug(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def info(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def warning(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def error(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def critical(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def log(self, level: str, message: str, **kwargs): pass  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
             def set_level(self, level: int) -> None: pass  # Javítva: int típus
             def get_level(self) -> int: return 20  # get_level int-et ad vissza
 
@@ -97,13 +97,13 @@ class TestCoreComponentFactory:
         from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
         class DummyLogger(LoggerInterface):
-            def __init__(self, name: str, **kwargs): pass
-            def debug(self, message: str, **kwargs): pass
-            def info(self, message: str, **kwargs): pass
-            def warning(self, message: str, **kwargs): pass
-            def error(self, message: str, **kwargs): pass
-            def critical(self, message: str, **kwargs): pass
-            def log(self, level: str, message: str, **kwargs): pass
+            def __init__(self, name: str, **kwargs): pass  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
+            def debug(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def info(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def warning(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def error(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def critical(self, message: str, **kwargs): pass  # pyright: ignore[reportMissingParameterType]
+            def log(self, level: str, message: str, **kwargs): pass  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
             def set_level(self, level: int) -> None: pass
             def get_level(self) -> int: return 20
 
@@ -128,14 +128,14 @@ class TestCoreComponentFactory:
 
         # Pydantic validation error wrapped in ConfigurationError
         with pytest.raises(ConfigurationError, match="Configuration error for storage"):
-            CoreComponentFactory._validate_dependencies("storage", config)
+            CoreComponentFactory._validate_dependencies("storage", config)  # pyright: ignore[reportPrivateUsage]
 
     def test_validate_dependencies_storage_invalid_path(self) -> None:
         """Teszteli a storage függőség validálását érvénytelen elérési úttal."""
         config: dict[str, str] = {"base_path": "/nonexistent/path/to/storage"}
 
         with pytest.raises(ConfigurationError, match="parent does not exist"):
-            CoreComponentFactory._validate_dependencies("storage", config)
+            CoreComponentFactory._validate_dependencies("storage", config)  # pyright: ignore[reportPrivateUsage]
 
     def test_validate_dependencies_storage_valid(self) -> None:
         """Teszteli a storage függőség validálását érvényes konfiggal."""
@@ -144,35 +144,35 @@ class TestCoreComponentFactory:
             config: dict[str, str] = {"base_path": str(storage_path)}
 
             # Nem dob kivételt
-            CoreComponentFactory._validate_dependencies("storage", config)
+            CoreComponentFactory._validate_dependencies("storage", config)  # pyright: ignore[reportPrivateUsage]
 
     def test_validate_dependencies_logger_missing_name(self) -> None:
         """Teszteli a logger függőség validálását hiányzó névvel."""
         config: dict[str, str] = {}
 
         with pytest.raises(ConfigurationError, match="Field required"):
-            CoreComponentFactory._validate_dependencies("logger", config)
+            CoreComponentFactory._validate_dependencies("logger", config)  # pyright: ignore[reportPrivateUsage]
 
     def test_validate_dependencies_logger_valid(self) -> None:
         """Teszteli a logger függőség validálását érvényes konfiggal."""
         config: dict[str, str] = {"name": "test_logger"}
 
         # Nem dob kivételt
-        CoreComponentFactory._validate_dependencies("logger", config)
+        CoreComponentFactory._validate_dependencies("logger", config)  # pyright: ignore[reportPrivateUsage]
 
     def test_validate_dependencies_config_manager_missing_path(self) -> None:
         """Teszteli a config manager függőség validálását hiányzó fájlúttal."""
         config: dict[str, str] = {}
 
         with pytest.raises(ConfigurationError, match="Field required"):
-            CoreComponentFactory._validate_dependencies("config_manager", config)
+            CoreComponentFactory._validate_dependencies("config_manager", config)  # pyright: ignore[reportPrivateUsage]
 
     def test_validate_dependencies_config_manager_nonexistent_file(self) -> None:
         """Teszteli a config manager függőség validálását nem létező fájllal."""
         config: dict[str, str] = {"config_file_path": "/nonexistent/config.yml"}
 
         with pytest.raises(ConfigurationError, match="Config file does not exist"):
-            CoreComponentFactory._validate_dependencies("config_manager", config)
+            CoreComponentFactory._validate_dependencies("config_manager", config)  # pyright: ignore[reportPrivateUsage]
 
     def test_validate_dependencies_config_manager_valid(self) -> None:
         """Teszteli a config manager függőség validálását érvényes konfiggal."""
@@ -183,7 +183,7 @@ class TestCoreComponentFactory:
         try:
             config: dict[str, str] = {"config_file_path": temp_file}
             # Nem dob kivételt
-            CoreComponentFactory._validate_dependencies("config_manager", config)
+            CoreComponentFactory._validate_dependencies("config_manager", config)  # pyright: ignore[reportPrivateUsage]
         finally:
             Path(temp_file).unlink(missing_ok=True)
 
@@ -192,7 +192,7 @@ class TestCoreComponentFactory:
         config: dict[str, str] = {}
 
         # Érvénytelen típus esetén nem dob kivételt
-        CoreComponentFactory._validate_dependencies("invalid_type", config)
+        CoreComponentFactory._validate_dependencies("invalid_type", config)  # pyright: ignore[reportPrivateUsage]
 
     @patch("neural_ai.core.config.factory.ConfigManagerFactory.get_manager")
     @patch("neural_ai.core.logger.factory.LoggerFactory.get_logger")
@@ -235,7 +235,7 @@ class TestCoreComponentFactory:
         mock_config = MagicMock()
         # A factory a config.get("storage")-t hívja, ami egy dict-et ad vissza,
         # nem {"storage": dict}-et!
-        mock_config.get.side_effect = lambda k: ({"base_path": "/tmp"} if k == "storage" else {})
+        mock_config.get.side_effect = lambda k: ({"base_path": "/tmp"} if k == "storage" else {})  # pyright: ignore[reportUnknownLambdaType]
         mock_get_manager.return_value = mock_config
 
         # A FileStorage-t itt is mockoljuk, hogy ne próbáljon valódi fájlrendszerhez nyúlni
@@ -287,7 +287,7 @@ class TestCoreComponentFactory:
     ) -> None:
         """Teszteli a komponensek létrehozását config fájllal, de logger section nélkül."""
         mock_config = MagicMock()
-        mock_config.get.side_effect = lambda k: ({"base_path": "/tmp"} if k == "storage" else {})
+        mock_config.get.side_effect = lambda k: ({"base_path": "/tmp"} if k == "storage" else {})  # pyright: ignore[reportUnknownLambdaType]
         mock_get_manager.return_value = mock_config
 
         with patch("neural_ai.data.storage.implementations.file_storage.FileStorage"):
@@ -399,8 +399,8 @@ class TestCoreComponentFactory:
         factory: CoreComponentFactory = CoreComponentFactory(container)
 
         # Első hozzáféréskor töltse be
-        cache1 = factory._component_cache
-        cache2 = factory._component_cache
+        cache1 = factory._component_cache  # pyright: ignore[reportPrivateUsage]
+        cache2 = factory._component_cache  # pyright: ignore[reportPrivateUsage]
 
         # Mindkét esetben ugyanazt az értéket kell kapjuk
         assert cache1 is cache2
@@ -484,28 +484,28 @@ class TestCoreComponentFactory:
         class DummyConfigManager(ConfigManagerInterface):
             def __init__(self, config_path: Path | None = None):
                 pass
-            def get(self, key: str, default: object = None) -> object:
+            def get(self, key: str, default: object = None) -> object:  # type: ignore[override]
                 return default
-            def set(self, key: str, value: object) -> None:
+            def set(self, key: str, value: object) -> None:  # type: ignore[override]
                 pass
             def has(self, key: str) -> bool:
                 return False
             def get_section(self, section: str) -> dict[str, object]:
                 return {}
-            def load(self, path: Path) -> None:
+            def load(self, path: Path) -> None:  # type: ignore[override]
                 pass
-            def load_directory(self, directory: Path) -> None:
+            def load_directory(self, directory: Path) -> None:  # type: ignore[override]
                 pass
-            def save(self, path: Path) -> None:
+            def save(self, path: Path) -> None:  # type: ignore[override]
                 pass
-            def validate(self) -> bool:
+            def validate(self) -> bool:  # type: ignore[override]
                 return True
 
         mock_config = DummyConfigManager()
         container.register_instance(ConfigManagerInterface, mock_config)
 
         factory: CoreComponentFactory = CoreComponentFactory(container)
-        result = factory._get_config_manager()
+        result = factory._get_config_manager()  # pyright: ignore[reportPrivateUsage]
 
         assert result is not None
         assert result is mock_config
@@ -520,9 +520,9 @@ class TestCoreComponentFactory:
         factory: CoreComponentFactory = CoreComponentFactory(container)
 
         # Mockoljuk a container.resolve metódust, hogy None-t adjon vissza
-        with patch.object(factory._container, "resolve", return_value=None):
+        with patch.object(factory._container, "resolve", return_value=None):  # pyright: ignore[reportPrivateUsage]
             with pytest.raises(DependencyError, match="Storage not available"):
-                factory._get_storage()
+                factory._get_storage()  # pyright: ignore[reportPrivateUsage]
 
     def test_expensive_config_lazy_property(self) -> None:
         """Teszteli az _expensive_config lazy property működését (111-114. sorok)."""
@@ -563,10 +563,10 @@ class TestCoreComponentFactory:
                     with patch("neural_ai.core.base.factory.time.sleep"):
                         # Mockoljuk a _process_config metódust, hogy a
                         # config.get() eredményét adja vissza
-                        with patch.object(factory, "_process_config", side_effect=lambda x: x):
+                        with patch.object(factory, "_process_config", side_effect=lambda x: x):  # pyright: ignore[reportUnknownLambdaType]
                             # Első hozzáféréskor töltse be
-                            expensive_config1 = factory._expensive_config
-                            expensive_config2 = factory._expensive_config
+                            expensive_config1 = factory._expensive_config  # pyright: ignore[reportPrivateUsage]
+                            expensive_config2 = factory._expensive_config  # pyright: ignore[reportPrivateUsage]
 
                         # Mindkét esetben ugyanazt az értéket kell kapjuk (lazy property)
                         assert expensive_config1 is expensive_config2
@@ -579,7 +579,7 @@ class TestCoreComponentFactory:
         factory: CoreComponentFactory = CoreComponentFactory(container)
 
         test_config = {"key": "value"}
-        result = factory._process_config(test_config)
+        result = factory._process_config(test_config)  # pyright: ignore[reportPrivateUsage]
 
         assert result == test_config
 
@@ -622,9 +622,9 @@ class TestCoreComponentFactory:
                     with patch("neural_ai.core.base.factory.time.sleep"):
                         # Mockoljuk a _process_config metódust, hogy a
                         # config.get() eredményét adja vissza
-                        with patch.object(factory, "_process_config", side_effect=lambda x: x):
+                        with patch.object(factory, "_process_config", side_effect=lambda x: x):  # pyright: ignore[reportUnknownLambdaType]
                             # Hozzáférés az _expensive_config-hoz, hogy létrejöjjön a lazy property
-                            _ = factory._expensive_config
+                            _ = factory._expensive_config  # pyright: ignore[reportPrivateUsage]
 
                 # Ellenőrizzük, hogy a lazy property létrejött
                 lazy_attr_exists = hasattr(factory, "_lazy__expensive_config")

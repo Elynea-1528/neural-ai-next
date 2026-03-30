@@ -59,11 +59,11 @@ class TestDynamicConfigManagerInit:
         """Teszt: Sikeres inicializálás sessionnel."""
         manager = DynamicConfigManager(session=mock_session)
         assert manager.session == mock_session
-        assert manager._logger is None
-        assert manager._cache == {}
-        assert manager._listeners == []
-        assert manager._last_update is None
-        assert manager._hot_reload_task is None
+        assert manager._logger is None  # pyright: ignore[reportPrivateUsage]
+        assert manager._cache == {}  # pyright: ignore[reportPrivateUsage]
+        assert manager._listeners == []  # pyright: ignore[reportPrivateUsage]
+        assert manager._last_update is None  # pyright: ignore[reportPrivateUsage]
+        assert manager._hot_reload_task is None  # pyright: ignore[reportPrivateUsage]
 
     def test_init_with_session_and_logger_success(
         self, mock_session: AsyncMock, mock_logger: MagicMock
@@ -71,7 +71,7 @@ class TestDynamicConfigManagerInit:
         """Teszt: Sikeres inicializálás sessionnel és loggerrel."""
         manager = DynamicConfigManager(session=mock_session, logger=mock_logger)
         assert manager.session == mock_session
-        assert manager._logger == mock_logger
+        assert manager._logger == mock_logger  # pyright: ignore[reportPrivateUsage]
 
 
 class TestDynamicConfigManagerGet:
@@ -88,7 +88,7 @@ class TestDynamicConfigManagerGet:
     @pytest.mark.asyncio
     async def test_get_from_cache(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Érték lekérése a cache-ből."""
-        config_manager._cache["test_key"] = "cached_value"
+        config_manager._cache["test_key"] = "cached_value"  # pyright: ignore[reportPrivateUsage]
         result = await config_manager.get("test_key", default="default_value")
         assert result == "cached_value"
 
@@ -111,7 +111,7 @@ class TestDynamicConfigManagerGet:
         result = await config_manager.get("test_key", default="default_value")
 
         assert result == "test_value"
-        assert config_manager._cache["test_key"] == "test_value"
+        assert config_manager._cache["test_key"] == "test_value"  # pyright: ignore[reportPrivateUsage]
         mock_session.execute.assert_awaited_once()
 
     @pytest.mark.asyncio
@@ -163,7 +163,7 @@ class TestDynamicConfigManagerSet:
         # Ellenőrizzük, hogy a konfiguráció hozzá lett-e adva
         assert mock_session.add.called
         mock_session.commit.assert_awaited_once()
-        assert config_manager._cache["new_key"] == "new_value"
+        assert config_manager._cache["new_key"] == "new_value"  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     async def test_set_existing_config_success(
@@ -184,7 +184,7 @@ class TestDynamicConfigManagerSet:
 
         assert mock_config.value == "updated_value"
         mock_session.commit.assert_awaited_once()
-        assert config_manager._cache["existing_key"] == "updated_value"
+        assert config_manager._cache["existing_key"] == "updated_value"  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     async def test_set_database_error_raises_config_error(
@@ -279,7 +279,7 @@ class TestDynamicConfigManagerValidate:
     @pytest.mark.asyncio
     async def test_validate_success(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Sikeres validáció."""
-        config_manager._cache = {
+        config_manager._cache = {  # pyright: ignore[reportPrivateUsage]
             "key1": "value1",
             "key2": 123,
             "key3": 3.14,
@@ -300,7 +300,7 @@ class TestDynamicConfigManagerValidate:
         self, config_manager: DynamicConfigManager
     ) -> None:
         """Teszt: Validáció hiba, ha kötelező mező hiányzik."""
-        config_manager._cache = {"key1": "value1"}
+        config_manager._cache = {"key1": "value1"}  # pyright: ignore[reportPrivateUsage]
         schema = {
             "key1": str,
             "missing_key": int,
@@ -309,20 +309,20 @@ class TestDynamicConfigManagerValidate:
         is_valid, errors = await config_manager.validate(schema)
 
         assert is_valid is False
-        assert "missing_key" in errors
-        assert errors["missing_key"] == "Kötelező mező hiányzik"
+        assert "missing_key" in errors  # type: ignore[operator]
+        assert errors["missing_key"] == "Kötelező mező hiányzik"  # type: ignore[index]
 
     @pytest.mark.asyncio
     async def test_validate_invalid_type(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Validáció hiba, ha az érték típusa nem megfelelő."""
-        config_manager._cache = {"key1": "value1"}
+        config_manager._cache = {"key1": "value1"}  # pyright: ignore[reportPrivateUsage]
         schema = {"key1": int}
 
         is_valid, errors = await config_manager.validate(schema)
 
         assert is_valid is False
-        assert "key1" in errors
-        assert "Érvénytelen típus" in errors["key1"]
+        assert "key1" in errors  # type: ignore[operator]
+        assert "Érvénytelen típus" in errors["key1"]  # type: ignore[index]
 
 
 class TestDynamicConfigManagerListeners:
@@ -336,8 +336,8 @@ class TestDynamicConfigManagerListeners:
 
         config_manager.add_listener(dummy_listener)
 
-        assert len(config_manager._listeners) == 1
-        assert config_manager._listeners[0] == dummy_listener
+        assert len(config_manager._listeners) == 1  # pyright: ignore[reportPrivateUsage]
+        assert config_manager._listeners[0] == dummy_listener  # pyright: ignore[reportPrivateUsage]
 
     def test_remove_listener_success(self, config_manager: DynamicConfigManager) -> None:
         """Teszt: Listener eltávolítása."""
@@ -348,7 +348,7 @@ class TestDynamicConfigManagerListeners:
         config_manager.add_listener(dummy_listener)
         config_manager.remove_listener(dummy_listener)
 
-        assert len(config_manager._listeners) == 0
+        assert len(config_manager._listeners) == 0  # pyright: ignore[reportPrivateUsage]
 
     def test_remove_nonexistent_listener_no_error(
         self, config_manager: DynamicConfigManager
@@ -370,8 +370,8 @@ class TestDynamicConfigManagerHotReload:
         """Teszt: Hot reload indítása."""
         await config_manager.start_hot_reload(interval=1.0)
 
-        assert config_manager._hot_reload_task is not None
-        assert not config_manager._hot_reload_task.done()
+        assert config_manager._hot_reload_task is not None  # pyright: ignore[reportPrivateUsage]
+        assert not config_manager._hot_reload_task.done()  # pyright: ignore[reportPrivateUsage]
 
         # Hot reload leállítása
         await config_manager.stop_hot_reload()
@@ -394,8 +394,8 @@ class TestDynamicConfigManagerHotReload:
         await config_manager.start_hot_reload(interval=1.0)
         await config_manager.stop_hot_reload()
 
-        assert config_manager._hot_reload_task is None
-        assert config_manager._stop_hot_reload.is_set()
+        assert config_manager._hot_reload_task is None  # pyright: ignore[reportPrivateUsage]
+        assert config_manager._stop_hot_reload.is_set()  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     async def test_stop_hot_reload_when_not_running_no_error(
@@ -475,7 +475,7 @@ class TestDynamicConfigManagerSetWithMetadata:
 
         assert mock_session.add.called
         mock_session.commit.assert_awaited_once()
-        assert config_manager._cache["test_key"] == "test_value"
+        assert config_manager._cache["test_key"] == "test_value"  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     async def test_set_with_metadata_existing_config_success(
@@ -531,7 +531,7 @@ class TestDynamicConfigManagerDelete:
         assert result is True
         assert mock_config.is_active is False
         mock_session.commit.assert_awaited_once()
-        assert "test_key" not in config_manager._cache
+        assert "test_key" not in config_manager._cache  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     async def test_delete_nonexistent_config_returns_false(
@@ -571,35 +571,35 @@ class TestDynamicConfigManagerDetermineValueType:
 
     def test_determine_value_type_bool(self) -> None:
         """Teszt: Boolean típus felismerése."""
-        assert DynamicConfigManager._determine_value_type(True) == "bool"
-        assert DynamicConfigManager._determine_value_type(False) == "bool"
+        assert DynamicConfigManager._determine_value_type(True) == "bool"  # pyright: ignore[reportPrivateUsage]
+        assert DynamicConfigManager._determine_value_type(False) == "bool"  # pyright: ignore[reportPrivateUsage]
 
     def test_determine_value_type_int(self) -> None:
         """Teszt: Integer típus felismerése."""
-        assert DynamicConfigManager._determine_value_type(42) == "int"
-        assert DynamicConfigManager._determine_value_type(0) == "int"
-        assert DynamicConfigManager._determine_value_type(-123) == "int"
+        assert DynamicConfigManager._determine_value_type(42) == "int"  # pyright: ignore[reportPrivateUsage]
+        assert DynamicConfigManager._determine_value_type(0) == "int"  # pyright: ignore[reportPrivateUsage]
+        assert DynamicConfigManager._determine_value_type(-123) == "int"  # pyright: ignore[reportPrivateUsage]
 
     def test_determine_value_type_float(self) -> None:
         """Teszt: Float típus felismerése."""
-        assert DynamicConfigManager._determine_value_type(3.14) == "float"
-        assert DynamicConfigManager._determine_value_type(0.0) == "float"
-        assert DynamicConfigManager._determine_value_type(-2.5) == "float"
+        assert DynamicConfigManager._determine_value_type(3.14) == "float"  # pyright: ignore[reportPrivateUsage]
+        assert DynamicConfigManager._determine_value_type(0.0) == "float"  # pyright: ignore[reportPrivateUsage]
+        assert DynamicConfigManager._determine_value_type(-2.5) == "float"  # pyright: ignore[reportPrivateUsage]
 
     def test_determine_value_type_str(self) -> None:
         """Teszt: String típus felismerése."""
-        assert DynamicConfigManager._determine_value_type("hello") == "str"
-        assert DynamicConfigManager._determine_value_type("") == "str"
+        assert DynamicConfigManager._determine_value_type("hello") == "str"  # pyright: ignore[reportPrivateUsage]
+        assert DynamicConfigManager._determine_value_type("") == "str"  # pyright: ignore[reportPrivateUsage]
 
     def test_determine_value_type_list(self) -> None:
         """Teszt: List típus felismerése."""
-        assert DynamicConfigManager._determine_value_type([1, 2, 3]) == "list"
-        assert DynamicConfigManager._determine_value_type([]) == "list"
+        assert DynamicConfigManager._determine_value_type([1, 2, 3]) == "list"  # pyright: ignore[reportPrivateUsage]
+        assert DynamicConfigManager._determine_value_type([]) == "list"  # pyright: ignore[reportPrivateUsage]
 
     def test_determine_value_type_dict(self) -> None:
         """Teszt: Dict típus felismerése."""
-        assert DynamicConfigManager._determine_value_type({"key": "value"}) == "dict"
-        assert DynamicConfigManager._determine_value_type({}) == "dict"
+        assert DynamicConfigManager._determine_value_type({"key": "value"}) == "dict"  # pyright: ignore[reportPrivateUsage]
+        assert DynamicConfigManager._determine_value_type({}) == "dict"  # pyright: ignore[reportPrivateUsage]
 
     def test_determine_value_type_unknown_defaults_to_str(self) -> None:
         """Teszt: Ismeretlen típus esetén str visszaadása."""
@@ -608,7 +608,7 @@ class TestDynamicConfigManagerDetermineValueType:
         class CustomType:
             pass
 
-        assert DynamicConfigManager._determine_value_type(CustomType()) == "str"
+        assert DynamicConfigManager._determine_value_type(CustomType()) == "str"  # pyright: ignore[reportPrivateUsage]
 
 
 class TestDynamicConfigManagerNotifyListeners:
@@ -628,7 +628,7 @@ class TestDynamicConfigManagerNotifyListeners:
             listener_value = value
 
         config_manager.add_listener(test_listener)
-        await config_manager._notify_listeners("test_key", "test_value")
+        await config_manager._notify_listeners("test_key", "test_value")  # pyright: ignore[reportPrivateUsage]
 
         assert listener_called is True
         assert listener_key == "test_key"
@@ -639,7 +639,7 @@ class TestDynamicConfigManagerNotifyListeners:
         self, config_manager: DynamicConfigManager, mock_logger: MagicMock
     ) -> None:
         """Teszt: Listener hiba esetén a többi listener még mindig hívódik."""
-        config_manager._logger = mock_logger
+        config_manager._logger = mock_logger  # pyright: ignore[reportPrivateUsage]
 
         error_listener_called = False
         good_listener_called = False
@@ -657,7 +657,7 @@ class TestDynamicConfigManagerNotifyListeners:
         config_manager.add_listener(good_listener)
 
         # A hiba nem szabad, hogy megállítsa a többi listener hívását
-        await config_manager._notify_listeners("test_key", "test_value")
+        await config_manager._notify_listeners("test_key", "test_value")  # pyright: ignore[reportPrivateUsage]
 
         assert error_listener_called is True
         assert good_listener_called is True
@@ -673,7 +673,7 @@ class TestDynamicConfigManagerCheckForUpdates:
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock
     ) -> None:
         """Teszt: Első alkalommal betölti az összes konfigurációt."""
-        config_manager._last_update = None
+        config_manager._last_update = None  # pyright: ignore[reportPrivateUsage]
 
         mock_configs = [
             DynamicConfig(key="key1", value="value1", value_type="str", category="system"),
@@ -682,10 +682,10 @@ class TestDynamicConfigManagerCheckForUpdates:
         mock_result.scalars.return_value.all.return_value = mock_configs
         mock_session.execute.return_value = mock_result
 
-        await config_manager._check_for_updates()
+        await config_manager._check_for_updates()  # pyright: ignore[reportPrivateUsage]
 
-        assert config_manager._cache == {"key1": "value1"}
-        assert config_manager._last_update is not None
+        assert config_manager._cache == {"key1": "value1"}  # pyright: ignore[reportPrivateUsage]
+        assert config_manager._last_update is not None  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     async def test_check_for_updates_with_changes(
@@ -693,7 +693,7 @@ class TestDynamicConfigManagerCheckForUpdates:
     ) -> None:
         """Teszt: Változások észlelése és cache frissítése."""
         # Először beállítjuk az utolsó frissítés időpontját
-        config_manager._last_update = datetime.now(UTC)
+        config_manager._last_update = datetime.now(UTC)  # pyright: ignore[reportPrivateUsage]
 
         # Mock konfiguráció, ami megváltozott
         updated_config = DynamicConfig(
@@ -715,9 +715,9 @@ class TestDynamicConfigManagerCheckForUpdates:
 
         config_manager.add_listener(test_listener)
 
-        await config_manager._check_for_updates()
+        await config_manager._check_for_updates()  # pyright: ignore[reportPrivateUsage]
 
-        assert config_manager._cache["updated_key"] == "new_value"
+        assert config_manager._cache["updated_key"] == "new_value"  # pyright: ignore[reportPrivateUsage]
         assert listener_called is True
 
     @pytest.mark.asyncio
@@ -725,12 +725,12 @@ class TestDynamicConfigManagerCheckForUpdates:
         self, config_manager: DynamicConfigManager, mock_session: AsyncMock, mock_logger: MagicMock
     ) -> None:
         """Teszt: Adatbázis hiba esetén a hiba naplózásra kerül."""
-        config_manager._logger = mock_logger
-        config_manager._last_update = datetime.now(UTC)
+        config_manager._logger = mock_logger  # pyright: ignore[reportPrivateUsage]
+        config_manager._last_update = datetime.now(UTC)  # pyright: ignore[reportPrivateUsage]
         mock_session.execute.side_effect = Exception("Database error")
 
         # A hiba nem szabad, hogy kivételt dobjon, csak naplózásra kerüljön
-        await config_manager._check_for_updates()
+        await config_manager._check_for_updates()  # pyright: ignore[reportPrivateUsage]
 
         mock_logger.error.assert_called()
 class TestDynamicConfigManagerComprehensive:
@@ -836,8 +836,9 @@ class TestDynamicConfigManagerComprehensive:
         # Mockoljuk az asyncio.wait_for-t, hogy timeout-ot okozzon
         with patch("asyncio.wait_for", side_effect=asyncio.TimeoutError):
             # Beállítjuk a taskot
-            manager._hot_reload_task = asyncio.create_task(slow_task())
-            manager._stop_hot_reload.set()  # Beállítjuk, hogy a stop event is aktív legyen
+            manager._hot_reload_task = asyncio.create_task(slow_task())  # pyright: ignore[reportPrivateUsage]
+            # Beállítjuk, hogy a stop event is aktív legyen
+            manager._stop_hot_reload.set()  # pyright: ignore[reportPrivateUsage]
 
             # Leállítjuk a hot reload-ot
             await manager.stop_hot_reload()
@@ -846,10 +847,10 @@ class TestDynamicConfigManagerComprehensive:
             mock_logger.warning.assert_called_once()
 
             # Takarítás
-            if manager._hot_reload_task and not manager._hot_reload_task.done():
-                manager._hot_reload_task.cancel()
+            if manager._hot_reload_task and not manager._hot_reload_task.done():  # pyright: ignore[reportPrivateUsage]
+                manager._hot_reload_task.cancel()  # pyright: ignore[reportPrivateUsage]
                 with suppress(asyncio.CancelledError):
-                    await manager._hot_reload_task
+                    await manager._hot_reload_task  # pyright: ignore[reportPrivateUsage]
 
     @pytest.mark.asyncio
     async def test_stop_hot_reload_logs_info_on_successful_stop(self) -> None:
@@ -956,7 +957,7 @@ class TestDynamicConfigManagerComprehensive:
         manager.add_listener(failing_listener)
 
         # Értesítjük a listener-t
-        await manager._notify_listeners("test_key", "test_value")
+        await manager._notify_listeners("test_key", "test_value")  # pyright: ignore[reportPrivateUsage]
 
         # Ellenőrizzük, hogy a logger error metódusa meghívódott-e
         mock_logger.error.assert_called_once()
@@ -970,11 +971,11 @@ class TestDynamicConfigManagerComprehensive:
 
         manager = DynamicConfigManager(session=mock_session, logger=mock_logger)
         # Beállítjuk, hogy legyen last_update, így a _check_for_updates a változásokat ellenőrzi
-        manager._last_update = datetime(2020, 1, 1, tzinfo=UTC)
+        manager._last_update = datetime(2020, 1, 1, tzinfo=UTC)  # pyright: ignore[reportPrivateUsage]
 
         # Ellenőrizzük a változásokat, a kivételt elkapjuk
         try:
-            await manager._check_for_updates()
+            await manager._check_for_updates()  # pyright: ignore[reportPrivateUsage]
         except ConfigError:
             pass  # A kivétel várható
 

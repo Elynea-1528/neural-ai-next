@@ -44,39 +44,39 @@ class TestLoggerInterface:
             def __init__(  # pyright: ignore[reportArgumentType]
                 self, name: str, config: Any | None = None, **kwargs: Mapping[str, AnyStr]
             ) -> None:
-                super().__init__(name, config, **kwargs)
+                super().__init__(name, config, **kwargs)  # type: ignore[safe-super, arg-type]
                 self.name = name
                 self.config = config
-                self.kwargs = kwargs
+                self.kwargs = kwargs  # type: ignore[var-annotated]
                 self.level = 10
                 self.messages: list[dict[str, Any]] = []
 
-            def debug(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
-                super().debug(message, **kwargs)
+            def debug(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:  # type: ignore[override]
+                super().debug(message, **kwargs)  # type: ignore[safe-super]
                 self.messages.append({"level": "debug", "message": message, **kwargs})
 
-            def info(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
-                super().info(message, **kwargs)
+            def info(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:  # type: ignore[override]
+                super().info(message, **kwargs)  # type: ignore[safe-super]
                 self.messages.append({"level": "info", "message": message, **kwargs})
 
-            def warning(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
-                super().warning(message, **kwargs)
+            def warning(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:  # type: ignore[override]
+                super().warning(message, **kwargs)  # type: ignore[safe-super]
                 self.messages.append({"level": "warning", "message": message, **kwargs})
 
-            def error(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
-                super().error(message, **kwargs)
+            def error(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:  # type: ignore[override]
+                super().error(message, **kwargs)  # type: ignore[safe-super]
                 self.messages.append({"level": "error", "message": message, **kwargs})
 
-            def critical(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:
-                super().critical(message, **kwargs)
+            def critical(self, message: str, **kwargs: Mapping[str, AnyStr]) -> None:  # type: ignore[override]
+                super().critical(message, **kwargs)  # type: ignore[safe-super]
                 self.messages.append({"level": "critical", "message": message, **kwargs})
 
             def set_level(self, level: int) -> None:
-                super().set_level(level)
+                super().set_level(level)  # type: ignore[safe-super]
                 self.level = level
 
             def get_level(self) -> int:
-                super().get_level()
+                super().get_level()  # type: ignore[safe-super]
                 return self.level
 
         # Teszt: Logger létrehozása és inicializálása

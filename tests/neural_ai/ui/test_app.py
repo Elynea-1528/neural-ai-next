@@ -19,14 +19,14 @@ class TestUIApplicationInit:
         app = UIApplication()
 
         # Assert
-        assert app._config == {}
-        assert app._logger is None
-        assert app._bridge is None
-        assert app._factory is None
-        assert app._navigation is None
-        assert app._core_components is None
-        assert app._running is False
-        assert app._init_error is None
+        assert app._config == {}  # pyright: ignore[reportPrivateUsage]
+        assert app._logger is None  # pyright: ignore[reportPrivateUsage]
+        assert app._bridge is None  # pyright: ignore[reportPrivateUsage]
+        assert app._factory is None  # pyright: ignore[reportPrivateUsage]
+        assert app._navigation is None  # pyright: ignore[reportPrivateUsage]
+        assert app._core_components is None  # pyright: ignore[reportPrivateUsage]
+        assert app._running is False  # pyright: ignore[reportPrivateUsage]
+        assert app._init_error is None  # pyright: ignore[reportPrivateUsage]
 
     def test_init_with_config(self) -> None:
         """Ellenőrzi, hogy a UIApplication létrehozható konfigurációval."""
@@ -37,8 +37,8 @@ class TestUIApplicationInit:
         app = UIApplication(config=config)
 
         # Assert
-        assert app._config == config
-        assert app._logger is None
+        assert app._config == config  # pyright: ignore[reportPrivateUsage]
+        assert app._logger is None  # pyright: ignore[reportPrivateUsage]
 
     def test_init_with_logger(self) -> None:
         """Ellenőrzi, hogy a UIApplication létrehozható loggerrel."""
@@ -49,7 +49,7 @@ class TestUIApplicationInit:
         app = UIApplication(logger=mock_logger)
 
         # Assert
-        assert app._logger == mock_logger
+        assert app._logger == mock_logger  # pyright: ignore[reportPrivateUsage]
 
 
 class TestUIApplicationInitialize:
@@ -85,10 +85,10 @@ class TestUIApplicationInitialize:
 
         # Assert
         assert result is True
-        assert app._logger == mock_logger
-        assert app._bridge == mock_bridge
-        assert app._factory == mock_factory
-        assert app._navigation == mock_navigation
+        assert app._logger == mock_logger  # pyright: ignore[reportPrivateUsage]
+        assert app._bridge == mock_bridge  # pyright: ignore[reportPrivateUsage]
+        assert app._factory == mock_factory  # pyright: ignore[reportPrivateUsage]
+        assert app._navigation == mock_navigation  # pyright: ignore[reportPrivateUsage]
         mock_bridge.initialize.assert_called_once()
         mock_factory.initialize.assert_called_once()
 
@@ -110,7 +110,7 @@ class TestUIApplicationInitialize:
 
         # Assert
         assert result is True
-        assert app._logger == mock_logger
+        assert app._logger == mock_logger  # pyright: ignore[reportPrivateUsage]
         mock_logger.info.assert_called()
 
     @patch("neural_ai.ui.app.CoreBridge")
@@ -126,8 +126,8 @@ class TestUIApplicationInitialize:
 
         # Assert
         assert result is False
-        assert app._init_error is not None
-        assert str(app._init_error) == "Test error"
+        assert app._init_error is not None  # pyright: ignore[reportPrivateUsage]
+        assert str(app._init_error) == "Test error"  # pyright: ignore[reportPrivateUsage]
         mock_logger.error.assert_called_once()
 
 
@@ -173,7 +173,7 @@ class TestUIApplicationRun:
         app.run()
 
         # Assert
-        assert app._running is True
+        assert app._running is True  # pyright: ignore[reportPrivateUsage]
         mock_logger.info.assert_any_call("UI alkalmazás elindítva")
 
 
@@ -211,7 +211,7 @@ class TestUIApplicationStop:
         app.stop()
 
         # Assert
-        assert app._running is False
+        assert app._running is False  # pyright: ignore[reportPrivateUsage]
         mock_logger.info.assert_any_call("UI alkalmazás leállítva")
 
 

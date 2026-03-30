@@ -420,12 +420,12 @@ class ArchitectureAuditor:
         warnings = [i for i in self.issues if i.severity == "WARNING"]
 
         # Kategória szerinti csoportosítás
-        by_category = {}
+        by_category: dict[str, list[Issue]] = {}
         for issue in self.issues:
             by_category.setdefault(issue.category, []).append(issue)
 
         # Réteg szerinti csoportosítás
-        by_layer = {}
+        by_layer: dict[str, list[Issue]] = {}
         for issue in self.issues:
             layer = self._get_layer_from_path(issue.file)
             by_layer.setdefault(layer, []).append(issue)
@@ -462,7 +462,7 @@ class ArchitectureAuditor:
                 f.write(f"### {layer} Layer\n\n")
 
                 # Kategória szerint csoportosítás
-                layer_by_cat = {}
+                layer_by_cat: dict[str, list[Issue]] = {}
                 for issue in layer_issues:
                     layer_by_cat.setdefault(issue.category, []).append(issue)
 

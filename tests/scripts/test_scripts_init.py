@@ -12,7 +12,7 @@ def test_scripts_init_imports() -> None:
     Assert: Nincs ImportError
     """
     # Act & Assert
-    import scripts  # noqa: F401
+    import scripts  # noqa: F401  # pyright: ignore[reportUnusedImport]
 
 
 def test_scripts_init_is_package() -> None:
