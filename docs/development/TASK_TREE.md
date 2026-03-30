@@ -1,6 +1,6 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-03-30 14:45:14 UTC
+**Generálva:** 2026-03-30 14:47:07 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
 **Fájlok száma:** 326
 

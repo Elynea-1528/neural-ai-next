@@ -1,4 +1,6 @@
 """TimeAlignmentService tesztek."""
+# pyright: reportArgumentType=false, reportPrivateUsage=false
+# Mock **kwargs és protected member access test hibák
 
 from collections.abc import Mapping
 from decimal import Decimal

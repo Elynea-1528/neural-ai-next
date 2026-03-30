@@ -1,4 +1,6 @@
 """Unit tesztek a StrategyService osztályhoz."""
+# pyright: reportUnknownLambdaType=false
+# Lambda paraméter type inference hibák
 
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch

@@ -1,4 +1,6 @@
 """Unit tesztek a factory modulhoz.
+# pyright: reportUnknownVariableType=false, reportUnknownArgumentType=false
+# Mock dict type inference hibák
 
 Ez a modul teszteli a UIServiceFactory osztály funkcióit.
 """
