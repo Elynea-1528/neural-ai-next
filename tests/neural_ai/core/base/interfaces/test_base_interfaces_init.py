@@ -118,16 +118,16 @@ class TestInterfacesInit:
         import pytest
 
         with pytest.raises(TypeError):
-            DIContainerInterface()
+            DIContainerInterface()  # pyright: ignore[reportAbstractUsage]
 
         with pytest.raises(TypeError):
-            LazyComponentInterface()
+            LazyComponentInterface()  # pyright: ignore[reportAbstractUsage]
 
         with pytest.raises(TypeError):
-            CoreComponentsInterface()
+            CoreComponentsInterface()  # pyright: ignore[reportAbstractUsage]
 
         with pytest.raises(TypeError):
-            CoreComponentFactoryInterface()
+            CoreComponentFactoryInterface()  # pyright: ignore[reportAbstractUsage]
 
     def test_interface_methods_are_abstract(self) -> None:
         """Teszteli, hogy az interfész metódusok absztraktak-e."""

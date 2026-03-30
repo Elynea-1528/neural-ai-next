@@ -169,7 +169,7 @@ class TestPydanticValidation:
 
         # Then - invalid level should raise ValidationError
         with pytest.raises(ValidationError):
-            HandlerConfig(level="INVALID_LEVEL")
+            HandlerConfig(level="INVALID_LEVEL")  # pyright: ignore[reportCallIssue]
 
     def test_paths_config_validates_min_length(self) -> None:
         """Ellenőrzi, hogy a PathsConfig validálja a min_length-et."""
@@ -178,7 +178,7 @@ class TestPydanticValidation:
 
         # Then - empty string should raise ValidationError
         with pytest.raises(ValidationError):
-            PathsConfig(data="")
+            PathsConfig(data="")  # pyright: ignore[reportCallIssue]
 
     def test_handler_config_validates_max_bytes_positive(self) -> None:
         """Ellenőrzi, hogy a HandlerConfig validálja a max_bytes pozitív értékét."""
@@ -187,7 +187,7 @@ class TestPydanticValidation:
 
         # Then - negative value should raise ValidationError
         with pytest.raises(ValidationError):
-            HandlerConfig(max_bytes=-1)
+            HandlerConfig(max_bytes=-1)  # pyright: ignore[reportCallIssue]
 
     def test_handler_config_validates_backup_count_non_negative(self) -> None:
         """Ellenőrzi, hogy a HandlerConfig validálja a backup_count nem-negatív értékét."""
@@ -196,7 +196,7 @@ class TestPydanticValidation:
 
         # Then - negative value should raise ValidationError
         with pytest.raises(ValidationError):
-            HandlerConfig(backup_count=-1)
+            HandlerConfig(backup_count=-1)  # pyright: ignore[reportCallIssue]
 
 
 class TestPydanticModelConfig:
