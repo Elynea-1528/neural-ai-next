@@ -39,7 +39,7 @@ class TestLoggerFactoryInterface:
         Ez a teszt lefedi a 54. sort.
         """
         with pytest.raises(NotImplementedError):
-            LoggerFactoryInterface.get_logger("test_name")
+            LoggerFactoryInterface.get_logger("test_name")  # pyright: ignore[reportAbstractUsage]
 
     def test_configure_raises_not_implemented(self) -> None:
         """configure metódus NotImplementedError-t dob.
@@ -47,4 +47,4 @@ class TestLoggerFactoryInterface:
         Ez a teszt lefedi a 67. sort.
         """
         with pytest.raises(NotImplementedError):
-            LoggerFactoryInterface.configure({})
+            LoggerFactoryInterface.configure({})  # pyright: ignore[reportAbstractUsage]

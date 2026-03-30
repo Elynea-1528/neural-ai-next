@@ -83,7 +83,7 @@ class TestParquetStorageService:
             hardware=mock_hardware,
         )
 
-        assert service.BASE_PATH == temp_dir
+        assert service.base_path == temp_dir
         assert service.compression == "snappy"
         assert service.hardware == mock_hardware
         assert service.logger == mock_logger
@@ -102,7 +102,7 @@ class TestParquetStorageService:
                 base_path=str(temp_dir), config=None, logger=mock_logger
             )
 
-            assert service.BASE_PATH == temp_dir
+            assert service.base_path == temp_dir
             mock_factory.get_hardware_interface.assert_called_once()
 
     def test_backend_selection_avx2(
@@ -145,7 +145,7 @@ class TestParquetStorageService:
         path = storage_service._get_path("EURUSD", date, unique_id="abc123")  # type: ignore[reportPrivateUsage]
 
         expected = (
-            storage_service.BASE_PATH
+            storage_service.base_path
             / "EURUSD"
             / "year=2023"
             / "month=12"
@@ -558,7 +558,7 @@ class TestParquetStorageService:
 
         # The current implementation raises NotImplementedError
         with pytest.raises(NotImplementedError):
-            storage_service.save_dataframe(
+            storage_service.save_dataframe(  # pyright: ignore[reportUnknownMemberType]
                 mock_df, "test_path", date=datetime(2023, 12, 23), symbol="EURUSD"
             )
 
@@ -566,7 +566,7 @@ class TestParquetStorageService:
         """Teszteli a DataFrame betöltését StorageInterface-en keresztül."""
         # The current implementation raises NotImplementedError
         with pytest.raises(NotImplementedError):
-            storage_service.load_dataframe(
+            storage_service.load_dataframe(  # pyright: ignore[reportUnknownMemberType]
                 "test_path",
                 start_date=datetime(2023, 12, 1),
                 end_date=datetime(2023, 12, 31),

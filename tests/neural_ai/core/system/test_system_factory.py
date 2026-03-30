@@ -257,7 +257,7 @@ class TestSystemComponentFactory(unittest.TestCase):
         """Teszteli a register_component fallback implementációját."""
         # Mockoljunk egy nem HealthMonitor implementációt
         mock_monitor: MagicMock = MagicMock(spec=HealthMonitorInterface)
-        SystemComponentFactory._health_monitors["fallback_test"] = mock_monitor
+        SystemComponentFactory._health_monitors["fallback_test"] = mock_monitor  # pyright: ignore[reportPrivateUsage]
 
         # Regisztráljunk egy komponenst
         SystemComponentFactory.register_component(
@@ -268,7 +268,7 @@ class TestSystemComponentFactory(unittest.TestCase):
         mock_monitor.register_component.assert_called_once_with("test_component")
 
         # Takarítás
-        del SystemComponentFactory._health_monitors["fallback_test"]
+        del SystemComponentFactory._health_monitors["fallback_test"]  # pyright: ignore[reportPrivateUsage]
 
 
 if __name__ == "__main__":
