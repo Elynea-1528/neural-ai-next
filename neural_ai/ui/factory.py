@@ -41,7 +41,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
         """A UI Service Factory inicializálása."""
         self._bridge: CoreBridgeInterface | None = None
         self._config: UIConfig | None = None
-        self._logger: LoggerInterface | None = None
+        self.logger: LoggerInterface | None = None  # Public - factory pattern
         self._core_components: Any = None
         self._services: dict[str, Any] = {}
         self._initialized: bool = False
@@ -68,7 +68,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         self._bridge = bridge
         self._config = validated_config
-        self._logger = logger
+        self.logger = logger  # Public - factory pattern
         self._core_components = core_components
         self._initialized = True
 
@@ -82,7 +82,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         Args:
             config: A UI factory konfiguráció (opcionális, fallback: self._config)
-            logger: A logger példány (opcionális, fallback: self._logger)
+            logger: A logger példány (opcionális, fallback: self.logger)
             core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
@@ -93,7 +93,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         # Használjuk a tárolt értékeket ha nem adtak paramétert
         final_config = config if config is not None else self._config
-        final_logger = logger if logger is not None else self._logger
+        final_logger = logger if logger is not None else self.logger
         final_components = core_components if core_components is not None else self._core_components
 
         if final_config is None or final_logger is None or final_components is None:
@@ -113,9 +113,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
                 final_logger, nav_config.model_dump() if nav_config else {}, final_components
             )
 
-        from neural_ai.ui.interfaces.navigation_service_interface import NavigationServiceInterface
-
-        return cast(NavigationServiceInterface, self._services["navigation"])
+        return cast(NavigationServiceInterface, self._services["navigation"])  # pyright: ignore[reportUnusedImport]
 
     def get_dashboard_service(
         self,
@@ -127,7 +125,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         Args:
             config: A UI factory konfiguráció (opcionális, fallback: self._config)
-            logger: A logger példány (opcionális, fallback: self._logger)
+            logger: A logger példány (opcionális, fallback: self.logger)
             core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
@@ -138,7 +136,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         # Használjuk a tárolt értékeket ha nem adtak paramétert
         final_config = config if config is not None else self._config
-        final_logger = logger if logger is not None else self._logger
+        final_logger = logger if logger is not None else self.logger
         final_components = core_components if core_components is not None else self._core_components
 
         if final_config is None or final_logger is None or final_components is None:
@@ -154,9 +152,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
                 final_logger, dash_config.model_dump() if dash_config else {}, final_components
             )
 
-        from neural_ai.ui.interfaces.dashboard_service_interface import DashboardServiceInterface
-
-        return cast(DashboardServiceInterface, self._services["dashboard"])
+        return cast(DashboardServiceInterface, self._services["dashboard"])  # pyright: ignore[reportUnusedImport]
 
     def get_data_service(
         self,
@@ -168,7 +164,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         Args:
             config: A UI factory konfiguráció (opcionális, fallback: self._config)
-            logger: A logger példány (opcionális, fallback: self._logger)
+            logger: A logger példány (opcionális, fallback: self.logger)
             core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
@@ -179,7 +175,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         # Használjuk a tárolt értékeket ha nem adtak paramétert
         final_config = config if config is not None else self._config
-        final_logger = logger if logger is not None else self._logger
+        final_logger = logger if logger is not None else self.logger
         final_components = core_components if core_components is not None else self._core_components
 
         if final_config is None or final_logger is None or final_components is None:
@@ -197,9 +193,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
             self._services["data"] = DataService(final_logger, data_config, final_components)
 
-        from neural_ai.ui.interfaces.data_service_interface import DataServiceInterface
-
-        return cast(DataServiceInterface, self._services["data"])
+        return cast(DataServiceInterface, self._services["data"])  # pyright: ignore[reportUnusedImport]
 
     def get_ai_service(
         self,
@@ -211,7 +205,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         Args:
             config: A UI factory konfiguráció (opcionális, fallback: self._config)
-            logger: A logger példány (opcionális, fallback: self._logger)
+            logger: A logger példány (opcionális, fallback: self.logger)
             core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
@@ -222,7 +216,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         # Használjuk a tárolt értékeket ha nem adtak paramétert
         final_config = config if config is not None else self._config
-        final_logger = logger if logger is not None else self._logger
+        final_logger = logger if logger is not None else self.logger
         final_components = core_components if core_components is not None else self._core_components
 
         if final_config is None or final_logger is None or final_components is None:
@@ -240,9 +234,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
                 final_components,
             )
 
-        from neural_ai.ui.interfaces.ai_service_interface import AIServiceInterface
-
-        return cast(AIServiceInterface, self._services["ai"])
+        return cast(AIServiceInterface, self._services["ai"])  # pyright: ignore[reportUnusedImport]
 
     def get_strategy_service(
         self,
@@ -254,7 +246,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         Args:
             config: A UI factory konfiguráció (opcionális, fallback: self._config)
-            logger: A logger példány (opcionális, fallback: self._logger)
+            logger: A logger példány (opcionális, fallback: self.logger)
             core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
@@ -265,7 +257,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         # Használjuk a tárolt értékeket ha nem adtak paramétert
         final_config = config if config is not None else self._config
-        final_logger = logger if logger is not None else self._logger
+        final_logger = logger if logger is not None else self.logger
         final_components = core_components if core_components is not None else self._core_components
 
         if final_config is None or final_logger is None or final_components is None:
@@ -287,9 +279,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
                 final_components,
             )
 
-        from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
-
-        return cast(StrategyServiceInterface, self._services["strategy"])
+        return cast(StrategyServiceInterface, self._services["strategy"])  # pyright: ignore[reportUnusedImport]
 
     def get_live_ops_service(
         self,
@@ -301,7 +291,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         Args:
             config: A UI factory konfiguráció (opcionális, fallback: self._config)
-            logger: A logger példány (opcionális, fallback: self._logger)
+            logger: A logger példány (opcionális, fallback: self.logger)
             core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
@@ -312,7 +302,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         # Használjuk a tárolt értékeket ha nem adtak paramétert
         final_config = config if config is not None else self._config
-        final_logger = logger if logger is not None else self._logger
+        final_logger = logger if logger is not None else self.logger
         final_components = core_components if core_components is not None else self._core_components
 
         if final_config is None or final_logger is None or final_components is None:
@@ -334,9 +324,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
                 final_components,
             )
 
-        from neural_ai.ui.interfaces.live_ops_service_interface import LiveOpsServiceInterface
-
-        return cast(LiveOpsServiceInterface, self._services["live_ops"])
+        return cast(LiveOpsServiceInterface, self._services["live_ops"])  # pyright: ignore[reportUnusedImport]
 
     def get_all_services(
         self,
@@ -348,7 +336,7 @@ class UIServiceFactory(metaclass=SingletonMeta):
 
         Args:
             config: A UI factory konfiguráció (opcionális, fallback: self._config)
-            logger: A logger példány (opcionális, fallback: self._logger)
+            logger: A logger példány (opcionális, fallback: self.logger)
             core_components: A core komponensek (opcionális, fallback: self._core_components)
 
         Returns:
