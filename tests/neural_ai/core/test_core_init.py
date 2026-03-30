@@ -1,4 +1,6 @@
 """Tesztek a neural_ai.core.__init__.py modulhoz.
+# pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
+# Module import fixture type inference hibák
 
 Ez a tesztmodul ellenőrzi a core bootstrap funkcionalitását, beleértve:
 - Verzió lekérdezést

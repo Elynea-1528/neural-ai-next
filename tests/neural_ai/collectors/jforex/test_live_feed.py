@@ -1,4 +1,6 @@
 """JForex Live Feed Tests.
+# pyright: reportArgumentType=false, reportPrivateUsage=false
+# Async test fixture és protected member access hibák
 
 Ez a modul tartalmazza a JForexLiveFeed osztály tesztjeit.
 """
