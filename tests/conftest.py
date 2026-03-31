@@ -27,13 +27,15 @@ def reset_mock_state() -> Generator[None, None, None]:
     Ez megoldja a mock state szennyeződést, ahol a @patch dekorátorok
     állapota átszivárodik tesztek között.
 
+    KRITIKUS: Az import cache tisztítást NEM végzi, mert az isinstance() check-et elrontja!
+    A patch.stopall() ELÉG a teszt izoláció biztosításához.
     """
     # Teszt előtt: mock tisztítás
     _clear_mock_state()
 
     yield
 
-    # Teszt után: mock tisztítás
+    # Teszt után: mock tisztítás (import cache MEGMARAD!)
     _clear_mock_state()
 
 
@@ -43,14 +45,17 @@ def reset_singletons() -> Generator[None, None, None]:
 
     Ez a fixture autouse=True-val fut minden tesztnél, biztosítva a tiszta állapotot.
 
+    KRITIKUS: NEM törli az import cache-t, mert az isinstance() check-et elrontja!
+    A reset_mock_state fixture patch.stopall() függvénye helyreállítja a mock-olt
+    modulokat, és ez ELÉG a teszt izoláció biztosításához.
     """
-    # Teszt előtt: tisztítás
-    _clear_all_singletons()
+    # Teszt előtt: singleton példányok törlése
+    _clear_singleton_instances()
 
     yield
 
-    # Teszt után: tisztítás
-    _clear_all_singletons()
+    # Teszt után: singleton példányok törlése (import cache MEGMARAD!)
+    _clear_singleton_instances()
 
 
 def _clear_mock_state() -> None:
@@ -76,41 +81,9 @@ def _clear_mock_state() -> None:
         pass
 
 
-def _clear_import_cache() -> None:
-    """Törli a Python import cache-t.
-
-    A mock-olt vagy elrontott importok ne szivárogjon át tesztek között.
-
-    Ez megoldja a teszt izolációs problémát, ahol egy teszt mock-olja
-    a LoggerInterface-t, és az összes utána következő teszt elromlik.
-
-    """
-    import sys
-
-    # Modulok listája, amelyeket törölni kell
-    modules_to_clear = [
-        'neural_ai.core.logger.interfaces.logger_interface',
-        'neural_ai.core.config.interfaces.config_manager_interface',
-        'neural_ai.data.storage.interfaces.storage_interface',
-        'neural_ai.core.base.factory',
-        'neural_ai.core.logger.factory',
-        'neural_ai.core.config.implementations.yaml_config_manager',
-        'neural_ai.core.config.implementations.dynamic_config_manager',
-        'neural_ai.core.config.implementations',  # Szülő modul is!
-        'neural_ai.core.db.implementations.sqlalchemy_session',  # DatabaseManager globális állapot
-    ]
-
-    for module_name in modules_to_clear:
-        if module_name in sys.modules:
-            del sys.modules[module_name]
-
-
-def _clear_all_singletons() -> None:
-    """Törli az összes Singleton példányt a memóriából."""
+def _clear_singleton_instances() -> None:
+    """Törli a singleton példányokat."""
     import gc
-
-    # 0. Import cache tisztítása (KRITIKUS: teszt izolációhoz)
-    _clear_import_cache()
 
     # 0.5. neural_ai.core globális _core_components_instance változó resetelése
     try:
