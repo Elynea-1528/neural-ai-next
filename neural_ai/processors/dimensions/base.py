@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
+from neural_ai.core.config.interfaces.types import ProcessorConfig
 from neural_ai.processors.interfaces.dimension_processor_interface import (
     IDimensionProcessor,
 )
@@ -31,15 +32,18 @@ class BaseDimensionProcessor(IDimensionProcessor, ABC):
 
         # Konfiguráció betöltése dimenzió alapján (pl. "processors.d01")
         section = f"processors.d{self.dimension_id:02d}"
-        self.dim_config: dict[str, Any] = (
+        raw_config: dict[str, Any] = (
             config.get("processors", f"d{self.dimension_id:02d}") or {}
         )
 
-        if not self.dim_config:
+        if not raw_config:
             self.logger.warning(
                 f"Nincs konfiguráció definiálva a(z) {section} szekcióban. "
                 f"Alapértelmezett értékek használata."
             )
+
+        # Config validáció és konverzió Pydantic modellé
+        self.dim_config: ProcessorConfig = ProcessorConfig(**raw_config)
 
     @property
     @abstractmethod
