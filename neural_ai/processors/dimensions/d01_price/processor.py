@@ -41,27 +41,34 @@ class D01PriceProcessor(BaseDimensionProcessor):
         Returns:
             Polars DataFrame az alap adatokkal és matematikai transzformációkkal
         """
-        # Alapértelmezett config
-        z_score_window = self.dim_config.get("z_score_window", 60)
+        # Alapértelmezett config (Pydantic attribútum hozzáférés)
+        z_score_window = self.dim_config.z_score_window or 60
 
         # Timeframe specifikus felülírás
-        if timeframe:
-            tf_configs = self.dim_config.get("timeframe_configs", {})
-            for tf_key, tf_cfg in tf_configs.items():
+        if timeframe and self.dim_config.timeframe_configs:
+            for tf_key, tf_cfg in self.dim_config.timeframe_configs.items():
                 if tf_key.lower() == timeframe.lower():
-                    z_score_window = tf_cfg.get("z_score_window", z_score_window)
+                    z_score_window = tf_cfg.z_score_window or z_score_window
                     break
 
-        calc_shadows = self.dim_config.get("calc_shadows", True)
+        calc_shadows = (
+            self.dim_config.calc_shadows
+            if self.dim_config.calc_shadows is not None
+            else True
+        )
 
         # Market Hours szűrés és logolás
-        market_hours_config = self.dim_config.get("market_hours", {})
-        if market_hours_config.get("enabled", False):
-            enabled_weekdays = market_hours_config.get(
-                "weekdays", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-            )
-            hours_range = market_hours_config.get("hours", ["00:00", "23:59"])
-            market_hours_config.get("timezone", "UTC")
+        market_hours_config = self.dim_config.market_hours
+        if market_hours_config and market_hours_config.enabled:
+            enabled_weekdays = market_hours_config.weekdays or [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+            ]
+            hours_range = market_hours_config.hours or ["00:00", "23:59"]
+            _ = market_hours_config.timezone or "UTC"  # Timezone (jelenleg nem használt)
 
             # Számoljuk a market hours-on kívüli sorokat
             total_rows = len(df)
@@ -100,9 +107,12 @@ class D01PriceProcessor(BaseDimensionProcessor):
                     df.select((~market_hours_mask).sum().alias("outside")).select("outside").item()
                 )
 
-                if outside_market_hours_count > 0 and market_hours_config.get(
-                    "log_filtering", False
-                ):
+                log_filtering = (
+                    market_hours_config.log_filtering
+                    if market_hours_config.log_filtering is not None
+                    else False
+                )
+                if outside_market_hours_count > 0 and log_filtering:
                     self.logger.info(
                         "Market hours szűrés eredménye",
                         total_rows=total_rows,
