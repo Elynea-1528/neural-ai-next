@@ -75,7 +75,7 @@ def _clear_mock_state() -> None:
 
     # 2. Töröljük a _patch._active_patches listát
     try:
-        if hasattr(_patch, '_active_patches'):
+        if hasattr(_patch, "_active_patches"):
             _patch._active_patches.clear()  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
     except Exception:
         pass
@@ -88,33 +88,48 @@ def _clear_singleton_instances() -> None:
     # 0.5. neural_ai.core globális _core_components_instance változó resetelése
     try:
         import neural_ai.core
-        if hasattr(neural_ai.core, '_core_components_instance'):
+
+        if hasattr(neural_ai.core, "_core_components_instance"):
             neural_ai.core._core_components_instance = None  # pyright: ignore[reportPrivateUsage]
     except (ImportError, AttributeError):
         pass
 
-    # 1. SingletonMeta instances
+    # 1. DIContainer (KRITIKUS: Belső állapot törlése ELŐBB, mint a SingletonMeta clear!)
     try:
+        from neural_ai.core.base.implementations.di_container import DIContainer
         from neural_ai.core.base.implementations.singleton import SingletonMeta
-        if hasattr(SingletonMeta, '_instances'):
-            SingletonMeta._instances.clear()  # pyright: ignore[reportPrivateUsage]
+
+        # KRITIKUS FIX: Először töröljük a container instance belső állapotát!
+        # A SingletonMeta._instances[DIContainer] tartalmazza a DIContainer singleton példányt
+        if DIContainer in SingletonMeta._instances:  # pyright: ignore[reportPrivateUsage]
+            try:
+                container = SingletonMeta._instances[DIContainer]  # pyright: ignore[reportPrivateUsage]
+                # Töröljük a container belső dictionary-jeit (ez a KRITIKUS rész!)
+                if hasattr(container, "_instances"):
+                    container._instances.clear()  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
+                if hasattr(container, "_factories"):
+                    container._factories.clear()  # pyright: ignore[reportPrivateUsage]
+                if hasattr(container, "_lazy_components"):
+                    container._lazy_components.clear()  # pyright: ignore[reportPrivateUsage]
+            except Exception:
+                pass
     except (ImportError, AttributeError):
         pass
 
-    # 2. DIContainer
+    # 2. SingletonMeta instances (KRITIKUS: Ez törli a singleton cache-t!)
     try:
-        from neural_ai.core.base.implementations.di_container import DIContainer
-        # Reset class-level singleton
-        for attr in ['_instance', '_instances']:
-            if hasattr(DIContainer, attr):
-                setattr(DIContainer, attr, {} if attr == '_instances' else None)
+        from neural_ai.core.base.implementations.singleton import SingletonMeta
+
+        if hasattr(SingletonMeta, "_instances"):
+            SingletonMeta._instances.clear()  # pyright: ignore[reportPrivateUsage]
     except (ImportError, AttributeError):
         pass
 
     # 3. LoggerFactory (KRITIKUS: _instances cache)
     try:
         from neural_ai.core.logger.factory import LoggerFactory
-        if hasattr(LoggerFactory, '_instances'):
+
+        if hasattr(LoggerFactory, "_instances"):
             LoggerFactory._instances.clear()  # pyright: ignore[reportPrivateUsage]
     except (ImportError, AttributeError):
         pass
@@ -122,11 +137,12 @@ def _clear_singleton_instances() -> None:
     # 4. ConfigManagerFactory (KRITIKUS: _manager_types cache)
     try:
         from neural_ai.core.config.factory import ConfigManagerFactory
-        if hasattr(ConfigManagerFactory, '_manager_types'):
+
+        if hasattr(ConfigManagerFactory, "_manager_types"):
             ConfigManagerFactory._manager_types.clear()  # pyright: ignore[reportPrivateUsage]
-        if hasattr(ConfigManagerFactory, '_async_manager_types'):
+        if hasattr(ConfigManagerFactory, "_async_manager_types"):
             ConfigManagerFactory._async_manager_types.clear()  # pyright: ignore[reportPrivateUsage]
-        if hasattr(ConfigManagerFactory, '_logger'):
+        if hasattr(ConfigManagerFactory, "_logger"):
             ConfigManagerFactory._logger = None  # pyright: ignore[reportPrivateUsage]
     except (ImportError, AttributeError):
         pass
@@ -134,25 +150,28 @@ def _clear_singleton_instances() -> None:
     # 5. CoreComponentFactory
     try:
         from neural_ai.core.base.factory import CoreComponentFactory
-        for attr in ['_instance', '_instances']:
+
+        for attr in ["_instance", "_instances"]:
             if hasattr(CoreComponentFactory, attr):
-                setattr(CoreComponentFactory, attr, {} if attr == '_instances' else None)
+                setattr(CoreComponentFactory, attr, {} if attr == "_instances" else None)
     except (ImportError, AttributeError):
         pass
 
     # 6. CoreBridge
     try:
         from neural_ai.ui.core_bridge import CoreBridge
-        for attr in ['_instance', '_instances']:
+
+        for attr in ["_instance", "_instances"]:
             if hasattr(CoreBridge, attr):
-                setattr(CoreBridge, attr, {} if attr == '_instances' else None)
+                setattr(CoreBridge, attr, {} if attr == "_instances" else None)
     except (ImportError, AttributeError):
         pass
 
     # 7. DatabaseManager
     try:
         from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
-        for attr in ['_instance', '_instances', '_engine', '_session_maker']:
+
+        for attr in ["_instance", "_instances", "_engine", "_session_maker"]:
             if hasattr(DatabaseManager, attr):
                 setattr(DatabaseManager, attr, None)
     except (ImportError, AttributeError):
@@ -183,21 +202,25 @@ def _clear_di_container() -> None:
     try:
         from neural_ai.core.base.implementations.di_container import DIContainer
 
-        # Singleton példány törlése
-        if hasattr(DIContainer, '_instance'):
-            DIContainer._instance = None  # pyright: ignore[reportPrivateUsage]
-        if hasattr(DIContainer, '_instances'):
-            DIContainer._instances.clear()  # pyright: ignore[reportPrivateUsage]
+        # KRITIKUS: Először töröljük a meglévő példány állapotát, UTÁNA a singleton referenciát!
+        # Ha fordított sorrendben tennénk, akkor a DIContainer() új példányt hozna létre.
 
-        # Ha van aktív példány, annak állapotát is töröljük
-        try:
-            container = DIContainer()
-            if hasattr(container, '_services'):
-                container._services.clear()  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
-            if hasattr(container, '_factories'):
-                container._factories.clear()  # pyright: ignore[reportPrivateUsage]
-        except Exception:
-            pass
+        # 1. Töröljük a meglévő példány állapotát (ha létezik)
+        if hasattr(DIContainer, "_instances") and DIContainer in DIContainer._instances:  # pyright: ignore[reportPrivateUsage]
+            try:
+                container = DIContainer._instances[DIContainer]  # pyright: ignore[reportPrivateUsage]
+                if hasattr(container, "_services"):
+                    container._services.clear()  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
+                if hasattr(container, "_factories"):
+                    container._factories.clear()  # pyright: ignore[reportPrivateUsage]
+            except Exception:
+                pass
+
+        # 2. Most törölhetjük a singleton referenciákat
+        if hasattr(DIContainer, "_instance"):
+            DIContainer._instance = None  # pyright: ignore[reportPrivateUsage]
+        if hasattr(DIContainer, "_instances"):
+            DIContainer._instances.clear()  # pyright: ignore[reportPrivateUsage]
 
     except (ImportError, AttributeError):
         pass
@@ -212,9 +235,9 @@ def clean_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     # Környezeti változók tisztítása
     env_vars_to_clear = [
-        'DATABASE_URL',
-        'NEURAL_AI_ENV',
-        'NEURAL_AI_CONFIG_PATH',
+        "DATABASE_URL",
+        "NEURAL_AI_ENV",
+        "NEURAL_AI_CONFIG_PATH",
     ]
 
     for var in env_vars_to_clear:

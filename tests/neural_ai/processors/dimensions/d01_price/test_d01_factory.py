@@ -11,5 +11,5 @@ class TestD01PriceFactory:
         assert D01PriceFactory is not None
 
     def test_factory_has_create_processor_method(self) -> None:
-        """Teszteli, hogy a factory rendelkezik create_processor metódussal."""
-        assert hasattr(D01PriceFactory, "create_processor")
+        """Teszteli, hogy a factory rendelkezik create metódussal."""
+        assert hasattr(D01PriceFactory, "create")

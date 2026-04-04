@@ -13,18 +13,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-# asyncpg ellenőrzés (PostgreSQL tesztekhez)
-try:
-    import asyncpg  # noqa: F401
-    HAS_ASYNCPG = True
-except ImportError:
-    HAS_ASYNCPG = False
-
-skip_if_no_asyncpg = pytest.mark.skipif(
-    not HAS_ASYNCPG,
-    reason="asyncpg nincs telepítve (PostgreSQL tesztekhez szükséges)"
-)
-
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.db.exceptions import DBConnectionError
 from neural_ai.core.db.implementations.sqlalchemy_session import (
@@ -37,6 +25,18 @@ from neural_ai.core.db.implementations.sqlalchemy_session import (
     get_db_session_direct,
     get_engine,
     init_db,
+)
+
+# asyncpg ellenőrzés (PostgreSQL tesztekhez)
+try:
+    import asyncpg  # noqa: F401
+    HAS_ASYNCPG = True
+except ImportError:
+    HAS_ASYNCPG = False
+
+skip_if_no_asyncpg = pytest.mark.skipif(
+    not HAS_ASYNCPG,
+    reason="asyncpg nincs telepítve (PostgreSQL tesztekhez szükséges)"
 )
 
 

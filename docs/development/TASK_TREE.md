@@ -1,14 +1,14 @@
 # 🌳 NEURAL AI NEXT - TASK TREE
 
-**Generálva:** 2026-03-30 19:57:13 UTC
+**Generálva:** 2026-04-04 11:33:43 UTC
 **Módszer:** Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
-**Fájlok száma:** 367
+**Fájlok száma:** 366
 
 ## 📊 Statisztika
 
-- ✅ **SECURE:** 317 (86.4%)
-- 🟡 **WARNING:** 31 (8.4%)
-- 🔴 **VULNERABLE:** 19 (5.2%)
+- ✅ **SECURE:** 324 (88.5%)
+- 🟡 **WARNING:** 37 (10.1%)
+- 🔴 **VULNERABLE:** 5 (1.4%)
 
 ---
 
@@ -39,7 +39,7 @@
 | `core/config/__init__.py` | ✅ SECURE | ✅ FOUND | **10**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/config/exceptions/__init__.py` | ✅ SECURE | ✅ FOUND | **22**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/config/exceptions/config_error.py` | ✅ SECURE | ✅ FOUND | **15**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/config/factory.py` | 🔴 VULNERABLE | ✅ FOUND | **25**/2/0/0 | 97% / 96% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Tesztek javítása: 2 failed, 0 error** |
+| `core/config/factory.py` | ✅ SECURE | ✅ FOUND | **27**/0/0/0 | 97% / 97% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/config/implementations/__init__.py` | 🔴 VULNERABLE | ✅ FOUND | **5**/1/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Tesztek javítása: 1 failed, 0 error** |
 | `core/config/implementations/dynamic_config_manager.py` | ✅ SECURE | ✅ FOUND | **61**/0/0/0 | 98% / 93% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/config/implementations/yaml_config_manager.py` | 🟡 WARNING | ✅ FOUND | **76**/0/0/0 | 78% / 90% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | 📊 Coverage növelése: 78% → 100% |
@@ -55,12 +55,12 @@
 | `core/db/implementations/__init__.py` | ✅ SECURE | ✅ FOUND | **3**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/db/implementations/model_base.py` | ✅ SECURE | ✅ FOUND | **12**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/db/implementations/models.py` | ✅ SECURE | ✅ FOUND | **22**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/db/implementations/sqlalchemy_session.py` | 🔴 VULNERABLE | ✅ FOUND | **21**/16/0/0 | 82% / 76% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Tesztek javítása: 16 failed, 0 error** |
+| `core/db/implementations/sqlalchemy_session.py` | 🟡 WARNING | ✅ FOUND | **21**/0/0/16 | 71% / 62% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 71% → 100% | ⏭️ 16 skipped teszt aktiválása |
 | `core/db/interfaces/__init__.py` | ✅ SECURE | ✅ FOUND | **4**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/events/__init__.py` | ✅ SECURE | ✅ FOUND | **10**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/events/exceptions/__init__.py` | ✅ SECURE | ✅ FOUND | **5**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/events/exceptions/event_error.py` | ✅ SECURE | ✅ FOUND | **9**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/events/factory.py` | 🔴 VULNERABLE | ✅ FOUND | **10**/4/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | 🔴 **Tesztek javítása: 4 failed, 0 error** |
+| `core/events/factory.py` | ✅ SECURE | ✅ FOUND | **14**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚠️ UNUSED | ✅ | - |
 | `core/events/implementations/__init__.py` | ✅ SECURE | ✅ FOUND | **3**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/events/implementations/zeromq_bus.py` | ✅ SECURE | ✅ FOUND | **49**/0/0/0 | 97% / 90% | 0 / 0 / 0 | - | ✅ OK | ⚪ N/A | ✅ | - |
 | `core/events/interfaces/__init__.py` | ✅ SECURE | ✅ FOUND | **11**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
@@ -69,14 +69,14 @@
 | `core/logger/__init__.py` | ✅ SECURE | ✅ FOUND | **7**/0/0/0 | 87% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/logger/exceptions/__init__.py` | ✅ SECURE | ✅ FOUND | **16**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/logger/exceptions/logger_error.py` | ✅ SECURE | ✅ FOUND | **14**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/logger/factory.py` | 🟡 WARNING | ✅ FOUND | **12**/0/0/0 | 98% / 93% | 0 / 0 / 0 | 3 | ⚪ N/A | ⚪ N/A | ✅ | ⚠️ 3 warning javítása |
+| `core/logger/factory.py` | ✅ SECURE | ✅ FOUND | **12**/0/0/0 | 98% / 93% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/logger/formatters/logger_formatters.py` | ✅ SECURE | ✅ FOUND | **6**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/logger/implementations/__init__.py` | ✅ SECURE | ✅ FOUND | **5**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/logger/implementations/colored_logger.py` | ✅ SECURE | ✅ FOUND | **9**/0/0/0 | 86% / 67% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `core/logger/implementations/default_logger.py` | 🔴 VULNERABLE | ✅ FOUND | **0**/8/0/0 | 89% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Tesztek javítása: 8 failed, 0 error** |
+| `core/logger/implementations/default_logger.py` | ✅ SECURE | ✅ FOUND | **8**/0/0/0 | 94% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/logger/implementations/rotating_file_logger.py` | 🟡 WARNING | ✅ FOUND | **7**/0/0/0 | 64% / 45% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 64% → 100% |
 | `core/logger/interfaces/__init__.py` | 🟡 WARNING | ✅ FOUND | **15**/0/0/0 | 78% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 78% → 100% |
-| `core/logger/interfaces/factory_interface.py` | ✅ SECURE | ✅ FOUND | - | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
+| `core/logger/interfaces/factory_interface.py` | ✅ SECURE | ✅ FOUND | **5**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/logger/interfaces/logger_interface.py` | ✅ SECURE | ✅ FOUND | **3**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/system/__init__.py` | ✅ SECURE | ✅ FOUND | **24**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `core/system/exceptions/__init__.py` | ✅ SECURE | ✅ FOUND | **18**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
@@ -139,16 +139,16 @@
 |:-------------|:--------|:----------|:-------------------|:---------------------|:------------------|:---------|:-------|:-------|:-------------|:--------|
 | `processors/__init__.py` | ✅ SECURE | ✅ FOUND | **4**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `processors/dimensions/__init__.py` | ✅ SECURE | ✅ FOUND | **2**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `processors/dimensions/base.py` | ✅ SECURE | ✅ FOUND | - | 94% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | - |
+| `processors/dimensions/base.py` | ✅ SECURE | ✅ FOUND | **8**/0/0/0 | 95% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | - |
 | `processors/dimensions/d01_price/__init__.py` | ✅ SECURE | ✅ FOUND | **2**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `processors/dimensions/d01_price/factory.py` | 🔴 VULNERABLE | ✅ FOUND | **1**/1/0/0 | 86% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Tesztek javítása: 1 failed, 0 error** |
+| `processors/dimensions/d01_price/factory.py` | ✅ SECURE | ✅ FOUND | **2**/0/0/0 | 86% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `processors/dimensions/d01_price/processor.py` | ✅ SECURE | ✅ FOUND | **18**/0/0/0 | 97% / 88% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | - |
 | `processors/dimensions/d02_support/__init__.py` | ✅ SECURE | ✅ FOUND | **2**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `processors/dimensions/d02_support/exceptions/__init__.py` | ✅ SECURE | ✅ FOUND | **2**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `processors/dimensions/d02_support/exceptions/support_error.py` | ✅ SECURE | ✅ FOUND | **9**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `processors/dimensions/d02_support/factory.py` | ✅ SECURE | ✅ FOUND | **2**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `processors/dimensions/d02_support/implementations/__init__.py` | ✅ SECURE | ✅ FOUND | **2**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
-| `processors/dimensions/d02_support/implementations/support_processor.py` | 🔴 VULNERABLE | ✅ FOUND | **10**/16/0/0 | 38% / 27% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | 🔴 **Tesztek javítása: 16 failed, 0 error** | 📊 Coverage növelése: 38% → 100% |
+| `processors/dimensions/d02_support/implementations/support_processor.py` | ✅ SECURE | ✅ FOUND | **26**/0/0/0 | 93% / 88% | 0 / 0 / 0 | - | ⚪ N/A | ✅ OK | ✅ | - |
 | `processors/dimensions/d02_support/interfaces/__init__.py` | ✅ SECURE | ✅ FOUND | **2**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `processors/factory.py` | ✅ SECURE | ✅ FOUND | **3**/0/0/0 | 89% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `processors/implementations/__init__.py` | ✅ SECURE | ✅ FOUND | **2**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
@@ -172,7 +172,7 @@
 | `ui/components/__init__.py` | ✅ SECURE | ✅ FOUND | **9**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `ui/components/base_widget.py` | ✅ SECURE | ✅ FOUND | **10**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `ui/core_bridge.py` | 🟡 WARNING | ✅ FOUND | **20**/0/0/0 | 60% / 43% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 60% → 100% |
-| `ui/factory.py` | 🔴 VULNERABLE | ✅ FOUND | **13**/2/0/0 | 80% / 65% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 🔴 **Tesztek javítása: 2 failed, 0 error** | 📊 Coverage növelése: 80% → 100% |
+| `ui/factory.py` | 🟡 WARNING | ✅ FOUND | **15**/0/0/0 | 80% / 65% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | 📊 Coverage növelése: 80% → 100% |
 | `ui/interfaces/__init__.py` | ✅ SECURE | ✅ FOUND | **17**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `ui/interfaces/ai_service_interface.py` | ✅ SECURE | ✅ FOUND | **11**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
 | `ui/interfaces/core_bridge_interface.py` | ✅ SECURE | ✅ FOUND | **13**/0/0/0 | 100% / 100% | 0 / 0 / 0 | - | ⚪ N/A | ⚪ N/A | ✅ | - |
@@ -203,7 +203,7 @@
 | Fájl | Státusz | Pass/Fail/Err/Skip | Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | Dokumentálva | Teendők |
 |:-----|:--------|:-------------------|:---------------------|:------------------|:---------|:-------------|:--------|
 | `tests/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/conftest.py` | 🟡 WARNING | - | N/A | 0 / 0 / 0 | 1 | ✅ | ⚠️ 1 warning javítása |
+| `tests/conftest.py` | 🟡 WARNING | - | N/A | 0 / 0 / 9 | 6 | ✅ | 🔎 Pylance: 9 hiba javítása | ⚠️ 6 warning javítása |
 | `tests/neural_ai/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/collectors/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/collectors/jforex/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
@@ -243,11 +243,11 @@
 | `tests/neural_ai/core/config/implementations/test_dynamic_config_manager.py` | ✅ SECURE | **61**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/config/implementations/test_yaml_config_manager.py` | ✅ SECURE | **76**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/config/interfaces/test_async_config_interface.py` | ✅ SECURE | **25**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/core/config/interfaces/test_config_factory_interface.py` | 🟡 WARNING | **23**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/core/config/interfaces/test_config_interface.py` | ✅ SECURE | **17**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/config/interfaces/test_config_interfaces_init.py` | ✅ SECURE | **16**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/config/interfaces/test_factory_interface.py` | ✅ SECURE | **23**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/config/interfaces/test_types.py` | ✅ SECURE | **28**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/config/test_config_factory.py` | 🔴 VULNERABLE | **25**/2/0/0 | N/A | 0 / 0 / 0 | - | ✅ | 🔴 **Tesztek javítása: 2 failed, 0 error** |
+| `tests/neural_ai/core/config/test_config_factory.py` | ✅ SECURE | **27**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/config/test_config_init.py` | ✅ SECURE | **10**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/config/test_processors_config.py` | ✅ SECURE | **26**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/db/conftest.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
@@ -256,7 +256,7 @@
 | `tests/neural_ai/core/db/implementations/test_db_implementations_init.py` | ✅ SECURE | **3**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/db/implementations/test_model_base.py` | ✅ SECURE | **12**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/db/implementations/test_models.py` | ✅ SECURE | **22**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py` | 🔴 VULNERABLE | **21**/16/0/0 | N/A | 0 / 0 / 0 | - | ✅ | 🔴 **Tesztek javítása: 16 failed, 0 error** |
+| `tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py` | 🟡 WARNING | **21**/0/0/16 | N/A | 0 / 1 / 3 | - | ✅ | 🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 3 hiba javítása | ⏭️ 16 skipped teszt aktiválása |
 | `tests/neural_ai/core/db/interfaces/test_db_interfaces_init.py` | ✅ SECURE | **4**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/db/test_db_factory.py` | ✅ SECURE | **22**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/db/test_db_init.py` | ✅ SECURE | **20**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
@@ -267,16 +267,15 @@
 | `tests/neural_ai/core/events/interfaces/test_event_bus_interface.py` | ✅ SECURE | **27**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/events/interfaces/test_event_models.py` | ✅ SECURE | **26**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/events/interfaces/test_events_interfaces_init.py` | ✅ SECURE | **11**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/events/test_events_factory.py` | 🔴 VULNERABLE | **10**/4/0/0 | N/A | 0 / 0 / 0 | - | ✅ | 🔴 **Tesztek javítása: 4 failed, 0 error** |
+| `tests/neural_ai/core/events/test_events_factory.py` | ✅ SECURE | **14**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/events/test_events_init.py` | ✅ SECURE | **10**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/exceptions/test_logger_error.py` | ✅ SECURE | **14**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/exceptions/test_logger_exceptions_init.py` | ✅ SECURE | **16**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/formatters/test_logger_formatters.py` | ✅ SECURE | **6**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/implementations/test_colored_logger.py` | ✅ SECURE | **9**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/logger/implementations/test_default_logger.py` | 🔴 VULNERABLE | **0**/8/0/0 | N/A | 0 / 0 / 0 | - | ✅ | 🔴 **Tesztek javítása: 8 failed, 0 error** |
+| `tests/neural_ai/core/logger/implementations/test_default_logger.py` | ✅ SECURE | **8**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/implementations/test_logger_implementations_init.py` | ✅ SECURE | **5**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/implementations/test_rotating_file_logger.py` | ✅ SECURE | **7**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/core/logger/interfaces/test_factory_interface.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/interfaces/test_logger_factory_interface.py` | ✅ SECURE | **5**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/interfaces/test_logger_interface.py` | ✅ SECURE | **3**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/core/logger/interfaces/test_logger_interfaces_init.py` | ✅ SECURE | **15**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
@@ -301,9 +300,9 @@
 | `tests/neural_ai/core/utils/test_utils_init.py` | ✅ SECURE | **6**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/ingestion/test_ingestion_init.py` | ✅ SECURE | **4**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/ingestion/test_market_data_persister.py` | 🟡 WARNING | **20**/0/0/5 | N/A | 0 / 0 / 0 | - | ✅ | ⏭️ 5 skipped teszt aktiválása |
-| `tests/neural_ai/data/storage/backends/test_base.py` | ✅ SECURE | **8**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/storage/backends/test_pandas_backend.py` | ✅ SECURE | **30**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/storage/backends/test_polars_backend.py` | 🟡 WARNING | **24**/0/0/6 | N/A | 0 / 0 / 0 | - | ✅ | ⏭️ 6 skipped teszt aktiválása |
+| `tests/neural_ai/data/storage/backends/test_storage_backends_base.py` | 🟡 WARNING | **8**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/data/storage/backends/test_storage_backends_init.py` | ✅ SECURE | **5**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/storage/exceptions/test_storage_exceptions_init.py` | ✅ SECURE | **23**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/data/storage/implementations/test_file_storage.py` | 🟡 WARNING | **50**/0/0/2 | N/A | 0 / 0 / 0 | - | ✅ | ⏭️ 2 skipped teszt aktiválása |
@@ -317,18 +316,18 @@
 | `tests/neural_ai/data/test_data_init.py` | ✅ SECURE | **2**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/conftest.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/processors/dimensions/d01_price/test_d01_factory.py` | 🔴 VULNERABLE | **1**/1/0/0 | N/A | 0 / 0 / 0 | - | ✅ | 🔴 **Tesztek javítása: 1 failed, 0 error** |
+| `tests/neural_ai/processors/dimensions/d01_price/test_d01_factory.py` | ✅ SECURE | **2**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d01_price/test_d01_price_init.py` | ✅ SECURE | **2**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d01_price/test_d01_processor.py` | ✅ SECURE | **9**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d01_price/test_processor.py` | ✅ SECURE | **18**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d02_support/exceptions/test_d02_support_exceptions_init.py` | ✅ SECURE | **2**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d02_support/exceptions/test_support_error.py` | ✅ SECURE | **9**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d02_support/implementations/test_d02_support_implementations_init.py` | ✅ SECURE | **2**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py` | 🔴 VULNERABLE | **10**/16/0/0 | N/A | 0 / 0 / 0 | - | ✅ | 🔴 **Tesztek javítása: 16 failed, 0 error** |
+| `tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py` | ✅ SECURE | **26**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d02_support/interfaces/test_d02_support_interfaces_init.py` | ✅ SECURE | **2**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d02_support/test_d02_support_factory.py` | ✅ SECURE | **2**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/dimensions/d02_support/test_d02_support_init.py` | ✅ SECURE | **2**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/processors/dimensions/test_base.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
+| `tests/neural_ai/processors/dimensions/test_dimensions_base.py` | 🟡 WARNING | **8**/0/0/0 | N/A | 0 / 0 / 0 | - | ❌ | 📝 Dokumentáció írása |
 | `tests/neural_ai/processors/dimensions/test_dimensions_init.py` | ✅ SECURE | **2**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/implementations/test_processors_implementations_init.py` | ✅ SECURE | **2**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/processors/implementations/test_time_alignment_service.py` | ✅ SECURE | **8**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
@@ -373,7 +372,7 @@
 | `tests/neural_ai/ui/test_app.py` | ✅ SECURE | **16**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/test_core_bridge.py` | ✅ SECURE | **20**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/neural_ai/ui/test_streamlit_app.py` | ✅ SECURE | **8**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
-| `tests/neural_ai/ui/test_ui_factory.py` | 🔴 VULNERABLE | **13**/2/0/0 | N/A | 0 / 0 / 0 | - | ✅ | 🔴 **Tesztek javítása: 2 failed, 0 error** |
+| `tests/neural_ai/ui/test_ui_factory.py` | 🟡 WARNING | **15**/0/0/0 | N/A | 0 / 2 / 2 | - | ✅ | 🔬 Mypy: 2 type hiba javítása | 🔎 Pylance: 2 hiba javítása |
 | `tests/neural_ai/ui/test_ui_init.py` | ✅ SECURE | **9**/0/0/0 | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/scripts/__init__.py` | ✅ SECURE | - | N/A | 0 / 0 / 0 | - | ✅ | - |
 | `tests/scripts/test_audit_architecture.py` | 🟡 WARNING | **7**/0/0/0 | N/A | 0 / 0 / 0 | 1 | ✅ | ⚠️ 1 warning javítása |

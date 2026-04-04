@@ -284,7 +284,7 @@ class ProcessorConfig(BaseModel):
     """Egyedi processzor konfiguráció."""
 
     model_config = ConfigDict(
-        extra="forbid",
+        extra="allow",
         validate_assignment=True,
     )
 

@@ -126,7 +126,7 @@ class TestEventBusFactoryCreateFromConfig:
         ) as mock_config_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
-            
+
             # Mock EventBusConfig objektum property-jeinek beállítása
             mock_config_instance = MagicMock()
             mock_config_instance.pub_port = 7777
@@ -157,7 +157,7 @@ class TestEventBusFactoryCreateFromConfig:
         ) as mock_config_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
-            
+
             # Mock EventBusConfig objektum alapértelmezett property-jeinek beállítása
             mock_config_instance = MagicMock()
             mock_config_instance.pub_port = 5555
@@ -187,7 +187,7 @@ class TestEventBusFactoryCreateFromConfig:
         ) as mock_config_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
-            
+
             # Mock EventBusConfig objektum alapértelmezett property-jeinek beállítása
             mock_config_instance = MagicMock()
             mock_config_instance.pub_port = 5555
@@ -220,7 +220,7 @@ class TestEventBusFactoryCreateFromConfig:
         ) as mock_config_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
-            
+
             # Mock EventBusConfig objektum részleges property-jeinek beállítása
             mock_config_instance = MagicMock()
             mock_config_instance.pub_port = 8888

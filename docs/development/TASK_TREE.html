@@ -296,10 +296,10 @@
         <div class="header-content">
             <h1>⚡ Neural AI Next - Task Tree Dashboard</h1>
             <div class="meta">
-                <strong>Generálva:</strong> 2026-03-30 19:57:13 UTC &nbsp;|&nbsp;
+                <strong>Generálva:</strong> 2026-04-04 11:33:43 UTC &nbsp;|&nbsp;
                 <strong>Módszer:</strong> Hibrid (AST + Pytest + Coverage + Ruff + Mypy + Pylance)
                 &nbsp;|&nbsp;
-                <strong>Fájlok:</strong> 367
+                <strong>Fájlok:</strong> 366
             </div>
         </div>
     </div>
@@ -310,25 +310,25 @@
                 <div class="stat-header">
                     <div class="stat-icon">✓</div>
                 </div>
-                <div class="stat-value">317</div>
+                <div class="stat-value">324</div>
                 <div class="stat-label">Secure</div>
-                <div class="stat-percent">86.4% a teljes kódbázisból</div>
+                <div class="stat-percent">88.5% a teljes kódbázisból</div>
             </div>
             <div class="stat-card warning">
                 <div class="stat-header">
                     <div class="stat-icon">⚠</div>
                 </div>
-                <div class="stat-value">31</div>
+                <div class="stat-value">37</div>
                 <div class="stat-label">Warning</div>
-                <div class="stat-percent">8.4% javítást igényel</div>
+                <div class="stat-percent">10.1% javítást igényel</div>
             </div>
             <div class="stat-card critical">
                 <div class="stat-header">
                     <div class="stat-icon">✕</div>
                 </div>
-                <div class="stat-value">19</div>
+                <div class="stat-value">5</div>
                 <div class="stat-label">Critical</div>
-                <div class="stat-percent">5.2% azonnali beavatkozás</div>
+                <div class="stat-percent">1.4% azonnali beavatkozás</div>
             </div>
             <div class="stat-card tested">
                 <div class="stat-header">
@@ -648,16 +648,16 @@
     
                         <tr>
                             <td class="file-path">core/config/factory.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">25</span>/<span class="test-fail">2</span>/0/0</td>
-                            <td class="coverage"><span class="cov-good">97%</span> / 96%</td>
+                            <td class="test-results"><span class="test-pass">27</span>/0/0/0</td>
+                            <td class="coverage"><span class="cov-good">97%</span> / 97%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 2 failed, 0 error**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -872,16 +872,16 @@
     
                         <tr>
                             <td class="file-path">core/db/implementations/sqlalchemy_session.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">21</span>/<span class="test-fail">16</span>/0/0</td>
-                            <td class="coverage"><span class="cov-good">82%</span> / 76%</td>
+                            <td class="test-results"><span class="test-pass">21</span>/0/0/<span class="test-skip">16</span></td>
+                            <td class="coverage"><span class="cov-low">71%</span> / 62%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 16 failed, 0 error**</td>
+                            <td>📊 Coverage növelése: 71% → 100% | ⏭️ 16 skipped teszt aktiválása</td>
                         </tr>
     
                         <tr>
@@ -942,16 +942,16 @@
     
                         <tr>
                             <td class="file-path">core/events/factory.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">10</span>/<span class="test-fail">4</span>/0/0</td>
+                            <td class="test-results"><span class="test-pass">14</span>/0/0/0</td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>⚠ UNUSED</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 4 failed, 0 error**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -1068,16 +1068,16 @@
     
                         <tr>
                             <td class="file-path">core/logger/factory.py</td>
-                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
                             <td class="test-results"><span class="test-pass">12</span>/0/0/0</td>
                             <td class="coverage"><span class="cov-good">98%</span> / 93%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
-                            <td><span class="test-warn">3</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>⚠️ 3 warning javítása</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -1124,16 +1124,16 @@
     
                         <tr>
                             <td class="file-path">core/logger/implementations/default_logger.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results">0/<span class="test-fail">8</span>/0/0</td>
-                            <td class="coverage"><span class="cov-good">89%</span> / 100%</td>
+                            <td class="test-results"><span class="test-pass">8</span>/0/0/0</td>
+                            <td class="coverage"><span class="cov-good">94%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 8 failed, 0 error**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -1168,7 +1168,7 @@
                             <td class="file-path">core/logger/interfaces/factory_interface.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="test-results"><span class="test-pass">5</span>/0/0/0</td>
                             <td class="coverage"><span class="cov-good">100%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -1921,8 +1921,8 @@
                             <td class="file-path">processors/dimensions/base.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
-                            <td class="coverage"><span class="cov-good">94%</span> / 100%</td>
+                            <td class="test-results"><span class="test-pass">8</span>/0/0/0</td>
+                            <td class="coverage"><span class="cov-good">95%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
@@ -1947,16 +1947,16 @@
     
                         <tr>
                             <td class="file-path">processors/dimensions/d01_price/factory.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">1</span>/<span class="test-fail">1</span>/0/0</td>
+                            <td class="test-results"><span class="test-pass">2</span>/0/0/0</td>
                             <td class="coverage"><span class="cov-good">86%</span> / 100%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 1 failed, 0 error**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -2045,16 +2045,16 @@
     
                         <tr>
                             <td class="file-path">processors/dimensions/d02_support/implementations/support_processor.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">10</span>/<span class="test-fail">16</span>/0/0</td>
-                            <td class="coverage"><span class="cov-low">38%</span> / 27%</td>
+                            <td class="test-results"><span class="test-pass">26</span>/0/0/0</td>
+                            <td class="coverage"><span class="cov-good">93%</span> / 88%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>✓ OK</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 16 failed, 0 error** | 📊 Coverage növelése: 38% → 100%</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -2338,16 +2338,16 @@
     
                         <tr>
                             <td class="file-path">ui/factory.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td><span class="test-found">✓ FOUND</span></td>
-                            <td class="test-results"><span class="test-pass">13</span>/<span class="test-fail">2</span>/0/0</td>
+                            <td class="test-results"><span class="test-pass">15</span>/0/0/0</td>
                             <td class="coverage"><span class="cov-low">80%</span> / 65%</td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td>○ N/A</td>
                             <td>○ N/A</td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 2 failed, 0 error** | 📊 Coverage növelése: 80% → 100%</td>
+                            <td>📊 Coverage növelése: 80% → 100%</td>
                         </tr>
     
                         <tr>
@@ -2726,10 +2726,10 @@
                             <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
                             <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
-                            <td><span class="test-warn">1</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span class="test-fail">9</span></td>
+                            <td><span class="test-warn">6</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>⚠️ 1 warning javítása</td>
+                            <td>🔎 Pylance: 9 hiba javítása | ⚠️ 6 warning javítása</td>
                         </tr>
     
                         <tr>
@@ -3162,6 +3162,17 @@
                         </tr>
     
                         <tr>
+                            <td class="file-path">tests/neural_ai/core/config/interfaces/test_config_factory_interface.py</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td class="test-results"><span class="test-pass">23</span>/0/0/0</td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>📝 Dokumentáció írása</td>
+                        </tr>
+    
+                        <tr>
                             <td class="file-path">tests/neural_ai/core/config/interfaces/test_config_interface.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">17</span>/0/0/0</td>
@@ -3184,17 +3195,6 @@
                         </tr>
     
                         <tr>
-                            <td class="file-path">tests/neural_ai/core/config/interfaces/test_factory_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span class="test-pass">23</span>/0/0/0</td>
-                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
-                            <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
-                        </tr>
-    
-                        <tr>
                             <td class="file-path">tests/neural_ai/core/config/interfaces/test_types.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">28</span>/0/0/0</td>
@@ -3207,13 +3207,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/config/test_config_factory.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">25</span>/<span class="test-fail">2</span>/0/0</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td class="test-results"><span class="test-pass">27</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 2 failed, 0 error**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -3306,13 +3306,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">21</span>/<span class="test-fail">16</span>/0/0</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td class="test-results"><span class="test-pass">21</span>/0/0/<span class="test-skip">16</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">1</span> / <span class="test-fail">3</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 16 failed, 0 error**</td>
+                            <td>🔬 Mypy: 1 type hiba javítása | 🔎 Pylance: 3 hiba javítása | ⏭️ 16 skipped teszt aktiválása</td>
                         </tr>
     
                         <tr>
@@ -3427,13 +3427,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/events/test_events_factory.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">10</span>/<span class="test-fail">4</span>/0/0</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td class="test-results"><span class="test-pass">14</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 4 failed, 0 error**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -3493,13 +3493,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/core/logger/implementations/test_default_logger.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results">0/<span class="test-fail">8</span>/0/0</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td class="test-results"><span class="test-pass">8</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 8 failed, 0 error**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -3517,17 +3517,6 @@
                             <td class="file-path">tests/neural_ai/core/logger/implementations/test_rotating_file_logger.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">7</span>/0/0/0</td>
-                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
-                            <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
-                        </tr>
-    
-                        <tr>
-                            <td class="file-path">tests/neural_ai/core/logger/interfaces/test_factory_interface.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
@@ -3800,17 +3789,6 @@
                         </tr>
     
                         <tr>
-                            <td class="file-path">tests/neural_ai/data/storage/backends/test_base.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span class="test-pass">8</span>/0/0/0</td>
-                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
-                            <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
-                        </tr>
-    
-                        <tr>
                             <td class="file-path">tests/neural_ai/data/storage/backends/test_pandas_backend.py</td>
                             <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
                             <td class="test-results"><span class="test-pass">30</span>/0/0/0</td>
@@ -3830,6 +3808,17 @@
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
                             <td>⏭️ 6 skipped teszt aktiválása</td>
+                        </tr>
+    
+                        <tr>
+                            <td class="file-path">tests/neural_ai/data/storage/backends/test_storage_backends_base.py</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td class="test-results"><span class="test-pass">8</span>/0/0/0</td>
+                            <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>📝 Dokumentáció írása</td>
                         </tr>
     
                         <tr>
@@ -3977,13 +3966,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/processors/dimensions/d01_price/test_d01_factory.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">1</span>/<span class="test-fail">1</span>/0/0</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td class="test-results"><span class="test-pass">2</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 1 failed, 0 error**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -4054,13 +4043,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">10</span>/<span class="test-fail">16</span>/0/0</td>
+                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
+                            <td class="test-results"><span class="test-pass">26</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 16 failed, 0 error**</td>
+                            <td><span style="opacity: 0.4;">-</span></td>
                         </tr>
     
                         <tr>
@@ -4097,14 +4086,14 @@
                         </tr>
     
                         <tr>
-                            <td class="file-path">tests/neural_ai/processors/dimensions/test_base.py</td>
-                            <td><span class="status-badge status-secure"><span class="icon">✓</span> SECURE</span></td>
-                            <td class="test-results"><span style="opacity: 0.4;">-</span></td>
+                            <td class="file-path">tests/neural_ai/processors/dimensions/test_dimensions_base.py</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td class="test-results"><span class="test-pass">8</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
                             <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
-                            <td><span class="test-found">✓</span></td>
-                            <td><span style="opacity: 0.4;">-</span></td>
+                            <td><span class="test-missing">✕</span></td>
+                            <td>📝 Dokumentáció írása</td>
                         </tr>
     
                         <tr>
@@ -4593,13 +4582,13 @@
     
                         <tr>
                             <td class="file-path">tests/neural_ai/ui/test_ui_factory.py</td>
-                            <td><span class="status-badge status-critical"><span class="icon">✕</span> CRITICAL</span></td>
-                            <td class="test-results"><span class="test-pass">13</span>/<span class="test-fail">2</span>/0/0</td>
+                            <td><span class="status-badge status-warning"><span class="icon">⚠</span> WARNING</span></td>
+                            <td class="test-results"><span class="test-pass">15</span>/0/0/0</td>
                             <td class="coverage"><span style="opacity: 0.4;">N/A</span></td>
-                            <td><span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span> / <span style="opacity: 0.6;">0</span></td>
+                            <td><span style="opacity: 0.6;">0</span> / <span class="test-fail">2</span> / <span class="test-fail">2</span></td>
                             <td><span style="opacity: 0.4;">-</span></td>
                             <td><span class="test-found">✓</span></td>
-                            <td>🔴 **Tesztek javítása: 2 failed, 0 error**</td>
+                            <td>🔬 Mypy: 2 type hiba javítása | 🔎 Pylance: 2 hiba javítása</td>
                         </tr>
     
                         <tr>

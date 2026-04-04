@@ -62,7 +62,9 @@ class TestBaseDimensionProcessor:
         processor = ConcreteDimensionProcessor(mock_config, mock_logger, dim_id=5)
 
         # Assert
-        assert processor.dim_config == expected_config
+        # A dim_config ProcessorConfig objektum, extra mezőkkel
+        assert processor.dim_config.enabled is True
+        assert processor.dim_config.param == "value"
         mock_config.get.assert_called_once_with("processors", "d05")
 
     def test_initialization_with_missing_config(self) -> None:
@@ -76,7 +78,9 @@ class TestBaseDimensionProcessor:
         processor = ConcreteDimensionProcessor(mock_config, mock_logger, dim_id=3)
 
         # Assert
-        assert processor.dim_config == {}
+        # A dim_config ProcessorConfig objektum, üres mezőkkel (None értékek)
+        assert processor.dim_config.required_timeframes is None
+        assert processor.dim_config.z_score_window is None
         mock_logger.warning.assert_called_once()
         warning_message = mock_logger.warning.call_args[0][0]
         assert "processors.d03" in warning_message

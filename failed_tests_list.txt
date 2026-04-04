@@ -1,0 +1,98 @@
+tests/neural_ai/core/base/test_base_factory.py::TestCoreComponentFactory::test_logger_property_returns_logger FAILED [ 14%]
+tests/neural_ai/core/config/implementations/test_config_implementations_init.py::TestConfigImplementationsInit::test_module_is_empty FAILED [ 17%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestDatabaseURL::test_get_database_url_without_config FAILED [ 32%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestCreateEngine::test_create_engine_postgresql FAILED [ 32%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestCreateEngine::test_create_engine_postgresql_with_pool_config FAILED [ 32%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestCreateEngine::test_create_engine_postgresql_with_none_pool_values FAILED [ 32%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestGetEngine::test_get_engine_creates_on_first_call FAILED [ 32%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestGetEngine::test_get_engine_caches_result FAILED [ 33%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestGetEngine::test_get_engine_echo_fallback_exception FAILED [ 33%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestGetEngine::test_get_engine_with_pool_config FAILED [ 33%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestGetAsyncSessionMaker::test_get_async_session_maker_creates_once FAILED [ 33%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestDatabaseManager::test_database_manager_initialize_with_pool_config FAILED [ 33%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestContextManagers::test_get_db_session FAILED [ 33%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestContextManagers::test_get_db_session_direct FAILED [ 33%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestContextManagers::test_get_db_session_exception_rollback FAILED [ 33%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestContextManagers::test_get_db_session_finally_block FAILED [ 33%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestDatabaseInitialization::test_init_db FAILED [ 33%]
+tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestDatabaseInitialization::test_close_db FAILED [ 33%]
+tests/neural_ai/core/events/test_events_factory.py::TestEventBusFactoryCreateFromConfig::test_create_from_config_success FAILED [ 41%]
+tests/neural_ai/core/events/test_events_factory.py::TestEventBusFactoryCreateFromConfig::test_create_from_config_with_key_error FAILED [ 41%]
+tests/neural_ai/core/events/test_events_factory.py::TestEventBusFactoryCreateFromConfig::test_create_from_config_with_value_error FAILED [ 41%]
+tests/neural_ai/core/events/test_events_factory.py::TestEventBusFactoryCreateFromConfig::test_create_from_config_partial_config FAILED [ 41%]
+tests/neural_ai/core/test_core_init.py::TestBootstrapCore::test_bootstrap_core_success FAILED [ 53%]
+tests/neural_ai/core/test_core_init.py::TestBootstrapCore::test_bootstrap_core_returns_core_components FAILED [ 53%]
+tests/neural_ai/core/test_core_init.py::TestGetCoreComponents::test_get_core_components_first_call FAILED [ 53%]
+tests/neural_ai/core/test_core_init.py::TestGetCoreComponents::test_get_core_components_returns_core_components FAILED [ 53%]
+tests/neural_ai/core/test_core_init.py::TestIntegration::test_version_and_bootstrap_integration FAILED [ 53%]
+tests/neural_ai/core/test_core_init.py::TestIntegration::test_core_components_singleton_pattern FAILED [ 53%]
+tests/neural_ai/core/test_core_init.py::TestBootstrapCoreRealConfig::test_bootstrap_with_real_yaml_configs FAILED [ 53%]
+tests/neural_ai/processors/dimensions/d01_price/test_d01_factory.py::TestD01PriceFactory::test_factory_has_create_processor_method FAILED [ 68%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::test_d02_processor_happy_path FAILED [ 69%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::test_d02_processor_defaults FAILED [ 69%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMissingConfigBranches::test_merge_levels_missing_level_merge_config FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMissingConfigBranches::test_merge_levels_large_dataframe_skip_merge FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMissingConfigBranches::test_confirm_with_volume_missing_config FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMissingConfigBranches::test_confirm_with_volume_false FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMissingConfigBranches::test_confirm_with_volume_true FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorNearestLevelsEdgeCases::test_nearest_support_no_candidates_below FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorNearestLevelsEdgeCases::test_nearest_resistance_no_candidates_above FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMidColumnsHandling::test_process_with_bid_columns_no_mid FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMidColumnsHandling::test_process_with_simple_ohlc_no_mid FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMarketHoursFiltering::test_process_with_market_hours_enabled_filtering FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMarketHoursFiltering::test_process_with_market_hours_outside_hours FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorNearestLevels::test_process_calculates_nearest_support FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorNearestLevels::test_process_calculates_nearest_resistance FAILED [ 70%]
+tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorEdgeCases::test_process_with_insufficient_data FAILED [ 70%]
+tests/neural_ai/ui/test_ui_factory.py::TestUIServiceFactoryInit::test_init_creates_instance FAILED [ 93%]
+tests/neural_ai/ui/test_ui_factory.py::TestUIServiceFactoryInitialize::test_initialize_with_dict_config FAILED [ 93%]
+tests/scripts/test_validation_end_to_end.py::test_end_to_end_validation FAILED [ 98%]
+FAILED tests/neural_ai/core/base/test_base_factory.py::TestCoreComponentFactory::test_logger_property_returns_logger - TypeError: isinstance() arg 2 must be a type, a tuple of types, or a union
+FAILED tests/neural_ai/core/config/implementations/test_config_implementations_init.py::TestConfigImplementationsInit::test_module_is_empty - AssertionError: Az implementations/__init__.py-nak üresnek kell lennie! Talált attribútumok: ['dynamic_config_manager', 'yaml_config_manager']
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestDatabaseURL::test_get_database_url_without_config - neural_ai.core.config.exceptions.config_error.ConfigLoadError: Fájl nem található: config.yaml
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestCreateEngine::test_create_engine_postgresql - ModuleNotFoundError: No module named 'asyncpg'
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestCreateEngine::test_create_engine_postgresql_with_pool_config - ModuleNotFoundError: No module named 'asyncpg'
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestCreateEngine::test_create_engine_postgresql_with_none_pool_values - ModuleNotFoundError: No module named 'asyncpg'
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestGetEngine::test_get_engine_creates_on_first_call - neural_ai.core.config.exceptions.config_error.ConfigLoadError: Fájl nem található: config.yaml
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestGetEngine::test_get_engine_caches_result - neural_ai.core.config.exceptions.config_error.ConfigLoadError: Fájl nem található: config.yaml
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestGetEngine::test_get_engine_echo_fallback_exception - neural_ai.core.config.exceptions.config_error.ConfigLoadError: Fájl nem található: config.yaml
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestGetEngine::test_get_engine_with_pool_config - pydantic_core._pydantic_core.ValidationError: 1 validation error for DatabaseConfig
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestGetAsyncSessionMaker::test_get_async_session_maker_creates_once - neural_ai.core.config.exceptions.config_error.ConfigLoadError: Fájl nem található: config.yaml
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestDatabaseManager::test_database_manager_initialize_with_pool_config - ModuleNotFoundError: No module named 'asyncpg'
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestContextManagers::test_get_db_session - neural_ai.core.config.exceptions.config_error.ConfigLoadError: Fájl nem található: config.yaml
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestContextManagers::test_get_db_session_direct - neural_ai.core.config.exceptions.config_error.ConfigLoadError: Fájl nem található: config.yaml
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestContextManagers::test_get_db_session_exception_rollback - AssertionError: Regex pattern did not match.
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestContextManagers::test_get_db_session_finally_block - neural_ai.core.config.exceptions.config_error.ConfigLoadError: Fájl nem található: config.yaml
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestDatabaseInitialization::test_init_db - neural_ai.core.config.exceptions.config_error.ConfigLoadError: Fájl nem található: config.yaml
+FAILED tests/neural_ai/core/db/implementations/test_sqlalchemy_session.py::TestDatabaseInitialization::test_close_db - AssertionError: Expected 'dispose' to have been called once. Called 0 times.
+FAILED tests/neural_ai/core/events/test_events_factory.py::TestEventBusFactoryCreateFromConfig::test_create_from_config_success - AssertionError: assert <MagicMock name='mock.EventBusConfig().pub_port' id='135510884804672'> == 7777
+FAILED tests/neural_ai/core/events/test_events_factory.py::TestEventBusFactoryCreateFromConfig::test_create_from_config_with_key_error - AssertionError: assert <MagicMock name='mock.EventBusConfig().pub_port' id='135510884804672'> == 5555
+FAILED tests/neural_ai/core/events/test_events_factory.py::TestEventBusFactoryCreateFromConfig::test_create_from_config_with_value_error - AssertionError: assert <MagicMock name='mock.EventBusConfig().pub_port' id='135510884804672'> == 5555
+FAILED tests/neural_ai/core/events/test_events_factory.py::TestEventBusFactoryCreateFromConfig::test_create_from_config_partial_config - AssertionError: assert <MagicMock name='mock.EventBusConfig().pub_port' id='135510884804672'> == 8888
+FAILED tests/neural_ai/core/test_core_init.py::TestBootstrapCore::test_bootstrap_core_success - AssertionError: assert False
+FAILED tests/neural_ai/core/test_core_init.py::TestBootstrapCore::test_bootstrap_core_returns_core_components - AssertionError: assert False
+FAILED tests/neural_ai/core/test_core_init.py::TestGetCoreComponents::test_get_core_components_first_call - AssertionError: assert <MagicMock name='mock.CoreComponents()' id='135510890326272'> is <MagicMock name='bootstrap_core()' id='135510872645104'>
+FAILED tests/neural_ai/core/test_core_init.py::TestGetCoreComponents::test_get_core_components_returns_core_components - AssertionError: assert False
+FAILED tests/neural_ai/core/test_core_init.py::TestIntegration::test_version_and_bootstrap_integration - AssertionError: assert False
+FAILED tests/neural_ai/core/test_core_init.py::TestIntegration::test_core_components_singleton_pattern - AssertionError: assert <MagicMock name='mock.CoreComponents()' id='135510890326272'> is <MagicMock name='bootstrap_core()' id='135510854341488'>
+FAILED tests/neural_ai/core/test_core_init.py::TestBootstrapCoreRealConfig::test_bootstrap_with_real_yaml_configs - AssertionError: assert <MagicMock name='mock.CoreComponents().config.get_section().__getitem__().__getitem__()' id='135510854685120'> == 'sqlite+aiosqlite:///:memory:'
+FAILED tests/neural_ai/processors/dimensions/d01_price/test_d01_factory.py::TestD01PriceFactory::test_factory_has_create_processor_method - AssertionError: assert False
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::test_d02_processor_happy_path - AssertionError: assert False
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::test_d02_processor_defaults - assert False
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMissingConfigBranches::test_merge_levels_missing_level_merge_config - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMissingConfigBranches::test_merge_levels_large_dataframe_skip_merge - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMissingConfigBranches::test_confirm_with_volume_missing_config - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMissingConfigBranches::test_confirm_with_volume_false - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMissingConfigBranches::test_confirm_with_volume_true - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorNearestLevelsEdgeCases::test_nearest_support_no_candidates_below - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorNearestLevelsEdgeCases::test_nearest_resistance_no_candidates_above - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMidColumnsHandling::test_process_with_bid_columns_no_mid - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMidColumnsHandling::test_process_with_simple_ohlc_no_mid - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMarketHoursFiltering::test_process_with_market_hours_enabled_filtering - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorMarketHoursFiltering::test_process_with_market_hours_outside_hours - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorNearestLevels::test_process_calculates_nearest_support - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorNearestLevels::test_process_calculates_nearest_resistance - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/processors/dimensions/d02_support/implementations/test_support_processor.py::TestD02ProcessorEdgeCases::test_process_with_insufficient_data - AttributeError: 'dict' object has no attribute 'volume_confirmation'
+FAILED tests/neural_ai/ui/test_ui_factory.py::TestUIServiceFactoryInit::test_init_creates_instance - AttributeError: 'UIServiceFactory' object has no attribute '_logger'. Did you mean: 'logger'?
+FAILED tests/neural_ai/ui/test_ui_factory.py::TestUIServiceFactoryInitialize::test_initialize_with_dict_config - AttributeError: 'UIServiceFactory' object has no attribute '_logger'. Did you mean: 'logger'?
+FAILED tests/scripts/test_validation_end_to_end.py::test_end_to_end_validation - Failed: Váratlan hiba a teszt futtatása közben: A validációs szkript nem jelezte a sikert
