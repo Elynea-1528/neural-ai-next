@@ -650,8 +650,8 @@ def main() -> None:
         if args.only:
             extra_groups = [g.strip() for g in args.only.split(",")]
         else:
-            # Alapértelmezett: minden csoport
-            extra_groups = ["dev", "trader", "jupyter"]
+            # Alapértelmezett: minden csoport (UI is!)
+            extra_groups = ["dev", "trader", "jupyter", "ui"]
 
         # Hardver detektálás
         gpu_available, avx2_supported = run_hardware_detection()
