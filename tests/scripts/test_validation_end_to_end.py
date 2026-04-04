@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 
 
+@pytest.mark.skip(reason="Adathiány - valódi piaci adat szükséges az E2E validációhoz")
 def test_end_to_end_validation():
     """Teljes end-to-end validációs teszt futtatása.
 
