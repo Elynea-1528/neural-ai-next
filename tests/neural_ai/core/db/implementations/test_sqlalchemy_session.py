@@ -13,6 +13,18 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
+# asyncpg ellenőrzés (PostgreSQL tesztekhez)
+try:
+    import asyncpg  # noqa: F401
+    HAS_ASYNCPG = True
+except ImportError:
+    HAS_ASYNCPG = False
+
+skip_if_no_asyncpg = pytest.mark.skipif(
+    not HAS_ASYNCPG,
+    reason="asyncpg nincs telepítve (PostgreSQL tesztekhez szükséges)"
+)
+
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
 from neural_ai.core.db.exceptions import DBConnectionError
 from neural_ai.core.db.implementations.sqlalchemy_session import (
@@ -84,6 +96,7 @@ class TestDatabaseURL:
 
         assert url == "sqlite+aiosqlite:///fallback.db"
 
+    @skip_if_no_asyncpg
     def test_get_database_url_without_config(self) -> None:
         """Teszteli az adatbázis URL lekérdezést konfig nélkül (line 47)."""
         with patch(
@@ -124,6 +137,7 @@ class TestCreateEngine:
         assert engine is not None
         assert isinstance(engine, AsyncEngine)
 
+    @skip_if_no_asyncpg
     def test_create_engine_postgresql(self) -> None:
         """Teszteli az engine létrehozást PostgreSQL URL-lel (line 114)."""
         # Mock-oljuk az asyncpg-t, hogy ne kelljen telepíteni
@@ -142,6 +156,7 @@ class TestCreateEngine:
             assert call_kwargs["pool_size"] == 20
             assert call_kwargs["max_overflow"] == 0
 
+    @skip_if_no_asyncpg
     def test_create_engine_postgresql_with_pool_config(self) -> None:
         """Teszteli az engine létrehozást custom pool config-gal (line 115-116)."""
         from neural_ai.core.config.interfaces.types import DatabasePoolConfig
@@ -162,6 +177,7 @@ class TestCreateEngine:
             assert call_kwargs["pool_size"] == 10
             assert call_kwargs["pool_recycle"] == 1800
 
+    @skip_if_no_asyncpg
     def test_create_engine_postgresql_with_none_pool_values(self) -> None:
         """Teszteli az engine létrehozást None pool értékekkel (line 115-116)."""
         from neural_ai.core.config.interfaces.types import DatabasePoolConfig
@@ -188,6 +204,7 @@ class TestCreateEngine:
 class TestGetEngine:
     """Globális engine lekérdezés tesztjei."""
 
+    @skip_if_no_asyncpg
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_database_url")
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory")
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.create_engine")
@@ -207,6 +224,7 @@ class TestGetEngine:
         assert engine is mock_engine
         mock_create.assert_called_once()
 
+    @skip_if_no_asyncpg
     @patch("neural_ai.core.db.implementations.sqlalchemy_session._engine", None)
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_database_url")
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory")
@@ -232,6 +250,7 @@ class TestGetEngine:
         # create_engine csak egyszer hívódott meg
         assert mock_create.call_count == 1
 
+    @skip_if_no_asyncpg
     @patch("neural_ai.core.db.implementations.sqlalchemy_session._engine", None)
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_database_url")
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory")
@@ -253,6 +272,7 @@ class TestGetEngine:
         call_kwargs = mock_create.call_args[1]
         assert call_kwargs["echo"] is False
 
+    @skip_if_no_asyncpg
     @patch("neural_ai.core.db.implementations.sqlalchemy_session._engine", None)
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_database_url")
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.create_engine")
@@ -283,6 +303,7 @@ class TestGetEngine:
 class TestGetAsyncSessionMaker:
     """Session maker lekérdezés tesztjei."""
 
+    @skip_if_no_asyncpg
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_engine")
     def test_get_async_session_maker_creates_once(self, mock_get_engine: MagicMock) -> None:
         """Teszteli, hogy a session maker csak egyszer jön létre."""
@@ -325,6 +346,7 @@ class TestDatabaseManager:
         # A védett attribútumok ellenőrzése nem szükséges
         # A publikus interfész tesztelése a fontos
 
+    @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_database_manager_initialize_with_pool_config(
         self, mock_logger: MagicMock
@@ -573,6 +595,7 @@ class TestDatabaseManager:
 class TestContextManagers:
     """Context manager függvények tesztjei."""
 
+    @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_get_db_session(self) -> None:
         """Teszteli a get_db_session context managert."""
@@ -594,6 +617,7 @@ class TestContextManagers:
                 assert session is not None
                 assert isinstance(session, AsyncSession)
 
+    @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_get_db_session_direct(self) -> None:
         """Teszteli a get_db_session_direct függvényt."""
@@ -616,6 +640,7 @@ class TestContextManagers:
 
             await session.close()
 
+    @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_get_db_session_exception_rollback(self) -> None:
         """Teszteli a get_db_session exception rollback-ját (lines 169-171)."""
@@ -644,6 +669,7 @@ class TestContextManagers:
             # Ellenőrizzük, hogy a rollback meghívódott
             mock_session.rollback.assert_called_once()
 
+    @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_get_db_session_finally_block(self) -> None:
         """Teszteli a get_db_session finally blokkját (line 227-228)."""
@@ -674,6 +700,7 @@ class TestContextManagers:
 class TestDatabaseInitialization:
     """Adatbázis inicializálás tesztjei."""
 
+    @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_init_db(self) -> None:
         """Teszteli az init_db függvényt."""
@@ -690,6 +717,7 @@ class TestDatabaseInitialization:
 
             await init_db(mock_logger)
 
+    @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_close_db(self) -> None:
         """Teszteli a close_db függvényt."""

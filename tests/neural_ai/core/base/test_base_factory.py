@@ -71,7 +71,12 @@ class TestCoreComponentFactory:
 
         logger = factory.logger
         assert logger is not None
-        assert isinstance(logger, LoggerInterface)
+        # LoggerInterface Protocol, nem osztály - hasattr ellenőrzés
+        assert hasattr(logger, 'debug')
+        assert hasattr(logger, 'info')
+        assert hasattr(logger, 'warning')
+        assert hasattr(logger, 'error')
+        assert hasattr(logger, 'critical')
 
     def test_config_manager_property_raises_dependency_error(self) -> None:
         """Teszteli, hogy a config manager property DependencyError-t dob, ha nincs regisztrálva."""
