@@ -1,5 +1,6 @@
-"""Konfigurációkezelő implementációk.
+"""Config implementations module.
 
-Ez a modul tartalmazza a különböző konfigurációkezelő implementációkat.
-FIGYELEM: Ez a fájl ÜRES kell legyen! Implementációkat CSAK a factory.py importálhatja.
+FONTOS: Ez a modul üres kell hogy maradjon!
+Az implementations/ mappa tartalma csak a factory.py-on keresztül érhető el.
 """
+# ÜRES - Implementations nem exportálnak semmit!
