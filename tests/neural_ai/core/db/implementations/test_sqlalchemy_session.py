@@ -60,6 +60,20 @@ def reset_singleton() -> Generator[None, None, None]:
         DatabaseManager._instances.clear()  # pyright: ignore[reportPrivateUsage]
 
 
+@pytest.fixture(autouse=True)
+def mock_config_manager_factory() -> Generator[MagicMock, None, None]:
+    """Mock ConfigManagerFactory minden teszthez (test isolation).
+    
+    Ez a fixture biztosítja, hogy a get_database_url() ne próbáljon
+    valódi config.yaml fájlt betölteni, amikor config_manager=None.
+    """
+    with patch("neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory") as mock_factory:
+        mock_config = MagicMock(spec=ConfigManagerInterface)
+        mock_config.get.return_value = {"connection": {"url": "sqlite+aiosqlite:///:memory:"}}
+        mock_factory.get_manager.return_value = mock_config
+        yield mock_factory
+
+
 class TestDatabaseURL:
     """Adatbázis URL lekérdezés tesztjei."""
 
