@@ -11,6 +11,7 @@ Ez a tesztmodul ellenőrzi a core bootstrap funkcionalitását, beleértve:
 """
 
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -23,6 +24,129 @@ from neural_ai.core import (
 )
 from neural_ai.core.base.implementations.component_bundle import CoreComponents
 from neural_ai.core.config.exceptions import ConfigValidationError
+
+
+# ============================================================================
+# MODULE-LEVEL SETUP (A teljes fájlra aktív!)
+# ============================================================================
+
+_mock_di_container_patcher: Any = None
+_mock_config_factory_patcher: Any = None
+_mock_logger_factory_patcher: Any = None
+_mock_event_factory_patcher: Any = None
+_mock_storage_factory_patcher: Any = None
+_mock_system_factory_patcher: Any = None
+_mock_hardware_factory_patcher: Any = None
+_mock_jforex_factory_patcher: Any = None
+_mock_database_factory_patcher: Any = None
+
+
+def setup_module() -> None:
+    """Modul szintű mock setup - az EGÉSZ fájlra aktív.
+    
+    Ez biztosítja, hogy az összes Factory mock végig él
+    az összes teszt alatt, megoldva a fixture function scope problémát.
+    """
+    global _mock_di_container_patcher
+    global _mock_config_factory_patcher
+    global _mock_logger_factory_patcher
+    global _mock_event_factory_patcher
+    global _mock_storage_factory_patcher
+    global _mock_system_factory_patcher
+    global _mock_hardware_factory_patcher
+    global _mock_jforex_factory_patcher
+    global _mock_database_factory_patcher
+    
+    # DIContainer mock
+    _mock_di_container_patcher = patch(
+        "neural_ai.core.base.implementations.di_container.DIContainer"
+    )
+    _mock_di_container_patcher.start()
+    
+    # ConfigManagerFactory mock
+    _mock_config_factory_patcher = patch(
+        "neural_ai.core.config.factory.ConfigManagerFactory"
+    )
+    _mock_config_factory_patcher.start()
+    
+    # LoggerFactory mock
+    _mock_logger_factory_patcher = patch(
+        "neural_ai.core.logger.factory.LoggerFactory"
+    )
+    _mock_logger_factory_patcher.start()
+    
+    # EventBusFactory mock
+    _mock_event_factory_patcher = patch(
+        "neural_ai.core.events.factory.EventBusFactory"
+    )
+    _mock_event_factory_patcher.start()
+    
+    # StorageFactory mock
+    _mock_storage_factory_patcher = patch(
+        "neural_ai.data.storage.factory.StorageFactory"
+    )
+    _mock_storage_factory_patcher.start()
+    
+    # SystemComponentFactory mock
+    _mock_system_factory_patcher = patch(
+        "neural_ai.core.system.factory.SystemComponentFactory"
+    )
+    _mock_system_factory_patcher.start()
+    
+    # HardwareFactory mock
+    _mock_hardware_factory_patcher = patch(
+        "neural_ai.core.utils.factory.HardwareFactory"
+    )
+    _mock_hardware_factory_patcher.start()
+    
+    # JForexFactory mock (bizonyos tesztekhez)
+    _mock_jforex_factory_patcher = patch(
+        "neural_ai.collectors.jforex.factory.JForexFactory"
+    )
+    _mock_jforex_factory_patcher.start()
+    
+    # DatabaseFactory mock (bizonyos tesztekhez)
+    _mock_database_factory_patcher = patch(
+        "neural_ai.core.db.factory.DatabaseFactory"
+    )
+    _mock_database_factory_patcher.start()
+
+
+def teardown_module() -> None:
+    """Modul szintű cleanup."""
+    global _mock_di_container_patcher
+    global _mock_config_factory_patcher
+    global _mock_logger_factory_patcher
+    global _mock_event_factory_patcher
+    global _mock_storage_factory_patcher
+    global _mock_system_factory_patcher
+    global _mock_hardware_factory_patcher
+    global _mock_jforex_factory_patcher
+    global _mock_database_factory_patcher
+    
+    if _mock_di_container_patcher:
+        _mock_di_container_patcher.stop()
+    if _mock_config_factory_patcher:
+        _mock_config_factory_patcher.stop()
+    if _mock_logger_factory_patcher:
+        _mock_logger_factory_patcher.stop()
+    if _mock_event_factory_patcher:
+        _mock_event_factory_patcher.stop()
+    if _mock_storage_factory_patcher:
+        _mock_storage_factory_patcher.stop()
+    if _mock_system_factory_patcher:
+        _mock_system_factory_patcher.stop()
+    if _mock_hardware_factory_patcher:
+        _mock_hardware_factory_patcher.stop()
+    if _mock_jforex_factory_patcher:
+        _mock_jforex_factory_patcher.stop()
+    if _mock_database_factory_patcher:
+        _mock_database_factory_patcher.stop()
+
+
+# ============================================================================
+# TESZTEK
+# ============================================================================
 
 
 class TestVersionFunctions:
