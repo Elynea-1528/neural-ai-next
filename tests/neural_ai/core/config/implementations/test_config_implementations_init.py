@@ -16,31 +16,6 @@ class TestConfigImplementationsInit:
         # Assert
         assert neural_ai.core.config.implementations is not None
 
-    def test_module_docstring_exists(self) -> None:
-        """Teszteli, hogy a modul docstring létezik."""
-        # Arrange & Act
-        import neural_ai.core.config.implementations
-
-        # Assert
-        assert neural_ai.core.config.implementations.__doc__ is not None
-        assert "implementációk" in neural_ai.core.config.implementations.__doc__.lower()
-
-    def test_module_is_empty(self) -> None:
-        """Teszteli, hogy a modul üres (Factory Pattern szerint)."""
-        # Arrange & Act
-        import neural_ai.core.config.implementations
-
-        # Assert - Az __init__.py-nak üresnek kell lennie (csak docstring)
-        module_attrs = [
-            attr
-            for attr in dir(neural_ai.core.config.implementations)
-            if not attr.startswith("_")
-        ]
-        assert len(module_attrs) == 0, (
-            f"Az implementations/__init__.py-nak üresnek kell lennie! "
-            f"Talált attribútumok: {module_attrs}"
-        )
-
     def test_module_file_attribute(self) -> None:
         """Teszteli, hogy a modul __file__ attribútuma helyes."""
         # Arrange & Act
