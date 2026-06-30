@@ -652,6 +652,8 @@ class GeneratorBase:
             "secure": 0,
             "warning": 0,
             "vulnerable": 0,
+            "skipped_tests": 0,
+            "test_warnings": 0,
         }
 
         for analysis in self.analyses:
@@ -661,6 +663,10 @@ class GeneratorBase:
                 stats["warning"] += 1
             elif analysis.overall_status == "🔴 VULNERABLE":
                 stats["vulnerable"] += 1
+            
+            # Összesített skip és warning számok
+            stats["skipped_tests"] += analysis.test_skipped
+            stats["test_warnings"] += analysis.source_warnings
 
         return stats
 
@@ -680,7 +686,7 @@ class MarkdownGenerator(GeneratorBase):
         # Scripts layer - teljes táblázat
         if layer == "scripts":
             table += (
-                "| Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | "
+                "| Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip/Warn | "
                 "Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | "
                 "Config | Logger | Dokumentálva | Teendők |\n"
             )
@@ -705,7 +711,8 @@ class MarkdownGenerator(GeneratorBase):
                 ):
                     test_results = (
                         f"**{file.test_passed}**/{file.test_failed}/"
-                        f"{file.test_errors}/{file.test_skipped}"
+                        f"{file.test_errors}/{file.test_skipped}/"
+                        f"{file.source_warnings}"
                     )
                 else:
                     test_results = "-"
@@ -737,7 +744,7 @@ class MarkdownGenerator(GeneratorBase):
         # Tests layer - egyszerűsített táblázat
         elif layer == "tests":
             table += (
-                "| Fájl | Státusz | Pass/Fail/Err/Skip | "
+                "| Fájl | Státusz | Pass/Fail/Err/Skip/Warn | "
                 "Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | "
                 "Dokumentálva | Teendők |\n"
             )
@@ -759,7 +766,8 @@ class MarkdownGenerator(GeneratorBase):
                 ):
                     test_results = (
                         f"**{file.test_passed}**/{file.test_failed}/"
-                        f"{file.test_errors}/{file.test_skipped}"
+                        f"{file.test_errors}/{file.test_skipped}/"
+                        f"{file.source_warnings}"
                     )
                 else:
                     test_results = "-"
@@ -789,7 +797,7 @@ class MarkdownGenerator(GeneratorBase):
         else:
             # Neural_ai layerekhez teljes táblázat + Dokumentálva oszlop
             table += (
-                "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip | "
+                "| Modul / Fájl | Státusz | Teszt Pár | Pass/Fail/Err/Skip/Warn | "
                 "Coverage (Stmt/Brch) | Lint/Mypy/Pylance | Src Warn | "
                 "Config | Logger | Dokumentálva | Teendők |\n"
             )
@@ -818,7 +826,8 @@ class MarkdownGenerator(GeneratorBase):
                 ):
                     test_results = (
                         f"**{file.test_passed}**/{file.test_failed}/"
-                        f"{file.test_errors}/{file.test_skipped}"
+                        f"{file.test_errors}/{file.test_skipped}/"
+                        f"{file.source_warnings}"
                     )
                 else:
                     test_results = "-"
@@ -865,6 +874,8 @@ class MarkdownGenerator(GeneratorBase):
 - ✅ **SECURE:** {stats["secure"]} ({stats["secure"] / stats["total"] * 100:.1f}%)
 - 🟡 **WARNING:** {stats["warning"]} ({stats["warning"] / stats["total"] * 100:.1f}%)
 - 🔴 **VULNERABLE:** {stats["vulnerable"]} ({stats["vulnerable"] / stats["total"] * 100:.1f}%)
+- ⏭️ **Skipped Tests:** {stats["skipped_tests"]}
+- ⚠️ **Test Warnings:** {stats["test_warnings"]}
 
 ---
 """
@@ -889,6 +900,8 @@ class HTMLGenerator(GeneratorBase):
             "critical": 0,
             "tested": 0,
             "source_files": 0,  # ÚJ: Forrás fájlok száma (nem teszt fájlok)
+            "skipped_tests": 0,
+            "test_warnings": 0,
         }
 
         for analysis in self.analyses:
@@ -905,6 +918,10 @@ class HTMLGenerator(GeneratorBase):
                 stats["source_files"] += 1
                 if analysis.test_file_exists:
                     stats["tested"] += 1
+            
+            # Összesített skip és warning számok
+            stats["skipped_tests"] += analysis.test_skipped
+            stats["test_warnings"] += analysis.source_warnings
 
         return stats
 
@@ -1049,6 +1066,8 @@ class HTMLGenerator(GeneratorBase):
         .stat-card.warning .stat-value {{ color: #f59e0b; }}
         .stat-card.critical .stat-value {{ color: #ef4444; }}
         .stat-card.tested .stat-value {{ color: #3b82f6; }}
+        .stat-card.skipped .stat-value {{ color: #8b5cf6; }}
+        .stat-card.test-warnings .stat-value {{ color: #f97316; }}
 
         .stat-label {{
             color: #94a3b8;
@@ -1261,6 +1280,22 @@ class HTMLGenerator(GeneratorBase):
                 <div class="stat-label">Tesztelt Forrás Fájlok</div>
                 <div class="stat-percent">{tested_pct:.1f}% teszt lefedettség</div>
             </div>
+            <div class="stat-card skipped">
+                <div class="stat-header">
+                    <div class="stat-icon">⏭️</div>
+                </div>
+                <div class="stat-value">{stats["skipped_tests"]}</div>
+                <div class="stat-label">Skipped Tests</div>
+                <div class="stat-percent">Átmeneti kihagyások</div>
+            </div>
+            <div class="stat-card test-warnings">
+                <div class="stat-header">
+                    <div class="stat-icon">⚠️</div>
+                </div>
+                <div class="stat-value">{stats["test_warnings"]}</div>
+                <div class="stat-label">Test Warnings</div>
+                <div class="stat-percent">Figyelmeztető üzenetek</div>
+            </div>
         </div>
 
         <input type="text" class="search-box" id="searchBox"
@@ -1335,7 +1370,7 @@ class HTMLGenerator(GeneratorBase):
                             <th>Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
-                            <th>Pass/Fail/Err/Skip</th>
+                            <th>Pass/Fail/Err/Skip/Warn</th>
                             <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
                             <th>Src Warn</th>
@@ -1348,7 +1383,7 @@ class HTMLGenerator(GeneratorBase):
             html_output += """
                             <th>Fájl</th>
                             <th>Státusz</th>
-                            <th>Pass/Fail/Err/Skip</th>
+                            <th>Pass/Fail/Err/Skip/Warn</th>
                             <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
                             <th>Src Warn</th>
@@ -1360,7 +1395,7 @@ class HTMLGenerator(GeneratorBase):
                             <th>Modul / Fájl</th>
                             <th>Státusz</th>
                             <th>Teszt Pár</th>
-                            <th>Pass/Fail/Err/Skip</th>
+                            <th>Pass/Fail/Err/Skip/Warn</th>
                             <th>Coverage (Stmt/Brch)</th>
                             <th>Lint/Mypy/Pylance</th>
                             <th>Src Warn</th>
