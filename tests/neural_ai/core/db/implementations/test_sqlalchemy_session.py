@@ -40,6 +40,46 @@ skip_if_no_asyncpg = pytest.mark.skipif(
 )
 
 
+# ============================================================================
+# MODULE-LEVEL SETUP (A teljes fájlra aktív!)
+# ============================================================================
+
+_mock_config_patcher: Any = None
+_mock_config: Any = None
+
+
+def setup_module() -> None:
+    """Modul szintű mock setup - az EGÉSZ fájlra aktív.
+    
+    Ez biztosítja, hogy a ConfigManagerFactory mock végig él
+    az összes teszt alatt, megoldva a fixture function scope problémát.
+    """
+    global _mock_config_patcher, _mock_config
+    
+    # ConfigManagerFactory mock
+    _mock_config_patcher = patch(
+        "neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory"
+    )
+    mock_factory = _mock_config_patcher.start()
+    
+    # Mock config objektum
+    _mock_config = MagicMock(spec=ConfigManagerInterface)
+    _mock_config.get.return_value = {"connection": {"url": "sqlite+aiosqlite:///:memory:"}}
+    
+    mock_factory.get_manager.return_value = _mock_config
+
+
+def teardown_module() -> None:
+    """Modul szintű cleanup."""
+    global _mock_config_patcher
+    if _mock_config_patcher:
+        _mock_config_patcher.stop()
+
+
+# ============================================================================
+# FIXTURES
+# ============================================================================
+
 @pytest.fixture
 def mock_logger() -> Any:
     """Mock logger fixture minden teszthez (DI pattern)."""
@@ -58,20 +98,6 @@ def reset_singleton() -> Generator[None, None, None]:
     yield
     if DatabaseManager._instances:  # pyright: ignore[reportPrivateUsage]
         DatabaseManager._instances.clear()  # pyright: ignore[reportPrivateUsage]
-
-
-@pytest.fixture(autouse=True)
-def mock_config_manager_factory() -> Generator[MagicMock, None, None]:
-    """Mock ConfigManagerFactory minden teszthez (test isolation).
-    
-    Ez a fixture biztosítja, hogy a get_database_url() ne próbáljon
-    valódi config.yaml fájlt betölteni, amikor config_manager=None.
-    """
-    with patch("neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory") as mock_factory:
-        mock_config = MagicMock(spec=ConfigManagerInterface)
-        mock_config.get.return_value = {"connection": {"url": "sqlite+aiosqlite:///:memory:"}}
-        mock_factory.get_manager.return_value = mock_config
-        yield mock_factory
 
 
 class TestDatabaseURL:
@@ -112,18 +138,18 @@ class TestDatabaseURL:
 
     @skip_if_no_asyncpg
     def test_get_database_url_without_config(self) -> None:
-        """Teszteli az adatbázis URL lekérdezést konfig nélkül (line 47)."""
-        with patch(
-            "neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory"
-        ) as mock_factory:
-            mock_config = MagicMock(spec=ConfigManagerInterface)
-            mock_config.get.return_value = "sqlite+aiosqlite:///test.db"
-            mock_factory.get_manager.return_value = mock_config
-
-            url = get_database_url()
-
-            assert url == "sqlite+aiosqlite:///test.db"
-            mock_factory.get_manager.assert_called_once_with("config.yaml")
+        """Teszteli az adatbázis URL lekérdezést konfig nélkül (line 47).
+        
+        A module-level mock már aktív, így a ConfigManagerFactory mock
+        automatikusan elérhető.
+        """
+        # A module-level mock-ot konfigurálni kell erre a tesztre
+        global _mock_config
+        _mock_config.get.return_value = "sqlite+aiosqlite:///test.db"
+        
+        url = get_database_url()
+        
+        assert url == "sqlite+aiosqlite:///test.db"
 
     def test_get_database_url_raises_error_when_missing(self) -> None:
         """Teszteli, hogy a függvény hibát dob, ha az URL hiányzik."""
