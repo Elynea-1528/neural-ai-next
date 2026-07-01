@@ -167,13 +167,19 @@ def _clear_singleton_instances() -> None:
     except (ImportError, AttributeError):
         pass
 
-    # 7. DatabaseManager
+    # 7. DatabaseManager + Module-level globals
     try:
         from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
+        import neural_ai.core.db.implementations.sqlalchemy_session as db_session_module
 
+        # DatabaseManager class attributes
         for attr in ["_instance", "_instances", "_engine", "_session_maker"]:
             if hasattr(DatabaseManager, attr):
                 setattr(DatabaseManager, attr, None)
+        
+        # KRITIKUS: Module-level global változók tisztítása!
+        db_session_module._engine = None
+        db_session_module._async_session_maker = None
     except (ImportError, AttributeError):
         pass
 
