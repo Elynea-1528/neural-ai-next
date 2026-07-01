@@ -6,6 +6,22 @@
 Ez a modul tartalmazza az adatbázis session kezelő függvények és osztályok tesztjeit.
 """
 
+"""
+MOCK ASSERTION BEST PRACTICES:
+- Use `assert_called_once()` for behavior verification (PREFERRED)
+- Use `==` for value equality, NOT `is` for identity
+- Identity checks (`is`) break with pytest-xdist + pytest-forked serialization
+- Singleton pattern: Use `id()` for explicit identity check
+
+Examples:
+    ✅ GOOD: mock_create.assert_called_once()
+    ✅ GOOD: assert engine == mock_engine
+    ✅ GOOD: assert id(singleton1) == id(singleton2)
+    ❌ BAD: assert engine is mock_engine
+
+ADR: docs/development/architecture/adr-008-mock-assertion-best-practices.md
+"""
+
 from collections.abc import Generator
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -205,6 +221,7 @@ class TestCreateEngine:
         assert engine is not None
         assert isinstance(engine, AsyncEngine)
 
+    @pytest.mark.forked
     @skip_if_no_asyncpg
     def test_create_engine_postgresql(self) -> None:
         """Teszteli az engine létrehozást PostgreSQL URL-lel (line 114)."""
@@ -217,13 +234,16 @@ class TestCreateEngine:
 
             engine = create_engine("postgresql+asyncpg://user:pass@localhost/db")
 
-            assert engine is mock_engine
+            # Refactored: is → == (hybrid isolation compat)
+            mock_create.assert_called_once()
+            assert engine == mock_engine  # Value equality backup
             mock_create.assert_called_once()
             # Ellenőrizzük, hogy a pool_size és max_overflow paraméterek át lettek-e adva
             call_kwargs = mock_create.call_args[1]
             assert call_kwargs["pool_size"] == 20
             assert call_kwargs["max_overflow"] == 0
 
+    @pytest.mark.forked
     @skip_if_no_asyncpg
     def test_create_engine_postgresql_with_pool_config(self) -> None:
         """Teszteli az engine létrehozást custom pool config-gal (line 115-116)."""
@@ -240,11 +260,14 @@ class TestCreateEngine:
                 "postgresql+asyncpg://user:pass@localhost/db", pool_config=pool_config
             )
 
-            assert engine is mock_engine
+            # Refactored: is → == (hybrid isolation compat)
+            mock_create.assert_called_once()
+            assert engine == mock_engine  # Value equality backup
             call_kwargs = mock_create.call_args[1]
             assert call_kwargs["pool_size"] == 10
             assert call_kwargs["pool_recycle"] == 1800
 
+    @pytest.mark.forked
     @skip_if_no_asyncpg
     def test_create_engine_postgresql_with_none_pool_values(self) -> None:
         """Teszteli az engine létrehozást None pool értékekkel (line 115-116)."""
@@ -262,7 +285,9 @@ class TestCreateEngine:
                 "postgresql+asyncpg://user:pass@localhost/db", pool_config=pool_config
             )
 
-            assert engine is mock_engine
+            # Refactored: is → == (hybrid isolation compat)
+            mock_create.assert_called_once()
+            assert engine == mock_engine  # Value equality backup
             call_kwargs = mock_create.call_args[1]
             # Alapértelmezett értékek
             assert call_kwargs["pool_size"] == 20
@@ -300,7 +325,9 @@ class TestGetEngine:
         engine2 = get_engine()
 
         # Ugyanaz az engine objektum
-        assert engine1 is engine2
+        # Refactored: is → id() (singleton pattern critical)
+        assert id(engine1) == id(engine2)
+        assert engine1 == engine2
 
     @pytest.mark.skip(reason=SKIP_REASON)
     @skip_if_no_asyncpg
@@ -360,7 +387,9 @@ class TestGetAsyncSessionMaker:
         session_maker1 = get_async_session_maker()
         session_maker2 = get_async_session_maker()
 
-        assert session_maker1 is session_maker2
+        # Refactored: is → id() (singleton pattern critical)
+        assert id(session_maker1) == id(session_maker2)
+        assert session_maker1 == session_maker2
         assert isinstance(session_maker1, async_sessionmaker)
 
 
@@ -389,7 +418,8 @@ class TestDatabaseManager:
 
         manager = DatabaseManager(mock_config, logger=mock_logger)
 
-        assert manager.config_manager is mock_config
+        # Refactored: is → == (hybrid isolation compat)
+        assert manager.config_manager == mock_config
         # A védett attribútumok ellenőrzése nem szükséges
         # A publikus interfész tesztelése a fontos
 
@@ -494,7 +524,9 @@ class TestDatabaseManager:
         manager1 = DatabaseManager(mock_config, logger=mock_logger)  # type: ignore[arg-type]
         manager2 = DatabaseManager(mock_config, logger=mock_logger)  # type: ignore[arg-type]
 
-        assert manager1 is manager2
+        # Refactored: is → id() (singleton pattern critical)
+        assert id(manager1) == id(manager2)
+        assert manager1 == manager2
 
     @pytest.mark.asyncio
     async def test_database_manager_get_session_exception_rollback(
@@ -687,7 +719,8 @@ class TestContextManagers:
             session = await get_db_session_direct()
 
             assert session is not None
-            assert session is mock_session
+            # Refactored: is → == (hybrid isolation compat)
+            assert session == mock_session
 
             await session.close()
 
@@ -753,6 +786,7 @@ class TestContextManagers:
 class TestDatabaseInitialization:
     """Adatbázis inicializálás tesztjei."""
 
+    @pytest.mark.forked
     @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_init_db(self) -> None:
@@ -770,6 +804,7 @@ class TestDatabaseInitialization:
 
             await init_db(mock_logger)
 
+    @pytest.mark.forked
     @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_close_db(self) -> None:
