@@ -213,6 +213,8 @@ Szerkeszd az [`.env`](.env.example) fájlt a következők konfigurálásához:
 
 ## 🧪 Tesztelés
 
+### Teljes teszt suite (development)
+
 ```bash
 # Futtasd az összes tesztet
 /home/elynea/miniconda3/envs/neural-ai-next/bin/pytest
@@ -223,6 +225,52 @@ Szerkeszd az [`.env`](.env.example) fájlt a következők konfigurálásához:
 # Futtasd specifikus tesztet
 /home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/core/test_event_bus.py -v
 ```
+
+### CI/CD teszt futtatás (skip external dependencies)
+
+**External dependency tesztek kihagyása:**
+```bash
+# AsyncPG (PostgreSQL) és JForex Bridge tesztek kihagyása
+/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -m "not external"
+```
+
+**Singleton conflict tesztek kihagyása:**
+```bash
+# Database singleton test isolation issue tesztek kihagyása
+/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -m "not singleton_conflict"
+```
+
+**Platform-specifikus tesztek kihagyása:**
+```bash
+# Windows-on Unix-specific tesztek kihagyása
+/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -m "not unix_only"
+```
+
+**Kombinált CI/CD config:**
+```bash
+# Production CI/CD környezet (skip external + singleton)
+/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -m "not external and not singleton_conflict"
+```
+
+### Pytest Marker Leírások
+
+| Marker | Leírás | Tesztek száma | Skip Reason |
+|:---|:---|:---:|:---|
+| `external` | External dependency (asyncpg, JForex) | ~10 | Dependency nem elérhető CI/CD-ben |
+| `singleton_conflict` | Singleton + cached_property isolation | 11 | Test isolation technical limitation |
+| `unix_only` | Unix-specific platform teszt | ~5 | Platform compatibility |
+
+### Skipped Tesztek Dokumentáció
+
+**ADR Referenciák:**
+- Test isolation stratégia: [`docs/development/architecture/adr-007-test-isolation-strategy.md`](docs/development/architecture/adr-007-test-isolation-strategy.md)
+- Mock assertion best practices: [`docs/development/architecture/adr-008-mock-assertion-best-practices.md`](docs/development/architecture/adr-008-mock-assertion-best-practices.md)
+
+**Integration Test Coverage:**
+Az skipped unit tesztek funkcionalitása teljes mértékben lefedett:
+- Database singleton: [`scripts/bootstrap_integration_test.py`](scripts/bootstrap_integration_test.py)
+- JForex Bridge: Manual integration test (production környezet)
+- AsyncPG: PostgreSQL production deployment test
 
 ---
 
