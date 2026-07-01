@@ -200,15 +200,24 @@ class TestBootstrapCore:
 
     def setup_method(self) -> None:
         """Teszt előkészítés."""
-        # Mockoljuk a factory osztályokat
+        # Import interfaces for spec (csak ahol létezik interface)
+        from neural_ai.core.config.interfaces import ConfigManagerInterface
+        from neural_ai.core.events.interfaces import EventBusInterface
+        from neural_ai.core.logger.interfaces import LoggerInterface
+        from neural_ai.core.system.interfaces import HealthMonitorInterface
+        from neural_ai.core.utils.interfaces import HardwareInterface
+        from neural_ai.data.storage.interfaces import StorageInterface
+
+        # Mockoljuk a factory osztályokat spec= használatával
+        # DatabaseManager nincs interface, ezért MagicMock() spec nélkül
         self.mock_container = MagicMock()
-        self.mock_hardware = MagicMock()
-        self.mock_config = MagicMock()
-        self.mock_logger = MagicMock()
-        self.mock_database = MagicMock()
-        self.mock_event_bus = MagicMock()
-        self.mock_storage = MagicMock()
-        self.mock_health_monitor = MagicMock()
+        self.mock_hardware = MagicMock(spec=HardwareInterface)
+        self.mock_config = MagicMock(spec=ConfigManagerInterface)
+        self.mock_logger = MagicMock(spec=LoggerInterface)
+        self.mock_database = MagicMock()  # Nincs DatabaseInterface
+        self.mock_event_bus = MagicMock(spec=EventBusInterface)
+        self.mock_storage = MagicMock(spec=StorageInterface)
+        self.mock_health_monitor = MagicMock(spec=HealthMonitorInterface)
 
     @patch("neural_ai.core.base.implementations.di_container.DIContainer")
     @patch("neural_ai.core.config.factory.ConfigManagerFactory")
@@ -377,10 +386,9 @@ class TestBootstrapCore:
     ) -> None:
         """Teszteli a bootstrap_core függvényt JForex Live Feed engedélyezés esetén.
 
-        Ez a teszt lefedi a 202. sort, ahol a JForex Live Feed opcionálisan inicializálódik.
-
+        Ez a teszt lefedi a JForex Live Feed opcionális inicializálását.
         """
-        # Mock beállítások
+        # Arrange
         mock_di_container.return_value = self.mock_container
         mock_hardware_factory.get_hardware_info.return_value = self.mock_hardware
         mock_config_factory.create_manager.return_value = self.mock_config
@@ -389,84 +397,39 @@ class TestBootstrapCore:
         mock_storage_factory.get_storage.return_value = self.mock_storage
         mock_system_factory.create_health_monitor.return_value = self.mock_health_monitor
 
-        # JForex konfiguráció beállítása
-        def get_side_effect(*args, **kwargs):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
-            key = args[0] if args else None  # pyright: ignore[reportUnknownVariableType]
-            # Ha több argumentum van (nested get), akkor a második a kulcs
-            if len(args) > 1 and args[0] == "collectors" and args[1] == "jforex_live":  # pyright: ignore[reportUnknownArgumentType]
-                return {"enabled": True}
-
-            if key == "live":
-                return {"enabled": True}
-            elif key == "storage":
+        # ✅ Multi-level key support (key, subkey, default pattern)
+        def config_get_side_effect(
+            key: str, subkey: str | None = None, default: object = None
+        ) -> object:
+            """Mock config.get() multi-level key támogatással."""
+            if key == "collectors" and subkey == "jforex_live":
+                return {"enabled": True, "host": "localhost", "tick_port": 5555}
+            elif key == "storage" and subkey is None:
                 return {"type": "parquet", "base_path": "data/storage"}
-            elif key == "collectors":
-                # Ha csak a collectors-t kérik
-                return None
-            return kwargs.get("default")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+            return default
 
-        self.mock_config.get.side_effect = get_side_effect
+        self.mock_config.get.side_effect = config_get_side_effect
 
-        # A get_section("ingestion") hívásnál ne legyen extra mező
-        # A get_section("logging") hívásnál se legyen extra mező
-        def get_section_side_effect(key):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
-            if key == "ingestion":
-                return {"enabled": True}
-            if key == "logging":
-                # A LoggingConfig-ban a 'name' kötelező mező!
-                # De a tesztben a bootstrap_core a config.get_section("logging")-t használja
-                # és aztán LoggingConfig(**logging_config_dict)-et hív.
-                # A hibaüzenet szerint:
-                # name
-                #   Extra inputs are not permitted [type=extra_forbidden, input_value='test_logger', input_type=str]  # noqa: E501
-                # level
-                #   Extra inputs are not permitted [type=extra_forbidden, input_value='INFO', input_type=str]  # noqa: E501
+        # ✅ get_section() side_effect (Pydantic compatible dict)
+        def config_get_section_side_effect(section: str) -> dict[str, object]:
+            """Mock config.get_section() Pydantic dict visszatérés."""
+            if section == "ingestion":
+                return {"buffer_size": 1000, "flush_interval": 60}
+            elif section == "logging":
+                return {}  # Pydantic default values használata
+            return {}
 
-                # Ez azt jelenti, hogy a LoggingConfig modellben a 'extra="forbid"' beállítás miatt
-                # a 'name' és 'level' mezők nem engedélyezettek, VAGY a LoggingConfig modell
-                # nem tartalmazza ezeket a mezőket.
+        self.mock_config.get_section.side_effect = config_get_section_side_effect
 
-                # De a neural_ai/core/base/factory.py-ban láttuk, hogy a LoggerConfig tartalmazza a 'name' és 'level' mezőket.  # noqa: E501
-                # Lehet, hogy a bootstrap_core NEM a neural_ai.core.base.factory.LoggerConfig-ot használja,  # noqa: E501
-                # hanem a neural_ai.core.config.interfaces.types.LoggingConfig-ot?
-                # Igen: from neural_ai.core.config.interfaces.types import LoggingConfig
-
-                # És a types.LoggingConfig valószínűleg nem tartalmazza ezeket a mezőket, vagy más a neve.  # noqa: E501
-                # Próbáljuk meg üres dict-tel, és reméljük, hogy a 'name' nem kötelező a types.LoggingConfig-ban.  # noqa: E501
-                return {}  # pyright: ignore[reportUnknownVariableType]
-            return {}  # pyright: ignore[reportUnknownVariableType]
-
-        self.mock_config.get_section.side_effect = get_section_side_effect
-
-        # JForex factory mock
+        # Mock factory returns
         mock_jforex_instance = MagicMock()
         mock_jforex_factory.create_live_feed.return_value = mock_jforex_instance
 
-        # Bootstrap
+        # Act
         core = bootstrap_core()
 
-        # Assertions
+        # Assert
         assert core is not None
-        # A create_live_feed hívás paramétereit is ellenőrizni kellene, de itt csak azt nézzük, hogy meghívták-e  # noqa: E501
-        # A hibaüzenet szerint: Expected 'create_live_feed' to have been called once. Called 0 times.  # noqa: E501
-        # Ez azt jelenti, hogy a bootstrap_core nem hívta meg a create_live_feed-et.
-        # Miért? Mert a live_conf.enabled False lehetett, vagy a config nem adta vissza a megfelelő értéket.  # noqa: E501
-
-        # A bootstrap_core-ban:
-        # live_conf_dict = cast(dict[str, Any], config.get("collectors", "jforex_live") or {})
-        # live_conf = JForexLiveConfig(**live_conf_dict)
-        # if live_conf.enabled:
-
-        # A tesztben:
-        # def get_side_effect(key, default=None):
-        #     if key == "live": ...
-
-        # A bootstrap_core a config.get("collectors", "jforex_live")-t hívja.
-        # A mock_config.get.side_effect-nek ezt kezelnie kell.
-        # A jelenlegi side_effect csak egy kulcsot kezel.
-
-        # Javítsuk a side_effect-et, hogy kezelje a nested kulcsokat is (vagy *args-t)
-
         mock_jforex_factory.create_live_feed.assert_called_once()
         # self.mock_container.register_instance.assert_any_call(MagicMock, mock_jforex_instance)
 
@@ -490,7 +453,7 @@ class TestBootstrapCore:
         mock_di_container: MagicMock,
     ) -> None:
         """Teszteli a bootstrap_core függvényt JForex Live Feed tiltás esetén."""
-        # Mock beállítások
+        # Arrange
         mock_di_container.return_value = self.mock_container
         mock_hardware_factory.get_hardware_info.return_value = self.mock_hardware
         mock_config_factory.create_manager.return_value = self.mock_config
@@ -499,24 +462,36 @@ class TestBootstrapCore:
         mock_storage_factory.get_storage.return_value = self.mock_storage
         mock_system_factory.create_health_monitor.return_value = self.mock_health_monitor
 
-        # JForex konfiguráció beállítása (disabled)
-        def get_side_effect(key, default=None):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
-            if key == "live":
-                return {"enabled": False}
-            elif key == "storage":
+        # ✅ JForex DISABLED config (multi-level key support)
+        def config_get_side_effect(
+            key: str, subkey: str | None = None, default: object = None
+        ) -> object:
+            """Mock config.get() - JForex disabled scenario."""
+            if key == "collectors" and subkey == "jforex_live":
+                return {"enabled": False}  # ✅ Explicit disabled
+            elif key == "storage" and subkey is None:
                 return {"type": "parquet", "base_path": "data/storage"}
-            elif key == "collectors":
-                return None
-            return default  # pyright: ignore[reportUnknownVariableType]
+            return default
 
-        self.mock_config.get.side_effect = get_side_effect
+        self.mock_config.get.side_effect = config_get_side_effect
 
-        # Bootstrap
+        # ✅ get_section() ugyanaz mint enabled teszt
+        def config_get_section_side_effect(section: str) -> dict[str, object]:
+            """Mock config.get_section() Pydantic dict visszatérés."""
+            if section == "ingestion":
+                return {"buffer_size": 1000, "flush_interval": 60}
+            elif section == "logging":
+                return {}  # Pydantic default values használata
+            return {}
+
+        self.mock_config.get_section.side_effect = config_get_section_side_effect
+
+        # Act
         core = bootstrap_core()
 
-        # Assertions
+        # Assert
         assert core is not None
-        mock_jforex_factory.create_live_feed.assert_not_called()
+        mock_jforex_factory.create_live_feed.assert_not_called()  # ✅ NEM lett hívva
 
 
 class TestGetCoreComponents:
