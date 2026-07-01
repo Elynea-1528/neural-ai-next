@@ -43,7 +43,7 @@ class MarketDataEvent(BaseModel):
         source: Az adat forrása ('jforex', 'mt5', 'ibkr')
     """
 
-    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+    model_config = ConfigDict()  # Pydantic v2 auto-serializes datetime to ISO format
 
     symbol: str = Field(..., description="A pénzpár szimbóluma")
     timestamp: datetime = Field(..., description="Az esemény időbélyege")
@@ -79,7 +79,7 @@ class TradeEvent(BaseModel):
         strategy_id: A stratégiát azonosító ID (opcionális)
     """
 
-    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+    model_config = ConfigDict()  # Pydantic v2 auto-serializes datetime to ISO format
 
     symbol: str = Field(..., description="A pénzpár szimbóluma")
     timestamp: datetime = Field(..., description="A kereskedés időbélyege")
@@ -115,7 +115,7 @@ class SignalEvent(BaseModel):
         stop_loss: Stop loss ár (opcionális)
     """
 
-    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+    model_config = ConfigDict()  # Pydantic v2 auto-serializes datetime to ISO format
 
     symbol: str = Field(..., description="A pénzpár szimbóluma")
     timestamp: datetime = Field(..., description="A jelzés időbélyege")
@@ -156,7 +156,7 @@ class SystemLogEvent(BaseModel):
         extra_data: További adatok (opcionális)
     """
 
-    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+    model_config = ConfigDict()  # Pydantic v2 auto-serializes datetime to ISO format
 
     timestamp: datetime = Field(..., description="A log időbélyege")
     level: str = Field(..., description="A log szintje")
@@ -191,7 +191,7 @@ class OrderEvent(BaseModel):
         status: A rendelés állapota ('PENDING', 'FILLED', 'CANCELLED', 'REJECTED')
     """
 
-    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+    model_config = ConfigDict()  # Pydantic v2 auto-serializes datetime to ISO format
 
     order_id: str = Field(..., description="A rendelés egyedi azonosítója")
     timestamp: datetime = Field(..., description="Az esemény időbélyege")
@@ -247,7 +247,7 @@ class PositionEvent(BaseModel):
         status: A pozíció állapota ('OPEN', 'CLOSED')
     """
 
-    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+    model_config = ConfigDict()  # Pydantic v2 auto-serializes datetime to ISO format
 
     position_id: str = Field(..., description="A pozíció egyedi azonosítója")
     timestamp: datetime = Field(..., description="Az esemény időbélyege")
