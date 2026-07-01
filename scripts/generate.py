@@ -1763,7 +1763,8 @@ class TaskTreeGenerator:
         """Coverage run futtatása (független a tesztek sikerességétől)."""
         print("  📊 Coverage + Pytest...")
         print("    🔄 Coverage run módszer (teljes lefedettség)")
-        print("    ⏳ FIGYELEM: 1807 teszt futtatása 10-15 percig tarthat!")
+        print("    ⚡ Parallel execution (pytest-xdist + pytest-forked)")
+        print("    ⏳ Várható futási idő: ~5-7 perc (korábban 11-15 perc)")
 
         try:
             # 1. Cleanup régi coverage fájlok
@@ -1784,12 +1785,14 @@ class TaskTreeGenerator:
                 "no:cov",  # Disable pytest-cov plugin (konfliktus elkerülése)
                 "--json-report",  # FIX 2: JSON report generálás
                 "--json-report-file=reports/pytest_report.json",  # FIX 2: Report fájl
+                "-n", "auto",      # ✅ ÚJ: pytest-xdist parallel execution
+                "--forked",        # ✅ ÚJ: subprocess isolation per test
                 "-q",
                 "--tb=no",
                 "--continue-on-collection-errors",
             ]
 
-            subprocess.run(cmd_coverage_run, check=False, env=env, timeout=900, cwd=PROJECT_ROOT)
+            subprocess.run(cmd_coverage_run, check=False, env=env, timeout=600, cwd=PROJECT_ROOT)
 
             # Ellenőrizzük a .coverage fájlt
             coverage_db = PROJECT_ROOT / ".coverage"
@@ -1843,7 +1846,7 @@ class TaskTreeGenerator:
                 self.coverage_data = {}
 
         except subprocess.TimeoutExpired:
-            print("    ⚠️ Coverage timeout (900s), folytatás részleges adatokkal...")
+            print("    ⚠️ Coverage timeout (600s), folytatás részleges adatokkal...")
             if COVERAGE_FILE.exists():
                 try:
                     with open(COVERAGE_FILE) as f:
