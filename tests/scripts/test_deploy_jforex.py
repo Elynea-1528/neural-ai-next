@@ -13,7 +13,7 @@ import pytest
 class TestDeployJForexIntegration:
     """Integration tesztek a deploy_jforex.py script-hez."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def project_root(self) -> Path:
         """Teszt: Projekt gyökér elérése.
 

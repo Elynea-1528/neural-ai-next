@@ -22,7 +22,7 @@ from neural_ai.core.config.interfaces.config_interface import ConfigManagerInter
 class TestConfigManagerFactory:
     """ConfigManagerFactory osztály tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def config_file(self, tmp_path: Path) -> Path:
         """Létrehoz egy ideiglenes config fájlt."""
         config_path = tmp_path / "test_config.yaml"

@@ -21,13 +21,13 @@ class DummyModel(Base):
     value: int = Column(Integer, nullable=False)  # type: ignore
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def engine() -> Engine:
     """In-memory SQLite engine létrehozása teszteléshez."""
     return create_engine("sqlite:///:memory:")
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def session(engine: Engine) -> Generator[Session, None, None]:
     """Teszt session létrehozása és törlése."""
     Base.metadata.create_all(engine)

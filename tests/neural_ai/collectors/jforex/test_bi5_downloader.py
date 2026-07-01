@@ -19,7 +19,7 @@ from neural_ai.collectors.jforex.implementations.bi5_downloader import Bi5Downlo
 class TestBi5Downloader:
     """Test suite for Bi5Downloader."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_dependencies(self):
         """Create mock dependencies for Bi5Downloader."""
         logger = MagicMock()
@@ -39,7 +39,7 @@ class TestBi5Downloader:
             "storage": storage,
         }
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def downloader(self, mock_dependencies):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Create Bi5Downloader instance with mocked dependencies."""
         return Bi5Downloader(**mock_dependencies)  # pyright: ignore[reportUnknownArgumentType]

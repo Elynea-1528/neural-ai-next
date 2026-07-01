@@ -14,7 +14,22 @@ from neural_ai.processors.dimensions.d02_support.implementations.support_process
 )
 
 
-@pytest.fixture
+def _create_mock_config_dict(**kwargs: object) -> dict[str, object]:  # pyright: ignore[reportUnknownParameterType]
+    """Helper: Mock config dict létrehozása ProcessorConfig mezőkkel.
+    
+    A BaseDimensionProcessor ProcessorConfig(**raw_config) hívást vár,
+    tehát dict-et kell visszaadnunk, nem Pydantic objektumot.
+    
+    Args:
+        **kwargs: ProcessorConfig mezők (pl. min_candles=5)
+        
+    Returns:
+        dict: Config dict a BaseDimensionProcessor számára
+    """
+    return dict(kwargs)  # pyright: ignore[reportReturnType]
+
+
+@pytest.fixture(scope="function")
 def mock_deps():
     """Create mock dependencies."""
     config = MagicMock(spec=ConfigManagerInterface)
@@ -28,12 +43,12 @@ def test_d02_processor_happy_path(mock_deps):  # pyright: ignore[reportUnknownPa
 
     # Mock config return for BaseDimensionProcessor
     # config.get("processors", "d02")
-    config.get.return_value = {  # pyright: ignore[reportUnknownMemberType]
-        "min_candles": 10,
-        "level_merge": 0.0005,
-        "strength_window": 10,
-        "min_touches": 2,
-    }
+    config.get.return_value = _create_mock_config_dict(  # pyright: ignore[reportUnknownMemberType]
+        min_candles=10,
+        level_merge=0.0005,
+        strength_window=10,
+        min_touches=2,
+    )
 
     processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
@@ -48,7 +63,7 @@ def test_d02_processor_defaults(mock_deps):  # pyright: ignore[reportUnknownPara
     config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
 
     # Empty config
-    config.get.return_value = {}  # pyright: ignore[reportUnknownMemberType]
+    config.get.return_value = _create_mock_config_dict()  # pyright: ignore[reportUnknownMemberType]
 
     processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
@@ -87,7 +102,7 @@ def test_d02_processor_validation_error(mock_deps):  # pyright: ignore[reportUnk
     config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
 
     # Invalid config: min_candles < 1
-    config.get.return_value = {"min_candles": 0}  # pyright: ignore[reportUnknownMemberType]
+    config.get.return_value = _create_mock_config_dict(min_candles=0)  # pyright: ignore[reportUnknownMemberType]
 
     with pytest.raises(ValidationError):
         D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
@@ -99,7 +114,7 @@ def test_d02_processor_invalid_type(mock_deps):  # pyright: ignore[reportUnknown
 
     # Invalid config: min_candles is string instead of int (pydantic might coerce strings to int)
     # Let's use something that cannot be coerced easily or clearly wrong type
-    config.get.return_value = {"min_candles": "not_an_integer"}  # pyright: ignore[reportUnknownMemberType]
+    config.get.return_value = _create_mock_config_dict(min_candles="not_an_integer")  # pyright: ignore[reportUnknownMemberType]
 
     with pytest.raises(ValidationError):
         D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
@@ -114,7 +129,7 @@ class TestD02ProcessorMissingConfigBranches:
     def test_merge_levels_missing_level_merge_config(self, mock_deps):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Test: level_merge hiányzik a configból (133-136 sorok)."""
         config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
-        config.get.return_value = {"min_candles": 5}  # pyright: ignore[reportUnknownMemberType]
+        config.get.return_value = _create_mock_config_dict(min_candles=5)  # pyright: ignore[reportUnknownMemberType]
         processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
         # Kis DataFrame (< 5000 sor) hogy elérjük a level_merge ellenőrzést
@@ -295,7 +310,7 @@ class TestD02ProcessorNearestLevelsEdgeCases:
     def test_nearest_resistance_no_candidates_above(self, mock_deps):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Test: Nincs resistance szint az aktuális ár felett (500-504 sorok)."""
         config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
-        config.get.return_value = {"min_candles": 5}  # pyright: ignore[reportUnknownMemberType]
+        config.get.return_value = _create_mock_config_dict(min_candles=5)  # pyright: ignore[reportUnknownMemberType]
         processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
         # Monoton csökkenő árak (nincs resistance az aktuális ár felett)
@@ -326,7 +341,7 @@ class TestD02ProcessorNearestLevelsEdgeCases:
 
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def sample_ohlcv_df():
     """Create sample OHLCV DataFrame for testing."""
     return pl.DataFrame(
@@ -437,7 +452,7 @@ class TestD02ProcessorMidColumnsHandling:
     def test_process_with_bid_columns_no_mid(self, mock_deps):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Test: Mid oszlopok hiányoznak, Bid oszlopok másolása."""
         config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
-        config.get.return_value = {"min_candles": 5}  # pyright: ignore[reportUnknownMemberType]
+        config.get.return_value = _create_mock_config_dict(min_candles=5)  # pyright: ignore[reportUnknownMemberType]
         processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
         df = pl.DataFrame(
@@ -468,7 +483,7 @@ class TestD02ProcessorMidColumnsHandling:
     def test_process_with_simple_ohlc_no_mid(self, mock_deps):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Test: Mid oszlopok hiányoznak, sima OHLC oszlopok másolása."""
         config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
-        config.get.return_value = {"min_candles": 5}  # pyright: ignore[reportUnknownMemberType]
+        config.get.return_value = _create_mock_config_dict(min_candles=5)  # pyright: ignore[reportUnknownMemberType]
         processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
         df = pl.DataFrame(
@@ -525,15 +540,15 @@ class TestD02ProcessorMarketHoursFiltering:
     def test_process_with_market_hours_enabled_filtering(self, mock_deps, sample_ohlcv_df):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Test: Market hours enabled, filtering triggered."""
         config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
-        config.get.return_value = {  # pyright: ignore[reportUnknownMemberType]
-            "min_candles": 5,
-            "market_hours": {
+        config.get.return_value = _create_mock_config_dict(  # pyright: ignore[reportUnknownMemberType]
+            min_candles=5,
+            market_hours={
                 "enabled": True,
                 "weekdays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
                 "hours": ["09:00", "17:00"],
                 "log_filtering": True,
             },
-        }
+        )
         processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
         # Hozzáadunk hétvégi adatokat (szombat)
@@ -549,15 +564,15 @@ class TestD02ProcessorMarketHoursFiltering:
     def test_process_with_market_hours_outside_hours(self, mock_deps):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Test: Market hours filtering - outside trading hours."""
         config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
-        config.get.return_value = {  # pyright: ignore[reportUnknownMemberType]
-            "min_candles": 5,
-            "market_hours": {
+        config.get.return_value = _create_mock_config_dict(  # pyright: ignore[reportUnknownMemberType]
+            min_candles=5,
+            market_hours={
                 "enabled": True,
                 "weekdays": ["Monday"],
                 "hours": ["09:00", "17:00"],
                 "log_filtering": True,
             },
-        }
+        )
         processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
         # Éjszakai adatok (18:00-20:00)
@@ -589,7 +604,7 @@ class TestD02ProcessorNearestLevels:
     def test_process_calculates_nearest_support(self, mock_deps, sample_ohlcv_df):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Test: Legközelebbi support szint számítása (ha implementálva)."""
         config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
-        config.get.return_value = {"min_candles": 5}  # pyright: ignore[reportUnknownMemberType]
+        config.get.return_value = _create_mock_config_dict(min_candles=5)  # pyright: ignore[reportUnknownMemberType]
         processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
         result = processor.process(sample_ohlcv_df)  # pyright: ignore[reportUnknownArgumentType]
@@ -603,7 +618,7 @@ class TestD02ProcessorNearestLevels:
     def test_process_calculates_nearest_resistance(self, mock_deps, sample_ohlcv_df):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Test: Legközelebbi resistance szint számítása (ha implementálva)."""
         config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
-        config.get.return_value = {"min_candles": 5}  # pyright: ignore[reportUnknownMemberType]
+        config.get.return_value = _create_mock_config_dict(min_candles=5)  # pyright: ignore[reportUnknownMemberType]
         processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
         result = processor.process(sample_ohlcv_df)  # pyright: ignore[reportUnknownArgumentType]
@@ -647,7 +662,7 @@ class TestD02ProcessorEdgeCases:
     def test_process_with_insufficient_data(self, mock_deps):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Test: Kevés adat (< min_candles)."""
         config, logger = mock_deps  # pyright: ignore[reportUnknownVariableType]
-        config.get.return_value = {"min_candles": 10}  # pyright: ignore[reportUnknownMemberType]
+        config.get.return_value = _create_mock_config_dict(min_candles=10)  # pyright: ignore[reportUnknownMemberType]
         processor = D02SupportProcessor(config, logger)  # pyright: ignore[reportUnknownArgumentType]
 
         df = pl.DataFrame(

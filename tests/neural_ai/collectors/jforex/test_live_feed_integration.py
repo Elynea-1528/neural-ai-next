@@ -21,7 +21,7 @@ from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 class TestJForexLiveFeedIntegration:
     """JForexLiveFeed integrációs tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_logger(self) -> MagicMock:
         """Mock logger létrehozása."""
         logger = MagicMock()
@@ -31,14 +31,14 @@ class TestJForexLiveFeedIntegration:
         logger.debug = MagicMock()
         return logger
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_event_bus(self) -> AsyncMock:
         """Mock event bus létrehozása."""
         event_bus = AsyncMock()
         event_bus.publish = AsyncMock()
         return event_bus
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_config(self) -> MagicMock:
         """Mock config létrehozása."""
         config = MagicMock()
@@ -50,7 +50,7 @@ class TestJForexLiveFeedIntegration:
         }
         return config
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def live_feed(
         self, mock_logger: MagicMock, mock_event_bus: AsyncMock, mock_config: MagicMock
     ) -> JForexLiveFeed:

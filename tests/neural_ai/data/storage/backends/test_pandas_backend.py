@@ -49,17 +49,17 @@ class TestPandasDataFrame:
 class TestPandasBackend:
     """PandasBackend osztály tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def logger(self, mocker):  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Visszaad egy mock logger-t."""
         return mocker.MagicMock()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def backend(self, logger) -> PandasBackend:  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
         """Visszaad egy PandasBackend példányt."""
         return PandasBackend(logger)
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def sample_dataframe(self, backend: PandasBackend) -> Any:
         """Visszaad egy mint DataFrame-et."""
         pd = backend.pandas_wrapper.pd
@@ -67,7 +67,7 @@ class TestPandasBackend:
             {"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"], "age": [25, 30, 35]}
         )
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def temp_dir(self) -> Path:  # type: ignore[misc]
         """Visszaad egy ideiglenes könyvtárat."""
         with tempfile.TemporaryDirectory() as tmpdir:

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class TestProcessorsConfig:
     """Processors konfigurációs osztály tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def config_manager(self) -> "ConfigManagerInterface":
         """Konfiguráció kezelő példány létrehozása."""
         from neural_ai.core.config.implementations.yaml_config_manager import YAMLConfigManager

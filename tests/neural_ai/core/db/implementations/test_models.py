@@ -23,14 +23,14 @@ from neural_ai.core.db.implementations.models import DynamicConfig, LogEntry
 class TestDynamicConfig:
     """DynamicConfig modell tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def engine(self) -> Engine:
         """In-memory SQLite engine létrehozása teszteléshez."""
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         return engine
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def session(self, engine: Engine) -> Generator[Session, None, None]:
         """Adatbázis munkamenet létrehozása."""
         with Session(engine) as session:
@@ -185,14 +185,14 @@ class TestDynamicConfig:
 class TestLogEntry:
     """LogEntry modell tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def engine(self) -> Engine:
         """In-memory SQLite engine létrehozása teszteléshez."""
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         return engine
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def session(self, engine: Engine) -> Generator[Session, None, None]:
         """Adatbázis munkamenet létrehozása."""
         with Session(engine) as session:
@@ -371,14 +371,14 @@ class TestLogEntry:
 class TestModelRelationships:
     """Modellek közötti kapcsolatok tesztelése."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def engine(self) -> Engine:
         """In-memory SQLite engine létrehozása teszteléshez."""
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         return engine
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def session(self, engine: Engine) -> Generator[Session, None, None]:
         """Adatbázis munkamenet létrehozása."""
         with Session(engine) as session:
@@ -471,14 +471,14 @@ class TestModelRelationships:
 class TestModelValidation:
     """Modell validáció tesztelése."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def engine(self) -> Engine:
         """In-memory SQLite engine létrehozása teszteléshez."""
         engine = create_engine("sqlite:///:memory:")
         Base.metadata.create_all(engine)
         return engine
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def session(self, engine: Engine) -> Generator[Session, None, None]:
         """Adatbázis munkamenet létrehozása."""
         with Session(engine) as session:

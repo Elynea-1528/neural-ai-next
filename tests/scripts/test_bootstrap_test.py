@@ -14,7 +14,7 @@ import pytest
 class TestBootstrapTestIntegration:
     """Integration tesztek a bootstrap_test.py script-hez."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def project_root(self) -> Path:
         """Teszt: Projekt gyökér elérése.
 

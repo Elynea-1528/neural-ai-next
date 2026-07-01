@@ -41,3 +41,18 @@ class TestConfigImplementationsInit:
 
         # Assert
         assert neural_ai.core.config.implementations.__package__ == "neural_ai.core.config.implementations"  # noqa: E501
+
+    def test_module_is_empty(self) -> None:
+        """Teszteli, hogy a modul üres (csak docstring van)."""
+        # Arrange
+        import neural_ai.core.config.implementations
+
+        # Act
+        public_attrs = [
+            name
+            for name in dir(neural_ai.core.config.implementations)
+            if not name.startswith("_")
+        ]
+
+        # Assert
+        assert len(public_attrs) == 0

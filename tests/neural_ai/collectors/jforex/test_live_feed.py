@@ -20,7 +20,7 @@ from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 class TestJForexLiveFeed:
     """JForexLiveFeed osztály tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_logger(self) -> MagicMock:
         """Mock logger létrehozása."""
         logger = MagicMock()
@@ -30,14 +30,14 @@ class TestJForexLiveFeed:
         logger.debug = MagicMock()
         return logger
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_event_bus(self) -> AsyncMock:
         """Mock event bus létrehozása."""
         event_bus = AsyncMock()
         event_bus.publish = AsyncMock()
         return event_bus
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_config(self) -> MagicMock:
         """Mock config létrehozása."""
         config = MagicMock()
@@ -49,7 +49,7 @@ class TestJForexLiveFeed:
         }
         return config
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def live_feed(
         self, mock_logger: MagicMock, mock_event_bus: AsyncMock, mock_config: MagicMock
     ) -> JForexLiveFeed:
@@ -230,14 +230,14 @@ class TestJForexLiveFeed:
         live_feed._running = False  # pyright: ignore[reportPrivateUsage]
         assert live_feed.is_running() is False
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_config_empty(self) -> MagicMock:
         """Mock config létrehozása üres configgal."""
         config = MagicMock()
         config.get.return_value = {}
         return config
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def live_feed_empty_config(
         self, mock_logger: MagicMock, mock_event_bus: AsyncMock, mock_config_empty: MagicMock
     ) -> JForexLiveFeed:
@@ -255,7 +255,7 @@ class TestJForexLiveFeed:
             "jforex_live_config_missing - Using defaults (5555)"
         )
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_config_with_data(self) -> MagicMock:
         """Mock config létrehozása config adatokkal."""
         config = MagicMock()
@@ -272,7 +272,7 @@ class TestJForexLiveFeed:
         config.get.side_effect = mock_get
         return config
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def live_feed_with_config(
         self, mock_logger: MagicMock, mock_event_bus: AsyncMock, mock_config_with_data: MagicMock
     ) -> JForexLiveFeed:

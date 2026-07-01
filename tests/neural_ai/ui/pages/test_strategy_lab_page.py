@@ -36,7 +36,7 @@ class TestStrategyLabPage:
     navigációs metódusait és a szimbólum lekérést.
     """
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_bridge(self) -> MagicMock:
         """Mock CoreBridgeInterface létrehozása.
 
@@ -45,7 +45,7 @@ class TestStrategyLabPage:
         """
         return MagicMock(spec=CoreBridgeInterface)
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def strategy_lab_page(self, mock_bridge: MagicMock) -> StrategyLabPage:  # type: ignore[valid-type]
         """StrategyLabPage példány létrehozása teszteléshez.
 
@@ -353,7 +353,7 @@ class TestStrategyLabPageSessionState:
     Ezek a tesztek ellenőrzik a session_state alapú adat persistence funkcionalitást.
     """
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_bridge(self) -> MagicMock:
         """Mock CoreBridgeInterface létrehozása.
 
@@ -362,7 +362,7 @@ class TestStrategyLabPageSessionState:
         """
         return MagicMock(spec=CoreBridgeInterface)
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def strategy_lab_page(self, mock_bridge: MagicMock) -> StrategyLabPage:  # type: ignore[valid-type]
         """StrategyLabPage példány létrehozása teszteléshez.
 

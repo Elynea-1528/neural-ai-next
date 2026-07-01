@@ -7,7 +7,7 @@ import polars as pl
 import pytest
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def sample_tick_df() -> pl.DataFrame:
     """Minta Tick DataFrame teszteléshez.
 
@@ -24,7 +24,7 @@ def sample_tick_df() -> pl.DataFrame:
     })
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def sample_ohlcv_df() -> pl.DataFrame:
     """Minta OHLCV DataFrame teszteléshez.
 
@@ -42,7 +42,7 @@ def sample_ohlcv_df() -> pl.DataFrame:
     })
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def empty_tick_df() -> pl.DataFrame:
     """Üres Tick DataFrame teszteléshez.
 
@@ -58,7 +58,7 @@ def empty_tick_df() -> pl.DataFrame:
     })
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_logger() -> MagicMock:
     """Mock logger teszteléshez.
 
@@ -73,7 +73,7 @@ def mock_logger() -> MagicMock:
     return logger
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_storage(sample_tick_df: pl.DataFrame) -> MagicMock:
     """Mock storage teszteléshez.
 
@@ -89,7 +89,7 @@ def mock_storage(sample_tick_df: pl.DataFrame) -> MagicMock:
     return storage
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_storage_empty() -> MagicMock:
     """Mock storage üres adattal teszteléshez.
 
@@ -108,7 +108,7 @@ def mock_storage_empty() -> MagicMock:
     return storage
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_storage_no_method() -> MagicMock:
     """Mock storage read_tick_data metódus nélkül.
 
@@ -121,7 +121,7 @@ def mock_storage_no_method() -> MagicMock:
     return storage
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_config() -> MagicMock:
     """Mock config teszteléshez.
 

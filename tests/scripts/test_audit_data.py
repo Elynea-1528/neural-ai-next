@@ -14,7 +14,7 @@ import pytest
 class TestAuditDataIntegration:
     """Integration tesztek az audit_data.py script-hez."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def project_root(self) -> Path:
         """Teszt: Projekt gyökér elérése.
 

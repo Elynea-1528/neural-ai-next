@@ -32,7 +32,7 @@ class TestLaunchpadPage:
     és navigációs metódusait.
     """
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_bridge(self) -> MagicMock:
         """Mock CoreBridgeInterface létrehozása.
 
@@ -41,7 +41,7 @@ class TestLaunchpadPage:
         """
         return MagicMock(spec=CoreBridgeInterface)
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_logger(self) -> MagicMock:
         """Mock LoggerInterface létrehozása.
 
@@ -50,7 +50,7 @@ class TestLaunchpadPage:
         """
         return MagicMock()
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def launchpad_page(self, mock_bridge: MagicMock, mock_logger: MagicMock) -> LaunchpadPage:  # type: ignore[valid-type]
         """LaunchpadPage példány létrehozása teszteléshez.
 

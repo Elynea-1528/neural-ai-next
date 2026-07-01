@@ -13,7 +13,7 @@ import pytest
 class TestForceKillIntegration:
     """Integration tesztek a force_kill.py script-hez."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def project_root(self) -> Path:
         """Teszt: Projekt gyökér elérése.
 

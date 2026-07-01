@@ -18,14 +18,14 @@ import pytest
 from neural_ai.data.storage.implementations.parquet_storage import ParquetStorageService
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def temp_dir():
     """Ideiglenes könyvtár fixture."""
     with tempfile.TemporaryDirectory() as tmp_dir:
         yield Path(tmp_dir)
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_hardware():
     """Mock HardwareInterface fixture."""
     hardware: MagicMock = MagicMock()
@@ -33,7 +33,7 @@ def mock_hardware():
     return hardware
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_logger() -> MagicMock:
     """Mock LoggerInterface fixture."""
     return MagicMock()
@@ -49,7 +49,7 @@ def clear_singletons():
     SingletonMeta._instances.clear()  # pyright: ignore[reportPrivateUsage]
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 async def storage_service(temp_dir: Path, mock_hardware: MagicMock, mock_logger: MagicMock):
     """ParquetStorageService fixture teljes mock konfigurációval."""
     service = ParquetStorageService(

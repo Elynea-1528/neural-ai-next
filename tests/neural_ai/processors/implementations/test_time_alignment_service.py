@@ -66,12 +66,12 @@ class MockLogger(LoggerInterface):
 class TestTimeAlignmentService:
     """TimeAlignmentService osztály tesztei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_logger(self) -> MockLogger:
         """Mock logger fixture."""
         return MockLogger("test_time_alignment")
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def service(self, mock_logger: MockLogger) -> TimeAlignmentService:
         """TimeAlignmentService fixture."""
         return TimeAlignmentService(mock_logger)

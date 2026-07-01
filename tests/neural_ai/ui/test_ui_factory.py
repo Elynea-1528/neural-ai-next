@@ -25,9 +25,9 @@ class TestUIServiceFactoryInit:
         # Assert
         assert factory._bridge is None  # pyright: ignore[reportPrivateUsage]
         assert factory._config is None  # pyright: ignore[reportPrivateUsage]
-        assert factory.logger is None  # type: ignore
-        assert factory._core_components is None
-        assert factory._services == {}
+        assert factory.logger is None  # Public attribute - nem _logger
+        assert factory._core_components is None  # pyright: ignore[reportPrivateUsage]
+        assert factory._services == {}  # pyright: ignore[reportPrivateUsage]
 
 
 class TestUIServiceFactoryInitialize:
@@ -62,7 +62,7 @@ class TestUIServiceFactoryInitialize:
         # Assert
         assert factory._initialized is True  # pyright: ignore[reportPrivateUsage]
         assert factory._bridge == mock_bridge  # pyright: ignore[reportPrivateUsage]
-        assert factory.logger == mock_logger  # type: ignore
+        assert factory.logger == mock_logger  # Public attribute
         assert factory._core_components == mock_core  # pyright: ignore[reportPrivateUsage]
         assert isinstance(factory._config, UIConfig)  # pyright: ignore[reportPrivateUsage]
 

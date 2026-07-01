@@ -23,7 +23,7 @@ from scripts.data_reset import (
 class TestDataReset:
     """Data reset szkript tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def temp_base_dir(self):
         """Ideiglenes alap könyvtár létrehozása a tesztekhez."""
         tmpdir = tempfile.mkdtemp()

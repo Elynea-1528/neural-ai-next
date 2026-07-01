@@ -226,7 +226,7 @@ def _clear_di_container() -> None:
         pass
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def clean_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     """Tiszta környezeti változók minden teszthez.
 

@@ -16,7 +16,7 @@ from neural_ai.core.config.implementations.dynamic_config_manager import (
 from neural_ai.core.db.implementations.models import DynamicConfig
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_session() -> AsyncMock:
     """Mock AsyncSession létrehozása."""
     session: AsyncMock = AsyncMock(spec=AsyncSession)
@@ -26,20 +26,20 @@ def mock_session() -> AsyncMock:
     return session
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_logger() -> MagicMock:
     """Mock Logger létrehozása."""
     logger: MagicMock = MagicMock()
     return logger
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def config_manager(mock_session: AsyncMock) -> DynamicConfigManager:
     """DynamicConfigManager létrehozása mock sessionnel."""
     return DynamicConfigManager(session=mock_session)
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def config_manager_with_logger(
     mock_session: AsyncMock, mock_logger: MagicMock
 ) -> DynamicConfigManager:

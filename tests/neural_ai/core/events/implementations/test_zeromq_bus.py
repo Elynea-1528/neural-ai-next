@@ -22,7 +22,7 @@ from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
 from neural_ai.core.events.interfaces.event_models import MarketDataEvent
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_logger() -> MagicMock:
     """Mock logger fixture minden teszthez (DI pattern)."""
     logger = MagicMock()
@@ -59,7 +59,7 @@ def reset_singleton():
         delattr(EventBus, '_instance')
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_zmq_context():
     """Konzisztens ZMQ mock setup minden teszthez."""
     with patch('zmq.asyncio.Context') as mock_context_class:

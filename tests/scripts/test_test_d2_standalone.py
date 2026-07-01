@@ -13,7 +13,7 @@ import pytest
 class TestD2StandaloneIntegration:
     """Integration tesztek a test_d2_standalone.py script-hez."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def project_root(self) -> Path:
         """Teszt: Projekt gyökér elérése.
 

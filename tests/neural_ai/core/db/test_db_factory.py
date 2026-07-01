@@ -21,17 +21,17 @@ from neural_ai.core.db.implementations.sqlalchemy_session import DatabaseManager
 class TestDatabaseFactory:
     """DatabaseFactory osztály tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_logger(self) -> MagicMock:
         """Mock logger fixture."""
         return MagicMock()
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_config(self) -> MagicMock:
         """Mock config manager fixture."""
         return MagicMock(spec=ConfigManagerInterface)
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def factory(self, mock_logger: MagicMock, mock_config: MagicMock) -> DatabaseFactory:
         """DatabaseFactory fixture."""
         return DatabaseFactory(logger=mock_logger, config_manager=mock_config)

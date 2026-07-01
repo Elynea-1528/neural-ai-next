@@ -16,7 +16,7 @@ from scripts.migrate_structure import main, migrate_tick_structure
 class TestMigrateStructure:
     """Migrate structure szkript tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def temp_base_dir(self):
         """Ideiglenes alap könyvtár létrehozása a tesztekhez."""
         tmpdir = tempfile.mkdtemp()

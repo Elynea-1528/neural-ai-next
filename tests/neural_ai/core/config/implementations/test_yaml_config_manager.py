@@ -46,13 +46,13 @@ class TestValidationContext:
 class TestYAMLConfigManager:
     """YAMLConfigManager osztály tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def temp_dir(self) -> Path:  # type: ignore[misc]
         """Ideiglenes könyvtár létrehozása a tesztekhez."""
         with tempfile.TemporaryDirectory() as tmpdir:
             yield Path(tmpdir)  # pyright: ignore[reportReturnType]
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def sample_config(self) -> dict[str, Any]:
         """Minta konfiguráció."""
         return {
@@ -60,7 +60,7 @@ class TestYAMLConfigManager:
             "logging": {"level": "INFO"},
         }
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def config_file(self, temp_dir: Path, sample_config: dict[str, Any]) -> Path:
         """Minta konfigurációs fájl létrehozása."""
         config_path = temp_dir / "test_config.yaml"

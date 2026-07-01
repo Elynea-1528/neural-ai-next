@@ -34,31 +34,31 @@ from neural_ai.data.storage.implementations.file_storage import FileStorage
 class TestFileStorage:
     """FileStorage osztály tesztjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def temp_dir(self) -> Path:  # type: ignore[misc]
         """Ideiglenes könyvtár létrehozása a tesztekhez."""
         tmpdir = tempfile.mkdtemp()
         yield Path(tmpdir)  # pyright: ignore[reportReturnType]
         shutil.rmtree(tmpdir)
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_logger(self) -> MagicMock:
         """Mock logger fixture."""
         return MagicMock()
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def storage(self, temp_dir: Path, mock_logger: MagicMock) -> FileStorage:
         """FileStorage példány létrehozása logger-rel."""
         return FileStorage(logger=mock_logger, base_path=str(temp_dir))
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def sample_dataframe(self) -> pd.DataFrame:
         """Minta DataFrame létrehozása."""
         return pd.DataFrame(
             {"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"], "age": [25, 30, 35]}
         )
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def sample_object(self) -> dict[str, object]:
         """Minta Python objektum létrehozása."""
         return {"key": "value", "number": 42, "nested": {"inner": "data"}}

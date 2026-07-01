@@ -85,10 +85,21 @@ def setup_module() -> None:
     )
     mock_factory = _mock_config_factory_patcher.start()
 
-    # Mock config objektum
+    # Mock config objektum - PYDANTIC COMPATIBLE STRUCTURE
     _mock_config = MagicMock(spec=ConfigManagerInterface)
-    _mock_config.get.return_value = {"connection": {"url": "sqlite+aiosqlite:///:memory:"}}
-
+    
+    def config_get_side_effect(key: str, default: object = None) -> object:
+        """Mock config.get() with Pydantic-compatible structure."""
+        if key == "database":
+            return {
+                "connection": {"url": "sqlite+aiosqlite:///:memory:"},
+                "pool": {"size": 20, "recycle": 3600}
+            }
+        elif key == "config_path":
+            return "configs/database.yaml"  # Valid YAML file path
+        return default
+    
+    _mock_config.get.side_effect = config_get_side_effect
     mock_factory.get_manager.return_value = _mock_config
 
     # create_engine mock (globálisan)
@@ -122,7 +133,7 @@ def teardown_module() -> None:
 # FIXTURES
 # ============================================================================
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_logger() -> Any:
     """Mock logger fixture minden teszthez (DI pattern)."""
     logger = MagicMock()

@@ -24,7 +24,7 @@ DataHubPage = data_hub_module.DataHubPage
 class TestDataHubPage:
     """Data Hub Page osztály teszjei."""
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_bridge(self) -> MagicMock:
         """Mock CoreBridge létrehozása.
 
@@ -33,7 +33,7 @@ class TestDataHubPage:
         """
         return MagicMock()
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def mock_data_service(self) -> MagicMock:
         """Mock DataService létrehozása.
 
@@ -62,7 +62,7 @@ class TestDataHubPage:
         ]
         return service
 
-    @pytest.fixture
+    @pytest.fixture(scope="function")
     def data_hub_page(self, mock_bridge: MagicMock) -> DataHubPage:  # type: ignore[valid-type]
         """DataHubPage példány létrehozása teszteléshez.
 

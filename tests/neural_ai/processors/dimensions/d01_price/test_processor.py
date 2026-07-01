@@ -10,7 +10,7 @@ from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 from neural_ai.processors.dimensions.d01_price.processor import D01PriceProcessor
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_config() -> MagicMock:
     """Mock ConfigManagerInterface fixture."""
     config = MagicMock(spec=ConfigManagerInterface)
@@ -22,13 +22,13 @@ def mock_config() -> MagicMock:
     return config
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_logger() -> MagicMock:
     """Mock LoggerInterface fixture."""
     return MagicMock(spec=LoggerInterface)
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def sample_ohlcv_data() -> pl.DataFrame:
     """Minta OHLCV adat fixture."""
     return pl.DataFrame(
