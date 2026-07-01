@@ -113,36 +113,43 @@ class TestEventBusFactoryCreateFromConfig:
     def test_create_from_config_success(self) -> None:
         """Teszteli a sikeres EventBus létrehozást konfigurációkezelőből."""
         mock_config_manager = MagicMock(spec=ConfigManagerInterface)
-        mock_config_manager.get_section.return_value = {
-            "pub_port": 7777,
-            "sub_port": 7778,
-            "use_inproc": True,
-        }
+
+        # ✅ Dict return (factory converts to Pydantic)
+        def get_section_side_effect(section: str) -> dict[str, int | bool]:
+            if section == "events":
+                return {"pub_port": 7777, "sub_port": 7778, "use_inproc": True}
+            return {}
+
+        mock_config_manager.get_section.side_effect = get_section_side_effect
 
         with patch(
             "neural_ai.core.events.implementations.zeromq_bus.EventBus"
-        ) as mock_event_bus_class, patch(
-            "neural_ai.core.events.interfaces.event_bus_interface.EventBusConfig"
-        ) as mock_config_class:
+        ) as mock_event_bus_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
-
-            # Mock EventBusConfig objektum property-jeinek beállítása
-            mock_config_instance = MagicMock()
-            mock_config_instance.pub_port = 7777
-            mock_config_instance.sub_port = 7778
-            mock_config_instance.use_inproc = True
-            mock_config_class.return_value = mock_config_instance
 
             mock_logger = MagicMock()
             factory = EventBusFactory(mock_logger, mock_config_manager)
             result = factory.create_from_config()
 
+            # Ellenőrizzük a hívásokat
             mock_config_manager.get_section.assert_called_once_with("events")
-            mock_config_class.assert_called_once_with(
-                pub_port=7777, sub_port=7778, use_inproc=True
-            )
-            mock_event_bus_class.assert_called_once_with(mock_config_instance, mock_logger)
+
+            # Ellenőrizzük, hogy EventBus példány lett-e létrehozva
+            assert mock_event_bus_class.call_count == 1
+            call_args = mock_event_bus_class.call_args
+
+            # Első arg az EventBusConfig példány (Pydantic, nem mock!)
+            config_arg = call_args[0][0]
+            assert isinstance(config_arg, EventBusConfig)
+            assert config_arg.pub_port == 7777
+            assert config_arg.sub_port == 7778
+            assert config_arg.use_inproc is True
+
+            # Második arg a logger
+            assert call_args[0][1] == mock_logger
+
+            # Eredmény helyesség
             assert result == mock_event_bus
 
     def test_create_from_config_with_key_error(self) -> None:
@@ -152,28 +159,33 @@ class TestEventBusFactoryCreateFromConfig:
 
         with patch(
             "neural_ai.core.events.implementations.zeromq_bus.EventBus"
-        ) as mock_event_bus_class, patch(
-            "neural_ai.core.events.interfaces.event_bus_interface.EventBusConfig"
-        ) as mock_config_class:
+        ) as mock_event_bus_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 
-            # Mock EventBusConfig objektum alapértelmezett property-jeinek beállítása
-            mock_config_instance = MagicMock()
-            mock_config_instance.pub_port = 5555
-            mock_config_instance.sub_port = 5556
-            mock_config_instance.use_inproc = False
-            mock_config_class.return_value = mock_config_instance
-
             mock_logger = MagicMock()
             factory = EventBusFactory(mock_logger, mock_config_manager)
-            _ = factory.create_from_config()
+            result = factory.create_from_config()
 
+            # Ellenőrizzük a hívásokat
             mock_config_manager.get_section.assert_called_once_with("events")
-            mock_config_class.assert_called_once_with(
-                pub_port=5555, sub_port=5556, use_inproc=False
-            )
-            mock_event_bus_class.assert_called_once_with(mock_config_instance, mock_logger)
+
+            # KeyError esetén alapértelmezett config használata
+            assert mock_event_bus_class.call_count == 1
+            call_args = mock_event_bus_class.call_args
+
+            # Első arg az EventBusConfig alapértelmezett értékekkel
+            config_arg = call_args[0][0]
+            assert isinstance(config_arg, EventBusConfig)
+            assert config_arg.pub_port == 5555
+            assert config_arg.sub_port == 5556
+            assert config_arg.use_inproc is False
+
+            # Második arg a logger
+            assert call_args[0][1] == mock_logger
+
+            # Eredmény helyesség
+            assert result == mock_event_bus
 
     def test_create_from_config_with_value_error(self) -> None:
         """Teszteli az EventBus létrehozást ValueError esetén."""
@@ -182,61 +194,75 @@ class TestEventBusFactoryCreateFromConfig:
 
         with patch(
             "neural_ai.core.events.implementations.zeromq_bus.EventBus"
-        ) as mock_event_bus_class, patch(
-            "neural_ai.core.events.interfaces.event_bus_interface.EventBusConfig"
-        ) as mock_config_class:
+        ) as mock_event_bus_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 
-            # Mock EventBusConfig objektum alapértelmezett property-jeinek beállítása
-            mock_config_instance = MagicMock()
-            mock_config_instance.pub_port = 5555
-            mock_config_instance.sub_port = 5556
-            mock_config_instance.use_inproc = False
-            mock_config_class.return_value = mock_config_instance
-
             mock_logger = MagicMock()
             factory = EventBusFactory(mock_logger, mock_config_manager)
-            _ = factory.create_from_config()
+            result = factory.create_from_config()
 
+            # Ellenőrizzük a hívásokat
             mock_config_manager.get_section.assert_called_once_with("events")
-            mock_config_class.assert_called_once_with(
-                pub_port=5555, sub_port=5556, use_inproc=False
-            )
-            mock_event_bus_class.assert_called_once_with(mock_config_instance, mock_logger)
+
+            # ValueError esetén alapértelmezett config használata
+            assert mock_event_bus_class.call_count == 1
+            call_args = mock_event_bus_class.call_args
+
+            # Első arg az EventBusConfig alapértelmezett értékekkel
+            config_arg = call_args[0][0]
+            assert isinstance(config_arg, EventBusConfig)
+            assert config_arg.pub_port == 5555
+            assert config_arg.sub_port == 5556
+            assert config_arg.use_inproc is False
+
+            # Második arg a logger
+            assert call_args[0][1] == mock_logger
+
+            # Eredmény helyesség
+            assert result == mock_event_bus
 
     def test_create_from_config_partial_config(self) -> None:
         """Teszteli az EventBus létrehozást részleges konfigurációval."""
         mock_config_manager = MagicMock(spec=ConfigManagerInterface)
-        mock_config_manager.get_section.return_value = {
-            "pub_port": 8888,
-            # sub_port és use_inproc hiányzik
-        }
+
+        # ✅ Partial dict return (factory fills Pydantic defaults)
+        def get_section_side_effect(section: str) -> dict[str, int]:
+            if section == "events":
+                return {"pub_port": 8888}  # sub_port és use_inproc: Pydantic default
+            return {}
+
+        mock_config_manager.get_section.side_effect = get_section_side_effect
 
         with patch(
             "neural_ai.core.events.implementations.zeromq_bus.EventBus"
-        ) as mock_event_bus_class, patch(
-            "neural_ai.core.events.interfaces.event_bus_interface.EventBusConfig"
-        ) as mock_config_class:
+        ) as mock_event_bus_class:
             mock_event_bus = MagicMock()
             mock_event_bus_class.return_value = mock_event_bus
 
-            # Mock EventBusConfig objektum részleges property-jeinek beállítása
-            mock_config_instance = MagicMock()
-            mock_config_instance.pub_port = 8888
-            mock_config_instance.sub_port = 5556
-            mock_config_instance.use_inproc = False
-            mock_config_class.return_value = mock_config_instance
-
             mock_logger = MagicMock()
             factory = EventBusFactory(mock_logger, mock_config_manager)
-            _ = factory.create_from_config()
+            result = factory.create_from_config()
 
+            # Ellenőrizzük a hívásokat
             mock_config_manager.get_section.assert_called_once_with("events")
-            mock_config_class.assert_called_once_with(
-                pub_port=8888, sub_port=5556, use_inproc=False
-            )
-            mock_event_bus_class.assert_called_once_with(mock_config_instance, mock_logger)
+
+            # Részleges config esetén Pydantic defaultokat használ
+            assert mock_event_bus_class.call_count == 1
+            call_args = mock_event_bus_class.call_args
+
+            # Első arg az EventBusConfig részleges értékekkel (Pydantic default fill)
+            config_arg = call_args[0][0]
+            assert isinstance(config_arg, EventBusConfig)
+            assert config_arg.pub_port == 8888  # Ez jött a config-ból
+            assert config_arg.sub_port == 5556  # Pydantic default
+            assert config_arg.use_inproc is False  # Pydantic default
+
+            # Második arg a logger
+            assert call_args[0][1] == mock_logger
+
+            # Eredmény helyesség
+            assert result == mock_event_bus
 
     def test_create_from_config_returns_interface(self) -> None:
         """Teszteli, hogy a create_from_config EventBusInterface-t ad vissza."""

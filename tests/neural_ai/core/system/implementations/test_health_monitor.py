@@ -250,25 +250,25 @@ class TestHealthMonitor(IsolatedAsyncioTestCase):
         """Teszteli a komponens regisztrációt naplózóval."""
         mock_logger: MagicMock = MagicMock()
         monitor = HealthMonitor(logger=mock_logger)
+        mock_logger.info.reset_mock()  # ✅ Reset a bootstrap "logger" komponens után
 
         monitor.register_component("test_component")
 
-        # Bootstrap komponens ("logger") és a teszt komponens ("test_component") regisztrációja
-        self.assertEqual(mock_logger.info.call_count, 2)
-        mock_logger.info.assert_any_call("'logger' komponens regisztrálva")
-        mock_logger.info.assert_any_call("'test_component' komponens regisztrálva")
+        # Csak a test_component regisztráció (bootstrap reset után)
+        self.assertEqual(mock_logger.info.call_count, 1)
+        mock_logger.info.assert_called_once_with("'test_component' komponens regisztrálva")
 
     def test_unregister_component_with_logger(self) -> None:
         """Teszteli a komponens eltávolítását naplózóval."""
         mock_logger: MagicMock = MagicMock()
         monitor = HealthMonitor(logger=mock_logger)
+        mock_logger.info.reset_mock()  # ✅ Reset a bootstrap után
 
         monitor.register_component("test_component")
         monitor.unregister_component("test_component")
 
-        # Bootstrap "logger" komponens regisztráció + register + unregister
-        self.assertEqual(mock_logger.info.call_count, 3)
-        mock_logger.info.assert_any_call("'logger' komponens regisztrálva")
+        # Register + unregister (bootstrap reset után)
+        self.assertEqual(mock_logger.info.call_count, 2)
         mock_logger.info.assert_any_call("'test_component' komponens regisztrálva")
         mock_logger.info.assert_any_call("'test_component' komponens eltávolítva")
 
