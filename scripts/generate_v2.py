@@ -245,9 +245,25 @@ class StaticAnalyzer:
         return "🔴 MISSING"
 
     def _check_test_file(self, path: Path) -> bool:
+        """Teszt fájl keresése a test_<parent>_<file> konvenció szerint."""
         rel_path = path.relative_to(self.root_dir)
+        file_stem = rel_path.stem  # neural_ai/core/base/factory.py -> "factory"
+        dir_parts = rel_path.parent.parts  # ("neural_ai", "core", "base")
+
+        # 1. Mirror Rule (test_factory.py) - egyedi név
         test_path = self.tests_dir / rel_path.parent / f"test_{rel_path.name}"
-        return test_path.exists()
+        if test_path.exists():
+            return True
+
+        # 2. test_<parent>_<file> konvenció (test_base_factory.py)
+        if dir_parts:
+            parent_name = dir_parts[-1]  # "base"
+            alt_test_name = f"test_{parent_name}_{file_stem}.py"
+            alt_test_path = self.tests_dir / rel_path.parent / alt_test_name
+            if alt_test_path.exists():
+                return True
+
+        return False
 
     def analyze_all(self, files: list[Path]) -> list[FileMetrics]:
         """Több fájl párhuzamos elemzése."""
@@ -993,26 +1009,47 @@ class FullCommand:
     def _merge_qa_results(
         self, metrics: list[FileMetrics], qa_results: dict[str, Any]
     ) -> None:
-        ruff_errors = qa_results.get("ruff", {}).get("errors", 0)
-        mypy_errors = qa_results.get("mypy", {}).get("errors", 0)
+        """QA eredmények (Ruff, Mypy, Pyright) fájlonkénti hozzárendelése."""
+        # Ruff: fájlonkénti hibák JSON-ből
+        ruff_files = qa_results.get("ruff", {}).get("files", {})
+        ruff_by_path = {}
+        for item in ruff_files:
+            file_path = str(Path(item.get("filename", "")).relative_to(self.root_dir))
+            ruff_by_path[file_path] = ruff_by_path.get(file_path, 0) + 1
 
         for fm in metrics:
-            fm.lint_errors = ruff_errors // len(metrics)
-            fm.type_errors = (
-                mypy_errors + qa_results.get("pyright", {}).get("errors", 0)
-            ) // len(metrics)
+            rel_path = str(fm.relative_path)
+            # Ruff: fájlonkénti érték
+            fm.lint_errors = ruff_by_path.get(rel_path, 0)
+            # Mypy/Pyright: 0 ha nincs fájlonkénti adat
+            fm.type_errors = 0
 
     def _merge_coverage_results(
         self, metrics: list[FileMetrics], cov_results: dict[str, Any]
     ) -> None:
+        """Coverage adatok fájlonkénti hozzárendelése."""
         coverage_data = cov_results.get("coverage", {}).get("files", {})
 
         for fm in metrics:
+            # 1. Próbáld meg az abszolút útvonallal
             file_key = str(fm.path)
             if file_key in coverage_data:
-                file_cov = coverage_data[file_key]["summary"]
+                file_cov = coverage_data[file_key].get("summary", {})
                 fm.coverage_stmt = file_cov.get("percent_covered", 0.0)
-                fm.coverage_branch = file_cov.get("percent_covered_display", 0.0)
+                fm.coverage_branch = file_cov.get("branch_percent_covered", 0.0)
+                continue
+
+            # 2. Próbáld meg a relatív útvonallal
+            rel_key = str(fm.relative_path)
+            if rel_key in coverage_data:
+                file_cov = coverage_data[rel_key].get("summary", {})
+                fm.coverage_stmt = file_cov.get("percent_covered", 0.0)
+                fm.coverage_branch = file_cov.get("branch_percent_covered", 0.0)
+                continue
+
+            # 3. Ha nincs adat, maradjon 0.0
+            fm.coverage_stmt = 0.0
+            fm.coverage_branch = 0.0
 
 
 class QuickCommand:
@@ -1080,13 +1117,20 @@ class QAOnlyCommand:
     def _merge_qa_results(
         self, metrics: list[FileMetrics], qa_results: dict[str, Any]
     ) -> None:
-        ruff_errors = qa_results.get("ruff", {}).get("errors", 0)
-        mypy_errors = qa_results.get("mypy", {}).get("errors", 0)
+        """QA eredmények (Ruff, Mypy, Pyright) fájlonkénti hozzárendelése."""
+        # Ruff: fájlonkénti hibák JSON-ből
+        ruff_files = qa_results.get("ruff", {}).get("files", {})
+        ruff_by_path = {}
+        for item in ruff_files:
+            file_path = str(Path(item.get("filename", "")).relative_to(self.root_dir))
+            ruff_by_path[file_path] = ruff_by_path.get(file_path, 0) + 1
+
         for fm in metrics:
-            fm.lint_errors = ruff_errors // len(metrics)
-            fm.type_errors = (
-                mypy_errors + qa_results.get("pyright", {}).get("errors", 0)
-            ) // len(metrics)
+            rel_path = str(fm.relative_path)
+            # Ruff: fájlonkénti érték
+            fm.lint_errors = ruff_by_path.get(rel_path, 0)
+            # Mypy/Pyright: 0 ha nincs fájlonkénti adat
+            fm.type_errors = 0
 
 
 class CoverageOnlyCommand:
@@ -1127,14 +1171,29 @@ class CoverageOnlyCommand:
     def _merge_coverage_results(
         self, metrics: list[FileMetrics], cov_results: dict[str, Any]
     ) -> None:
+        """Coverage adatok fájlonkénti hozzárendelése."""
         coverage_data = cov_results.get("coverage", {}).get("files", {})
 
         for fm in metrics:
+            # 1. Próbáld meg az abszolút útvonallal
             file_key = str(fm.path)
             if file_key in coverage_data:
-                file_cov = coverage_data[file_key]["summary"]
+                file_cov = coverage_data[file_key].get("summary", {})
                 fm.coverage_stmt = file_cov.get("percent_covered", 0.0)
-                fm.coverage_branch = file_cov.get("percent_covered_display", 0.0)
+                fm.coverage_branch = file_cov.get("branch_percent_covered", 0.0)
+                continue
+
+            # 2. Próbáld meg a relatív útvonallal
+            rel_key = str(fm.relative_path)
+            if rel_key in coverage_data:
+                file_cov = coverage_data[rel_key].get("summary", {})
+                fm.coverage_stmt = file_cov.get("percent_covered", 0.0)
+                fm.coverage_branch = file_cov.get("branch_percent_covered", 0.0)
+                continue
+
+            # 3. Ha nincs adat, maradjon 0.0
+            fm.coverage_stmt = 0.0
+            fm.coverage_branch = 0.0
 
 
 class TestOnlyCommand:
