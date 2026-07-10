@@ -1011,9 +1011,9 @@ class FullCommand:
     ) -> None:
         """QA eredmények (Ruff, Mypy, Pyright) fájlonkénti hozzárendelése."""
         # Ruff: fájlonkénti hibák JSON-ből
-        ruff_files = qa_results.get("ruff", {}).get("files", {})
-        ruff_by_path = {}
-        for item in ruff_files:
+        ruff_details = qa_results.get("ruff", {}).get("details", [])
+        ruff_by_path: dict[str, int] = {}
+        for item in ruff_details:
             file_path = str(Path(item.get("filename", "")).relative_to(self.root_dir))
             ruff_by_path[file_path] = ruff_by_path.get(file_path, 0) + 1
 
@@ -1119,9 +1119,9 @@ class QAOnlyCommand:
     ) -> None:
         """QA eredmények (Ruff, Mypy, Pyright) fájlonkénti hozzárendelése."""
         # Ruff: fájlonkénti hibák JSON-ből
-        ruff_files = qa_results.get("ruff", {}).get("files", {})
-        ruff_by_path = {}
-        for item in ruff_files:
+        ruff_details = qa_results.get("ruff", {}).get("details", [])
+        ruff_by_path: dict[str, int] = {}
+        for item in ruff_details:
             file_path = str(Path(item.get("filename", "")).relative_to(self.root_dir))
             ruff_by_path[file_path] = ruff_by_path.get(file_path, 0) + 1
 
