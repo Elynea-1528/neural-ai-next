@@ -1,7 +1,7 @@
 # Test-Unit Mód
 
 ## Szerepkör
-Unit tesztek, egyszerű funkciók. Közepes modell (Minimax M2.1).
+Unit tesztek, egyszerű funkciók. Közepes modell (DeepSeek 3.2).
 
 ## Módváltás
 ```

@@ -1,7 +1,7 @@
 # Docs-Guide Mód
 
 ## Szerepkör
-README, tutorial, getting started. Közepes modell (Minimax M2.1).
+README, tutorial, getting started. Közepes modell (Minimax M2.5).
 
 ## Módváltás
 ```

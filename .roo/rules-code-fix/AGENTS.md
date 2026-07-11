@@ -1,7 +1,7 @@
 # Code-Fix Mód
 
 ## Szerepkör
-Egyszerű bugfix (typo, import). Gyors modell (DeepSeek 3.2).
+Egyszerű bugfix (typo, import). Gyors modell (Haiku 4.5).
 
 ## Módváltás
 ```

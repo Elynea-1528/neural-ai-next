@@ -126,12 +126,7 @@ def setup_module() -> None:
 
 
 def teardown_module() -> None:
-    """Modul szintű cleanup - LIFO (Last In First Out) sorrend!
-    
-    KRITIKUS: A teardown sorrendje FORDÍTOTT a setup sorrendhez képest.
-    Setup sorrend: DIContainer → Config → Logger → ... → Database
-    Teardown sorrend: Database → ... → Logger → Config → DIContainer
-    """
+    """Modul szintű cleanup."""
     global _mock_di_container_patcher
     global _mock_config_factory_patcher
     global _mock_logger_factory_patcher
@@ -142,26 +137,24 @@ def teardown_module() -> None:
     global _mock_jforex_factory_patcher
     global _mock_database_factory_patcher
 
-    # LIFO teardown: FORDÍTOTT sorrend!
-    patchers = [
-        _mock_database_factory_patcher,      # 9. (utolsó setup)
-        _mock_jforex_factory_patcher,        # 8.
-        _mock_hardware_factory_patcher,      # 7.
-        _mock_system_factory_patcher,        # 6.
-        _mock_storage_factory_patcher,       # 5.
-        _mock_event_factory_patcher,         # 4.
-        _mock_logger_factory_patcher,        # 3.
-        _mock_config_factory_patcher,        # 2.
-        _mock_di_container_patcher,          # 1. (első setup)
-    ]
-    
-    for patcher in patchers:
-        if patcher:
-            try:
-                patcher.stop()
-            except Exception:
-                # Ignore already stopped patchers (safety net)
-                pass
+    if _mock_di_container_patcher:
+        _mock_di_container_patcher.stop()
+    if _mock_config_factory_patcher:
+        _mock_config_factory_patcher.stop()
+    if _mock_logger_factory_patcher:
+        _mock_logger_factory_patcher.stop()
+    if _mock_event_factory_patcher:
+        _mock_event_factory_patcher.stop()
+    if _mock_storage_factory_patcher:
+        _mock_storage_factory_patcher.stop()
+    if _mock_system_factory_patcher:
+        _mock_system_factory_patcher.stop()
+    if _mock_hardware_factory_patcher:
+        _mock_hardware_factory_patcher.stop()
+    if _mock_jforex_factory_patcher:
+        _mock_jforex_factory_patcher.stop()
+    if _mock_database_factory_patcher:
+        _mock_database_factory_patcher.stop()
 
 
 # ============================================================================

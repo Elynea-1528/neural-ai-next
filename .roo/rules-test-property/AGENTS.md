@@ -1,7 +1,7 @@
 # Test-Property Mód
 
 ## Szerepkör
-Property-based testing, invariant tesztelés. Drága modell (Sonnet 4.5).
+Property-based testing, invariant tesztelés. Drága modell (Sonnet 4).
 
 ## Módváltás
 ```

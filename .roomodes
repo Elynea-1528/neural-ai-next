@@ -16,8 +16,16 @@ customModes:
     customInstructions: ""
   - slug: orchestrator
     name: 🎼 Orchestrator
-    description: Feladat koordináció, delegálás
-    roleDefinition: Te vagy az Orchestrator. Architect tervek lebontása, Code/Test/QA módok koordinálása.
+    description: Feladat koordináció, delegálás, subtask management
+    roleDefinition: |
+      Te vagy az Orchestrator. Architect tervek lebontása, Code/Test/QA módok koordinálása.
+      
+      KRITIKUS SZABÁLY: Komplex feladatoknál MINDIG használj SUBTASK-okat!
+      - 3+ lépéses feladatoknál → use_subagents tool
+      - Párhuzamos munkákhoz → több subtask egyszerre
+      - Batch műveletek → kisebb chunk-okra bontva
+      
+      TILOS: Nagy, komplex parancsok egyetlen switch_mode-ban!
     groups:
       - command
     customInstructions: ""

@@ -1,0 +1,1402 @@
+{
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/__init__.py": {
+    "hash": "262eefe8d9a199968db8d2781ab7d473ee3bb736d2eb97867cd7c4f7ea5604f4",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/factory.py": {
+    "hash": "c2ea17bcf0f700083310e2312f1ae4df2640b516c753690e920df6a445c8acbe",
+    "metrics": {
+      "config_status": "\u2705 OK",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/__init__.py": {
+    "hash": "1b6f914323bdfdca55833075169ca07d738e425299c9003b7bd08be955618748",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/__init__.py": {
+    "hash": "6297dcefcb962bb8ce78161962379136857bcf1a998314f8fc398a91e11f65f9",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/core_bridge.py": {
+    "hash": "8a13dcb724d7dbc839a2bc8d40b4a658943d8920edfa944812a479ff11c17ab2",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/__init__.py": {
+    "hash": "d0a5b7366d8629853733130746e4c5faeab268dd64b0f0f21dc40eb70ae4d7ed",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/factory.py": {
+    "hash": "d3302293cad499b7dd62081531551ebc0a3eab9da029224a4293e7ae1d1a1161",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/__init__.py": {
+    "hash": "3e0fd04f84eb935698cf5d41586ac7a63e9cb0a414143220bfe8fd41291b7790",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/app.py": {
+    "hash": "1038183837c318e5952db2444008a8204ccff68600f3f5f65245fcc307ec8bab",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/events/factory.py": {
+    "hash": "268d4fad9fba2d8f3967c088e464ab3dbd79695a93347e21e4afb552b7d728a0",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/__init__.py": {
+    "hash": "460ad52ee13e533012d2c484a2d1d5da5d7e3d1eee1595574baf84f9d187d46f",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/streamlit_app.py": {
+    "hash": "bcfeae1c6d3c326f9df6f93e22b6af9a756ebc521fce665277c00acc6f05c9bb",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/db/factory.py": {
+    "hash": "f82b91559bdd75fecaca612a2c6b826eec77535072f73fe753f4535db90078e5",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/utils/__init__.py": {
+    "hash": "c762fdaeda211edef4890130ea31395876d0eaee813470ffc7b0c86fb5a754a4",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/factory.py": {
+    "hash": "de3f58baff690006aad34663c861840041ea78a3b8decc7f233e2c4c07486ca6",
+    "metrics": {
+      "config_status": "\u2705 OK",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/events/__init__.py": {
+    "hash": "c9f9d0115704ab1324e6e27a68f71d4aa4662d932003e2d75520882efc55ce1f",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/utils/factory.py": {
+    "hash": "e1338edae8c8136c25f042ced66c3b99d8d3fbbdfab5592ebc7cce9371d023ea",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/db/__init__.py": {
+    "hash": "ebe59689abd469ee00d4049b51b21f7717e8c2d81db0ea1af41d5be32e8bcf9b",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/__init__.py": {
+    "hash": "18c8887470fa8eaead15f40a24a39510e866bf653a31c3b8f62a992c10d10c52",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/system/factory.py": {
+    "hash": "e1d4ac3d0640bc2459bd1a8d6e53dd581e84cebbf67edb02e6a9a4deb5b5f6dd",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/__init__.py": {
+    "hash": "c755a724ba17018b62ac32d7e2699da29eba148022548ef89b1b0df60d2bfc2c",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/factory.py": {
+    "hash": "7ddcee09f6f5a5ed7f3fea3f6688d9968f59ffb176f88133c90e689a36ec8400",
+    "metrics": {
+      "config_status": "\u2705 OK",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/system/__init__.py": {
+    "hash": "cc30f1ba8218b2fcd7c43faf4f24ea84f1f2bb1cfa92ef6a565021abd63f29e2",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/interfaces/__init__.py": {
+    "hash": "46977b1d313e8c5d8ffdf9f54c69392f5d971268030272e352d71d9d2c48f37f",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/utils/decorators.py": {
+    "hash": "358566380a1827cb46f86f0c29db2dc415a618edf470beb6d48c2aa1aaaac241",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/__init__.py": {
+    "hash": "cca56612ed03928d42e81ec1004a97640cc3f559145fd74428f3b575ce1bd09a",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/interfaces/component_interface.py": {
+    "hash": "46082974b927ba41672d47e4981a400571910ac1107dec434df3f15d395548a4",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/factory.py": {
+    "hash": "744b1351df04ad4a98712a26215434ef4a4f1737f58031eb7d9f0592240ac2e3",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/exceptions/__init__.py": {
+    "hash": "ad77afc8ddd8c12dc70a7acf2e41c746d68b79dd463da746e8d3d7ed4f3b1ec5",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/interfaces/container_interface.py": {
+    "hash": "e3822f6e5bd56365a3f30c5da1f7946893de09fb3d730912429680bb5da2c57e",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/implementations/__init__.py": {
+    "hash": "d9691d3f4527d1a0d71357273e5c0305e8e3e3dcbfc988054776520df90f26b1",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/implementations/lazy_loader.py": {
+    "hash": "b026c15947469d316efff7d198a275494566f8bbd514e8006aba6a85f6a5b1a8",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/implementations/singleton.py": {
+    "hash": "6608d575e9bdf30c449d5c8a6ba7608a6ff8b8c5fae0dd9dab0bf0d50c6e679b",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/implementations/di_container.py": {
+    "hash": "f4ff89a58a1e4e62e2a6a4df6910d605d5ddf6099fbb02c47bbe859b022a5bd6",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/exceptions/base_error.py": {
+    "hash": "6eebf9be9b756cfdbd37c85746a4ffdde986cf8166c61b3993891b638a21357c",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/interfaces/logger_interface.py": {
+    "hash": "9784703554c6cac309db222956c5757bdcade4780811bd90230288df020b2f7b",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/base/implementations/component_bundle.py": {
+    "hash": "c89c1fd416f53c0933ce190a050f750782637e4c3939805f1a050c8f02793843",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/exceptions/logger_error.py": {
+    "hash": "8843bb1c9c6e7374698ae5bbc2563c6a670e29eac7959d964c047d058cb4e9f5",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/interfaces/__init__.py": {
+    "hash": "85aa0d725893febc8764778f16547c1374b6a21bf8dea2da24ffcefb78d9f217",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/interfaces/factory_interface.py": {
+    "hash": "94c949ae2a207052bd0b6a174f8fc4a2eaed928308e1aa91b25451039c951a7d",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/exceptions/__init__.py": {
+    "hash": "4ec004faf48dbb892afdbfe832c7a10df05c0bb9d326fad69cfb66003477c4f5",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/formatters/logger_formatters.py": {
+    "hash": "707fc1c6529996ffb221647da25b69b20a16fd92642a5f90b8c2f7bf25f187c3",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/implementations/colored_logger.py": {
+    "hash": "dcd14bd8552907f3618e821b57f9c7a4a246f1236375d347e61e7324f74eda0d",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/implementations/rotating_file_logger.py": {
+    "hash": "31609a9c43220f17bd3d0cece663962b3137937752a7d407bf2c715c00523143",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/implementations/__init__.py": {
+    "hash": "bd86c700b9a7df35405f58a8612d4946175b148068371af6c8195145871d4dd2",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/system/interfaces/__init__.py": {
+    "hash": "aa1f3317e873bccd26cc7aff0403541d2889f929f2b1e9e35a5cad384f54c3c7",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/system/exceptions/health_error.py": {
+    "hash": "67f72c16fed13ea37116d392b1b8a69eed1be6e6cf9a2d9cef8644b30d7ae195",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/system/exceptions/__init__.py": {
+    "hash": "2dd8e94f8fc3fa879c2f6776b26a843507dad9b1fe215806c17437f278ca4957",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/logger/implementations/default_logger.py": {
+    "hash": "0e3e02500aa5ca79cafbd96a84134f009a1099f505afdc9240989c2714a6f0a7",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/system/interfaces/health_interface.py": {
+    "hash": "3e8f31508ea695a3e506241426306e309508cec8010cb88e8f752b69d9b4ab13",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/utils/exceptions/__init__.py": {
+    "hash": "7d170d2bc5472cfbd1bd236cae6f6cf63072077d2d1d6f6656090557c2deebb0",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/system/implementations/health_monitor.py": {
+    "hash": "7dbc9cf7afc4a329589250516ab7ff6957fd6a300cffa7d788267befd8e9d96b",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/utils/exceptions/util_error.py": {
+    "hash": "bc08b442205f5ec9fc99b10797571d5c3a31585fe2361ea26801cea447d033d8",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/utils/interfaces/hardware_interface.py": {
+    "hash": "8d984e1ad51334111f2fbfe9c82b75216fdddabd87b66986e6d0e8f495934fac",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/utils/interfaces/__init__.py": {
+    "hash": "0699d423c2e2f110db964410827bbb9c390e26b2e06babcd0141983fd1add3cc",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/utils/implementations/hardware_info.py": {
+    "hash": "0fa14ba1ed97f7d2b1e41d299370eac3e3ea2af4fa3c6065dc224f92f7c0013c",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/interfaces/__init__.py": {
+    "hash": "27359c34304376e1530eb4631bcc55c818129b3628b7082d65b0f9cd00448d1c",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/exceptions/__init__.py": {
+    "hash": "8f0017eae7b31626fe6a5a3abe9825786036def42fba87e4181adb22aec704a2",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/interfaces/async_config_interface.py": {
+    "hash": "be95804f3838822417621b0ce6f2036d363a186ae3773bef007acc32835d38c5",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/utils/implementations/__init__.py": {
+    "hash": "2a95dd496e1219934054ded7c718e26c18360a205244ce04fd3c93517e04b46c",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/interfaces/factory_interface.py": {
+    "hash": "1cececd5f47a70f3b125807fb7257403fcb611b8b1fa90073a8254496c982df1",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/interfaces/config_interface.py": {
+    "hash": "2f600b1eee36d0026a7f0d654759c8b12d818e9268122c729d9027e2de73c9cd",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/implementations/__init__.py": {
+    "hash": "81a6625f796c4e15b170c90f2f63c3e439442318ac3a9c1e0ade36a08ac8c437",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/interfaces/types.py": {
+    "hash": "5bfde3c4db891f54864189aed61a2671a3359d6164520907267362bb4d5f0937",
+    "metrics": {
+      "config_status": "\u2705 OK",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/db/interfaces/__init__.py": {
+    "hash": "b93341d2ab4f7814834b072a894d3d07e59bc866c975a39f1e571063b1e779ae",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/db/exceptions/__init__.py": {
+    "hash": "9dd73dd3a57c629eeb8ab8c589db33a688eac8091e02ef88a59fce3a62eed020",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/db/exceptions/db_error.py": {
+    "hash": "e813260306ed9e3ce5f99f00c635df6445a868d7e97374896ba02b2e0e529aca",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/implementations/dynamic_config_manager.py": {
+    "hash": "cb48de323f2d68c91c013f9209aa5705bca9bd97e850c73e25d3a186daa4a07c",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/exceptions/config_error.py": {
+    "hash": "e121316e036021e662cf4d90a978d02f4e26bce48f31f52e01ef08e8d614721d",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/config/implementations/yaml_config_manager.py": {
+    "hash": "dde724214175f07e5707a2ab6e8b45ed48dbe44c71e8c576b8ab0f36b3b3be56",
+    "metrics": {
+      "config_status": "\u2705 OK",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/db/implementations/sqlalchemy_session.py": {
+    "hash": "7206942ffc6cfe8c08d30e6541bb37fc74a1e8fd5247da8711db81177d2745cb",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/db/implementations/models.py": {
+    "hash": "b6b4ae4eeab20fa64f55e27d07fab78a05681f3127d953b8cff1b5cb706d1fb9",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/events/interfaces/__init__.py": {
+    "hash": "de81acab5a81cea4a8ea23d5b273a99bf8bdcf70d6801f05e50c40fa41b37d7b",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/db/implementations/model_base.py": {
+    "hash": "6c2483518b0274e0d838631edd4a0d2ed55f9cad946fafa0e357ae5c676b9f5c",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/events/exceptions/event_error.py": {
+    "hash": "aee74608354f78c37a17219dc1252520fc9b0173e2b538ade5f1f3b8ded296ed",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/events/interfaces/event_bus_interface.py": {
+    "hash": "5f048a10da00c3ffb00c8716eb0917f1a725325f2135333c1c0e0ecc6a8031a9",
+    "metrics": {
+      "config_status": "\u2705 OK",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/events/interfaces/event_models.py": {
+    "hash": "e93a8fcd580570a4745aaf304d03932cf347d614002081fbc8498032efc80510",
+    "metrics": {
+      "config_status": "\u2705 OK",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/events/implementations/__init__.py": {
+    "hash": "e371883b32a839ecb5e4b1c129a2105c19077e0305d238da23657c533a0f01db",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/db/implementations/__init__.py": {
+    "hash": "8df8cd4dd5233f6b437821af2f8cdc14abb63b8e2961e4d939d04099803259e2",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/events/exceptions/__init__.py": {
+    "hash": "f892b9a903f217cf7ec3ed2fda1ec7ca82ced4e274318ff2401963778306a318",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/interfaces/__init__.py": {
+    "hash": "6bac4899875d92dfdaab916d20daa4b7fe0b67d34263384a7676ff0afcf22d88",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/interfaces/dashboard_service_interface.py": {
+    "hash": "2137dbad3464b1fa5dfc933319416ee402d314df1e9ba90436340140f335aef0",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/interfaces/navigation_service_interface.py": {
+    "hash": "fd7476133bc6963e51e0c12f40da4a22200443b712d4d3791ce91ac6b8591bcb",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/core/events/implementations/zeromq_bus.py": {
+    "hash": "82ff68881383ae051df9a334074c30be6441847328dda7f850dc72aaa4723d3b",
+    "metrics": {
+      "config_status": "\u2705 OK",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/interfaces/live_ops_service_interface.py": {
+    "hash": "9aa8410595cdf714480e4c45f15d65487d4f52d501d1f33a9567e9a83f866656",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/interfaces/data_service_interface.py": {
+    "hash": "0fe4c80f3b6f08bc6b81672b69d25a705bdc4b632c02b4e66c7a7348bb941685",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/interfaces/core_bridge_interface.py": {
+    "hash": "d24c1d076a8f981022de6465274c8897f5edf66a70d10d346658f813bfc46491",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/interfaces/strategy_service_interface.py": {
+    "hash": "f1e0daec01ec50709698af726f839ff1fb38590567cee644f1202dc6923fe299",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/interfaces/page_interface.py": {
+    "hash": "36a2c7bc09414798d0c0c983b5a75d2ecd3d9bd96bc031d4d797024b10e1913f",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/interfaces/ai_service_interface.py": {
+    "hash": "8753fdde9cbff96f0a4834c24818f89e050dbc0d2059d2cbf18ab590e885d5bf",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/components/__init__.py": {
+    "hash": "5c1d11d7b88fcb041951f475d8f827039b5fb73dee27f7bb8d4e1be61f7a8978",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/pages/02_\ud83d\udee0\ufe0f_Dev_Center.py": {
+    "hash": "1fb5fc576c15a6278cd445d8b5d6aca19220c557caf7271a44e8c9ab839218a6",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/pages/03_\ud83d\udce5_Data_Hub.py": {
+    "hash": "6c2cf19ec0cae7abb6bc16f424a02a2089503c306cc4ebb4b945dcff7b46b56a",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/pages/06_\u26a1_Live_Ops.py": {
+    "hash": "ec0e5c6f078ed8dd5282cd55378ec1805d1efca4d91313f31cbad55f14722e45",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/pages/01_\ud83d\ude80_Launchpad.py": {
+    "hash": "1f1aca1dbb0de1ce7e1e1904c54bc3800a0b9fd3ff1bde9439d25098069f7047",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/components/base_widget.py": {
+    "hash": "bdac21a13d3f118eb6d2b2e37b3a9da3cbc9fb5942cd2fb15fcd5d1bd8124183",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/services/__init__.py": {
+    "hash": "7014626d1a36d9e80055d5551a0c1223645b5830bc73fc27877305957a6fd972",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/services/dashboard_service.py": {
+    "hash": "e1aac66c1a066a333f433624ecfa90705caf1224922598eab3fa1c72b8452607",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/pages/__init__.py": {
+    "hash": "38f576a54891ced8d22071ecbd9d9628d5d388b07738641f82e354223bc07631",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/pages/04_\ud83e\udde0_AI_Lab.py": {
+    "hash": "b87665b3283b2a4a143d25be2c02ab87d692c83be99ab771526fb719882594ba",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/pages/05_\ud83e\udeb2_Strategy_Lab.py": {
+    "hash": "b068cd626ed245e44c5e46ae0f80d2bd8aaeb7d01e73f79c885b5157fa1376dd",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/services/live_ops_service.py": {
+    "hash": "d16859a8dd2495067f6a9b7674ea82b2c8f0c1117785608096fdee35ca1f2ba9",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/services/ai_service.py": {
+    "hash": "c2f6cb43588e86a769e72fdaba5d830da911601244863daf4cfa7a61dd237e4d",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/services/navigation_service.py": {
+    "hash": "46ec77630a2f3ad91c8b9d29dc58af5b5001adc91c11f8d68ac7a47e942191db",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/interfaces/__init__.py": {
+    "hash": "af52e7a3483a67e6f12753a89747c416260e64b74a57ae736b41c0219b94e96f",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/services/data_service.py": {
+    "hash": "950e1e748e9c905ea1c269c9e5cece28136fd10b5e3a816f69ef2782da21b831",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/ui/services/strategy_service.py": {
+    "hash": "79f5576f654422c634546862924562cfde02ac81aea28cbb7bfcc9ce1f98a556",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/interfaces/tensor_converter_interface.py": {
+    "hash": "229d9a8c11c7e7a04929bbb596d2014218f9a886964a754bd18e7cb7158bedd6",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/interfaces/time_alignment_interface.py": {
+    "hash": "79b0fccdb9a7040f9e3efd7cfb0ebda670e2b2049ce1a72326a486ba6e0341d3",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/interfaces/dimension_processor_interface.py": {
+    "hash": "0475a20501e25fd46b88bd2893f1cabbb9866a14d325a0b5934d5852fb3cfe76",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/resampler_service/__init__.py": {
+    "hash": "7b206dc2dc51d796b36c1c92d8688d0f5a0d4d2496e6665b82905083875a5ed3",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/base.py": {
+    "hash": "c1c2b7c248c507faddb70800212d5df6620d9e1f35da6ebd6b6c450bf842e016",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/implementations/__init__.py": {
+    "hash": "dbb5ee2e615613c791469f5bd0d8ddd18eea892f2a060b3d9c103b361e70600f",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/resampler_service/factory.py": {
+    "hash": "b997b90e4ff320a95eb058add30046088cf589b6066616668a2b66a49b2a4b8e",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/__init__.py": {
+    "hash": "a980ad092fb55e7661cc21359069cf0f1b7e2103fb728af79ad231a20eacb389",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/d02_support/factory.py": {
+    "hash": "086fcbee645983bc895378caaffb3d707f53f5b49ec852c99adee382138a0897",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/d02_support/__init__.py": {
+    "hash": "0ca46ce8304548c7fe0dc2465b6f0b6417b61b215abf1ed8f3bc849f168f8212",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/implementations/time_alignment_service.py": {
+    "hash": "4c933e862cb81e9f41a9f4d1f064ffae9ccc87be962920057cebff22a9b4c1bd",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/d01_price/processor.py": {
+    "hash": "652e3640f2c124778c8ca33e00047aca81bb9ca4f8244d734e008fa70678cfea",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/d01_price/factory.py": {
+    "hash": "e19506f349a8cf150d080076a1ba0bcfea6ba46ff8c3b76e2411dfef435b97e3",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/d02_support/exceptions/__init__.py": {
+    "hash": "789761adb872f14cba54ef3dfad491a7176891db2da9640b3864c0ab2a77e268",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/d01_price/__init__.py": {
+    "hash": "54810e45f21e7587b0a4a8d426094f98f796372c9450394601ed56ed91d3b089",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/d02_support/interfaces/__init__.py": {
+    "hash": "7286b2a31517780e0d37f61f8f685caae2045305d8146c62d7cadc2e3386db93",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/resampler_service/interfaces/resampler_interface.py": {
+    "hash": "b7c3176239762f107c0549f3a5498ce7f1caae54255805b08ab0611d303ac211",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/d02_support/exceptions/support_error.py": {
+    "hash": "6f7c47af52e94534d56778df760044c826685e71a55ccdddc255ed623611322c",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/resampler_service/exceptions/resampler_error.py": {
+    "hash": "109c01159741e993becbfee58b25b54859b09025cd5cb725f3afcf257f37cc47",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/d02_support/implementations/__init__.py": {
+    "hash": "36908b0caa4758abaf4164340e30ad51dd87068a17e6584a9bee3f42e9ddaccf",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/__init__.py": {
+    "hash": "6f163ed27ba0f9f6a660e8d6d3c81bde9cc644d39346384207971c7172f8db83",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/interfaces/__init__.py": {
+    "hash": "1598563f35e0da34e429fd349ff1472b7bdf737e3f821166e43808a24573a3b0",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/resampler_service/implementations/resampler_service.py": {
+    "hash": "e3adcdcb238c6a91d85c90ff794ac7d0ed98939049e08b59c46406ddf8367bf2",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/processors/dimensions/d02_support/implementations/support_processor.py": {
+    "hash": "09aa73c271569bc1c44571738d18e66dee83ec4cbc370dff898e9d786497a0f0",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/interfaces/live_interface.py": {
+    "hash": "27880805a3e96e75dc319968629ece05c17efc8b1e4164db399c8cace5db0ad7",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/factory.py": {
+    "hash": "a5d5f79695856bb8a33abe018de5a6cdac25561c3fe5e52cb59d1298f2988c94",
+    "metrics": {
+      "config_status": "\u2705 OK",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/interfaces/tick_data.py": {
+    "hash": "f34d7415942d6dc518460fca7291705d8375f3d0bdb66f47da8401305038b43f",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/exceptions/jforex_error.py": {
+    "hash": "947ae684d4ed1af175e2708bee7014515ed291f8ca1c6fdad65fb8e836e2b531",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/implementations/__init__.py": {
+    "hash": "6bbc69551711082e419db3440a3b8651265ff5ad01b858d1b2f12463efb83f27",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/exceptions/__init__.py": {
+    "hash": "303c9837a8621ba3325c2cba8f79f3585fa7d6a81c81c6eca5d85b7e4d67ea0b",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/interfaces/downloader_interface.py": {
+    "hash": "d8475f974340b44331ada228bfe414b9b1b7d1114299d765bfba63c746041b0a",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/factory.py": {
+    "hash": "30cf807c61999acb5b587f49fb3a0c20f5762d52dedfda172fad6a60d4ddab43",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/implementations/live_feed.py": {
+    "hash": "73ec7c074f9776011dda6fcde93fe0ad5d8db6b420beccf2a730eaf7cc81a044",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/interfaces/__init__.py": {
+    "hash": "b77caa995bd51864962c3a7c5f63e4f9263b9a4a9245cdfa5b06898e91da8a36",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/ingestion/__init__.py": {
+    "hash": "095a7d744ee1cebcb617d9b81120e2d4d296e877255ab5aa3cacd3ded1fcc44e",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/collectors/jforex/implementations/bi5_downloader.py": {
+    "hash": "beacf38b25217d7a3a0063c0db0b58381a6eda4ca6d7fb4452ca6a0458804133",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/__init__.py": {
+    "hash": "303fd9228f8788fd2fc94652551d60e27d036c3498e174d3f0c19e3b6cf3c729",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/interfaces/factory_interface.py": {
+    "hash": "848fc3dd06fa0c31ba94a92f3001f61d6be291598df47ae6ff18954e89bcde02",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/backends/__init__.py": {
+    "hash": "4bf1964d4eaa8958d94b843774562c24870db515c9bf5122f93e1f00da2a6550",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/ingestion/market_data_persister.py": {
+    "hash": "327cb9757fac744e54f53f31cc5e4d6ae77c4c501d7702c38545e2d789c38a3e",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/backends/base.py": {
+    "hash": "0652b543aba5101c19972ad73513ba3de1d6d2abda7fe6174238baa256ca1f66",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/interfaces/storage_interface.py": {
+    "hash": "4ba941411301fa1731d877ff2b04ebbf307a15d3467b02ec828cedd40b768a97",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/backends/pandas_backend.py": {
+    "hash": "be8c330a2d6fb85e67c3bc5d2c6ebc5c7a1f6dfd2b088ffdd19cd17b27fb5e5c",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/backends/polars_backend.py": {
+    "hash": "3bc7b119ee1c2036880776b8d8912cd777845df27177b643565fd9b39f4c923b",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/migrate_structure.py": {
+    "hash": "a1e898ba84ef7afb95d3359028ac8ad871b44331151e0cb9bc1c0cdfc707832c",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/exceptions/__init__.py": {
+    "hash": "cb66de748e2237d48dc6a1dd4576cb8d0b0600d034bd9f6d31bbf07118527feb",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/implementations/__init__.py": {
+    "hash": "8392ce7e9aa48efa71ed3f336d9001169aa73cb8fa10d9a9644ecddf6e35270d",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/bootstrap_integration_test.py": {
+    "hash": "c2fd10f0e08b5138a89c9689ebe49fa7ac9d7ece8ec1b0eed66e85fa4843c661",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/implementations/parquet_storage.py": {
+    "hash": "5ecbe9db445210ad518a259c055361559773c4eeae1ade45964ccf98969791ea",
+    "metrics": {
+      "config_status": "\u2705 OK",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/bootstrap_test.py": {
+    "hash": "4b2fa083784c5785603b1adb3e11927223c765154df87529e121867a90e9a0aa",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/neural_ai/data/storage/implementations/file_storage.py": {
+    "hash": "4a3755ac1071b0b89bfed2ea8bb9012f5022fa6d2a88c126431d62ab0dcafbb9",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/data_reset.py": {
+    "hash": "80610cdd8e9ce6c57fcfb739c9639f02baf8ed5d7d6ed19785b8a0f5cfe69ecc",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/audit_architecture_detailed.py": {
+    "hash": "cb20d7dbf7465cdf90b454a80945506afc43c0f37fd5f654acf82252a8e28760",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/audit_architecture.py": {
+    "hash": "1170236661b1fc7010a4af6e0f5b322f3df8cda9e3114f4ea3f41b72550d53a9",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/test_d2_standalone.py": {
+    "hash": "c7d8fa13e4d28254f37e1c81e56b5441f0ffbb93c9eb17ded455dd5aff5d863b",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/__init__.py": {
+    "hash": "e3b713202fdf9b380613073955a8377ec08e5b8540e667ac1fb317e789c39efb",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/install.py": {
+    "hash": "b2d5e294e5ee95eeed88b43ed41c1cda0d198302b70dc355df7c030aa74fe41d",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/validation_end_to_end.py": {
+    "hash": "0b538f06f0297c7a014fc0309e3fa8d109a32e6e2cb9466529f2c8ceaa0c4d8d",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26a0\ufe0f UNUSED",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_v2.py": {
+    "hash": "972e6593166502cb023ba2ff9dd88b46019e881d4e8ce90d77b76be89dd72a00",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/fix_fixture_scope.py": {
+    "hash": "f9bbd0d381391d29325fb5e67032b0bc10f1694808c94c3e0b342eaca27ef392",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": false
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/smart_pack.py": {
+    "hash": "4c359bee2f155d2bef3fc3737b6e03d4afe6ac9d8586cc8a400610a4bb1a3fa0",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate.py": {
+    "hash": "9d779d9622fc569eb96815bb4523e8370686ff2c28c7eedccf302614b7216d37",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/test_tick_pipeline.py": {
+    "hash": "1f17b26cdbf47bbc3625d60afcf489a25f121ac47e20158ab52dc6977f2b04aa",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/force_kill.py": {
+    "hash": "658b1b394e03e3ceb7320a4bec08c8d2afba17b16791e753d0e9a9567ecce946",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/audit_data.py": {
+    "hash": "0b56732735a34f1734b6a5b70a22c7548e99d6bb5b538382182a3d78e0c5819b",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/download_history.py": {
+    "hash": "29b8961ee3b44664701530ab36a7e3feab1ba05cdb9cf621f4d721fe502f77cc",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u2705 OK",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/deploy_jforex.py": {
+    "hash": "8a76f9ef3eed9a08a5d4c7f8a633ba037d41b340ac948dca865b2832cf2f7b7f",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  },
+  "/home/elynea/Dokumentumok/neural-ai-next/scripts/generate_docs.py": {
+    "hash": "8aa3bc3ad5dd3f74e303c41f94669069dc23237920e53e9401e4e9289527ac57",
+    "metrics": {
+      "config_status": "\u26aa N/A",
+      "logger_status": "\u26aa N/A",
+      "test_file_exists": true
+    }
+  }
+}

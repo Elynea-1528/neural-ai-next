@@ -117,29 +117,16 @@ def setup_module() -> None:
 
 
 def teardown_module() -> None:
-    """Modul szintű cleanup - LIFO (Last In First Out) sorrend!
-    
-    KRITIKUS: A teardown sorrendje FORDÍTOTT a setup sorrendhez képest.
-    Setup sorrend: ConfigManagerFactory → create_async_engine → get_database_url
-    Teardown sorrend: get_database_url → create_async_engine → ConfigManagerFactory
-    """
+    """Modul szintű cleanup."""
     global _mock_config_patcher, _mock_config_factory_patcher
     global _mock_create_engine_patcher, _mock_get_database_url_patcher
 
-    # LIFO teardown: FORDÍTOTT sorrend!
-    patchers = [
-        _mock_get_database_url_patcher,    # 3. (utolsó setup)
-        _mock_create_engine_patcher,       # 2.
-        _mock_config_factory_patcher,      # 1. (első setup)
-    ]
-    
-    for patcher in patchers:
-        if patcher:
-            try:
-                patcher.stop()
-            except Exception:
-                # Ignore already stopped patchers (safety net)
-                pass
+    if _mock_config_factory_patcher:
+        _mock_config_factory_patcher.stop()
+    if _mock_create_engine_patcher:
+        _mock_create_engine_patcher.stop()
+    if _mock_get_database_url_patcher:
+        _mock_get_database_url_patcher.stop()
 
 
 # ============================================================================
@@ -541,12 +528,12 @@ class TestDatabaseManager:
                 pass
 
     @pytest.mark.asyncio
-    async def test_database_manager_singleton_pattern(self, mock_logger: MagicMock) -> None:
+    async def test_database_manager_singleton_pattern(self) -> None:
         """Teszteli, hogy a DatabaseManager Singleton mintát követ."""
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
 
-        manager1 = DatabaseManager(mock_config, logger=mock_logger)
-        manager2 = DatabaseManager(mock_config, logger=mock_logger)
+        manager1 = DatabaseManager(mock_config, logger=mock_logger)  # type: ignore[arg-type]
+        manager2 = DatabaseManager(mock_config, logger=mock_logger)  # type: ignore[arg-type]
 
         # Refactored: is → id() (singleton pattern critical)
         assert id(manager1) == id(manager2)
@@ -610,14 +597,14 @@ class TestDatabaseManager:
         mock_session.close.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_database_manager_get_active_configs(self, mock_logger: MagicMock) -> None:
+    async def test_database_manager_get_active_configs(self) -> None:
         """Teszteli a DatabaseManager get_active_configs metódusát (lines 312-325)."""
         from unittest.mock import AsyncMock, MagicMock
 
         mock_config: MagicMock = MagicMock(spec=ConfigManagerInterface)
         mock_config.get.return_value = "sqlite+aiosqlite:///:memory:"
 
-        manager = DatabaseManager(mock_config, logger=mock_logger)
+        manager = DatabaseManager(mock_config, logger=mock_logger)  # type: ignore
         # Ne inicializáljuk, hanem mock-oljuk a _session_maker-t
         manager._session_maker = MagicMock()  # pyright: ignore[reportPrivateUsage]
 

@@ -1028,7 +1028,20 @@ class FullCommand:
         self, metrics: list[FileMetrics], cov_results: dict[str, Any]
     ) -> None:
         """Coverage adatok fájlonkénti hozzárendelése."""
-        coverage_data = cov_results.get("coverage", {}).get("files", {})
+        # DEBUG: coverage.json struktúra ellenőrzése
+        print(f"\n🔍 DEBUG: cov_results kulcsok: {list(cov_results.keys())}")
+        coverage_data = cov_results.get("files", {})
+        print(f"🔍 DEBUG: coverage_data típusa: {type(coverage_data)}")
+        print(f"🔍 DEBUG: Fájlok száma: {len(coverage_data)}")
+        if coverage_data:
+            file_keys = list(coverage_data.keys())[:5]
+            print(f"🔍 DEBUG: Első 5 fájl kulcs: {file_keys}")
+            if file_keys:
+                first_file_key = file_keys[0]
+                first_file = coverage_data[first_file_key]
+                print(f"🔍 DEBUG: Első fájl ({first_file_key}) struktúra kulcsai: {list(first_file.keys())}")
+                if "summary" in first_file:
+                    print(f"🔍 DEBUG: Summary kulcsok: {list(first_file['summary'].keys())}")
 
         for fm in metrics:
             # 1. Próbáld meg az abszolút útvonallal

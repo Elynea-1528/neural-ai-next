@@ -187,7 +187,7 @@ class ASTAnalyzer:
             "logger/implementations/",  # Logger implementációk
             "config/implementations/",  # Config implementációk
             "events/implementations/",  # EventBus implementációk
-            "db/implementations/",      # Database implementációk
+            "db/implementations/",  # Database implementációk
             "base/implementations/di_container.py",  # DI Container
         ]
 
@@ -341,7 +341,9 @@ class MirrorChecker:
                 module_name in ["exceptions", "interfaces", "implementations", "backends"]
                 and len(dir_parts) >= 2
             ):
-                parent_name = dir_parts[-2]  # Szülő mappa neve (pl. "base", "config", "jforex", "storage")  # noqa: E501
+                parent_name = dir_parts[
+                    -2
+                ]  # Szülő mappa neve (pl. "base", "config", "jforex", "storage")  # noqa: E501
                 test_file_name = f"test_{parent_name}_{module_name}_init.py"
                 base_name = f"{parent_name}_{module_name}_init"
                 integration_file_name = f"test_{parent_name}_{module_name}_init_integration.py"
@@ -368,13 +370,18 @@ class MirrorChecker:
         if dir_parts:
             # Ha az utolsó mappa "interfaces", "implementations", "exceptions", vagy "backends",
             # akkor a szülő mappa nevét használjuk
-            if dir_parts[-1] in ["interfaces", "implementations", "exceptions", "backends"] and len(dir_parts) >= 2:  # noqa: E501
+            if (
+                dir_parts[-1] in ["interfaces", "implementations", "exceptions", "backends"]
+                and len(dir_parts) >= 2
+            ):  # noqa: E501
                 module_prefix = dir_parts[-2]  # Szülő mappa (pl. "jforex", "storage")
             else:
                 module_prefix = dir_parts[-1]  # Utolsó mappa (pl. "jforex", "d02_support")
 
             alt_test_file_name = f"test_{module_prefix}_{base_name}.py"
-            alt_test_path = Path("tests") / Path("neural_ai") / Path(*dir_parts) / alt_test_file_name  # noqa: E501
+            alt_test_path = (
+                Path("tests") / Path("neural_ai") / Path(*dir_parts) / alt_test_file_name
+            )  # noqa: E501
 
             if alt_test_path.exists():
                 return alt_test_path
@@ -434,8 +441,9 @@ class MirrorChecker:
                 clean_base = base_name.lower()
                 # Eltávolítjuk a számozást és emoji-kat az elejéről
                 import re
-                clean_base = re.sub(r'^[\d_]+', '', clean_base)  # Számozás eltávolítása
-                clean_base = re.sub(r'[^\w]', '', clean_base)  # Nem-alfanumerikus karakterek
+
+                clean_base = re.sub(r"^[\d_]+", "", clean_base)  # Számozás eltávolítása
+                clean_base = re.sub(r"[^\w]", "", clean_base)  # Nem-alfanumerikus karakterek
 
                 # Keressünk minden test_*.py fájlt, ami tartalmazza a clean_base-t
                 for test_file in test_dir.glob("test_*.py"):
@@ -663,7 +671,7 @@ class GeneratorBase:
                 stats["warning"] += 1
             elif analysis.overall_status == "🔴 VULNERABLE":
                 stats["vulnerable"] += 1
-            
+
             # Összesített skip és warning számok
             stats["skipped_tests"] += analysis.test_skipped
             stats["test_warnings"] += analysis.source_warnings
@@ -918,7 +926,7 @@ class HTMLGenerator(GeneratorBase):
                 stats["source_files"] += 1
                 if analysis.test_file_exists:
                     stats["tested"] += 1
-            
+
             # Összesített skip és warning számok
             stats["skipped_tests"] += analysis.test_skipped
             stats["test_warnings"] += analysis.source_warnings
@@ -933,7 +941,9 @@ class HTMLGenerator(GeneratorBase):
         secure_pct = (stats["secure"] / stats["total"] * 100) if stats["total"] > 0 else 0
         warning_pct = (stats["warning"] / stats["total"] * 100) if stats["total"] > 0 else 0
         critical_pct = (stats["critical"] / stats["total"] * 100) if stats["total"] > 0 else 0
-        tested_pct = (stats["tested"] / stats["source_files"] * 100) if stats["source_files"] > 0 else 0  # noqa: E501
+        tested_pct = (
+            (stats["tested"] / stats["source_files"] * 100) if stats["source_files"] > 0 else 0
+        )  # noqa: E501
 
         page_title = "Neural AI Next - Task Tree Dashboard"
         header_title = "⚡ Neural AI Next - Task Tree Dashboard"
@@ -1688,7 +1698,9 @@ class TaskTreeGenerator:
 
         if no_test:
             print("  ⚡ --no-test mód: Pytest és Coverage kihagyva")
-            print("  ✅ Futtatva: Ruff, Mypy, Pyright, Teszt pár ellenőrzés, Dokumentáció ellenőrzés")  # noqa: E501
+            print(
+                "  ✅ Futtatva: Ruff, Mypy, Pyright, Teszt pár ellenőrzés, Dokumentáció ellenőrzés"
+            )  # noqa: E501
 
         # Cache ellenőrzés
         if not force_refresh and self.cache_manager.is_valid():
@@ -1763,8 +1775,7 @@ class TaskTreeGenerator:
         """Coverage run futtatása (független a tesztek sikerességétől)."""
         print("  📊 Coverage + Pytest...")
         print("    🔄 Coverage run módszer (teljes lefedettség)")
-        print("    ⚡ Parallel execution (pytest-xdist + pytest-forked)")
-        print("    ⏳ Várható futási idő: ~5-7 perc (korábban 11-15 perc)")
+        print("    ⏳ FIGYELEM: 1807 teszt futtatása 10-15 percig tarthat!")
 
         try:
             # 1. Cleanup régi coverage fájlok
@@ -1785,14 +1796,12 @@ class TaskTreeGenerator:
                 "no:cov",  # Disable pytest-cov plugin (konfliktus elkerülése)
                 "--json-report",  # FIX 2: JSON report generálás
                 "--json-report-file=reports/pytest_report.json",  # FIX 2: Report fájl
-                "-n", "auto",      # ✅ ÚJ: pytest-xdist parallel execution
-                "--forked",        # ✅ ÚJ: subprocess isolation per test
                 "-q",
                 "--tb=no",
                 "--continue-on-collection-errors",
             ]
 
-            subprocess.run(cmd_coverage_run, check=False, env=env, timeout=600, cwd=PROJECT_ROOT)
+            subprocess.run(cmd_coverage_run, check=False, env=env, timeout=900, cwd=PROJECT_ROOT)
 
             # Ellenőrizzük a .coverage fájlt
             coverage_db = PROJECT_ROOT / ".coverage"
@@ -1846,7 +1855,7 @@ class TaskTreeGenerator:
                 self.coverage_data = {}
 
         except subprocess.TimeoutExpired:
-            print("    ⚠️ Coverage timeout (600s), folytatás részleges adatokkal...")
+            print("    ⚠️ Coverage timeout (900s), folytatás részleges adatokkal...")
             if COVERAGE_FILE.exists():
                 try:
                     with open(COVERAGE_FILE) as f:

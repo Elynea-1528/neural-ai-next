@@ -1,1 +1,801 @@
-{"providerProfiles":{"currentApiConfigName":"Code-Fix (DeepSeek 3.2)","apiConfigs":{"Architect (Sonnet 4.5)":{"todoListEnabled":true,"modelTemperature":0.7,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"claude-sonnet-4.5","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":200000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"high"},"openAiHeaders":{},"apiProvider":"openai","id":"lo82ixbe7mp"},"Planner (DeepSeek 3.2)":{"todoListEnabled":true,"modelTemperature":0.7,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"deepseek-3.2","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"high"},"openAiHeaders":{},"apiProvider":"openai","id":"jewzl0q2pce"},"Orchestrator (DeepSeek 3.2)":{"todoListEnabled":true,"modelTemperature":0.5,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"deepseek-3.2","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"medium"},"openAiHeaders":{},"apiProvider":"openai","id":"icey8ryrpx"},"Code-New (DeepSeek 3.2)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"deepseek-3.2","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"high"},"openAiHeaders":{},"apiProvider":"openai","id":"6pe7fiym72e"},"Code-Refactor (Sonnet 4.5)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"claude-sonnet-4.5","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":200000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"high"},"openAiHeaders":{},"apiProvider":"openai","id":"1zhhhez2vzq"},"Code-Feature (DeepSeek 3.2)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"deepseek-3.2","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"medium"},"openAiHeaders":{},"apiProvider":"openai","id":"n8tca2xj9b8"},"Code-Fix (DeepSeek 3.2)":{"todoListEnabled":true,"modelTemperature":0.2,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"deepseek-3.2","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"medium"},"openAiHeaders":{},"apiProvider":"openai","id":"kkxlqzij9oc"},"Code-Optimize (Sonnet 4.5)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"claude-sonnet-4.5","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":200000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"xhigh"},"openAiHeaders":{},"apiProvider":"openai","id":"kqva6hebyj"},"Code-Style (Qwen3 Coder)":{"todoListEnabled":true,"modelTemperature":0.1,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":false,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"qwen3-coder-next","openAiCustomModelInfo":{"maxTokens":4096,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0},"openAiHeaders":{},"apiProvider":"openai","id":"bpndftexov"},"Docs-API (Qwen3 Coder)":{"todoListEnabled":true,"modelTemperature":0.5,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":false,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"qwen3-coder-next","openAiCustomModelInfo":{"maxTokens":4096,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0},"openAiHeaders":{},"apiProvider":"openai","id":"jta9gluqin"},"Docs-Guide (Minimax M2.1)":{"todoListEnabled":true,"modelTemperature":0.6,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"minimax-m2.1","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"medium"},"openAiHeaders":{},"apiProvider":"openai","id":"ilbn0zckf6d"},"Docs-Arch (Sonnet 4.5)":{"todoListEnabled":true,"modelTemperature":0.6,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"claude-sonnet-4.5","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":200000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"high"},"openAiHeaders":{},"apiProvider":"openai","id":"r8ciysqrbre"},"Docs-Comment (Qwen3 Coder)":{"todoListEnabled":true,"modelTemperature":0.4,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":false,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"qwen3-coder-next","openAiCustomModelInfo":{"maxTokens":4096,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0},"openAiHeaders":{},"apiProvider":"openai","id":"eehhgl46ubb"},"Test-Unit (Minimax M2.1)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"minimax-m2.1","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"medium"},"openAiHeaders":{},"apiProvider":"openai","id":"kuychws6omj"},"Test-Integration (DeepSeek 3.2)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"deepseek-3.2","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"high"},"openAiHeaders":{},"apiProvider":"openai","id":"xm741zf0ra"},"Test-Property (Sonnet 4.5)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"claude-sonnet-4.5","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":200000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"xhigh"},"openAiHeaders":{},"apiProvider":"openai","id":"5ctj7bbmv33"},"Test-E2E (DeepSeek 3.2)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"deepseek-3.2","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"medium"},"openAiHeaders":{},"apiProvider":"openai","id":"9g88dkodsni"},"Debug-Simple (DeepSeek 3.2)":{"todoListEnabled":true,"modelTemperature":0.2,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"deepseek-3.2","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"medium"},"openAiHeaders":{},"apiProvider":"openai","id":"z6os5k5vm58"},"Debug-Complex (Sonnet 4.5)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"claude-sonnet-4.5","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":200000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"high"},"openAiHeaders":{},"apiProvider":"openai","id":"vf913q02d7c"},"Debug-Performance (Sonnet 4.5)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"claude-sonnet-4.5","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":200000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"high"},"openAiHeaders":{},"apiProvider":"openai","id":"jfd4edylq1b"},"QA (Haiku 4.5)":{"todoListEnabled":true,"modelTemperature":0.2,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":false,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"claude-haiku-4.5","openAiCustomModelInfo":{"maxTokens":4096,"contextWindow":200000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0},"openAiHeaders":{},"apiProvider":"openai","id":"yy89mac9e9i"},"Review (DeepSeek 3.2)":{"todoListEnabled":true,"modelTemperature":0.5,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":true,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"deepseek-3.2","openAiCustomModelInfo":{"maxTokens":8192,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0,"reasoningEffort":"high"},"openAiHeaders":{},"apiProvider":"openai","id":"63gwgr5zp3n"},"Search (Qwen3 Coder)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":false,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"qwen3-coder-next","openAiCustomModelInfo":{"maxTokens":4096,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0},"openAiHeaders":{},"apiProvider":"openai","id":"32p2yzw98bf"},"Commit (Qwen3 Coder)":{"todoListEnabled":true,"modelTemperature":0.2,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":false,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"qwen3-coder-next","openAiCustomModelInfo":{"maxTokens":4096,"contextWindow":128000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0},"openAiHeaders":{},"apiProvider":"openai","id":"2gg70vokj6a"},"Reader (Haiku 4.5)":{"todoListEnabled":true,"modelTemperature":0.3,"rateLimitSeconds":0,"consecutiveMistakeLimit":3,"enableReasoningEffort":false,"openAiBaseUrl":"http://127.0.0.1:5580/v1","openAiApiKey":"Narzie2012rohaN","openAiR1FormatEnabled":false,"openAiModelId":"claude-haiku-4.5","openAiCustomModelInfo":{"maxTokens":4096,"contextWindow":200000,"supportsImages":false,"supportsPromptCache":true,"inputPrice":0,"outputPrice":0},"openAiHeaders":{},"apiProvider":"openai","id":"kx2kaqpm2s"}},"modeApiConfigs":{"architect":"lo82ixbe7mp","code":"lo82ixbe7mp","ask":"fojzk3bomnp","debug":"fojzk3bomnp","orchestrator":"icey8ryrpx","planner":"jewzl0q2pce","code-new":"6pe7fiym72e","code-refactor":"1zhhhez2vzq","code-feature":"n8tca2xj9b8","code-fix":"kkxlqzij9oc","code-optimize":"kqva6hebyj","code-style":"bpndftexov","docs-api":"jta9gluqin","docs-guide":"ilbn0zckf6d","docs-arch":"r8ciysqrbre","docs-comment":"eehhgl46ubb","test-unit":"kuychws6omj","test-integration":"xm741zf0ra","test-property":"5ctj7bbmv33","test-e2e":"9g88dkodsni","debug-simple":"z6os5k5vm58","debug-complex":"vf913q02d7c","debug-performance":"jfd4edylq1b","search":"32p2yzw98bf","review":"63gwgr5zp3n","commit":"2gg70vokj6a","qa":"yy89mac9e9i","reader":"kx2kaqpm2s","orch-test":"icey8ryrpx"},"migrations":{"rateLimitSecondsMigrated":true,"openAiHeadersMigrated":true,"consecutiveMistakeLimitMigrated":true,"todoListEnabledMigrated":true,"claudeCodeLegacySettingsMigrated":true}},"globalSettings":{"lastShownAnnouncementId":"feb-2026-v3.50.0-gemini-31-pro-cli-ndjson-cli-v010","openRouterImageApiKey":"","openRouterImageGenerationSelectedModel":"","autoApprovalEnabled":true,"alwaysAllowReadOnly":true,"alwaysAllowReadOnlyOutsideWorkspace":false,"alwaysAllowWrite":true,"alwaysAllowWriteOutsideWorkspace":false,"alwaysAllowWriteProtected":false,"writeDelayMs":1000,"alwaysAllowMcp":true,"alwaysAllowModeSwitch":true,"alwaysAllowSubtasks":true,"alwaysAllowExecute":true,"alwaysAllowFollowupQuestions":true,"followupAutoApproveTimeoutMs":60000,"allowedCommands":["*"],"deniedCommands":[],"allowedMaxRequests":null,"allowedMaxCost":null,"autoCondenseContext":true,"autoCondenseContextPercent":100,"includeCurrentTime":true,"includeCurrentCost":true,"maxGitStatusFiles":0,"includeDiagnosticMessages":true,"maxDiagnosticMessages":50,"enableCheckpoints":true,"checkpointTimeout":15,"ttsEnabled":false,"ttsSpeed":1,"soundEnabled":false,"soundVolume":0.5,"maxOpenTabsContext":20,"maxWorkspaceFiles":200,"showRooIgnoredFiles":false,"enableSubfolderRules":false,"maxImageFileSize":5,"maxTotalImageSize":20,"terminalOutputPreviewSize":"medium","terminalShellIntegrationTimeout":5000,"terminalShellIntegrationDisabled":true,"terminalCommandDelay":0,"terminalPowershellCounter":false,"terminalZshClearEolMark":true,"terminalZshOhMy":false,"terminalZshP10k":false,"terminalZdotdir":false,"rateLimitSeconds":0,"experiments":{"preventFocusDisruption":true,"imageGeneration":false,"runSlashCommand":false,"customTools":false},"codebaseIndexModels":{"openai":{"text-embedding-3-small":{"dimension":1536},"text-embedding-3-large":{"dimension":3072},"text-embedding-ada-002":{"dimension":1536}},"ollama":{"nomic-embed-text":{"dimension":768},"nomic-embed-code":{"dimension":3584},"mxbai-embed-large":{"dimension":1024},"all-minilm":{"dimension":384}},"openai-compatible":{"text-embedding-3-small":{"dimension":1536},"text-embedding-3-large":{"dimension":3072},"text-embedding-ada-002":{"dimension":1536},"nomic-embed-code":{"dimension":3584}},"gemini":{"gemini-embedding-001":{"dimension":3072},"text-embedding-004":{"dimension":3072}},"mistral":{"codestral-embed-2505":{"dimension":1536}},"vercel-ai-gateway":{"openai/text-embedding-3-small":{"dimension":1536},"openai/text-embedding-3-large":{"dimension":3072},"openai/text-embedding-ada-002":{"dimension":1536},"cohere/embed-v4.0":{"dimension":1024},"google/gemini-embedding-001":{"dimension":3072},"google/text-embedding-005":{"dimension":768},"google/text-multilingual-embedding-002":{"dimension":768},"amazon/titan-embed-text-v2":{"dimension":1024},"mistral/codestral-embed":{"dimension":1536},"mistral/mistral-embed":{"dimension":1024}},"openrouter":{"openai/text-embedding-3-small":{"dimension":1536},"openai/text-embedding-3-large":{"dimension":3072},"openai/text-embedding-ada-002":{"dimension":1536},"google/gemini-embedding-001":{"dimension":3072},"mistralai/mistral-embed-2312":{"dimension":1024},"mistralai/codestral-embed-2505":{"dimension":1536},"qwen/qwen3-embedding-0.6b":{"dimension":1024},"qwen/qwen3-embedding-4b":{"dimension":2560},"qwen/qwen3-embedding-8b":{"dimension":4096}},"bedrock":{"amazon.titan-embed-text-v1":{"dimension":1536},"amazon.titan-embed-text-v2:0":{"dimension":1024},"amazon.titan-embed-image-v1":{"dimension":1024},"amazon.nova-2-multimodal-embeddings-v1:0":{"dimension":1024},"cohere.embed-english-v3":{"dimension":1024},"cohere.embed-multilingual-v3":{"dimension":1024}}},"language":"en","telemetrySetting":"enabled","mcpEnabled":false,"mode":"code-fix","customModes":[],"customSupportPrompts":{},"includeTaskHistoryInEnhance":true,"reasoningBlockCollapsed":true,"enterBehavior":"send","profileThresholds":{},"hasOpenedModeSelector":true,"lastSettingsExportPath":"/home/elynea/Dokumentumok/neural-ai-next/roo-code-settings.json"}}
+{
+    "providerProfiles": {
+        "currentApiConfigName": "Architect (Sonnet 4.5)",
+        "apiConfigs": {
+            "Architect (Sonnet 4.5)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.7,
+                "rateLimitSeconds": 3,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": true,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-sonnet-4.5",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "lo82ixbe7mp"
+            },
+            "Planner (DeepSeek 3.2)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.6,
+                "rateLimitSeconds": 2,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort":false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "deepseek-3.2",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 164000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "jewzl0q2pce"
+            },
+            "Orchestrator (DeepSeek 3.2)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.3,
+                "rateLimitSeconds": 2,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort":false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "deepseek-3.2",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 164000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "icey8ryrpx"
+            },
+            "Code-New (Sonnet 4)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.3,
+                "rateLimitSeconds": 3,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": true,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-sonnet-4",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "6pe7fiym72e"
+            },
+            "Code-Refactor (Sonnet 4.5)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.3,
+                "rateLimitSeconds": 3,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": true,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-sonnet-4.5",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "1zhhhez2vzq"
+            },
+            "Code-Feature (DeepSeek 3.2)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.2,
+                "rateLimitSeconds": 2,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort":false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "deepseek-3.2",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 164000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "n8tca2xj9b8"
+            },
+            "Code-Fix (Haiku 4.5)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.2,
+                "rateLimitSeconds": 2,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-haiku-4.5",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "kkxlqzij9oc"
+            },
+            "Code-Optimize (Sonnet 4.5)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.3,
+                "rateLimitSeconds": 3,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort":false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-sonnet-4.5",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "kqva6hebyj"
+            },
+            "Code-Style (Qwen3 Coder)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.1,
+                "rateLimitSeconds": 1,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "qwen3-coder-next",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 256000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "bpndftexov"
+            },
+            "Docs-API (Qwen3 Coder)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.4,
+                "rateLimitSeconds": 1,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "qwen3-coder-next",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 256000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "jta9gluqin"
+            },
+            "Docs-Guide (Minimax M2.5)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.5,
+                "rateLimitSeconds": 1,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "minimax-m2.5",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 196000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "ilbn0zckf6d"
+            },
+            "Docs-Arch (Sonnet 4)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.5,
+                "rateLimitSeconds": 3,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": true,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-sonnet-4",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "r8ciysqrbre"
+            },
+            "Docs-Comment (Qwen3 Coder)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.3,
+                "rateLimitSeconds": 1,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "qwen3-coder-next",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 256000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "eehhgl46ubb"
+            },
+            "Test-Unit (DeepSeek 3.2)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.2,
+                "rateLimitSeconds": 2,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "deepseek-3.2",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 164000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "kuychws6omj"
+            },
+            "Test-Integration (DeepSeek 3.2)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.2,
+                "rateLimitSeconds": 5,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort":false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "deepseek-3.2",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 164000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "xm741zf0ra"
+            },
+            "Test-Property (Sonnet 4)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.4,
+                "rateLimitSeconds": 4,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": true,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-sonnet-4",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "5ctj7bbmv33"
+            },
+            "Test-E2E (DeepSeek 3.2)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.2,
+                "rateLimitSeconds": 5,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort":false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "deepseek-3.2",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 164000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "9g88dkodsni"
+            },
+            "Debug-Simple (Haiku 4.5)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.2,
+                "rateLimitSeconds": 2,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-haiku-4.5",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "z6os5k5vm58"
+            },
+            "Debug-Complex (Sonnet 4.5)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.4,
+                "rateLimitSeconds": 4,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": true,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-sonnet-4.5",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "vf913q02d7c"
+            },
+            "Debug-Performance (Sonnet 4.5)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.3,
+                "rateLimitSeconds": 4,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort":false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-sonnet-4.5",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "jfd4edylq1b"
+            },
+            "QA (Haiku 4.5)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.2,
+                "rateLimitSeconds": 2,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-haiku-4.5",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "yy89mac9e9i"
+            },
+            "Review (DeepSeek 3.2)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.4,
+                "rateLimitSeconds": 1,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort":false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "deepseek-3.2",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 164000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "63gwgr5zp3n"
+            },
+            "Search (Qwen3 Coder)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.2,
+                "rateLimitSeconds": 1,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "qwen3-coder-next",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 256000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "32p2yzw98bf"
+            },
+            "Commit (Qwen3 Coder)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.2,
+                "rateLimitSeconds": 1,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "qwen3-coder-next",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 256000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "2gg70vokj6a"
+            },
+            "Reader (Haiku 4.5)": {
+                "todoListEnabled": true,
+                "modelTemperature": 0.2,
+                "rateLimitSeconds": 2,
+                "consecutiveMistakeLimit": 3,
+                "enableReasoningEffort": false,
+                "openAiBaseUrl": "http://127.0.0.1:5580/v1",
+                "openAiApiKey": "Narzie2012rohaN",
+                "openAiR1FormatEnabled": false,
+                "openAiModelId": "claude-haiku-4.5",
+                "openAiCustomModelInfo": {
+                    "maxTokens": 64000,
+                    "contextWindow": 200000,
+                    "supportsImages": false,
+                    "supportsPromptCache": true,
+                    "inputPrice": 0,
+                    "outputPrice": 0
+                },
+                "openAiHeaders": {},
+                "apiProvider": "openai",
+                "id": "kx2kaqpm2s"
+            }
+        },
+        "modeApiConfigs": {
+            "architect": "lo82ixbe7mp",
+            "code": "lo82ixbe7mp",
+            "ask": "fojzk3bomnp",
+            "debug": "fojzk3bomnp",
+            "orchestrator": "icey8ryrpx",
+            "planner": "jewzl0q2pce",
+            "code-new": "6pe7fiym72e",
+            "code-refactor": "1zhhhez2vzq",
+            "code-feature": "n8tca2xj9b8",
+            "code-fix": "kkxlqzij9oc",
+            "code-optimize": "kqva6hebyj",
+            "code-style": "bpndftexov",
+            "docs-api": "jta9gluqin",
+            "docs-guide": "ilbn0zckf6d",
+            "docs-arch": "r8ciysqrbre",
+            "docs-comment": "eehhgl46ubb",
+            "test-unit": "kuychws6omj",
+            "test-integration": "xm741zf0ra",
+            "test-property": "5ctj7bbmv33",
+            "test-e2e": "9g88dkodsni",
+            "debug-simple": "z6os5k5vm58",
+            "debug-complex": "vf913q02d7c",
+            "debug-performance": "jfd4edylq1b",
+            "search": "32p2yzw98bf",
+            "review": "63gwgr5zp3n",
+            "commit": "2gg70vokj6a",
+            "qa": "yy89mac9e9i",
+            "reader": "kx2kaqpm2s",
+            "orch-test": "icey8ryrpx"
+        },
+        "migrations": {
+            "rateLimitSecondsMigrated": true,
+            "openAiHeadersMigrated": true,
+            "consecutiveMistakeLimitMigrated": true,
+            "todoListEnabledMigrated": true,
+            "claudeCodeLegacySettingsMigrated": true
+        }
+    },
+    "globalSettings": {
+        "lastShownAnnouncementId": "feb-2026-v3.50.0-gemini-31-pro-cli-ndjson-cli-v010",
+        "openRouterImageApiKey": "",
+        "openRouterImageGenerationSelectedModel": "",
+        "autoApprovalEnabled": true,
+        "alwaysAllowReadOnly": true,
+        "alwaysAllowReadOnlyOutsideWorkspace": false,
+        "alwaysAllowWrite": true,
+        "alwaysAllowWriteOutsideWorkspace": false,
+        "alwaysAllowWriteProtected": false,
+        "writeDelayMs": 1000,
+        "alwaysAllowMcp": true,
+        "alwaysAllowModeSwitch": true,
+        "alwaysAllowSubtasks": true,
+        "alwaysAllowExecute": true,
+        "alwaysAllowFollowupQuestions": true,
+        "followupAutoApproveTimeoutMs": 60000,
+        "allowedCommands": [
+            "*"
+        ],
+        "deniedCommands": [],
+        "allowedMaxRequests": null,
+        "allowedMaxCost": null,
+        "autoCondenseContext": true,
+        "autoCondenseContextPercent": 100,
+        "includeCurrentTime": true,
+        "includeCurrentCost": true,
+        "maxGitStatusFiles": 0,
+        "includeDiagnosticMessages": true,
+        "maxDiagnosticMessages": 50,
+        "enableCheckpoints": true,
+        "checkpointTimeout": 15,
+        "ttsEnabled": false,
+        "ttsSpeed": 1,
+        "soundEnabled": false,
+        "soundVolume": 0.5,
+        "maxOpenTabsContext": 20,
+        "maxWorkspaceFiles": 200,
+        "showRooIgnoredFiles": false,
+        "enableSubfolderRules": false,
+        "maxImageFileSize": 5,
+        "maxTotalImageSize": 20,
+        "terminalOutputPreviewSize": "medium",
+        "terminalShellIntegrationTimeout": 5000,
+        "terminalShellIntegrationDisabled": true,
+        "terminalCommandDelay": 0,
+        "terminalPowershellCounter": false,
+        "terminalZshClearEolMark": true,
+        "terminalZshOhMy": false,
+        "terminalZshP10k": false,
+        "terminalZdotdir": false,
+        "rateLimitSeconds": 0,
+        "experiments": {
+            "preventFocusDisruption": true,
+            "imageGeneration": false,
+            "runSlashCommand": false,
+            "customTools": false
+        },
+        "codebaseIndexModels": {
+            "openai": {
+                "text-embedding-3-small": {
+                    "dimension": 1536
+                },
+                "text-embedding-3-large": {
+                    "dimension": 3072
+                },
+                "text-embedding-ada-002": {
+                    "dimension": 1536
+                }
+            },
+            "ollama": {
+                "nomic-embed-text": {
+                    "dimension": 768
+                },
+                "nomic-embed-code": {
+                    "dimension": 3584
+                },
+                "mxbai-embed-large": {
+                    "dimension": 1024
+                },
+                "all-minilm": {
+                    "dimension": 384
+                }
+            },
+            "openai-compatible": {
+                "text-embedding-3-small": {
+                    "dimension": 1536
+                },
+                "text-embedding-3-large": {
+                    "dimension": 3072
+                },
+                "text-embedding-ada-002": {
+                    "dimension": 1536
+                },
+                "nomic-embed-code": {
+                    "dimension": 3584
+                }
+            },
+            "gemini": {
+                "gemini-embedding-001": {
+                    "dimension": 3072
+                },
+                "text-embedding-004": {
+                    "dimension": 3072
+                }
+            },
+            "mistral": {
+                "codestral-embed-2505": {
+                    "dimension": 1536
+                }
+            },
+            "vercel-ai-gateway": {
+                "openai/text-embedding-3-small": {
+                    "dimension": 1536
+                },
+                "openai/text-embedding-3-large": {
+                    "dimension": 3072
+                },
+                "openai/text-embedding-ada-002": {
+                    "dimension": 1536
+                },
+                "cohere/embed-v4.0": {
+                    "dimension": 1024
+                },
+                "google/gemini-embedding-001": {
+                    "dimension": 3072
+                },
+                "google/text-embedding-005": {
+                    "dimension": 768
+                },
+                "google/text-multilingual-embedding-002": {
+                    "dimension": 768
+                },
+                "amazon/titan-embed-text-v2": {
+                    "dimension": 1024
+                },
+                "mistral/codestral-embed": {
+                    "dimension": 1536
+                },
+                "mistral/mistral-embed": {
+                    "dimension": 1024
+                }
+            },
+            "openrouter": {
+                "openai/text-embedding-3-small": {
+                    "dimension": 1536
+                },
+                "openai/text-embedding-3-large": {
+                    "dimension": 3072
+                },
+                "openai/text-embedding-ada-002": {
+                    "dimension": 1536
+                },
+                "google/gemini-embedding-001": {
+                    "dimension": 3072
+                },
+                "mistralai/mistral-embed-2312": {
+                    "dimension": 1024
+                },
+                "mistralai/codestral-embed-2505": {
+                    "dimension": 1536
+                },
+                "qwen/qwen3-embedding-0.6b": {
+                    "dimension": 1024
+                },
+                "qwen/qwen3-embedding-4b": {
+                    "dimension": 2560
+                },
+                "qwen/qwen3-embedding-8b": {
+                    "dimension": 64000
+                }
+            },
+            "bedrock": {
+                "amazon.titan-embed-text-v1": {
+                    "dimension": 1536
+                },
+                "amazon.titan-embed-text-v2:0": {
+                    "dimension": 1024
+                },
+                "amazon.titan-embed-image-v1": {
+                    "dimension": 1024
+                },
+                "amazon.nova-2-multimodal-embeddings-v1:0": {
+                    "dimension": 1024
+                },
+                "cohere.embed-english-v3": {
+                    "dimension": 1024
+                },
+                "cohere.embed-multilingual-v3": {
+                    "dimension": 1024
+                }
+            }
+        },
+        "language": "en",
+        "telemetrySetting": "enabled",
+        "mcpEnabled": false,
+        "mode": "architect",
+        "customModes": [],
+        "customSupportPrompts": {},
+        "includeTaskHistoryInEnhance": true,
+        "reasoningBlockCollapsed": true,
+        "enterBehavior": "send",
+        "profileThresholds": {},
+        "hasOpenedModeSelector": true,
+        "lastSettingsExportPath": "/home/elynea/Dokumentumok/neural-ai-next/roo-code-settings.json"
+    }
+}

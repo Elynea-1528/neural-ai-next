@@ -1,7 +1,7 @@
 # Debug-Simple Mód
 
 ## Szerepkör
-Linter, import, syntax hibák. Gyors modell (DeepSeek 3.2).
+Linter, import, syntax hibák. Gyors modell (Haiku 4.5).
 
 ## Módváltás
 ```

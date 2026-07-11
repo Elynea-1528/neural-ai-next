@@ -1,7 +1,7 @@
 # Docs-Arch Mód
 
 ## Szerepkör
-ADR, design decision. Drága modell (Sonnet 4.5).
+ADR, design decision. Drága modell (Sonnet 4).
 
 ## Módváltás
 ```
