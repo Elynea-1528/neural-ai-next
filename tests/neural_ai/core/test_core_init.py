@@ -1,3 +1,18 @@
+from pathlib import Path
+from typing import Any
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from neural_ai.core import (
+    bootstrap_core,
+    get_core_components,
+    get_schema_version,
+    get_version,
+)
+from neural_ai.core.base.implementations.component_bundle import CoreComponents
+from neural_ai.core.config.exceptions import ConfigValidationError
+
 """Tesztek a neural_ai.core.__init__.py modulhoz.
 
 # pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
@@ -23,21 +38,6 @@ Examples:
 
 ADR: docs/development/architecture/adr-008-mock-assertion-best-practices.md
 """
-
-from pathlib import Path
-from typing import Any
-from unittest.mock import MagicMock, patch
-
-import pytest
-
-from neural_ai.core import (
-    bootstrap_core,
-    get_core_components,
-    get_schema_version,
-    get_version,
-)
-from neural_ai.core.base.implementations.component_bundle import CoreComponents
-from neural_ai.core.config.exceptions import ConfigValidationError
 
 # ============================================================================
 # MODULE-LEVEL SETUP (A teljes fájlra aktív!)
@@ -497,15 +497,14 @@ class TestBootstrapCore:
 class TestGetCoreComponents:
     """Tesztek a get_core_components függvényhez."""
 
-    @pytest.mark.forked
+    def setup_method(self) -> None:
+        """Singleton reset minden teszt előtt."""
+        import neural_ai.core as core_module
+        core_module._core_components_instance = None  # pyright: ignore[reportPrivateUsage]
+
     @patch("neural_ai.core.bootstrap_core")
     def test_get_core_components_first_call(self, mock_bootstrap: MagicMock) -> None:
         """Teszteli a get_core_components függvényt első híváskor."""
-        # Reset global variables
-        import neural_ai.core as core_module
-
-        core_module._core_components_instance = None  # pyright: ignore[reportPrivateUsage]
-
         mock_components = MagicMock()
         mock_bootstrap.return_value = mock_components
 
@@ -519,7 +518,7 @@ class TestGetCoreComponents:
     @patch("neural_ai.core.bootstrap_core")
     def test_get_core_components_cached(self, mock_bootstrap: MagicMock) -> None:
         """Teszteli a get_core_components függvényt, ha már inicializálva van."""
-        # Set global variable
+        # Set global variable (setup_method már resetelte)
         import neural_ai.core as core_module
 
         mock_components = MagicMock()
@@ -536,10 +535,7 @@ class TestGetCoreComponents:
     @patch("neural_ai.core.bootstrap_core")
     def test_get_core_components_returns_core_components(self, mock_bootstrap: MagicMock) -> None:
         """Teszteli, hogy a get_core_components CoreComponents példánnyal tér vissza."""
-        # Reset global variables
-        import neural_ai.core as core_module
-
-        core_module._core_components_instance = None  # pyright: ignore[reportPrivateUsage]
+        # setup_method már resetelte a global változót
 
         # CoreComponents konstruktora csak container-t vár
         mock_container = MagicMock()
@@ -557,6 +553,11 @@ class TestGetCoreComponents:
 
 class TestIntegration:
     """Integrációs tesztek."""
+
+    def setup_method(self) -> None:
+        """Singleton reset minden teszt előtt."""
+        import neural_ai.core as core_module
+        core_module._core_components_instance = None  # pyright: ignore[reportPrivateUsage]
 
     def test_version_and_bootstrap_integration(self) -> None:
         """Teszteli a verzió lekérdezés és a bootstrap integrációját."""
@@ -585,17 +586,13 @@ class TestIntegration:
         assert hasattr(core, "get_version")
         assert hasattr(core, "get_schema_version")
 
-    @pytest.mark.forked
     def test_core_components_singleton_pattern(self) -> None:
         """Teszteli, hogy a CoreComponents singleton mintát követ-e."""
         with patch("neural_ai.core.bootstrap_core") as mock_bootstrap:
             mock_components = MagicMock()
             mock_bootstrap.return_value = mock_components
 
-            # Reset global variables
-            import neural_ai.core as core_module
-
-            core_module._core_components_instance = None  # pyright: ignore[reportPrivateUsage]
+            # setup_method már resetelte a global változót
 
             c1 = get_core_components()
             c2 = get_core_components()
@@ -611,7 +608,7 @@ class TestIntegration:
 class TestBootstrapCoreRealConfig:
     """Bootstrap valós config fájlokkal."""
 
-    @pytest.mark.forked
+    @pytest.mark.serial
     def test_bootstrap_with_real_yaml_configs(self, tmp_path: Path) -> None:
         """Teljes bootstrap folyamat valós YAML config fájlokkal.
 
@@ -712,6 +709,7 @@ base_path: "data/storage"
         assert components.database is not None
         assert hasattr(components.database, 'config_manager')
 
+    @pytest.mark.serial
     def test_bootstrap_with_invalid_database_config_raises_error(self, tmp_path: Path) -> None:
         """Érvénytelen database.yaml ConfigValidationError-t dob."""
         config_dir = tmp_path / "configs_invalid"

@@ -1,3 +1,23 @@
+from typing import Any
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+
+from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+from neural_ai.core.db.exceptions import DBConnectionError
+from neural_ai.core.db.implementations.sqlalchemy_session import (
+    DatabaseManager,
+    close_db,
+    create_engine,
+    get_async_session_maker,
+    get_database_url,
+    get_db_session,
+    get_db_session_direct,
+    get_engine,
+    init_db,
+)
+
 """Tesztek a neural_ai.core.db.implementations.sqlalchemy_session modulhoz.
 
 # pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
@@ -22,27 +42,6 @@ Examples:
 ADR: docs/development/architecture/adr-008-mock-assertion-best-practices.md
 """
 
-from collections.abc import Generator
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
-
-import pytest
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
-
-from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
-from neural_ai.core.db.exceptions import DBConnectionError
-from neural_ai.core.db.implementations.sqlalchemy_session import (
-    DatabaseManager,
-    close_db,
-    create_engine,
-    get_async_session_maker,
-    get_database_url,
-    get_db_session,
-    get_db_session_direct,
-    get_engine,
-    init_db,
-)
-
 # asyncpg ellenőrzés (PostgreSQL tesztekhez)
 try:
     import asyncpg  # noqa: F401
@@ -56,77 +55,10 @@ skip_if_no_asyncpg = pytest.mark.skipif(
 )
 
 # Test isolation skip reason
-SKIP_REASON = "Test isolation: Mock propagation issue with functools.cached_property + singleton pattern. Production kód működik, csak test isolation probléma."
-
-
-# ============================================================================
-# MODULE-LEVEL SETUP (A teljes fájlra aktív!)
-# ============================================================================
-
-_mock_config_patcher: Any = None
-_mock_config_factory_patcher: Any = None
-_mock_config: Any = None
-_mock_create_engine_patcher: Any = None
-_mock_get_database_url_patcher: Any = None
-
-
-def setup_module() -> None:
-    """Modul szintű mock setup - az EGÉSZ fájlra aktív.
-
-    Ez biztosítja, hogy az összes Factory és függvény mock végig él
-    az összes teszt alatt, megoldva a fixture function scope problémát.
-    """
-    global _mock_config_patcher, _mock_config_factory_patcher, _mock_config
-    global _mock_create_engine_patcher, _mock_get_database_url_patcher
-
-    # ConfigManagerFactory mock
-    _mock_config_factory_patcher = patch(
-        "neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory"
-    )
-    mock_factory = _mock_config_factory_patcher.start()
-
-    # Mock config objektum - PYDANTIC COMPATIBLE STRUCTURE
-    _mock_config = MagicMock(spec=ConfigManagerInterface)
-    
-    def config_get_side_effect(key: str, default: object = None) -> object:
-        """Mock config.get() with Pydantic-compatible structure."""
-        if key == "database":
-            return {
-                "connection": {"url": "sqlite+aiosqlite:///:memory:"},
-                "pool": {"size": 20, "recycle": 3600}
-            }
-        elif key == "config_path":
-            return "configs/database.yaml"  # Valid YAML file path
-        return default
-    
-    _mock_config.get.side_effect = config_get_side_effect
-    mock_factory.get_manager.return_value = _mock_config
-
-    # create_engine mock (globálisan)
-    _mock_create_engine_patcher = patch(
-        "neural_ai.core.db.implementations.sqlalchemy_session.create_async_engine"
-    )
-    _mock_create_engine_patcher.start()
-
-    # get_database_url mock (globálisan)
-    _mock_get_database_url_patcher = patch(
-        "neural_ai.core.db.implementations.sqlalchemy_session.get_database_url"
-    )
-    mock_get_url = _mock_get_database_url_patcher.start()
-    mock_get_url.return_value = "sqlite+aiosqlite:///:memory:"
-
-
-def teardown_module() -> None:
-    """Modul szintű cleanup."""
-    global _mock_config_patcher, _mock_config_factory_patcher
-    global _mock_create_engine_patcher, _mock_get_database_url_patcher
-
-    if _mock_config_factory_patcher:
-        _mock_config_factory_patcher.stop()
-    if _mock_create_engine_patcher:
-        _mock_create_engine_patcher.stop()
-    if _mock_get_database_url_patcher:
-        _mock_get_database_url_patcher.stop()
+SKIP_REASON = (
+    "Test isolation: Mock propagation issue with functools.cached_property + "
+    "singleton pattern. Production kód működik, csak test isolation probléma."
+)
 
 
 # ============================================================================
@@ -143,14 +75,6 @@ def mock_logger() -> Any:
     logger.error = MagicMock()
     logger.critical = MagicMock()
     return logger
-
-
-@pytest.fixture(autouse=True)
-def reset_singleton() -> Generator[None, None, None]:
-    """Singleton reset minden teszt előtt (izolációhoz)."""
-    yield
-    if DatabaseManager._instances:  # pyright: ignore[reportPrivateUsage]
-        DatabaseManager._instances.clear()  # pyright: ignore[reportPrivateUsage]
 
 
 class TestDatabaseURL:

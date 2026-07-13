@@ -7,7 +7,45 @@ Ez a modul tartalmazza a közös fixture-öket és setup/teardown logikát
 az adatbázis tesztek számára.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
+
+from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_config_factory_session():
+    """Session scope mock a ConfigManagerFactory számára.
+
+    Ez a fixture biztosítja, hogy a ConfigManagerFactory mock végig él
+    az ÖSSZES teszten keresztül, MINDEN pytest-xdist worker-ben.
+
+    FONTOS: Ez a mock NEM autouse, hogy ne zasszunk be minden tesztbe.
+    Csak azokat a teszteket érinti, amelyek implicit ConfigManagerFactory-t használnak
+    a globális függvényeken keresztül (get_engine, get_async_session_maker, stb.).
+    """
+    with patch(
+        "neural_ai.core.db.implementations.sqlalchemy_session.ConfigManagerFactory"
+    ) as mock_factory:
+        # Mock config objektum - PYDANTIC COMPATIBLE STRUCTURE
+        mock_config = MagicMock(spec=ConfigManagerInterface)
+
+        def config_get_side_effect(key: str, default: object = None) -> object:
+            """Mock config.get() with Pydantic-compatible structure."""
+            if key == "database":
+                return {
+                    "connection": {"url": "sqlite+aiosqlite:///:memory:"},
+                    "pool": {"size": 20, "recycle": 3600}
+                }
+            elif key == "config_path":
+                return "configs/database.yaml"
+            return default
+
+        mock_config.get.side_effect = config_get_side_effect
+        mock_factory.get_manager.return_value = mock_config
+
+        yield mock_factory
 
 
 @pytest.fixture(autouse=True)

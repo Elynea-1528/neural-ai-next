@@ -43,16 +43,16 @@ class TestConfigImplementationsInit:
         assert neural_ai.core.config.implementations.__package__ == "neural_ai.core.config.implementations"  # noqa: E501
 
     def test_module_is_empty(self) -> None:
-        """Teszteli, hogy a modul üres (csak docstring van)."""
+        """Teszteli, hogy a modul üres (__all__ lista üres).
+
+        FONTOS: A dir() helyett __all__-t ellenőrzünk, mert párhuzamos tesztelés
+        során más tesztek importjai szennyezhetik a modul namespace-t.
+        Az __all__ az egyetlen megbízható forrás a publikus API-hoz.
+        """
         # Arrange
         import neural_ai.core.config.implementations
 
-        # Act
-        public_attrs = [
-            name
-            for name in dir(neural_ai.core.config.implementations)
-            if not name.startswith("_")
-        ]
-
-        # Assert
-        assert len(public_attrs) == 0
+        # Act & Assert
+        assert hasattr(neural_ai.core.config.implementations, "__all__")
+        assert neural_ai.core.config.implementations.__all__ == []
+        assert len(neural_ai.core.config.implementations.__all__) == 0
