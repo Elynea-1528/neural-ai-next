@@ -1683,12 +1683,20 @@ class TaskTreeGenerator:
         self.source_warnings: dict[str, int] = {}
         self.cache_manager = CacheManager()
 
-    def run_dynamic_tools(self, force_refresh: bool = False, no_test: bool = False) -> None:
+    def run_dynamic_tools(
+        self,
+        force_refresh: bool = False,
+        no_test: bool = False,
+        pytest_parallel: bool = False,
+        skip_coverage: bool = False,
+    ) -> None:
         """Futtatja a dinamikus ellenőrző eszközöket.
 
         Args:
             force_refresh: Ha True, cache kihagyása és friss adatok gyűjtése
             no_test: Ha True, pytest és coverage kihagyása (csak statikus ellenőrzések)
+            pytest_parallel: Ha True, párhuzamos pytest futtatás (-n auto)
+            skip_coverage: Ha True, coverage kihagyása (meglévő test_coverage.json használata)
         """
         REPORT_DIR.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
@@ -1734,7 +1742,7 @@ class TaskTreeGenerator:
 
         # 1. Coverage + Pytest (LASSÚ - csak ha nem --no-test)
         if not no_test:
-            self._run_pytest_cov(env)
+            self._run_pytest_cov(env, pytest_parallel=pytest_parallel, skip_coverage=skip_coverage)
         else:
             # Üres adatok inicializálása
             self.coverage_data = {}
@@ -1771,10 +1779,51 @@ class TaskTreeGenerator:
         self.cache_manager.save(cache_data)
         print("  💾 Cache mentve")
 
-    def _run_pytest_cov(self, env: dict[str, str]) -> None:
-        """Coverage run futtatása (független a tesztek sikerességétől)."""
+    def _run_pytest_cov(
+        self, env: dict[str, str], pytest_parallel: bool = False, skip_coverage: bool = False
+    ) -> None:
+        """Coverage run futtatása (független a tesztek sikerességétől).
+
+        Args:
+            env: Környezeti változók
+            pytest_parallel: Ha True, -n auto hozzáadása
+            skip_coverage: Ha True, coverage futtatás kihagyása (meglévő fájl használata)
+        """
         print("  📊 Coverage + Pytest...")
+
+        # Skip coverage mód
+        if skip_coverage:
+            if COVERAGE_FILE.exists():
+                print("    ⚡ --skip-coverage mód: Meglévő coverage használata")
+                print(f"    📄 Betöltés: {COVERAGE_FILE}")
+                try:
+                    with open(COVERAGE_FILE) as f:
+                        cov_json = json.load(f)
+                        raw_files = cov_json.get("files", {})
+                        self.coverage_data = {}
+
+                        for abs_path, data in raw_files.items():
+                            if abs_path.startswith(str(PROJECT_ROOT)):
+                                rel_path = abs_path[len(str(PROJECT_ROOT)) + 1 :]
+                                rel_path = rel_path.replace("\\", "/")
+                                self.coverage_data[rel_path] = data
+                            else:
+                                rel_path = abs_path.replace("\\", "/")
+                                self.coverage_data[rel_path] = data
+
+                        print(f"    ✅ Coverage adatok betöltve: {len(self.coverage_data)} fájl")
+                        return
+                except Exception as e:
+                    print(f"    ⚠️ Coverage betöltési hiba: {e}")
+                    print("    🔄 Fallback: Friss coverage futtatása...")
+            else:
+                print(f"    ⚠️ {COVERAGE_FILE} nem létezik!")
+                print("    🔄 Fallback: Friss coverage futtatása...")
+
+        # Normál coverage mód
         print("    🔄 Coverage run módszer (teljes lefedettség)")
+        if pytest_parallel:
+            print("    ⚡ Párhuzamos pytest futtatás engedélyezve (-n auto)")
         print("    ⏳ FIGYELEM: 1807 teszt futtatása 10-15 percig tarthat!")
 
         try:
@@ -1800,6 +1849,11 @@ class TaskTreeGenerator:
                 "--tb=no",
                 "--continue-on-collection-errors",
             ]
+
+            # Pytest parallel engedélyezése
+            if pytest_parallel:
+                cmd_coverage_run.append("-n")
+                cmd_coverage_run.append("auto")
 
             subprocess.run(cmd_coverage_run, check=False, env=env, timeout=900, cwd=PROJECT_ROOT)
 
@@ -2243,15 +2297,28 @@ class TaskTreeGenerator:
             has_documentation=has_documentation,
         )
 
-    def generate(self, force_refresh: bool = False, no_test: bool = False) -> None:
+    def generate(
+        self,
+        force_refresh: bool = False,
+        no_test: bool = False,
+        pytest_parallel: bool = False,
+        skip_coverage: bool = False,
+    ) -> None:
         """Generálja a TASK_TREE.md és TASK_TREE.html fájlokat.
 
         Args:
             force_refresh: Ha True, cache kihagyása és friss adatok gyűjtése
             no_test: Ha True, pytest és coverage kihagyása (csak statikus ellenőrzések)
+            pytest_parallel: Ha True, párhuzamos pytest futtatás (-n auto)
+            skip_coverage: Ha True, coverage kihagyása (meglévő test_coverage.json használata)
         """
         # 1. Dinamikus eszközök futtatása
-        self.run_dynamic_tools(force_refresh=force_refresh, no_test=no_test)
+        self.run_dynamic_tools(
+            force_refresh=force_refresh,
+            no_test=no_test,
+            pytest_parallel=pytest_parallel,
+            skip_coverage=skip_coverage,
+        )
 
         print("\n🔍 Kódbázis szkennelése...")
         files = self.scan_codebase()
@@ -2324,7 +2391,24 @@ if __name__ == "__main__":
         action="store_true",
         help="Pytest és coverage kihagyása (csak statikus ellenőrzések: ruff, mypy, pyright, teszt pár, dokumentáció)",  # noqa: E501
     )
+    parser.add_argument(
+        "-p",
+        "--pytest-parallel",
+        action="store_true",
+        help="Párhuzamos pytest futtatás (-n auto hozzáadása)",
+    )
+    parser.add_argument(
+        "-s",
+        "--skip-coverage",
+        action="store_true",
+        help="Coverage kihagyása (meglévő reports/test_coverage.json használata)",
+    )
     args = parser.parse_args()
 
     generator = TaskTreeGenerator()
-    generator.generate(force_refresh=args.force_refresh, no_test=args.no_test)
+    generator.generate(
+        force_refresh=args.force_refresh,
+        no_test=args.no_test,
+        pytest_parallel=args.pytest_parallel,
+        skip_coverage=args.skip_coverage,
+    )
