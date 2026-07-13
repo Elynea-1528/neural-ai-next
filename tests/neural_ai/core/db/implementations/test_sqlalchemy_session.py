@@ -139,6 +139,7 @@ class TestDatabaseURL:
             get_database_url(mock_config)
 
 
+@pytest.mark.xdist_group(name="serial")
 class TestCreateEngine:
     """Engine létrehozás tesztjei."""
 
@@ -156,7 +157,6 @@ class TestCreateEngine:
         assert engine is not None
         assert isinstance(engine, AsyncEngine)
 
-    @pytest.mark.forked
     @skip_if_no_asyncpg
     def test_create_engine_postgresql(self) -> None:
         """Teszteli az engine létrehozást PostgreSQL URL-lel (line 114)."""
@@ -178,7 +178,6 @@ class TestCreateEngine:
             assert call_kwargs["pool_size"] == 20
             assert call_kwargs["max_overflow"] == 0
 
-    @pytest.mark.forked
     @skip_if_no_asyncpg
     def test_create_engine_postgresql_with_pool_config(self) -> None:
         """Teszteli az engine létrehozást custom pool config-gal (line 115-116)."""
@@ -202,7 +201,6 @@ class TestCreateEngine:
             assert call_kwargs["pool_size"] == 10
             assert call_kwargs["pool_recycle"] == 1800
 
-    @pytest.mark.forked
     @skip_if_no_asyncpg
     def test_create_engine_postgresql_with_none_pool_values(self) -> None:
         """Teszteli az engine létrehozást None pool értékekkel (line 115-116)."""
@@ -229,10 +227,10 @@ class TestCreateEngine:
             assert call_kwargs["pool_recycle"] == 3600
 
 
+@pytest.mark.xdist_group(name="serial")
 class TestGetEngine:
     """Globális engine lekérdezés tesztjei."""
 
-    @pytest.mark.skip(reason=SKIP_REASON)
     @skip_if_no_asyncpg
     @patch("neural_ai.core.db.implementations.sqlalchemy_session._engine", None)
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_database_url")
@@ -245,7 +243,6 @@ class TestGetEngine:
         assert isinstance(engine, AsyncEngine)
         mock_get_url.assert_called_once()
 
-    @pytest.mark.skip(reason=SKIP_REASON)
     @skip_if_no_asyncpg
     @patch("neural_ai.core.db.implementations.sqlalchemy_session._engine", None)
     @patch("neural_ai.core.db.implementations.sqlalchemy_session._async_session_maker", None)
@@ -264,7 +261,6 @@ class TestGetEngine:
         assert id(engine1) == id(engine2)
         assert engine1 == engine2
 
-    @pytest.mark.skip(reason=SKIP_REASON)
     @skip_if_no_asyncpg
     @patch("neural_ai.core.db.implementations.sqlalchemy_session._engine", None)
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_database_url")
@@ -275,43 +271,41 @@ class TestGetEngine:
         engine = get_engine()
         assert isinstance(engine, AsyncEngine)
 
-    @pytest.mark.skip(reason=SKIP_REASON)
     @skip_if_no_asyncpg
     @patch("neural_ai.core.db.implementations.sqlalchemy_session._engine", None)
     def test_get_engine_with_pool_config(self) -> None:
         """Teszteli a get_engine pool config olvasását (line 159-167)."""
-        # Module-level mock config tartalmaz pool config-ot
-        from unittest.mock import patch as local_patch
+        # NOTE: This test uses SQLite from conftest which always uses NullPool
+        # Pool config is only relevant for PostgreSQL/MySQL
 
-        # Átállítjuk a globális mock config-ot pool config-gal
-        global _mock_config
-        original_get = _mock_config.get
+        # Mock the create_engine function to capture what get_engine passes
+        with patch(
+            "neural_ai.core.db.implementations.sqlalchemy_session.create_engine"
+        ) as mock_create:
+            mock_engine: MagicMock = MagicMock(spec=AsyncEngine)
+            mock_create.return_value = mock_engine
 
-        def mock_get_with_pool(key: str) -> Any:
-            if key == "database":
-                return {
-                    "connection": {"url": "postgresql+asyncpg://localhost/db"},
-                    "pool": {"size": 15, "recycle": 2400}
-                }
-            return original_get(key)
+            engine = get_engine()
 
-        _mock_config.get = mock_get_with_pool
+            # Verify create_engine was called with config from conftest
+            mock_create.assert_called_once()
+            call_args = mock_create.call_args
 
-        try:
-            with local_patch(
-                "neural_ai.core.db.implementations.sqlalchemy_session.get_database_url",
-                return_value="postgresql+asyncpg://localhost/db"
-            ):
-                engine = get_engine()
-                assert isinstance(engine, AsyncEngine)
-        finally:
-            _mock_config.get = original_get
+            # First positional arg is the database URL
+            assert call_args[0][0] == "sqlite+aiosqlite:///:memory:"
+
+            # Keyword args should include echo and pool_config
+            call_kwargs = call_args[1]
+            assert "echo" in call_kwargs
+            assert "pool_config" in call_kwargs
+            # For SQLite from conftest, pool_config contains the pool dict
+            assert engine == mock_engine
 
 
+@pytest.mark.xdist_group(name="serial")
 class TestGetAsyncSessionMaker:
     """Session maker lekérdezés tesztjei."""
 
-    @pytest.mark.skip(reason=SKIP_REASON)
     @skip_if_no_asyncpg
     @patch("neural_ai.core.db.implementations.sqlalchemy_session.get_engine")
     def test_get_async_session_maker_creates_once(self, mock_get_engine: MagicMock) -> None:
@@ -328,6 +322,7 @@ class TestGetAsyncSessionMaker:
         assert isinstance(session_maker1, async_sessionmaker)
 
 
+@pytest.mark.xdist_group(name="serial")
 class TestDatabaseManager:
     """DatabaseManager osztály tesztjei."""
 
@@ -358,7 +353,6 @@ class TestDatabaseManager:
         # A védett attribútumok ellenőrzése nem szükséges
         # A publikus interfész tesztelése a fontos
 
-    @pytest.mark.skip(reason=SKIP_REASON)
     @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_database_manager_initialize_with_pool_config(
@@ -392,7 +386,6 @@ class TestDatabaseManager:
             # Ellenőrizzük, hogy a pool_config át lett-e adva
             mock_create.assert_called_once()
 
-    @pytest.mark.skip(reason=SKIP_REASON)
     @pytest.mark.asyncio
     async def test_database_manager_initialize(self, mock_logger: MagicMock) -> None:
         """Teszteli a DatabaseManager initialize metódusát."""
@@ -608,10 +601,10 @@ class TestDatabaseManager:
         mock_logger.info.assert_called()
 
 
+@pytest.mark.xdist_group(name="serial")
 class TestContextManagers:
     """Context manager függvények tesztjei."""
 
-    @pytest.mark.skip(reason=SKIP_REASON)
     @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_get_db_session(self) -> None:
@@ -635,7 +628,6 @@ class TestContextManagers:
                 assert isinstance(session, AsyncSession)
 
     @skip_if_no_asyncpg
-    @pytest.mark.skip(reason=SKIP_REASON)
     @pytest.mark.asyncio
     async def test_get_db_session_direct(self) -> None:
         """Teszteli a get_db_session_direct függvényt."""
@@ -659,7 +651,6 @@ class TestContextManagers:
 
             await session.close()
 
-    @pytest.mark.skip(reason=SKIP_REASON)
     @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_get_db_session_exception_rollback(self) -> None:
@@ -689,7 +680,6 @@ class TestContextManagers:
             # Ellenőrizzük, hogy a rollback meghívódott
             mock_session.rollback.assert_called_once()
 
-    @pytest.mark.skip(reason=SKIP_REASON)
     @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_get_db_session_finally_block(self) -> None:
@@ -718,10 +708,10 @@ class TestContextManagers:
             mock_session.close.assert_called_once()
 
 
+@pytest.mark.xdist_group(name="serial")
 class TestDatabaseInitialization:
     """Adatbázis inicializálás tesztjei."""
 
-    @pytest.mark.forked
     @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_init_db(self) -> None:
@@ -739,7 +729,6 @@ class TestDatabaseInitialization:
 
             await init_db(mock_logger)
 
-    @pytest.mark.forked
     @skip_if_no_asyncpg
     @pytest.mark.asyncio
     async def test_close_db(self) -> None:
@@ -765,6 +754,7 @@ class TestDatabaseInitialization:
             assert sqlalchemy_session._async_session_maker is None  # pyright: ignore[reportPrivateUsage]
 
 
+@pytest.mark.xdist_group(name="serial")
 class TestGetActiveConfigs:
     """Aktív konfigurációk lekérdezésének tesztjei."""
 
