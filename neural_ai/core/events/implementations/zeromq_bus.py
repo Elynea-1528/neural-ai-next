@@ -13,7 +13,6 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional
 
-from neural_ai.core.base.implementations.singleton import SingletonMeta
 from neural_ai.core.events.exceptions import EventBusError, PublishError
 from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig, EventBusInterface
 from neural_ai.core.logger.factory import LoggerFactory
@@ -34,14 +33,21 @@ logger = LoggerFactory.get_logger(__name__)
 EventCallback = Callable[["BaseModel"], "Any"]
 
 
-class EventBus(EventBusInterface, metaclass=SingletonMeta):
+class EventBus(EventBusInterface):
     """ZeroMQ alapú aszinkron eseménybusz.
+
+    NEM singleton! Minden példány független ZeroMQ context-tel rendelkezik.
+    Context manager használat KÖTELEZŐ a helyes cleanup biztosításához.
 
     Ez az osztály biztosítja az események közzétételét és feliratkozást
     a rendszer különböző komponensei számára. A ZeroMQ PUB/SUB mintázatot használja.
 
     A specifikációban említett asyncio.Queue-s megvalósítás helyett egyből
     ZeroMQ-t használunk a teljesítmény és a skálázhatóság érdekében.
+
+    Használat:
+        async with await EventBus.create(config, logger) as bus:
+            await bus.publish("event_name", {"data": "value"})
 
     Attributes:
         config: Az EventBus konfigurációja
@@ -91,6 +97,43 @@ class EventBus(EventBusInterface, metaclass=SingletonMeta):
         self._publisher: zmq.asyncio.Socket | None = None
         self._subscribers: dict[str, list[EventCallback]] = {}
         self._running = False
+
+    @classmethod
+    async def create(
+        cls,
+        config: EventBusConfig | None = None,
+        logger: "LoggerInterface | None" = None,
+    ) -> "EventBus":
+        """Factory method: létrehoz és elindít egy EventBus példányt.
+
+        Ez a recommended way az EventBus létrehozására, mivel biztosítja
+        a helyes inicializációs sorrendet (__init__ → start).
+
+        Használat context manager-rel (AJÁNLOTT):
+            async with await EventBus.create(config, logger) as bus:
+                await bus.publish("event_name", {"data": "value"})
+
+        Használat context manager nélkül (NEM AJÁNLOTT):
+            bus = await EventBus.create(config, logger)
+            try:
+                await bus.publish("event_name", {"data": "value"})
+            finally:
+                await bus.stop()
+
+        Args:
+            config: EventBus konfiguráció (opcionális)
+            logger: Logger instance (KÖTELEZŐ - Dependency Injection)
+
+        Returns:
+            Elindított EventBus példány (context manager támogatással)
+
+        Raises:
+            ValueError: Ha logger nincs megadva
+            EventBusError: Ha az inicializáció vagy start sikertelen
+        """
+        instance = cls(config, logger)
+        await instance.start()
+        return instance
 
     @trace
     async def start(self) -> None:

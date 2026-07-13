@@ -4,108 +4,99 @@ Ez a modul biztosítja az EventBus létrehozását a konfiguráció alapján.
 A factory mintázatot követi, lehetővé téve a különböző EventBus implementációk
 egyszerű cseréjét.
 
+FONTOS: Ez a factory mindig ÚJ EventBus példányokat hoz létre (nem singleton).
+Az EventBus context manager-ként használható, így biztosítva a clean shutdown-t.
+
 Author: Neural AI Next Team
-Version: 1.0.0
+Version: 2.0.0
 """
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
     from neural_ai.core.events.implementations.zeromq_bus import EventBusConfig
     from neural_ai.core.events.interfaces.event_bus_interface import EventBusInterface
     from neural_ai.core.logger.interfaces.logger_interface import LoggerInterface
 
 
 class EventBusFactory:
-    """EventBus factory osztály.
+    """EventBus factory - mindig ÚJ példányt hoz létre (nem singleton).
 
     Ez az osztály felelős az EventBus példányok létrehozásáért.
     Jelenleg csak a ZeroMQ-s implementációt támogatja, de a jövőben
     más implementációk is hozzáadhatók (pl. Redis, Kafka, stb.).
+
+    KRITIKUS: A factory NEM singleton-okat gyárt! Minden hívás új EventBus
+    példányt hoz létre, amely context manager-ként használható a clean
+    shutdown biztosítására.
+
+    Attributes:
+        _logger: Logger interfész (opcionális)
     """
 
-    def __init__(self, logger: "LoggerInterface", config_manager: "ConfigManagerInterface") -> None:
-        """Inicializálja az EventBusFactory-t.
+    def __init__(self, logger: "LoggerInterface | None" = None) -> None:
+        """Factory inicializálása logger-rel.
 
         Args:
-            logger: Logger interfész a logoláshoz
-            config_manager: Konfigurációkezelő interfész
+            logger: Logger interfész a logoláshoz (opcionális)
         """
         self._logger = logger
-        self._config_manager = config_manager
-        self._logger.debug("EventBusFactory inicializálva", factory_id=id(self))
 
-    def create(self, config: "EventBusConfig | None" = None) -> "EventBusInterface":
-        """Létrehozza az EventBus példányt.
+    async def create_and_start(
+        self, config: "EventBusConfig | None" = None
+    ) -> "EventBusInterface":
+        """Létrehoz, elindít és visszaad egy EventBus példányt.
+
+        Context manager használat:
+            async with await factory.create_and_start(config) as bus:
+                await bus.publish("event", data)
 
         Args:
             config: EventBus konfiguráció (opcionális)
 
         Returns:
-            EventBusInterface: Az EventBus példány
+            Elindított EventBus példány (context manager)
 
         Note:
             Jelenleg csak a ZeroMQ-s implementációt támogatja.
         """
         from neural_ai.core.events.implementations.zeromq_bus import EventBus
 
-        return EventBus(config, self._logger)
+        bus = EventBus(config, self._logger)
+        await bus.start()
+        return bus
 
-    async def create_and_start(self, config: "EventBusConfig | None" = None) -> "EventBusInterface":
-        """Létrehozza és elindítja az EventBus példányt.
+    def create(self, config: "EventBusConfig | None" = None) -> "EventBusInterface":
+        """ÚJ EventBus példány létrehozása (nem singleton, nem elindítva).
 
         Args:
             config: EventBus konfiguráció (opcionális)
 
         Returns:
-            EventBusInterface: Az elindított EventBus példány
+            EventBus példány (még nincs elindítva)
+
+        Note:
+            A metódus NEM indítja el az EventBus-t. Használd a `create_and_start()`
+            metódust, ha azonnal el akarod indítani, vagy hívd meg manuálisan
+            a `start()` metódust az EventBus példányon.
         """
-        event_bus = self.create(config)
-        await event_bus.start()
-        return event_bus
+        from neural_ai.core.events.implementations.zeromq_bus import EventBus
+
+        return EventBus(config, self._logger)
 
     @staticmethod
-    def get_event_bus(logger: "LoggerInterface") -> "EventBusInterface":
-        """Létrehozza az EventBus példányt alapértelmezett konfigurációval.
+    def get_event_bus(logger: "LoggerInterface | None" = None) -> "EventBusInterface":
+        """Egyszerű EventBus létrehozás (nem singleton).
 
         Args:
-            logger: Logger interfész
+            logger: Logger instance (opcionális)
 
         Returns:
-            EventBusInterface: Az EventBus példány
+            EventBus példány (még nincs elindítva)
+
+        Note:
+            Ez a metódus NEM singleton! Minden hívás új példányt ad vissza.
         """
         from neural_ai.core.events.implementations.zeromq_bus import EventBus
 
         return EventBus(logger=logger)
-
-    def create_from_config(self) -> "EventBusInterface":
-        """Létrehozza az EventBus példányt konfigurációkezelő alapján.
-
-        Returns:
-            EventBusInterface: Az EventBus példány
-
-        Note:
-            A metódus biztonságosan kezeli a konfiguráció hiányát,
-            alapértelmezett értékeket használva.
-        """
-        from neural_ai.core.events.interfaces.event_bus_interface import EventBusConfig
-
-        self._logger.debug("EventBus létrehozása konfigurációból")
-        # Biztonságos lekérdezés (ha nincs szekció, üres dict)
-        try:
-            data = self._config_manager.get_section("events")
-            self._logger.debug("Konfigurációs adatok lekérdezve", data=data)
-        except (KeyError, ValueError) as e:
-            self._logger.warning(
-                "Konfigurációs szekció hiányzik, alapértelmezett értékek használata", error=str(e)
-            )
-            data = {}
-
-        bus_config = EventBusConfig(
-            pub_port=data.get("pub_port", 5555),
-            sub_port=data.get("sub_port", 5556),
-            use_inproc=data.get("use_inproc", False),
-        )
-        self._logger.debug("EventBus konfiguráció létrehozva", config=bus_config)
-        return self.create(bus_config)

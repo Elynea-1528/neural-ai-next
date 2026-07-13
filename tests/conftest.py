@@ -242,3 +242,41 @@ def clean_environment(monkeypatch: pytest.MonkeyPatch) -> None:
 
     for var in env_vars_to_clear:
         monkeypatch.delenv(var, raising=False)
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _global_cleanup() -> Generator[None, None, None]:
+    """Globális állapot cleanup session után.
+
+    Megoldja a singleton + ZeroMQ cleanup problémát pytest-xdist esetén.
+
+    Cleanup lépések:
+        1. Singleton reset (SingletonMeta.reset_all())
+        2. ZeroMQ context terminálás (zmq.Context.instance().term())
+
+    Hatás:
+        - Minden teszt session tiszta singleton állapottal kezdődik
+        - ZeroMQ socketek garantáltan lezárulnak
+        - pytest-xdist worker-ek nem szennyezik egymást
+
+    """
+    yield
+
+    # 1. Singleton reset
+    try:
+        from neural_ai.core.base.implementations.singleton import SingletonMeta
+
+        SingletonMeta.reset_all()
+    except Exception as e:
+        # Ne bukjon el a cleanup, csak logoljuk
+        print(f"Warning: SingletonMeta.reset_all() failed: {e}")
+
+    # 2. ZeroMQ context cleanup
+    try:
+        import zmq
+
+        context = zmq.Context.instance()
+        context.term()
+    except Exception as e:
+        # Ne bukjon el a cleanup, csak logoljuk
+        print(f"Warning: ZMQ context cleanup failed: {e}")

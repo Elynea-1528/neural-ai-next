@@ -242,7 +242,7 @@ class TestBootstrapCore:
         mock_hardware_factory.get_hardware_info.return_value = self.mock_hardware
         mock_config_factory.create_manager.return_value = self.mock_config
         mock_logger_factory.get_logger.return_value = self.mock_logger
-        mock_event_factory.create_from_config.return_value = self.mock_event_bus
+        mock_event_factory.create.return_value = self.mock_event_bus
         mock_storage_factory.get_storage.return_value = self.mock_storage
         mock_system_factory.create_health_monitor.return_value = self.mock_health_monitor
 
@@ -285,7 +285,7 @@ class TestBootstrapCore:
         mock_di_container.return_value = self.mock_container
         mock_config_factory.create_manager.return_value = self.mock_config
         mock_logger_factory.get_logger.return_value = self.mock_logger
-        mock_event_factory.create_from_config.return_value = self.mock_event_bus
+        mock_event_factory.create.return_value = self.mock_event_bus
         mock_storage_factory.get_storage.return_value = self.mock_storage
         mock_system_factory.create_health_monitor.return_value = self.mock_health_monitor
         mock_hardware_factory.get_hardware_info.return_value = self.mock_hardware
@@ -350,7 +350,7 @@ class TestBootstrapCore:
                                     mock_di.return_value = self.mock_container
                                     mock_cfg_fact.create_manager.return_value = self.mock_config
                                     mock_log_fact.get_logger.return_value = self.mock_logger
-                                    mock_evt_fact.create_from_config.return_value = (
+                                    mock_evt_fact.create.return_value = (
                                         self.mock_event_bus
                                     )
                                     mock_stor_fact.get_storage.return_value = self.mock_storage
@@ -393,7 +393,7 @@ class TestBootstrapCore:
         mock_hardware_factory.get_hardware_info.return_value = self.mock_hardware
         mock_config_factory.create_manager.return_value = self.mock_config
         mock_logger_factory.get_logger.return_value = self.mock_logger
-        mock_event_factory.create_from_config.return_value = self.mock_event_bus
+        mock_event_factory.create.return_value = self.mock_event_bus
         mock_storage_factory.get_storage.return_value = self.mock_storage
         mock_system_factory.create_health_monitor.return_value = self.mock_health_monitor
 
@@ -458,7 +458,7 @@ class TestBootstrapCore:
         mock_hardware_factory.get_hardware_info.return_value = self.mock_hardware
         mock_config_factory.create_manager.return_value = self.mock_config
         mock_logger_factory.get_logger.return_value = self.mock_logger
-        mock_event_factory.create_from_config.return_value = self.mock_event_bus
+        mock_event_factory.create.return_value = self.mock_event_bus
         mock_storage_factory.get_storage.return_value = self.mock_storage
         mock_system_factory.create_health_monitor.return_value = self.mock_health_monitor
 
@@ -608,7 +608,7 @@ class TestIntegration:
 class TestBootstrapCoreRealConfig:
     """Bootstrap valós config fájlokkal."""
 
-    @pytest.mark.serial
+    @pytest.mark.xdist_group("serial")
     def test_bootstrap_with_real_yaml_configs(self, tmp_path: Path) -> None:
         """Teljes bootstrap folyamat valós YAML config fájlokkal.
 
@@ -709,7 +709,7 @@ base_path: "data/storage"
         assert components.database is not None
         assert hasattr(components.database, 'config_manager')
 
-    @pytest.mark.serial
+    @pytest.mark.xdist_group("serial")
     def test_bootstrap_with_invalid_database_config_raises_error(self, tmp_path: Path) -> None:
         """Érvénytelen database.yaml ConfigValidationError-t dob."""
         config_dir = tmp_path / "configs_invalid"
@@ -829,7 +829,7 @@ class TestBootstrapCoreStorageError:
 
         mock_event_factory_instance = MagicMock()
         mock_event_bus = MagicMock()
-        mock_event_factory_instance.create_from_config.return_value = mock_event_bus
+        mock_event_factory.create.return_value = mock_event_bus
         mock_event_factory.return_value = mock_event_factory_instance
 
         # Storage factory dobjon hibát
@@ -919,7 +919,7 @@ class TestBootstrapCoreJForexLiveFeed:
 
         mock_event_factory_instance = MagicMock()
         mock_event_bus = MagicMock()
-        mock_event_factory_instance.create_from_config.return_value = mock_event_bus
+        mock_event_factory_instance.create.return_value = mock_event_bus
         mock_event_factory.return_value = mock_event_factory_instance
 
         mock_storage = MagicMock()

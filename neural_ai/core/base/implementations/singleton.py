@@ -110,3 +110,18 @@ class SingletonMeta(ABCMeta):
             del cls._instances[target_cls]
         if hasattr(cls, "_instance"):
             cls._instance = None
+
+    @classmethod
+    def reset_all(cls) -> None:
+        """Az összes singleton példány resetelése.
+
+        Ezt a metódust a tesztek cleanup fázisában kell hívni,
+        hogy a singleton-ok ne szennyezzék a következő teszt session-t.
+
+        Biztonságos használat:
+            - Ellenőrzi, hogy létezik-e az _instances dict
+            - Thread-safe módon törli az összes bejegyzést
+            - Nem okoz hibát, ha már üres
+        """
+        if hasattr(cls, '_instances') and cls._instances is not None:
+            cls._instances.clear()

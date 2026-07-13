@@ -84,7 +84,7 @@ def bootstrap_core(
     2. ConfigFactory - Konfiguráció betöltése
     3. LoggerFactory - Logger inicializálása a konfiguráció alapján
     4. DatabaseFactory - Adatbázis kapcsolat létrehozása (Config+Logger)
-    5. EventBusFactory - Esemény busz inicializálása (Config+Logger)
+    5. EventBusFactory - Esemény busz inicializálása (Logger)
     6. StorageFactory - Tárhely inicializálása (Config+Logger+HardwareInfo)
     7. SystemFactory - Rendszer monitorozás (Config+Logger)
 
@@ -168,10 +168,10 @@ def bootstrap_core(
     container.register_instance(DatabaseManager, database)
     logger.debug("-> Adatbázis manager regisztrálva")
 
-    # 5. EventBus inicializálása (Config+Logger)
+    # 5. EventBus inicializálása (Logger only)
     logger.info("⏳ 6. EventBus indítása...")
-    event_bus_factory = EventBusFactory(logger, config)
-    event_bus = event_bus_factory.create_from_config()
+    event_bus_factory = EventBusFactory(logger)
+    event_bus = event_bus_factory.create()
     container.register_instance(EventBusInterface, event_bus)
     logger.debug("-> EventBus regisztrálva")
 
