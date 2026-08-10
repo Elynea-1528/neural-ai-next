@@ -2,327 +2,203 @@
 
 ## Áttekintés
 
-Ez a dokumentum részletesen leírja, hogyan telepítsd a Neural AI Next fejlesztői környezetet. A projekt támogatja a CUDA 12.1-et (GTX 1050 Ti-hez) és CPU only módot (laptopokhoz).
+A rendszer **egyetlen automatizált telepítővel** telepíthető: [`scripts/install.py`](../scripts/install.py).
+A telepítő hardverdetektálást végez, és ennek megfelelően dönt:
+
+| Detektálás | Eredmény |
+|---|---|
+| NVIDIA GPU (`nvidia-smi`) | CUDA 12.1-es PyTorch VS CPU-only PyTorch |
+| AVX2 (`/proc/cpuinfo`) | Polars + PyArrow (gyors) VS fastparquet (fallback) |
 
 ## Rendszerkövetelmények
 
-### Minimális követelmények
-- **CPU**: 4 mag (ajánlott 8+)
+- **CPU**: 4 mag (ajánlott 8+), **AVX2 ajánlott** (a Polars adatfeldolgozóhöz)
 - **RAM**: 8GB (ajánlott 16GB+)
-- **GPU**: Opcionális (CUDA 12.1 támogatott)
-- **Tárhely**: 10GB szabad hely
+- **GPU**: opcionális, CUDA 12.1 támogatott NVIDIA kártyákhoz (pl. GTX 1050 Ti, RTX 3050)
+- **Tárhely**: 10GB+ szabad (a conda env CUDA-s PyTorch-csal ~8-12GB)
 - **OS**: Linux (Ubuntu 20.04+)
 
-### Támogatott hardver konfigurációk
+## Előfeltételek
 
-#### 1. Asztali gép (GTX 1050 Ti)
-```
-GPU: NVIDIA GTX 1050 Ti (4GB VRAM)
-CUDA: 12.1 támogatott
-PyTorch: CUDA 12.1 verzió
-```
+1. **Miniconda** – a telepítő ezt feltételezi, és kilép, ha nincs conda.
+   Telepítés: `https://docs.conda.io/en/latest/miniconda.html` (**default útvonalra**, ld. hibaelhárítás)
+2. **NVIDIA driver** *(opcionális, de ajánlott NVIDIA GPU-hoz)* – a telepítő `nvidia-smi`-vel érzékeli a GPU-t.
+   Ha nincs driver, **CPU-only PyTorch** kerül telepítésre (a 3050 kihasználatlanul marad).
+   ```bash
+   sudo ubuntu-drivers install          # vagy: sudo apt install nvidia-driver-570 nvidia-utils-570
+   nvidia-smi                           # ellenőrzés – csak ezután futtasd a telepítőt!
+   ```
+   Hibrid (Optimus) laptopokon: `prime-select nvidia` vagy `prime-select on-demand`.
+3. **Wine** *(opcionális, csak az MT5 brókerhez)* – a telepítő csak figyelmeztet, nem telepíti:
+   ```bash
+   sudo apt install wine-stable
+   ```
 
-#### 2. Laptop (Lenovo T480)
-```
-GPU: Intel UHD Graphics 620 (CPU only)
-PyTorch: CPU only verzió
-Jupyter: Használat javasolt
-```
+## Telepítés
 
-### Támogatott brókerek
-
-A projekt támogatja a következő brókereket:
-
-#### 1. MetaTrader 5 (MT5)
-- **Platform**: MetaTrader 5
-- **Brókerek**: XM, Dukascopy
-- **Telepítés**: Automatikus Wine-alapú telepítés
-- **Konfiguráció**: `configs/collectors/mt5/`
-
-#### 2. JForex
-- **Platform**: Dukascopy JForex
-- **Verzió**: JForex4
-- **Telepítés**: Manuális telepítés szükséges
-- **Dokumentáció**: `docs/components/collectors/jforex/`
-
-## Telepítési Módok
-
-### 1. Interaktív Telepítés (Ajánlott)
+### 1. Automatikus telepítés (ajánlott)
 
 ```bash
-# Interaktív telepítő indítása
-python scripts/install/scripts/main.py --interactive
+# Fejlesztői környezet brókerek nélkül (laptopon fejlesztéshez ez az ajánlott):
+python scripts/install.py --no-brokers
+
+# Vagy teljes telepítés (bróker telepítőkkel: JForex4, IBKR TWS, MT5):
+python scripts/install.py
 ```
 
-Az interaktív telepítő a következőket kérdezi:
-1. **Telepítési mód**:
-   - Minimal (csak alapok)
-   - Fejlesztői környezet
-   - Fejlesztői + Trader Engine
-   - Teljes telepítés
-   - Csak ellenőrzés
+**Mit csinál a telepítő automatikusan:**
+- Hardverdetektálás (NVIDIA GPU, AVX2)
+- Régi `neural-ai-next` környezet eltávolítása (ha létezik)
+- Conda env létrehozása: **Python 3.12, PyTorch 2.5.1 (+ torchvision 0.20.1, torchaudio 2.5.1, CUDA 12.1 vagy CPU), Lightning 2.5.5, pandas, numpy, scikit-learn**
+- Adatkönyvtárak: **polars + pyarrow** (AVX2) vagy **fastparquet** (fallback)
+- Projekt függőségek: `pip install -e .[dev,trader,jupyter,ui]`
+- Bróker telepítők letöltése és indítása (kivéve `--no-brokers` esetén)
 
-2. **PyTorch konfiguráció**:
-   - CUDA 12.1 (ajánlott GTX 1050 Ti-hez)
-   - CPU only (laptopokhoz)
-
-### 2. Gyors Telepítés (Parancssori)
-
-#### Asztali gép (GTX 1050 Ti)
+**Hasznos flag-ek:**
 ```bash
-python scripts/install/scripts/main.py --mode dev+trader --pytorch cuda12.1
+python scripts/install.py --only dev,trader   # csak meghatározott csoportok (dev, trader, jupyter, ui)
+python scripts/install.py --no-brokers        # bróker telepítők kihagyása
+python scripts/install.py -v                  # részletes (verbose) kimenet
 ```
 
-#### Laptop (T480)
+### 2. Kézi telepítés
+
 ```bash
-python scripts/install/scripts/main.py --mode dev --pytorch cpu
-```
-
-#### Csak ellenőrzés
-```bash
-python scripts/install/scripts/main.py --mode check
-```
-
-### 3. Manuális Telepítés
-
-#### 1. Conda környezet létrehozása
-
-**Asztali gép (CUDA 12.1):**
-```bash
+# 1. Környezet létrehozása
 conda create -n neural-ai-next python=3.12 -y
 conda activate neural-ai-next
+
+# 2. PyTorch – NVIDIA GPU esetén (CUDA 12.1):
 conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia -y
-```
-
-**Laptop (CPU only):**
-```bash
-conda create -n neural-ai-next python=3.12 -y
-conda activate neural-ai-next
+# VAGY CPU only (GPU nélkül):
 conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 cpuonly -c pytorch -y
+
+# 3. Kapcsolódó ML csomagok
+conda install lightning=2.5.5 pandas numpy scikit-learn -c conda-forge -y
+
+# 4. Adatkönyvtárak (AVX2-es CPU esetén; különben fastparquet):
+pip install polars pyarrow
+
+# 5. Projekt függőségek
+pip install -e .[dev,trader,jupyter,ui]        # vagy pl. csak: pip install -e .[dev]
 ```
 
-#### 2. Függőségek telepítése
+## Környezet konfigurálása
 
 ```bash
-# Alap telepítés
-pip install -e .
-
-# Fejlesztői környezet
-pip install -e .[dev]
-
-# Broker támogatással
-pip install -e .[dev]
-bash scripts/install/scripts/setup_brokers.sh
-
-# Válaszd ki a kívánt brókert:
-# 1) MetaTrader 5 (MetaQuotes Demo)
-# 2) XM Forex MT5
-# 3) Dukascopy MT5
-# 4) Dukascopy JForex4
-# 5) Összes MT5 bróker (MetaQuotes, XM, Dukascopy)
-# 6) Összes JForex bróker (JForex4)
-# 7) Minden bróker telepítése
+conda activate neural-ai-next
+cp .env.example .env      # opcionális; a rendszer fő konfigurációja a configs/*.yaml
 ```
 
-#### 3. Pre-commit beállítás
+- **`configs/*.yaml`** – a tényleges futási konfiguráció (adatbázis, storage, logging, collectors, processors, events, system)
+- **`.env`** – opcionális környezeti változó forrás. **Soha ne kerüljön a repository-ba** – a `.gitignore` (`:60`) védi. Ha hibaüzenet `DB_URL`-t kér, azt itt vagy a `configs/database.yaml`-ban állíthatod be.
+
+## Telepítés ellenőrzése
 
 ```bash
-pre-commit install
+conda activate neural-ai-next
+
+# PyTorch / CUDA ellenőrzés
+python -c "import torch; print(f'PyTorch: {torch.__version__}, CUDA: {torch.cuda.is_available()}')"
+
+# Adatfeldolgozás ellenőrzés
+python -c "import polars as pl; print(f'Polars: {pl.__version__}')"
+
+# Tesztek futtatása
+pytest tests -v
 ```
 
-#### 4. Jupyter kernel konfiguráció
+## VS Code beállítás
 
-```bash
-python scripts/install/scripts/jupyter_setup.py
+A `.vscode/settings.json` tartalmazza a projekt fejlesztői beállításait (Pylance strict mode, Ruff formatter, pytest konfiguráció).
+
+**FIGYELEM:** a `settings.json` **hardcode-olt abszolút útvonalat** használ az interpreterhez és a pytest-hez:
+```jsonc
+"python.defaultInterpreterPath": "/home/elynea/miniconda3/envs/neural-ai-next/bin/python",
+"python.testing.pytestPath": "/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest",
 ```
+Ha a gépeden a felhasználónév vagy a miniconda útvonala eltér, ezeket igazítani kell.
 
-## Telepítés Ellenőrzése
+**Ajánlott bővítmények:** Python, Pylance, Ruff, Rainbow CSV, Parquet Viewer, Material Icon Theme, Roo Code.
 
-### 1. Alapvető ellenőrzés
-
-```bash
-python scripts/install/scripts/check_installation.py
-```
-
-### 2. GPU ellenőrzés
-
-```python
-import torch
-print(f"CUDA available: {torch.cuda.is_available()}")
-if torch.cuda.is_available():
-    print(f"CUDA version: {torch.version.cuda}")
-    print(f"GPU: {torch.cuda.get_device_name(0)}")
-```
-
-### 3. Core komponensek ellenőrzése
-
-```python
-from neural_ai.core.base import CoreComponentFactory
-from neural_ai.core.config import ConfigManagerFactory
-from neural_ai.core.logger import LoggerFactory
-
-print("✓ Core komponensek betöltve")
-```
-
-## VS Code Beállítás
-
-### 1. Bővítmények
-
-A projekt automatikusan ajánlja a szükséges bővítményeket:
-- **LÉNYEGES**: MQL Extension Pack, Python, Pylance, Jupyter, Ruff
-- **ADATNÉZŐ**: Rainbow CSV, Parquet Viewer
-- **FEJLESZTŐI**: Material Icon Theme, Roo Code
-
-### 2. Debug konfiguráció
-
-A `.vscode/launch.json` tartalmazza a következő debug konfigurációkat:
-- **Neural AI Next**: Fő program futtatása
-- **MT5 Collector**: Adatgyűjtő futtatása
-- **Pytest**: Tesztek futtatása
-- **Jupyter**: JupyterLab indítása
-- **Installer**: Telepítő futtatása
-
-### 3. Használat
-
-1. Nyisd meg a projektet VS Code-ban
-2. Válaszd ki a megfelelő debug konfigurációt
-3. Nyomj F5-öt a futtatáshoz
-
-## Jupyter Használat
-
-### 1. JupyterLab indítása
+## Jupyter használat (opcionális)
 
 ```bash
 conda activate neural-ai-next
 jupyter lab
 ```
 
-### 2. Kernel kiválasztása
+## Gyors indítás
 
-1. Nyiss egy új notebookot
-2. Válaszd ki a "Neural AI Next" kernelt:
-   - Kernel → Change Kernel → Neural AI Next
-
-### 3. Kaggle használata
-
-1. Töltsd fel a `kaggle_template.ipynb` fájlt Kaggle-re
-2. Add hozzá a projekt forráskódját
-3. Használd a GPU-t modell tanításhoz
+```bash
+conda activate neural-ai-next
+python main.py live                    # Live mód
+python main.py dashboard               # Dashboard
+python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20   # Adatletöltés
+```
 
 ## Hibaelhárítás
 
-### 1. Conda környezet nem aktiválódik
+### 1. "Conda nincs telepítve!" – a telepítő kilép
+Telepítsd a Miniconda-t, és ellenőrizd, hogy a `conda` parancs elérhető: `which conda`.
+**Fontos:** a telepítő a conda-t a `/home/<user>/miniconda3` (**default**) útvonalon keresi
+([`scripts/install.py`](../scripts/install.py) – `get_conda_path()`). Más útvonalra telepített conda
+esetén a függvényt vagy a telepítést igazítani kell.
 
+### 2. Conda környezet nem aktiválódik
 ```bash
-# Conda inicializálása
 conda init bash
 source ~/.bashrc
-
-# Környezet aktiválása
 conda activate neural-ai-next
 ```
 
-### 2. CUDA nem elérhető
-
+### 3. CUDA nem elérhető / GPU detektálva, de torch nem látja
 ```bash
-# NVIDIA driver ellenőrzés
+# Driver ellenőrzés
 nvidia-smi
 
-# PyTorch újratelepítése
+# PyTorch újratelepítése CUDA 12.1-gyel
 conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia -y
 ```
+Ha a `nvidia-smi` nem listázza a GPU-t a telepítéskor, a telepítő CPU-only PyTorch-ot tett fel –
+telepítsd a drivert, és futtasd újra a telepítőt (a régi env-et az maga eltávolítja).
 
-### 3. Import hibák
-
+### 4. Import hibák
 ```bash
-# Függőségek újratelepítése
 pip install -e . --force-reinstall
 ```
 
-### 4. Pre-commit hibák
+### 5. MT5 bróker nem indul
+A telepítő Wine-t igényel az MT5-höz: `sudo apt install wine-stable`, majd a futtatás a `~/.mt5`
+wine prefixben történik. JForex4 és IBKR TWS nem igényelnek Wine-t.
 
-```bash
-# Pre-commit újratelepítése
-pre-commit clean
-pre-commit install
+## Verzió kompatibilitás
+
+### Telepített verziók (SSOT: `scripts/install.py`)
 ```
-
-## Telepítési Opciók Részletesen
-
-### Minimal
-- Csak a core függőségek
-- Nincs fejlesztői eszköz
-- Alapvető funkcionalitás
-
-### Dev
-- Minden fejlesztői eszköz
-- Type stub-ok a Pylance-hoz
-- Pre-commit hookok
-- Tesztelési keretrendszer
-
-### Dev+Trader
-- Fejlesztői környezet
-- Trader Engine támogatás (MT5, JForex4)
-- Adatgyűjtő készenlét
-- Broker telepítő hozzáférés
-
-### Full
-- Minden funkció
-- JupyterLab telepítve
-- Kaggle template-ek
-- Teljes debug támogatás
-- MT5 és JForex4 támogatás
-- Összes fejlesztői eszköz
-- Adatkezelő eszközök
-
-## Verzió Kompatibilitás
-
-### Ténylegesen tesztelt verziók
-```
-Python: 3.12.12
+Python: 3.12
 PyTorch: 2.5.1
-NumPy: 2.3.5
-Pandas: 2.3.3
-CUDA: 12.1
-Lightning: 2.6.0
+TorchVision: 0.20.1
+TorchAudio: 2.5.1
+Lightning: 2.5.5
+CUDA: 12.1 (GPU-s build)
+Pandas / NumPy / scikit-learn: conda által feloldott verziók
+Polars / PyArrow: pip (AVX2 esetén) / fastparquet (fallback)
 ```
+
+### GPU kompatibilitás
+- **CUDA 12.1**: kompatibilis a GTX 1050 Ti-vel (Pascal) és az RTX 3050-nel (Ampere) is.
+- **RTX 50xx (Blackwell)** esetén minimum **CUDA 12.8** szükséges – a jövőbeli hardvercserekor
+  az install.py `pytorch-cuda` verzióját és a PyTorch buildet frissíteni kell.
 
 ### Konfigurációs fájlok
-- [`pyproject.toml`](../pyproject.toml): Függőségek és verziók
-- [`environment.yml`](../environment.yml): Conda környezet
-- [`.vscode/extensions.json`](../.vscode/extensions.json): VS Code bővítmények
-- [`.vscode/launch.json`](../.vscode/launch.json): Debug konfiguráció
+- [`pyproject.toml`](../pyproject.toml): pip függőségek és fejlesztői eszközök (QA Gate)
+- [`configs/*.yaml`](../configs/): futási konfiguráció
+- [`.vscode/settings.json`](../.vscode/settings.json): VS Code beállítások
 
-## Következő Lépések
+## Dokumentáció
 
-1. **Fejlesztés megkezdése**:
-   ```bash
-   conda activate neural-ai-next
-   code .
-   ```
-
-2. **Tesztek futtatása**:
-   ```bash
-   pytest tests -v
-   ```
-
-3. **Dokumentáció olvasása**:
-   - [Komponens dokumentáció](components/base/README.md)
-   - [API dokumentáció](components/base/api.md)
-   - [Fejlesztési útmutató](development/unified_development_guide.md)
-
-## További Források
-
-- [PyTorch dokumentáció](https://pytorch.org/docs/stable/index.html)
-- [CUDA dokumentáció](https://docs.nvidia.com/cuda/)
-- [Jupyter dokumentáció](https://jupyter.org/documentation)
-- [Kaggle GPU útmutató](https://www.kaggle.com/docs/gpu)
-
-## Segítség Kérése
-
-Ha problémába ütközne a telepítéssel:
-
-1. Ellenőrizd a [hibaelhárítási szekciót](#hibaelhárítás)
-2. Futtasd az ellenőrző scriptet: `python scripts/install/scripts/check_installation.py`
-3. Nézd meg a [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md) fájlt
-4. Kérj segítséget a GitHub issue-k között
+- [`README.md`](../README.md): projekt áttekintés és gyors indítás
+- [`scripts/install.py`](../scripts/install.py): a telepítő forrása
+- [`docs/components/scripts/install.md`](components/scripts/install.md): telepítő komponens dokumentáció
+- [`AGENTS.md`](../AGENTS.md): fejlesztési szabályok (nyelv, tükörszerkezet, QA Gate) – **jelenleg a [`.clinerules/rules.md`](../.clinerules/rules.md) a hatályos szabályai**

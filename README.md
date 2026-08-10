@@ -180,9 +180,9 @@ conda create -n neural-ai-next python=3.12 -y
 conda activate neural-ai-next
 
 # 2. PyTorch telepítése (GPU vagy CPU)
-conda install -y pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia  # GPU
+conda install -y pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia  # GPU
 # VAGY
-conda install -y pytorch torchvision torchaudio cpuonly -c pytorch  # CPU
+conda install -y pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 cpuonly -c pytorch  # CPU
 
 # 3. Projekt függőségek telepítése
 pip install -e .[dev,trader,jupyter]
