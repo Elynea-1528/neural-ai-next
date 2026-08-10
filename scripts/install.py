@@ -101,12 +101,22 @@ def run_command(
     """
     if _verbose:
         print_info(f"Futtatás: {command}")
-    # Always capture output for GPU detection, but print it in verbose mode
-    result = subprocess.run(command, shell=shell, check=check, capture_output=True, text=True)
+    # Always capture output; hiba esetén írjuk ki, hogy a valódi ok látható legyen
+    result = subprocess.run(command, shell=shell, check=False, capture_output=True, text=True)
+
+    if check and result.returncode != 0:
+        # A CalledProcessError nem mutatja láthatóan a kimenetet, ezért itt kiírjuk
+        if result.stdout:
+            print_info(f"Output: {result.stdout.strip()}")
+        if result.stderr:
+            print_error(f"Parancs hiba kimenete: {result.stderr.strip()}")
+        raise subprocess.CalledProcessError(result.returncode, command, result.stdout, result.stderr)
+
     if _verbose and result.stdout:
         print_info(f"Output: {result.stdout.strip()}")
     if _verbose and result.stderr:
         print_info(f"Error: {result.stderr.strip()}")
+
     return result
 
 
@@ -240,12 +250,15 @@ def create_conda_env_with_packages(gpu_available: bool) -> None:
     base_packages = "pandas numpy scikit-learn"
 
     # PyTorch csomagok
+    # NOTE: --override-channels szükséges: a conda 26.x TOS-t kér a `defaults`
+    # channel-hez (repo.anaconda.com/pkgs/*), ami meghiúsítaná a telepítést.
+    # A projekt explicit channel-eket ad meg, azok elegendőek.
     if gpu_available:
         pytorch_packages = "pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1"
-        channels = "-c pytorch -c nvidia -c conda-forge"
+        channels = "-c pytorch -c nvidia -c conda-forge --override-channels"
     else:
         pytorch_packages = "pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 cpuonly"
-        channels = "-c pytorch -c conda-forge"
+        channels = "-c pytorch -c conda-forge --override-channels"
 
     # Lightning
     lightning_package = "lightning=2.5.5"
