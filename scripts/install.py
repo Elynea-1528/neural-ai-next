@@ -41,6 +41,15 @@ BROKER_URLS = {
     "mt5_dukascopy": "https://download.mql5.com/cdn/web/dukascopy.bank.sa/mt5/dukascopy5setup.exe",
 }
 
+# A befejezési üzenetben verzióval megjelenített kulcs csomagok (conda csomagnév)
+VERSION_WHITELIST = [
+    "python", "pytorch", "torchvision", "torchaudio", "pytorch-cuda",
+    "lightning", "polars", "pyarrow", "fastparquet", "pandas", "numpy",
+    "scikit-learn", "pydantic", "pydantic-settings", "sqlalchemy", "structlog",
+    "fastapi", "uvicorn", "streamlit", "pyzmq", "psutil", "tenacity",
+    "aiohttp", "requests", "vectorbt",
+]
+
 
 # Színek a konzolhoz
 class Colors:
@@ -110,7 +119,9 @@ def run_command(
             print_info(f"Output: {result.stdout.strip()}")
         if result.stderr:
             print_error(f"Parancs hiba kimenete: {result.stderr.strip()}")
-        raise subprocess.CalledProcessError(result.returncode, command, result.stdout, result.stderr)
+        raise subprocess.CalledProcessError(
+            result.returncode, command, result.stdout, result.stderr
+        )
 
     if _verbose and result.stdout:
         print_info(f"Output: {result.stdout.strip()}")
@@ -532,8 +543,37 @@ def install_brokers() -> None:
     print()
 
 
+def collect_installed_versions() -> dict[str, str]:
+    """Lekérdezi a legfontosabb telepített csomagok valós verzióit.
+
+    A cél környezet `conda list` kimenetéből szűri ki a `VERSION_WHITELIST`
+    csomagjait, hogy a befejezési üzenet valós képet adjon a verziókról
+    (hiány / esetleges verzióütközés felderítéséhez).
+
+    Returns:
+        A whitelist szerinti csomagnév -> verzió szótár.
+    """
+    versions: dict[str, str] = {}
+    try:
+        result = run_command(
+            f"{get_conda_path()} list -n {CONDA_ENV_NAME}",
+            check=False,
+        )
+        for line in result.stdout.splitlines():
+            parts = line.split()
+            if len(parts) >= 2 and parts[0] in VERSION_WHITELIST:
+                versions[parts[0]] = parts[1]
+    except Exception:
+        # A kiértékelés nem kritikus: hiba esetén üres szótárt adunk vissza
+        pass
+    return versions
+
+
 def print_completion_message(
-    gpu_available: bool, avx2_supported: bool, extra_groups: list[str]
+    gpu_available: bool,
+    avx2_supported: bool,
+    extra_groups: list[str],
+    brokers_installed: bool,
 ) -> None:
     """Kiírja a telepítés befejezési üzenetét a telepített verziókkal.
 
@@ -541,6 +581,7 @@ def print_completion_message(
         gpu_available: True, ha GPU elérhető
         avx2_supported: True, ha AVX2 támogatott
         extra_groups: A telepített csomagcsoportok listája
+        brokers_installed: True, ha a bróker telepítők lefutottak
     """
     print(f"{Colors.GREEN}{'=' * 60}")
     print("✓ TELJES TELEPÍTÉS SIKERES!")
@@ -555,28 +596,34 @@ def print_completion_message(
     print(f"  - AVX2: {'✓ Támogatott' if avx2_supported else '✗ Nem támogatott'}")
     print()
 
-    # Python és alap csomagok
-    print(f"• Python: {PYTHON_VERSION}")
-    print("• Alap csomagok: pandas, numpy, scikit-learn")
+    # Telepített csomagok valós verziókkal (kiértékelés)
+    versions = collect_installed_versions()
+    print("• Telepített csomagok (valós verziók):")
+    version_groups: list[tuple[str, list[str]]] = [
+        ("Python / ML", [
+            "python", "pytorch", "torchvision", "torchaudio",
+            "pytorch-cuda", "lightning",
+        ]),
+        ("Adatfeldolgozás", [
+            "polars", "pyarrow", "fastparquet", "pandas", "numpy",
+            "scikit-learn",
+        ]),
+        ("Alkalmazás / Config", [
+            "pydantic", "pydantic-settings", "sqlalchemy", "structlog",
+            "fastapi", "streamlit",
+        ]),
+        ("Infrastruktúra / Utility", [
+            "pyzmq", "psutil", "tenacity", "aiohttp", "requests", "vectorbt",
+        ]),
+    ]
+    for group_name, names in version_groups:
+        detail = ", ".join(f"{n}={versions.get(n, 'HIÁNYZIK')}" for n in names)
+        print(f"  - {group_name}: {detail}")
     print()
 
-    # PyTorch verzió
-    print("• PyTorch: 2.5.1")
-    if gpu_available:
-        print("  - CUDA: 12.1")
-    else:
-        print("  - CPU only")
-    print()
-
-    # PyTorch Lightning
-    print("• PyTorch Lightning: 2.5.5")
-    print()
-
-    # Adatkezelő könyvtárak
-    if avx2_supported:
-        print("• Adatkezelés: polars + pyarrow (AVX2 optimalizált)")
-    else:
-        print("• Adatkezelés: fastparquet (fallback)")
+    # Adatkezelő backend tény
+    backend = "polars + pyarrow (AVX2)" if avx2_supported else "fastparquet (fallback)"
+    print(f"• Adatkezelő backend: {backend}")
     print()
 
     # Telepített csomagcsoportok
@@ -587,11 +634,14 @@ def print_completion_message(
         print("• Telepített csomagcsoportok: alap csomagok")
     print()
 
-    # Bróker információk
+    # Bróker információk (csak akkor, ha tényleg lefutott a bróker telepítés)
     print("• Bróker telepítők:")
-    print("  - JForex4: Letöltve és elindítva")
-    print("  - IBKR TWS: Letöltve és elindítva")
-    print("  - MT5 (Dukascopy): Letöltve és elindítva (Wine)")
+    if brokers_installed:
+        print("  - JForex4: Letöltve és elindítva")
+        print("  - IBKR TWS: Letöltve és elindítva")
+        print("  - MT5 (Dukascopy): Letöltve és elindítva (Wine)")
+    else:
+        print("  - Kihagyva (--no-brokers flag)")
     print()
 
     # Aktiválás
@@ -673,13 +723,16 @@ def main() -> None:
         install_core_environment(gpu_available, avx2_supported, extra_groups)
 
         # Bróker telepítés (ha nem letiltva)
-        if not args.no_brokers:
+        brokers_installed = not args.no_brokers
+        if brokers_installed:
             install_brokers()
         else:
             print_info("Bróker telepítők kihagyása (--no-brokers flag)")
 
         # Befejezési üzenet
-        print_completion_message(gpu_available, avx2_supported, extra_groups)
+        print_completion_message(
+            gpu_available, avx2_supported, extra_groups, brokers_installed
+        )
 
     except KeyboardInterrupt:
         print()
