@@ -1,6 +1,6 @@
 # 🧠 Neural AI Next - Intézményi Kereskedelem Ekozisztéma
 
-**Verzió:** 1.0.0 | **Státusz:** 🟡 Architektúra Fázis | **Licenc:** Tulajdonosi
+**Verzió:** 1.0.0 | **Státusz:** 🟢 Foundation Phase (95.1% SECURE) | **Licenc:** MIT
 
 ---
 
@@ -52,6 +52,24 @@ A **Neural AI Next** egy intézményi szintű, eseményvezérelt kereskedelmi ek
 
 ---
 
+## 📊 Projekt Állapot (2026-08-11)
+
+| Metrika | Érték |
+|---------|-------|
+| **Összes teszt** | 2395 |
+| **SECURE** | 349 (95.1%) |
+| **WARNING** | 13 (3.5%) |
+| **VULNERABLE** | 5 (1.4%) |
+| **Core réteg tesztek** | 1229 teszt gyűjtve |
+| **Licenc** | MIT |
+| **Python** | 3.12 |
+| **PyTorch** | 2.5.1 (CUDA 12.1) |
+| **Lightning** | 2.5.5 |
+
+**Haladás:** 95.1% [████████████████████░░░░░░]
+
+---
+
 ## 📚 Dokumentáció Szerkezete
 
 ### 🗺️ Fő Tervrajz
@@ -99,355 +117,76 @@ A rendszer **hierarchikus AI architektúrát** valósít meg több időkeretű e
 - **Valós Idejű Feldolgozás** - Futás közbeni feature számítás
 - **VectorBT Integráció** - Backtesting és validáció
 
-### 🛠️ Fejlesztési Irányelvek
-
-- **[Egységes Fejlesztési Útmutató](docs/development/unified_development_guide.md)** - Pylance Strict, Magyar Docstring-ek
-- **[Core Függőségek](docs/development/core_dependencies.md)** - DI Konténer, Factory Pattern, NullObject
-- **[Feladatfa Vezérlőpult](docs/development/TASK_TREE.md)** - Valós idejű projekt státusz és telemetria
-- **[Architektúra Szabványok](docs/development/architecture_standards.md)** - Modulszerkezet & elnevezési konvenciók
-
-### 📖 Dokumentáció Generálás
-
-A rendszer tartalmaz egy **automatikus dokumentáció generátort**, amely kinyeri a docstring-eket a forráskódból:
-
-```bash
-# Generál/frissít minden komponens dokumentációt
-python scripts/generate_docs.py
-```
-
-**Funkciók:**
-- ✅ Kinyeri a modul, osztály és függvény docstring-eket AST használatával
-- ✅ Létrehozza a tükördokumentáció szerkezetét a `docs/components/` mappában
-- ✅ Generál indexfájlokat minden könyvtárhoz
-- ✅ Visszahivatkozik a forrásfájlokra a könnyű navigációért
-- ✅ Támogatja a magyar docstring-eket (a projekt szabványai szerint)
-
 ---
 
 ## 🚀 Gyors Indítás
 
-### Előfeltételek
-
-- **Python:** 3.12+
-- **Conda:** Miniconda3
-- **CUDA:** 12.1 (GPU gyorsításhoz)
-- **Java:** 11+ (JForex Hídhoz)
-
-### Telepítés
-
-**🚀 EGYSÉGES ZÉRÓ-BEÁLLÍTÁSÚ TELEPÍTŐ (AJÁNLOTT)**
-
-Futtasd az egységes telepítőt, amely automatikusan észleli a hardvert, telepíti a függőségeket és beállítja a brókereket:
-
 ```bash
-# 1. Klónozd a repository-t
+# 1. Miniconda telepítése (ha még nincs)
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh -b
+source ~/.bashrc
+
+# 2. NVIDIA driver ellenőrzése (GPU esetén)
+nvidia-smi
+
+# 3. Repository klónozása és telepítés
 git clone https://github.com/your-org/neural-ai-next.git
 cd neural-ai-next
+python scripts/install.py --no-brokers
 
-# 2. Futtasd az egységes telepítőt (mindent automatikusan!)
-python scripts/install.py
-
-# 3. Aktiváld a környezetet
+# 4. Környezet aktiválása
 conda activate neural-ai-next
 
-# 4. Konfiguráld a környezetet (ha szükséges)
-cp .env.example .env
-# Szerkeszd az .env fájlt a beállításaiddal
+# 4. Adatok letöltése
+python main.py download --symbol EURUSD --start 2024-01-01 --end 2024-01-31
 
-# 5. Indítsd a rendszert
-python main.py live                    # Live mód
-# VAGY
-python main.py dashboard               # Dashboard
-# VAGY
-python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20  # Adatletöltés
+# 5. Fejlesztői dashboard indítása
+python main.py dashboard
 ```
-
-**Mit csinál a telepítő automatikusan:**
-- ✅ Észleli az NVIDIA GPU-t és telepíti a CUDA-kompatibilis PyTorch-ot
-- ✅ Ellenőrzi az AVX2 támogatást és telepíti az optimális adatkönyvtárakat (Polars/PyArrow vagy fastparquet)
-- ✅ Létrehozza a Conda környezetet Python 3.12-vel
-- ✅ Telepíti az összes függőséget (dev + trader + jupyter)
-- ✅ Letölti és elindítja a bróker telepítőket (JForex4, TWS, MT5)
-- ✅ Beállítja a Wine prefix-et MT5-höz
-
-**Kézi Telepítés (Örökölt)**
-
-Ha preferálod a kézi telepítést:
-
-```bash
-# 1. Környezet létrehozása
-conda create -n neural-ai-next python=3.12 -y
-conda activate neural-ai-next
-
-# 2. PyTorch telepítése (GPU vagy CPU)
-conda install -y pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia  # GPU
-# VAGY
-conda install -y pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 cpuonly -c pytorch  # CPU
-
-# 3. Projekt függőségek telepítése
-pip install -e .[dev,trader,jupyter]
-
-# 4. Környezet konfigurálása
-cp .env.example .env
-# Szerkeszd az .env fájlt a beállításaiddal
-
-# 5. Rendszer indítása
-python main.py live                    # Live mód
-# VAGY
-python main.py dashboard               # Dashboard
-# VAGY
-python main.py download --symbol EURUSD --start 2024-03-20 --end 2024-03-20  # Adatletöltés
-```
-
-### Konfiguráció
-
-Szerkeszd az [`.env`](.env.example) fájlt a következők konfigurálásához:
-
-- **Adatbázis:** SQLite (fejlesztés) vagy PostgreSQL (éles)
-- **Brókerek:** JForex, MT5, IBKR hitelesítő adatok
-- **Szimbólumok:** Kereskedési instrumentum lista
-- **Naplózás:** Log szint és kimeneti formátum
-- **API:** FastAPI szerver beállítások
 
 ---
 
-## 🧪 Tesztelés
+## 🏗️ Fejlesztési Útmutató
 
-### Teljes teszt suite (development)
+### Projekt Szerkezet
 
-```bash
-# Futtasd az összes tesztet
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest
-
-# Futtasd coverage-zel
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest --cov=neural_ai --cov-report=html
-
-# Futtasd specifikus tesztet
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/core/test_event_bus.py -v
+```
+neural-ai-next/
+├── .github/workflows/ci.yml          # Ruff, Mypy, Pyright, PyTest
+├── .github/workflows/deploy.yml      # Deploy staging/prod
+├── .github/CODEOWNERS                # Review requirements per layer
+├── .sops.yaml                        # SOPS rules
+├── docs/                             # SSOT + Generated docs
+├── neural_ai/                        # Source (DDD layers)
+├── tests/                            # Mirror structure
+├── scripts/                          # Install, deploy, generate
+├── deploy/                           # Systemd, scripts, configs
+├── configs/                          # YAML + SOPS
+├── data/                             # .gitignore
+├── models/                           # .gitignore
+├── .env.example                      # Template only
+├── pyproject.toml                    # Deps + tools
+├── README.md                         # This file
+├── LICENSE                           # MIT
+└── CHANGELOG.md
 ```
 
-### CI/CD teszt futtatás (skip external dependencies)
+### Branch Strategy
 
-**External dependency tesztek kihagyása:**
-```bash
-# AsyncPG (PostgreSQL) és JForex Bridge tesztek kihagyása
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -m "not external"
+```
+main (protected) ←── release/vX.Y.Z ←── develop ←── feature/*
+                        │
+                        └── hotfix/* (main-ből)
 ```
 
-**Singleton conflict tesztek kihagyása:**
-```bash
-# Database singleton test isolation issue tesztek kihagyása
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -m "not singleton_conflict"
-```
+### Collaboration Rules
 
-**Platform-specifikus tesztek kihagyása:**
-```bash
-# Windows-on Unix-specific tesztek kihagyása
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -m "not unix_only"
-```
-
-**Kombinált CI/CD config:**
-```bash
-# Production CI/CD környezet (skip external + singleton)
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest -m "not external and not singleton_conflict"
-```
-
-### Pytest Marker Leírások
-
-| Marker | Leírás | Tesztek száma | Skip Reason |
-|:---|:---|:---:|:---|
-| `external` | External dependency (asyncpg, JForex) | ~10 | Dependency nem elérhető CI/CD-ben |
-| `singleton_conflict` | Singleton + cached_property isolation | 11 | Test isolation technical limitation |
-| `unix_only` | Unix-specific platform teszt | ~5 | Platform compatibility |
-
-### Skipped Tesztek Dokumentáció
-
-**ADR Referenciák:**
-- Test isolation stratégia: [`docs/development/architecture/adr-007-test-isolation-strategy.md`](docs/development/architecture/adr-007-test-isolation-strategy.md)
-- Mock assertion best practices: [`docs/development/architecture/adr-008-mock-assertion-best-practices.md`](docs/development/architecture/adr-008-mock-assertion-best-practices.md)
-
-**Integration Test Coverage:**
-Az skipped unit tesztek funkcionalitása teljes mértékben lefedett:
-- Database singleton: [`scripts/bootstrap_integration_test.py`](scripts/bootstrap_integration_test.py)
-- JForex Bridge: Manual integration test (production környezet)
-- AsyncPG: PostgreSQL production deployment test
-
----
-
-## 📊 Technológiai Stack
-
-### Core Keretrendszer
-- **Python 3.12** - Modern async/await szintaxis
-- **Pydantic** - Adatvalidáció és beállításkezelés
-- **SQLAlchemy 2.0** - Async ORM típusbiztonsággal
-- **FastAPI** - Nagy teljesítményű API szerver
-
-### Adatfeldolgozás
-- **Polars** - Villámgyors DataFrame műveletek
-- **FastParquet** - Hatékony oszlopos tároló
-- **VectorBT Pro** - Backtesting és portfólió elemzés
-
-### AI/ML
-- **PyTorch 2.5.1** - Deep learning keretrendszer
-- **Lightning 2.5.5** - Tanítási orchestration
-- **CUDA 12.1** - GPU gyorsítás
-
-### Megfigyelhetőség
-- **structlog** - Strukturált JSON naplózás
-- **OpenTelemetry** - Elosztott nyomkövetés (tervezett)
-- **Prometheus** - Metrikagyűjtés (tervezett)
-
-### Üzenetküldés
-- **ZeroMQ** - Nagy teljesítményű esemény busz
-- **WebSockets** - Valós idejű kommunikáció
-- **Redis** - Gyorsítótár és pub/sub
-
-### Brókerek
-- **JForex** - Dukascopy (Bi5 + Java Híd)
-- **MT5** - MetaTrader 5 (FastAPI integráció)
-- **IBKR** - Interactive Brokers (TWS API)
-
----
-
-## 🏗️ Projekt Szerkezet
-
-### 📚 Core Komponensek Dokumentációja
-
-A teljes rendszer dokumentációja a forráskódból automatikusan generálva. Minden komponenshez tartozik részletes API dokumentáció a [`docs/components/`](docs/components/) mappában.
-
-#### 🏛️ Alaparchitektúra
-- **[Alap Komponensek Áttekintése](docs/components/core/base/index.md)** - DI Konténer, Factory, Interfészek
-  - [`factory.py`](docs/components/core/base/factory.md) - Abstract Factory Pattern
-  - [`implementations/`](docs/components/core/base/implementations/index.md) - DI Konténer, Komponens Csomag, Singleton, Lusta Betöltő
-  - [`interfaces/`](docs/components/core/base/interfaces/index.md) - Komponens & Konténer Interfészek
-  - [`exceptions/`](docs/components/core/base/exceptions/index.md) - Alap Hiba Osztályok
-
-#### ⚙️ Konfigurációs Rendszer
-- **[Konfiguráció Áttekintése](docs/components/core/config/index.md)** - Dinamikus & YAML Konfig Manager
-  - [`factory.py`](docs/components/core/config/factory.md) - Konfigurációs Factory
-  - [`implementations/`](docs/components/core/config/implementations/index.md) - Dinamikus & YAML Konfig Manager
-  - [`interfaces/`](docs/components/core/config/interfaces/index.md) - Konfig, Async Konfig & Factory Interfészek
-  - [`exceptions/`](docs/components/core/config/exceptions/index.md) - Konfigurációs Hibák
-
-#### 📝 Naplózó Keretrendszer
-- **[Naplózás Áttekintése](docs/components/core/logger/index.md)** - Strukturált Naplózó Rendszer
-  - [`factory.py`](docs/components/core/logger/factory.md) - Naplózó Factory
-  - [`implementations/`](docs/components/core/logger/implementations/index.md) - Színes, Alapértelmezett & Forgó Fájl Naplózók
-  - [`interfaces/`](docs/components/core/logger/interfaces/index.md) - Naplózó & Factory Interfészek
-  - [`formatters/`](docs/components/core/logger/formatters/index.md) - Napló Formázók
-  - [`exceptions/`](docs/components/core/logger/exceptions/index.md) - Naplózási Hibák
-
-#### 💾 Tároló Rendszer
-- **[Tároló Áttekintése](docs/components/core/storage/index.md)** - Parquet & Fájl Tároló
-  - [`factory.py`](docs/components/core/storage/factory.md) - Tároló Factory
-  - [`implementations/`](docs/components/core/storage/implementations/index.md) - Fájl & Parquet Tároló
-  - [`interfaces/`](docs/components/core/storage/interfaces/index.md) - Tároló & Factory Interfészek
-  - [`backends/`](docs/components/core/storage/backends/index.md) - Polars, Pandas & Alap Backend-ek
-  - [`exceptions/`](docs/components/core/storage/exceptions/index.md) - Tárolási Hibák
-
-#### 🗄️ Adatbázis Réteg
-- **[Adatbázis Áttekintése](docs/components/core/db/index.md)** - SQLAlchemy ORM & Modellek
-  - [`factory.py`](docs/components/core/db/factory.md) - Adatbázis Factory
-  - [`implementations/`](docs/components/core/db/implementations/index.md) - Modellek, Modell Alap & SQLAlchemy Session
-  - [`exceptions/`](docs/components/core/db/exceptions/index.md) - Adatbázis Hibák
-
-#### 📡 Esemény Rendszer
-- **[Esemény Rendszer Áttekintése](docs/components/core/events/index.md)** - ZeroMQ Esemény Busz
-  - [`factory.py`](docs/components/core/events/factory.md) - Esemény Busz Factory
-  - [`implementations/`](docs/components/core/events/implementations/index.md) - ZeroMQ Esemény Busz
-  - [`interfaces/`](docs/components/core/events/interfaces/index.md) - Esemény Busz Interfész & Esemény Modellek
-  - [`exceptions/`](docs/components/core/events/exceptions/index.md) - Esemény Hibák
-
-#### 🖥️ Rendszer Monitorozás
-- **[Rendszer Áttekintése](docs/components/core/system/index.md)** - Egészségügyi Monitorozás
-  - [`factory.py`](docs/components/core/system/factory.md) - Rendszer Factory
-  - [`implementations/`](docs/components/core/system/implementations/index.md) - Egészségügyi Monitor
-  - [`interfaces/`](docs/components/core/system/interfaces/index.md) - Egészségügyi Interfész
-
-#### 🛠️ Segédeszközök
-- **[Segédeszközök Áttekintése](docs/components/core/utils/index.md)** - Segédfunkciók & Hardver Info
-  - [`factory.py`](docs/components/core/utils/factory.md) - Segédeszközök Factory
-  - [`decorators.py`](docs/components/core/utils/decorators.md) - Segédeszköz Dekorátorok
-  - [`implementations/`](docs/components/core/utils/implementations/index.md) - Hardver Info
-  - [`interfaces/`](docs/components/core/utils/interfaces/index.md) - Hardver Interfész
-  - [`exceptions/`](docs/components/core/utils/exceptions/index.md) - Segédeszköz Hibák
-
-#### 🖥️ UI Komponensek
-- **[UI Architektúra](docs/components/ui/architecture.md)** - UI réteg architektúrája
-- **[Streamlit Dashboard](docs/components/ui/streamlit_app.md)** - Streamlit Dashboard Alkalmazás
-  - [`streamlit_app.py`](neural_ai/ui/streamlit_app.py) - Fő Streamlit alkalmazás
-  - [`app.py`](neural_ai/ui/app.py) - UI alkalmazás mag
-  - [`factory.py`](neural_ai/ui/factory.py) - UI szolgáltatások factory-ja
-  - [`services/`](neural_ai/ui/services/) - UI szolgáltatások
-  - [`interfaces/`](neural_ai/ui/interfaces/) - UI interfészek
-  - [`pages/`](neural_ai/ui/pages/) - Streamlit oldalak
-
----
-
-## 📈 Fejlesztési Fázisok
-
-### Fázis 1: Core Infrastruktúra (85% Kész)
-- ✅ DI Konténer
-- ✅ Konfigurációs Rendszer
-- ✅ Naplózó Keretrendszer
-- ✅ Alap Interfészek
-- 🚧 Esemény Busz
-- 🔴 Adatbázis Réteg
-- 🔴 Parquet Tároló
-
-### Fázis 2: Adatgyűjtők (10% Kész)
-- 🔴 JForex Bi5 Letöltő
-- 🔴 MT5 FastAPI Szerver
-- 🔴 Java-Python Híd
-- 🔴 IBKR TWS Integráció
-
-### Fázis 3: AI/ML Folyamat (0% Kész)
-- 🔴 Hierarchikus Modellek
-- 🔴 Feature Feldolgozók
-- 🔴 Tanítási Folyamat
-- 🔴 Inferencia Motor
-
-### Fázis 4: Stratégia Motor (0% Kész)
-- 🔴 Backtesting Keretrendszer
-- 🔴 Kockázatkezelés
-- 🔴 Végrehajtási Motor
-- 🔴 Teljesítmény Monitorozás
-
-**Összesített Haladás:** 35% [███████░░░░░░░░░░░░░]
-
----
-
-## 🤝 Közreműködés
-
-Ez egy tulajdonosi intézményi kereskedelmi rendszer. Minden közreműködéshez szükséges:
-
-1. **Architektúra Felülvizsgálat** - Minden változtatásnak a specifikációkhoz kell igazodnia
-2. **100% Tesztlefedettség** - Nincs kód merge teszt nélkül
-3. **Dokumentáció** - Tükördokumentáció minden komponenshez
-4. **Kód Felülvizsgálat** - Szenior architekt jóváhagyása szükséges
-
-### Fejlesztési Munkafolyamat
-
-```bash
-# 1. Hozz létre feature branch-et
-git checkout -b feature/your-feature
-
-# 2. Implementáld a változtatásokat (kövesd a specifikációkat)
-# 3. Írj teszteket
-# 4. Frissítsd a dokumentációt (tükörszerkezet)
-# 5. Futtasd a lintet
-/home/elynea/miniconda3/envs/neural-ai-next/bin/ruff check
-
-# 6. Futtasd a teszteket
-/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest
-
-# 7. Commit (atomic commit-ok kötelezőek)
-git add .
-git commit -m "feat(scope): leírás"
-
-# 8. Push és PR létrehozása
-git push origin feature/your-feature
-```
+1. **Code Owners** – review requirements per layer
+2. **Conventional Commits** – `feat(processor): add d3 trend logic`
+3. **Atomic Commits** – 1 logikai változás = 1 commit
+4. **QA Gate** – PR nem merge-elhető ha nem zöld: Ruff + Mypy + Pyright + PyTest
+5. **Documentation** – Mirror docs kötelező (`docs/components/...`)
 
 ---
 
@@ -483,15 +222,15 @@ git push origin feature/your-feature
 - **Architektúra Kérdések:** Lásd [Rendszer Specifikációk](docs/planning/specs/)
 - **AI Modell Kérdések:** Lásd [Hierarchikus Szerkezet](docs/models/hierarchical/structure.md)
 - **Feldolgozó Kérdések:** Lásd [Dimenzió Áttekintés](docs/processors/dimensions/overview.md)
-- **Fejlesztési Kérdések:** Lásd [Fejlesztési Útmutató](docs/development/unified_development_guide.md)
+- **Fejlesztési Kérdések:** Lásd [Architektúra Szabványok](docs/development/architecture_standards.md) és [Custom Instructions](docs/development/custom-instructions.md)
 
 ---
 
 ## 📄 Licenc
 
-**Tulajdonosi & Bizalmas** - Neural AI Next v1.0.0
+**MIT License** - Neural AI Next v1.0.0
 
-© 2025 Neural AI Next. Minden jog fenntartva.
+© 2026 Neural AI Next. Minden jog fenntartva.
 
 ---
 
@@ -511,4 +250,4 @@ Intézményi szintű mérnöki gyakorlatokkal építve:
 
 ---
 
-**Státusz:** 🟡 Architektúra Fázis | **Utoljára Frissítve:** 2025-12-24 | **Verzió:** 1.0.0
+**Státusz:** 🟢 Foundation Phase (95.1% SECURE) | **Utoljára Frissítve:** 2026-08-11 | **Verzió:** 1.0.0
