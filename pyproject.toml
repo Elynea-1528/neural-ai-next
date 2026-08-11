@@ -59,6 +59,8 @@ dependencies = [
     
     # Data processing
     "polars>=0.20.0",
+    "pyarrow>=14.0.0",           # Parquet engine (PolarsBackend)
+    "fastparquet>=2024.2.0",     # Parquet fallback engine (PandasBackend)
     
     # Utilities
     "packaging>=23.1",
@@ -189,6 +191,7 @@ markers = [
     "unit: Unit tests",
     "integration: Integration tests",
     "asyncio: AsyncIO tests",
+    "slow: Lassú (hosszú futású) tesztek",
 ]
 
 [tool.coverage.run]
