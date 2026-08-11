@@ -1,8 +1,25 @@
-# NEURAL AI NEXT - AGENTS.md v8.1 (PROFI SZINT)
+# NEURAL AI NEXT - AGENTS.md v8.2 (PROFI SZINT)
 
 Ez a fájl a Neural AI Next projekt **ALAPTÖRVÉNYE**. Minden AI agentnek (legyen az ember vagy mesterséges intelligencia) kötelező betartania. A szabályoktól való eltérés azonnali `Build Failure`-t vagy Code Review elutasítást von maga után.
 
 **Rendszer filozófia:** "High Performance, Strict Typing, Loose Coupling"
+
+## 📚 SSOT - AZ IGAZSÁG FORRÁSAI (KÖTELEZŐ OLVASMÁNY)
+
+Minden_agentnek (Architect, Orchestrator, Code, QA, stb.) **KÖTELEZŐEN** olvasnia kell ezeket a dokumentumokat mielőbb bármilyen feladatot vállal:
+
+1. `ARCHITECTURE_DECISIONS.md` - **TERMÉK VÍZIÓ, DÖNTÉSEK, ROADMAP, FELHASZNÁLÁSI ÚTMUTATÓ** (ÚJ - MASTER SSOT)
+2. `docs/processors/dimensions/overview.md` - Matematikai definíciók (D1-D15)
+3. `docs/planning/technical_design/01_processor_architecture.md` - Rendszerterv (Pipeline L0-L4)
+4. `docs/models/hierarchical/structure.md` - AI modell bemeneti igények (6 rétegű piramis)
+5. `docs/architecture/hierarchical_system/overview.md` - Logikai hierarchia (L1-L6)
+6. `docs/development/architecture_standards.md` - Kódolási törvény (v4.0)
+7. `docs/development/custom-instructions.md` - Működési protokoll (v8.0)
+8. `docs/development/TASK_TREE.md` - Aktuális állapot és Dashboard (v2.0)
+
+**MINDEN AGENS KÖTELEZŐEN OLVASSA EZEKET A DOKUMENTUMOKAT A FELADAT KEZDETE ELŐTT.**
+
+---
 
 ## 🇭🇺 NYELVI PROTOKOLL (KÖTELEZŐ)
 - **Minden** kommunikáció (Chat, Commit, Docstring, Komment, Answer, Thinking, Task, Task Tree) **MAGYAR**.
@@ -13,6 +30,73 @@ Ez a fájl a Neural AI Next projekt **ALAPTÖRVÉNYE**. Minden AI agentnek (legy
 - **Stack:** Python 3.12, Polars, PyTorch 2.5.1 (CUDA:12.1), Lightning 2.5.5, VectorBT Pro, FastParquet.
 - **Forrás:** Dukascopy (Native .bi5 decoding), MT5, IBKR.
 - **Architektúra:** Domain-Driven Design (DDD), Eseményvezérelt (ZeroMQ/AsyncIO), Adatbázis-Első.
+
+## 🤔 THINKING BEFORE TOOLS (KRITIKUS!)
+
+**TILOS** tool-t használni átgondolás nélkül!
+
+### Gyors Checklist (MINDEN tool előtt)
+
+Minden tool használat előtt **MENTÁLISAN** futtasd le ezt a checklistet:
+
+```
+[ ] Abszolút útvonal? (pl. `/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest`)
+[ ] Paraméterek helyesek? (pl. `-n auto` → van pytest-xdist?)
+[ ] Working directory? (`/home/elynea/Dokumentumok/neural-ai-next`)
+[ ] Timeout elegendő? (Complex: 300s+, Simple: 60s)
+[ ] Van dependency? (Tool függőségek telepítve?)
+[ ] Projekt szabványok? (rules.md:278-284 betartva?)
+```
+
+### Komplex Tool-ok (execute_command, write_to_file, replace_in_file)
+
+**KÖTELEZŐ** explicit reasoning ezekhez:
+
+```python
+"""
+Reasoning (KOMPLEX TOOL):
+1. ✅/❌ Abszolút útvonal: /home/elynea/.../bin/pytest
+2. ✅/❌ Paraméterek: -n auto (pytest-xdist van?)
+3. ✅/❌ Working directory: /home/elynea/Dokumentumok/neural-ai-next
+4. ✅/❌ Timeout: 300s (integration → elég?)
+5. ✅/❌ Dependencies: pytest-xdist telepítve?
+6. ✅/❌ Szabványok: rules.md:278-284 betartva?
+"""
+<tool_use name="execute_command">
+...
+</tool_use>
+```
+
+### ❌ TILOS Minták (Anti-Patterns)
+
+```bash
+# ❌ ROSSZ: Relatív útvonal, hiányzó paraméterek
+pytest tests/ -n auto
+
+# ❌ ROSSZ: conda activate (nem interaktív shell)
+conda activate neural-ai-next && pytest
+
+# ✅ JÓ: Teljes, explicit, ellenőrzött
+"""
+Reasoning:
+1. ✅ Abszolút: /home/elynea/.../bin/pytest
+2. ✅ -n auto: pytest-xdist van
+3. ✅ CWD: neural-ai-next root
+4. ✅ Timeout: 300s
+5. ✅ Dependency: OK
+6. ✅ Szabvány: OK
+"""
+/home/elynea/miniconda3/envs/neural-ai-next/bin/pytest tests/ -n auto -v
+```
+
+### 🚨 KRITIKUS SZABÁLY
+
+**Ha 5 másodperc alatt nem tudod validálni → NE HASZNÁLD A TOOL-T!**
+
+Alternatívák:
+- **Egyszerű tool** (read_file, list_files) → Csak checklist
+- **Komplex tool** (execute_command, write_to_file) → **Reasoning KÖTELEZŐ**
+- **Bizonytalan?** → Delegálj (Reader/Search) vagy Kérdezz
 
 ## 🤔 THINKING BEFORE TOOLS (KRITIKUS!)
 

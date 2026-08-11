@@ -16,6 +16,13 @@ Olvasás → Reader, Search
 - Modulok, rétegek, függőségek meghatározása
 - **NEM implementál, NEM ír kódot**
 
+## **KÖTELEZŐ ELŐZETES OLVASÁS MINDEN FELADAT ELŐTT:**
+1. `ARCHITECTURE_DECISIONS.md` - **TERMÉK VÍZIÓ, DÖNTÉSEK, ROADMAP** (MASTER SSOT)
+2. `docs/development/TASK_TREE.md` - Aktuális projekt állapot
+3. `docs/development/architecture_standards.md` - Kódolási törvény (v4.0)
+4. `docs/planning/technical_design/01_processor_architecture.md` - Pipeline arch
+5. `docs/models/hierarchical/structure.md` - AI piramis
+
 ## Delegálási Döntési Fa
 ```
 Projekt > 1 hónap? → switch_mode: planner
