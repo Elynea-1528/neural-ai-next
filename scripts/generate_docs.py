@@ -9,11 +9,13 @@ Ez a script AST-alapú elemzéssel generál részletes, profi szintű dokumentá
 - Tükör struktúra: root, scripts, neural_ai mappák
 """
 
+from __future__ import annotations
+
 import ast
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, List
 
 
 @dataclass
@@ -33,11 +35,11 @@ class FunctionInfo:
     name: str
     signature: str
     docstring: str | None = None
-    parameters: list[Parameter] = field(default_factory=list)
+    parameters: List[Parameter] = field(default_factory=lambda: [])
     return_type: str | None = None
     return_description: str | None = None
-    raises: list[tuple[str, str]] = field(default_factory=list)
-    examples: list[str] = field(default_factory=list)
+    raises: List[tuple[str, str]] = field(default_factory=lambda: [])
+    examples: List[str] = field(default_factory=lambda: [])
     is_async: bool = False
 
 
@@ -47,9 +49,9 @@ class ClassInfo:
 
     name: str
     docstring: str | None = None
-    bases: list[str] = field(default_factory=list)
-    methods: list[FunctionInfo] = field(default_factory=list)
-    attributes: list[tuple[str, str | None]] = field(default_factory=list)
+    bases: List[str] = field(default_factory=lambda: [])
+    methods: List[FunctionInfo] = field(default_factory=lambda: [])
+    attributes: List[tuple[str, str | None]] = field(default_factory=lambda: [])
 
 
 @dataclass
@@ -58,10 +60,10 @@ class ModuleInfo:
 
     file_path: Path
     module_docstring: str | None = None
-    imports: list[str] = field(default_factory=list)
-    classes: list[ClassInfo] = field(default_factory=list)
-    functions: list[FunctionInfo] = field(default_factory=list)
-    constants: list[tuple[str, str | None]] = field(default_factory=list)
+    imports: List[str] = field(default_factory=lambda: [])
+    classes: List[ClassInfo] = field(default_factory=lambda: [])
+    functions: List[FunctionInfo] = field(default_factory=lambda: [])
+    constants: List[tuple[str, str | None]] = field(default_factory=lambda: [])
 
 
 class GoogleDocstringParser:

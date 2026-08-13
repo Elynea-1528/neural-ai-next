@@ -367,7 +367,7 @@ class MirrorChecker:
         # 1.1 Alternatív minta: test_<modul>_<fájlnév>.py (pytest collection error elkerülésére)
         # Példa: neural_ai/collectors/jforex/interfaces/downloader_interface.py ->
         #        tests/neural_ai/collectors/jforex/interfaces/test_jforex_downloader_interface.py
-        if dir_parts:
+        if dir_parts and len(dir_parts) > 0:
             # Ha az utolsó mappa "interfaces", "implementations", "exceptions", vagy "backends",
             # akkor a szülő mappa nevét használjuk
             if (
