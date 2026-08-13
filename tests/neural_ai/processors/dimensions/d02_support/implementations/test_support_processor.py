@@ -16,13 +16,13 @@ from neural_ai.processors.dimensions.d02_support.implementations.support_process
 
 def _create_mock_config_dict(**kwargs: object) -> dict[str, object]:  # pyright: ignore[reportUnknownParameterType]
     """Helper: Mock config dict létrehozása ProcessorConfig mezőkkel.
-    
+
     A BaseDimensionProcessor ProcessorConfig(**raw_config) hívást vár,
     tehát dict-et kell visszaadnunk, nem Pydantic objektumot.
-    
+
     Args:
         **kwargs: ProcessorConfig mezők (pl. min_candles=5)
-        
+
     Returns:
         dict: Config dict a BaseDimensionProcessor számára
     """

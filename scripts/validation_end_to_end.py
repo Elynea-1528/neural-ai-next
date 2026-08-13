@@ -59,7 +59,9 @@ def download_data() -> bool:
             "2024-03-20",
         ]
 
-        result: subprocess.CompletedProcess[str] = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        result: subprocess.CompletedProcess[str] = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=300
+        )
 
         if result.returncode == 0:
             print("✅ Adat letöltés sikeres")
@@ -181,9 +183,15 @@ async def validate_d2_swing_engine() -> bool:
         # Komponensek lekérése és cast
         # A get_component visszatérési értéke Any, ezért castoljuk
         # A cast importálva van a modul elején
-        config: ConfigManagerInterface = cast(ConfigManagerInterface, bridge.get_component("config"))
-        logger: LoggerInterface = cast(LoggerInterface, bridge.get_component("logger"))
-        strategy_service: StrategyServiceInterface = cast(StrategyServiceInterface, bridge.get_component("strategy_service"))
+        config: ConfigManagerInterface = cast(
+            ConfigManagerInterface, bridge.get_component("config")
+        )
+        logger: LoggerInterface = cast(
+            LoggerInterface, bridge.get_component("logger")
+        )
+        strategy_service: StrategyServiceInterface = cast(
+            StrategyServiceInterface, bridge.get_component("strategy_service")
+        )
 
         if not all([config, logger, strategy_service]):
             print("❌ Szükséges komponensek nem elérhetőek (config, logger, strategy_service)")
@@ -222,8 +230,15 @@ async def validate_d2_swing_engine() -> bool:
         processed_df: pl.DataFrame = d2_processor.process(df, timeframe="1h")  # type: ignore
 
         # Új oszlopok ellenőrzése
-        expected_columns: list[str] = ["swing_high", "swing_low", "resistance", "support"]
-        missing_new_columns: list[str] = [col for col in expected_columns if col not in processed_df.columns]
+        expected_columns: list[str] = [
+            "swing_high",
+            "swing_low",
+            "resistance",
+            "support",
+        ]
+        missing_new_columns: list[str] = [
+            col for col in expected_columns if col not in processed_df.columns
+        ]
         if missing_new_columns:
             print(f"❌ Hiányzó D2 kimeneti oszlopok: {missing_new_columns}")
             return False
@@ -231,8 +246,8 @@ async def validate_d2_swing_engine() -> bool:
         print(f"✅ Minden D2 kimeneti oszlop jelen van: {expected_columns}")
 
         # Swing pontok ellenőrzése (boolean oszlopok, sum = True értékek száma)
-        swing_high_count: int = processed_df.select(pl.col("swing_high").sum()).item()  # type: ignore[misc]
-        swing_low_count: int = processed_df.select(pl.col("swing_low").sum()).item()  # type: ignore[misc]
+        swing_high_count: int = processed_df.select(pl.col("swing_high").sum()).item()
+        swing_low_count: int = processed_df.select(pl.col("swing_low").sum()).item()
 
         if swing_high_count == 0 and swing_low_count == 0:
             print("❌ Nincsenek swing pontok a feldolgozott adatokban")
@@ -272,7 +287,9 @@ async def validate_data() -> bool:
         # Core Bridge inicializálása és Strategy Service lekérése
         bridge: CoreBridge = CoreBridge()
         bridge.initialize()
-        strategy_service: StrategyServiceInterface = cast(StrategyServiceInterface, bridge.get_component("strategy_service"))
+        strategy_service: StrategyServiceInterface = cast(
+            StrategyServiceInterface, bridge.get_component("strategy_service")
+        )
 
         if not strategy_service:
             print("❌ Strategy Service nem elérhető")

@@ -16,7 +16,6 @@ import ast
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List
 
 
 @dataclass
@@ -37,7 +36,7 @@ class ModuleAudit:
 
     path: str
     layer: str  # "Infrastructure" | "Input" | "Persistence" | "Domain" | "Presentation"
-    issues: List[Issue] = field(default_factory=lambda: [])
+    issues: list[Issue] = field(default_factory=lambda: [])
     has_interfaces: bool = False
     has_implementations: bool = False
     has_exceptions: bool = False
@@ -386,7 +385,7 @@ class ArchitectureAuditor:
         print("🧪 Mirror Testing ellenőrzés...")
 
         py_files = list(self.neural_ai.rglob("*.py"))
-        missing_tests: List[str] = []
+        missing_tests: list[str] = []
 
         for py_file in py_files:
             # Kihagyjuk a __init__.py és test fájlokat

@@ -5,6 +5,7 @@ beleértve a singleton minta ellenőrzését és a DI kompatibilitást.
 """
 
 import threading
+
 from neural_ai.core.base.implementations.singleton import SingletonMeta
 
 
@@ -183,7 +184,7 @@ class TestSingletonMeta:
 
         # Minden példány ugyanaz kell legyen
         assert len(instances) == 10
-        assert len(set(id(i) for i in instances)) == 1  # Csak 1 egyedi példány
+        assert len({id(i) for i in instances}) == 1  # Csak 1 egyedi példány
 
     def test_singleton_reset_singleton_method(self) -> None:
         """Teszteli a reset_singleton metódust."""
@@ -215,7 +216,7 @@ class TestSingletonMeta:
         # Reset hívása olyan osztályra, ami nincs a _instances-ben
         # Ez nem okozhat hibát
         SingletonMeta.reset_singleton(TestClass)
-        
+
         # Ezután normálisan kell működnie
         obj = TestClass()
         assert obj.value == 42
@@ -252,7 +253,7 @@ class TestSingletonMeta:
         """Teszteli a reset_all metódust üres _instances-re."""
         # Ez nem okozhat hibát
         SingletonMeta.reset_all()
-        
+
         # Ezután normálisan kell működnie
         class TestClass(metaclass=SingletonMeta):
             def __init__(self) -> None:
@@ -312,20 +313,20 @@ class TestSingletonMeta:
         # Létrehozunk egy példányt (ez beállítja a _instance class változót)
         obj1 = TestClass()
         assert obj1.value == 42
-        
+
         # Ellenőrizzük hogy a _instance attribútum létezik az osztályon
         assert hasattr(TestClass, "_instance")
         assert TestClass._instance is obj1  # type: ignore[attr-defined]
-        
+
         # Manuálisan beállítjuk a _instance-t a metaclass-on is (line 112 coverage)
         SingletonMeta._instance = obj1  # type: ignore[attr-defined]
-        
+
         # Reset után a _instance None lesz (line 112 coverage)
         SingletonMeta.reset_singleton(TestClass)
-        
+
         # Ellenőrizzük hogy a metaclass _instance None lett
         assert SingletonMeta._instance is None  # type: ignore[attr-defined]
-        
+
         # Új példány létrehozása
         obj2 = TestClass()
         assert obj2.value == 42
@@ -333,12 +334,11 @@ class TestSingletonMeta:
 
     def test_singleton_reset_all_without_instances_attribute(self) -> None:
         """Teszteli a reset_all metódust amikor nincs _instances attribútum."""
-        
         # Eltávolítjuk a _instances attribútumot ha létezik
         if hasattr(SingletonMeta, "_instances"):
             original_instances = SingletonMeta._instances
             delattr(SingletonMeta, "_instances")
-            
+
             try:
                 # Ez nem okozhat hibát
                 SingletonMeta.reset_all()
@@ -359,15 +359,15 @@ class TestSingletonMeta:
         # Első ciklus
         obj1 = TestClass(1)
         assert obj1.value == 1
-        
+
         SingletonMeta.reset_singleton(TestClass)
-        
+
         # Második ciklus
         obj2 = TestClass(2)
         assert obj2.value == 2
-        
+
         SingletonMeta.reset_singleton(TestClass)
-        
+
         # Harmadik ciklus
         obj3 = TestClass(3)
         assert obj3.value == 3

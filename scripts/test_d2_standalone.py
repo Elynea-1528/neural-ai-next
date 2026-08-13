@@ -85,7 +85,7 @@ async def run_d2_test() -> None:
 
         # OHLCV adatok transzformálása a processor számára
         # A processor "high" és "low" oszlopokat vár a wick swingekhez
-        ohlcv = ohlcv.with_columns(  # type: ignore[union-attr]
+        ohlcv = ohlcv.with_columns(
             high=pl.col("bid_high"),
             low=pl.col("bid_low"),
             open=pl.col("bid_open"),
@@ -136,10 +136,10 @@ async def run_d2_test() -> None:
     print()
 
     # Swing pontok számlálása
-    swing_high_body_count = result["swing_high_body"].drop_nulls().len()  # type: ignore[misc]
-    swing_low_body_count = result["swing_low_body"].drop_nulls().len()  # type: ignore[misc]
-    swing_high_wick_count = result["swing_high_wick"].drop_nulls().len()  # type: ignore[misc]
-    swing_low_wick_count = result["swing_low_wick"].drop_nulls().len()  # type: ignore[misc]
+    swing_high_body_count = result["swing_high_body"].drop_nulls().len()
+    swing_low_body_count = result["swing_low_body"].drop_nulls().len()
+    swing_high_wick_count = result["swing_high_wick"].drop_nulls().len()
+    swing_low_wick_count = result["swing_low_wick"].drop_nulls().len()
 
     print("🎯 Swing pontok:")
     print(f"   Swing High Body: {swing_high_body_count}")

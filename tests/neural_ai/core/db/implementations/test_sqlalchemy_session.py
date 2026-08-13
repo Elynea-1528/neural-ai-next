@@ -1,3 +1,11 @@
+"""Tesztek a neural_ai.core.db.implementations.sqlalchemy_session modulhoz.
+
+# pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
+# SQLAlchemy async session fixture type hibák.
+
+Ez a modul tartalmazza az adatbázis session kezelő függvények és osztályok tesztjeit.
+"""
+
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -17,14 +25,6 @@ from neural_ai.core.db.implementations.sqlalchemy_session import (
     get_engine,
     init_db,
 )
-
-"""Tesztek a neural_ai.core.db.implementations.sqlalchemy_session modulhoz.
-
-# pyright: reportUnknownArgumentType=false, reportUnknownMemberType=false
-# SQLAlchemy async session fixture type hibák.
-
-Ez a modul tartalmazza az adatbázis session kezelő függvények és osztályok tesztjeit.
-"""
 
 """
 MOCK ASSERTION BEST PRACTICES:

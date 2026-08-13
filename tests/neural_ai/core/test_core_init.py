@@ -1,3 +1,8 @@
+"""Tesztek a neural_ai.core.__init__ modulhoz.
+
+Ez a modul teszteli a core csomag inicializálási logikáját.
+"""
+
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch

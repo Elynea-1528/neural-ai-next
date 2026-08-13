@@ -15,7 +15,7 @@ import ast
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
 
 @dataclass
@@ -35,11 +35,11 @@ class FunctionInfo:
     name: str
     signature: str
     docstring: str | None = None
-    parameters: List[Parameter] = field(default_factory=lambda: [])
+    parameters: list[Parameter] = field(default_factory=lambda: [])
     return_type: str | None = None
     return_description: str | None = None
-    raises: List[tuple[str, str]] = field(default_factory=lambda: [])
-    examples: List[str] = field(default_factory=lambda: [])
+    raises: list[tuple[str, str]] = field(default_factory=lambda: [])
+    examples: list[str] = field(default_factory=lambda: [])
     is_async: bool = False
 
 
@@ -49,9 +49,9 @@ class ClassInfo:
 
     name: str
     docstring: str | None = None
-    bases: List[str] = field(default_factory=lambda: [])
-    methods: List[FunctionInfo] = field(default_factory=lambda: [])
-    attributes: List[tuple[str, str | None]] = field(default_factory=lambda: [])
+    bases: list[str] = field(default_factory=lambda: [])
+    methods: list[FunctionInfo] = field(default_factory=lambda: [])
+    attributes: list[tuple[str, str | None]] = field(default_factory=lambda: [])
 
 
 @dataclass
@@ -60,10 +60,10 @@ class ModuleInfo:
 
     file_path: Path
     module_docstring: str | None = None
-    imports: List[str] = field(default_factory=lambda: [])
-    classes: List[ClassInfo] = field(default_factory=lambda: [])
-    functions: List[FunctionInfo] = field(default_factory=lambda: [])
-    constants: List[tuple[str, str | None]] = field(default_factory=lambda: [])
+    imports: list[str] = field(default_factory=lambda: [])
+    classes: list[ClassInfo] = field(default_factory=lambda: [])
+    functions: list[FunctionInfo] = field(default_factory=lambda: [])
+    constants: list[tuple[str, str | None]] = field(default_factory=lambda: [])
 
 
 class GoogleDocstringParser:
