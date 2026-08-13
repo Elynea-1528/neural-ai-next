@@ -123,5 +123,5 @@ class SingletonMeta(ABCMeta):
             - Thread-safe módon törli az összes bejegyzést
             - Nem okoz hibát, ha már üres
         """
-        if hasattr(cls, '_instances') and cls._instances is not None:
+        if hasattr(cls, '_instances'):
             cls._instances.clear()

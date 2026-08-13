@@ -94,9 +94,10 @@ class DataHubPage(PageInterface):
             symbols = ["EURUSD"]  # Fallback érték
 
         # Szimbólum szűrés
+        all_symbols: list[str | None] = [None] + symbols
         symbol_filter = st.selectbox(
             "Szimbólum szűrése",
-            options=[None] + symbols,  # type: ignore[arg-type]
+            options=all_symbols,
             format_func=lambda x: "Összes" if x is None else x,
         )
 

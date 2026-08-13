@@ -138,15 +138,15 @@ class DIContainer(DIContainerInterface, metaclass=SingletonMeta):
             Az interfészhez tartozó példány vagy None
         """
         if interface in self._instances:  # pyright: ignore[reportUnnecessaryContains]
-            instance = self._instances[interface]  # type: ignore[index]
+            instance = self._instances[interface]  # pyright: ignore[reportArgumentType]
             # Verify singleton pattern
             self._verify_singleton(instance, str(interface))
             return cast(InterfaceT, instance)
 
         if interface in self._factories:
-            factory = self._factories[interface]  # type: ignore[index]
+            factory = self._factories[interface]  # pyright: ignore[reportArgumentType]
             instance = factory()
-            self._instances[interface] = instance  # type: ignore[index]
+            self._instances[interface] = instance  # pyright: ignore[reportArgumentType]
             # Verify singleton pattern
             self._verify_singleton(instance, str(interface))
             return cast(InterfaceT, instance)
