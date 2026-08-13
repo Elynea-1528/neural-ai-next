@@ -9,13 +9,13 @@ Version: 1.0.0
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 # Any import removed - using object instead
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Eseménytípusok enumerációja."""
 
     MARKET_DATA = "market_data"

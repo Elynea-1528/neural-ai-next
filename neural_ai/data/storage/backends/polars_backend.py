@@ -38,8 +38,8 @@ class PolarsDataFrame:
         """Lazy import a polars és pyarrow csomagok számára."""
         if self._polars is None:
             import polars as pl
-            import pyarrow as pa  # type: ignore
-            import pyarrow.parquet as pq  # type: ignore
+            import pyarrow as pa
+            import pyarrow.parquet as pq
 
             self._polars = pl
             self._pyarrow = pa
