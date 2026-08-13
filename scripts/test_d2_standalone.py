@@ -81,11 +81,11 @@ async def run_d2_test() -> None:
 
         resampler = ResamplerServiceFactory.create(core.storage, core.logger)
         # Privát metódus használata - csak teszt célból
-        ohlcv = resampler._convert_to_ohlcv(df, "1h")  # type: ignore
+        ohlcv: pl.DataFrame = resampler._convert_to_ohlcv(df, "1h")  # type: ignore
 
         # OHLCV adatok transzformálása a processor számára
         # A processor "high" és "low" oszlopokat vár a wick swingekhez
-        ohlcv = ohlcv.with_columns(
+        ohlcv = ohlcv.with_columns(  # type: ignore[union-attr]
             high=pl.col("bid_high"),
             low=pl.col("bid_low"),
             open=pl.col("bid_open"),
@@ -117,7 +117,7 @@ async def run_d2_test() -> None:
         assert hasattr(processor, "_merge_levels"), "Hiányzó _merge_levels függvény"
         print("   ✅ Új függvények ellenőrizve")
 
-        result = processor.process(ohlcv, timeframe="H1")  # type: ignore[call-arg]
+        result: pl.DataFrame = processor.process(ohlcv, timeframe="H1")  # type: ignore[call-arg]
         print("   ✅ D2 processor sikeresen lefutott")
     except Exception as e:
         print(f"   ❌ Hiba a processor futtatásakor: {e}")
@@ -136,10 +136,10 @@ async def run_d2_test() -> None:
     print()
 
     # Swing pontok számlálása
-    swing_high_body_count = result["swing_high_body"].drop_nulls().len()
-    swing_low_body_count = result["swing_low_body"].drop_nulls().len()
-    swing_high_wick_count = result["swing_high_wick"].drop_nulls().len()
-    swing_low_wick_count = result["swing_low_wick"].drop_nulls().len()
+    swing_high_body_count = result["swing_high_body"].drop_nulls().len()  # type: ignore[misc]
+    swing_low_body_count = result["swing_low_body"].drop_nulls().len()  # type: ignore[misc]
+    swing_high_wick_count = result["swing_high_wick"].drop_nulls().len()  # type: ignore[misc]
+    swing_low_wick_count = result["swing_low_wick"].drop_nulls().len()  # type: ignore[misc]
 
     print("🎯 Swing pontok:")
     print(f"   Swing High Body: {swing_high_body_count}")

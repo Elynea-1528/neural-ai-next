@@ -37,8 +37,8 @@ def force_kill_processes() -> None:
 
     for proc in psutil.process_iter(attrs=["pid", "name", "cmdline"]):
         try:
-            pid = proc.info["pid"]
-            name = proc.info["name"] or ""
+            pid: int = proc.info["pid"]
+            name: str = proc.info["name"] or ""
             cmdline: list[str] = proc.info["cmdline"] or []
 
             # Skip saját folyamat
@@ -52,7 +52,7 @@ def force_kill_processes() -> None:
                 connections = proc.net_connections(kind="inet")
                 for conn in connections:
                     if hasattr(conn, "laddr") and conn.laddr:
-                        port = conn.laddr.port
+                        port: int = conn.laddr.port
                         if port in project_ports:
                             kill_reason = f"port használat: {port}"
                             break
@@ -61,8 +61,8 @@ def force_kill_processes() -> None:
 
             # Ha még nem találtunk okot, ellenőrizzük a nevet és cmdline-t
             if not kill_reason:
-                cmdline_str = " ".join(cmdline).lower()
-                name_lower = name.lower()
+                cmdline_str: str = " ".join(cmdline).lower()
+                name_lower: str = name.lower()
 
                 for keyword in name_keywords:
                     if keyword in name_lower or keyword in cmdline_str:

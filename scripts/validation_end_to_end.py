@@ -47,8 +47,8 @@ def download_data() -> bool:
 
     try:
         # Download szkript futtatása
-        script_path = Path(__file__).parent / "download_history.py"
-        cmd = [
+        script_path: Path = Path(__file__).parent / "download_history.py"
+        cmd: list[str] = [
             "/home/elynea/miniconda3/envs/neural-ai-next/bin/python",
             str(script_path),
             "--symbol",
@@ -59,7 +59,7 @@ def download_data() -> bool:
             "2024-03-20",
         ]
 
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        result: subprocess.CompletedProcess[str] = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
         if result.returncode == 0:
             print("✅ Adat letöltés sikeres")
@@ -87,8 +87,8 @@ def test_dashboard_startup() -> bool:
     try:
         # Először erőszakkal leállítjuk az esetleges zombi folyamatokat
         print("🔪 Zombi folyamatok leállítása...")
-        force_kill_path = Path(__file__).parent / "force_kill.py"
-        kill_result = subprocess.run(
+        force_kill_path: Path = Path(__file__).parent / "force_kill.py"
+        kill_result: subprocess.CompletedProcess[str] = subprocess.run(
             ["/home/elynea/miniconda3/envs/neural-ai-next/bin/python", str(force_kill_path)],
             capture_output=True,
             text=True,
@@ -100,8 +100,8 @@ def test_dashboard_startup() -> bool:
             print("✅ Folyamatok tisztítása sikeres")
 
         # Dashboard indítása headless-ben
-        main_path = Path(__file__).parent.parent / "main.py"
-        cmd = [
+        main_path: Path = Path(__file__).parent.parent / "main.py"
+        cmd: list[str] = [
             "/home/elynea/miniconda3/envs/neural-ai-next/bin/python",
             str(main_path),
             "dashboard",
@@ -109,7 +109,7 @@ def test_dashboard_startup() -> bool:
         ]
 
         # Indítás cwd-vel beállítva a projekt gyökerére
-        process = subprocess.Popen(
+        process: subprocess.Popen[str] = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -118,9 +118,9 @@ def test_dashboard_startup() -> bool:
         )
 
         # Ciklikus ellenőrzés: max 30 másodpercig várunk a port elérhetőségére
-        max_wait = 30
-        check_interval = 1
-        health_url = "http://localhost:8501/_stcore/health"
+        max_wait: int = 30
+        check_interval: int = 1
+        health_url: str = "http://localhost:8501/_stcore/health"
 
         for elapsed in range(0, max_wait, check_interval):
             # Ellenőrizzük, hogy a folyamat még fut-e
@@ -131,7 +131,7 @@ def test_dashboard_startup() -> bool:
 
             # Próbálunk kapcsolódni a health endpoint-hez
             try:
-                response = requests.get(health_url, timeout=2)
+                response: requests.Response = requests.get(health_url, timeout=2)
                 if response.status_code == 200:
                     print(f"✅ Dashboard sikeresen indult ({elapsed + check_interval}s)")
                     # Leállítjuk
@@ -153,7 +153,7 @@ def test_dashboard_startup() -> bool:
         print("❌ Dashboard indítása timeout - port nem vált elérhetővé 30 másodpercen belül")
         if process.poll() is None:
             process.kill()
-            print("⚠️ Dashboard folyamat leállítva")
+
         return False
 
     except Exception as e:
@@ -175,15 +175,15 @@ async def validate_d2_swing_engine() -> bool:
         from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
         # Core Bridge inicializálása
-        bridge = CoreBridge()
+        bridge: CoreBridge = CoreBridge()
         bridge.initialize()
 
         # Komponensek lekérése és cast
         # A get_component visszatérési értéke Any, ezért castoljuk
         # A cast importálva van a modul elején
-        config = cast(ConfigManagerInterface, bridge.get_component("config"))
-        logger = cast(LoggerInterface, bridge.get_component("logger"))
-        strategy_service = cast(StrategyServiceInterface, bridge.get_component("strategy_service"))
+        config: ConfigManagerInterface = cast(ConfigManagerInterface, bridge.get_component("config"))
+        logger: LoggerInterface = cast(LoggerInterface, bridge.get_component("logger"))
+        strategy_service: StrategyServiceInterface = cast(StrategyServiceInterface, bridge.get_component("strategy_service"))
 
         if not all([config, logger, strategy_service]):
             print("❌ Szükséges komponensek nem elérhetőek (config, logger, strategy_service)")
@@ -207,12 +207,12 @@ async def validate_d2_swing_engine() -> bool:
 
         # Oszlopnevek normalizálása (kisbetűsítés)
         df = df.clone()
-        rename_dict = {col: col.lower() for col in df.columns}
+        rename_dict: dict[str, str] = {col: col.lower() for col in df.columns}
         df = df.rename(rename_dict)
 
         # Szükséges oszlopok ellenőrzése
-        required_columns = ["timestamp", "bid_open", "bid_high", "bid_low", "bid_close"]
-        missing_columns = [col for col in required_columns if col not in df.columns]
+        required_columns: list[str] = ["timestamp", "bid_open", "bid_high", "bid_low", "bid_close"]
+        missing_columns: list[str] = [col for col in required_columns if col not in df.columns]
         if missing_columns:
             print(f"❌ Hiányzó kötelező oszlopok: {missing_columns}")
             return False
@@ -222,8 +222,8 @@ async def validate_d2_swing_engine() -> bool:
         processed_df: pl.DataFrame = d2_processor.process(df, timeframe="1h")  # type: ignore
 
         # Új oszlopok ellenőrzése
-        expected_columns = ["swing_high", "swing_low", "resistance", "support"]
-        missing_new_columns = [col for col in expected_columns if col not in processed_df.columns]
+        expected_columns: list[str] = ["swing_high", "swing_low", "resistance", "support"]
+        missing_new_columns: list[str] = [col for col in expected_columns if col not in processed_df.columns]
         if missing_new_columns:
             print(f"❌ Hiányzó D2 kimeneti oszlopok: {missing_new_columns}")
             return False
@@ -231,8 +231,8 @@ async def validate_d2_swing_engine() -> bool:
         print(f"✅ Minden D2 kimeneti oszlop jelen van: {expected_columns}")
 
         # Swing pontok ellenőrzése (boolean oszlopok, sum = True értékek száma)
-        swing_high_count = processed_df.select(pl.col("swing_high").sum()).item()
-        swing_low_count = processed_df.select(pl.col("swing_low").sum()).item()
+        swing_high_count: int = processed_df.select(pl.col("swing_high").sum()).item()  # type: ignore[misc]
+        swing_low_count: int = processed_df.select(pl.col("swing_low").sum()).item()  # type: ignore[misc]
 
         if swing_high_count == 0 and swing_low_count == 0:
             print("❌ Nincsenek swing pontok a feldolgozott adatokban")
@@ -241,8 +241,8 @@ async def validate_d2_swing_engine() -> bool:
         print(f"✅ Swing pontok megtalálva: {swing_high_count} high, {swing_low_count} low")
 
         # Support/Resistance szintek ellenőrzése (placeholder: None értékek elfogadottak)
-        resistance_present = "resistance" in processed_df.columns
-        support_present = "support" in processed_df.columns
+        resistance_present: bool = "resistance" in processed_df.columns
+        support_present: bool = "support" in processed_df.columns
 
         if not resistance_present or not support_present:
             print("❌ Hiányzó resistance vagy support oszlop")
@@ -270,9 +270,9 @@ async def validate_data() -> bool:
         from neural_ai.ui.interfaces.strategy_service_interface import StrategyServiceInterface
 
         # Core Bridge inicializálása és Strategy Service lekérése
-        bridge = CoreBridge()
+        bridge: CoreBridge = CoreBridge()
         bridge.initialize()
-        strategy_service = cast(StrategyServiceInterface, bridge.get_component("strategy_service"))
+        strategy_service: StrategyServiceInterface = cast(StrategyServiceInterface, bridge.get_component("strategy_service"))
 
         if not strategy_service:
             print("❌ Strategy Service nem elérhető")
@@ -294,7 +294,7 @@ async def validate_data() -> bool:
         df = df.rename({col: col.lower() for col in df.columns})
 
         # Kötelező oszlopok ellenőrzése
-        required_columns = [
+        required_columns: list[str] = [
             "timestamp",
             "bid_open",
             "bid_high",
@@ -302,13 +302,13 @@ async def validate_data() -> bool:
             "bid_close",
             "mid_close",
         ]
-        missing_columns = [col for col in required_columns if col not in df.columns]
+        missing_columns: list[str] = [col for col in required_columns if col not in df.columns]
         if missing_columns:
             print(f"❌ Hiányzó kötelező oszlopok: {missing_columns}")
             return False
 
         # Új oszlopok ellenőrzése
-        new_columns = [
+        new_columns: list[str] = [
             "mid_open",
             "mid_high",
             "mid_low",
@@ -319,7 +319,7 @@ async def validate_data() -> bool:
             "bid_volume",
             "ask_volume",
         ]
-        missing_new_columns = [col for col in new_columns if col not in df.columns]
+        missing_new_columns: list[str] = [col for col in new_columns if col not in df.columns]
         if missing_new_columns:
             print(f"❌ Hiányzó új oszlopok: {missing_new_columns}")
             return False
@@ -330,7 +330,7 @@ async def validate_data() -> bool:
 
         # Spread ellenőrzése: nem NaN, nem 0
         if "spread" in df.columns:
-            spread_values = df["spread"].drop_nulls()
+            spread_values: pl.Series = df["spread"].drop_nulls()
             if spread_values.is_empty():
                 print("❌ Spread oszlop üres vagy csak NaN értékek")
                 return False
@@ -341,7 +341,7 @@ async def validate_data() -> bool:
 
         # Z-Score ellenőrzése: nem NaN, nem 0
         if "rolling_z_score" in df.columns:
-            zscore_values = df["rolling_z_score"].drop_nulls()
+            zscore_values: pl.Series = df["rolling_z_score"].drop_nulls()
             if zscore_values.is_empty():
                 print("❌ Rolling Z-Score oszlop üres vagy csak NaN értékek")
                 return False
@@ -351,10 +351,10 @@ async def validate_data() -> bool:
             print(f"✅ Z-Score értékek rendben (átlag: {zscore_values.mean():.6f})")  # type: ignore[str-bytes-safe]
 
         # Mid árak ellenőrzése
-        mid_columns = ["mid_open", "mid_high", "mid_low", "mid_close"]
+        mid_columns: list[str] = ["mid_open", "mid_high", "mid_low", "mid_close"]
         for col in mid_columns:
             if col in df.columns:
-                values = df[col].drop_nulls()
+                values: pl.Series = df[col].drop_nulls()
                 if values.is_empty() or (values == 0).all():
                     print(f"❌ {col} oszlop üres vagy csak 0 értékek")
                     return False
@@ -363,8 +363,8 @@ async def validate_data() -> bool:
         # Bid/Mid váltás szimuláció (adat szinten)
         # Ellenőrizzük, hogy a mid oszlopok különböznek a bid-től (ha van)
         if "bid_open" in df.columns and "mid_open" in df.columns:
-            bid_open = df["bid_open"]
-            mid_open = df["mid_open"]
+            bid_open: pl.Series = df["bid_open"]
+            mid_open: pl.Series = df["mid_open"]
             if (bid_open == mid_open).all():
                 print("⚠️ Figyelem: bid_open és mid_open azonos értékek (ez lehet normális)")
             else:
@@ -385,8 +385,8 @@ async def main() -> None:
     print("=" * 70)
     print()
 
-    success_count = 0
-    total_steps = 4
+    success_count: int = 0
+    total_steps: int = 4
 
     # 1. Adat letöltés
     if download_data():
