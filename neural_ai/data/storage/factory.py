@@ -147,7 +147,7 @@ class StorageFactory(StorageFactoryInterface):
 
         # EventBus hozzáadása a kwargs-hoz
         if event_bus is None:
-            event_bus_factory = EventBusFactory(logger, config)
+            event_bus_factory = EventBusFactory(logger)
             event_bus = event_bus_factory.create()
         kwargs["event_bus"] = event_bus
 
