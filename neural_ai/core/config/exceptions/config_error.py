@@ -168,3 +168,36 @@ class ConfigKeyError(ConfigError):
         self.key_path = key_path
         self.available_keys = available_keys or []
         super().__init__(message, error_code="CONFIG_KEY_ERROR")
+
+
+class SOPSDecryptError(ConfigLoadError):
+    """SOPS dekódolási hiba.
+
+    Akkor dobódik, ha a SOPS titkosított fájl dekódolása sikertelen.
+    Ez tartalmazhatja a SOPS binary hiányát, dekódolási hibákat vagy
+    érvénytelen SOPS fájl formátumot.
+
+    Attributes:
+        file_path: A SOPS fájl elérési útja.
+        sops_command: A futtatott SOPS parancs (debug célokra).
+        exit_code: A SOPS parancs kilépési kódja.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        file_path: str | None = None,
+        sops_command: str | None = None,
+        exit_code: int | None = None
+    ) -> None:
+        """Inicializálja a SOPSDecryptError kivételt.
+
+        Args:
+            message: A hibaüzenet részletes leírása.
+            file_path: A SOPS fájl elérési útja.
+            sops_command: A futtatott SOPS parancs.
+            exit_code: A SOPS parancs kilépési kódja.
+        """
+        self.sops_command = sops_command
+        self.exit_code = exit_code
+        super().__init__(message, file_path=file_path)

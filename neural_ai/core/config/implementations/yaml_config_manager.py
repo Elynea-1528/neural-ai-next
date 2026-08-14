@@ -709,3 +709,30 @@ class YAMLConfigManager(ConfigManagerInterface):
                     "Config mappa betöltési hiba", extra={"path": path, "error": str(e)}
                 )
             raise ConfigLoadError(f"Konfigurációs mappa betöltése sikertelen: {str(e)}") from e
+
+    def load_dict(self, data: dict[str, Any]) -> None:
+        """Betölti a konfigurációt egy dictionary-ből (már parse-olt YAML).
+
+        Ez lehetővé teszi, hogy a ConfigLoader által előkészített
+        dict-et közvetlenül betöltsük a YAMLConfigManager-be, elkerülve
+        a duplikált fájl olvasást.
+
+        Args:
+            data: Konfiguráció dictionary (namespace struktúra)
+
+        Raises:
+            ConfigLoadError: Ha az adat nem dictionary típusú
+
+        Example:
+            >>> loader = ConfigLoader()
+            >>> config_dict = loader.load("configs/")
+            >>> manager = YAMLConfigManager()
+            >>> manager.load_dict(config_dict)
+        """
+        self._config = self._ensure_dict(data)
+
+        if self._logger:
+            self._logger.info(
+                "Config betöltve dict-ből",
+                extra={"keys": len(self._config)},
+            )

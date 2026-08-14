@@ -76,6 +76,7 @@ class TestConfigExceptionsModuleExports:
             "ConfigValidationError",
             "ConfigTypeError",
             "ConfigKeyError",
+            "SOPSDecryptError",
         ]
         assert set(__all__) == set(expected_exports)
 

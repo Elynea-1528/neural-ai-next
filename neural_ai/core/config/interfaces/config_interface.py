@@ -48,6 +48,18 @@ class ConfigManagerInterface(ABC):
         """
 
     @abstractmethod
+    def load_dict(self, data: dict[str, Any]) -> None:
+        """Betölti a konfigurációt egy dictionary-ből (már parse-olt YAML).
+
+        Ez lehetővé teszi, hogy a ConfigLoader által előkészített
+        dict-et közvetlenül betöltsük a YAMLConfigManager-be, elkerülve
+        a duplikált fájl olvasást.
+
+        Args:
+            data: Konfiguráció dictionary (namespace struktúra)
+        """
+
+    @abstractmethod
     def validate(self, schema: dict[str, Any]) -> tuple[bool, dict[str, str] | None]:
         """Konfiguráció validálása séma alapján.
 

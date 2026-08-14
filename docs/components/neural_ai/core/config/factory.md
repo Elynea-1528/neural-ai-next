@@ -211,6 +211,85 @@ Támogatott aszinkron konfiguráció kezelő típusok lekérése.
 - Típus: `list[str]`
 - list[str]: A támogatott aszinkron típusok listája
 
+## Osztály: `ConfigLoaderFactory`
+
+Factory osztály a ConfigLoader létrehozásához.
+
+Ez a factory biztosítja a ConfigLoader példányok egységes létrehozását,
+lazy loading pattern alkalmazásával elkerülve a körkörös importokat.
+A ConfigLoader felelős a plain YAML és SOPS titkosított YAML fájlok betöltéséért.
+
+Attributes:
+    _loader_type: A betöltött ConfigLoader implementáció típusa.
+
+### Metódusok
+
+#### `_lazy_load_loader()`
+
+```python
+def _lazy_load_loader(cls) -> None
+```
+
+Lazy betölti a ConfigLoader implementációt.
+
+Ez a metódus biztosítja, hogy a konkrét implementáció csak akkor
+kerüljön betöltésre, amikor valóban szükség van rá, elkerülve a
+körkörös import problémákat.
+
+**Paraméterek:**
+
+- **`cls`**
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+#### `create_loader()`
+
+```python
+def create_loader(cls, logger: 'LoggerInterface | None' = None, sops_binary: str = 'sops') -> IConfigLoader
+```
+
+ConfigLoader példány létrehozása.
+
+A metódus létrehoz egy új ConfigLoader példányt a megadott paraméterekkel.
+A ConfigLoader képes plain YAML és SOPS titkosított YAML fájlok betöltésére.
+
+**Paraméterek:**
+
+- **`cls`**
+- **`logger`** (`'LoggerInterface | None'`) = `None`: Logger interfész a naplózáshoz (opcionális)
+- **`sops_binary`** (`str`) = `'sops'`: SOPS binary útvonala (default: "sops" a PATH-ból)
+
+**Visszatérési érték:**
+
+- Típus: `IConfigLoader`
+- IConfigLoader: A létrehozott ConfigLoader példány
+
+**Példa használat:**
+
+```python
+from neural_ai.core.config.factory import ConfigLoaderFactory
+
+# Alap használat
+loader = ConfigLoaderFactory.create_loader()
+config_dict = loader.load("configs/")
+
+# Custom SOPS binary
+loader = ConfigLoaderFactory.create_loader(sops_binary="/usr/local/bin/sops")
+
+# Logger-rel
+from neural_ai.core.logger.factory import LoggerFactory
+logger = LoggerFactory.get_logger(__name__)
+loader = ConfigLoaderFactory.create_loader(logger=logger)
+```
+
+**Kapcsolódó komponensek:**
+
+- [`IConfigLoader`](../../neural_ai/core/config/interfaces/config_loader_interface.py) - ConfigLoader interfész
+- [`ConfigLoader`](../../neural_ai/core/config/implementations/config_loader.py) - Konkrét implementáció
+- [`YAMLConfigManager`](../../neural_ai/core/config/implementations/yaml_config_manager.py) - Integráció pont
+
 ---
 
 **Forrásfájl:** [`neural_ai/core/config/factory.py`](../../neural_ai/core/config/factory.py)

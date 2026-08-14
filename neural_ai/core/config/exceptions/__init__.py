@@ -10,6 +10,7 @@ from neural_ai.core.config.exceptions.config_error import (
     ConfigSaveError,
     ConfigTypeError,
     ConfigValidationError,
+    SOPSDecryptError,
 )
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "ConfigValidationError",
     "ConfigTypeError",
     "ConfigKeyError",
+    "SOPSDecryptError",
 ]

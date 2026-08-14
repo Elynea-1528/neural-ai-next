@@ -132,8 +132,17 @@ def bootstrap_core(
     # Betöltjük a configs/ mappát vagy a megadott útvonalat
     path_to_load = config_path if config_path else "configs"
     try:
+        # LAZY IMPORT: ConfigLoader (Infrastructure Layer)
+        from neural_ai.core.config.implementations.config_loader import ConfigLoader
+
+        # Step 1: ConfigLoader - SOPS + Plain YAML betöltés
+        loader = ConfigLoader(logger=None, sops_binary="sops")
+        merged_config_dict = loader.load(path_to_load)
+
+        # Step 2: YAMLConfigManager - Dict betöltés
         config = ConfigManagerFactory.create_manager("yaml")
-        config.load_directory(path_to_load)
+        config.load_dict(merged_config_dict)  # ÚJ METÓDUS
+
         container.register_instance(ConfigManagerInterface, config)
     except Exception as e:
         from neural_ai.core.config.exceptions.config_error import ConfigLoadError

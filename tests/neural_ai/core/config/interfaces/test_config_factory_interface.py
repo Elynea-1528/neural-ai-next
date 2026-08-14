@@ -56,6 +56,10 @@ class DummyConfigManager(ConfigManagerInterface):
         """Betölti az összes YAML fájlt egy mappából namespaced struktúrába."""
         pass
 
+    def load_dict(self, data: dict[str, object]) -> None:
+        """Konfigurációt betölt egy szótárból."""
+        self._config = data
+
     def validate(self, schema: dict[str, object]) -> tuple[bool, dict[str, str] | None]:
         """Konfiguráció validálása séma alapján."""
         return True, None

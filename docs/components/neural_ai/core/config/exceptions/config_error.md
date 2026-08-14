@@ -204,6 +204,68 @@ Inicializálja a ConfigKeyError kivételt.
 
 - Típus: `None`
 
+## Osztály: `SOPSDecryptError(ConfigLoadError)`
+
+SOPS dekódolási hiba.
+
+Akkor dobódik, ha a SOPS titkosított fájl dekódolása sikertelen.
+Ez tartalmazhatja a SOPS binary hiányát, dekódolási hibákat vagy
+érvénytelen SOPS fájl formátumot.
+
+Attributes:
+    file_path: A SOPS fájl elérési útja.
+    sops_command: A futtatott SOPS parancs (debug célokra).
+    exit_code: A SOPS parancs kilépési kódja.
+
+### Metódusok
+
+#### `__init__()`
+
+```python
+def __init__(self, message: str, file_path: str | None = None, sops_command: str | None = None, exit_code: int | None = None) -> None
+```
+
+Inicializálja a SOPSDecryptError kivételt.
+
+**Paraméterek:**
+
+- **`self`**
+- **`message`** (`str`): A hibaüzenet részletes leírása.
+- **`file_path`** (`str | None`) = `None`: A SOPS fájl elérési útja.
+- **`sops_command`** (`str | None`) = `None`: A futtatott SOPS parancs.
+- **`exit_code`** (`int | None`) = `None`: A SOPS parancs kilépési kódja.
+
+**Visszatérési érték:**
+
+- Típus: `None`
+
+**Példa használat:**
+
+```python
+try:
+    loader.load_file("secrets.yaml.sops")
+except SOPSDecryptError as e:
+    print(f"Hiba: {e}")
+    print(f"Fájl: {e.file_path}")
+    print(f"Parancs: {e.sops_command}")
+    print(f"Exit code: {e.exit_code}")
+```
+
+**SOPS Telepítési Útmutató:**
+
+```bash
+# Ubuntu/Debian
+sudo apt install sops
+
+# macOS
+brew install sops
+
+# Manual (Binary letöltés)
+wget https://github.com/getsops/sops/releases/download/v3.8.1/sops-v3.8.1.linux.amd64
+sudo mv sops-v3.8.1.linux.amd64 /usr/local/bin/sops
+sudo chmod +x /usr/local/bin/sops
+```
+
 ---
 
 **Forrásfájl:** [`neural_ai/core/config/exceptions/config_error.py`](../../neural_ai/core/config/exceptions/config_error.py)

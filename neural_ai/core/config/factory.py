@@ -18,6 +18,7 @@ from neural_ai.core.config.interfaces.async_config_interface import (
     AsyncConfigManagerInterface,
 )
 from neural_ai.core.config.interfaces.config_interface import ConfigManagerInterface
+from neural_ai.core.config.interfaces.config_loader_interface import IConfigLoader
 from neural_ai.core.config.interfaces.factory_interface import (
     ConfigManagerFactoryInterface,
 )
@@ -321,3 +322,50 @@ class ConfigManagerFactory(ConfigManagerFactoryInterface):
         """
         cls._lazy_load_implementations()
         return list(cls._async_manager_types.keys())
+
+
+class ConfigLoaderFactory:
+    """Factory osztály a ConfigLoader létrehozásához.
+
+    Ez a factory biztosítja a ConfigLoader példányok egységes létrehozását,
+    lazy loading pattern alkalmazásával elkerülve a körkörös importokat.
+    """
+
+    _loader_type: type[IConfigLoader] | None = None
+
+    @classmethod
+    def _lazy_load_loader(cls) -> None:
+        """Lazy betölti a ConfigLoader implementációt.
+
+        Ez a metódus biztosítja, hogy a konkrét implementáció csak akkor
+        kerüljön betöltésre, amikor valóban szükség van rá.
+        """
+        if cls._loader_type is None:
+            from neural_ai.core.config.implementations.config_loader import (
+                ConfigLoader,
+            )
+            cls._loader_type = ConfigLoader
+
+    @classmethod
+    @trace
+    def create_loader(
+        cls,
+        logger: "LoggerInterface | None" = None,
+        sops_binary: str = "sops"
+    ) -> IConfigLoader:
+        """ConfigLoader példány létrehozása.
+
+        Args:
+            logger: Logger interfész a naplózáshoz (opcionális)
+            sops_binary: SOPS binary útvonala (default: "sops" a PATH-ból)
+
+        Returns:
+            IConfigLoader: A létrehozott ConfigLoader példány
+
+        Example:
+            >>> loader = ConfigLoaderFactory.create_loader()
+            >>> config_dict = loader.load("configs/")
+        """
+        cls._lazy_load_loader()
+        assert cls._loader_type is not None, "ConfigLoader nem lett betöltve"
+        return cls._loader_type(logger=logger, sops_binary=sops_binary)  # type: ignore[call-arg]
